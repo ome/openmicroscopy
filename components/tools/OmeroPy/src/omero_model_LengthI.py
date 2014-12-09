@@ -44,2286 +44,2286 @@ def noconversion(cfrom, cto):
 class LengthI(_omero_model.Length, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["AM:ANGSTROM"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["AM:CM"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["AM:DAM"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["AM:DM"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["AM:EXAM"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["AM:FM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["AM:FT"] = \
-        lambda: noconversion("AM", "FT")
-    CONVERSIONS["AM:GIGAM"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["AM:HM"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["AM:IN"] = \
-        lambda: noconversion("AM", "IN")
-    CONVERSIONS["AM:KM"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["AM:LI"] = \
-        lambda: noconversion("AM", "LI")
-    CONVERSIONS["AM:LY"] = \
-        lambda: noconversion("AM", "LY")
-    CONVERSIONS["AM:M"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["AM:MEGAM"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["AM:MI"] = \
-        lambda: noconversion("AM", "MI")
-    CONVERSIONS["AM:MICROM"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["AM:MM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["AM:NM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["AM:PC"] = \
-        lambda: noconversion("AM", "PC")
-    CONVERSIONS["AM:PETAM"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["AM:PIXEL"] = \
-        lambda: noconversion("AM", "PIXEL")
-    CONVERSIONS["AM:PM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["AM:PT"] = \
-        lambda: noconversion("AM", "PT")
-    CONVERSIONS["AM:REFERENCEFRAME"] = \
-        lambda: noconversion("AM", "REFERENCEFRAME")
-    CONVERSIONS["AM:TERAM"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["AM:THOU"] = \
-        lambda: noconversion("AM", "THOU")
-    CONVERSIONS["AM:UA"] = \
-        lambda: noconversion("AM", "UA")
-    CONVERSIONS["AM:YD"] = \
-        lambda: noconversion("AM", "YD")
-    CONVERSIONS["AM:YM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["AM:YOTTAM"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["AM:ZETTAM"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["AM:ZM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ANGSTROM:AM"] = \
+    CONVERSIONS["ANGSTROM:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("ANGSTROM", "ASTRONOMICALUNIT")
+    CONVERSIONS["ANGSTROM:ATTOMETER"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["ANGSTROM:CM"] = \
+    CONVERSIONS["ANGSTROM:CENTIMETER"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["ANGSTROM:DAM"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["ANGSTROM:DM"] = \
+    CONVERSIONS["ANGSTROM:DECIMETER"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["ANGSTROM:EXAM"] = \
+    CONVERSIONS["ANGSTROM:DEKAMETER"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["ANGSTROM:EXAMETER"] = \
         lambda value: (10 ** -28) * value
-    CONVERSIONS["ANGSTROM:FM"] = \
+    CONVERSIONS["ANGSTROM:FEMTOMETER"] = \
         lambda value: (10 ** 5) * value
     CONVERSIONS["ANGSTROM:FT"] = \
         lambda: noconversion("ANGSTROM", "FT")
-    CONVERSIONS["ANGSTROM:GIGAM"] = \
+    CONVERSIONS["ANGSTROM:GIGAMETER"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["ANGSTROM:HM"] = \
+    CONVERSIONS["ANGSTROM:HECTOMETER"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["ANGSTROM:IN"] = \
         lambda: noconversion("ANGSTROM", "IN")
-    CONVERSIONS["ANGSTROM:KM"] = \
+    CONVERSIONS["ANGSTROM:KILOMETER"] = \
         lambda value: (10 ** -13) * value
     CONVERSIONS["ANGSTROM:LI"] = \
         lambda: noconversion("ANGSTROM", "LI")
-    CONVERSIONS["ANGSTROM:LY"] = \
-        lambda: noconversion("ANGSTROM", "LY")
-    CONVERSIONS["ANGSTROM:M"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["ANGSTROM:MEGAM"] = \
+    CONVERSIONS["ANGSTROM:LIGHTYEAR"] = \
+        lambda: noconversion("ANGSTROM", "LIGHTYEAR")
+    CONVERSIONS["ANGSTROM:MEGAMETER"] = \
         lambda value: (10 ** -16) * value
+    CONVERSIONS["ANGSTROM:METER"] = \
+        lambda value: (10 ** -10) * value
     CONVERSIONS["ANGSTROM:MI"] = \
         lambda: noconversion("ANGSTROM", "MI")
-    CONVERSIONS["ANGSTROM:MICROM"] = \
+    CONVERSIONS["ANGSTROM:MICROMETER"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["ANGSTROM:MM"] = \
+    CONVERSIONS["ANGSTROM:MILLIMETER"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["ANGSTROM:NM"] = \
+    CONVERSIONS["ANGSTROM:NANOMETER"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["ANGSTROM:PC"] = \
-        lambda: noconversion("ANGSTROM", "PC")
-    CONVERSIONS["ANGSTROM:PETAM"] = \
+    CONVERSIONS["ANGSTROM:PARSEC"] = \
+        lambda: noconversion("ANGSTROM", "PARSEC")
+    CONVERSIONS["ANGSTROM:PETAMETER"] = \
         lambda value: (10 ** -25) * value
+    CONVERSIONS["ANGSTROM:PICOMETER"] = \
+        lambda value: (10 ** 2) * value
     CONVERSIONS["ANGSTROM:PIXEL"] = \
         lambda: noconversion("ANGSTROM", "PIXEL")
-    CONVERSIONS["ANGSTROM:PM"] = \
-        lambda value: (10 ** 2) * value
     CONVERSIONS["ANGSTROM:PT"] = \
         lambda: noconversion("ANGSTROM", "PT")
     CONVERSIONS["ANGSTROM:REFERENCEFRAME"] = \
         lambda: noconversion("ANGSTROM", "REFERENCEFRAME")
-    CONVERSIONS["ANGSTROM:TERAM"] = \
+    CONVERSIONS["ANGSTROM:TERAMETER"] = \
         lambda value: (10 ** -22) * value
     CONVERSIONS["ANGSTROM:THOU"] = \
         lambda: noconversion("ANGSTROM", "THOU")
-    CONVERSIONS["ANGSTROM:UA"] = \
-        lambda: noconversion("ANGSTROM", "UA")
     CONVERSIONS["ANGSTROM:YD"] = \
         lambda: noconversion("ANGSTROM", "YD")
-    CONVERSIONS["ANGSTROM:YM"] = \
+    CONVERSIONS["ANGSTROM:YOCTOMETER"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["ANGSTROM:YOTTAM"] = \
+    CONVERSIONS["ANGSTROM:YOTTAMETER"] = \
         lambda value: (10 ** -34) * value
-    CONVERSIONS["ANGSTROM:ZETTAM"] = \
+    CONVERSIONS["ANGSTROM:ZEPTOMETER"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["ANGSTROM:ZETTAMETER"] = \
         lambda value: (10 ** -31) * value
-    CONVERSIONS["ANGSTROM:ZM"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["CM:AM"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["CM:ANGSTROM"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["CM:DAM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["CM:DM"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["CM:EXAM"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["CM:FM"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["CM:FT"] = \
-        lambda: noconversion("CM", "FT")
-    CONVERSIONS["CM:GIGAM"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["CM:HM"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["CM:IN"] = \
-        lambda: noconversion("CM", "IN")
-    CONVERSIONS["CM:KM"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["CM:LI"] = \
-        lambda: noconversion("CM", "LI")
-    CONVERSIONS["CM:LY"] = \
-        lambda: noconversion("CM", "LY")
-    CONVERSIONS["CM:M"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["CM:MEGAM"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:ANGSTROM"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "ANGSTROM")
+    CONVERSIONS["ASTRONOMICALUNIT:ATTOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "ATTOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:CENTIMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "CENTIMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:DECIMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "DECIMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:DEKAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "DEKAMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:EXAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "EXAMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:FEMTOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "FEMTOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:FT"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "FT")
+    CONVERSIONS["ASTRONOMICALUNIT:GIGAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "GIGAMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:HECTOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "HECTOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:IN"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "IN")
+    CONVERSIONS["ASTRONOMICALUNIT:KILOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "KILOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:LI"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "LI")
+    CONVERSIONS["ASTRONOMICALUNIT:LIGHTYEAR"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "LIGHTYEAR")
+    CONVERSIONS["ASTRONOMICALUNIT:MEGAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "MEGAMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:METER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "METER")
+    CONVERSIONS["ASTRONOMICALUNIT:MI"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "MI")
+    CONVERSIONS["ASTRONOMICALUNIT:MICROMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "MICROMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:MILLIMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "MILLIMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:NANOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "NANOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:PARSEC"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "PARSEC")
+    CONVERSIONS["ASTRONOMICALUNIT:PETAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "PETAMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:PICOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "PICOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:PIXEL"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "PIXEL")
+    CONVERSIONS["ASTRONOMICALUNIT:PT"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "PT")
+    CONVERSIONS["ASTRONOMICALUNIT:REFERENCEFRAME"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "REFERENCEFRAME")
+    CONVERSIONS["ASTRONOMICALUNIT:TERAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "TERAMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:THOU"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "THOU")
+    CONVERSIONS["ASTRONOMICALUNIT:YD"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "YD")
+    CONVERSIONS["ASTRONOMICALUNIT:YOCTOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "YOCTOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:YOTTAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "YOTTAMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:ZEPTOMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "ZEPTOMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:ZETTAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "ZETTAMETER")
+    CONVERSIONS["ATTOMETER:ANGSTROM"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["CM:MI"] = \
-        lambda: noconversion("CM", "MI")
-    CONVERSIONS["CM:MICROM"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["CM:MM"] = \
-        lambda value: 10 * value
-    CONVERSIONS["CM:NM"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["CM:PC"] = \
-        lambda: noconversion("CM", "PC")
-    CONVERSIONS["CM:PETAM"] = \
+    CONVERSIONS["ATTOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("ATTOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["ATTOMETER:CENTIMETER"] = \
+        lambda value: (10 ** -16) * value
+    CONVERSIONS["ATTOMETER:DECIMETER"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["CM:PIXEL"] = \
-        lambda: noconversion("CM", "PIXEL")
-    CONVERSIONS["CM:PM"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["CM:PT"] = \
-        lambda: noconversion("CM", "PT")
-    CONVERSIONS["CM:REFERENCEFRAME"] = \
-        lambda: noconversion("CM", "REFERENCEFRAME")
-    CONVERSIONS["CM:TERAM"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["CM:THOU"] = \
-        lambda: noconversion("CM", "THOU")
-    CONVERSIONS["CM:UA"] = \
-        lambda: noconversion("CM", "UA")
-    CONVERSIONS["CM:YD"] = \
-        lambda: noconversion("CM", "YD")
-    CONVERSIONS["CM:YM"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["CM:YOTTAM"] = \
-        lambda value: (10 ** -26) * value
-    CONVERSIONS["CM:ZETTAM"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["CM:ZM"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DAM:AM"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DAM:ANGSTROM"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["DAM:CM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DAM:DM"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DAM:EXAM"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DAM:FM"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DAM:FT"] = \
-        lambda: noconversion("DAM", "FT")
-    CONVERSIONS["DAM:GIGAM"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DAM:HM"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DAM:IN"] = \
-        lambda: noconversion("DAM", "IN")
-    CONVERSIONS["DAM:KM"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DAM:LI"] = \
-        lambda: noconversion("DAM", "LI")
-    CONVERSIONS["DAM:LY"] = \
-        lambda: noconversion("DAM", "LY")
-    CONVERSIONS["DAM:M"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DAM:MEGAM"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DAM:MI"] = \
-        lambda: noconversion("DAM", "MI")
-    CONVERSIONS["DAM:MICROM"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DAM:MM"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DAM:NM"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DAM:PC"] = \
-        lambda: noconversion("DAM", "PC")
-    CONVERSIONS["DAM:PETAM"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DAM:PIXEL"] = \
-        lambda: noconversion("DAM", "PIXEL")
-    CONVERSIONS["DAM:PM"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DAM:PT"] = \
-        lambda: noconversion("DAM", "PT")
-    CONVERSIONS["DAM:REFERENCEFRAME"] = \
-        lambda: noconversion("DAM", "REFERENCEFRAME")
-    CONVERSIONS["DAM:TERAM"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DAM:THOU"] = \
-        lambda: noconversion("DAM", "THOU")
-    CONVERSIONS["DAM:UA"] = \
-        lambda: noconversion("DAM", "UA")
-    CONVERSIONS["DAM:YD"] = \
-        lambda: noconversion("DAM", "YD")
-    CONVERSIONS["DAM:YM"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DAM:YOTTAM"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DAM:ZETTAM"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["DAM:ZM"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DM:AM"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["DM:ANGSTROM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["DM:CM"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DM:DAM"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DM:EXAM"] = \
+    CONVERSIONS["ATTOMETER:DEKAMETER"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["DM:FM"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["DM:FT"] = \
-        lambda: noconversion("DM", "FT")
-    CONVERSIONS["DM:GIGAM"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["DM:HM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["DM:IN"] = \
-        lambda: noconversion("DM", "IN")
-    CONVERSIONS["DM:KM"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["DM:LI"] = \
-        lambda: noconversion("DM", "LI")
-    CONVERSIONS["DM:LY"] = \
-        lambda: noconversion("DM", "LY")
-    CONVERSIONS["DM:M"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DM:MEGAM"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["DM:MI"] = \
-        lambda: noconversion("DM", "MI")
-    CONVERSIONS["DM:MICROM"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["DM:MM"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DM:NM"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["DM:PC"] = \
-        lambda: noconversion("DM", "PC")
-    CONVERSIONS["DM:PETAM"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["DM:PIXEL"] = \
-        lambda: noconversion("DM", "PIXEL")
-    CONVERSIONS["DM:PM"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["DM:PT"] = \
-        lambda: noconversion("DM", "PT")
-    CONVERSIONS["DM:REFERENCEFRAME"] = \
-        lambda: noconversion("DM", "REFERENCEFRAME")
-    CONVERSIONS["DM:TERAM"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["DM:THOU"] = \
-        lambda: noconversion("DM", "THOU")
-    CONVERSIONS["DM:UA"] = \
-        lambda: noconversion("DM", "UA")
-    CONVERSIONS["DM:YD"] = \
-        lambda: noconversion("DM", "YD")
-    CONVERSIONS["DM:YM"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["DM:YOTTAM"] = \
-        lambda value: (10 ** -25) * value
-    CONVERSIONS["DM:ZETTAM"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["DM:ZM"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAM:AM"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["EXAM:ANGSTROM"] = \
-        lambda value: (10 ** 28) * value
-    CONVERSIONS["EXAM:CM"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAM:DAM"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["EXAM:DM"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAM:FM"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["EXAM:FT"] = \
-        lambda: noconversion("EXAM", "FT")
-    CONVERSIONS["EXAM:GIGAM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["EXAM:HM"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["EXAM:IN"] = \
-        lambda: noconversion("EXAM", "IN")
-    CONVERSIONS["EXAM:KM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["EXAM:LI"] = \
-        lambda: noconversion("EXAM", "LI")
-    CONVERSIONS["EXAM:LY"] = \
-        lambda: noconversion("EXAM", "LY")
-    CONVERSIONS["EXAM:M"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["EXAM:MEGAM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["EXAM:MI"] = \
-        lambda: noconversion("EXAM", "MI")
-    CONVERSIONS["EXAM:MICROM"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["EXAM:MM"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["EXAM:NM"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["EXAM:PC"] = \
-        lambda: noconversion("EXAM", "PC")
-    CONVERSIONS["EXAM:PETAM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["EXAM:PIXEL"] = \
-        lambda: noconversion("EXAM", "PIXEL")
-    CONVERSIONS["EXAM:PM"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["EXAM:PT"] = \
-        lambda: noconversion("EXAM", "PT")
-    CONVERSIONS["EXAM:REFERENCEFRAME"] = \
-        lambda: noconversion("EXAM", "REFERENCEFRAME")
-    CONVERSIONS["EXAM:TERAM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["EXAM:THOU"] = \
-        lambda: noconversion("EXAM", "THOU")
-    CONVERSIONS["EXAM:UA"] = \
-        lambda: noconversion("EXAM", "UA")
-    CONVERSIONS["EXAM:YD"] = \
-        lambda: noconversion("EXAM", "YD")
-    CONVERSIONS["EXAM:YM"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["EXAM:YOTTAM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["EXAM:ZETTAM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["EXAM:ZM"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["FM:AM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["FM:ANGSTROM"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["FM:CM"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["FM:DAM"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["FM:DM"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["FM:EXAM"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["FM:FT"] = \
-        lambda: noconversion("FM", "FT")
-    CONVERSIONS["FM:GIGAM"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["FM:HM"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["FM:IN"] = \
-        lambda: noconversion("FM", "IN")
-    CONVERSIONS["FM:KM"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["FM:LI"] = \
-        lambda: noconversion("FM", "LI")
-    CONVERSIONS["FM:LY"] = \
-        lambda: noconversion("FM", "LY")
-    CONVERSIONS["FM:M"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["FM:MEGAM"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["FM:MI"] = \
-        lambda: noconversion("FM", "MI")
-    CONVERSIONS["FM:MICROM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["FM:MM"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["FM:NM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["FM:PC"] = \
-        lambda: noconversion("FM", "PC")
-    CONVERSIONS["FM:PETAM"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["FM:PIXEL"] = \
-        lambda: noconversion("FM", "PIXEL")
-    CONVERSIONS["FM:PM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["FM:PT"] = \
-        lambda: noconversion("FM", "PT")
-    CONVERSIONS["FM:REFERENCEFRAME"] = \
-        lambda: noconversion("FM", "REFERENCEFRAME")
-    CONVERSIONS["FM:TERAM"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["FM:THOU"] = \
-        lambda: noconversion("FM", "THOU")
-    CONVERSIONS["FM:UA"] = \
-        lambda: noconversion("FM", "UA")
-    CONVERSIONS["FM:YD"] = \
-        lambda: noconversion("FM", "YD")
-    CONVERSIONS["FM:YM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["FM:YOTTAM"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["FM:ZETTAM"] = \
+    CONVERSIONS["ATTOMETER:EXAMETER"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["FM:ZM"] = \
+    CONVERSIONS["ATTOMETER:FEMTOMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ATTOMETER:FT"] = \
+        lambda: noconversion("ATTOMETER", "FT")
+    CONVERSIONS["ATTOMETER:GIGAMETER"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["ATTOMETER:HECTOMETER"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["ATTOMETER:IN"] = \
+        lambda: noconversion("ATTOMETER", "IN")
+    CONVERSIONS["ATTOMETER:KILOMETER"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["ATTOMETER:LI"] = \
+        lambda: noconversion("ATTOMETER", "LI")
+    CONVERSIONS["ATTOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("ATTOMETER", "LIGHTYEAR")
+    CONVERSIONS["ATTOMETER:MEGAMETER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["ATTOMETER:METER"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["ATTOMETER:MI"] = \
+        lambda: noconversion("ATTOMETER", "MI")
+    CONVERSIONS["ATTOMETER:MICROMETER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["ATTOMETER:MILLIMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["ATTOMETER:NANOMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["ATTOMETER:PARSEC"] = \
+        lambda: noconversion("ATTOMETER", "PARSEC")
+    CONVERSIONS["ATTOMETER:PETAMETER"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["ATTOMETER:PICOMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["ATTOMETER:PIXEL"] = \
+        lambda: noconversion("ATTOMETER", "PIXEL")
+    CONVERSIONS["ATTOMETER:PT"] = \
+        lambda: noconversion("ATTOMETER", "PT")
+    CONVERSIONS["ATTOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("ATTOMETER", "REFERENCEFRAME")
+    CONVERSIONS["ATTOMETER:TERAMETER"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["ATTOMETER:THOU"] = \
+        lambda: noconversion("ATTOMETER", "THOU")
+    CONVERSIONS["ATTOMETER:YD"] = \
+        lambda: noconversion("ATTOMETER", "YD")
+    CONVERSIONS["ATTOMETER:YOCTOMETER"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["FT:AM"] = \
-        lambda: noconversion("FT", "AM")
+    CONVERSIONS["ATTOMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -42) * value
+    CONVERSIONS["ATTOMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ATTOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["CENTIMETER:ANGSTROM"] = \
+        lambda value: (10 ** 8) * value
+    CONVERSIONS["CENTIMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("CENTIMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["CENTIMETER:ATTOMETER"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["CENTIMETER:DECIMETER"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["CENTIMETER:DEKAMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["CENTIMETER:EXAMETER"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["CENTIMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["CENTIMETER:FT"] = \
+        lambda: noconversion("CENTIMETER", "FT")
+    CONVERSIONS["CENTIMETER:GIGAMETER"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["CENTIMETER:HECTOMETER"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["CENTIMETER:IN"] = \
+        lambda: noconversion("CENTIMETER", "IN")
+    CONVERSIONS["CENTIMETER:KILOMETER"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["CENTIMETER:LI"] = \
+        lambda: noconversion("CENTIMETER", "LI")
+    CONVERSIONS["CENTIMETER:LIGHTYEAR"] = \
+        lambda: noconversion("CENTIMETER", "LIGHTYEAR")
+    CONVERSIONS["CENTIMETER:MEGAMETER"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["CENTIMETER:METER"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["CENTIMETER:MI"] = \
+        lambda: noconversion("CENTIMETER", "MI")
+    CONVERSIONS["CENTIMETER:MICROMETER"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["CENTIMETER:MILLIMETER"] = \
+        lambda value: 10 * value
+    CONVERSIONS["CENTIMETER:NANOMETER"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["CENTIMETER:PARSEC"] = \
+        lambda: noconversion("CENTIMETER", "PARSEC")
+    CONVERSIONS["CENTIMETER:PETAMETER"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["CENTIMETER:PICOMETER"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["CENTIMETER:PIXEL"] = \
+        lambda: noconversion("CENTIMETER", "PIXEL")
+    CONVERSIONS["CENTIMETER:PT"] = \
+        lambda: noconversion("CENTIMETER", "PT")
+    CONVERSIONS["CENTIMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("CENTIMETER", "REFERENCEFRAME")
+    CONVERSIONS["CENTIMETER:TERAMETER"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["CENTIMETER:THOU"] = \
+        lambda: noconversion("CENTIMETER", "THOU")
+    CONVERSIONS["CENTIMETER:YD"] = \
+        lambda: noconversion("CENTIMETER", "YD")
+    CONVERSIONS["CENTIMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["CENTIMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -26) * value
+    CONVERSIONS["CENTIMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["CENTIMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECIMETER:ANGSTROM"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["DECIMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("DECIMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["DECIMETER:ATTOMETER"] = \
+        lambda value: (10 ** 17) * value
+    CONVERSIONS["DECIMETER:CENTIMETER"] = \
+        lambda value: 10 * value
+    CONVERSIONS["DECIMETER:DEKAMETER"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DECIMETER:EXAMETER"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["DECIMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 14) * value
+    CONVERSIONS["DECIMETER:FT"] = \
+        lambda: noconversion("DECIMETER", "FT")
+    CONVERSIONS["DECIMETER:GIGAMETER"] = \
+        lambda value: (10 ** -10) * value
+    CONVERSIONS["DECIMETER:HECTOMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["DECIMETER:IN"] = \
+        lambda: noconversion("DECIMETER", "IN")
+    CONVERSIONS["DECIMETER:KILOMETER"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["DECIMETER:LI"] = \
+        lambda: noconversion("DECIMETER", "LI")
+    CONVERSIONS["DECIMETER:LIGHTYEAR"] = \
+        lambda: noconversion("DECIMETER", "LIGHTYEAR")
+    CONVERSIONS["DECIMETER:MEGAMETER"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["DECIMETER:METER"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["DECIMETER:MI"] = \
+        lambda: noconversion("DECIMETER", "MI")
+    CONVERSIONS["DECIMETER:MICROMETER"] = \
+        lambda value: (10 ** 5) * value
+    CONVERSIONS["DECIMETER:MILLIMETER"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DECIMETER:NANOMETER"] = \
+        lambda value: (10 ** 8) * value
+    CONVERSIONS["DECIMETER:PARSEC"] = \
+        lambda: noconversion("DECIMETER", "PARSEC")
+    CONVERSIONS["DECIMETER:PETAMETER"] = \
+        lambda value: (10 ** -16) * value
+    CONVERSIONS["DECIMETER:PICOMETER"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["DECIMETER:PIXEL"] = \
+        lambda: noconversion("DECIMETER", "PIXEL")
+    CONVERSIONS["DECIMETER:PT"] = \
+        lambda: noconversion("DECIMETER", "PT")
+    CONVERSIONS["DECIMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("DECIMETER", "REFERENCEFRAME")
+    CONVERSIONS["DECIMETER:TERAMETER"] = \
+        lambda value: (10 ** -13) * value
+    CONVERSIONS["DECIMETER:THOU"] = \
+        lambda: noconversion("DECIMETER", "THOU")
+    CONVERSIONS["DECIMETER:YD"] = \
+        lambda: noconversion("DECIMETER", "YD")
+    CONVERSIONS["DECIMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["DECIMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -25) * value
+    CONVERSIONS["DECIMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["DECIMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["DEKAMETER:ANGSTROM"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["DEKAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("DEKAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["DEKAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["DEKAMETER:CENTIMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["DEKAMETER:DECIMETER"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DEKAMETER:EXAMETER"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["DEKAMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["DEKAMETER:FT"] = \
+        lambda: noconversion("DEKAMETER", "FT")
+    CONVERSIONS["DEKAMETER:GIGAMETER"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["DEKAMETER:HECTOMETER"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["DEKAMETER:IN"] = \
+        lambda: noconversion("DEKAMETER", "IN")
+    CONVERSIONS["DEKAMETER:KILOMETER"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DEKAMETER:LI"] = \
+        lambda: noconversion("DEKAMETER", "LI")
+    CONVERSIONS["DEKAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("DEKAMETER", "LIGHTYEAR")
+    CONVERSIONS["DEKAMETER:MEGAMETER"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["DEKAMETER:METER"] = \
+        lambda value: 10 * value
+    CONVERSIONS["DEKAMETER:MI"] = \
+        lambda: noconversion("DEKAMETER", "MI")
+    CONVERSIONS["DEKAMETER:MICROMETER"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["DEKAMETER:MILLIMETER"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["DEKAMETER:NANOMETER"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["DEKAMETER:PARSEC"] = \
+        lambda: noconversion("DEKAMETER", "PARSEC")
+    CONVERSIONS["DEKAMETER:PETAMETER"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["DEKAMETER:PICOMETER"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["DEKAMETER:PIXEL"] = \
+        lambda: noconversion("DEKAMETER", "PIXEL")
+    CONVERSIONS["DEKAMETER:PT"] = \
+        lambda: noconversion("DEKAMETER", "PT")
+    CONVERSIONS["DEKAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("DEKAMETER", "REFERENCEFRAME")
+    CONVERSIONS["DEKAMETER:TERAMETER"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["DEKAMETER:THOU"] = \
+        lambda: noconversion("DEKAMETER", "THOU")
+    CONVERSIONS["DEKAMETER:YD"] = \
+        lambda: noconversion("DEKAMETER", "YD")
+    CONVERSIONS["DEKAMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["DEKAMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DEKAMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DEKAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["EXAMETER:ANGSTROM"] = \
+        lambda value: (10 ** 28) * value
+    CONVERSIONS["EXAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("EXAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["EXAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["EXAMETER:CENTIMETER"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["EXAMETER:DECIMETER"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["EXAMETER:DEKAMETER"] = \
+        lambda value: (10 ** 17) * value
+    CONVERSIONS["EXAMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["EXAMETER:FT"] = \
+        lambda: noconversion("EXAMETER", "FT")
+    CONVERSIONS["EXAMETER:GIGAMETER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["EXAMETER:HECTOMETER"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["EXAMETER:IN"] = \
+        lambda: noconversion("EXAMETER", "IN")
+    CONVERSIONS["EXAMETER:KILOMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["EXAMETER:LI"] = \
+        lambda: noconversion("EXAMETER", "LI")
+    CONVERSIONS["EXAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("EXAMETER", "LIGHTYEAR")
+    CONVERSIONS["EXAMETER:MEGAMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["EXAMETER:METER"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["EXAMETER:MI"] = \
+        lambda: noconversion("EXAMETER", "MI")
+    CONVERSIONS["EXAMETER:MICROMETER"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["EXAMETER:MILLIMETER"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["EXAMETER:NANOMETER"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["EXAMETER:PARSEC"] = \
+        lambda: noconversion("EXAMETER", "PARSEC")
+    CONVERSIONS["EXAMETER:PETAMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["EXAMETER:PICOMETER"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["EXAMETER:PIXEL"] = \
+        lambda: noconversion("EXAMETER", "PIXEL")
+    CONVERSIONS["EXAMETER:PT"] = \
+        lambda: noconversion("EXAMETER", "PT")
+    CONVERSIONS["EXAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("EXAMETER", "REFERENCEFRAME")
+    CONVERSIONS["EXAMETER:TERAMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["EXAMETER:THOU"] = \
+        lambda: noconversion("EXAMETER", "THOU")
+    CONVERSIONS["EXAMETER:YD"] = \
+        lambda: noconversion("EXAMETER", "YD")
+    CONVERSIONS["EXAMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 42) * value
+    CONVERSIONS["EXAMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["EXAMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["EXAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["FEMTOMETER:ANGSTROM"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["FEMTOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("FEMTOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["FEMTOMETER:ATTOMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["FEMTOMETER:CENTIMETER"] = \
+        lambda value: (10 ** -13) * value
+    CONVERSIONS["FEMTOMETER:DECIMETER"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["FEMTOMETER:DEKAMETER"] = \
+        lambda value: (10 ** -16) * value
+    CONVERSIONS["FEMTOMETER:EXAMETER"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["FEMTOMETER:FT"] = \
+        lambda: noconversion("FEMTOMETER", "FT")
+    CONVERSIONS["FEMTOMETER:GIGAMETER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["FEMTOMETER:HECTOMETER"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["FEMTOMETER:IN"] = \
+        lambda: noconversion("FEMTOMETER", "IN")
+    CONVERSIONS["FEMTOMETER:KILOMETER"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["FEMTOMETER:LI"] = \
+        lambda: noconversion("FEMTOMETER", "LI")
+    CONVERSIONS["FEMTOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("FEMTOMETER", "LIGHTYEAR")
+    CONVERSIONS["FEMTOMETER:MEGAMETER"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["FEMTOMETER:METER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["FEMTOMETER:MI"] = \
+        lambda: noconversion("FEMTOMETER", "MI")
+    CONVERSIONS["FEMTOMETER:MICROMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["FEMTOMETER:MILLIMETER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["FEMTOMETER:NANOMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["FEMTOMETER:PARSEC"] = \
+        lambda: noconversion("FEMTOMETER", "PARSEC")
+    CONVERSIONS["FEMTOMETER:PETAMETER"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["FEMTOMETER:PICOMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["FEMTOMETER:PIXEL"] = \
+        lambda: noconversion("FEMTOMETER", "PIXEL")
+    CONVERSIONS["FEMTOMETER:PT"] = \
+        lambda: noconversion("FEMTOMETER", "PT")
+    CONVERSIONS["FEMTOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("FEMTOMETER", "REFERENCEFRAME")
+    CONVERSIONS["FEMTOMETER:TERAMETER"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["FEMTOMETER:THOU"] = \
+        lambda: noconversion("FEMTOMETER", "THOU")
+    CONVERSIONS["FEMTOMETER:YD"] = \
+        lambda: noconversion("FEMTOMETER", "YD")
+    CONVERSIONS["FEMTOMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["FEMTOMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["FEMTOMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["FEMTOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -36) * value
     CONVERSIONS["FT:ANGSTROM"] = \
         lambda: noconversion("FT", "ANGSTROM")
-    CONVERSIONS["FT:CM"] = \
-        lambda: noconversion("FT", "CM")
-    CONVERSIONS["FT:DAM"] = \
-        lambda: noconversion("FT", "DAM")
-    CONVERSIONS["FT:DM"] = \
-        lambda: noconversion("FT", "DM")
-    CONVERSIONS["FT:EXAM"] = \
-        lambda: noconversion("FT", "EXAM")
-    CONVERSIONS["FT:FM"] = \
-        lambda: noconversion("FT", "FM")
-    CONVERSIONS["FT:GIGAM"] = \
-        lambda: noconversion("FT", "GIGAM")
-    CONVERSIONS["FT:HM"] = \
-        lambda: noconversion("FT", "HM")
+    CONVERSIONS["FT:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("FT", "ASTRONOMICALUNIT")
+    CONVERSIONS["FT:ATTOMETER"] = \
+        lambda: noconversion("FT", "ATTOMETER")
+    CONVERSIONS["FT:CENTIMETER"] = \
+        lambda: noconversion("FT", "CENTIMETER")
+    CONVERSIONS["FT:DECIMETER"] = \
+        lambda: noconversion("FT", "DECIMETER")
+    CONVERSIONS["FT:DEKAMETER"] = \
+        lambda: noconversion("FT", "DEKAMETER")
+    CONVERSIONS["FT:EXAMETER"] = \
+        lambda: noconversion("FT", "EXAMETER")
+    CONVERSIONS["FT:FEMTOMETER"] = \
+        lambda: noconversion("FT", "FEMTOMETER")
+    CONVERSIONS["FT:GIGAMETER"] = \
+        lambda: noconversion("FT", "GIGAMETER")
+    CONVERSIONS["FT:HECTOMETER"] = \
+        lambda: noconversion("FT", "HECTOMETER")
     CONVERSIONS["FT:IN"] = \
         lambda: noconversion("FT", "IN")
-    CONVERSIONS["FT:KM"] = \
-        lambda: noconversion("FT", "KM")
+    CONVERSIONS["FT:KILOMETER"] = \
+        lambda: noconversion("FT", "KILOMETER")
     CONVERSIONS["FT:LI"] = \
         lambda: noconversion("FT", "LI")
-    CONVERSIONS["FT:LY"] = \
-        lambda: noconversion("FT", "LY")
-    CONVERSIONS["FT:M"] = \
-        lambda: noconversion("FT", "M")
-    CONVERSIONS["FT:MEGAM"] = \
-        lambda: noconversion("FT", "MEGAM")
+    CONVERSIONS["FT:LIGHTYEAR"] = \
+        lambda: noconversion("FT", "LIGHTYEAR")
+    CONVERSIONS["FT:MEGAMETER"] = \
+        lambda: noconversion("FT", "MEGAMETER")
+    CONVERSIONS["FT:METER"] = \
+        lambda: noconversion("FT", "METER")
     CONVERSIONS["FT:MI"] = \
         lambda: noconversion("FT", "MI")
-    CONVERSIONS["FT:MICROM"] = \
-        lambda: noconversion("FT", "MICROM")
-    CONVERSIONS["FT:MM"] = \
-        lambda: noconversion("FT", "MM")
-    CONVERSIONS["FT:NM"] = \
-        lambda: noconversion("FT", "NM")
-    CONVERSIONS["FT:PC"] = \
-        lambda: noconversion("FT", "PC")
-    CONVERSIONS["FT:PETAM"] = \
-        lambda: noconversion("FT", "PETAM")
+    CONVERSIONS["FT:MICROMETER"] = \
+        lambda: noconversion("FT", "MICROMETER")
+    CONVERSIONS["FT:MILLIMETER"] = \
+        lambda: noconversion("FT", "MILLIMETER")
+    CONVERSIONS["FT:NANOMETER"] = \
+        lambda: noconversion("FT", "NANOMETER")
+    CONVERSIONS["FT:PARSEC"] = \
+        lambda: noconversion("FT", "PARSEC")
+    CONVERSIONS["FT:PETAMETER"] = \
+        lambda: noconversion("FT", "PETAMETER")
+    CONVERSIONS["FT:PICOMETER"] = \
+        lambda: noconversion("FT", "PICOMETER")
     CONVERSIONS["FT:PIXEL"] = \
         lambda: noconversion("FT", "PIXEL")
-    CONVERSIONS["FT:PM"] = \
-        lambda: noconversion("FT", "PM")
     CONVERSIONS["FT:PT"] = \
         lambda: noconversion("FT", "PT")
     CONVERSIONS["FT:REFERENCEFRAME"] = \
         lambda: noconversion("FT", "REFERENCEFRAME")
-    CONVERSIONS["FT:TERAM"] = \
-        lambda: noconversion("FT", "TERAM")
+    CONVERSIONS["FT:TERAMETER"] = \
+        lambda: noconversion("FT", "TERAMETER")
     CONVERSIONS["FT:THOU"] = \
         lambda: noconversion("FT", "THOU")
-    CONVERSIONS["FT:UA"] = \
-        lambda: noconversion("FT", "UA")
     CONVERSIONS["FT:YD"] = \
         lambda: noconversion("FT", "YD")
-    CONVERSIONS["FT:YM"] = \
-        lambda: noconversion("FT", "YM")
-    CONVERSIONS["FT:YOTTAM"] = \
-        lambda: noconversion("FT", "YOTTAM")
-    CONVERSIONS["FT:ZETTAM"] = \
-        lambda: noconversion("FT", "ZETTAM")
-    CONVERSIONS["FT:ZM"] = \
-        lambda: noconversion("FT", "ZM")
-    CONVERSIONS["GIGAM:AM"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["GIGAM:ANGSTROM"] = \
+    CONVERSIONS["FT:YOCTOMETER"] = \
+        lambda: noconversion("FT", "YOCTOMETER")
+    CONVERSIONS["FT:YOTTAMETER"] = \
+        lambda: noconversion("FT", "YOTTAMETER")
+    CONVERSIONS["FT:ZEPTOMETER"] = \
+        lambda: noconversion("FT", "ZEPTOMETER")
+    CONVERSIONS["FT:ZETTAMETER"] = \
+        lambda: noconversion("FT", "ZETTAMETER")
+    CONVERSIONS["GIGAMETER:ANGSTROM"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["GIGAM:CM"] = \
+    CONVERSIONS["GIGAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("GIGAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["GIGAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["GIGAMETER:CENTIMETER"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["GIGAM:DAM"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["GIGAM:DM"] = \
+    CONVERSIONS["GIGAMETER:DECIMETER"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAM:EXAM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["GIGAM:FM"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["GIGAM:FT"] = \
-        lambda: noconversion("GIGAM", "FT")
-    CONVERSIONS["GIGAM:HM"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["GIGAM:IN"] = \
-        lambda: noconversion("GIGAM", "IN")
-    CONVERSIONS["GIGAM:KM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAM:LI"] = \
-        lambda: noconversion("GIGAM", "LI")
-    CONVERSIONS["GIGAM:LY"] = \
-        lambda: noconversion("GIGAM", "LY")
-    CONVERSIONS["GIGAM:M"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["GIGAM:MEGAM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["GIGAM:MI"] = \
-        lambda: noconversion("GIGAM", "MI")
-    CONVERSIONS["GIGAM:MICROM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["GIGAM:MM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["GIGAM:NM"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["GIGAM:PC"] = \
-        lambda: noconversion("GIGAM", "PC")
-    CONVERSIONS["GIGAM:PETAM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["GIGAM:PIXEL"] = \
-        lambda: noconversion("GIGAM", "PIXEL")
-    CONVERSIONS["GIGAM:PM"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["GIGAM:PT"] = \
-        lambda: noconversion("GIGAM", "PT")
-    CONVERSIONS["GIGAM:REFERENCEFRAME"] = \
-        lambda: noconversion("GIGAM", "REFERENCEFRAME")
-    CONVERSIONS["GIGAM:TERAM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["GIGAM:THOU"] = \
-        lambda: noconversion("GIGAM", "THOU")
-    CONVERSIONS["GIGAM:UA"] = \
-        lambda: noconversion("GIGAM", "UA")
-    CONVERSIONS["GIGAM:YD"] = \
-        lambda: noconversion("GIGAM", "YD")
-    CONVERSIONS["GIGAM:YM"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["GIGAM:YOTTAM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["GIGAM:ZETTAM"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["GIGAM:ZM"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["HM:AM"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["HM:ANGSTROM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["HM:CM"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["HM:DAM"] = \
-        lambda value: 10 * value
-    CONVERSIONS["HM:DM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["HM:EXAM"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["HM:FM"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["HM:FT"] = \
-        lambda: noconversion("HM", "FT")
-    CONVERSIONS["HM:GIGAM"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["HM:IN"] = \
-        lambda: noconversion("HM", "IN")
-    CONVERSIONS["HM:KM"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["HM:LI"] = \
-        lambda: noconversion("HM", "LI")
-    CONVERSIONS["HM:LY"] = \
-        lambda: noconversion("HM", "LY")
-    CONVERSIONS["HM:M"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["HM:MEGAM"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["HM:MI"] = \
-        lambda: noconversion("HM", "MI")
-    CONVERSIONS["HM:MICROM"] = \
+    CONVERSIONS["GIGAMETER:DEKAMETER"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["HM:MM"] = \
+    CONVERSIONS["GIGAMETER:EXAMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["GIGAMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["GIGAMETER:FT"] = \
+        lambda: noconversion("GIGAMETER", "FT")
+    CONVERSIONS["GIGAMETER:HECTOMETER"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["GIGAMETER:IN"] = \
+        lambda: noconversion("GIGAMETER", "IN")
+    CONVERSIONS["GIGAMETER:KILOMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["GIGAMETER:LI"] = \
+        lambda: noconversion("GIGAMETER", "LI")
+    CONVERSIONS["GIGAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("GIGAMETER", "LIGHTYEAR")
+    CONVERSIONS["GIGAMETER:MEGAMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["GIGAMETER:METER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["GIGAMETER:MI"] = \
+        lambda: noconversion("GIGAMETER", "MI")
+    CONVERSIONS["GIGAMETER:MICROMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["GIGAMETER:MILLIMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["GIGAMETER:NANOMETER"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["GIGAMETER:PARSEC"] = \
+        lambda: noconversion("GIGAMETER", "PARSEC")
+    CONVERSIONS["GIGAMETER:PETAMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["GIGAMETER:PICOMETER"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["GIGAMETER:PIXEL"] = \
+        lambda: noconversion("GIGAMETER", "PIXEL")
+    CONVERSIONS["GIGAMETER:PT"] = \
+        lambda: noconversion("GIGAMETER", "PT")
+    CONVERSIONS["GIGAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("GIGAMETER", "REFERENCEFRAME")
+    CONVERSIONS["GIGAMETER:TERAMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["GIGAMETER:THOU"] = \
+        lambda: noconversion("GIGAMETER", "THOU")
+    CONVERSIONS["GIGAMETER:YD"] = \
+        lambda: noconversion("GIGAMETER", "YD")
+    CONVERSIONS["GIGAMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["GIGAMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["GIGAMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["GIGAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["HECTOMETER:ANGSTROM"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["HECTOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("HECTOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["HECTOMETER:ATTOMETER"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["HECTOMETER:CENTIMETER"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["HECTOMETER:DECIMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["HECTOMETER:DEKAMETER"] = \
+        lambda value: 10 * value
+    CONVERSIONS["HECTOMETER:EXAMETER"] = \
+        lambda value: (10 ** -16) * value
+    CONVERSIONS["HECTOMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 17) * value
+    CONVERSIONS["HECTOMETER:FT"] = \
+        lambda: noconversion("HECTOMETER", "FT")
+    CONVERSIONS["HECTOMETER:GIGAMETER"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["HECTOMETER:IN"] = \
+        lambda: noconversion("HECTOMETER", "IN")
+    CONVERSIONS["HECTOMETER:KILOMETER"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["HECTOMETER:LI"] = \
+        lambda: noconversion("HECTOMETER", "LI")
+    CONVERSIONS["HECTOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("HECTOMETER", "LIGHTYEAR")
+    CONVERSIONS["HECTOMETER:MEGAMETER"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["HECTOMETER:METER"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["HECTOMETER:MI"] = \
+        lambda: noconversion("HECTOMETER", "MI")
+    CONVERSIONS["HECTOMETER:MICROMETER"] = \
+        lambda value: (10 ** 8) * value
+    CONVERSIONS["HECTOMETER:MILLIMETER"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["HM:NM"] = \
+    CONVERSIONS["HECTOMETER:NANOMETER"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["HM:PC"] = \
-        lambda: noconversion("HM", "PC")
-    CONVERSIONS["HM:PETAM"] = \
+    CONVERSIONS["HECTOMETER:PARSEC"] = \
+        lambda: noconversion("HECTOMETER", "PARSEC")
+    CONVERSIONS["HECTOMETER:PETAMETER"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["HM:PIXEL"] = \
-        lambda: noconversion("HM", "PIXEL")
-    CONVERSIONS["HM:PM"] = \
+    CONVERSIONS["HECTOMETER:PICOMETER"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["HM:PT"] = \
-        lambda: noconversion("HM", "PT")
-    CONVERSIONS["HM:REFERENCEFRAME"] = \
-        lambda: noconversion("HM", "REFERENCEFRAME")
-    CONVERSIONS["HM:TERAM"] = \
+    CONVERSIONS["HECTOMETER:PIXEL"] = \
+        lambda: noconversion("HECTOMETER", "PIXEL")
+    CONVERSIONS["HECTOMETER:PT"] = \
+        lambda: noconversion("HECTOMETER", "PT")
+    CONVERSIONS["HECTOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("HECTOMETER", "REFERENCEFRAME")
+    CONVERSIONS["HECTOMETER:TERAMETER"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["HM:THOU"] = \
-        lambda: noconversion("HM", "THOU")
-    CONVERSIONS["HM:UA"] = \
-        lambda: noconversion("HM", "UA")
-    CONVERSIONS["HM:YD"] = \
-        lambda: noconversion("HM", "YD")
-    CONVERSIONS["HM:YM"] = \
+    CONVERSIONS["HECTOMETER:THOU"] = \
+        lambda: noconversion("HECTOMETER", "THOU")
+    CONVERSIONS["HECTOMETER:YD"] = \
+        lambda: noconversion("HECTOMETER", "YD")
+    CONVERSIONS["HECTOMETER:YOCTOMETER"] = \
         lambda value: (10 ** 26) * value
-    CONVERSIONS["HM:YOTTAM"] = \
+    CONVERSIONS["HECTOMETER:YOTTAMETER"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["HM:ZETTAM"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["HM:ZM"] = \
+    CONVERSIONS["HECTOMETER:ZEPTOMETER"] = \
         lambda value: (10 ** 23) * value
-    CONVERSIONS["IN:AM"] = \
-        lambda: noconversion("IN", "AM")
+    CONVERSIONS["HECTOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -19) * value
     CONVERSIONS["IN:ANGSTROM"] = \
         lambda: noconversion("IN", "ANGSTROM")
-    CONVERSIONS["IN:CM"] = \
-        lambda: noconversion("IN", "CM")
-    CONVERSIONS["IN:DAM"] = \
-        lambda: noconversion("IN", "DAM")
-    CONVERSIONS["IN:DM"] = \
-        lambda: noconversion("IN", "DM")
-    CONVERSIONS["IN:EXAM"] = \
-        lambda: noconversion("IN", "EXAM")
-    CONVERSIONS["IN:FM"] = \
-        lambda: noconversion("IN", "FM")
+    CONVERSIONS["IN:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("IN", "ASTRONOMICALUNIT")
+    CONVERSIONS["IN:ATTOMETER"] = \
+        lambda: noconversion("IN", "ATTOMETER")
+    CONVERSIONS["IN:CENTIMETER"] = \
+        lambda: noconversion("IN", "CENTIMETER")
+    CONVERSIONS["IN:DECIMETER"] = \
+        lambda: noconversion("IN", "DECIMETER")
+    CONVERSIONS["IN:DEKAMETER"] = \
+        lambda: noconversion("IN", "DEKAMETER")
+    CONVERSIONS["IN:EXAMETER"] = \
+        lambda: noconversion("IN", "EXAMETER")
+    CONVERSIONS["IN:FEMTOMETER"] = \
+        lambda: noconversion("IN", "FEMTOMETER")
     CONVERSIONS["IN:FT"] = \
         lambda: noconversion("IN", "FT")
-    CONVERSIONS["IN:GIGAM"] = \
-        lambda: noconversion("IN", "GIGAM")
-    CONVERSIONS["IN:HM"] = \
-        lambda: noconversion("IN", "HM")
-    CONVERSIONS["IN:KM"] = \
-        lambda: noconversion("IN", "KM")
+    CONVERSIONS["IN:GIGAMETER"] = \
+        lambda: noconversion("IN", "GIGAMETER")
+    CONVERSIONS["IN:HECTOMETER"] = \
+        lambda: noconversion("IN", "HECTOMETER")
+    CONVERSIONS["IN:KILOMETER"] = \
+        lambda: noconversion("IN", "KILOMETER")
     CONVERSIONS["IN:LI"] = \
         lambda: noconversion("IN", "LI")
-    CONVERSIONS["IN:LY"] = \
-        lambda: noconversion("IN", "LY")
-    CONVERSIONS["IN:M"] = \
-        lambda: noconversion("IN", "M")
-    CONVERSIONS["IN:MEGAM"] = \
-        lambda: noconversion("IN", "MEGAM")
+    CONVERSIONS["IN:LIGHTYEAR"] = \
+        lambda: noconversion("IN", "LIGHTYEAR")
+    CONVERSIONS["IN:MEGAMETER"] = \
+        lambda: noconversion("IN", "MEGAMETER")
+    CONVERSIONS["IN:METER"] = \
+        lambda: noconversion("IN", "METER")
     CONVERSIONS["IN:MI"] = \
         lambda: noconversion("IN", "MI")
-    CONVERSIONS["IN:MICROM"] = \
-        lambda: noconversion("IN", "MICROM")
-    CONVERSIONS["IN:MM"] = \
-        lambda: noconversion("IN", "MM")
-    CONVERSIONS["IN:NM"] = \
-        lambda: noconversion("IN", "NM")
-    CONVERSIONS["IN:PC"] = \
-        lambda: noconversion("IN", "PC")
-    CONVERSIONS["IN:PETAM"] = \
-        lambda: noconversion("IN", "PETAM")
+    CONVERSIONS["IN:MICROMETER"] = \
+        lambda: noconversion("IN", "MICROMETER")
+    CONVERSIONS["IN:MILLIMETER"] = \
+        lambda: noconversion("IN", "MILLIMETER")
+    CONVERSIONS["IN:NANOMETER"] = \
+        lambda: noconversion("IN", "NANOMETER")
+    CONVERSIONS["IN:PARSEC"] = \
+        lambda: noconversion("IN", "PARSEC")
+    CONVERSIONS["IN:PETAMETER"] = \
+        lambda: noconversion("IN", "PETAMETER")
+    CONVERSIONS["IN:PICOMETER"] = \
+        lambda: noconversion("IN", "PICOMETER")
     CONVERSIONS["IN:PIXEL"] = \
         lambda: noconversion("IN", "PIXEL")
-    CONVERSIONS["IN:PM"] = \
-        lambda: noconversion("IN", "PM")
     CONVERSIONS["IN:PT"] = \
         lambda: noconversion("IN", "PT")
     CONVERSIONS["IN:REFERENCEFRAME"] = \
         lambda: noconversion("IN", "REFERENCEFRAME")
-    CONVERSIONS["IN:TERAM"] = \
-        lambda: noconversion("IN", "TERAM")
+    CONVERSIONS["IN:TERAMETER"] = \
+        lambda: noconversion("IN", "TERAMETER")
     CONVERSIONS["IN:THOU"] = \
         lambda: noconversion("IN", "THOU")
-    CONVERSIONS["IN:UA"] = \
-        lambda: noconversion("IN", "UA")
     CONVERSIONS["IN:YD"] = \
         lambda: noconversion("IN", "YD")
-    CONVERSIONS["IN:YM"] = \
-        lambda: noconversion("IN", "YM")
-    CONVERSIONS["IN:YOTTAM"] = \
-        lambda: noconversion("IN", "YOTTAM")
-    CONVERSIONS["IN:ZETTAM"] = \
-        lambda: noconversion("IN", "ZETTAM")
-    CONVERSIONS["IN:ZM"] = \
-        lambda: noconversion("IN", "ZM")
-    CONVERSIONS["KM:AM"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["KM:ANGSTROM"] = \
+    CONVERSIONS["IN:YOCTOMETER"] = \
+        lambda: noconversion("IN", "YOCTOMETER")
+    CONVERSIONS["IN:YOTTAMETER"] = \
+        lambda: noconversion("IN", "YOTTAMETER")
+    CONVERSIONS["IN:ZEPTOMETER"] = \
+        lambda: noconversion("IN", "ZEPTOMETER")
+    CONVERSIONS["IN:ZETTAMETER"] = \
+        lambda: noconversion("IN", "ZETTAMETER")
+    CONVERSIONS["KILOMETER:ANGSTROM"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["KM:CM"] = \
+    CONVERSIONS["KILOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("KILOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["KILOMETER:ATTOMETER"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["KILOMETER:CENTIMETER"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["KM:DAM"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["KM:DM"] = \
+    CONVERSIONS["KILOMETER:DECIMETER"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KM:EXAM"] = \
+    CONVERSIONS["KILOMETER:DEKAMETER"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["KILOMETER:EXAMETER"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["KM:FM"] = \
+    CONVERSIONS["KILOMETER:FEMTOMETER"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["KM:FT"] = \
-        lambda: noconversion("KM", "FT")
-    CONVERSIONS["KM:GIGAM"] = \
+    CONVERSIONS["KILOMETER:FT"] = \
+        lambda: noconversion("KILOMETER", "FT")
+    CONVERSIONS["KILOMETER:GIGAMETER"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["KM:HM"] = \
+    CONVERSIONS["KILOMETER:HECTOMETER"] = \
         lambda value: 10 * value
-    CONVERSIONS["KM:IN"] = \
-        lambda: noconversion("KM", "IN")
-    CONVERSIONS["KM:LI"] = \
-        lambda: noconversion("KM", "LI")
-    CONVERSIONS["KM:LY"] = \
-        lambda: noconversion("KM", "LY")
-    CONVERSIONS["KM:M"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["KM:MEGAM"] = \
+    CONVERSIONS["KILOMETER:IN"] = \
+        lambda: noconversion("KILOMETER", "IN")
+    CONVERSIONS["KILOMETER:LI"] = \
+        lambda: noconversion("KILOMETER", "LI")
+    CONVERSIONS["KILOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("KILOMETER", "LIGHTYEAR")
+    CONVERSIONS["KILOMETER:MEGAMETER"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["KM:MI"] = \
-        lambda: noconversion("KM", "MI")
-    CONVERSIONS["KM:MICROM"] = \
+    CONVERSIONS["KILOMETER:METER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["KILOMETER:MI"] = \
+        lambda: noconversion("KILOMETER", "MI")
+    CONVERSIONS["KILOMETER:MICROMETER"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["KM:MM"] = \
+    CONVERSIONS["KILOMETER:MILLIMETER"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["KM:NM"] = \
+    CONVERSIONS["KILOMETER:NANOMETER"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["KM:PC"] = \
-        lambda: noconversion("KM", "PC")
-    CONVERSIONS["KM:PETAM"] = \
+    CONVERSIONS["KILOMETER:PARSEC"] = \
+        lambda: noconversion("KILOMETER", "PARSEC")
+    CONVERSIONS["KILOMETER:PETAMETER"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["KM:PIXEL"] = \
-        lambda: noconversion("KM", "PIXEL")
-    CONVERSIONS["KM:PM"] = \
+    CONVERSIONS["KILOMETER:PICOMETER"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["KM:PT"] = \
-        lambda: noconversion("KM", "PT")
-    CONVERSIONS["KM:REFERENCEFRAME"] = \
-        lambda: noconversion("KM", "REFERENCEFRAME")
-    CONVERSIONS["KM:TERAM"] = \
+    CONVERSIONS["KILOMETER:PIXEL"] = \
+        lambda: noconversion("KILOMETER", "PIXEL")
+    CONVERSIONS["KILOMETER:PT"] = \
+        lambda: noconversion("KILOMETER", "PT")
+    CONVERSIONS["KILOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("KILOMETER", "REFERENCEFRAME")
+    CONVERSIONS["KILOMETER:TERAMETER"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["KM:THOU"] = \
-        lambda: noconversion("KM", "THOU")
-    CONVERSIONS["KM:UA"] = \
-        lambda: noconversion("KM", "UA")
-    CONVERSIONS["KM:YD"] = \
-        lambda: noconversion("KM", "YD")
-    CONVERSIONS["KM:YM"] = \
+    CONVERSIONS["KILOMETER:THOU"] = \
+        lambda: noconversion("KILOMETER", "THOU")
+    CONVERSIONS["KILOMETER:YD"] = \
+        lambda: noconversion("KILOMETER", "YD")
+    CONVERSIONS["KILOMETER:YOCTOMETER"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["KM:YOTTAM"] = \
+    CONVERSIONS["KILOMETER:YOTTAMETER"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["KM:ZETTAM"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["KM:ZM"] = \
+    CONVERSIONS["KILOMETER:ZEPTOMETER"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["LI:AM"] = \
-        lambda: noconversion("LI", "AM")
+    CONVERSIONS["KILOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -18) * value
     CONVERSIONS["LI:ANGSTROM"] = \
         lambda: noconversion("LI", "ANGSTROM")
-    CONVERSIONS["LI:CM"] = \
-        lambda: noconversion("LI", "CM")
-    CONVERSIONS["LI:DAM"] = \
-        lambda: noconversion("LI", "DAM")
-    CONVERSIONS["LI:DM"] = \
-        lambda: noconversion("LI", "DM")
-    CONVERSIONS["LI:EXAM"] = \
-        lambda: noconversion("LI", "EXAM")
-    CONVERSIONS["LI:FM"] = \
-        lambda: noconversion("LI", "FM")
+    CONVERSIONS["LI:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("LI", "ASTRONOMICALUNIT")
+    CONVERSIONS["LI:ATTOMETER"] = \
+        lambda: noconversion("LI", "ATTOMETER")
+    CONVERSIONS["LI:CENTIMETER"] = \
+        lambda: noconversion("LI", "CENTIMETER")
+    CONVERSIONS["LI:DECIMETER"] = \
+        lambda: noconversion("LI", "DECIMETER")
+    CONVERSIONS["LI:DEKAMETER"] = \
+        lambda: noconversion("LI", "DEKAMETER")
+    CONVERSIONS["LI:EXAMETER"] = \
+        lambda: noconversion("LI", "EXAMETER")
+    CONVERSIONS["LI:FEMTOMETER"] = \
+        lambda: noconversion("LI", "FEMTOMETER")
     CONVERSIONS["LI:FT"] = \
         lambda: noconversion("LI", "FT")
-    CONVERSIONS["LI:GIGAM"] = \
-        lambda: noconversion("LI", "GIGAM")
-    CONVERSIONS["LI:HM"] = \
-        lambda: noconversion("LI", "HM")
+    CONVERSIONS["LI:GIGAMETER"] = \
+        lambda: noconversion("LI", "GIGAMETER")
+    CONVERSIONS["LI:HECTOMETER"] = \
+        lambda: noconversion("LI", "HECTOMETER")
     CONVERSIONS["LI:IN"] = \
         lambda: noconversion("LI", "IN")
-    CONVERSIONS["LI:KM"] = \
-        lambda: noconversion("LI", "KM")
-    CONVERSIONS["LI:LY"] = \
-        lambda: noconversion("LI", "LY")
-    CONVERSIONS["LI:M"] = \
-        lambda: noconversion("LI", "M")
-    CONVERSIONS["LI:MEGAM"] = \
-        lambda: noconversion("LI", "MEGAM")
+    CONVERSIONS["LI:KILOMETER"] = \
+        lambda: noconversion("LI", "KILOMETER")
+    CONVERSIONS["LI:LIGHTYEAR"] = \
+        lambda: noconversion("LI", "LIGHTYEAR")
+    CONVERSIONS["LI:MEGAMETER"] = \
+        lambda: noconversion("LI", "MEGAMETER")
+    CONVERSIONS["LI:METER"] = \
+        lambda: noconversion("LI", "METER")
     CONVERSIONS["LI:MI"] = \
         lambda: noconversion("LI", "MI")
-    CONVERSIONS["LI:MICROM"] = \
-        lambda: noconversion("LI", "MICROM")
-    CONVERSIONS["LI:MM"] = \
-        lambda: noconversion("LI", "MM")
-    CONVERSIONS["LI:NM"] = \
-        lambda: noconversion("LI", "NM")
-    CONVERSIONS["LI:PC"] = \
-        lambda: noconversion("LI", "PC")
-    CONVERSIONS["LI:PETAM"] = \
-        lambda: noconversion("LI", "PETAM")
+    CONVERSIONS["LI:MICROMETER"] = \
+        lambda: noconversion("LI", "MICROMETER")
+    CONVERSIONS["LI:MILLIMETER"] = \
+        lambda: noconversion("LI", "MILLIMETER")
+    CONVERSIONS["LI:NANOMETER"] = \
+        lambda: noconversion("LI", "NANOMETER")
+    CONVERSIONS["LI:PARSEC"] = \
+        lambda: noconversion("LI", "PARSEC")
+    CONVERSIONS["LI:PETAMETER"] = \
+        lambda: noconversion("LI", "PETAMETER")
+    CONVERSIONS["LI:PICOMETER"] = \
+        lambda: noconversion("LI", "PICOMETER")
     CONVERSIONS["LI:PIXEL"] = \
         lambda: noconversion("LI", "PIXEL")
-    CONVERSIONS["LI:PM"] = \
-        lambda: noconversion("LI", "PM")
     CONVERSIONS["LI:PT"] = \
         lambda: noconversion("LI", "PT")
     CONVERSIONS["LI:REFERENCEFRAME"] = \
         lambda: noconversion("LI", "REFERENCEFRAME")
-    CONVERSIONS["LI:TERAM"] = \
-        lambda: noconversion("LI", "TERAM")
+    CONVERSIONS["LI:TERAMETER"] = \
+        lambda: noconversion("LI", "TERAMETER")
     CONVERSIONS["LI:THOU"] = \
         lambda: noconversion("LI", "THOU")
-    CONVERSIONS["LI:UA"] = \
-        lambda: noconversion("LI", "UA")
     CONVERSIONS["LI:YD"] = \
         lambda: noconversion("LI", "YD")
-    CONVERSIONS["LI:YM"] = \
-        lambda: noconversion("LI", "YM")
-    CONVERSIONS["LI:YOTTAM"] = \
-        lambda: noconversion("LI", "YOTTAM")
-    CONVERSIONS["LI:ZETTAM"] = \
-        lambda: noconversion("LI", "ZETTAM")
-    CONVERSIONS["LI:ZM"] = \
-        lambda: noconversion("LI", "ZM")
-    CONVERSIONS["LY:AM"] = \
-        lambda: noconversion("LY", "AM")
-    CONVERSIONS["LY:ANGSTROM"] = \
-        lambda: noconversion("LY", "ANGSTROM")
-    CONVERSIONS["LY:CM"] = \
-        lambda: noconversion("LY", "CM")
-    CONVERSIONS["LY:DAM"] = \
-        lambda: noconversion("LY", "DAM")
-    CONVERSIONS["LY:DM"] = \
-        lambda: noconversion("LY", "DM")
-    CONVERSIONS["LY:EXAM"] = \
-        lambda: noconversion("LY", "EXAM")
-    CONVERSIONS["LY:FM"] = \
-        lambda: noconversion("LY", "FM")
-    CONVERSIONS["LY:FT"] = \
-        lambda: noconversion("LY", "FT")
-    CONVERSIONS["LY:GIGAM"] = \
-        lambda: noconversion("LY", "GIGAM")
-    CONVERSIONS["LY:HM"] = \
-        lambda: noconversion("LY", "HM")
-    CONVERSIONS["LY:IN"] = \
-        lambda: noconversion("LY", "IN")
-    CONVERSIONS["LY:KM"] = \
-        lambda: noconversion("LY", "KM")
-    CONVERSIONS["LY:LI"] = \
-        lambda: noconversion("LY", "LI")
-    CONVERSIONS["LY:M"] = \
-        lambda: noconversion("LY", "M")
-    CONVERSIONS["LY:MEGAM"] = \
-        lambda: noconversion("LY", "MEGAM")
-    CONVERSIONS["LY:MI"] = \
-        lambda: noconversion("LY", "MI")
-    CONVERSIONS["LY:MICROM"] = \
-        lambda: noconversion("LY", "MICROM")
-    CONVERSIONS["LY:MM"] = \
-        lambda: noconversion("LY", "MM")
-    CONVERSIONS["LY:NM"] = \
-        lambda: noconversion("LY", "NM")
-    CONVERSIONS["LY:PC"] = \
-        lambda: noconversion("LY", "PC")
-    CONVERSIONS["LY:PETAM"] = \
-        lambda: noconversion("LY", "PETAM")
-    CONVERSIONS["LY:PIXEL"] = \
-        lambda: noconversion("LY", "PIXEL")
-    CONVERSIONS["LY:PM"] = \
-        lambda: noconversion("LY", "PM")
-    CONVERSIONS["LY:PT"] = \
-        lambda: noconversion("LY", "PT")
-    CONVERSIONS["LY:REFERENCEFRAME"] = \
-        lambda: noconversion("LY", "REFERENCEFRAME")
-    CONVERSIONS["LY:TERAM"] = \
-        lambda: noconversion("LY", "TERAM")
-    CONVERSIONS["LY:THOU"] = \
-        lambda: noconversion("LY", "THOU")
-    CONVERSIONS["LY:UA"] = \
-        lambda: noconversion("LY", "UA")
-    CONVERSIONS["LY:YD"] = \
-        lambda: noconversion("LY", "YD")
-    CONVERSIONS["LY:YM"] = \
-        lambda: noconversion("LY", "YM")
-    CONVERSIONS["LY:YOTTAM"] = \
-        lambda: noconversion("LY", "YOTTAM")
-    CONVERSIONS["LY:ZETTAM"] = \
-        lambda: noconversion("LY", "ZETTAM")
-    CONVERSIONS["LY:ZM"] = \
-        lambda: noconversion("LY", "ZM")
-    CONVERSIONS["M:AM"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["M:ANGSTROM"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["M:CM"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["M:DAM"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["M:DM"] = \
-        lambda value: 10 * value
-    CONVERSIONS["M:EXAM"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["M:FM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["M:FT"] = \
-        lambda: noconversion("M", "FT")
-    CONVERSIONS["M:GIGAM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["M:HM"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["M:IN"] = \
-        lambda: noconversion("M", "IN")
-    CONVERSIONS["M:KM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["M:LI"] = \
-        lambda: noconversion("M", "LI")
-    CONVERSIONS["M:LY"] = \
-        lambda: noconversion("M", "LY")
-    CONVERSIONS["M:MEGAM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["M:MI"] = \
-        lambda: noconversion("M", "MI")
-    CONVERSIONS["M:MICROM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["M:MM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["M:NM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["M:PC"] = \
-        lambda: noconversion("M", "PC")
-    CONVERSIONS["M:PETAM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["M:PIXEL"] = \
-        lambda: noconversion("M", "PIXEL")
-    CONVERSIONS["M:PM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["M:PT"] = \
-        lambda: noconversion("M", "PT")
-    CONVERSIONS["M:REFERENCEFRAME"] = \
-        lambda: noconversion("M", "REFERENCEFRAME")
-    CONVERSIONS["M:TERAM"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["M:THOU"] = \
-        lambda: noconversion("M", "THOU")
-    CONVERSIONS["M:UA"] = \
-        lambda: noconversion("M", "UA")
-    CONVERSIONS["M:YD"] = \
-        lambda: noconversion("M", "YD")
-    CONVERSIONS["M:YM"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["M:YOTTAM"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["M:ZETTAM"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["M:ZM"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAM:AM"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAM:ANGSTROM"] = \
+    CONVERSIONS["LI:YOCTOMETER"] = \
+        lambda: noconversion("LI", "YOCTOMETER")
+    CONVERSIONS["LI:YOTTAMETER"] = \
+        lambda: noconversion("LI", "YOTTAMETER")
+    CONVERSIONS["LI:ZEPTOMETER"] = \
+        lambda: noconversion("LI", "ZEPTOMETER")
+    CONVERSIONS["LI:ZETTAMETER"] = \
+        lambda: noconversion("LI", "ZETTAMETER")
+    CONVERSIONS["LIGHTYEAR:ANGSTROM"] = \
+        lambda: noconversion("LIGHTYEAR", "ANGSTROM")
+    CONVERSIONS["LIGHTYEAR:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("LIGHTYEAR", "ASTRONOMICALUNIT")
+    CONVERSIONS["LIGHTYEAR:ATTOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "ATTOMETER")
+    CONVERSIONS["LIGHTYEAR:CENTIMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "CENTIMETER")
+    CONVERSIONS["LIGHTYEAR:DECIMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "DECIMETER")
+    CONVERSIONS["LIGHTYEAR:DEKAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "DEKAMETER")
+    CONVERSIONS["LIGHTYEAR:EXAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "EXAMETER")
+    CONVERSIONS["LIGHTYEAR:FEMTOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "FEMTOMETER")
+    CONVERSIONS["LIGHTYEAR:FT"] = \
+        lambda: noconversion("LIGHTYEAR", "FT")
+    CONVERSIONS["LIGHTYEAR:GIGAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "GIGAMETER")
+    CONVERSIONS["LIGHTYEAR:HECTOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "HECTOMETER")
+    CONVERSIONS["LIGHTYEAR:IN"] = \
+        lambda: noconversion("LIGHTYEAR", "IN")
+    CONVERSIONS["LIGHTYEAR:KILOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "KILOMETER")
+    CONVERSIONS["LIGHTYEAR:LI"] = \
+        lambda: noconversion("LIGHTYEAR", "LI")
+    CONVERSIONS["LIGHTYEAR:MEGAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "MEGAMETER")
+    CONVERSIONS["LIGHTYEAR:METER"] = \
+        lambda: noconversion("LIGHTYEAR", "METER")
+    CONVERSIONS["LIGHTYEAR:MI"] = \
+        lambda: noconversion("LIGHTYEAR", "MI")
+    CONVERSIONS["LIGHTYEAR:MICROMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "MICROMETER")
+    CONVERSIONS["LIGHTYEAR:MILLIMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "MILLIMETER")
+    CONVERSIONS["LIGHTYEAR:NANOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "NANOMETER")
+    CONVERSIONS["LIGHTYEAR:PARSEC"] = \
+        lambda: noconversion("LIGHTYEAR", "PARSEC")
+    CONVERSIONS["LIGHTYEAR:PETAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "PETAMETER")
+    CONVERSIONS["LIGHTYEAR:PICOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "PICOMETER")
+    CONVERSIONS["LIGHTYEAR:PIXEL"] = \
+        lambda: noconversion("LIGHTYEAR", "PIXEL")
+    CONVERSIONS["LIGHTYEAR:PT"] = \
+        lambda: noconversion("LIGHTYEAR", "PT")
+    CONVERSIONS["LIGHTYEAR:REFERENCEFRAME"] = \
+        lambda: noconversion("LIGHTYEAR", "REFERENCEFRAME")
+    CONVERSIONS["LIGHTYEAR:TERAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "TERAMETER")
+    CONVERSIONS["LIGHTYEAR:THOU"] = \
+        lambda: noconversion("LIGHTYEAR", "THOU")
+    CONVERSIONS["LIGHTYEAR:YD"] = \
+        lambda: noconversion("LIGHTYEAR", "YD")
+    CONVERSIONS["LIGHTYEAR:YOCTOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "YOCTOMETER")
+    CONVERSIONS["LIGHTYEAR:YOTTAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "YOTTAMETER")
+    CONVERSIONS["LIGHTYEAR:ZEPTOMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "ZEPTOMETER")
+    CONVERSIONS["LIGHTYEAR:ZETTAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "ZETTAMETER")
+    CONVERSIONS["MEGAMETER:ANGSTROM"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["MEGAM:CM"] = \
+    CONVERSIONS["MEGAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("MEGAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["MEGAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["MEGAMETER:CENTIMETER"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["MEGAM:DAM"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["MEGAM:DM"] = \
+    CONVERSIONS["MEGAMETER:DECIMETER"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAM:EXAM"] = \
+    CONVERSIONS["MEGAMETER:DEKAMETER"] = \
+        lambda value: (10 ** 5) * value
+    CONVERSIONS["MEGAMETER:EXAMETER"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MEGAM:FM"] = \
+    CONVERSIONS["MEGAMETER:FEMTOMETER"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAM:FT"] = \
-        lambda: noconversion("MEGAM", "FT")
-    CONVERSIONS["MEGAM:GIGAM"] = \
+    CONVERSIONS["MEGAMETER:FT"] = \
+        lambda: noconversion("MEGAMETER", "FT")
+    CONVERSIONS["MEGAMETER:GIGAMETER"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MEGAM:HM"] = \
+    CONVERSIONS["MEGAMETER:HECTOMETER"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["MEGAM:IN"] = \
-        lambda: noconversion("MEGAM", "IN")
-    CONVERSIONS["MEGAM:KM"] = \
+    CONVERSIONS["MEGAMETER:IN"] = \
+        lambda: noconversion("MEGAMETER", "IN")
+    CONVERSIONS["MEGAMETER:KILOMETER"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MEGAM:LI"] = \
-        lambda: noconversion("MEGAM", "LI")
-    CONVERSIONS["MEGAM:LY"] = \
-        lambda: noconversion("MEGAM", "LY")
-    CONVERSIONS["MEGAM:M"] = \
+    CONVERSIONS["MEGAMETER:LI"] = \
+        lambda: noconversion("MEGAMETER", "LI")
+    CONVERSIONS["MEGAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("MEGAMETER", "LIGHTYEAR")
+    CONVERSIONS["MEGAMETER:METER"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MEGAM:MI"] = \
-        lambda: noconversion("MEGAM", "MI")
-    CONVERSIONS["MEGAM:MICROM"] = \
+    CONVERSIONS["MEGAMETER:MI"] = \
+        lambda: noconversion("MEGAMETER", "MI")
+    CONVERSIONS["MEGAMETER:MICROMETER"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MEGAM:MM"] = \
+    CONVERSIONS["MEGAMETER:MILLIMETER"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MEGAM:NM"] = \
+    CONVERSIONS["MEGAMETER:NANOMETER"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MEGAM:PC"] = \
-        lambda: noconversion("MEGAM", "PC")
-    CONVERSIONS["MEGAM:PETAM"] = \
+    CONVERSIONS["MEGAMETER:PARSEC"] = \
+        lambda: noconversion("MEGAMETER", "PARSEC")
+    CONVERSIONS["MEGAMETER:PETAMETER"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MEGAM:PIXEL"] = \
-        lambda: noconversion("MEGAM", "PIXEL")
-    CONVERSIONS["MEGAM:PM"] = \
+    CONVERSIONS["MEGAMETER:PICOMETER"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MEGAM:PT"] = \
-        lambda: noconversion("MEGAM", "PT")
-    CONVERSIONS["MEGAM:REFERENCEFRAME"] = \
-        lambda: noconversion("MEGAM", "REFERENCEFRAME")
-    CONVERSIONS["MEGAM:TERAM"] = \
+    CONVERSIONS["MEGAMETER:PIXEL"] = \
+        lambda: noconversion("MEGAMETER", "PIXEL")
+    CONVERSIONS["MEGAMETER:PT"] = \
+        lambda: noconversion("MEGAMETER", "PT")
+    CONVERSIONS["MEGAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("MEGAMETER", "REFERENCEFRAME")
+    CONVERSIONS["MEGAMETER:TERAMETER"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MEGAM:THOU"] = \
-        lambda: noconversion("MEGAM", "THOU")
-    CONVERSIONS["MEGAM:UA"] = \
-        lambda: noconversion("MEGAM", "UA")
-    CONVERSIONS["MEGAM:YD"] = \
-        lambda: noconversion("MEGAM", "YD")
-    CONVERSIONS["MEGAM:YM"] = \
+    CONVERSIONS["MEGAMETER:THOU"] = \
+        lambda: noconversion("MEGAMETER", "THOU")
+    CONVERSIONS["MEGAMETER:YD"] = \
+        lambda: noconversion("MEGAMETER", "YD")
+    CONVERSIONS["MEGAMETER:YOCTOMETER"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["MEGAM:YOTTAM"] = \
+    CONVERSIONS["MEGAMETER:YOTTAMETER"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGAM:ZETTAM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MEGAM:ZM"] = \
+    CONVERSIONS["MEGAMETER:ZEPTOMETER"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["MI:AM"] = \
-        lambda: noconversion("MI", "AM")
+    CONVERSIONS["MEGAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["METER:ANGSTROM"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["METER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("METER", "ASTRONOMICALUNIT")
+    CONVERSIONS["METER:ATTOMETER"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["METER:CENTIMETER"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["METER:DECIMETER"] = \
+        lambda value: 10 * value
+    CONVERSIONS["METER:DEKAMETER"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["METER:EXAMETER"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["METER:FEMTOMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["METER:FT"] = \
+        lambda: noconversion("METER", "FT")
+    CONVERSIONS["METER:GIGAMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["METER:HECTOMETER"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["METER:IN"] = \
+        lambda: noconversion("METER", "IN")
+    CONVERSIONS["METER:KILOMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["METER:LI"] = \
+        lambda: noconversion("METER", "LI")
+    CONVERSIONS["METER:LIGHTYEAR"] = \
+        lambda: noconversion("METER", "LIGHTYEAR")
+    CONVERSIONS["METER:MEGAMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["METER:MI"] = \
+        lambda: noconversion("METER", "MI")
+    CONVERSIONS["METER:MICROMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["METER:MILLIMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["METER:NANOMETER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["METER:PARSEC"] = \
+        lambda: noconversion("METER", "PARSEC")
+    CONVERSIONS["METER:PETAMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["METER:PICOMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["METER:PIXEL"] = \
+        lambda: noconversion("METER", "PIXEL")
+    CONVERSIONS["METER:PT"] = \
+        lambda: noconversion("METER", "PT")
+    CONVERSIONS["METER:REFERENCEFRAME"] = \
+        lambda: noconversion("METER", "REFERENCEFRAME")
+    CONVERSIONS["METER:TERAMETER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["METER:THOU"] = \
+        lambda: noconversion("METER", "THOU")
+    CONVERSIONS["METER:YD"] = \
+        lambda: noconversion("METER", "YD")
+    CONVERSIONS["METER:YOCTOMETER"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["METER:YOTTAMETER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["METER:ZEPTOMETER"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["METER:ZETTAMETER"] = \
+        lambda value: (10 ** -21) * value
     CONVERSIONS["MI:ANGSTROM"] = \
         lambda: noconversion("MI", "ANGSTROM")
-    CONVERSIONS["MI:CM"] = \
-        lambda: noconversion("MI", "CM")
-    CONVERSIONS["MI:DAM"] = \
-        lambda: noconversion("MI", "DAM")
-    CONVERSIONS["MI:DM"] = \
-        lambda: noconversion("MI", "DM")
-    CONVERSIONS["MI:EXAM"] = \
-        lambda: noconversion("MI", "EXAM")
-    CONVERSIONS["MI:FM"] = \
-        lambda: noconversion("MI", "FM")
+    CONVERSIONS["MI:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("MI", "ASTRONOMICALUNIT")
+    CONVERSIONS["MI:ATTOMETER"] = \
+        lambda: noconversion("MI", "ATTOMETER")
+    CONVERSIONS["MI:CENTIMETER"] = \
+        lambda: noconversion("MI", "CENTIMETER")
+    CONVERSIONS["MI:DECIMETER"] = \
+        lambda: noconversion("MI", "DECIMETER")
+    CONVERSIONS["MI:DEKAMETER"] = \
+        lambda: noconversion("MI", "DEKAMETER")
+    CONVERSIONS["MI:EXAMETER"] = \
+        lambda: noconversion("MI", "EXAMETER")
+    CONVERSIONS["MI:FEMTOMETER"] = \
+        lambda: noconversion("MI", "FEMTOMETER")
     CONVERSIONS["MI:FT"] = \
         lambda: noconversion("MI", "FT")
-    CONVERSIONS["MI:GIGAM"] = \
-        lambda: noconversion("MI", "GIGAM")
-    CONVERSIONS["MI:HM"] = \
-        lambda: noconversion("MI", "HM")
+    CONVERSIONS["MI:GIGAMETER"] = \
+        lambda: noconversion("MI", "GIGAMETER")
+    CONVERSIONS["MI:HECTOMETER"] = \
+        lambda: noconversion("MI", "HECTOMETER")
     CONVERSIONS["MI:IN"] = \
         lambda: noconversion("MI", "IN")
-    CONVERSIONS["MI:KM"] = \
-        lambda: noconversion("MI", "KM")
+    CONVERSIONS["MI:KILOMETER"] = \
+        lambda: noconversion("MI", "KILOMETER")
     CONVERSIONS["MI:LI"] = \
         lambda: noconversion("MI", "LI")
-    CONVERSIONS["MI:LY"] = \
-        lambda: noconversion("MI", "LY")
-    CONVERSIONS["MI:M"] = \
-        lambda: noconversion("MI", "M")
-    CONVERSIONS["MI:MEGAM"] = \
-        lambda: noconversion("MI", "MEGAM")
-    CONVERSIONS["MI:MICROM"] = \
-        lambda: noconversion("MI", "MICROM")
-    CONVERSIONS["MI:MM"] = \
-        lambda: noconversion("MI", "MM")
-    CONVERSIONS["MI:NM"] = \
-        lambda: noconversion("MI", "NM")
-    CONVERSIONS["MI:PC"] = \
-        lambda: noconversion("MI", "PC")
-    CONVERSIONS["MI:PETAM"] = \
-        lambda: noconversion("MI", "PETAM")
+    CONVERSIONS["MI:LIGHTYEAR"] = \
+        lambda: noconversion("MI", "LIGHTYEAR")
+    CONVERSIONS["MI:MEGAMETER"] = \
+        lambda: noconversion("MI", "MEGAMETER")
+    CONVERSIONS["MI:METER"] = \
+        lambda: noconversion("MI", "METER")
+    CONVERSIONS["MI:MICROMETER"] = \
+        lambda: noconversion("MI", "MICROMETER")
+    CONVERSIONS["MI:MILLIMETER"] = \
+        lambda: noconversion("MI", "MILLIMETER")
+    CONVERSIONS["MI:NANOMETER"] = \
+        lambda: noconversion("MI", "NANOMETER")
+    CONVERSIONS["MI:PARSEC"] = \
+        lambda: noconversion("MI", "PARSEC")
+    CONVERSIONS["MI:PETAMETER"] = \
+        lambda: noconversion("MI", "PETAMETER")
+    CONVERSIONS["MI:PICOMETER"] = \
+        lambda: noconversion("MI", "PICOMETER")
     CONVERSIONS["MI:PIXEL"] = \
         lambda: noconversion("MI", "PIXEL")
-    CONVERSIONS["MI:PM"] = \
-        lambda: noconversion("MI", "PM")
     CONVERSIONS["MI:PT"] = \
         lambda: noconversion("MI", "PT")
     CONVERSIONS["MI:REFERENCEFRAME"] = \
         lambda: noconversion("MI", "REFERENCEFRAME")
-    CONVERSIONS["MI:TERAM"] = \
-        lambda: noconversion("MI", "TERAM")
+    CONVERSIONS["MI:TERAMETER"] = \
+        lambda: noconversion("MI", "TERAMETER")
     CONVERSIONS["MI:THOU"] = \
         lambda: noconversion("MI", "THOU")
-    CONVERSIONS["MI:UA"] = \
-        lambda: noconversion("MI", "UA")
     CONVERSIONS["MI:YD"] = \
         lambda: noconversion("MI", "YD")
-    CONVERSIONS["MI:YM"] = \
-        lambda: noconversion("MI", "YM")
-    CONVERSIONS["MI:YOTTAM"] = \
-        lambda: noconversion("MI", "YOTTAM")
-    CONVERSIONS["MI:ZETTAM"] = \
-        lambda: noconversion("MI", "ZETTAM")
-    CONVERSIONS["MI:ZM"] = \
-        lambda: noconversion("MI", "ZM")
-    CONVERSIONS["MICROM:AM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MICROM:ANGSTROM"] = \
+    CONVERSIONS["MI:YOCTOMETER"] = \
+        lambda: noconversion("MI", "YOCTOMETER")
+    CONVERSIONS["MI:YOTTAMETER"] = \
+        lambda: noconversion("MI", "YOTTAMETER")
+    CONVERSIONS["MI:ZEPTOMETER"] = \
+        lambda: noconversion("MI", "ZEPTOMETER")
+    CONVERSIONS["MI:ZETTAMETER"] = \
+        lambda: noconversion("MI", "ZETTAMETER")
+    CONVERSIONS["MICROMETER:ANGSTROM"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["MICROM:CM"] = \
+    CONVERSIONS["MICROMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("MICROMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["MICROMETER:ATTOMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["MICROMETER:CENTIMETER"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["MICROM:DAM"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["MICROM:DM"] = \
+    CONVERSIONS["MICROMETER:DECIMETER"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROM:EXAM"] = \
+    CONVERSIONS["MICROMETER:DEKAMETER"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["MICROMETER:EXAMETER"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["MICROM:FM"] = \
+    CONVERSIONS["MICROMETER:FEMTOMETER"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MICROM:FT"] = \
-        lambda: noconversion("MICROM", "FT")
-    CONVERSIONS["MICROM:GIGAM"] = \
+    CONVERSIONS["MICROMETER:FT"] = \
+        lambda: noconversion("MICROMETER", "FT")
+    CONVERSIONS["MICROMETER:GIGAMETER"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROM:HM"] = \
+    CONVERSIONS["MICROMETER:HECTOMETER"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["MICROM:IN"] = \
-        lambda: noconversion("MICROM", "IN")
-    CONVERSIONS["MICROM:KM"] = \
+    CONVERSIONS["MICROMETER:IN"] = \
+        lambda: noconversion("MICROMETER", "IN")
+    CONVERSIONS["MICROMETER:KILOMETER"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MICROM:LI"] = \
-        lambda: noconversion("MICROM", "LI")
-    CONVERSIONS["MICROM:LY"] = \
-        lambda: noconversion("MICROM", "LY")
-    CONVERSIONS["MICROM:M"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MICROM:MEGAM"] = \
+    CONVERSIONS["MICROMETER:LI"] = \
+        lambda: noconversion("MICROMETER", "LI")
+    CONVERSIONS["MICROMETER:LIGHTYEAR"] = \
+        lambda: noconversion("MICROMETER", "LIGHTYEAR")
+    CONVERSIONS["MICROMETER:MEGAMETER"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MICROM:MI"] = \
-        lambda: noconversion("MICROM", "MI")
-    CONVERSIONS["MICROM:MM"] = \
+    CONVERSIONS["MICROMETER:METER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["MICROMETER:MI"] = \
+        lambda: noconversion("MICROMETER", "MI")
+    CONVERSIONS["MICROMETER:MILLIMETER"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MICROM:NM"] = \
+    CONVERSIONS["MICROMETER:NANOMETER"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MICROM:PC"] = \
-        lambda: noconversion("MICROM", "PC")
-    CONVERSIONS["MICROM:PETAM"] = \
+    CONVERSIONS["MICROMETER:PARSEC"] = \
+        lambda: noconversion("MICROMETER", "PARSEC")
+    CONVERSIONS["MICROMETER:PETAMETER"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["MICROM:PIXEL"] = \
-        lambda: noconversion("MICROM", "PIXEL")
-    CONVERSIONS["MICROM:PM"] = \
+    CONVERSIONS["MICROMETER:PICOMETER"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MICROM:PT"] = \
-        lambda: noconversion("MICROM", "PT")
-    CONVERSIONS["MICROM:REFERENCEFRAME"] = \
-        lambda: noconversion("MICROM", "REFERENCEFRAME")
-    CONVERSIONS["MICROM:TERAM"] = \
+    CONVERSIONS["MICROMETER:PIXEL"] = \
+        lambda: noconversion("MICROMETER", "PIXEL")
+    CONVERSIONS["MICROMETER:PT"] = \
+        lambda: noconversion("MICROMETER", "PT")
+    CONVERSIONS["MICROMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("MICROMETER", "REFERENCEFRAME")
+    CONVERSIONS["MICROMETER:TERAMETER"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MICROM:THOU"] = \
-        lambda: noconversion("MICROM", "THOU")
-    CONVERSIONS["MICROM:UA"] = \
-        lambda: noconversion("MICROM", "UA")
-    CONVERSIONS["MICROM:YD"] = \
-        lambda: noconversion("MICROM", "YD")
-    CONVERSIONS["MICROM:YM"] = \
+    CONVERSIONS["MICROMETER:THOU"] = \
+        lambda: noconversion("MICROMETER", "THOU")
+    CONVERSIONS["MICROMETER:YD"] = \
+        lambda: noconversion("MICROMETER", "YD")
+    CONVERSIONS["MICROMETER:YOCTOMETER"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MICROM:YOTTAM"] = \
+    CONVERSIONS["MICROMETER:YOTTAMETER"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["MICROM:ZETTAM"] = \
+    CONVERSIONS["MICROMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["MICROMETER:ZETTAMETER"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["MICROM:ZM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MM:AM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MM:ANGSTROM"] = \
+    CONVERSIONS["MILLIMETER:ANGSTROM"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MM:CM"] = \
+    CONVERSIONS["MILLIMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("MILLIMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["MILLIMETER:ATTOMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["MILLIMETER:CENTIMETER"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["MM:DAM"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MM:DM"] = \
+    CONVERSIONS["MILLIMETER:DECIMETER"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MM:EXAM"] = \
+    CONVERSIONS["MILLIMETER:DEKAMETER"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["MILLIMETER:EXAMETER"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["MM:FM"] = \
+    CONVERSIONS["MILLIMETER:FEMTOMETER"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MM:FT"] = \
-        lambda: noconversion("MM", "FT")
-    CONVERSIONS["MM:GIGAM"] = \
+    CONVERSIONS["MILLIMETER:FT"] = \
+        lambda: noconversion("MILLIMETER", "FT")
+    CONVERSIONS["MILLIMETER:GIGAMETER"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MM:HM"] = \
+    CONVERSIONS["MILLIMETER:HECTOMETER"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MM:IN"] = \
-        lambda: noconversion("MM", "IN")
-    CONVERSIONS["MM:KM"] = \
+    CONVERSIONS["MILLIMETER:IN"] = \
+        lambda: noconversion("MILLIMETER", "IN")
+    CONVERSIONS["MILLIMETER:KILOMETER"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MM:LI"] = \
-        lambda: noconversion("MM", "LI")
-    CONVERSIONS["MM:LY"] = \
-        lambda: noconversion("MM", "LY")
-    CONVERSIONS["MM:M"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MM:MEGAM"] = \
+    CONVERSIONS["MILLIMETER:LI"] = \
+        lambda: noconversion("MILLIMETER", "LI")
+    CONVERSIONS["MILLIMETER:LIGHTYEAR"] = \
+        lambda: noconversion("MILLIMETER", "LIGHTYEAR")
+    CONVERSIONS["MILLIMETER:MEGAMETER"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MM:MI"] = \
-        lambda: noconversion("MM", "MI")
-    CONVERSIONS["MM:MICROM"] = \
+    CONVERSIONS["MILLIMETER:METER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["MILLIMETER:MI"] = \
+        lambda: noconversion("MILLIMETER", "MI")
+    CONVERSIONS["MILLIMETER:MICROMETER"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MM:NM"] = \
+    CONVERSIONS["MILLIMETER:NANOMETER"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MM:PC"] = \
-        lambda: noconversion("MM", "PC")
-    CONVERSIONS["MM:PETAM"] = \
+    CONVERSIONS["MILLIMETER:PARSEC"] = \
+        lambda: noconversion("MILLIMETER", "PARSEC")
+    CONVERSIONS["MILLIMETER:PETAMETER"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MM:PIXEL"] = \
-        lambda: noconversion("MM", "PIXEL")
-    CONVERSIONS["MM:PM"] = \
+    CONVERSIONS["MILLIMETER:PICOMETER"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MM:PT"] = \
-        lambda: noconversion("MM", "PT")
-    CONVERSIONS["MM:REFERENCEFRAME"] = \
-        lambda: noconversion("MM", "REFERENCEFRAME")
-    CONVERSIONS["MM:TERAM"] = \
+    CONVERSIONS["MILLIMETER:PIXEL"] = \
+        lambda: noconversion("MILLIMETER", "PIXEL")
+    CONVERSIONS["MILLIMETER:PT"] = \
+        lambda: noconversion("MILLIMETER", "PT")
+    CONVERSIONS["MILLIMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("MILLIMETER", "REFERENCEFRAME")
+    CONVERSIONS["MILLIMETER:TERAMETER"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["MM:THOU"] = \
-        lambda: noconversion("MM", "THOU")
-    CONVERSIONS["MM:UA"] = \
-        lambda: noconversion("MM", "UA")
-    CONVERSIONS["MM:YD"] = \
-        lambda: noconversion("MM", "YD")
-    CONVERSIONS["MM:YM"] = \
+    CONVERSIONS["MILLIMETER:THOU"] = \
+        lambda: noconversion("MILLIMETER", "THOU")
+    CONVERSIONS["MILLIMETER:YD"] = \
+        lambda: noconversion("MILLIMETER", "YD")
+    CONVERSIONS["MILLIMETER:YOCTOMETER"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MM:YOTTAM"] = \
+    CONVERSIONS["MILLIMETER:YOTTAMETER"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["MM:ZETTAM"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MM:ZM"] = \
+    CONVERSIONS["MILLIMETER:ZEPTOMETER"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["NM:AM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["NM:ANGSTROM"] = \
+    CONVERSIONS["MILLIMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["NANOMETER:ANGSTROM"] = \
         lambda value: 10 * value
-    CONVERSIONS["NM:CM"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["NM:DAM"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["NM:DM"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["NM:EXAM"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["NM:FM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["NM:FT"] = \
-        lambda: noconversion("NM", "FT")
-    CONVERSIONS["NM:GIGAM"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["NM:HM"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["NM:IN"] = \
-        lambda: noconversion("NM", "IN")
-    CONVERSIONS["NM:KM"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["NM:LI"] = \
-        lambda: noconversion("NM", "LI")
-    CONVERSIONS["NM:LY"] = \
-        lambda: noconversion("NM", "LY")
-    CONVERSIONS["NM:M"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["NM:MEGAM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["NM:MI"] = \
-        lambda: noconversion("NM", "MI")
-    CONVERSIONS["NM:MICROM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["NM:MM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["NM:PC"] = \
-        lambda: noconversion("NM", "PC")
-    CONVERSIONS["NM:PETAM"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["NM:PIXEL"] = \
-        lambda: noconversion("NM", "PIXEL")
-    CONVERSIONS["NM:PM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["NM:PT"] = \
-        lambda: noconversion("NM", "PT")
-    CONVERSIONS["NM:REFERENCEFRAME"] = \
-        lambda: noconversion("NM", "REFERENCEFRAME")
-    CONVERSIONS["NM:TERAM"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["NM:THOU"] = \
-        lambda: noconversion("NM", "THOU")
-    CONVERSIONS["NM:UA"] = \
-        lambda: noconversion("NM", "UA")
-    CONVERSIONS["NM:YD"] = \
-        lambda: noconversion("NM", "YD")
-    CONVERSIONS["NM:YM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["NM:YOTTAM"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["NM:ZETTAM"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["NM:ZM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PC:AM"] = \
-        lambda: noconversion("PC", "AM")
-    CONVERSIONS["PC:ANGSTROM"] = \
-        lambda: noconversion("PC", "ANGSTROM")
-    CONVERSIONS["PC:CM"] = \
-        lambda: noconversion("PC", "CM")
-    CONVERSIONS["PC:DAM"] = \
-        lambda: noconversion("PC", "DAM")
-    CONVERSIONS["PC:DM"] = \
-        lambda: noconversion("PC", "DM")
-    CONVERSIONS["PC:EXAM"] = \
-        lambda: noconversion("PC", "EXAM")
-    CONVERSIONS["PC:FM"] = \
-        lambda: noconversion("PC", "FM")
-    CONVERSIONS["PC:FT"] = \
-        lambda: noconversion("PC", "FT")
-    CONVERSIONS["PC:GIGAM"] = \
-        lambda: noconversion("PC", "GIGAM")
-    CONVERSIONS["PC:HM"] = \
-        lambda: noconversion("PC", "HM")
-    CONVERSIONS["PC:IN"] = \
-        lambda: noconversion("PC", "IN")
-    CONVERSIONS["PC:KM"] = \
-        lambda: noconversion("PC", "KM")
-    CONVERSIONS["PC:LI"] = \
-        lambda: noconversion("PC", "LI")
-    CONVERSIONS["PC:LY"] = \
-        lambda: noconversion("PC", "LY")
-    CONVERSIONS["PC:M"] = \
-        lambda: noconversion("PC", "M")
-    CONVERSIONS["PC:MEGAM"] = \
-        lambda: noconversion("PC", "MEGAM")
-    CONVERSIONS["PC:MI"] = \
-        lambda: noconversion("PC", "MI")
-    CONVERSIONS["PC:MICROM"] = \
-        lambda: noconversion("PC", "MICROM")
-    CONVERSIONS["PC:MM"] = \
-        lambda: noconversion("PC", "MM")
-    CONVERSIONS["PC:NM"] = \
-        lambda: noconversion("PC", "NM")
-    CONVERSIONS["PC:PETAM"] = \
-        lambda: noconversion("PC", "PETAM")
-    CONVERSIONS["PC:PIXEL"] = \
-        lambda: noconversion("PC", "PIXEL")
-    CONVERSIONS["PC:PM"] = \
-        lambda: noconversion("PC", "PM")
-    CONVERSIONS["PC:PT"] = \
-        lambda: noconversion("PC", "PT")
-    CONVERSIONS["PC:REFERENCEFRAME"] = \
-        lambda: noconversion("PC", "REFERENCEFRAME")
-    CONVERSIONS["PC:TERAM"] = \
-        lambda: noconversion("PC", "TERAM")
-    CONVERSIONS["PC:THOU"] = \
-        lambda: noconversion("PC", "THOU")
-    CONVERSIONS["PC:UA"] = \
-        lambda: noconversion("PC", "UA")
-    CONVERSIONS["PC:YD"] = \
-        lambda: noconversion("PC", "YD")
-    CONVERSIONS["PC:YM"] = \
-        lambda: noconversion("PC", "YM")
-    CONVERSIONS["PC:YOTTAM"] = \
-        lambda: noconversion("PC", "YOTTAM")
-    CONVERSIONS["PC:ZETTAM"] = \
-        lambda: noconversion("PC", "ZETTAM")
-    CONVERSIONS["PC:ZM"] = \
-        lambda: noconversion("PC", "ZM")
-    CONVERSIONS["PETAM:AM"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["PETAM:ANGSTROM"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["PETAM:CM"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["PETAM:DAM"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["PETAM:DM"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAM:EXAM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PETAM:FM"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["PETAM:FT"] = \
-        lambda: noconversion("PETAM", "FT")
-    CONVERSIONS["PETAM:GIGAM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PETAM:HM"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["PETAM:IN"] = \
-        lambda: noconversion("PETAM", "IN")
-    CONVERSIONS["PETAM:KM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAM:LI"] = \
-        lambda: noconversion("PETAM", "LI")
-    CONVERSIONS["PETAM:LY"] = \
-        lambda: noconversion("PETAM", "LY")
-    CONVERSIONS["PETAM:M"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["PETAM:MEGAM"] = \
+    CONVERSIONS["NANOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("NANOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["NANOMETER:ATTOMETER"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["PETAM:MI"] = \
-        lambda: noconversion("PETAM", "MI")
-    CONVERSIONS["PETAM:MICROM"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["PETAM:MM"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["PETAM:NM"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["PETAM:PC"] = \
-        lambda: noconversion("PETAM", "PC")
-    CONVERSIONS["PETAM:PIXEL"] = \
-        lambda: noconversion("PETAM", "PIXEL")
-    CONVERSIONS["PETAM:PM"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["PETAM:PT"] = \
-        lambda: noconversion("PETAM", "PT")
-    CONVERSIONS["PETAM:REFERENCEFRAME"] = \
-        lambda: noconversion("PETAM", "REFERENCEFRAME")
-    CONVERSIONS["PETAM:TERAM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PETAM:THOU"] = \
-        lambda: noconversion("PETAM", "THOU")
-    CONVERSIONS["PETAM:UA"] = \
-        lambda: noconversion("PETAM", "UA")
-    CONVERSIONS["PETAM:YD"] = \
-        lambda: noconversion("PETAM", "YD")
-    CONVERSIONS["PETAM:YM"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["PETAM:YOTTAM"] = \
+    CONVERSIONS["NANOMETER:CENTIMETER"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["NANOMETER:DECIMETER"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["NANOMETER:DEKAMETER"] = \
+        lambda value: (10 ** -10) * value
+    CONVERSIONS["NANOMETER:EXAMETER"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["NANOMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["NANOMETER:FT"] = \
+        lambda: noconversion("NANOMETER", "FT")
+    CONVERSIONS["NANOMETER:GIGAMETER"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["NANOMETER:HECTOMETER"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["NANOMETER:IN"] = \
+        lambda: noconversion("NANOMETER", "IN")
+    CONVERSIONS["NANOMETER:KILOMETER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["NANOMETER:LI"] = \
+        lambda: noconversion("NANOMETER", "LI")
+    CONVERSIONS["NANOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("NANOMETER", "LIGHTYEAR")
+    CONVERSIONS["NANOMETER:MEGAMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["NANOMETER:METER"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["PETAM:ZETTAM"] = \
+    CONVERSIONS["NANOMETER:MI"] = \
+        lambda: noconversion("NANOMETER", "MI")
+    CONVERSIONS["NANOMETER:MICROMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["NANOMETER:MILLIMETER"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["PETAM:ZM"] = \
+    CONVERSIONS["NANOMETER:PARSEC"] = \
+        lambda: noconversion("NANOMETER", "PARSEC")
+    CONVERSIONS["NANOMETER:PETAMETER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["NANOMETER:PICOMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["NANOMETER:PIXEL"] = \
+        lambda: noconversion("NANOMETER", "PIXEL")
+    CONVERSIONS["NANOMETER:PT"] = \
+        lambda: noconversion("NANOMETER", "PT")
+    CONVERSIONS["NANOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("NANOMETER", "REFERENCEFRAME")
+    CONVERSIONS["NANOMETER:TERAMETER"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["NANOMETER:THOU"] = \
+        lambda: noconversion("NANOMETER", "THOU")
+    CONVERSIONS["NANOMETER:YD"] = \
+        lambda: noconversion("NANOMETER", "YD")
+    CONVERSIONS["NANOMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["NANOMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["NANOMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["NANOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["PARSEC:ANGSTROM"] = \
+        lambda: noconversion("PARSEC", "ANGSTROM")
+    CONVERSIONS["PARSEC:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("PARSEC", "ASTRONOMICALUNIT")
+    CONVERSIONS["PARSEC:ATTOMETER"] = \
+        lambda: noconversion("PARSEC", "ATTOMETER")
+    CONVERSIONS["PARSEC:CENTIMETER"] = \
+        lambda: noconversion("PARSEC", "CENTIMETER")
+    CONVERSIONS["PARSEC:DECIMETER"] = \
+        lambda: noconversion("PARSEC", "DECIMETER")
+    CONVERSIONS["PARSEC:DEKAMETER"] = \
+        lambda: noconversion("PARSEC", "DEKAMETER")
+    CONVERSIONS["PARSEC:EXAMETER"] = \
+        lambda: noconversion("PARSEC", "EXAMETER")
+    CONVERSIONS["PARSEC:FEMTOMETER"] = \
+        lambda: noconversion("PARSEC", "FEMTOMETER")
+    CONVERSIONS["PARSEC:FT"] = \
+        lambda: noconversion("PARSEC", "FT")
+    CONVERSIONS["PARSEC:GIGAMETER"] = \
+        lambda: noconversion("PARSEC", "GIGAMETER")
+    CONVERSIONS["PARSEC:HECTOMETER"] = \
+        lambda: noconversion("PARSEC", "HECTOMETER")
+    CONVERSIONS["PARSEC:IN"] = \
+        lambda: noconversion("PARSEC", "IN")
+    CONVERSIONS["PARSEC:KILOMETER"] = \
+        lambda: noconversion("PARSEC", "KILOMETER")
+    CONVERSIONS["PARSEC:LI"] = \
+        lambda: noconversion("PARSEC", "LI")
+    CONVERSIONS["PARSEC:LIGHTYEAR"] = \
+        lambda: noconversion("PARSEC", "LIGHTYEAR")
+    CONVERSIONS["PARSEC:MEGAMETER"] = \
+        lambda: noconversion("PARSEC", "MEGAMETER")
+    CONVERSIONS["PARSEC:METER"] = \
+        lambda: noconversion("PARSEC", "METER")
+    CONVERSIONS["PARSEC:MI"] = \
+        lambda: noconversion("PARSEC", "MI")
+    CONVERSIONS["PARSEC:MICROMETER"] = \
+        lambda: noconversion("PARSEC", "MICROMETER")
+    CONVERSIONS["PARSEC:MILLIMETER"] = \
+        lambda: noconversion("PARSEC", "MILLIMETER")
+    CONVERSIONS["PARSEC:NANOMETER"] = \
+        lambda: noconversion("PARSEC", "NANOMETER")
+    CONVERSIONS["PARSEC:PETAMETER"] = \
+        lambda: noconversion("PARSEC", "PETAMETER")
+    CONVERSIONS["PARSEC:PICOMETER"] = \
+        lambda: noconversion("PARSEC", "PICOMETER")
+    CONVERSIONS["PARSEC:PIXEL"] = \
+        lambda: noconversion("PARSEC", "PIXEL")
+    CONVERSIONS["PARSEC:PT"] = \
+        lambda: noconversion("PARSEC", "PT")
+    CONVERSIONS["PARSEC:REFERENCEFRAME"] = \
+        lambda: noconversion("PARSEC", "REFERENCEFRAME")
+    CONVERSIONS["PARSEC:TERAMETER"] = \
+        lambda: noconversion("PARSEC", "TERAMETER")
+    CONVERSIONS["PARSEC:THOU"] = \
+        lambda: noconversion("PARSEC", "THOU")
+    CONVERSIONS["PARSEC:YD"] = \
+        lambda: noconversion("PARSEC", "YD")
+    CONVERSIONS["PARSEC:YOCTOMETER"] = \
+        lambda: noconversion("PARSEC", "YOCTOMETER")
+    CONVERSIONS["PARSEC:YOTTAMETER"] = \
+        lambda: noconversion("PARSEC", "YOTTAMETER")
+    CONVERSIONS["PARSEC:ZEPTOMETER"] = \
+        lambda: noconversion("PARSEC", "ZEPTOMETER")
+    CONVERSIONS["PARSEC:ZETTAMETER"] = \
+        lambda: noconversion("PARSEC", "ZETTAMETER")
+    CONVERSIONS["PETAMETER:ANGSTROM"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["PETAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("PETAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["PETAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["PETAMETER:CENTIMETER"] = \
+        lambda value: (10 ** 17) * value
+    CONVERSIONS["PETAMETER:DECIMETER"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["PETAMETER:DEKAMETER"] = \
+        lambda value: (10 ** 14) * value
+    CONVERSIONS["PETAMETER:EXAMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["PETAMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["PETAMETER:FT"] = \
+        lambda: noconversion("PETAMETER", "FT")
+    CONVERSIONS["PETAMETER:GIGAMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["PETAMETER:HECTOMETER"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["PETAMETER:IN"] = \
+        lambda: noconversion("PETAMETER", "IN")
+    CONVERSIONS["PETAMETER:KILOMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["PETAMETER:LI"] = \
+        lambda: noconversion("PETAMETER", "LI")
+    CONVERSIONS["PETAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("PETAMETER", "LIGHTYEAR")
+    CONVERSIONS["PETAMETER:MEGAMETER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["PETAMETER:METER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["PETAMETER:MI"] = \
+        lambda: noconversion("PETAMETER", "MI")
+    CONVERSIONS["PETAMETER:MICROMETER"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["PETAMETER:MILLIMETER"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["PETAMETER:NANOMETER"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["PETAMETER:PARSEC"] = \
+        lambda: noconversion("PETAMETER", "PARSEC")
+    CONVERSIONS["PETAMETER:PICOMETER"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["PETAMETER:PIXEL"] = \
+        lambda: noconversion("PETAMETER", "PIXEL")
+    CONVERSIONS["PETAMETER:PT"] = \
+        lambda: noconversion("PETAMETER", "PT")
+    CONVERSIONS["PETAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("PETAMETER", "REFERENCEFRAME")
+    CONVERSIONS["PETAMETER:TERAMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["PETAMETER:THOU"] = \
+        lambda: noconversion("PETAMETER", "THOU")
+    CONVERSIONS["PETAMETER:YD"] = \
+        lambda: noconversion("PETAMETER", "YD")
+    CONVERSIONS["PETAMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["PETAMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PETAMETER:ZEPTOMETER"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["PIXEL:AM"] = \
-        lambda: noconversion("PIXEL", "AM")
+    CONVERSIONS["PETAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PICOMETER:ANGSTROM"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["PICOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("PICOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["PICOMETER:ATTOMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["PICOMETER:CENTIMETER"] = \
+        lambda value: (10 ** -10) * value
+    CONVERSIONS["PICOMETER:DECIMETER"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["PICOMETER:DEKAMETER"] = \
+        lambda value: (10 ** -13) * value
+    CONVERSIONS["PICOMETER:EXAMETER"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["PICOMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["PICOMETER:FT"] = \
+        lambda: noconversion("PICOMETER", "FT")
+    CONVERSIONS["PICOMETER:GIGAMETER"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["PICOMETER:HECTOMETER"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["PICOMETER:IN"] = \
+        lambda: noconversion("PICOMETER", "IN")
+    CONVERSIONS["PICOMETER:KILOMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["PICOMETER:LI"] = \
+        lambda: noconversion("PICOMETER", "LI")
+    CONVERSIONS["PICOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("PICOMETER", "LIGHTYEAR")
+    CONVERSIONS["PICOMETER:MEGAMETER"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["PICOMETER:METER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["PICOMETER:MI"] = \
+        lambda: noconversion("PICOMETER", "MI")
+    CONVERSIONS["PICOMETER:MICROMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PICOMETER:MILLIMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PICOMETER:NANOMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["PICOMETER:PARSEC"] = \
+        lambda: noconversion("PICOMETER", "PARSEC")
+    CONVERSIONS["PICOMETER:PETAMETER"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["PICOMETER:PIXEL"] = \
+        lambda: noconversion("PICOMETER", "PIXEL")
+    CONVERSIONS["PICOMETER:PT"] = \
+        lambda: noconversion("PICOMETER", "PT")
+    CONVERSIONS["PICOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("PICOMETER", "REFERENCEFRAME")
+    CONVERSIONS["PICOMETER:TERAMETER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["PICOMETER:THOU"] = \
+        lambda: noconversion("PICOMETER", "THOU")
+    CONVERSIONS["PICOMETER:YD"] = \
+        lambda: noconversion("PICOMETER", "YD")
+    CONVERSIONS["PICOMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["PICOMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["PICOMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["PICOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -33) * value
     CONVERSIONS["PIXEL:ANGSTROM"] = \
         lambda: noconversion("PIXEL", "ANGSTROM")
-    CONVERSIONS["PIXEL:CM"] = \
-        lambda: noconversion("PIXEL", "CM")
-    CONVERSIONS["PIXEL:DAM"] = \
-        lambda: noconversion("PIXEL", "DAM")
-    CONVERSIONS["PIXEL:DM"] = \
-        lambda: noconversion("PIXEL", "DM")
-    CONVERSIONS["PIXEL:EXAM"] = \
-        lambda: noconversion("PIXEL", "EXAM")
-    CONVERSIONS["PIXEL:FM"] = \
-        lambda: noconversion("PIXEL", "FM")
+    CONVERSIONS["PIXEL:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("PIXEL", "ASTRONOMICALUNIT")
+    CONVERSIONS["PIXEL:ATTOMETER"] = \
+        lambda: noconversion("PIXEL", "ATTOMETER")
+    CONVERSIONS["PIXEL:CENTIMETER"] = \
+        lambda: noconversion("PIXEL", "CENTIMETER")
+    CONVERSIONS["PIXEL:DECIMETER"] = \
+        lambda: noconversion("PIXEL", "DECIMETER")
+    CONVERSIONS["PIXEL:DEKAMETER"] = \
+        lambda: noconversion("PIXEL", "DEKAMETER")
+    CONVERSIONS["PIXEL:EXAMETER"] = \
+        lambda: noconversion("PIXEL", "EXAMETER")
+    CONVERSIONS["PIXEL:FEMTOMETER"] = \
+        lambda: noconversion("PIXEL", "FEMTOMETER")
     CONVERSIONS["PIXEL:FT"] = \
         lambda: noconversion("PIXEL", "FT")
-    CONVERSIONS["PIXEL:GIGAM"] = \
-        lambda: noconversion("PIXEL", "GIGAM")
-    CONVERSIONS["PIXEL:HM"] = \
-        lambda: noconversion("PIXEL", "HM")
+    CONVERSIONS["PIXEL:GIGAMETER"] = \
+        lambda: noconversion("PIXEL", "GIGAMETER")
+    CONVERSIONS["PIXEL:HECTOMETER"] = \
+        lambda: noconversion("PIXEL", "HECTOMETER")
     CONVERSIONS["PIXEL:IN"] = \
         lambda: noconversion("PIXEL", "IN")
-    CONVERSIONS["PIXEL:KM"] = \
-        lambda: noconversion("PIXEL", "KM")
+    CONVERSIONS["PIXEL:KILOMETER"] = \
+        lambda: noconversion("PIXEL", "KILOMETER")
     CONVERSIONS["PIXEL:LI"] = \
         lambda: noconversion("PIXEL", "LI")
-    CONVERSIONS["PIXEL:LY"] = \
-        lambda: noconversion("PIXEL", "LY")
-    CONVERSIONS["PIXEL:M"] = \
-        lambda: noconversion("PIXEL", "M")
-    CONVERSIONS["PIXEL:MEGAM"] = \
-        lambda: noconversion("PIXEL", "MEGAM")
+    CONVERSIONS["PIXEL:LIGHTYEAR"] = \
+        lambda: noconversion("PIXEL", "LIGHTYEAR")
+    CONVERSIONS["PIXEL:MEGAMETER"] = \
+        lambda: noconversion("PIXEL", "MEGAMETER")
+    CONVERSIONS["PIXEL:METER"] = \
+        lambda: noconversion("PIXEL", "METER")
     CONVERSIONS["PIXEL:MI"] = \
         lambda: noconversion("PIXEL", "MI")
-    CONVERSIONS["PIXEL:MICROM"] = \
-        lambda: noconversion("PIXEL", "MICROM")
-    CONVERSIONS["PIXEL:MM"] = \
-        lambda: noconversion("PIXEL", "MM")
-    CONVERSIONS["PIXEL:NM"] = \
-        lambda: noconversion("PIXEL", "NM")
-    CONVERSIONS["PIXEL:PC"] = \
-        lambda: noconversion("PIXEL", "PC")
-    CONVERSIONS["PIXEL:PETAM"] = \
-        lambda: noconversion("PIXEL", "PETAM")
-    CONVERSIONS["PIXEL:PM"] = \
-        lambda: noconversion("PIXEL", "PM")
+    CONVERSIONS["PIXEL:MICROMETER"] = \
+        lambda: noconversion("PIXEL", "MICROMETER")
+    CONVERSIONS["PIXEL:MILLIMETER"] = \
+        lambda: noconversion("PIXEL", "MILLIMETER")
+    CONVERSIONS["PIXEL:NANOMETER"] = \
+        lambda: noconversion("PIXEL", "NANOMETER")
+    CONVERSIONS["PIXEL:PARSEC"] = \
+        lambda: noconversion("PIXEL", "PARSEC")
+    CONVERSIONS["PIXEL:PETAMETER"] = \
+        lambda: noconversion("PIXEL", "PETAMETER")
+    CONVERSIONS["PIXEL:PICOMETER"] = \
+        lambda: noconversion("PIXEL", "PICOMETER")
     CONVERSIONS["PIXEL:PT"] = \
         lambda: noconversion("PIXEL", "PT")
     CONVERSIONS["PIXEL:REFERENCEFRAME"] = \
         lambda: noconversion("PIXEL", "REFERENCEFRAME")
-    CONVERSIONS["PIXEL:TERAM"] = \
-        lambda: noconversion("PIXEL", "TERAM")
+    CONVERSIONS["PIXEL:TERAMETER"] = \
+        lambda: noconversion("PIXEL", "TERAMETER")
     CONVERSIONS["PIXEL:THOU"] = \
         lambda: noconversion("PIXEL", "THOU")
-    CONVERSIONS["PIXEL:UA"] = \
-        lambda: noconversion("PIXEL", "UA")
     CONVERSIONS["PIXEL:YD"] = \
         lambda: noconversion("PIXEL", "YD")
-    CONVERSIONS["PIXEL:YM"] = \
-        lambda: noconversion("PIXEL", "YM")
-    CONVERSIONS["PIXEL:YOTTAM"] = \
-        lambda: noconversion("PIXEL", "YOTTAM")
-    CONVERSIONS["PIXEL:ZETTAM"] = \
-        lambda: noconversion("PIXEL", "ZETTAM")
-    CONVERSIONS["PIXEL:ZM"] = \
-        lambda: noconversion("PIXEL", "ZM")
-    CONVERSIONS["PM:AM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PM:ANGSTROM"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["PM:CM"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["PM:DAM"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["PM:DM"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["PM:EXAM"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["PM:FM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PM:FT"] = \
-        lambda: noconversion("PM", "FT")
-    CONVERSIONS["PM:GIGAM"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["PM:HM"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["PM:IN"] = \
-        lambda: noconversion("PM", "IN")
-    CONVERSIONS["PM:KM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["PM:LI"] = \
-        lambda: noconversion("PM", "LI")
-    CONVERSIONS["PM:LY"] = \
-        lambda: noconversion("PM", "LY")
-    CONVERSIONS["PM:M"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["PM:MEGAM"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["PM:MI"] = \
-        lambda: noconversion("PM", "MI")
-    CONVERSIONS["PM:MICROM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PM:MM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PM:NM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PM:PC"] = \
-        lambda: noconversion("PM", "PC")
-    CONVERSIONS["PM:PETAM"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["PM:PIXEL"] = \
-        lambda: noconversion("PM", "PIXEL")
-    CONVERSIONS["PM:PT"] = \
-        lambda: noconversion("PM", "PT")
-    CONVERSIONS["PM:REFERENCEFRAME"] = \
-        lambda: noconversion("PM", "REFERENCEFRAME")
-    CONVERSIONS["PM:TERAM"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["PM:THOU"] = \
-        lambda: noconversion("PM", "THOU")
-    CONVERSIONS["PM:UA"] = \
-        lambda: noconversion("PM", "UA")
-    CONVERSIONS["PM:YD"] = \
-        lambda: noconversion("PM", "YD")
-    CONVERSIONS["PM:YM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PM:YOTTAM"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["PM:ZETTAM"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["PM:ZM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["PT:AM"] = \
-        lambda: noconversion("PT", "AM")
+    CONVERSIONS["PIXEL:YOCTOMETER"] = \
+        lambda: noconversion("PIXEL", "YOCTOMETER")
+    CONVERSIONS["PIXEL:YOTTAMETER"] = \
+        lambda: noconversion("PIXEL", "YOTTAMETER")
+    CONVERSIONS["PIXEL:ZEPTOMETER"] = \
+        lambda: noconversion("PIXEL", "ZEPTOMETER")
+    CONVERSIONS["PIXEL:ZETTAMETER"] = \
+        lambda: noconversion("PIXEL", "ZETTAMETER")
     CONVERSIONS["PT:ANGSTROM"] = \
         lambda: noconversion("PT", "ANGSTROM")
-    CONVERSIONS["PT:CM"] = \
-        lambda: noconversion("PT", "CM")
-    CONVERSIONS["PT:DAM"] = \
-        lambda: noconversion("PT", "DAM")
-    CONVERSIONS["PT:DM"] = \
-        lambda: noconversion("PT", "DM")
-    CONVERSIONS["PT:EXAM"] = \
-        lambda: noconversion("PT", "EXAM")
-    CONVERSIONS["PT:FM"] = \
-        lambda: noconversion("PT", "FM")
+    CONVERSIONS["PT:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("PT", "ASTRONOMICALUNIT")
+    CONVERSIONS["PT:ATTOMETER"] = \
+        lambda: noconversion("PT", "ATTOMETER")
+    CONVERSIONS["PT:CENTIMETER"] = \
+        lambda: noconversion("PT", "CENTIMETER")
+    CONVERSIONS["PT:DECIMETER"] = \
+        lambda: noconversion("PT", "DECIMETER")
+    CONVERSIONS["PT:DEKAMETER"] = \
+        lambda: noconversion("PT", "DEKAMETER")
+    CONVERSIONS["PT:EXAMETER"] = \
+        lambda: noconversion("PT", "EXAMETER")
+    CONVERSIONS["PT:FEMTOMETER"] = \
+        lambda: noconversion("PT", "FEMTOMETER")
     CONVERSIONS["PT:FT"] = \
         lambda: noconversion("PT", "FT")
-    CONVERSIONS["PT:GIGAM"] = \
-        lambda: noconversion("PT", "GIGAM")
-    CONVERSIONS["PT:HM"] = \
-        lambda: noconversion("PT", "HM")
+    CONVERSIONS["PT:GIGAMETER"] = \
+        lambda: noconversion("PT", "GIGAMETER")
+    CONVERSIONS["PT:HECTOMETER"] = \
+        lambda: noconversion("PT", "HECTOMETER")
     CONVERSIONS["PT:IN"] = \
         lambda: noconversion("PT", "IN")
-    CONVERSIONS["PT:KM"] = \
-        lambda: noconversion("PT", "KM")
+    CONVERSIONS["PT:KILOMETER"] = \
+        lambda: noconversion("PT", "KILOMETER")
     CONVERSIONS["PT:LI"] = \
         lambda: noconversion("PT", "LI")
-    CONVERSIONS["PT:LY"] = \
-        lambda: noconversion("PT", "LY")
-    CONVERSIONS["PT:M"] = \
-        lambda: noconversion("PT", "M")
-    CONVERSIONS["PT:MEGAM"] = \
-        lambda: noconversion("PT", "MEGAM")
+    CONVERSIONS["PT:LIGHTYEAR"] = \
+        lambda: noconversion("PT", "LIGHTYEAR")
+    CONVERSIONS["PT:MEGAMETER"] = \
+        lambda: noconversion("PT", "MEGAMETER")
+    CONVERSIONS["PT:METER"] = \
+        lambda: noconversion("PT", "METER")
     CONVERSIONS["PT:MI"] = \
         lambda: noconversion("PT", "MI")
-    CONVERSIONS["PT:MICROM"] = \
-        lambda: noconversion("PT", "MICROM")
-    CONVERSIONS["PT:MM"] = \
-        lambda: noconversion("PT", "MM")
-    CONVERSIONS["PT:NM"] = \
-        lambda: noconversion("PT", "NM")
-    CONVERSIONS["PT:PC"] = \
-        lambda: noconversion("PT", "PC")
-    CONVERSIONS["PT:PETAM"] = \
-        lambda: noconversion("PT", "PETAM")
+    CONVERSIONS["PT:MICROMETER"] = \
+        lambda: noconversion("PT", "MICROMETER")
+    CONVERSIONS["PT:MILLIMETER"] = \
+        lambda: noconversion("PT", "MILLIMETER")
+    CONVERSIONS["PT:NANOMETER"] = \
+        lambda: noconversion("PT", "NANOMETER")
+    CONVERSIONS["PT:PARSEC"] = \
+        lambda: noconversion("PT", "PARSEC")
+    CONVERSIONS["PT:PETAMETER"] = \
+        lambda: noconversion("PT", "PETAMETER")
+    CONVERSIONS["PT:PICOMETER"] = \
+        lambda: noconversion("PT", "PICOMETER")
     CONVERSIONS["PT:PIXEL"] = \
         lambda: noconversion("PT", "PIXEL")
-    CONVERSIONS["PT:PM"] = \
-        lambda: noconversion("PT", "PM")
     CONVERSIONS["PT:REFERENCEFRAME"] = \
         lambda: noconversion("PT", "REFERENCEFRAME")
-    CONVERSIONS["PT:TERAM"] = \
-        lambda: noconversion("PT", "TERAM")
+    CONVERSIONS["PT:TERAMETER"] = \
+        lambda: noconversion("PT", "TERAMETER")
     CONVERSIONS["PT:THOU"] = \
         lambda: noconversion("PT", "THOU")
-    CONVERSIONS["PT:UA"] = \
-        lambda: noconversion("PT", "UA")
     CONVERSIONS["PT:YD"] = \
         lambda: noconversion("PT", "YD")
-    CONVERSIONS["PT:YM"] = \
-        lambda: noconversion("PT", "YM")
-    CONVERSIONS["PT:YOTTAM"] = \
-        lambda: noconversion("PT", "YOTTAM")
-    CONVERSIONS["PT:ZETTAM"] = \
-        lambda: noconversion("PT", "ZETTAM")
-    CONVERSIONS["PT:ZM"] = \
-        lambda: noconversion("PT", "ZM")
-    CONVERSIONS["REFERENCEFRAME:AM"] = \
-        lambda: noconversion("REFERENCEFRAME", "AM")
+    CONVERSIONS["PT:YOCTOMETER"] = \
+        lambda: noconversion("PT", "YOCTOMETER")
+    CONVERSIONS["PT:YOTTAMETER"] = \
+        lambda: noconversion("PT", "YOTTAMETER")
+    CONVERSIONS["PT:ZEPTOMETER"] = \
+        lambda: noconversion("PT", "ZEPTOMETER")
+    CONVERSIONS["PT:ZETTAMETER"] = \
+        lambda: noconversion("PT", "ZETTAMETER")
     CONVERSIONS["REFERENCEFRAME:ANGSTROM"] = \
         lambda: noconversion("REFERENCEFRAME", "ANGSTROM")
-    CONVERSIONS["REFERENCEFRAME:CM"] = \
-        lambda: noconversion("REFERENCEFRAME", "CM")
-    CONVERSIONS["REFERENCEFRAME:DAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "DAM")
-    CONVERSIONS["REFERENCEFRAME:DM"] = \
-        lambda: noconversion("REFERENCEFRAME", "DM")
-    CONVERSIONS["REFERENCEFRAME:EXAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "EXAM")
-    CONVERSIONS["REFERENCEFRAME:FM"] = \
-        lambda: noconversion("REFERENCEFRAME", "FM")
+    CONVERSIONS["REFERENCEFRAME:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("REFERENCEFRAME", "ASTRONOMICALUNIT")
+    CONVERSIONS["REFERENCEFRAME:ATTOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "ATTOMETER")
+    CONVERSIONS["REFERENCEFRAME:CENTIMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "CENTIMETER")
+    CONVERSIONS["REFERENCEFRAME:DECIMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "DECIMETER")
+    CONVERSIONS["REFERENCEFRAME:DEKAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "DEKAMETER")
+    CONVERSIONS["REFERENCEFRAME:EXAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "EXAMETER")
+    CONVERSIONS["REFERENCEFRAME:FEMTOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "FEMTOMETER")
     CONVERSIONS["REFERENCEFRAME:FT"] = \
         lambda: noconversion("REFERENCEFRAME", "FT")
-    CONVERSIONS["REFERENCEFRAME:GIGAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "GIGAM")
-    CONVERSIONS["REFERENCEFRAME:HM"] = \
-        lambda: noconversion("REFERENCEFRAME", "HM")
+    CONVERSIONS["REFERENCEFRAME:GIGAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "GIGAMETER")
+    CONVERSIONS["REFERENCEFRAME:HECTOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "HECTOMETER")
     CONVERSIONS["REFERENCEFRAME:IN"] = \
         lambda: noconversion("REFERENCEFRAME", "IN")
-    CONVERSIONS["REFERENCEFRAME:KM"] = \
-        lambda: noconversion("REFERENCEFRAME", "KM")
+    CONVERSIONS["REFERENCEFRAME:KILOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "KILOMETER")
     CONVERSIONS["REFERENCEFRAME:LI"] = \
         lambda: noconversion("REFERENCEFRAME", "LI")
-    CONVERSIONS["REFERENCEFRAME:LY"] = \
-        lambda: noconversion("REFERENCEFRAME", "LY")
-    CONVERSIONS["REFERENCEFRAME:M"] = \
-        lambda: noconversion("REFERENCEFRAME", "M")
-    CONVERSIONS["REFERENCEFRAME:MEGAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "MEGAM")
+    CONVERSIONS["REFERENCEFRAME:LIGHTYEAR"] = \
+        lambda: noconversion("REFERENCEFRAME", "LIGHTYEAR")
+    CONVERSIONS["REFERENCEFRAME:MEGAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "MEGAMETER")
+    CONVERSIONS["REFERENCEFRAME:METER"] = \
+        lambda: noconversion("REFERENCEFRAME", "METER")
     CONVERSIONS["REFERENCEFRAME:MI"] = \
         lambda: noconversion("REFERENCEFRAME", "MI")
-    CONVERSIONS["REFERENCEFRAME:MICROM"] = \
-        lambda: noconversion("REFERENCEFRAME", "MICROM")
-    CONVERSIONS["REFERENCEFRAME:MM"] = \
-        lambda: noconversion("REFERENCEFRAME", "MM")
-    CONVERSIONS["REFERENCEFRAME:NM"] = \
-        lambda: noconversion("REFERENCEFRAME", "NM")
-    CONVERSIONS["REFERENCEFRAME:PC"] = \
-        lambda: noconversion("REFERENCEFRAME", "PC")
-    CONVERSIONS["REFERENCEFRAME:PETAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "PETAM")
+    CONVERSIONS["REFERENCEFRAME:MICROMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "MICROMETER")
+    CONVERSIONS["REFERENCEFRAME:MILLIMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "MILLIMETER")
+    CONVERSIONS["REFERENCEFRAME:NANOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "NANOMETER")
+    CONVERSIONS["REFERENCEFRAME:PARSEC"] = \
+        lambda: noconversion("REFERENCEFRAME", "PARSEC")
+    CONVERSIONS["REFERENCEFRAME:PETAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "PETAMETER")
+    CONVERSIONS["REFERENCEFRAME:PICOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "PICOMETER")
     CONVERSIONS["REFERENCEFRAME:PIXEL"] = \
         lambda: noconversion("REFERENCEFRAME", "PIXEL")
-    CONVERSIONS["REFERENCEFRAME:PM"] = \
-        lambda: noconversion("REFERENCEFRAME", "PM")
     CONVERSIONS["REFERENCEFRAME:PT"] = \
         lambda: noconversion("REFERENCEFRAME", "PT")
-    CONVERSIONS["REFERENCEFRAME:TERAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "TERAM")
+    CONVERSIONS["REFERENCEFRAME:TERAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "TERAMETER")
     CONVERSIONS["REFERENCEFRAME:THOU"] = \
         lambda: noconversion("REFERENCEFRAME", "THOU")
-    CONVERSIONS["REFERENCEFRAME:UA"] = \
-        lambda: noconversion("REFERENCEFRAME", "UA")
     CONVERSIONS["REFERENCEFRAME:YD"] = \
         lambda: noconversion("REFERENCEFRAME", "YD")
-    CONVERSIONS["REFERENCEFRAME:YM"] = \
-        lambda: noconversion("REFERENCEFRAME", "YM")
-    CONVERSIONS["REFERENCEFRAME:YOTTAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "YOTTAM")
-    CONVERSIONS["REFERENCEFRAME:ZETTAM"] = \
-        lambda: noconversion("REFERENCEFRAME", "ZETTAM")
-    CONVERSIONS["REFERENCEFRAME:ZM"] = \
-        lambda: noconversion("REFERENCEFRAME", "ZM")
-    CONVERSIONS["TERAM:AM"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["TERAM:ANGSTROM"] = \
+    CONVERSIONS["REFERENCEFRAME:YOCTOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "YOCTOMETER")
+    CONVERSIONS["REFERENCEFRAME:YOTTAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "YOTTAMETER")
+    CONVERSIONS["REFERENCEFRAME:ZEPTOMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "ZEPTOMETER")
+    CONVERSIONS["REFERENCEFRAME:ZETTAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "ZETTAMETER")
+    CONVERSIONS["TERAMETER:ANGSTROM"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["TERAM:CM"] = \
+    CONVERSIONS["TERAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("TERAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["TERAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["TERAMETER:CENTIMETER"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["TERAM:DAM"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["TERAM:DM"] = \
+    CONVERSIONS["TERAMETER:DECIMETER"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAM:EXAM"] = \
+    CONVERSIONS["TERAMETER:DEKAMETER"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["TERAMETER:EXAMETER"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["TERAM:FM"] = \
+    CONVERSIONS["TERAMETER:FEMTOMETER"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["TERAM:FT"] = \
-        lambda: noconversion("TERAM", "FT")
-    CONVERSIONS["TERAM:GIGAM"] = \
+    CONVERSIONS["TERAMETER:FT"] = \
+        lambda: noconversion("TERAMETER", "FT")
+    CONVERSIONS["TERAMETER:GIGAMETER"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["TERAM:HM"] = \
+    CONVERSIONS["TERAMETER:HECTOMETER"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["TERAM:IN"] = \
-        lambda: noconversion("TERAM", "IN")
-    CONVERSIONS["TERAM:KM"] = \
+    CONVERSIONS["TERAMETER:IN"] = \
+        lambda: noconversion("TERAMETER", "IN")
+    CONVERSIONS["TERAMETER:KILOMETER"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAM:LI"] = \
-        lambda: noconversion("TERAM", "LI")
-    CONVERSIONS["TERAM:LY"] = \
-        lambda: noconversion("TERAM", "LY")
-    CONVERSIONS["TERAM:M"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["TERAM:MEGAM"] = \
+    CONVERSIONS["TERAMETER:LI"] = \
+        lambda: noconversion("TERAMETER", "LI")
+    CONVERSIONS["TERAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("TERAMETER", "LIGHTYEAR")
+    CONVERSIONS["TERAMETER:MEGAMETER"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["TERAM:MI"] = \
-        lambda: noconversion("TERAM", "MI")
-    CONVERSIONS["TERAM:MICROM"] = \
+    CONVERSIONS["TERAMETER:METER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["TERAMETER:MI"] = \
+        lambda: noconversion("TERAMETER", "MI")
+    CONVERSIONS["TERAMETER:MICROMETER"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["TERAM:MM"] = \
+    CONVERSIONS["TERAMETER:MILLIMETER"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["TERAM:NM"] = \
+    CONVERSIONS["TERAMETER:NANOMETER"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["TERAM:PC"] = \
-        lambda: noconversion("TERAM", "PC")
-    CONVERSIONS["TERAM:PETAM"] = \
+    CONVERSIONS["TERAMETER:PARSEC"] = \
+        lambda: noconversion("TERAMETER", "PARSEC")
+    CONVERSIONS["TERAMETER:PETAMETER"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["TERAM:PIXEL"] = \
-        lambda: noconversion("TERAM", "PIXEL")
-    CONVERSIONS["TERAM:PM"] = \
+    CONVERSIONS["TERAMETER:PICOMETER"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["TERAM:PT"] = \
-        lambda: noconversion("TERAM", "PT")
-    CONVERSIONS["TERAM:REFERENCEFRAME"] = \
-        lambda: noconversion("TERAM", "REFERENCEFRAME")
-    CONVERSIONS["TERAM:THOU"] = \
-        lambda: noconversion("TERAM", "THOU")
-    CONVERSIONS["TERAM:UA"] = \
-        lambda: noconversion("TERAM", "UA")
-    CONVERSIONS["TERAM:YD"] = \
-        lambda: noconversion("TERAM", "YD")
-    CONVERSIONS["TERAM:YM"] = \
+    CONVERSIONS["TERAMETER:PIXEL"] = \
+        lambda: noconversion("TERAMETER", "PIXEL")
+    CONVERSIONS["TERAMETER:PT"] = \
+        lambda: noconversion("TERAMETER", "PT")
+    CONVERSIONS["TERAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("TERAMETER", "REFERENCEFRAME")
+    CONVERSIONS["TERAMETER:THOU"] = \
+        lambda: noconversion("TERAMETER", "THOU")
+    CONVERSIONS["TERAMETER:YD"] = \
+        lambda: noconversion("TERAMETER", "YD")
+    CONVERSIONS["TERAMETER:YOCTOMETER"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["TERAM:YOTTAM"] = \
+    CONVERSIONS["TERAMETER:YOTTAMETER"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["TERAM:ZETTAM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["TERAM:ZM"] = \
+    CONVERSIONS["TERAMETER:ZEPTOMETER"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["THOU:AM"] = \
-        lambda: noconversion("THOU", "AM")
+    CONVERSIONS["TERAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -9) * value
     CONVERSIONS["THOU:ANGSTROM"] = \
         lambda: noconversion("THOU", "ANGSTROM")
-    CONVERSIONS["THOU:CM"] = \
-        lambda: noconversion("THOU", "CM")
-    CONVERSIONS["THOU:DAM"] = \
-        lambda: noconversion("THOU", "DAM")
-    CONVERSIONS["THOU:DM"] = \
-        lambda: noconversion("THOU", "DM")
-    CONVERSIONS["THOU:EXAM"] = \
-        lambda: noconversion("THOU", "EXAM")
-    CONVERSIONS["THOU:FM"] = \
-        lambda: noconversion("THOU", "FM")
+    CONVERSIONS["THOU:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("THOU", "ASTRONOMICALUNIT")
+    CONVERSIONS["THOU:ATTOMETER"] = \
+        lambda: noconversion("THOU", "ATTOMETER")
+    CONVERSIONS["THOU:CENTIMETER"] = \
+        lambda: noconversion("THOU", "CENTIMETER")
+    CONVERSIONS["THOU:DECIMETER"] = \
+        lambda: noconversion("THOU", "DECIMETER")
+    CONVERSIONS["THOU:DEKAMETER"] = \
+        lambda: noconversion("THOU", "DEKAMETER")
+    CONVERSIONS["THOU:EXAMETER"] = \
+        lambda: noconversion("THOU", "EXAMETER")
+    CONVERSIONS["THOU:FEMTOMETER"] = \
+        lambda: noconversion("THOU", "FEMTOMETER")
     CONVERSIONS["THOU:FT"] = \
         lambda: noconversion("THOU", "FT")
-    CONVERSIONS["THOU:GIGAM"] = \
-        lambda: noconversion("THOU", "GIGAM")
-    CONVERSIONS["THOU:HM"] = \
-        lambda: noconversion("THOU", "HM")
+    CONVERSIONS["THOU:GIGAMETER"] = \
+        lambda: noconversion("THOU", "GIGAMETER")
+    CONVERSIONS["THOU:HECTOMETER"] = \
+        lambda: noconversion("THOU", "HECTOMETER")
     CONVERSIONS["THOU:IN"] = \
         lambda: noconversion("THOU", "IN")
-    CONVERSIONS["THOU:KM"] = \
-        lambda: noconversion("THOU", "KM")
+    CONVERSIONS["THOU:KILOMETER"] = \
+        lambda: noconversion("THOU", "KILOMETER")
     CONVERSIONS["THOU:LI"] = \
         lambda: noconversion("THOU", "LI")
-    CONVERSIONS["THOU:LY"] = \
-        lambda: noconversion("THOU", "LY")
-    CONVERSIONS["THOU:M"] = \
-        lambda: noconversion("THOU", "M")
-    CONVERSIONS["THOU:MEGAM"] = \
-        lambda: noconversion("THOU", "MEGAM")
+    CONVERSIONS["THOU:LIGHTYEAR"] = \
+        lambda: noconversion("THOU", "LIGHTYEAR")
+    CONVERSIONS["THOU:MEGAMETER"] = \
+        lambda: noconversion("THOU", "MEGAMETER")
+    CONVERSIONS["THOU:METER"] = \
+        lambda: noconversion("THOU", "METER")
     CONVERSIONS["THOU:MI"] = \
         lambda: noconversion("THOU", "MI")
-    CONVERSIONS["THOU:MICROM"] = \
-        lambda: noconversion("THOU", "MICROM")
-    CONVERSIONS["THOU:MM"] = \
-        lambda: noconversion("THOU", "MM")
-    CONVERSIONS["THOU:NM"] = \
-        lambda: noconversion("THOU", "NM")
-    CONVERSIONS["THOU:PC"] = \
-        lambda: noconversion("THOU", "PC")
-    CONVERSIONS["THOU:PETAM"] = \
-        lambda: noconversion("THOU", "PETAM")
+    CONVERSIONS["THOU:MICROMETER"] = \
+        lambda: noconversion("THOU", "MICROMETER")
+    CONVERSIONS["THOU:MILLIMETER"] = \
+        lambda: noconversion("THOU", "MILLIMETER")
+    CONVERSIONS["THOU:NANOMETER"] = \
+        lambda: noconversion("THOU", "NANOMETER")
+    CONVERSIONS["THOU:PARSEC"] = \
+        lambda: noconversion("THOU", "PARSEC")
+    CONVERSIONS["THOU:PETAMETER"] = \
+        lambda: noconversion("THOU", "PETAMETER")
+    CONVERSIONS["THOU:PICOMETER"] = \
+        lambda: noconversion("THOU", "PICOMETER")
     CONVERSIONS["THOU:PIXEL"] = \
         lambda: noconversion("THOU", "PIXEL")
-    CONVERSIONS["THOU:PM"] = \
-        lambda: noconversion("THOU", "PM")
     CONVERSIONS["THOU:PT"] = \
         lambda: noconversion("THOU", "PT")
     CONVERSIONS["THOU:REFERENCEFRAME"] = \
         lambda: noconversion("THOU", "REFERENCEFRAME")
-    CONVERSIONS["THOU:TERAM"] = \
-        lambda: noconversion("THOU", "TERAM")
-    CONVERSIONS["THOU:UA"] = \
-        lambda: noconversion("THOU", "UA")
+    CONVERSIONS["THOU:TERAMETER"] = \
+        lambda: noconversion("THOU", "TERAMETER")
     CONVERSIONS["THOU:YD"] = \
         lambda: noconversion("THOU", "YD")
-    CONVERSIONS["THOU:YM"] = \
-        lambda: noconversion("THOU", "YM")
-    CONVERSIONS["THOU:YOTTAM"] = \
-        lambda: noconversion("THOU", "YOTTAM")
-    CONVERSIONS["THOU:ZETTAM"] = \
-        lambda: noconversion("THOU", "ZETTAM")
-    CONVERSIONS["THOU:ZM"] = \
-        lambda: noconversion("THOU", "ZM")
-    CONVERSIONS["UA:AM"] = \
-        lambda: noconversion("UA", "AM")
-    CONVERSIONS["UA:ANGSTROM"] = \
-        lambda: noconversion("UA", "ANGSTROM")
-    CONVERSIONS["UA:CM"] = \
-        lambda: noconversion("UA", "CM")
-    CONVERSIONS["UA:DAM"] = \
-        lambda: noconversion("UA", "DAM")
-    CONVERSIONS["UA:DM"] = \
-        lambda: noconversion("UA", "DM")
-    CONVERSIONS["UA:EXAM"] = \
-        lambda: noconversion("UA", "EXAM")
-    CONVERSIONS["UA:FM"] = \
-        lambda: noconversion("UA", "FM")
-    CONVERSIONS["UA:FT"] = \
-        lambda: noconversion("UA", "FT")
-    CONVERSIONS["UA:GIGAM"] = \
-        lambda: noconversion("UA", "GIGAM")
-    CONVERSIONS["UA:HM"] = \
-        lambda: noconversion("UA", "HM")
-    CONVERSIONS["UA:IN"] = \
-        lambda: noconversion("UA", "IN")
-    CONVERSIONS["UA:KM"] = \
-        lambda: noconversion("UA", "KM")
-    CONVERSIONS["UA:LI"] = \
-        lambda: noconversion("UA", "LI")
-    CONVERSIONS["UA:LY"] = \
-        lambda: noconversion("UA", "LY")
-    CONVERSIONS["UA:M"] = \
-        lambda: noconversion("UA", "M")
-    CONVERSIONS["UA:MEGAM"] = \
-        lambda: noconversion("UA", "MEGAM")
-    CONVERSIONS["UA:MI"] = \
-        lambda: noconversion("UA", "MI")
-    CONVERSIONS["UA:MICROM"] = \
-        lambda: noconversion("UA", "MICROM")
-    CONVERSIONS["UA:MM"] = \
-        lambda: noconversion("UA", "MM")
-    CONVERSIONS["UA:NM"] = \
-        lambda: noconversion("UA", "NM")
-    CONVERSIONS["UA:PC"] = \
-        lambda: noconversion("UA", "PC")
-    CONVERSIONS["UA:PETAM"] = \
-        lambda: noconversion("UA", "PETAM")
-    CONVERSIONS["UA:PIXEL"] = \
-        lambda: noconversion("UA", "PIXEL")
-    CONVERSIONS["UA:PM"] = \
-        lambda: noconversion("UA", "PM")
-    CONVERSIONS["UA:PT"] = \
-        lambda: noconversion("UA", "PT")
-    CONVERSIONS["UA:REFERENCEFRAME"] = \
-        lambda: noconversion("UA", "REFERENCEFRAME")
-    CONVERSIONS["UA:TERAM"] = \
-        lambda: noconversion("UA", "TERAM")
-    CONVERSIONS["UA:THOU"] = \
-        lambda: noconversion("UA", "THOU")
-    CONVERSIONS["UA:YD"] = \
-        lambda: noconversion("UA", "YD")
-    CONVERSIONS["UA:YM"] = \
-        lambda: noconversion("UA", "YM")
-    CONVERSIONS["UA:YOTTAM"] = \
-        lambda: noconversion("UA", "YOTTAM")
-    CONVERSIONS["UA:ZETTAM"] = \
-        lambda: noconversion("UA", "ZETTAM")
-    CONVERSIONS["UA:ZM"] = \
-        lambda: noconversion("UA", "ZM")
-    CONVERSIONS["YD:AM"] = \
-        lambda: noconversion("YD", "AM")
+    CONVERSIONS["THOU:YOCTOMETER"] = \
+        lambda: noconversion("THOU", "YOCTOMETER")
+    CONVERSIONS["THOU:YOTTAMETER"] = \
+        lambda: noconversion("THOU", "YOTTAMETER")
+    CONVERSIONS["THOU:ZEPTOMETER"] = \
+        lambda: noconversion("THOU", "ZEPTOMETER")
+    CONVERSIONS["THOU:ZETTAMETER"] = \
+        lambda: noconversion("THOU", "ZETTAMETER")
     CONVERSIONS["YD:ANGSTROM"] = \
         lambda: noconversion("YD", "ANGSTROM")
-    CONVERSIONS["YD:CM"] = \
-        lambda: noconversion("YD", "CM")
-    CONVERSIONS["YD:DAM"] = \
-        lambda: noconversion("YD", "DAM")
-    CONVERSIONS["YD:DM"] = \
-        lambda: noconversion("YD", "DM")
-    CONVERSIONS["YD:EXAM"] = \
-        lambda: noconversion("YD", "EXAM")
-    CONVERSIONS["YD:FM"] = \
-        lambda: noconversion("YD", "FM")
+    CONVERSIONS["YD:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("YD", "ASTRONOMICALUNIT")
+    CONVERSIONS["YD:ATTOMETER"] = \
+        lambda: noconversion("YD", "ATTOMETER")
+    CONVERSIONS["YD:CENTIMETER"] = \
+        lambda: noconversion("YD", "CENTIMETER")
+    CONVERSIONS["YD:DECIMETER"] = \
+        lambda: noconversion("YD", "DECIMETER")
+    CONVERSIONS["YD:DEKAMETER"] = \
+        lambda: noconversion("YD", "DEKAMETER")
+    CONVERSIONS["YD:EXAMETER"] = \
+        lambda: noconversion("YD", "EXAMETER")
+    CONVERSIONS["YD:FEMTOMETER"] = \
+        lambda: noconversion("YD", "FEMTOMETER")
     CONVERSIONS["YD:FT"] = \
         lambda: noconversion("YD", "FT")
-    CONVERSIONS["YD:GIGAM"] = \
-        lambda: noconversion("YD", "GIGAM")
-    CONVERSIONS["YD:HM"] = \
-        lambda: noconversion("YD", "HM")
+    CONVERSIONS["YD:GIGAMETER"] = \
+        lambda: noconversion("YD", "GIGAMETER")
+    CONVERSIONS["YD:HECTOMETER"] = \
+        lambda: noconversion("YD", "HECTOMETER")
     CONVERSIONS["YD:IN"] = \
         lambda: noconversion("YD", "IN")
-    CONVERSIONS["YD:KM"] = \
-        lambda: noconversion("YD", "KM")
+    CONVERSIONS["YD:KILOMETER"] = \
+        lambda: noconversion("YD", "KILOMETER")
     CONVERSIONS["YD:LI"] = \
         lambda: noconversion("YD", "LI")
-    CONVERSIONS["YD:LY"] = \
-        lambda: noconversion("YD", "LY")
-    CONVERSIONS["YD:M"] = \
-        lambda: noconversion("YD", "M")
-    CONVERSIONS["YD:MEGAM"] = \
-        lambda: noconversion("YD", "MEGAM")
+    CONVERSIONS["YD:LIGHTYEAR"] = \
+        lambda: noconversion("YD", "LIGHTYEAR")
+    CONVERSIONS["YD:MEGAMETER"] = \
+        lambda: noconversion("YD", "MEGAMETER")
+    CONVERSIONS["YD:METER"] = \
+        lambda: noconversion("YD", "METER")
     CONVERSIONS["YD:MI"] = \
         lambda: noconversion("YD", "MI")
-    CONVERSIONS["YD:MICROM"] = \
-        lambda: noconversion("YD", "MICROM")
-    CONVERSIONS["YD:MM"] = \
-        lambda: noconversion("YD", "MM")
-    CONVERSIONS["YD:NM"] = \
-        lambda: noconversion("YD", "NM")
-    CONVERSIONS["YD:PC"] = \
-        lambda: noconversion("YD", "PC")
-    CONVERSIONS["YD:PETAM"] = \
-        lambda: noconversion("YD", "PETAM")
+    CONVERSIONS["YD:MICROMETER"] = \
+        lambda: noconversion("YD", "MICROMETER")
+    CONVERSIONS["YD:MILLIMETER"] = \
+        lambda: noconversion("YD", "MILLIMETER")
+    CONVERSIONS["YD:NANOMETER"] = \
+        lambda: noconversion("YD", "NANOMETER")
+    CONVERSIONS["YD:PARSEC"] = \
+        lambda: noconversion("YD", "PARSEC")
+    CONVERSIONS["YD:PETAMETER"] = \
+        lambda: noconversion("YD", "PETAMETER")
+    CONVERSIONS["YD:PICOMETER"] = \
+        lambda: noconversion("YD", "PICOMETER")
     CONVERSIONS["YD:PIXEL"] = \
         lambda: noconversion("YD", "PIXEL")
-    CONVERSIONS["YD:PM"] = \
-        lambda: noconversion("YD", "PM")
     CONVERSIONS["YD:PT"] = \
         lambda: noconversion("YD", "PT")
     CONVERSIONS["YD:REFERENCEFRAME"] = \
         lambda: noconversion("YD", "REFERENCEFRAME")
-    CONVERSIONS["YD:TERAM"] = \
-        lambda: noconversion("YD", "TERAM")
+    CONVERSIONS["YD:TERAMETER"] = \
+        lambda: noconversion("YD", "TERAMETER")
     CONVERSIONS["YD:THOU"] = \
         lambda: noconversion("YD", "THOU")
-    CONVERSIONS["YD:UA"] = \
-        lambda: noconversion("YD", "UA")
-    CONVERSIONS["YD:YM"] = \
-        lambda: noconversion("YD", "YM")
-    CONVERSIONS["YD:YOTTAM"] = \
-        lambda: noconversion("YD", "YOTTAM")
-    CONVERSIONS["YD:ZETTAM"] = \
-        lambda: noconversion("YD", "ZETTAM")
-    CONVERSIONS["YD:ZM"] = \
-        lambda: noconversion("YD", "ZM")
-    CONVERSIONS["YM:AM"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["YM:ANGSTROM"] = \
+    CONVERSIONS["YD:YOCTOMETER"] = \
+        lambda: noconversion("YD", "YOCTOMETER")
+    CONVERSIONS["YD:YOTTAMETER"] = \
+        lambda: noconversion("YD", "YOTTAMETER")
+    CONVERSIONS["YD:ZEPTOMETER"] = \
+        lambda: noconversion("YD", "ZEPTOMETER")
+    CONVERSIONS["YD:ZETTAMETER"] = \
+        lambda: noconversion("YD", "ZETTAMETER")
+    CONVERSIONS["YOCTOMETER:ANGSTROM"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["YM:CM"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["YM:DAM"] = \
-        lambda value: (10 ** -25) * value
-    CONVERSIONS["YM:DM"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["YM:EXAM"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["YM:FM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["YM:FT"] = \
-        lambda: noconversion("YM", "FT")
-    CONVERSIONS["YM:GIGAM"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["YM:HM"] = \
-        lambda value: (10 ** -26) * value
-    CONVERSIONS["YM:IN"] = \
-        lambda: noconversion("YM", "IN")
-    CONVERSIONS["YM:KM"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["YM:LI"] = \
-        lambda: noconversion("YM", "LI")
-    CONVERSIONS["YM:LY"] = \
-        lambda: noconversion("YM", "LY")
-    CONVERSIONS["YM:M"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["YM:MEGAM"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["YM:MI"] = \
-        lambda: noconversion("YM", "MI")
-    CONVERSIONS["YM:MICROM"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["YM:MM"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["YM:NM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["YM:PC"] = \
-        lambda: noconversion("YM", "PC")
-    CONVERSIONS["YM:PETAM"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["YM:PIXEL"] = \
-        lambda: noconversion("YM", "PIXEL")
-    CONVERSIONS["YM:PM"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["YM:PT"] = \
-        lambda: noconversion("YM", "PT")
-    CONVERSIONS["YM:REFERENCEFRAME"] = \
-        lambda: noconversion("YM", "REFERENCEFRAME")
-    CONVERSIONS["YM:TERAM"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["YM:THOU"] = \
-        lambda: noconversion("YM", "THOU")
-    CONVERSIONS["YM:UA"] = \
-        lambda: noconversion("YM", "UA")
-    CONVERSIONS["YM:YD"] = \
-        lambda: noconversion("YM", "YD")
-    CONVERSIONS["YM:YOTTAM"] = \
-        lambda value: (10 ** -48) * value
-    CONVERSIONS["YM:ZETTAM"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["YM:ZM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["YOTTAM:AM"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["YOTTAM:ANGSTROM"] = \
-        lambda value: (10 ** 34) * value
-    CONVERSIONS["YOTTAM:CM"] = \
-        lambda value: (10 ** 26) * value
-    CONVERSIONS["YOTTAM:DAM"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["YOTTAM:DM"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAM:EXAM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["YOTTAM:FM"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["YOTTAM:FT"] = \
-        lambda: noconversion("YOTTAM", "FT")
-    CONVERSIONS["YOTTAM:GIGAM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["YOTTAM:HM"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["YOTTAM:IN"] = \
-        lambda: noconversion("YOTTAM", "IN")
-    CONVERSIONS["YOTTAM:KM"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAM:LI"] = \
-        lambda: noconversion("YOTTAM", "LI")
-    CONVERSIONS["YOTTAM:LY"] = \
-        lambda: noconversion("YOTTAM", "LY")
-    CONVERSIONS["YOTTAM:M"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["YOTTAM:MEGAM"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["YOTTAM:MI"] = \
-        lambda: noconversion("YOTTAM", "MI")
-    CONVERSIONS["YOTTAM:MICROM"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["YOTTAM:MM"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["YOTTAM:NM"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["YOTTAM:PC"] = \
-        lambda: noconversion("YOTTAM", "PC")
-    CONVERSIONS["YOTTAM:PETAM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["YOTTAM:PIXEL"] = \
-        lambda: noconversion("YOTTAM", "PIXEL")
-    CONVERSIONS["YOTTAM:PM"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["YOTTAM:PT"] = \
-        lambda: noconversion("YOTTAM", "PT")
-    CONVERSIONS["YOTTAM:REFERENCEFRAME"] = \
-        lambda: noconversion("YOTTAM", "REFERENCEFRAME")
-    CONVERSIONS["YOTTAM:TERAM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["YOTTAM:THOU"] = \
-        lambda: noconversion("YOTTAM", "THOU")
-    CONVERSIONS["YOTTAM:UA"] = \
-        lambda: noconversion("YOTTAM", "UA")
-    CONVERSIONS["YOTTAM:YD"] = \
-        lambda: noconversion("YOTTAM", "YD")
-    CONVERSIONS["YOTTAM:YM"] = \
-        lambda value: (10 ** 48) * value
-    CONVERSIONS["YOTTAM:ZETTAM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["YOTTAM:ZM"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAM:AM"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["ZETTAM:ANGSTROM"] = \
-        lambda value: (10 ** 31) * value
-    CONVERSIONS["ZETTAM:CM"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["ZETTAM:DAM"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["ZETTAM:DM"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAM:EXAM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZETTAM:FM"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["ZETTAM:FT"] = \
-        lambda: noconversion("ZETTAM", "FT")
-    CONVERSIONS["ZETTAM:GIGAM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["ZETTAM:HM"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["ZETTAM:IN"] = \
-        lambda: noconversion("ZETTAM", "IN")
-    CONVERSIONS["ZETTAM:KM"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["ZETTAM:LI"] = \
-        lambda: noconversion("ZETTAM", "LI")
-    CONVERSIONS["ZETTAM:LY"] = \
-        lambda: noconversion("ZETTAM", "LY")
-    CONVERSIONS["ZETTAM:M"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["ZETTAM:MEGAM"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["ZETTAM:MI"] = \
-        lambda: noconversion("ZETTAM", "MI")
-    CONVERSIONS["ZETTAM:MICROM"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["ZETTAM:MM"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["ZETTAM:NM"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["ZETTAM:PC"] = \
-        lambda: noconversion("ZETTAM", "PC")
-    CONVERSIONS["ZETTAM:PETAM"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ZETTAM:PIXEL"] = \
-        lambda: noconversion("ZETTAM", "PIXEL")
-    CONVERSIONS["ZETTAM:PM"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["ZETTAM:PT"] = \
-        lambda: noconversion("ZETTAM", "PT")
-    CONVERSIONS["ZETTAM:REFERENCEFRAME"] = \
-        lambda: noconversion("ZETTAM", "REFERENCEFRAME")
-    CONVERSIONS["ZETTAM:TERAM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["ZETTAM:THOU"] = \
-        lambda: noconversion("ZETTAM", "THOU")
-    CONVERSIONS["ZETTAM:UA"] = \
-        lambda: noconversion("ZETTAM", "UA")
-    CONVERSIONS["ZETTAM:YD"] = \
-        lambda: noconversion("ZETTAM", "YD")
-    CONVERSIONS["ZETTAM:YM"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAM:YOTTAM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAM:ZM"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["ZM:AM"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZM:ANGSTROM"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["ZM:CM"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["ZM:DAM"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["ZM:DM"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ZM:EXAM"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["ZM:FM"] = \
+    CONVERSIONS["YOCTOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("YOCTOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["YOCTOMETER:ATTOMETER"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["ZM:FT"] = \
-        lambda: noconversion("ZM", "FT")
-    CONVERSIONS["ZM:GIGAM"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["ZM:HM"] = \
+    CONVERSIONS["YOCTOMETER:CENTIMETER"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["YOCTOMETER:DECIMETER"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["ZM:IN"] = \
-        lambda: noconversion("ZM", "IN")
-    CONVERSIONS["ZM:KM"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ZM:LI"] = \
-        lambda: noconversion("ZM", "LI")
-    CONVERSIONS["ZM:LY"] = \
-        lambda: noconversion("ZM", "LY")
-    CONVERSIONS["ZM:M"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ZM:MEGAM"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["ZM:MI"] = \
-        lambda: noconversion("ZM", "MI")
-    CONVERSIONS["ZM:MICROM"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["ZM:MM"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ZM:NM"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ZM:PC"] = \
-        lambda: noconversion("ZM", "PC")
-    CONVERSIONS["ZM:PETAM"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["ZM:PIXEL"] = \
-        lambda: noconversion("ZM", "PIXEL")
-    CONVERSIONS["ZM:PM"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ZM:PT"] = \
-        lambda: noconversion("ZM", "PT")
-    CONVERSIONS["ZM:REFERENCEFRAME"] = \
-        lambda: noconversion("ZM", "REFERENCEFRAME")
-    CONVERSIONS["ZM:TERAM"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["ZM:THOU"] = \
-        lambda: noconversion("ZM", "THOU")
-    CONVERSIONS["ZM:UA"] = \
-        lambda: noconversion("ZM", "UA")
-    CONVERSIONS["ZM:YD"] = \
-        lambda: noconversion("ZM", "YD")
-    CONVERSIONS["ZM:YM"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZM:YOTTAM"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["ZM:ZETTAM"] = \
+    CONVERSIONS["YOCTOMETER:DEKAMETER"] = \
+        lambda value: (10 ** -25) * value
+    CONVERSIONS["YOCTOMETER:EXAMETER"] = \
         lambda value: (10 ** -42) * value
+    CONVERSIONS["YOCTOMETER:FEMTOMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["YOCTOMETER:FT"] = \
+        lambda: noconversion("YOCTOMETER", "FT")
+    CONVERSIONS["YOCTOMETER:GIGAMETER"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["YOCTOMETER:HECTOMETER"] = \
+        lambda value: (10 ** -26) * value
+    CONVERSIONS["YOCTOMETER:IN"] = \
+        lambda: noconversion("YOCTOMETER", "IN")
+    CONVERSIONS["YOCTOMETER:KILOMETER"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["YOCTOMETER:LI"] = \
+        lambda: noconversion("YOCTOMETER", "LI")
+    CONVERSIONS["YOCTOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("YOCTOMETER", "LIGHTYEAR")
+    CONVERSIONS["YOCTOMETER:MEGAMETER"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["YOCTOMETER:METER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["YOCTOMETER:MI"] = \
+        lambda: noconversion("YOCTOMETER", "MI")
+    CONVERSIONS["YOCTOMETER:MICROMETER"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["YOCTOMETER:MILLIMETER"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["YOCTOMETER:NANOMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["YOCTOMETER:PARSEC"] = \
+        lambda: noconversion("YOCTOMETER", "PARSEC")
+    CONVERSIONS["YOCTOMETER:PETAMETER"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["YOCTOMETER:PICOMETER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["YOCTOMETER:PIXEL"] = \
+        lambda: noconversion("YOCTOMETER", "PIXEL")
+    CONVERSIONS["YOCTOMETER:PT"] = \
+        lambda: noconversion("YOCTOMETER", "PT")
+    CONVERSIONS["YOCTOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("YOCTOMETER", "REFERENCEFRAME")
+    CONVERSIONS["YOCTOMETER:TERAMETER"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["YOCTOMETER:THOU"] = \
+        lambda: noconversion("YOCTOMETER", "THOU")
+    CONVERSIONS["YOCTOMETER:YD"] = \
+        lambda: noconversion("YOCTOMETER", "YD")
+    CONVERSIONS["YOCTOMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -48) * value
+    CONVERSIONS["YOCTOMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["YOCTOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -45) * value
+    CONVERSIONS["YOTTAMETER:ANGSTROM"] = \
+        lambda value: (10 ** 34) * value
+    CONVERSIONS["YOTTAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("YOTTAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["YOTTAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 42) * value
+    CONVERSIONS["YOTTAMETER:CENTIMETER"] = \
+        lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAMETER:DECIMETER"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["YOTTAMETER:DEKAMETER"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["YOTTAMETER:EXAMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["YOTTAMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["YOTTAMETER:FT"] = \
+        lambda: noconversion("YOTTAMETER", "FT")
+    CONVERSIONS["YOTTAMETER:GIGAMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["YOTTAMETER:HECTOMETER"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["YOTTAMETER:IN"] = \
+        lambda: noconversion("YOTTAMETER", "IN")
+    CONVERSIONS["YOTTAMETER:KILOMETER"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["YOTTAMETER:LI"] = \
+        lambda: noconversion("YOTTAMETER", "LI")
+    CONVERSIONS["YOTTAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("YOTTAMETER", "LIGHTYEAR")
+    CONVERSIONS["YOTTAMETER:MEGAMETER"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["YOTTAMETER:METER"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["YOTTAMETER:MI"] = \
+        lambda: noconversion("YOTTAMETER", "MI")
+    CONVERSIONS["YOTTAMETER:MICROMETER"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["YOTTAMETER:MILLIMETER"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["YOTTAMETER:NANOMETER"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["YOTTAMETER:PARSEC"] = \
+        lambda: noconversion("YOTTAMETER", "PARSEC")
+    CONVERSIONS["YOTTAMETER:PETAMETER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["YOTTAMETER:PICOMETER"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["YOTTAMETER:PIXEL"] = \
+        lambda: noconversion("YOTTAMETER", "PIXEL")
+    CONVERSIONS["YOTTAMETER:PT"] = \
+        lambda: noconversion("YOTTAMETER", "PT")
+    CONVERSIONS["YOTTAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("YOTTAMETER", "REFERENCEFRAME")
+    CONVERSIONS["YOTTAMETER:TERAMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["YOTTAMETER:THOU"] = \
+        lambda: noconversion("YOTTAMETER", "THOU")
+    CONVERSIONS["YOTTAMETER:YD"] = \
+        lambda: noconversion("YOTTAMETER", "YD")
+    CONVERSIONS["YOTTAMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 48) * value
+    CONVERSIONS["YOTTAMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["YOTTAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZEPTOMETER:ANGSTROM"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["ZEPTOMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("ZEPTOMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["ZEPTOMETER:ATTOMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZEPTOMETER:CENTIMETER"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOMETER:DECIMETER"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["ZEPTOMETER:DEKAMETER"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["ZEPTOMETER:EXAMETER"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["ZEPTOMETER:FEMTOMETER"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["ZEPTOMETER:FT"] = \
+        lambda: noconversion("ZEPTOMETER", "FT")
+    CONVERSIONS["ZEPTOMETER:GIGAMETER"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["ZEPTOMETER:HECTOMETER"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["ZEPTOMETER:IN"] = \
+        lambda: noconversion("ZEPTOMETER", "IN")
+    CONVERSIONS["ZEPTOMETER:KILOMETER"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["ZEPTOMETER:LI"] = \
+        lambda: noconversion("ZEPTOMETER", "LI")
+    CONVERSIONS["ZEPTOMETER:LIGHTYEAR"] = \
+        lambda: noconversion("ZEPTOMETER", "LIGHTYEAR")
+    CONVERSIONS["ZEPTOMETER:MEGAMETER"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["ZEPTOMETER:METER"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["ZEPTOMETER:MI"] = \
+        lambda: noconversion("ZEPTOMETER", "MI")
+    CONVERSIONS["ZEPTOMETER:MICROMETER"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["ZEPTOMETER:MILLIMETER"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["ZEPTOMETER:NANOMETER"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["ZEPTOMETER:PARSEC"] = \
+        lambda: noconversion("ZEPTOMETER", "PARSEC")
+    CONVERSIONS["ZEPTOMETER:PETAMETER"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["ZEPTOMETER:PICOMETER"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["ZEPTOMETER:PIXEL"] = \
+        lambda: noconversion("ZEPTOMETER", "PIXEL")
+    CONVERSIONS["ZEPTOMETER:PT"] = \
+        lambda: noconversion("ZEPTOMETER", "PT")
+    CONVERSIONS["ZEPTOMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("ZEPTOMETER", "REFERENCEFRAME")
+    CONVERSIONS["ZEPTOMETER:TERAMETER"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["ZEPTOMETER:THOU"] = \
+        lambda: noconversion("ZEPTOMETER", "THOU")
+    CONVERSIONS["ZEPTOMETER:YD"] = \
+        lambda: noconversion("ZEPTOMETER", "YD")
+    CONVERSIONS["ZEPTOMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZEPTOMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -45) * value
+    CONVERSIONS["ZEPTOMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -42) * value
+    CONVERSIONS["ZETTAMETER:ANGSTROM"] = \
+        lambda value: (10 ** 31) * value
+    CONVERSIONS["ZETTAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("ZETTAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["ZETTAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["ZETTAMETER:CENTIMETER"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAMETER:DECIMETER"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["ZETTAMETER:DEKAMETER"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["ZETTAMETER:EXAMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZETTAMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["ZETTAMETER:FT"] = \
+        lambda: noconversion("ZETTAMETER", "FT")
+    CONVERSIONS["ZETTAMETER:GIGAMETER"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["ZETTAMETER:HECTOMETER"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["ZETTAMETER:IN"] = \
+        lambda: noconversion("ZETTAMETER", "IN")
+    CONVERSIONS["ZETTAMETER:KILOMETER"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["ZETTAMETER:LI"] = \
+        lambda: noconversion("ZETTAMETER", "LI")
+    CONVERSIONS["ZETTAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("ZETTAMETER", "LIGHTYEAR")
+    CONVERSIONS["ZETTAMETER:MEGAMETER"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["ZETTAMETER:METER"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["ZETTAMETER:MI"] = \
+        lambda: noconversion("ZETTAMETER", "MI")
+    CONVERSIONS["ZETTAMETER:MICROMETER"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["ZETTAMETER:MILLIMETER"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["ZETTAMETER:NANOMETER"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["ZETTAMETER:PARSEC"] = \
+        lambda: noconversion("ZETTAMETER", "PARSEC")
+    CONVERSIONS["ZETTAMETER:PETAMETER"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["ZETTAMETER:PICOMETER"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["ZETTAMETER:PIXEL"] = \
+        lambda: noconversion("ZETTAMETER", "PIXEL")
+    CONVERSIONS["ZETTAMETER:PT"] = \
+        lambda: noconversion("ZETTAMETER", "PT")
+    CONVERSIONS["ZETTAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("ZETTAMETER", "REFERENCEFRAME")
+    CONVERSIONS["ZETTAMETER:TERAMETER"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["ZETTAMETER:THOU"] = \
+        lambda: noconversion("ZETTAMETER", "THOU")
+    CONVERSIONS["ZETTAMETER:YD"] = \
+        lambda: noconversion("ZETTAMETER", "YD")
+    CONVERSIONS["ZETTAMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["ZETTAMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZETTAMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 42) * value
 
     SYMBOLS = dict()
-    SYMBOLS["AM"] = "am"
     SYMBOLS["ANGSTROM"] = "Å"
-    SYMBOLS["CM"] = "cm"
-    SYMBOLS["DAM"] = "dam"
-    SYMBOLS["DM"] = "dm"
-    SYMBOLS["EXAM"] = "Em"
-    SYMBOLS["FM"] = "fm"
+    SYMBOLS["ASTRONOMICALUNIT"] = "ua"
+    SYMBOLS["ATTOMETER"] = "am"
+    SYMBOLS["CENTIMETER"] = "cm"
+    SYMBOLS["DECIMETER"] = "dm"
+    SYMBOLS["DEKAMETER"] = "dam"
+    SYMBOLS["EXAMETER"] = "Em"
+    SYMBOLS["FEMTOMETER"] = "fm"
     SYMBOLS["FOOT"] = "ft"
-    SYMBOLS["GIGAM"] = "Gm"
-    SYMBOLS["HM"] = "hm"
+    SYMBOLS["GIGAMETER"] = "Gm"
+    SYMBOLS["HECTOMETER"] = "hm"
     SYMBOLS["INCH"] = "in"
-    SYMBOLS["KM"] = "km"
+    SYMBOLS["KILOMETER"] = "km"
+    SYMBOLS["LIGHTYEAR"] = "ly"
     SYMBOLS["LINE"] = "li"
-    SYMBOLS["LY"] = "ly"
-    SYMBOLS["M"] = "m"
-    SYMBOLS["MEGAM"] = "Mm"
-    SYMBOLS["MICROM"] = "µm"
+    SYMBOLS["MEGAMETER"] = "Mm"
+    SYMBOLS["METER"] = "m"
+    SYMBOLS["MICROMETER"] = "µm"
     SYMBOLS["MILE"] = "mi"
-    SYMBOLS["MM"] = "mm"
-    SYMBOLS["NM"] = "nm"
-    SYMBOLS["PC"] = "pc"
-    SYMBOLS["PETAM"] = "Pm"
+    SYMBOLS["MILLIMETER"] = "mm"
+    SYMBOLS["NANOMETER"] = "nm"
+    SYMBOLS["PARSEC"] = "pc"
+    SYMBOLS["PETAMETER"] = "Pm"
+    SYMBOLS["PICOMETER"] = "pm"
     SYMBOLS["PIXEL"] = "pixel"
-    SYMBOLS["PM"] = "pm"
     SYMBOLS["POINT"] = "pt"
     SYMBOLS["REFERENCEFRAME"] = "reference frame"
-    SYMBOLS["TERAM"] = "Tm"
+    SYMBOLS["TERAMETER"] = "Tm"
     SYMBOLS["THOU"] = "thou"
-    SYMBOLS["UA"] = "ua"
     SYMBOLS["YARD"] = "yd"
-    SYMBOLS["YM"] = "ym"
-    SYMBOLS["YOTTAM"] = "Ym"
-    SYMBOLS["ZETTAM"] = "Zm"
-    SYMBOLS["ZM"] = "zm"
+    SYMBOLS["YOCTOMETER"] = "ym"
+    SYMBOLS["YOTTAMETER"] = "Ym"
+    SYMBOLS["ZEPTOMETER"] = "zm"
+    SYMBOLS["ZETTAMETER"] = "Zm"
 
     def __init__(self, value=None, unit=None):
         _omero_model.Length.__init__(self)

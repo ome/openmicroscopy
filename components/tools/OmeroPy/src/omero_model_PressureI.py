@@ -44,2024 +44,2024 @@ def noconversion(cfrom, cto):
 class PressureI(_omero_model.Pressure, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["APA:ATM"] = \
-        lambda: noconversion("APA", "ATM")
-    CONVERSIONS["APA:BAR"] = \
-        lambda: noconversion("APA", "BAR")
-    CONVERSIONS["APA:CBAR"] = \
-        lambda: noconversion("APA", "CBAR")
-    CONVERSIONS["APA:CPA"] = \
+    CONVERSIONS["ATMOSPHERE:ATTOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "ATTOPASCAL")
+    CONVERSIONS["ATMOSPHERE:BAR"] = \
+        lambda: noconversion("ATMOSPHERE", "BAR")
+    CONVERSIONS["ATMOSPHERE:CENTIBAR"] = \
+        lambda: noconversion("ATMOSPHERE", "CENTIBAR")
+    CONVERSIONS["ATMOSPHERE:CENTIPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "CENTIPASCAL")
+    CONVERSIONS["ATMOSPHERE:DECIBAR"] = \
+        lambda: noconversion("ATMOSPHERE", "DECIBAR")
+    CONVERSIONS["ATMOSPHERE:DECIPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "DECIPASCAL")
+    CONVERSIONS["ATMOSPHERE:DEKAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "DEKAPASCAL")
+    CONVERSIONS["ATMOSPHERE:EXAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "EXAPASCAL")
+    CONVERSIONS["ATMOSPHERE:FEMTOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "FEMTOPASCAL")
+    CONVERSIONS["ATMOSPHERE:GIGAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "GIGAPASCAL")
+    CONVERSIONS["ATMOSPHERE:HECTOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "HECTOPASCAL")
+    CONVERSIONS["ATMOSPHERE:KILOBAR"] = \
+        lambda: noconversion("ATMOSPHERE", "KILOBAR")
+    CONVERSIONS["ATMOSPHERE:KILOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "KILOPASCAL")
+    CONVERSIONS["ATMOSPHERE:MEGABAR"] = \
+        lambda: noconversion("ATMOSPHERE", "MEGABAR")
+    CONVERSIONS["ATMOSPHERE:MEGAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "MEGAPASCAL")
+    CONVERSIONS["ATMOSPHERE:MICROPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "MICROPASCAL")
+    CONVERSIONS["ATMOSPHERE:MILLIBAR"] = \
+        lambda: noconversion("ATMOSPHERE", "MILLIBAR")
+    CONVERSIONS["ATMOSPHERE:MILLIPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "MILLIPASCAL")
+    CONVERSIONS["ATMOSPHERE:MILLITORR"] = \
+        lambda: noconversion("ATMOSPHERE", "MILLITORR")
+    CONVERSIONS["ATMOSPHERE:MMHG"] = \
+        lambda: noconversion("ATMOSPHERE", "MMHG")
+    CONVERSIONS["ATMOSPHERE:NANOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "NANOPASCAL")
+    CONVERSIONS["ATMOSPHERE:PASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "PASCAL")
+    CONVERSIONS["ATMOSPHERE:PETAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "PETAPASCAL")
+    CONVERSIONS["ATMOSPHERE:PICOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "PICOPASCAL")
+    CONVERSIONS["ATMOSPHERE:PSI"] = \
+        lambda: noconversion("ATMOSPHERE", "PSI")
+    CONVERSIONS["ATMOSPHERE:TERAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "TERAPASCAL")
+    CONVERSIONS["ATMOSPHERE:TORR"] = \
+        lambda: noconversion("ATMOSPHERE", "TORR")
+    CONVERSIONS["ATMOSPHERE:YOCTOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "YOCTOPASCAL")
+    CONVERSIONS["ATMOSPHERE:YOTTAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "YOTTAPASCAL")
+    CONVERSIONS["ATMOSPHERE:ZEPTOPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "ZEPTOPASCAL")
+    CONVERSIONS["ATMOSPHERE:ZETTAPASCAL"] = \
+        lambda: noconversion("ATMOSPHERE", "ZETTAPASCAL")
+    CONVERSIONS["ATTOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("ATTOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["ATTOPASCAL:BAR"] = \
+        lambda: noconversion("ATTOPASCAL", "BAR")
+    CONVERSIONS["ATTOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("ATTOPASCAL", "CENTIBAR")
+    CONVERSIONS["ATTOPASCAL:CENTIPASCAL"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["APA:DAPA"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["APA:DBAR"] = \
-        lambda: noconversion("APA", "DBAR")
-    CONVERSIONS["APA:DPA"] = \
+    CONVERSIONS["ATTOPASCAL:DECIBAR"] = \
+        lambda: noconversion("ATTOPASCAL", "DECIBAR")
+    CONVERSIONS["ATTOPASCAL:DECIPASCAL"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["APA:EXAPA"] = \
+    CONVERSIONS["ATTOPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["ATTOPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["APA:FPA"] = \
+    CONVERSIONS["ATTOPASCAL:FEMTOPASCAL"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["APA:GIGAPA"] = \
+    CONVERSIONS["ATTOPASCAL:GIGAPASCAL"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["APA:HPA"] = \
+    CONVERSIONS["ATTOPASCAL:HECTOPASCAL"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["APA:KBAR"] = \
-        lambda: noconversion("APA", "KBAR")
-    CONVERSIONS["APA:KPA"] = \
+    CONVERSIONS["ATTOPASCAL:KILOBAR"] = \
+        lambda: noconversion("ATTOPASCAL", "KILOBAR")
+    CONVERSIONS["ATTOPASCAL:KILOPASCAL"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["APA:MBAR"] = \
-        lambda: noconversion("APA", "MBAR")
-    CONVERSIONS["APA:MEGABAR"] = \
-        lambda: noconversion("APA", "MEGABAR")
-    CONVERSIONS["APA:MEGAPA"] = \
+    CONVERSIONS["ATTOPASCAL:MEGABAR"] = \
+        lambda: noconversion("ATTOPASCAL", "MEGABAR")
+    CONVERSIONS["ATTOPASCAL:MEGAPASCAL"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["APA:MICROPA"] = \
+    CONVERSIONS["ATTOPASCAL:MICROPASCAL"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["APA:MMHG"] = \
-        lambda: noconversion("APA", "MMHG")
-    CONVERSIONS["APA:MPA"] = \
+    CONVERSIONS["ATTOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("ATTOPASCAL", "MILLIBAR")
+    CONVERSIONS["ATTOPASCAL:MILLIPASCAL"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["APA:MTORR"] = \
-        lambda: noconversion("APA", "MTORR")
-    CONVERSIONS["APA:NPA"] = \
+    CONVERSIONS["ATTOPASCAL:MILLITORR"] = \
+        lambda: noconversion("ATTOPASCAL", "MILLITORR")
+    CONVERSIONS["ATTOPASCAL:MMHG"] = \
+        lambda: noconversion("ATTOPASCAL", "MMHG")
+    CONVERSIONS["ATTOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["APA:PA"] = \
+    CONVERSIONS["ATTOPASCAL:PASCAL"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["APA:PETAPA"] = \
+    CONVERSIONS["ATTOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["APA:PPA"] = \
+    CONVERSIONS["ATTOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["APA:PSI"] = \
-        lambda: noconversion("APA", "PSI")
-    CONVERSIONS["APA:TERAPA"] = \
+    CONVERSIONS["ATTOPASCAL:PSI"] = \
+        lambda: noconversion("ATTOPASCAL", "PSI")
+    CONVERSIONS["ATTOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["APA:TORR"] = \
-        lambda: noconversion("APA", "TORR")
-    CONVERSIONS["APA:YOTTAPA"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["APA:YPA"] = \
+    CONVERSIONS["ATTOPASCAL:TORR"] = \
+        lambda: noconversion("ATTOPASCAL", "TORR")
+    CONVERSIONS["ATTOPASCAL:YOCTOPASCAL"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["APA:ZETTAPA"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["APA:ZPA"] = \
+    CONVERSIONS["ATTOPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -42) * value
+    CONVERSIONS["ATTOPASCAL:ZEPTOPASCAL"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["ATM:APA"] = \
-        lambda: noconversion("ATM", "APA")
-    CONVERSIONS["ATM:BAR"] = \
-        lambda: noconversion("ATM", "BAR")
-    CONVERSIONS["ATM:CBAR"] = \
-        lambda: noconversion("ATM", "CBAR")
-    CONVERSIONS["ATM:CPA"] = \
-        lambda: noconversion("ATM", "CPA")
-    CONVERSIONS["ATM:DAPA"] = \
-        lambda: noconversion("ATM", "DAPA")
-    CONVERSIONS["ATM:DBAR"] = \
-        lambda: noconversion("ATM", "DBAR")
-    CONVERSIONS["ATM:DPA"] = \
-        lambda: noconversion("ATM", "DPA")
-    CONVERSIONS["ATM:EXAPA"] = \
-        lambda: noconversion("ATM", "EXAPA")
-    CONVERSIONS["ATM:FPA"] = \
-        lambda: noconversion("ATM", "FPA")
-    CONVERSIONS["ATM:GIGAPA"] = \
-        lambda: noconversion("ATM", "GIGAPA")
-    CONVERSIONS["ATM:HPA"] = \
-        lambda: noconversion("ATM", "HPA")
-    CONVERSIONS["ATM:KBAR"] = \
-        lambda: noconversion("ATM", "KBAR")
-    CONVERSIONS["ATM:KPA"] = \
-        lambda: noconversion("ATM", "KPA")
-    CONVERSIONS["ATM:MBAR"] = \
-        lambda: noconversion("ATM", "MBAR")
-    CONVERSIONS["ATM:MEGABAR"] = \
-        lambda: noconversion("ATM", "MEGABAR")
-    CONVERSIONS["ATM:MEGAPA"] = \
-        lambda: noconversion("ATM", "MEGAPA")
-    CONVERSIONS["ATM:MICROPA"] = \
-        lambda: noconversion("ATM", "MICROPA")
-    CONVERSIONS["ATM:MMHG"] = \
-        lambda: noconversion("ATM", "MMHG")
-    CONVERSIONS["ATM:MPA"] = \
-        lambda: noconversion("ATM", "MPA")
-    CONVERSIONS["ATM:MTORR"] = \
-        lambda: noconversion("ATM", "MTORR")
-    CONVERSIONS["ATM:NPA"] = \
-        lambda: noconversion("ATM", "NPA")
-    CONVERSIONS["ATM:PA"] = \
-        lambda: noconversion("ATM", "PA")
-    CONVERSIONS["ATM:PETAPA"] = \
-        lambda: noconversion("ATM", "PETAPA")
-    CONVERSIONS["ATM:PPA"] = \
-        lambda: noconversion("ATM", "PPA")
-    CONVERSIONS["ATM:PSI"] = \
-        lambda: noconversion("ATM", "PSI")
-    CONVERSIONS["ATM:TERAPA"] = \
-        lambda: noconversion("ATM", "TERAPA")
-    CONVERSIONS["ATM:TORR"] = \
-        lambda: noconversion("ATM", "TORR")
-    CONVERSIONS["ATM:YOTTAPA"] = \
-        lambda: noconversion("ATM", "YOTTAPA")
-    CONVERSIONS["ATM:YPA"] = \
-        lambda: noconversion("ATM", "YPA")
-    CONVERSIONS["ATM:ZETTAPA"] = \
-        lambda: noconversion("ATM", "ZETTAPA")
-    CONVERSIONS["ATM:ZPA"] = \
-        lambda: noconversion("ATM", "ZPA")
-    CONVERSIONS["BAR:APA"] = \
-        lambda: noconversion("BAR", "APA")
-    CONVERSIONS["BAR:ATM"] = \
-        lambda: noconversion("BAR", "ATM")
-    CONVERSIONS["BAR:CBAR"] = \
-        lambda: noconversion("BAR", "CBAR")
-    CONVERSIONS["BAR:CPA"] = \
-        lambda: noconversion("BAR", "CPA")
-    CONVERSIONS["BAR:DAPA"] = \
-        lambda: noconversion("BAR", "DAPA")
-    CONVERSIONS["BAR:DBAR"] = \
-        lambda: noconversion("BAR", "DBAR")
-    CONVERSIONS["BAR:DPA"] = \
-        lambda: noconversion("BAR", "DPA")
-    CONVERSIONS["BAR:EXAPA"] = \
-        lambda: noconversion("BAR", "EXAPA")
-    CONVERSIONS["BAR:FPA"] = \
-        lambda: noconversion("BAR", "FPA")
-    CONVERSIONS["BAR:GIGAPA"] = \
-        lambda: noconversion("BAR", "GIGAPA")
-    CONVERSIONS["BAR:HPA"] = \
-        lambda: noconversion("BAR", "HPA")
-    CONVERSIONS["BAR:KBAR"] = \
-        lambda: noconversion("BAR", "KBAR")
-    CONVERSIONS["BAR:KPA"] = \
-        lambda: noconversion("BAR", "KPA")
-    CONVERSIONS["BAR:MBAR"] = \
-        lambda: noconversion("BAR", "MBAR")
+    CONVERSIONS["ATTOPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["BAR:ATMOSPHERE"] = \
+        lambda: noconversion("BAR", "ATMOSPHERE")
+    CONVERSIONS["BAR:ATTOPASCAL"] = \
+        lambda: noconversion("BAR", "ATTOPASCAL")
+    CONVERSIONS["BAR:CENTIBAR"] = \
+        lambda: noconversion("BAR", "CENTIBAR")
+    CONVERSIONS["BAR:CENTIPASCAL"] = \
+        lambda: noconversion("BAR", "CENTIPASCAL")
+    CONVERSIONS["BAR:DECIBAR"] = \
+        lambda: noconversion("BAR", "DECIBAR")
+    CONVERSIONS["BAR:DECIPASCAL"] = \
+        lambda: noconversion("BAR", "DECIPASCAL")
+    CONVERSIONS["BAR:DEKAPASCAL"] = \
+        lambda: noconversion("BAR", "DEKAPASCAL")
+    CONVERSIONS["BAR:EXAPASCAL"] = \
+        lambda: noconversion("BAR", "EXAPASCAL")
+    CONVERSIONS["BAR:FEMTOPASCAL"] = \
+        lambda: noconversion("BAR", "FEMTOPASCAL")
+    CONVERSIONS["BAR:GIGAPASCAL"] = \
+        lambda: noconversion("BAR", "GIGAPASCAL")
+    CONVERSIONS["BAR:HECTOPASCAL"] = \
+        lambda: noconversion("BAR", "HECTOPASCAL")
+    CONVERSIONS["BAR:KILOBAR"] = \
+        lambda: noconversion("BAR", "KILOBAR")
+    CONVERSIONS["BAR:KILOPASCAL"] = \
+        lambda: noconversion("BAR", "KILOPASCAL")
     CONVERSIONS["BAR:MEGABAR"] = \
         lambda: noconversion("BAR", "MEGABAR")
-    CONVERSIONS["BAR:MEGAPA"] = \
-        lambda: noconversion("BAR", "MEGAPA")
-    CONVERSIONS["BAR:MICROPA"] = \
-        lambda: noconversion("BAR", "MICROPA")
+    CONVERSIONS["BAR:MEGAPASCAL"] = \
+        lambda: noconversion("BAR", "MEGAPASCAL")
+    CONVERSIONS["BAR:MICROPASCAL"] = \
+        lambda: noconversion("BAR", "MICROPASCAL")
+    CONVERSIONS["BAR:MILLIBAR"] = \
+        lambda: noconversion("BAR", "MILLIBAR")
+    CONVERSIONS["BAR:MILLIPASCAL"] = \
+        lambda: noconversion("BAR", "MILLIPASCAL")
+    CONVERSIONS["BAR:MILLITORR"] = \
+        lambda: noconversion("BAR", "MILLITORR")
     CONVERSIONS["BAR:MMHG"] = \
         lambda: noconversion("BAR", "MMHG")
-    CONVERSIONS["BAR:MPA"] = \
-        lambda: noconversion("BAR", "MPA")
-    CONVERSIONS["BAR:MTORR"] = \
-        lambda: noconversion("BAR", "MTORR")
-    CONVERSIONS["BAR:NPA"] = \
-        lambda: noconversion("BAR", "NPA")
-    CONVERSIONS["BAR:PA"] = \
-        lambda: noconversion("BAR", "PA")
-    CONVERSIONS["BAR:PETAPA"] = \
-        lambda: noconversion("BAR", "PETAPA")
-    CONVERSIONS["BAR:PPA"] = \
-        lambda: noconversion("BAR", "PPA")
+    CONVERSIONS["BAR:NANOPASCAL"] = \
+        lambda: noconversion("BAR", "NANOPASCAL")
+    CONVERSIONS["BAR:PASCAL"] = \
+        lambda: noconversion("BAR", "PASCAL")
+    CONVERSIONS["BAR:PETAPASCAL"] = \
+        lambda: noconversion("BAR", "PETAPASCAL")
+    CONVERSIONS["BAR:PICOPASCAL"] = \
+        lambda: noconversion("BAR", "PICOPASCAL")
     CONVERSIONS["BAR:PSI"] = \
         lambda: noconversion("BAR", "PSI")
-    CONVERSIONS["BAR:TERAPA"] = \
-        lambda: noconversion("BAR", "TERAPA")
+    CONVERSIONS["BAR:TERAPASCAL"] = \
+        lambda: noconversion("BAR", "TERAPASCAL")
     CONVERSIONS["BAR:TORR"] = \
         lambda: noconversion("BAR", "TORR")
-    CONVERSIONS["BAR:YOTTAPA"] = \
-        lambda: noconversion("BAR", "YOTTAPA")
-    CONVERSIONS["BAR:YPA"] = \
-        lambda: noconversion("BAR", "YPA")
-    CONVERSIONS["BAR:ZETTAPA"] = \
-        lambda: noconversion("BAR", "ZETTAPA")
-    CONVERSIONS["BAR:ZPA"] = \
-        lambda: noconversion("BAR", "ZPA")
-    CONVERSIONS["CBAR:APA"] = \
-        lambda: noconversion("CBAR", "APA")
-    CONVERSIONS["CBAR:ATM"] = \
-        lambda: noconversion("CBAR", "ATM")
-    CONVERSIONS["CBAR:BAR"] = \
-        lambda: noconversion("CBAR", "BAR")
-    CONVERSIONS["CBAR:CPA"] = \
-        lambda: noconversion("CBAR", "CPA")
-    CONVERSIONS["CBAR:DAPA"] = \
-        lambda: noconversion("CBAR", "DAPA")
-    CONVERSIONS["CBAR:DBAR"] = \
-        lambda: noconversion("CBAR", "DBAR")
-    CONVERSIONS["CBAR:DPA"] = \
-        lambda: noconversion("CBAR", "DPA")
-    CONVERSIONS["CBAR:EXAPA"] = \
-        lambda: noconversion("CBAR", "EXAPA")
-    CONVERSIONS["CBAR:FPA"] = \
-        lambda: noconversion("CBAR", "FPA")
-    CONVERSIONS["CBAR:GIGAPA"] = \
-        lambda: noconversion("CBAR", "GIGAPA")
-    CONVERSIONS["CBAR:HPA"] = \
-        lambda: noconversion("CBAR", "HPA")
-    CONVERSIONS["CBAR:KBAR"] = \
-        lambda: noconversion("CBAR", "KBAR")
-    CONVERSIONS["CBAR:KPA"] = \
-        lambda: noconversion("CBAR", "KPA")
-    CONVERSIONS["CBAR:MBAR"] = \
-        lambda: noconversion("CBAR", "MBAR")
-    CONVERSIONS["CBAR:MEGABAR"] = \
-        lambda: noconversion("CBAR", "MEGABAR")
-    CONVERSIONS["CBAR:MEGAPA"] = \
-        lambda: noconversion("CBAR", "MEGAPA")
-    CONVERSIONS["CBAR:MICROPA"] = \
-        lambda: noconversion("CBAR", "MICROPA")
-    CONVERSIONS["CBAR:MMHG"] = \
-        lambda: noconversion("CBAR", "MMHG")
-    CONVERSIONS["CBAR:MPA"] = \
-        lambda: noconversion("CBAR", "MPA")
-    CONVERSIONS["CBAR:MTORR"] = \
-        lambda: noconversion("CBAR", "MTORR")
-    CONVERSIONS["CBAR:NPA"] = \
-        lambda: noconversion("CBAR", "NPA")
-    CONVERSIONS["CBAR:PA"] = \
-        lambda: noconversion("CBAR", "PA")
-    CONVERSIONS["CBAR:PETAPA"] = \
-        lambda: noconversion("CBAR", "PETAPA")
-    CONVERSIONS["CBAR:PPA"] = \
-        lambda: noconversion("CBAR", "PPA")
-    CONVERSIONS["CBAR:PSI"] = \
-        lambda: noconversion("CBAR", "PSI")
-    CONVERSIONS["CBAR:TERAPA"] = \
-        lambda: noconversion("CBAR", "TERAPA")
-    CONVERSIONS["CBAR:TORR"] = \
-        lambda: noconversion("CBAR", "TORR")
-    CONVERSIONS["CBAR:YOTTAPA"] = \
-        lambda: noconversion("CBAR", "YOTTAPA")
-    CONVERSIONS["CBAR:YPA"] = \
-        lambda: noconversion("CBAR", "YPA")
-    CONVERSIONS["CBAR:ZETTAPA"] = \
-        lambda: noconversion("CBAR", "ZETTAPA")
-    CONVERSIONS["CBAR:ZPA"] = \
-        lambda: noconversion("CBAR", "ZPA")
-    CONVERSIONS["CPA:APA"] = \
+    CONVERSIONS["BAR:YOCTOPASCAL"] = \
+        lambda: noconversion("BAR", "YOCTOPASCAL")
+    CONVERSIONS["BAR:YOTTAPASCAL"] = \
+        lambda: noconversion("BAR", "YOTTAPASCAL")
+    CONVERSIONS["BAR:ZEPTOPASCAL"] = \
+        lambda: noconversion("BAR", "ZEPTOPASCAL")
+    CONVERSIONS["BAR:ZETTAPASCAL"] = \
+        lambda: noconversion("BAR", "ZETTAPASCAL")
+    CONVERSIONS["CENTIBAR:ATMOSPHERE"] = \
+        lambda: noconversion("CENTIBAR", "ATMOSPHERE")
+    CONVERSIONS["CENTIBAR:ATTOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "ATTOPASCAL")
+    CONVERSIONS["CENTIBAR:BAR"] = \
+        lambda: noconversion("CENTIBAR", "BAR")
+    CONVERSIONS["CENTIBAR:CENTIPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "CENTIPASCAL")
+    CONVERSIONS["CENTIBAR:DECIBAR"] = \
+        lambda: noconversion("CENTIBAR", "DECIBAR")
+    CONVERSIONS["CENTIBAR:DECIPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "DECIPASCAL")
+    CONVERSIONS["CENTIBAR:DEKAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "DEKAPASCAL")
+    CONVERSIONS["CENTIBAR:EXAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "EXAPASCAL")
+    CONVERSIONS["CENTIBAR:FEMTOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "FEMTOPASCAL")
+    CONVERSIONS["CENTIBAR:GIGAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "GIGAPASCAL")
+    CONVERSIONS["CENTIBAR:HECTOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "HECTOPASCAL")
+    CONVERSIONS["CENTIBAR:KILOBAR"] = \
+        lambda: noconversion("CENTIBAR", "KILOBAR")
+    CONVERSIONS["CENTIBAR:KILOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "KILOPASCAL")
+    CONVERSIONS["CENTIBAR:MEGABAR"] = \
+        lambda: noconversion("CENTIBAR", "MEGABAR")
+    CONVERSIONS["CENTIBAR:MEGAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "MEGAPASCAL")
+    CONVERSIONS["CENTIBAR:MICROPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "MICROPASCAL")
+    CONVERSIONS["CENTIBAR:MILLIBAR"] = \
+        lambda: noconversion("CENTIBAR", "MILLIBAR")
+    CONVERSIONS["CENTIBAR:MILLIPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "MILLIPASCAL")
+    CONVERSIONS["CENTIBAR:MILLITORR"] = \
+        lambda: noconversion("CENTIBAR", "MILLITORR")
+    CONVERSIONS["CENTIBAR:MMHG"] = \
+        lambda: noconversion("CENTIBAR", "MMHG")
+    CONVERSIONS["CENTIBAR:NANOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "NANOPASCAL")
+    CONVERSIONS["CENTIBAR:PASCAL"] = \
+        lambda: noconversion("CENTIBAR", "PASCAL")
+    CONVERSIONS["CENTIBAR:PETAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "PETAPASCAL")
+    CONVERSIONS["CENTIBAR:PICOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "PICOPASCAL")
+    CONVERSIONS["CENTIBAR:PSI"] = \
+        lambda: noconversion("CENTIBAR", "PSI")
+    CONVERSIONS["CENTIBAR:TERAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "TERAPASCAL")
+    CONVERSIONS["CENTIBAR:TORR"] = \
+        lambda: noconversion("CENTIBAR", "TORR")
+    CONVERSIONS["CENTIBAR:YOCTOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "YOCTOPASCAL")
+    CONVERSIONS["CENTIBAR:YOTTAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "YOTTAPASCAL")
+    CONVERSIONS["CENTIBAR:ZEPTOPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "ZEPTOPASCAL")
+    CONVERSIONS["CENTIBAR:ZETTAPASCAL"] = \
+        lambda: noconversion("CENTIBAR", "ZETTAPASCAL")
+    CONVERSIONS["CENTIPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("CENTIPASCAL", "ATMOSPHERE")
+    CONVERSIONS["CENTIPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["CPA:ATM"] = \
-        lambda: noconversion("CPA", "ATM")
-    CONVERSIONS["CPA:BAR"] = \
-        lambda: noconversion("CPA", "BAR")
-    CONVERSIONS["CPA:CBAR"] = \
-        lambda: noconversion("CPA", "CBAR")
-    CONVERSIONS["CPA:DAPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["CPA:DBAR"] = \
-        lambda: noconversion("CPA", "DBAR")
-    CONVERSIONS["CPA:DPA"] = \
+    CONVERSIONS["CENTIPASCAL:BAR"] = \
+        lambda: noconversion("CENTIPASCAL", "BAR")
+    CONVERSIONS["CENTIPASCAL:CENTIBAR"] = \
+        lambda: noconversion("CENTIPASCAL", "CENTIBAR")
+    CONVERSIONS["CENTIPASCAL:DECIBAR"] = \
+        lambda: noconversion("CENTIPASCAL", "DECIBAR")
+    CONVERSIONS["CENTIPASCAL:DECIPASCAL"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CPA:EXAPA"] = \
+    CONVERSIONS["CENTIPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["CENTIPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["CPA:FPA"] = \
+    CONVERSIONS["CENTIPASCAL:FEMTOPASCAL"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["CPA:GIGAPA"] = \
+    CONVERSIONS["CENTIPASCAL:GIGAPASCAL"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["CPA:HPA"] = \
+    CONVERSIONS["CENTIPASCAL:HECTOPASCAL"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["CPA:KBAR"] = \
-        lambda: noconversion("CPA", "KBAR")
-    CONVERSIONS["CPA:KPA"] = \
+    CONVERSIONS["CENTIPASCAL:KILOBAR"] = \
+        lambda: noconversion("CENTIPASCAL", "KILOBAR")
+    CONVERSIONS["CENTIPASCAL:KILOPASCAL"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["CPA:MBAR"] = \
-        lambda: noconversion("CPA", "MBAR")
-    CONVERSIONS["CPA:MEGABAR"] = \
-        lambda: noconversion("CPA", "MEGABAR")
-    CONVERSIONS["CPA:MEGAPA"] = \
+    CONVERSIONS["CENTIPASCAL:MEGABAR"] = \
+        lambda: noconversion("CENTIPASCAL", "MEGABAR")
+    CONVERSIONS["CENTIPASCAL:MEGAPASCAL"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["CPA:MICROPA"] = \
+    CONVERSIONS["CENTIPASCAL:MICROPASCAL"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["CPA:MMHG"] = \
-        lambda: noconversion("CPA", "MMHG")
-    CONVERSIONS["CPA:MPA"] = \
+    CONVERSIONS["CENTIPASCAL:MILLIBAR"] = \
+        lambda: noconversion("CENTIPASCAL", "MILLIBAR")
+    CONVERSIONS["CENTIPASCAL:MILLIPASCAL"] = \
         lambda value: 10 * value
-    CONVERSIONS["CPA:MTORR"] = \
-        lambda: noconversion("CPA", "MTORR")
-    CONVERSIONS["CPA:NPA"] = \
+    CONVERSIONS["CENTIPASCAL:MILLITORR"] = \
+        lambda: noconversion("CENTIPASCAL", "MILLITORR")
+    CONVERSIONS["CENTIPASCAL:MMHG"] = \
+        lambda: noconversion("CENTIPASCAL", "MMHG")
+    CONVERSIONS["CENTIPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["CPA:PA"] = \
+    CONVERSIONS["CENTIPASCAL:PASCAL"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["CPA:PETAPA"] = \
+    CONVERSIONS["CENTIPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["CPA:PPA"] = \
+    CONVERSIONS["CENTIPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["CPA:PSI"] = \
-        lambda: noconversion("CPA", "PSI")
-    CONVERSIONS["CPA:TERAPA"] = \
+    CONVERSIONS["CENTIPASCAL:PSI"] = \
+        lambda: noconversion("CENTIPASCAL", "PSI")
+    CONVERSIONS["CENTIPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["CPA:TORR"] = \
-        lambda: noconversion("CPA", "TORR")
-    CONVERSIONS["CPA:YOTTAPA"] = \
+    CONVERSIONS["CENTIPASCAL:TORR"] = \
+        lambda: noconversion("CENTIPASCAL", "TORR")
+    CONVERSIONS["CENTIPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["CENTIPASCAL:YOTTAPASCAL"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["CPA:YPA"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["CPA:ZETTAPA"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["CPA:ZPA"] = \
+    CONVERSIONS["CENTIPASCAL:ZEPTOPASCAL"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["DAPA:APA"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DAPA:ATM"] = \
-        lambda: noconversion("DAPA", "ATM")
-    CONVERSIONS["DAPA:BAR"] = \
-        lambda: noconversion("DAPA", "BAR")
-    CONVERSIONS["DAPA:CBAR"] = \
-        lambda: noconversion("DAPA", "CBAR")
-    CONVERSIONS["DAPA:CPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DAPA:DBAR"] = \
-        lambda: noconversion("DAPA", "DBAR")
-    CONVERSIONS["DAPA:DPA"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DAPA:EXAPA"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DAPA:FPA"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DAPA:GIGAPA"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DAPA:HPA"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DAPA:KBAR"] = \
-        lambda: noconversion("DAPA", "KBAR")
-    CONVERSIONS["DAPA:KPA"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DAPA:MBAR"] = \
-        lambda: noconversion("DAPA", "MBAR")
-    CONVERSIONS["DAPA:MEGABAR"] = \
-        lambda: noconversion("DAPA", "MEGABAR")
-    CONVERSIONS["DAPA:MEGAPA"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DAPA:MICROPA"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DAPA:MMHG"] = \
-        lambda: noconversion("DAPA", "MMHG")
-    CONVERSIONS["DAPA:MPA"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DAPA:MTORR"] = \
-        lambda: noconversion("DAPA", "MTORR")
-    CONVERSIONS["DAPA:NPA"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DAPA:PA"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DAPA:PETAPA"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DAPA:PPA"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DAPA:PSI"] = \
-        lambda: noconversion("DAPA", "PSI")
-    CONVERSIONS["DAPA:TERAPA"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DAPA:TORR"] = \
-        lambda: noconversion("DAPA", "TORR")
-    CONVERSIONS["DAPA:YOTTAPA"] = \
+    CONVERSIONS["CENTIPASCAL:ZETTAPASCAL"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["DAPA:YPA"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DAPA:ZETTAPA"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["DAPA:ZPA"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DBAR:APA"] = \
-        lambda: noconversion("DBAR", "APA")
-    CONVERSIONS["DBAR:ATM"] = \
-        lambda: noconversion("DBAR", "ATM")
-    CONVERSIONS["DBAR:BAR"] = \
-        lambda: noconversion("DBAR", "BAR")
-    CONVERSIONS["DBAR:CBAR"] = \
-        lambda: noconversion("DBAR", "CBAR")
-    CONVERSIONS["DBAR:CPA"] = \
-        lambda: noconversion("DBAR", "CPA")
-    CONVERSIONS["DBAR:DAPA"] = \
-        lambda: noconversion("DBAR", "DAPA")
-    CONVERSIONS["DBAR:DPA"] = \
-        lambda: noconversion("DBAR", "DPA")
-    CONVERSIONS["DBAR:EXAPA"] = \
-        lambda: noconversion("DBAR", "EXAPA")
-    CONVERSIONS["DBAR:FPA"] = \
-        lambda: noconversion("DBAR", "FPA")
-    CONVERSIONS["DBAR:GIGAPA"] = \
-        lambda: noconversion("DBAR", "GIGAPA")
-    CONVERSIONS["DBAR:HPA"] = \
-        lambda: noconversion("DBAR", "HPA")
-    CONVERSIONS["DBAR:KBAR"] = \
-        lambda: noconversion("DBAR", "KBAR")
-    CONVERSIONS["DBAR:KPA"] = \
-        lambda: noconversion("DBAR", "KPA")
-    CONVERSIONS["DBAR:MBAR"] = \
-        lambda: noconversion("DBAR", "MBAR")
-    CONVERSIONS["DBAR:MEGABAR"] = \
-        lambda: noconversion("DBAR", "MEGABAR")
-    CONVERSIONS["DBAR:MEGAPA"] = \
-        lambda: noconversion("DBAR", "MEGAPA")
-    CONVERSIONS["DBAR:MICROPA"] = \
-        lambda: noconversion("DBAR", "MICROPA")
-    CONVERSIONS["DBAR:MMHG"] = \
-        lambda: noconversion("DBAR", "MMHG")
-    CONVERSIONS["DBAR:MPA"] = \
-        lambda: noconversion("DBAR", "MPA")
-    CONVERSIONS["DBAR:MTORR"] = \
-        lambda: noconversion("DBAR", "MTORR")
-    CONVERSIONS["DBAR:NPA"] = \
-        lambda: noconversion("DBAR", "NPA")
-    CONVERSIONS["DBAR:PA"] = \
-        lambda: noconversion("DBAR", "PA")
-    CONVERSIONS["DBAR:PETAPA"] = \
-        lambda: noconversion("DBAR", "PETAPA")
-    CONVERSIONS["DBAR:PPA"] = \
-        lambda: noconversion("DBAR", "PPA")
-    CONVERSIONS["DBAR:PSI"] = \
-        lambda: noconversion("DBAR", "PSI")
-    CONVERSIONS["DBAR:TERAPA"] = \
-        lambda: noconversion("DBAR", "TERAPA")
-    CONVERSIONS["DBAR:TORR"] = \
-        lambda: noconversion("DBAR", "TORR")
-    CONVERSIONS["DBAR:YOTTAPA"] = \
-        lambda: noconversion("DBAR", "YOTTAPA")
-    CONVERSIONS["DBAR:YPA"] = \
-        lambda: noconversion("DBAR", "YPA")
-    CONVERSIONS["DBAR:ZETTAPA"] = \
-        lambda: noconversion("DBAR", "ZETTAPA")
-    CONVERSIONS["DBAR:ZPA"] = \
-        lambda: noconversion("DBAR", "ZPA")
-    CONVERSIONS["DPA:APA"] = \
+    CONVERSIONS["DECIBAR:ATMOSPHERE"] = \
+        lambda: noconversion("DECIBAR", "ATMOSPHERE")
+    CONVERSIONS["DECIBAR:ATTOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "ATTOPASCAL")
+    CONVERSIONS["DECIBAR:BAR"] = \
+        lambda: noconversion("DECIBAR", "BAR")
+    CONVERSIONS["DECIBAR:CENTIBAR"] = \
+        lambda: noconversion("DECIBAR", "CENTIBAR")
+    CONVERSIONS["DECIBAR:CENTIPASCAL"] = \
+        lambda: noconversion("DECIBAR", "CENTIPASCAL")
+    CONVERSIONS["DECIBAR:DECIPASCAL"] = \
+        lambda: noconversion("DECIBAR", "DECIPASCAL")
+    CONVERSIONS["DECIBAR:DEKAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "DEKAPASCAL")
+    CONVERSIONS["DECIBAR:EXAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "EXAPASCAL")
+    CONVERSIONS["DECIBAR:FEMTOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "FEMTOPASCAL")
+    CONVERSIONS["DECIBAR:GIGAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "GIGAPASCAL")
+    CONVERSIONS["DECIBAR:HECTOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "HECTOPASCAL")
+    CONVERSIONS["DECIBAR:KILOBAR"] = \
+        lambda: noconversion("DECIBAR", "KILOBAR")
+    CONVERSIONS["DECIBAR:KILOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "KILOPASCAL")
+    CONVERSIONS["DECIBAR:MEGABAR"] = \
+        lambda: noconversion("DECIBAR", "MEGABAR")
+    CONVERSIONS["DECIBAR:MEGAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "MEGAPASCAL")
+    CONVERSIONS["DECIBAR:MICROPASCAL"] = \
+        lambda: noconversion("DECIBAR", "MICROPASCAL")
+    CONVERSIONS["DECIBAR:MILLIBAR"] = \
+        lambda: noconversion("DECIBAR", "MILLIBAR")
+    CONVERSIONS["DECIBAR:MILLIPASCAL"] = \
+        lambda: noconversion("DECIBAR", "MILLIPASCAL")
+    CONVERSIONS["DECIBAR:MILLITORR"] = \
+        lambda: noconversion("DECIBAR", "MILLITORR")
+    CONVERSIONS["DECIBAR:MMHG"] = \
+        lambda: noconversion("DECIBAR", "MMHG")
+    CONVERSIONS["DECIBAR:NANOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "NANOPASCAL")
+    CONVERSIONS["DECIBAR:PASCAL"] = \
+        lambda: noconversion("DECIBAR", "PASCAL")
+    CONVERSIONS["DECIBAR:PETAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "PETAPASCAL")
+    CONVERSIONS["DECIBAR:PICOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "PICOPASCAL")
+    CONVERSIONS["DECIBAR:PSI"] = \
+        lambda: noconversion("DECIBAR", "PSI")
+    CONVERSIONS["DECIBAR:TERAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "TERAPASCAL")
+    CONVERSIONS["DECIBAR:TORR"] = \
+        lambda: noconversion("DECIBAR", "TORR")
+    CONVERSIONS["DECIBAR:YOCTOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "YOCTOPASCAL")
+    CONVERSIONS["DECIBAR:YOTTAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "YOTTAPASCAL")
+    CONVERSIONS["DECIBAR:ZEPTOPASCAL"] = \
+        lambda: noconversion("DECIBAR", "ZEPTOPASCAL")
+    CONVERSIONS["DECIBAR:ZETTAPASCAL"] = \
+        lambda: noconversion("DECIBAR", "ZETTAPASCAL")
+    CONVERSIONS["DECIPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("DECIPASCAL", "ATMOSPHERE")
+    CONVERSIONS["DECIPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["DPA:ATM"] = \
-        lambda: noconversion("DPA", "ATM")
-    CONVERSIONS["DPA:BAR"] = \
-        lambda: noconversion("DPA", "BAR")
-    CONVERSIONS["DPA:CBAR"] = \
-        lambda: noconversion("DPA", "CBAR")
-    CONVERSIONS["DPA:CPA"] = \
+    CONVERSIONS["DECIPASCAL:BAR"] = \
+        lambda: noconversion("DECIPASCAL", "BAR")
+    CONVERSIONS["DECIPASCAL:CENTIBAR"] = \
+        lambda: noconversion("DECIPASCAL", "CENTIBAR")
+    CONVERSIONS["DECIPASCAL:CENTIPASCAL"] = \
         lambda value: 10 * value
-    CONVERSIONS["DPA:DAPA"] = \
+    CONVERSIONS["DECIPASCAL:DECIBAR"] = \
+        lambda: noconversion("DECIPASCAL", "DECIBAR")
+    CONVERSIONS["DECIPASCAL:DEKAPASCAL"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["DPA:DBAR"] = \
-        lambda: noconversion("DPA", "DBAR")
-    CONVERSIONS["DPA:EXAPA"] = \
+    CONVERSIONS["DECIPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["DPA:FPA"] = \
+    CONVERSIONS["DECIPASCAL:FEMTOPASCAL"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["DPA:GIGAPA"] = \
+    CONVERSIONS["DECIPASCAL:GIGAPASCAL"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["DPA:HPA"] = \
+    CONVERSIONS["DECIPASCAL:HECTOPASCAL"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["DPA:KBAR"] = \
-        lambda: noconversion("DPA", "KBAR")
-    CONVERSIONS["DPA:KPA"] = \
+    CONVERSIONS["DECIPASCAL:KILOBAR"] = \
+        lambda: noconversion("DECIPASCAL", "KILOBAR")
+    CONVERSIONS["DECIPASCAL:KILOPASCAL"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["DPA:MBAR"] = \
-        lambda: noconversion("DPA", "MBAR")
-    CONVERSIONS["DPA:MEGABAR"] = \
-        lambda: noconversion("DPA", "MEGABAR")
-    CONVERSIONS["DPA:MEGAPA"] = \
+    CONVERSIONS["DECIPASCAL:MEGABAR"] = \
+        lambda: noconversion("DECIPASCAL", "MEGABAR")
+    CONVERSIONS["DECIPASCAL:MEGAPASCAL"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["DPA:MICROPA"] = \
+    CONVERSIONS["DECIPASCAL:MICROPASCAL"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["DPA:MMHG"] = \
-        lambda: noconversion("DPA", "MMHG")
-    CONVERSIONS["DPA:MPA"] = \
+    CONVERSIONS["DECIPASCAL:MILLIBAR"] = \
+        lambda: noconversion("DECIPASCAL", "MILLIBAR")
+    CONVERSIONS["DECIPASCAL:MILLIPASCAL"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["DPA:MTORR"] = \
-        lambda: noconversion("DPA", "MTORR")
-    CONVERSIONS["DPA:NPA"] = \
+    CONVERSIONS["DECIPASCAL:MILLITORR"] = \
+        lambda: noconversion("DECIPASCAL", "MILLITORR")
+    CONVERSIONS["DECIPASCAL:MMHG"] = \
+        lambda: noconversion("DECIPASCAL", "MMHG")
+    CONVERSIONS["DECIPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["DPA:PA"] = \
+    CONVERSIONS["DECIPASCAL:PASCAL"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["DPA:PETAPA"] = \
+    CONVERSIONS["DECIPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["DPA:PPA"] = \
+    CONVERSIONS["DECIPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["DPA:PSI"] = \
-        lambda: noconversion("DPA", "PSI")
-    CONVERSIONS["DPA:TERAPA"] = \
+    CONVERSIONS["DECIPASCAL:PSI"] = \
+        lambda: noconversion("DECIPASCAL", "PSI")
+    CONVERSIONS["DECIPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["DPA:TORR"] = \
-        lambda: noconversion("DPA", "TORR")
-    CONVERSIONS["DPA:YOTTAPA"] = \
+    CONVERSIONS["DECIPASCAL:TORR"] = \
+        lambda: noconversion("DECIPASCAL", "TORR")
+    CONVERSIONS["DECIPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["DECIPASCAL:YOTTAPASCAL"] = \
         lambda value: (10 ** -25) * value
-    CONVERSIONS["DPA:YPA"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["DPA:ZETTAPA"] = \
+    CONVERSIONS["DECIPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["DECIPASCAL:ZETTAPASCAL"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DPA:ZPA"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAPA:APA"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["EXAPA:ATM"] = \
-        lambda: noconversion("EXAPA", "ATM")
-    CONVERSIONS["EXAPA:BAR"] = \
-        lambda: noconversion("EXAPA", "BAR")
-    CONVERSIONS["EXAPA:CBAR"] = \
-        lambda: noconversion("EXAPA", "CBAR")
-    CONVERSIONS["EXAPA:CPA"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAPA:DAPA"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["EXAPA:DBAR"] = \
-        lambda: noconversion("EXAPA", "DBAR")
-    CONVERSIONS["EXAPA:DPA"] = \
+    CONVERSIONS["DEKAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("DEKAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["DEKAPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAPA:FPA"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["EXAPA:GIGAPA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["EXAPA:HPA"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["EXAPA:KBAR"] = \
-        lambda: noconversion("EXAPA", "KBAR")
-    CONVERSIONS["EXAPA:KPA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["EXAPA:MBAR"] = \
-        lambda: noconversion("EXAPA", "MBAR")
-    CONVERSIONS["EXAPA:MEGABAR"] = \
-        lambda: noconversion("EXAPA", "MEGABAR")
-    CONVERSIONS["EXAPA:MEGAPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["EXAPA:MICROPA"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["EXAPA:MMHG"] = \
-        lambda: noconversion("EXAPA", "MMHG")
-    CONVERSIONS["EXAPA:MPA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["EXAPA:MTORR"] = \
-        lambda: noconversion("EXAPA", "MTORR")
-    CONVERSIONS["EXAPA:NPA"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["EXAPA:PA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["EXAPA:PETAPA"] = \
+    CONVERSIONS["DEKAPASCAL:BAR"] = \
+        lambda: noconversion("DEKAPASCAL", "BAR")
+    CONVERSIONS["DEKAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("DEKAPASCAL", "CENTIBAR")
+    CONVERSIONS["DEKAPASCAL:CENTIPASCAL"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["EXAPA:PPA"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["EXAPA:PSI"] = \
-        lambda: noconversion("EXAPA", "PSI")
-    CONVERSIONS["EXAPA:TERAPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["EXAPA:TORR"] = \
-        lambda: noconversion("EXAPA", "TORR")
-    CONVERSIONS["EXAPA:YOTTAPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["EXAPA:YPA"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["EXAPA:ZETTAPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["EXAPA:ZPA"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["FPA:APA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["FPA:ATM"] = \
-        lambda: noconversion("FPA", "ATM")
-    CONVERSIONS["FPA:BAR"] = \
-        lambda: noconversion("FPA", "BAR")
-    CONVERSIONS["FPA:CBAR"] = \
-        lambda: noconversion("FPA", "CBAR")
-    CONVERSIONS["FPA:CPA"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["FPA:DAPA"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["FPA:DBAR"] = \
-        lambda: noconversion("FPA", "DBAR")
-    CONVERSIONS["FPA:DPA"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["FPA:EXAPA"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["FPA:GIGAPA"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["FPA:HPA"] = \
+    CONVERSIONS["DEKAPASCAL:DECIBAR"] = \
+        lambda: noconversion("DEKAPASCAL", "DECIBAR")
+    CONVERSIONS["DEKAPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DEKAPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["FPA:KBAR"] = \
-        lambda: noconversion("FPA", "KBAR")
-    CONVERSIONS["FPA:KPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["FPA:MBAR"] = \
-        lambda: noconversion("FPA", "MBAR")
-    CONVERSIONS["FPA:MEGABAR"] = \
-        lambda: noconversion("FPA", "MEGABAR")
-    CONVERSIONS["FPA:MEGAPA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["FPA:MICROPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["FPA:MMHG"] = \
-        lambda: noconversion("FPA", "MMHG")
-    CONVERSIONS["FPA:MPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["FPA:MTORR"] = \
-        lambda: noconversion("FPA", "MTORR")
-    CONVERSIONS["FPA:NPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["FPA:PA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["FPA:PETAPA"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["FPA:PPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["FPA:PSI"] = \
-        lambda: noconversion("FPA", "PSI")
-    CONVERSIONS["FPA:TERAPA"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["FPA:TORR"] = \
-        lambda: noconversion("FPA", "TORR")
-    CONVERSIONS["FPA:YOTTAPA"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["FPA:YPA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["FPA:ZETTAPA"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["FPA:ZPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAPA:APA"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["GIGAPA:ATM"] = \
-        lambda: noconversion("GIGAPA", "ATM")
-    CONVERSIONS["GIGAPA:BAR"] = \
-        lambda: noconversion("GIGAPA", "BAR")
-    CONVERSIONS["GIGAPA:CBAR"] = \
-        lambda: noconversion("GIGAPA", "CBAR")
-    CONVERSIONS["GIGAPA:CPA"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["GIGAPA:DAPA"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["GIGAPA:DBAR"] = \
-        lambda: noconversion("GIGAPA", "DBAR")
-    CONVERSIONS["GIGAPA:DPA"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAPA:EXAPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["GIGAPA:FPA"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["GIGAPA:HPA"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["GIGAPA:KBAR"] = \
-        lambda: noconversion("GIGAPA", "KBAR")
-    CONVERSIONS["GIGAPA:KPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAPA:MBAR"] = \
-        lambda: noconversion("GIGAPA", "MBAR")
-    CONVERSIONS["GIGAPA:MEGABAR"] = \
-        lambda: noconversion("GIGAPA", "MEGABAR")
-    CONVERSIONS["GIGAPA:MEGAPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["GIGAPA:MICROPA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["GIGAPA:MMHG"] = \
-        lambda: noconversion("GIGAPA", "MMHG")
-    CONVERSIONS["GIGAPA:MPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["GIGAPA:MTORR"] = \
-        lambda: noconversion("GIGAPA", "MTORR")
-    CONVERSIONS["GIGAPA:NPA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["GIGAPA:PA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["GIGAPA:PETAPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["GIGAPA:PPA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["GIGAPA:PSI"] = \
-        lambda: noconversion("GIGAPA", "PSI")
-    CONVERSIONS["GIGAPA:TERAPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["GIGAPA:TORR"] = \
-        lambda: noconversion("GIGAPA", "TORR")
-    CONVERSIONS["GIGAPA:YOTTAPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["GIGAPA:YPA"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["GIGAPA:ZETTAPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["GIGAPA:ZPA"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["HPA:APA"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["HPA:ATM"] = \
-        lambda: noconversion("HPA", "ATM")
-    CONVERSIONS["HPA:BAR"] = \
-        lambda: noconversion("HPA", "BAR")
-    CONVERSIONS["HPA:CBAR"] = \
-        lambda: noconversion("HPA", "CBAR")
-    CONVERSIONS["HPA:CPA"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["HPA:DAPA"] = \
-        lambda value: 10 * value
-    CONVERSIONS["HPA:DBAR"] = \
-        lambda: noconversion("HPA", "DBAR")
-    CONVERSIONS["HPA:DPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["HPA:EXAPA"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["HPA:FPA"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["HPA:GIGAPA"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["HPA:KBAR"] = \
-        lambda: noconversion("HPA", "KBAR")
-    CONVERSIONS["HPA:KPA"] = \
+    CONVERSIONS["DEKAPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["DEKAPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["DEKAPASCAL:HECTOPASCAL"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["HPA:MBAR"] = \
-        lambda: noconversion("HPA", "MBAR")
-    CONVERSIONS["HPA:MEGABAR"] = \
-        lambda: noconversion("HPA", "MEGABAR")
-    CONVERSIONS["HPA:MEGAPA"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["HPA:MICROPA"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["HPA:MMHG"] = \
-        lambda: noconversion("HPA", "MMHG")
-    CONVERSIONS["HPA:MPA"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["HPA:MTORR"] = \
-        lambda: noconversion("HPA", "MTORR")
-    CONVERSIONS["HPA:NPA"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["HPA:PA"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["HPA:PETAPA"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["HPA:PPA"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["HPA:PSI"] = \
-        lambda: noconversion("HPA", "PSI")
-    CONVERSIONS["HPA:TERAPA"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["HPA:TORR"] = \
-        lambda: noconversion("HPA", "TORR")
-    CONVERSIONS["HPA:YOTTAPA"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["HPA:YPA"] = \
-        lambda value: (10 ** 26) * value
-    CONVERSIONS["HPA:ZETTAPA"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["HPA:ZPA"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["KBAR:APA"] = \
-        lambda: noconversion("KBAR", "APA")
-    CONVERSIONS["KBAR:ATM"] = \
-        lambda: noconversion("KBAR", "ATM")
-    CONVERSIONS["KBAR:BAR"] = \
-        lambda: noconversion("KBAR", "BAR")
-    CONVERSIONS["KBAR:CBAR"] = \
-        lambda: noconversion("KBAR", "CBAR")
-    CONVERSIONS["KBAR:CPA"] = \
-        lambda: noconversion("KBAR", "CPA")
-    CONVERSIONS["KBAR:DAPA"] = \
-        lambda: noconversion("KBAR", "DAPA")
-    CONVERSIONS["KBAR:DBAR"] = \
-        lambda: noconversion("KBAR", "DBAR")
-    CONVERSIONS["KBAR:DPA"] = \
-        lambda: noconversion("KBAR", "DPA")
-    CONVERSIONS["KBAR:EXAPA"] = \
-        lambda: noconversion("KBAR", "EXAPA")
-    CONVERSIONS["KBAR:FPA"] = \
-        lambda: noconversion("KBAR", "FPA")
-    CONVERSIONS["KBAR:GIGAPA"] = \
-        lambda: noconversion("KBAR", "GIGAPA")
-    CONVERSIONS["KBAR:HPA"] = \
-        lambda: noconversion("KBAR", "HPA")
-    CONVERSIONS["KBAR:KPA"] = \
-        lambda: noconversion("KBAR", "KPA")
-    CONVERSIONS["KBAR:MBAR"] = \
-        lambda: noconversion("KBAR", "MBAR")
-    CONVERSIONS["KBAR:MEGABAR"] = \
-        lambda: noconversion("KBAR", "MEGABAR")
-    CONVERSIONS["KBAR:MEGAPA"] = \
-        lambda: noconversion("KBAR", "MEGAPA")
-    CONVERSIONS["KBAR:MICROPA"] = \
-        lambda: noconversion("KBAR", "MICROPA")
-    CONVERSIONS["KBAR:MMHG"] = \
-        lambda: noconversion("KBAR", "MMHG")
-    CONVERSIONS["KBAR:MPA"] = \
-        lambda: noconversion("KBAR", "MPA")
-    CONVERSIONS["KBAR:MTORR"] = \
-        lambda: noconversion("KBAR", "MTORR")
-    CONVERSIONS["KBAR:NPA"] = \
-        lambda: noconversion("KBAR", "NPA")
-    CONVERSIONS["KBAR:PA"] = \
-        lambda: noconversion("KBAR", "PA")
-    CONVERSIONS["KBAR:PETAPA"] = \
-        lambda: noconversion("KBAR", "PETAPA")
-    CONVERSIONS["KBAR:PPA"] = \
-        lambda: noconversion("KBAR", "PPA")
-    CONVERSIONS["KBAR:PSI"] = \
-        lambda: noconversion("KBAR", "PSI")
-    CONVERSIONS["KBAR:TERAPA"] = \
-        lambda: noconversion("KBAR", "TERAPA")
-    CONVERSIONS["KBAR:TORR"] = \
-        lambda: noconversion("KBAR", "TORR")
-    CONVERSIONS["KBAR:YOTTAPA"] = \
-        lambda: noconversion("KBAR", "YOTTAPA")
-    CONVERSIONS["KBAR:YPA"] = \
-        lambda: noconversion("KBAR", "YPA")
-    CONVERSIONS["KBAR:ZETTAPA"] = \
-        lambda: noconversion("KBAR", "ZETTAPA")
-    CONVERSIONS["KBAR:ZPA"] = \
-        lambda: noconversion("KBAR", "ZPA")
-    CONVERSIONS["KPA:APA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["KPA:ATM"] = \
-        lambda: noconversion("KPA", "ATM")
-    CONVERSIONS["KPA:BAR"] = \
-        lambda: noconversion("KPA", "BAR")
-    CONVERSIONS["KPA:CBAR"] = \
-        lambda: noconversion("KPA", "CBAR")
-    CONVERSIONS["KPA:CPA"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["KPA:DAPA"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["KPA:DBAR"] = \
-        lambda: noconversion("KPA", "DBAR")
-    CONVERSIONS["KPA:DPA"] = \
+    CONVERSIONS["DEKAPASCAL:KILOBAR"] = \
+        lambda: noconversion("DEKAPASCAL", "KILOBAR")
+    CONVERSIONS["DEKAPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DEKAPASCAL:MEGABAR"] = \
+        lambda: noconversion("DEKAPASCAL", "MEGABAR")
+    CONVERSIONS["DEKAPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["DEKAPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["DEKAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("DEKAPASCAL", "MILLIBAR")
+    CONVERSIONS["DEKAPASCAL:MILLIPASCAL"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KPA:EXAPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["KPA:FPA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["KPA:GIGAPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["KPA:HPA"] = \
+    CONVERSIONS["DEKAPASCAL:MILLITORR"] = \
+        lambda: noconversion("DEKAPASCAL", "MILLITORR")
+    CONVERSIONS["DEKAPASCAL:MMHG"] = \
+        lambda: noconversion("DEKAPASCAL", "MMHG")
+    CONVERSIONS["DEKAPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["DEKAPASCAL:PASCAL"] = \
         lambda value: 10 * value
-    CONVERSIONS["KPA:KBAR"] = \
-        lambda: noconversion("KPA", "KBAR")
-    CONVERSIONS["KPA:MBAR"] = \
-        lambda: noconversion("KPA", "MBAR")
-    CONVERSIONS["KPA:MEGABAR"] = \
-        lambda: noconversion("KPA", "MEGABAR")
-    CONVERSIONS["KPA:MEGAPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["KPA:MICROPA"] = \
+    CONVERSIONS["DEKAPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["DEKAPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["DEKAPASCAL:PSI"] = \
+        lambda: noconversion("DEKAPASCAL", "PSI")
+    CONVERSIONS["DEKAPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["DEKAPASCAL:TORR"] = \
+        lambda: noconversion("DEKAPASCAL", "TORR")
+    CONVERSIONS["DEKAPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["DEKAPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DEKAPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DEKAPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["EXAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("EXAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["EXAPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["EXAPASCAL:BAR"] = \
+        lambda: noconversion("EXAPASCAL", "BAR")
+    CONVERSIONS["EXAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("EXAPASCAL", "CENTIBAR")
+    CONVERSIONS["EXAPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["EXAPASCAL:DECIBAR"] = \
+        lambda: noconversion("EXAPASCAL", "DECIBAR")
+    CONVERSIONS["EXAPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["EXAPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 17) * value
+    CONVERSIONS["EXAPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["EXAPASCAL:GIGAPASCAL"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["KPA:MMHG"] = \
-        lambda: noconversion("KPA", "MMHG")
-    CONVERSIONS["KPA:MPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["KPA:MTORR"] = \
-        lambda: noconversion("KPA", "MTORR")
-    CONVERSIONS["KPA:NPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["KPA:PA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["KPA:PETAPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["KPA:PPA"] = \
+    CONVERSIONS["EXAPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["EXAPASCAL:KILOBAR"] = \
+        lambda: noconversion("EXAPASCAL", "KILOBAR")
+    CONVERSIONS["EXAPASCAL:KILOPASCAL"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["KPA:PSI"] = \
-        lambda: noconversion("KPA", "PSI")
-    CONVERSIONS["KPA:TERAPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["KPA:TORR"] = \
-        lambda: noconversion("KPA", "TORR")
-    CONVERSIONS["KPA:YOTTAPA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["KPA:YPA"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["KPA:ZETTAPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["KPA:ZPA"] = \
+    CONVERSIONS["EXAPASCAL:MEGABAR"] = \
+        lambda: noconversion("EXAPASCAL", "MEGABAR")
+    CONVERSIONS["EXAPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["EXAPASCAL:MICROPASCAL"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["MBAR:APA"] = \
-        lambda: noconversion("MBAR", "APA")
-    CONVERSIONS["MBAR:ATM"] = \
-        lambda: noconversion("MBAR", "ATM")
-    CONVERSIONS["MBAR:BAR"] = \
-        lambda: noconversion("MBAR", "BAR")
-    CONVERSIONS["MBAR:CBAR"] = \
-        lambda: noconversion("MBAR", "CBAR")
-    CONVERSIONS["MBAR:CPA"] = \
-        lambda: noconversion("MBAR", "CPA")
-    CONVERSIONS["MBAR:DAPA"] = \
-        lambda: noconversion("MBAR", "DAPA")
-    CONVERSIONS["MBAR:DBAR"] = \
-        lambda: noconversion("MBAR", "DBAR")
-    CONVERSIONS["MBAR:DPA"] = \
-        lambda: noconversion("MBAR", "DPA")
-    CONVERSIONS["MBAR:EXAPA"] = \
-        lambda: noconversion("MBAR", "EXAPA")
-    CONVERSIONS["MBAR:FPA"] = \
-        lambda: noconversion("MBAR", "FPA")
-    CONVERSIONS["MBAR:GIGAPA"] = \
-        lambda: noconversion("MBAR", "GIGAPA")
-    CONVERSIONS["MBAR:HPA"] = \
-        lambda: noconversion("MBAR", "HPA")
-    CONVERSIONS["MBAR:KBAR"] = \
-        lambda: noconversion("MBAR", "KBAR")
-    CONVERSIONS["MBAR:KPA"] = \
-        lambda: noconversion("MBAR", "KPA")
-    CONVERSIONS["MBAR:MEGABAR"] = \
-        lambda: noconversion("MBAR", "MEGABAR")
-    CONVERSIONS["MBAR:MEGAPA"] = \
-        lambda: noconversion("MBAR", "MEGAPA")
-    CONVERSIONS["MBAR:MICROPA"] = \
-        lambda: noconversion("MBAR", "MICROPA")
-    CONVERSIONS["MBAR:MMHG"] = \
-        lambda: noconversion("MBAR", "MMHG")
-    CONVERSIONS["MBAR:MPA"] = \
-        lambda: noconversion("MBAR", "MPA")
-    CONVERSIONS["MBAR:MTORR"] = \
-        lambda: noconversion("MBAR", "MTORR")
-    CONVERSIONS["MBAR:NPA"] = \
-        lambda: noconversion("MBAR", "NPA")
-    CONVERSIONS["MBAR:PA"] = \
-        lambda: noconversion("MBAR", "PA")
-    CONVERSIONS["MBAR:PETAPA"] = \
-        lambda: noconversion("MBAR", "PETAPA")
-    CONVERSIONS["MBAR:PPA"] = \
-        lambda: noconversion("MBAR", "PPA")
-    CONVERSIONS["MBAR:PSI"] = \
-        lambda: noconversion("MBAR", "PSI")
-    CONVERSIONS["MBAR:TERAPA"] = \
-        lambda: noconversion("MBAR", "TERAPA")
-    CONVERSIONS["MBAR:TORR"] = \
-        lambda: noconversion("MBAR", "TORR")
-    CONVERSIONS["MBAR:YOTTAPA"] = \
-        lambda: noconversion("MBAR", "YOTTAPA")
-    CONVERSIONS["MBAR:YPA"] = \
-        lambda: noconversion("MBAR", "YPA")
-    CONVERSIONS["MBAR:ZETTAPA"] = \
-        lambda: noconversion("MBAR", "ZETTAPA")
-    CONVERSIONS["MBAR:ZPA"] = \
-        lambda: noconversion("MBAR", "ZPA")
-    CONVERSIONS["MEGABAR:APA"] = \
-        lambda: noconversion("MEGABAR", "APA")
-    CONVERSIONS["MEGABAR:ATM"] = \
-        lambda: noconversion("MEGABAR", "ATM")
+    CONVERSIONS["EXAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("EXAPASCAL", "MILLIBAR")
+    CONVERSIONS["EXAPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["EXAPASCAL:MILLITORR"] = \
+        lambda: noconversion("EXAPASCAL", "MILLITORR")
+    CONVERSIONS["EXAPASCAL:MMHG"] = \
+        lambda: noconversion("EXAPASCAL", "MMHG")
+    CONVERSIONS["EXAPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["EXAPASCAL:PASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["EXAPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["EXAPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["EXAPASCAL:PSI"] = \
+        lambda: noconversion("EXAPASCAL", "PSI")
+    CONVERSIONS["EXAPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["EXAPASCAL:TORR"] = \
+        lambda: noconversion("EXAPASCAL", "TORR")
+    CONVERSIONS["EXAPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 42) * value
+    CONVERSIONS["EXAPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["EXAPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["EXAPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["FEMTOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("FEMTOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["FEMTOPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["FEMTOPASCAL:BAR"] = \
+        lambda: noconversion("FEMTOPASCAL", "BAR")
+    CONVERSIONS["FEMTOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("FEMTOPASCAL", "CENTIBAR")
+    CONVERSIONS["FEMTOPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** -13) * value
+    CONVERSIONS["FEMTOPASCAL:DECIBAR"] = \
+        lambda: noconversion("FEMTOPASCAL", "DECIBAR")
+    CONVERSIONS["FEMTOPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["FEMTOPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -16) * value
+    CONVERSIONS["FEMTOPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["FEMTOPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["FEMTOPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["FEMTOPASCAL:KILOBAR"] = \
+        lambda: noconversion("FEMTOPASCAL", "KILOBAR")
+    CONVERSIONS["FEMTOPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["FEMTOPASCAL:MEGABAR"] = \
+        lambda: noconversion("FEMTOPASCAL", "MEGABAR")
+    CONVERSIONS["FEMTOPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["FEMTOPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["FEMTOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("FEMTOPASCAL", "MILLIBAR")
+    CONVERSIONS["FEMTOPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["FEMTOPASCAL:MILLITORR"] = \
+        lambda: noconversion("FEMTOPASCAL", "MILLITORR")
+    CONVERSIONS["FEMTOPASCAL:MMHG"] = \
+        lambda: noconversion("FEMTOPASCAL", "MMHG")
+    CONVERSIONS["FEMTOPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["FEMTOPASCAL:PASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["FEMTOPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["FEMTOPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["FEMTOPASCAL:PSI"] = \
+        lambda: noconversion("FEMTOPASCAL", "PSI")
+    CONVERSIONS["FEMTOPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["FEMTOPASCAL:TORR"] = \
+        lambda: noconversion("FEMTOPASCAL", "TORR")
+    CONVERSIONS["FEMTOPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["FEMTOPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["FEMTOPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["FEMTOPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["GIGAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("GIGAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["GIGAPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["GIGAPASCAL:BAR"] = \
+        lambda: noconversion("GIGAPASCAL", "BAR")
+    CONVERSIONS["GIGAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("GIGAPASCAL", "CENTIBAR")
+    CONVERSIONS["GIGAPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["GIGAPASCAL:DECIBAR"] = \
+        lambda: noconversion("GIGAPASCAL", "DECIBAR")
+    CONVERSIONS["GIGAPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["GIGAPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 8) * value
+    CONVERSIONS["GIGAPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["GIGAPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["GIGAPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["GIGAPASCAL:KILOBAR"] = \
+        lambda: noconversion("GIGAPASCAL", "KILOBAR")
+    CONVERSIONS["GIGAPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["GIGAPASCAL:MEGABAR"] = \
+        lambda: noconversion("GIGAPASCAL", "MEGABAR")
+    CONVERSIONS["GIGAPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["GIGAPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["GIGAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("GIGAPASCAL", "MILLIBAR")
+    CONVERSIONS["GIGAPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["GIGAPASCAL:MILLITORR"] = \
+        lambda: noconversion("GIGAPASCAL", "MILLITORR")
+    CONVERSIONS["GIGAPASCAL:MMHG"] = \
+        lambda: noconversion("GIGAPASCAL", "MMHG")
+    CONVERSIONS["GIGAPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["GIGAPASCAL:PASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["GIGAPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["GIGAPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["GIGAPASCAL:PSI"] = \
+        lambda: noconversion("GIGAPASCAL", "PSI")
+    CONVERSIONS["GIGAPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["GIGAPASCAL:TORR"] = \
+        lambda: noconversion("GIGAPASCAL", "TORR")
+    CONVERSIONS["GIGAPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["GIGAPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["GIGAPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["GIGAPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["HECTOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("HECTOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["HECTOPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["HECTOPASCAL:BAR"] = \
+        lambda: noconversion("HECTOPASCAL", "BAR")
+    CONVERSIONS["HECTOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("HECTOPASCAL", "CENTIBAR")
+    CONVERSIONS["HECTOPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["HECTOPASCAL:DECIBAR"] = \
+        lambda: noconversion("HECTOPASCAL", "DECIBAR")
+    CONVERSIONS["HECTOPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["HECTOPASCAL:DEKAPASCAL"] = \
+        lambda value: 10 * value
+    CONVERSIONS["HECTOPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -16) * value
+    CONVERSIONS["HECTOPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 17) * value
+    CONVERSIONS["HECTOPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["HECTOPASCAL:KILOBAR"] = \
+        lambda: noconversion("HECTOPASCAL", "KILOBAR")
+    CONVERSIONS["HECTOPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["HECTOPASCAL:MEGABAR"] = \
+        lambda: noconversion("HECTOPASCAL", "MEGABAR")
+    CONVERSIONS["HECTOPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["HECTOPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 8) * value
+    CONVERSIONS["HECTOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("HECTOPASCAL", "MILLIBAR")
+    CONVERSIONS["HECTOPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 5) * value
+    CONVERSIONS["HECTOPASCAL:MILLITORR"] = \
+        lambda: noconversion("HECTOPASCAL", "MILLITORR")
+    CONVERSIONS["HECTOPASCAL:MMHG"] = \
+        lambda: noconversion("HECTOPASCAL", "MMHG")
+    CONVERSIONS["HECTOPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["HECTOPASCAL:PASCAL"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["HECTOPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -13) * value
+    CONVERSIONS["HECTOPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 14) * value
+    CONVERSIONS["HECTOPASCAL:PSI"] = \
+        lambda: noconversion("HECTOPASCAL", "PSI")
+    CONVERSIONS["HECTOPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -10) * value
+    CONVERSIONS["HECTOPASCAL:TORR"] = \
+        lambda: noconversion("HECTOPASCAL", "TORR")
+    CONVERSIONS["HECTOPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 26) * value
+    CONVERSIONS["HECTOPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["HECTOPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["HECTOPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["KILOBAR:ATMOSPHERE"] = \
+        lambda: noconversion("KILOBAR", "ATMOSPHERE")
+    CONVERSIONS["KILOBAR:ATTOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "ATTOPASCAL")
+    CONVERSIONS["KILOBAR:BAR"] = \
+        lambda: noconversion("KILOBAR", "BAR")
+    CONVERSIONS["KILOBAR:CENTIBAR"] = \
+        lambda: noconversion("KILOBAR", "CENTIBAR")
+    CONVERSIONS["KILOBAR:CENTIPASCAL"] = \
+        lambda: noconversion("KILOBAR", "CENTIPASCAL")
+    CONVERSIONS["KILOBAR:DECIBAR"] = \
+        lambda: noconversion("KILOBAR", "DECIBAR")
+    CONVERSIONS["KILOBAR:DECIPASCAL"] = \
+        lambda: noconversion("KILOBAR", "DECIPASCAL")
+    CONVERSIONS["KILOBAR:DEKAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "DEKAPASCAL")
+    CONVERSIONS["KILOBAR:EXAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "EXAPASCAL")
+    CONVERSIONS["KILOBAR:FEMTOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "FEMTOPASCAL")
+    CONVERSIONS["KILOBAR:GIGAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "GIGAPASCAL")
+    CONVERSIONS["KILOBAR:HECTOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "HECTOPASCAL")
+    CONVERSIONS["KILOBAR:KILOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "KILOPASCAL")
+    CONVERSIONS["KILOBAR:MEGABAR"] = \
+        lambda: noconversion("KILOBAR", "MEGABAR")
+    CONVERSIONS["KILOBAR:MEGAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "MEGAPASCAL")
+    CONVERSIONS["KILOBAR:MICROPASCAL"] = \
+        lambda: noconversion("KILOBAR", "MICROPASCAL")
+    CONVERSIONS["KILOBAR:MILLIBAR"] = \
+        lambda: noconversion("KILOBAR", "MILLIBAR")
+    CONVERSIONS["KILOBAR:MILLIPASCAL"] = \
+        lambda: noconversion("KILOBAR", "MILLIPASCAL")
+    CONVERSIONS["KILOBAR:MILLITORR"] = \
+        lambda: noconversion("KILOBAR", "MILLITORR")
+    CONVERSIONS["KILOBAR:MMHG"] = \
+        lambda: noconversion("KILOBAR", "MMHG")
+    CONVERSIONS["KILOBAR:NANOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "NANOPASCAL")
+    CONVERSIONS["KILOBAR:PASCAL"] = \
+        lambda: noconversion("KILOBAR", "PASCAL")
+    CONVERSIONS["KILOBAR:PETAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "PETAPASCAL")
+    CONVERSIONS["KILOBAR:PICOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "PICOPASCAL")
+    CONVERSIONS["KILOBAR:PSI"] = \
+        lambda: noconversion("KILOBAR", "PSI")
+    CONVERSIONS["KILOBAR:TERAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "TERAPASCAL")
+    CONVERSIONS["KILOBAR:TORR"] = \
+        lambda: noconversion("KILOBAR", "TORR")
+    CONVERSIONS["KILOBAR:YOCTOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "YOCTOPASCAL")
+    CONVERSIONS["KILOBAR:YOTTAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "YOTTAPASCAL")
+    CONVERSIONS["KILOBAR:ZEPTOPASCAL"] = \
+        lambda: noconversion("KILOBAR", "ZEPTOPASCAL")
+    CONVERSIONS["KILOBAR:ZETTAPASCAL"] = \
+        lambda: noconversion("KILOBAR", "ZETTAPASCAL")
+    CONVERSIONS["KILOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("KILOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["KILOPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["KILOPASCAL:BAR"] = \
+        lambda: noconversion("KILOPASCAL", "BAR")
+    CONVERSIONS["KILOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("KILOPASCAL", "CENTIBAR")
+    CONVERSIONS["KILOPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 5) * value
+    CONVERSIONS["KILOPASCAL:DECIBAR"] = \
+        lambda: noconversion("KILOPASCAL", "DECIBAR")
+    CONVERSIONS["KILOPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["KILOPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["KILOPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["KILOPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["KILOPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["KILOPASCAL:HECTOPASCAL"] = \
+        lambda value: 10 * value
+    CONVERSIONS["KILOPASCAL:KILOBAR"] = \
+        lambda: noconversion("KILOPASCAL", "KILOBAR")
+    CONVERSIONS["KILOPASCAL:MEGABAR"] = \
+        lambda: noconversion("KILOPASCAL", "MEGABAR")
+    CONVERSIONS["KILOPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["KILOPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["KILOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("KILOPASCAL", "MILLIBAR")
+    CONVERSIONS["KILOPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["KILOPASCAL:MILLITORR"] = \
+        lambda: noconversion("KILOPASCAL", "MILLITORR")
+    CONVERSIONS["KILOPASCAL:MMHG"] = \
+        lambda: noconversion("KILOPASCAL", "MMHG")
+    CONVERSIONS["KILOPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["KILOPASCAL:PASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["KILOPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["KILOPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["KILOPASCAL:PSI"] = \
+        lambda: noconversion("KILOPASCAL", "PSI")
+    CONVERSIONS["KILOPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["KILOPASCAL:TORR"] = \
+        lambda: noconversion("KILOPASCAL", "TORR")
+    CONVERSIONS["KILOPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["KILOPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["KILOPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["KILOPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["MEGABAR:ATMOSPHERE"] = \
+        lambda: noconversion("MEGABAR", "ATMOSPHERE")
+    CONVERSIONS["MEGABAR:ATTOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "ATTOPASCAL")
     CONVERSIONS["MEGABAR:BAR"] = \
         lambda: noconversion("MEGABAR", "BAR")
-    CONVERSIONS["MEGABAR:CBAR"] = \
-        lambda: noconversion("MEGABAR", "CBAR")
-    CONVERSIONS["MEGABAR:CPA"] = \
-        lambda: noconversion("MEGABAR", "CPA")
-    CONVERSIONS["MEGABAR:DAPA"] = \
-        lambda: noconversion("MEGABAR", "DAPA")
-    CONVERSIONS["MEGABAR:DBAR"] = \
-        lambda: noconversion("MEGABAR", "DBAR")
-    CONVERSIONS["MEGABAR:DPA"] = \
-        lambda: noconversion("MEGABAR", "DPA")
-    CONVERSIONS["MEGABAR:EXAPA"] = \
-        lambda: noconversion("MEGABAR", "EXAPA")
-    CONVERSIONS["MEGABAR:FPA"] = \
-        lambda: noconversion("MEGABAR", "FPA")
-    CONVERSIONS["MEGABAR:GIGAPA"] = \
-        lambda: noconversion("MEGABAR", "GIGAPA")
-    CONVERSIONS["MEGABAR:HPA"] = \
-        lambda: noconversion("MEGABAR", "HPA")
-    CONVERSIONS["MEGABAR:KBAR"] = \
-        lambda: noconversion("MEGABAR", "KBAR")
-    CONVERSIONS["MEGABAR:KPA"] = \
-        lambda: noconversion("MEGABAR", "KPA")
-    CONVERSIONS["MEGABAR:MBAR"] = \
-        lambda: noconversion("MEGABAR", "MBAR")
-    CONVERSIONS["MEGABAR:MEGAPA"] = \
-        lambda: noconversion("MEGABAR", "MEGAPA")
-    CONVERSIONS["MEGABAR:MICROPA"] = \
-        lambda: noconversion("MEGABAR", "MICROPA")
+    CONVERSIONS["MEGABAR:CENTIBAR"] = \
+        lambda: noconversion("MEGABAR", "CENTIBAR")
+    CONVERSIONS["MEGABAR:CENTIPASCAL"] = \
+        lambda: noconversion("MEGABAR", "CENTIPASCAL")
+    CONVERSIONS["MEGABAR:DECIBAR"] = \
+        lambda: noconversion("MEGABAR", "DECIBAR")
+    CONVERSIONS["MEGABAR:DECIPASCAL"] = \
+        lambda: noconversion("MEGABAR", "DECIPASCAL")
+    CONVERSIONS["MEGABAR:DEKAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "DEKAPASCAL")
+    CONVERSIONS["MEGABAR:EXAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "EXAPASCAL")
+    CONVERSIONS["MEGABAR:FEMTOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "FEMTOPASCAL")
+    CONVERSIONS["MEGABAR:GIGAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "GIGAPASCAL")
+    CONVERSIONS["MEGABAR:HECTOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "HECTOPASCAL")
+    CONVERSIONS["MEGABAR:KILOBAR"] = \
+        lambda: noconversion("MEGABAR", "KILOBAR")
+    CONVERSIONS["MEGABAR:KILOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "KILOPASCAL")
+    CONVERSIONS["MEGABAR:MEGAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "MEGAPASCAL")
+    CONVERSIONS["MEGABAR:MICROPASCAL"] = \
+        lambda: noconversion("MEGABAR", "MICROPASCAL")
+    CONVERSIONS["MEGABAR:MILLIBAR"] = \
+        lambda: noconversion("MEGABAR", "MILLIBAR")
+    CONVERSIONS["MEGABAR:MILLIPASCAL"] = \
+        lambda: noconversion("MEGABAR", "MILLIPASCAL")
+    CONVERSIONS["MEGABAR:MILLITORR"] = \
+        lambda: noconversion("MEGABAR", "MILLITORR")
     CONVERSIONS["MEGABAR:MMHG"] = \
         lambda: noconversion("MEGABAR", "MMHG")
-    CONVERSIONS["MEGABAR:MPA"] = \
-        lambda: noconversion("MEGABAR", "MPA")
-    CONVERSIONS["MEGABAR:MTORR"] = \
-        lambda: noconversion("MEGABAR", "MTORR")
-    CONVERSIONS["MEGABAR:NPA"] = \
-        lambda: noconversion("MEGABAR", "NPA")
-    CONVERSIONS["MEGABAR:PA"] = \
-        lambda: noconversion("MEGABAR", "PA")
-    CONVERSIONS["MEGABAR:PETAPA"] = \
-        lambda: noconversion("MEGABAR", "PETAPA")
-    CONVERSIONS["MEGABAR:PPA"] = \
-        lambda: noconversion("MEGABAR", "PPA")
+    CONVERSIONS["MEGABAR:NANOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "NANOPASCAL")
+    CONVERSIONS["MEGABAR:PASCAL"] = \
+        lambda: noconversion("MEGABAR", "PASCAL")
+    CONVERSIONS["MEGABAR:PETAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "PETAPASCAL")
+    CONVERSIONS["MEGABAR:PICOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "PICOPASCAL")
     CONVERSIONS["MEGABAR:PSI"] = \
         lambda: noconversion("MEGABAR", "PSI")
-    CONVERSIONS["MEGABAR:TERAPA"] = \
-        lambda: noconversion("MEGABAR", "TERAPA")
+    CONVERSIONS["MEGABAR:TERAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "TERAPASCAL")
     CONVERSIONS["MEGABAR:TORR"] = \
         lambda: noconversion("MEGABAR", "TORR")
-    CONVERSIONS["MEGABAR:YOTTAPA"] = \
-        lambda: noconversion("MEGABAR", "YOTTAPA")
-    CONVERSIONS["MEGABAR:YPA"] = \
-        lambda: noconversion("MEGABAR", "YPA")
-    CONVERSIONS["MEGABAR:ZETTAPA"] = \
-        lambda: noconversion("MEGABAR", "ZETTAPA")
-    CONVERSIONS["MEGABAR:ZPA"] = \
-        lambda: noconversion("MEGABAR", "ZPA")
-    CONVERSIONS["MEGAPA:APA"] = \
+    CONVERSIONS["MEGABAR:YOCTOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "YOCTOPASCAL")
+    CONVERSIONS["MEGABAR:YOTTAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "YOTTAPASCAL")
+    CONVERSIONS["MEGABAR:ZEPTOPASCAL"] = \
+        lambda: noconversion("MEGABAR", "ZEPTOPASCAL")
+    CONVERSIONS["MEGABAR:ZETTAPASCAL"] = \
+        lambda: noconversion("MEGABAR", "ZETTAPASCAL")
+    CONVERSIONS["MEGAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("MEGAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["MEGAPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAPA:ATM"] = \
-        lambda: noconversion("MEGAPA", "ATM")
-    CONVERSIONS["MEGAPA:BAR"] = \
-        lambda: noconversion("MEGAPA", "BAR")
-    CONVERSIONS["MEGAPA:CBAR"] = \
-        lambda: noconversion("MEGAPA", "CBAR")
-    CONVERSIONS["MEGAPA:CPA"] = \
+    CONVERSIONS["MEGAPASCAL:BAR"] = \
+        lambda: noconversion("MEGAPASCAL", "BAR")
+    CONVERSIONS["MEGAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("MEGAPASCAL", "CENTIBAR")
+    CONVERSIONS["MEGAPASCAL:CENTIPASCAL"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["MEGAPA:DAPA"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["MEGAPA:DBAR"] = \
-        lambda: noconversion("MEGAPA", "DBAR")
-    CONVERSIONS["MEGAPA:DPA"] = \
+    CONVERSIONS["MEGAPASCAL:DECIBAR"] = \
+        lambda: noconversion("MEGAPASCAL", "DECIBAR")
+    CONVERSIONS["MEGAPASCAL:DECIPASCAL"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAPA:EXAPA"] = \
+    CONVERSIONS["MEGAPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 5) * value
+    CONVERSIONS["MEGAPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MEGAPA:FPA"] = \
+    CONVERSIONS["MEGAPASCAL:FEMTOPASCAL"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAPA:GIGAPA"] = \
+    CONVERSIONS["MEGAPASCAL:GIGAPASCAL"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MEGAPA:HPA"] = \
+    CONVERSIONS["MEGAPASCAL:HECTOPASCAL"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["MEGAPA:KBAR"] = \
-        lambda: noconversion("MEGAPA", "KBAR")
-    CONVERSIONS["MEGAPA:KPA"] = \
+    CONVERSIONS["MEGAPASCAL:KILOBAR"] = \
+        lambda: noconversion("MEGAPASCAL", "KILOBAR")
+    CONVERSIONS["MEGAPASCAL:KILOPASCAL"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MEGAPA:MBAR"] = \
-        lambda: noconversion("MEGAPA", "MBAR")
-    CONVERSIONS["MEGAPA:MEGABAR"] = \
-        lambda: noconversion("MEGAPA", "MEGABAR")
-    CONVERSIONS["MEGAPA:MICROPA"] = \
+    CONVERSIONS["MEGAPASCAL:MEGABAR"] = \
+        lambda: noconversion("MEGAPASCAL", "MEGABAR")
+    CONVERSIONS["MEGAPASCAL:MICROPASCAL"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MEGAPA:MMHG"] = \
-        lambda: noconversion("MEGAPA", "MMHG")
-    CONVERSIONS["MEGAPA:MPA"] = \
+    CONVERSIONS["MEGAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("MEGAPASCAL", "MILLIBAR")
+    CONVERSIONS["MEGAPASCAL:MILLIPASCAL"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MEGAPA:MTORR"] = \
-        lambda: noconversion("MEGAPA", "MTORR")
-    CONVERSIONS["MEGAPA:NPA"] = \
+    CONVERSIONS["MEGAPASCAL:MILLITORR"] = \
+        lambda: noconversion("MEGAPASCAL", "MILLITORR")
+    CONVERSIONS["MEGAPASCAL:MMHG"] = \
+        lambda: noconversion("MEGAPASCAL", "MMHG")
+    CONVERSIONS["MEGAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MEGAPA:PA"] = \
+    CONVERSIONS["MEGAPASCAL:PASCAL"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MEGAPA:PETAPA"] = \
+    CONVERSIONS["MEGAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MEGAPA:PPA"] = \
+    CONVERSIONS["MEGAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MEGAPA:PSI"] = \
-        lambda: noconversion("MEGAPA", "PSI")
-    CONVERSIONS["MEGAPA:TERAPA"] = \
+    CONVERSIONS["MEGAPASCAL:PSI"] = \
+        lambda: noconversion("MEGAPASCAL", "PSI")
+    CONVERSIONS["MEGAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MEGAPA:TORR"] = \
-        lambda: noconversion("MEGAPA", "TORR")
-    CONVERSIONS["MEGAPA:YOTTAPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGAPA:YPA"] = \
+    CONVERSIONS["MEGAPASCAL:TORR"] = \
+        lambda: noconversion("MEGAPASCAL", "TORR")
+    CONVERSIONS["MEGAPASCAL:YOCTOPASCAL"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["MEGAPA:ZETTAPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MEGAPA:ZPA"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["MICROPA:APA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MICROPA:ATM"] = \
-        lambda: noconversion("MICROPA", "ATM")
-    CONVERSIONS["MICROPA:BAR"] = \
-        lambda: noconversion("MICROPA", "BAR")
-    CONVERSIONS["MICROPA:CBAR"] = \
-        lambda: noconversion("MICROPA", "CBAR")
-    CONVERSIONS["MICROPA:CPA"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MICROPA:DAPA"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["MICROPA:DBAR"] = \
-        lambda: noconversion("MICROPA", "DBAR")
-    CONVERSIONS["MICROPA:DPA"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROPA:EXAPA"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MICROPA:FPA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MICROPA:GIGAPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROPA:HPA"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["MICROPA:KBAR"] = \
-        lambda: noconversion("MICROPA", "KBAR")
-    CONVERSIONS["MICROPA:KPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["MICROPA:MBAR"] = \
-        lambda: noconversion("MICROPA", "MBAR")
-    CONVERSIONS["MICROPA:MEGABAR"] = \
-        lambda: noconversion("MICROPA", "MEGABAR")
-    CONVERSIONS["MICROPA:MEGAPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["MICROPA:MMHG"] = \
-        lambda: noconversion("MICROPA", "MMHG")
-    CONVERSIONS["MICROPA:MPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MICROPA:MTORR"] = \
-        lambda: noconversion("MICROPA", "MTORR")
-    CONVERSIONS["MICROPA:NPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["MICROPA:PA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MICROPA:PETAPA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["MICROPA:PPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MICROPA:PSI"] = \
-        lambda: noconversion("MICROPA", "PSI")
-    CONVERSIONS["MICROPA:TERAPA"] = \
+    CONVERSIONS["MEGAPASCAL:YOTTAPASCAL"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MICROPA:TORR"] = \
-        lambda: noconversion("MICROPA", "TORR")
-    CONVERSIONS["MICROPA:YOTTAPA"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["MICROPA:YPA"] = \
+    CONVERSIONS["MEGAPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["MEGAPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["MICROPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("MICROPASCAL", "ATMOSPHERE")
+    CONVERSIONS["MICROPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["MICROPASCAL:BAR"] = \
+        lambda: noconversion("MICROPASCAL", "BAR")
+    CONVERSIONS["MICROPASCAL:CENTIBAR"] = \
+        lambda: noconversion("MICROPASCAL", "CENTIBAR")
+    CONVERSIONS["MICROPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROPASCAL:DECIBAR"] = \
+        lambda: noconversion("MICROPASCAL", "DECIBAR")
+    CONVERSIONS["MICROPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["MICROPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["MICROPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["MICROPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["MICROPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["MICROPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["MICROPASCAL:KILOBAR"] = \
+        lambda: noconversion("MICROPASCAL", "KILOBAR")
+    CONVERSIONS["MICROPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["MICROPASCAL:MEGABAR"] = \
+        lambda: noconversion("MICROPASCAL", "MEGABAR")
+    CONVERSIONS["MICROPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["MICROPASCAL:MILLIBAR"] = \
+        lambda: noconversion("MICROPASCAL", "MILLIBAR")
+    CONVERSIONS["MICROPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["MICROPASCAL:MILLITORR"] = \
+        lambda: noconversion("MICROPASCAL", "MILLITORR")
+    CONVERSIONS["MICROPASCAL:MMHG"] = \
+        lambda: noconversion("MICROPASCAL", "MMHG")
+    CONVERSIONS["MICROPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["MICROPASCAL:PASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["MICROPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["MICROPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["MICROPASCAL:PSI"] = \
+        lambda: noconversion("MICROPASCAL", "PSI")
+    CONVERSIONS["MICROPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["MICROPASCAL:TORR"] = \
+        lambda: noconversion("MICROPASCAL", "TORR")
+    CONVERSIONS["MICROPASCAL:YOCTOPASCAL"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MICROPA:ZETTAPA"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MICROPA:ZPA"] = \
+    CONVERSIONS["MICROPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["MICROPASCAL:ZEPTOPASCAL"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MMHG:APA"] = \
-        lambda: noconversion("MMHG", "APA")
-    CONVERSIONS["MMHG:ATM"] = \
-        lambda: noconversion("MMHG", "ATM")
+    CONVERSIONS["MICROPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["MILLIBAR:ATMOSPHERE"] = \
+        lambda: noconversion("MILLIBAR", "ATMOSPHERE")
+    CONVERSIONS["MILLIBAR:ATTOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "ATTOPASCAL")
+    CONVERSIONS["MILLIBAR:BAR"] = \
+        lambda: noconversion("MILLIBAR", "BAR")
+    CONVERSIONS["MILLIBAR:CENTIBAR"] = \
+        lambda: noconversion("MILLIBAR", "CENTIBAR")
+    CONVERSIONS["MILLIBAR:CENTIPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "CENTIPASCAL")
+    CONVERSIONS["MILLIBAR:DECIBAR"] = \
+        lambda: noconversion("MILLIBAR", "DECIBAR")
+    CONVERSIONS["MILLIBAR:DECIPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "DECIPASCAL")
+    CONVERSIONS["MILLIBAR:DEKAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "DEKAPASCAL")
+    CONVERSIONS["MILLIBAR:EXAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "EXAPASCAL")
+    CONVERSIONS["MILLIBAR:FEMTOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "FEMTOPASCAL")
+    CONVERSIONS["MILLIBAR:GIGAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "GIGAPASCAL")
+    CONVERSIONS["MILLIBAR:HECTOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "HECTOPASCAL")
+    CONVERSIONS["MILLIBAR:KILOBAR"] = \
+        lambda: noconversion("MILLIBAR", "KILOBAR")
+    CONVERSIONS["MILLIBAR:KILOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "KILOPASCAL")
+    CONVERSIONS["MILLIBAR:MEGABAR"] = \
+        lambda: noconversion("MILLIBAR", "MEGABAR")
+    CONVERSIONS["MILLIBAR:MEGAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "MEGAPASCAL")
+    CONVERSIONS["MILLIBAR:MICROPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "MICROPASCAL")
+    CONVERSIONS["MILLIBAR:MILLIPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "MILLIPASCAL")
+    CONVERSIONS["MILLIBAR:MILLITORR"] = \
+        lambda: noconversion("MILLIBAR", "MILLITORR")
+    CONVERSIONS["MILLIBAR:MMHG"] = \
+        lambda: noconversion("MILLIBAR", "MMHG")
+    CONVERSIONS["MILLIBAR:NANOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "NANOPASCAL")
+    CONVERSIONS["MILLIBAR:PASCAL"] = \
+        lambda: noconversion("MILLIBAR", "PASCAL")
+    CONVERSIONS["MILLIBAR:PETAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "PETAPASCAL")
+    CONVERSIONS["MILLIBAR:PICOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "PICOPASCAL")
+    CONVERSIONS["MILLIBAR:PSI"] = \
+        lambda: noconversion("MILLIBAR", "PSI")
+    CONVERSIONS["MILLIBAR:TERAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "TERAPASCAL")
+    CONVERSIONS["MILLIBAR:TORR"] = \
+        lambda: noconversion("MILLIBAR", "TORR")
+    CONVERSIONS["MILLIBAR:YOCTOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "YOCTOPASCAL")
+    CONVERSIONS["MILLIBAR:YOTTAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "YOTTAPASCAL")
+    CONVERSIONS["MILLIBAR:ZEPTOPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "ZEPTOPASCAL")
+    CONVERSIONS["MILLIBAR:ZETTAPASCAL"] = \
+        lambda: noconversion("MILLIBAR", "ZETTAPASCAL")
+    CONVERSIONS["MILLIPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("MILLIPASCAL", "ATMOSPHERE")
+    CONVERSIONS["MILLIPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["MILLIPASCAL:BAR"] = \
+        lambda: noconversion("MILLIPASCAL", "BAR")
+    CONVERSIONS["MILLIPASCAL:CENTIBAR"] = \
+        lambda: noconversion("MILLIPASCAL", "CENTIBAR")
+    CONVERSIONS["MILLIPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["MILLIPASCAL:DECIBAR"] = \
+        lambda: noconversion("MILLIPASCAL", "DECIBAR")
+    CONVERSIONS["MILLIPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["MILLIPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["MILLIPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["MILLIPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["MILLIPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["MILLIPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["MILLIPASCAL:KILOBAR"] = \
+        lambda: noconversion("MILLIPASCAL", "KILOBAR")
+    CONVERSIONS["MILLIPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["MILLIPASCAL:MEGABAR"] = \
+        lambda: noconversion("MILLIPASCAL", "MEGABAR")
+    CONVERSIONS["MILLIPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["MILLIPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["MILLIPASCAL:MILLIBAR"] = \
+        lambda: noconversion("MILLIPASCAL", "MILLIBAR")
+    CONVERSIONS["MILLIPASCAL:MILLITORR"] = \
+        lambda: noconversion("MILLIPASCAL", "MILLITORR")
+    CONVERSIONS["MILLIPASCAL:MMHG"] = \
+        lambda: noconversion("MILLIPASCAL", "MMHG")
+    CONVERSIONS["MILLIPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["MILLIPASCAL:PASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["MILLIPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["MILLIPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["MILLIPASCAL:PSI"] = \
+        lambda: noconversion("MILLIPASCAL", "PSI")
+    CONVERSIONS["MILLIPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["MILLIPASCAL:TORR"] = \
+        lambda: noconversion("MILLIPASCAL", "TORR")
+    CONVERSIONS["MILLIPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["MILLIPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["MILLIPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["MILLIPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["MILLITORR:ATMOSPHERE"] = \
+        lambda: noconversion("MILLITORR", "ATMOSPHERE")
+    CONVERSIONS["MILLITORR:ATTOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "ATTOPASCAL")
+    CONVERSIONS["MILLITORR:BAR"] = \
+        lambda: noconversion("MILLITORR", "BAR")
+    CONVERSIONS["MILLITORR:CENTIBAR"] = \
+        lambda: noconversion("MILLITORR", "CENTIBAR")
+    CONVERSIONS["MILLITORR:CENTIPASCAL"] = \
+        lambda: noconversion("MILLITORR", "CENTIPASCAL")
+    CONVERSIONS["MILLITORR:DECIBAR"] = \
+        lambda: noconversion("MILLITORR", "DECIBAR")
+    CONVERSIONS["MILLITORR:DECIPASCAL"] = \
+        lambda: noconversion("MILLITORR", "DECIPASCAL")
+    CONVERSIONS["MILLITORR:DEKAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "DEKAPASCAL")
+    CONVERSIONS["MILLITORR:EXAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "EXAPASCAL")
+    CONVERSIONS["MILLITORR:FEMTOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "FEMTOPASCAL")
+    CONVERSIONS["MILLITORR:GIGAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "GIGAPASCAL")
+    CONVERSIONS["MILLITORR:HECTOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "HECTOPASCAL")
+    CONVERSIONS["MILLITORR:KILOBAR"] = \
+        lambda: noconversion("MILLITORR", "KILOBAR")
+    CONVERSIONS["MILLITORR:KILOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "KILOPASCAL")
+    CONVERSIONS["MILLITORR:MEGABAR"] = \
+        lambda: noconversion("MILLITORR", "MEGABAR")
+    CONVERSIONS["MILLITORR:MEGAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "MEGAPASCAL")
+    CONVERSIONS["MILLITORR:MICROPASCAL"] = \
+        lambda: noconversion("MILLITORR", "MICROPASCAL")
+    CONVERSIONS["MILLITORR:MILLIBAR"] = \
+        lambda: noconversion("MILLITORR", "MILLIBAR")
+    CONVERSIONS["MILLITORR:MILLIPASCAL"] = \
+        lambda: noconversion("MILLITORR", "MILLIPASCAL")
+    CONVERSIONS["MILLITORR:MMHG"] = \
+        lambda: noconversion("MILLITORR", "MMHG")
+    CONVERSIONS["MILLITORR:NANOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "NANOPASCAL")
+    CONVERSIONS["MILLITORR:PASCAL"] = \
+        lambda: noconversion("MILLITORR", "PASCAL")
+    CONVERSIONS["MILLITORR:PETAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "PETAPASCAL")
+    CONVERSIONS["MILLITORR:PICOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "PICOPASCAL")
+    CONVERSIONS["MILLITORR:PSI"] = \
+        lambda: noconversion("MILLITORR", "PSI")
+    CONVERSIONS["MILLITORR:TERAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "TERAPASCAL")
+    CONVERSIONS["MILLITORR:TORR"] = \
+        lambda: noconversion("MILLITORR", "TORR")
+    CONVERSIONS["MILLITORR:YOCTOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "YOCTOPASCAL")
+    CONVERSIONS["MILLITORR:YOTTAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "YOTTAPASCAL")
+    CONVERSIONS["MILLITORR:ZEPTOPASCAL"] = \
+        lambda: noconversion("MILLITORR", "ZEPTOPASCAL")
+    CONVERSIONS["MILLITORR:ZETTAPASCAL"] = \
+        lambda: noconversion("MILLITORR", "ZETTAPASCAL")
+    CONVERSIONS["MMHG:ATMOSPHERE"] = \
+        lambda: noconversion("MMHG", "ATMOSPHERE")
+    CONVERSIONS["MMHG:ATTOPASCAL"] = \
+        lambda: noconversion("MMHG", "ATTOPASCAL")
     CONVERSIONS["MMHG:BAR"] = \
         lambda: noconversion("MMHG", "BAR")
-    CONVERSIONS["MMHG:CBAR"] = \
-        lambda: noconversion("MMHG", "CBAR")
-    CONVERSIONS["MMHG:CPA"] = \
-        lambda: noconversion("MMHG", "CPA")
-    CONVERSIONS["MMHG:DAPA"] = \
-        lambda: noconversion("MMHG", "DAPA")
-    CONVERSIONS["MMHG:DBAR"] = \
-        lambda: noconversion("MMHG", "DBAR")
-    CONVERSIONS["MMHG:DPA"] = \
-        lambda: noconversion("MMHG", "DPA")
-    CONVERSIONS["MMHG:EXAPA"] = \
-        lambda: noconversion("MMHG", "EXAPA")
-    CONVERSIONS["MMHG:FPA"] = \
-        lambda: noconversion("MMHG", "FPA")
-    CONVERSIONS["MMHG:GIGAPA"] = \
-        lambda: noconversion("MMHG", "GIGAPA")
-    CONVERSIONS["MMHG:HPA"] = \
-        lambda: noconversion("MMHG", "HPA")
-    CONVERSIONS["MMHG:KBAR"] = \
-        lambda: noconversion("MMHG", "KBAR")
-    CONVERSIONS["MMHG:KPA"] = \
-        lambda: noconversion("MMHG", "KPA")
-    CONVERSIONS["MMHG:MBAR"] = \
-        lambda: noconversion("MMHG", "MBAR")
+    CONVERSIONS["MMHG:CENTIBAR"] = \
+        lambda: noconversion("MMHG", "CENTIBAR")
+    CONVERSIONS["MMHG:CENTIPASCAL"] = \
+        lambda: noconversion("MMHG", "CENTIPASCAL")
+    CONVERSIONS["MMHG:DECIBAR"] = \
+        lambda: noconversion("MMHG", "DECIBAR")
+    CONVERSIONS["MMHG:DECIPASCAL"] = \
+        lambda: noconversion("MMHG", "DECIPASCAL")
+    CONVERSIONS["MMHG:DEKAPASCAL"] = \
+        lambda: noconversion("MMHG", "DEKAPASCAL")
+    CONVERSIONS["MMHG:EXAPASCAL"] = \
+        lambda: noconversion("MMHG", "EXAPASCAL")
+    CONVERSIONS["MMHG:FEMTOPASCAL"] = \
+        lambda: noconversion("MMHG", "FEMTOPASCAL")
+    CONVERSIONS["MMHG:GIGAPASCAL"] = \
+        lambda: noconversion("MMHG", "GIGAPASCAL")
+    CONVERSIONS["MMHG:HECTOPASCAL"] = \
+        lambda: noconversion("MMHG", "HECTOPASCAL")
+    CONVERSIONS["MMHG:KILOBAR"] = \
+        lambda: noconversion("MMHG", "KILOBAR")
+    CONVERSIONS["MMHG:KILOPASCAL"] = \
+        lambda: noconversion("MMHG", "KILOPASCAL")
     CONVERSIONS["MMHG:MEGABAR"] = \
         lambda: noconversion("MMHG", "MEGABAR")
-    CONVERSIONS["MMHG:MEGAPA"] = \
-        lambda: noconversion("MMHG", "MEGAPA")
-    CONVERSIONS["MMHG:MICROPA"] = \
-        lambda: noconversion("MMHG", "MICROPA")
-    CONVERSIONS["MMHG:MPA"] = \
-        lambda: noconversion("MMHG", "MPA")
-    CONVERSIONS["MMHG:MTORR"] = \
-        lambda: noconversion("MMHG", "MTORR")
-    CONVERSIONS["MMHG:NPA"] = \
-        lambda: noconversion("MMHG", "NPA")
-    CONVERSIONS["MMHG:PA"] = \
-        lambda: noconversion("MMHG", "PA")
-    CONVERSIONS["MMHG:PETAPA"] = \
-        lambda: noconversion("MMHG", "PETAPA")
-    CONVERSIONS["MMHG:PPA"] = \
-        lambda: noconversion("MMHG", "PPA")
+    CONVERSIONS["MMHG:MEGAPASCAL"] = \
+        lambda: noconversion("MMHG", "MEGAPASCAL")
+    CONVERSIONS["MMHG:MICROPASCAL"] = \
+        lambda: noconversion("MMHG", "MICROPASCAL")
+    CONVERSIONS["MMHG:MILLIBAR"] = \
+        lambda: noconversion("MMHG", "MILLIBAR")
+    CONVERSIONS["MMHG:MILLIPASCAL"] = \
+        lambda: noconversion("MMHG", "MILLIPASCAL")
+    CONVERSIONS["MMHG:MILLITORR"] = \
+        lambda: noconversion("MMHG", "MILLITORR")
+    CONVERSIONS["MMHG:NANOPASCAL"] = \
+        lambda: noconversion("MMHG", "NANOPASCAL")
+    CONVERSIONS["MMHG:PASCAL"] = \
+        lambda: noconversion("MMHG", "PASCAL")
+    CONVERSIONS["MMHG:PETAPASCAL"] = \
+        lambda: noconversion("MMHG", "PETAPASCAL")
+    CONVERSIONS["MMHG:PICOPASCAL"] = \
+        lambda: noconversion("MMHG", "PICOPASCAL")
     CONVERSIONS["MMHG:PSI"] = \
         lambda: noconversion("MMHG", "PSI")
-    CONVERSIONS["MMHG:TERAPA"] = \
-        lambda: noconversion("MMHG", "TERAPA")
+    CONVERSIONS["MMHG:TERAPASCAL"] = \
+        lambda: noconversion("MMHG", "TERAPASCAL")
     CONVERSIONS["MMHG:TORR"] = \
         lambda: noconversion("MMHG", "TORR")
-    CONVERSIONS["MMHG:YOTTAPA"] = \
-        lambda: noconversion("MMHG", "YOTTAPA")
-    CONVERSIONS["MMHG:YPA"] = \
-        lambda: noconversion("MMHG", "YPA")
-    CONVERSIONS["MMHG:ZETTAPA"] = \
-        lambda: noconversion("MMHG", "ZETTAPA")
-    CONVERSIONS["MMHG:ZPA"] = \
-        lambda: noconversion("MMHG", "ZPA")
-    CONVERSIONS["MPA:APA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MPA:ATM"] = \
-        lambda: noconversion("MPA", "ATM")
-    CONVERSIONS["MPA:BAR"] = \
-        lambda: noconversion("MPA", "BAR")
-    CONVERSIONS["MPA:CBAR"] = \
-        lambda: noconversion("MPA", "CBAR")
-    CONVERSIONS["MPA:CPA"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["MPA:DAPA"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MPA:DBAR"] = \
-        lambda: noconversion("MPA", "DBAR")
-    CONVERSIONS["MPA:DPA"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["MPA:EXAPA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["MPA:FPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MPA:GIGAPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["MPA:HPA"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MPA:KBAR"] = \
-        lambda: noconversion("MPA", "KBAR")
-    CONVERSIONS["MPA:KPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MPA:MBAR"] = \
-        lambda: noconversion("MPA", "MBAR")
-    CONVERSIONS["MPA:MEGABAR"] = \
-        lambda: noconversion("MPA", "MEGABAR")
-    CONVERSIONS["MPA:MEGAPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["MPA:MICROPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["MPA:MMHG"] = \
-        lambda: noconversion("MPA", "MMHG")
-    CONVERSIONS["MPA:MTORR"] = \
-        lambda: noconversion("MPA", "MTORR")
-    CONVERSIONS["MPA:NPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MPA:PA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MPA:PETAPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MPA:PPA"] = \
+    CONVERSIONS["MMHG:YOCTOPASCAL"] = \
+        lambda: noconversion("MMHG", "YOCTOPASCAL")
+    CONVERSIONS["MMHG:YOTTAPASCAL"] = \
+        lambda: noconversion("MMHG", "YOTTAPASCAL")
+    CONVERSIONS["MMHG:ZEPTOPASCAL"] = \
+        lambda: noconversion("MMHG", "ZEPTOPASCAL")
+    CONVERSIONS["MMHG:ZETTAPASCAL"] = \
+        lambda: noconversion("MMHG", "ZETTAPASCAL")
+    CONVERSIONS["NANOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("NANOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["NANOPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MPA:PSI"] = \
-        lambda: noconversion("MPA", "PSI")
-    CONVERSIONS["MPA:TERAPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MPA:TORR"] = \
-        lambda: noconversion("MPA", "TORR")
-    CONVERSIONS["MPA:YOTTAPA"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MPA:YPA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["MPA:ZETTAPA"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MPA:ZPA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["MTORR:APA"] = \
-        lambda: noconversion("MTORR", "APA")
-    CONVERSIONS["MTORR:ATM"] = \
-        lambda: noconversion("MTORR", "ATM")
-    CONVERSIONS["MTORR:BAR"] = \
-        lambda: noconversion("MTORR", "BAR")
-    CONVERSIONS["MTORR:CBAR"] = \
-        lambda: noconversion("MTORR", "CBAR")
-    CONVERSIONS["MTORR:CPA"] = \
-        lambda: noconversion("MTORR", "CPA")
-    CONVERSIONS["MTORR:DAPA"] = \
-        lambda: noconversion("MTORR", "DAPA")
-    CONVERSIONS["MTORR:DBAR"] = \
-        lambda: noconversion("MTORR", "DBAR")
-    CONVERSIONS["MTORR:DPA"] = \
-        lambda: noconversion("MTORR", "DPA")
-    CONVERSIONS["MTORR:EXAPA"] = \
-        lambda: noconversion("MTORR", "EXAPA")
-    CONVERSIONS["MTORR:FPA"] = \
-        lambda: noconversion("MTORR", "FPA")
-    CONVERSIONS["MTORR:GIGAPA"] = \
-        lambda: noconversion("MTORR", "GIGAPA")
-    CONVERSIONS["MTORR:HPA"] = \
-        lambda: noconversion("MTORR", "HPA")
-    CONVERSIONS["MTORR:KBAR"] = \
-        lambda: noconversion("MTORR", "KBAR")
-    CONVERSIONS["MTORR:KPA"] = \
-        lambda: noconversion("MTORR", "KPA")
-    CONVERSIONS["MTORR:MBAR"] = \
-        lambda: noconversion("MTORR", "MBAR")
-    CONVERSIONS["MTORR:MEGABAR"] = \
-        lambda: noconversion("MTORR", "MEGABAR")
-    CONVERSIONS["MTORR:MEGAPA"] = \
-        lambda: noconversion("MTORR", "MEGAPA")
-    CONVERSIONS["MTORR:MICROPA"] = \
-        lambda: noconversion("MTORR", "MICROPA")
-    CONVERSIONS["MTORR:MMHG"] = \
-        lambda: noconversion("MTORR", "MMHG")
-    CONVERSIONS["MTORR:MPA"] = \
-        lambda: noconversion("MTORR", "MPA")
-    CONVERSIONS["MTORR:NPA"] = \
-        lambda: noconversion("MTORR", "NPA")
-    CONVERSIONS["MTORR:PA"] = \
-        lambda: noconversion("MTORR", "PA")
-    CONVERSIONS["MTORR:PETAPA"] = \
-        lambda: noconversion("MTORR", "PETAPA")
-    CONVERSIONS["MTORR:PPA"] = \
-        lambda: noconversion("MTORR", "PPA")
-    CONVERSIONS["MTORR:PSI"] = \
-        lambda: noconversion("MTORR", "PSI")
-    CONVERSIONS["MTORR:TERAPA"] = \
-        lambda: noconversion("MTORR", "TERAPA")
-    CONVERSIONS["MTORR:TORR"] = \
-        lambda: noconversion("MTORR", "TORR")
-    CONVERSIONS["MTORR:YOTTAPA"] = \
-        lambda: noconversion("MTORR", "YOTTAPA")
-    CONVERSIONS["MTORR:YPA"] = \
-        lambda: noconversion("MTORR", "YPA")
-    CONVERSIONS["MTORR:ZETTAPA"] = \
-        lambda: noconversion("MTORR", "ZETTAPA")
-    CONVERSIONS["MTORR:ZPA"] = \
-        lambda: noconversion("MTORR", "ZPA")
-    CONVERSIONS["NPA:APA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["NPA:ATM"] = \
-        lambda: noconversion("NPA", "ATM")
-    CONVERSIONS["NPA:BAR"] = \
-        lambda: noconversion("NPA", "BAR")
-    CONVERSIONS["NPA:CBAR"] = \
-        lambda: noconversion("NPA", "CBAR")
-    CONVERSIONS["NPA:CPA"] = \
+    CONVERSIONS["NANOPASCAL:BAR"] = \
+        lambda: noconversion("NANOPASCAL", "BAR")
+    CONVERSIONS["NANOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("NANOPASCAL", "CENTIBAR")
+    CONVERSIONS["NANOPASCAL:CENTIPASCAL"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["NPA:DAPA"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["NPA:DBAR"] = \
-        lambda: noconversion("NPA", "DBAR")
-    CONVERSIONS["NPA:DPA"] = \
+    CONVERSIONS["NANOPASCAL:DECIBAR"] = \
+        lambda: noconversion("NANOPASCAL", "DECIBAR")
+    CONVERSIONS["NANOPASCAL:DECIPASCAL"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["NPA:EXAPA"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["NPA:FPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["NPA:GIGAPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["NPA:HPA"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["NPA:KBAR"] = \
-        lambda: noconversion("NPA", "KBAR")
-    CONVERSIONS["NPA:KPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["NPA:MBAR"] = \
-        lambda: noconversion("NPA", "MBAR")
-    CONVERSIONS["NPA:MEGABAR"] = \
-        lambda: noconversion("NPA", "MEGABAR")
-    CONVERSIONS["NPA:MEGAPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["NPA:MICROPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["NPA:MMHG"] = \
-        lambda: noconversion("NPA", "MMHG")
-    CONVERSIONS["NPA:MPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["NPA:MTORR"] = \
-        lambda: noconversion("NPA", "MTORR")
-    CONVERSIONS["NPA:PA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["NPA:PETAPA"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["NPA:PPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["NPA:PSI"] = \
-        lambda: noconversion("NPA", "PSI")
-    CONVERSIONS["NPA:TERAPA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["NPA:TORR"] = \
-        lambda: noconversion("NPA", "TORR")
-    CONVERSIONS["NPA:YOTTAPA"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["NPA:YPA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["NPA:ZETTAPA"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["NPA:ZPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PA:APA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["PA:ATM"] = \
-        lambda: noconversion("PA", "ATM")
-    CONVERSIONS["PA:BAR"] = \
-        lambda: noconversion("PA", "BAR")
-    CONVERSIONS["PA:CBAR"] = \
-        lambda: noconversion("PA", "CBAR")
-    CONVERSIONS["PA:CPA"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["PA:DAPA"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["PA:DBAR"] = \
-        lambda: noconversion("PA", "DBAR")
-    CONVERSIONS["PA:DPA"] = \
-        lambda value: 10 * value
-    CONVERSIONS["PA:EXAPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["PA:FPA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["PA:GIGAPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PA:HPA"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["PA:KBAR"] = \
-        lambda: noconversion("PA", "KBAR")
-    CONVERSIONS["PA:KPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PA:MBAR"] = \
-        lambda: noconversion("PA", "MBAR")
-    CONVERSIONS["PA:MEGABAR"] = \
-        lambda: noconversion("PA", "MEGABAR")
-    CONVERSIONS["PA:MEGAPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PA:MICROPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PA:MMHG"] = \
-        lambda: noconversion("PA", "MMHG")
-    CONVERSIONS["PA:MPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PA:MTORR"] = \
-        lambda: noconversion("PA", "MTORR")
-    CONVERSIONS["PA:NPA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["PA:PETAPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["PA:PPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PA:PSI"] = \
-        lambda: noconversion("PA", "PSI")
-    CONVERSIONS["PA:TERAPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["PA:TORR"] = \
-        lambda: noconversion("PA", "TORR")
-    CONVERSIONS["PA:YOTTAPA"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["PA:YPA"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["PA:ZETTAPA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["PA:ZPA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["PETAPA:APA"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["PETAPA:ATM"] = \
-        lambda: noconversion("PETAPA", "ATM")
-    CONVERSIONS["PETAPA:BAR"] = \
-        lambda: noconversion("PETAPA", "BAR")
-    CONVERSIONS["PETAPA:CBAR"] = \
-        lambda: noconversion("PETAPA", "CBAR")
-    CONVERSIONS["PETAPA:CPA"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["PETAPA:DAPA"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["PETAPA:DBAR"] = \
-        lambda: noconversion("PETAPA", "DBAR")
-    CONVERSIONS["PETAPA:DPA"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAPA:EXAPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PETAPA:FPA"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["PETAPA:GIGAPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PETAPA:HPA"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["PETAPA:KBAR"] = \
-        lambda: noconversion("PETAPA", "KBAR")
-    CONVERSIONS["PETAPA:KPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAPA:MBAR"] = \
-        lambda: noconversion("PETAPA", "MBAR")
-    CONVERSIONS["PETAPA:MEGABAR"] = \
-        lambda: noconversion("PETAPA", "MEGABAR")
-    CONVERSIONS["PETAPA:MEGAPA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["PETAPA:MICROPA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["PETAPA:MMHG"] = \
-        lambda: noconversion("PETAPA", "MMHG")
-    CONVERSIONS["PETAPA:MPA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["PETAPA:MTORR"] = \
-        lambda: noconversion("PETAPA", "MTORR")
-    CONVERSIONS["PETAPA:NPA"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["PETAPA:PA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["PETAPA:PPA"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["PETAPA:PSI"] = \
-        lambda: noconversion("PETAPA", "PSI")
-    CONVERSIONS["PETAPA:TERAPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PETAPA:TORR"] = \
-        lambda: noconversion("PETAPA", "TORR")
-    CONVERSIONS["PETAPA:YOTTAPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PETAPA:YPA"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["PETAPA:ZETTAPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PETAPA:ZPA"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["PPA:APA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PPA:ATM"] = \
-        lambda: noconversion("PPA", "ATM")
-    CONVERSIONS["PPA:BAR"] = \
-        lambda: noconversion("PPA", "BAR")
-    CONVERSIONS["PPA:CBAR"] = \
-        lambda: noconversion("PPA", "CBAR")
-    CONVERSIONS["PPA:CPA"] = \
+    CONVERSIONS["NANOPASCAL:DEKAPASCAL"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["PPA:DAPA"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["PPA:DBAR"] = \
-        lambda: noconversion("PPA", "DBAR")
-    CONVERSIONS["PPA:DPA"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["PPA:EXAPA"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["PPA:FPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PPA:GIGAPA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["PPA:HPA"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["PPA:KBAR"] = \
-        lambda: noconversion("PPA", "KBAR")
-    CONVERSIONS["PPA:KPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["PPA:MBAR"] = \
-        lambda: noconversion("PPA", "MBAR")
-    CONVERSIONS["PPA:MEGABAR"] = \
-        lambda: noconversion("PPA", "MEGABAR")
-    CONVERSIONS["PPA:MEGAPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["PPA:MICROPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PPA:MMHG"] = \
-        lambda: noconversion("PPA", "MMHG")
-    CONVERSIONS["PPA:MPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PPA:MTORR"] = \
-        lambda: noconversion("PPA", "MTORR")
-    CONVERSIONS["PPA:NPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PPA:PA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["PPA:PETAPA"] = \
+    CONVERSIONS["NANOPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["PPA:PSI"] = \
-        lambda: noconversion("PPA", "PSI")
-    CONVERSIONS["PPA:TERAPA"] = \
+    CONVERSIONS["NANOPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["NANOPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["NANOPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["NANOPASCAL:KILOBAR"] = \
+        lambda: noconversion("NANOPASCAL", "KILOBAR")
+    CONVERSIONS["NANOPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["NANOPASCAL:MEGABAR"] = \
+        lambda: noconversion("NANOPASCAL", "MEGABAR")
+    CONVERSIONS["NANOPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["NANOPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["NANOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("NANOPASCAL", "MILLIBAR")
+    CONVERSIONS["NANOPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["NANOPASCAL:MILLITORR"] = \
+        lambda: noconversion("NANOPASCAL", "MILLITORR")
+    CONVERSIONS["NANOPASCAL:MMHG"] = \
+        lambda: noconversion("NANOPASCAL", "MMHG")
+    CONVERSIONS["NANOPASCAL:PASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["NANOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["PPA:TORR"] = \
-        lambda: noconversion("PPA", "TORR")
-    CONVERSIONS["PPA:YOTTAPA"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["PPA:YPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PPA:ZETTAPA"] = \
+    CONVERSIONS["NANOPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["NANOPASCAL:PSI"] = \
+        lambda: noconversion("NANOPASCAL", "PSI")
+    CONVERSIONS["NANOPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["NANOPASCAL:TORR"] = \
+        lambda: noconversion("NANOPASCAL", "TORR")
+    CONVERSIONS["NANOPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["NANOPASCAL:YOTTAPASCAL"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["PPA:ZPA"] = \
+    CONVERSIONS["NANOPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["NANOPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["PASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("PASCAL", "ATMOSPHERE")
+    CONVERSIONS["PASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["PASCAL:BAR"] = \
+        lambda: noconversion("PASCAL", "BAR")
+    CONVERSIONS["PASCAL:CENTIBAR"] = \
+        lambda: noconversion("PASCAL", "CENTIBAR")
+    CONVERSIONS["PASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["PASCAL:DECIBAR"] = \
+        lambda: noconversion("PASCAL", "DECIBAR")
+    CONVERSIONS["PASCAL:DECIPASCAL"] = \
+        lambda value: 10 * value
+    CONVERSIONS["PASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["PASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["PASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["PASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["PASCAL:KILOBAR"] = \
+        lambda: noconversion("PASCAL", "KILOBAR")
+    CONVERSIONS["PASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["PASCAL:MEGABAR"] = \
+        lambda: noconversion("PASCAL", "MEGABAR")
+    CONVERSIONS["PASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["PASCAL:MILLIBAR"] = \
+        lambda: noconversion("PASCAL", "MILLIBAR")
+    CONVERSIONS["PASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["PASCAL:MILLITORR"] = \
+        lambda: noconversion("PASCAL", "MILLITORR")
+    CONVERSIONS["PASCAL:MMHG"] = \
+        lambda: noconversion("PASCAL", "MMHG")
+    CONVERSIONS["PASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["PSI:APA"] = \
-        lambda: noconversion("PSI", "APA")
-    CONVERSIONS["PSI:ATM"] = \
-        lambda: noconversion("PSI", "ATM")
+    CONVERSIONS["PASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["PASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["PASCAL:PSI"] = \
+        lambda: noconversion("PASCAL", "PSI")
+    CONVERSIONS["PASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["PASCAL:TORR"] = \
+        lambda: noconversion("PASCAL", "TORR")
+    CONVERSIONS["PASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["PASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["PASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["PASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["PETAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("PETAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["PETAPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["PETAPASCAL:BAR"] = \
+        lambda: noconversion("PETAPASCAL", "BAR")
+    CONVERSIONS["PETAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("PETAPASCAL", "CENTIBAR")
+    CONVERSIONS["PETAPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 17) * value
+    CONVERSIONS["PETAPASCAL:DECIBAR"] = \
+        lambda: noconversion("PETAPASCAL", "DECIBAR")
+    CONVERSIONS["PETAPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["PETAPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 14) * value
+    CONVERSIONS["PETAPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["PETAPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["PETAPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["PETAPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["PETAPASCAL:KILOBAR"] = \
+        lambda: noconversion("PETAPASCAL", "KILOBAR")
+    CONVERSIONS["PETAPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["PETAPASCAL:MEGABAR"] = \
+        lambda: noconversion("PETAPASCAL", "MEGABAR")
+    CONVERSIONS["PETAPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["PETAPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["PETAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("PETAPASCAL", "MILLIBAR")
+    CONVERSIONS["PETAPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["PETAPASCAL:MILLITORR"] = \
+        lambda: noconversion("PETAPASCAL", "MILLITORR")
+    CONVERSIONS["PETAPASCAL:MMHG"] = \
+        lambda: noconversion("PETAPASCAL", "MMHG")
+    CONVERSIONS["PETAPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["PETAPASCAL:PASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["PETAPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["PETAPASCAL:PSI"] = \
+        lambda: noconversion("PETAPASCAL", "PSI")
+    CONVERSIONS["PETAPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["PETAPASCAL:TORR"] = \
+        lambda: noconversion("PETAPASCAL", "TORR")
+    CONVERSIONS["PETAPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["PETAPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PETAPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["PETAPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PICOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("PICOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["PICOPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["PICOPASCAL:BAR"] = \
+        lambda: noconversion("PICOPASCAL", "BAR")
+    CONVERSIONS["PICOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("PICOPASCAL", "CENTIBAR")
+    CONVERSIONS["PICOPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** -10) * value
+    CONVERSIONS["PICOPASCAL:DECIBAR"] = \
+        lambda: noconversion("PICOPASCAL", "DECIBAR")
+    CONVERSIONS["PICOPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["PICOPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -13) * value
+    CONVERSIONS["PICOPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["PICOPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["PICOPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["PICOPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["PICOPASCAL:KILOBAR"] = \
+        lambda: noconversion("PICOPASCAL", "KILOBAR")
+    CONVERSIONS["PICOPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["PICOPASCAL:MEGABAR"] = \
+        lambda: noconversion("PICOPASCAL", "MEGABAR")
+    CONVERSIONS["PICOPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["PICOPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PICOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("PICOPASCAL", "MILLIBAR")
+    CONVERSIONS["PICOPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PICOPASCAL:MILLITORR"] = \
+        lambda: noconversion("PICOPASCAL", "MILLITORR")
+    CONVERSIONS["PICOPASCAL:MMHG"] = \
+        lambda: noconversion("PICOPASCAL", "MMHG")
+    CONVERSIONS["PICOPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["PICOPASCAL:PASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["PICOPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["PICOPASCAL:PSI"] = \
+        lambda: noconversion("PICOPASCAL", "PSI")
+    CONVERSIONS["PICOPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["PICOPASCAL:TORR"] = \
+        lambda: noconversion("PICOPASCAL", "TORR")
+    CONVERSIONS["PICOPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["PICOPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["PICOPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["PICOPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["PSI:ATMOSPHERE"] = \
+        lambda: noconversion("PSI", "ATMOSPHERE")
+    CONVERSIONS["PSI:ATTOPASCAL"] = \
+        lambda: noconversion("PSI", "ATTOPASCAL")
     CONVERSIONS["PSI:BAR"] = \
         lambda: noconversion("PSI", "BAR")
-    CONVERSIONS["PSI:CBAR"] = \
-        lambda: noconversion("PSI", "CBAR")
-    CONVERSIONS["PSI:CPA"] = \
-        lambda: noconversion("PSI", "CPA")
-    CONVERSIONS["PSI:DAPA"] = \
-        lambda: noconversion("PSI", "DAPA")
-    CONVERSIONS["PSI:DBAR"] = \
-        lambda: noconversion("PSI", "DBAR")
-    CONVERSIONS["PSI:DPA"] = \
-        lambda: noconversion("PSI", "DPA")
-    CONVERSIONS["PSI:EXAPA"] = \
-        lambda: noconversion("PSI", "EXAPA")
-    CONVERSIONS["PSI:FPA"] = \
-        lambda: noconversion("PSI", "FPA")
-    CONVERSIONS["PSI:GIGAPA"] = \
-        lambda: noconversion("PSI", "GIGAPA")
-    CONVERSIONS["PSI:HPA"] = \
-        lambda: noconversion("PSI", "HPA")
-    CONVERSIONS["PSI:KBAR"] = \
-        lambda: noconversion("PSI", "KBAR")
-    CONVERSIONS["PSI:KPA"] = \
-        lambda: noconversion("PSI", "KPA")
-    CONVERSIONS["PSI:MBAR"] = \
-        lambda: noconversion("PSI", "MBAR")
+    CONVERSIONS["PSI:CENTIBAR"] = \
+        lambda: noconversion("PSI", "CENTIBAR")
+    CONVERSIONS["PSI:CENTIPASCAL"] = \
+        lambda: noconversion("PSI", "CENTIPASCAL")
+    CONVERSIONS["PSI:DECIBAR"] = \
+        lambda: noconversion("PSI", "DECIBAR")
+    CONVERSIONS["PSI:DECIPASCAL"] = \
+        lambda: noconversion("PSI", "DECIPASCAL")
+    CONVERSIONS["PSI:DEKAPASCAL"] = \
+        lambda: noconversion("PSI", "DEKAPASCAL")
+    CONVERSIONS["PSI:EXAPASCAL"] = \
+        lambda: noconversion("PSI", "EXAPASCAL")
+    CONVERSIONS["PSI:FEMTOPASCAL"] = \
+        lambda: noconversion("PSI", "FEMTOPASCAL")
+    CONVERSIONS["PSI:GIGAPASCAL"] = \
+        lambda: noconversion("PSI", "GIGAPASCAL")
+    CONVERSIONS["PSI:HECTOPASCAL"] = \
+        lambda: noconversion("PSI", "HECTOPASCAL")
+    CONVERSIONS["PSI:KILOBAR"] = \
+        lambda: noconversion("PSI", "KILOBAR")
+    CONVERSIONS["PSI:KILOPASCAL"] = \
+        lambda: noconversion("PSI", "KILOPASCAL")
     CONVERSIONS["PSI:MEGABAR"] = \
         lambda: noconversion("PSI", "MEGABAR")
-    CONVERSIONS["PSI:MEGAPA"] = \
-        lambda: noconversion("PSI", "MEGAPA")
-    CONVERSIONS["PSI:MICROPA"] = \
-        lambda: noconversion("PSI", "MICROPA")
+    CONVERSIONS["PSI:MEGAPASCAL"] = \
+        lambda: noconversion("PSI", "MEGAPASCAL")
+    CONVERSIONS["PSI:MICROPASCAL"] = \
+        lambda: noconversion("PSI", "MICROPASCAL")
+    CONVERSIONS["PSI:MILLIBAR"] = \
+        lambda: noconversion("PSI", "MILLIBAR")
+    CONVERSIONS["PSI:MILLIPASCAL"] = \
+        lambda: noconversion("PSI", "MILLIPASCAL")
+    CONVERSIONS["PSI:MILLITORR"] = \
+        lambda: noconversion("PSI", "MILLITORR")
     CONVERSIONS["PSI:MMHG"] = \
         lambda: noconversion("PSI", "MMHG")
-    CONVERSIONS["PSI:MPA"] = \
-        lambda: noconversion("PSI", "MPA")
-    CONVERSIONS["PSI:MTORR"] = \
-        lambda: noconversion("PSI", "MTORR")
-    CONVERSIONS["PSI:NPA"] = \
-        lambda: noconversion("PSI", "NPA")
-    CONVERSIONS["PSI:PA"] = \
-        lambda: noconversion("PSI", "PA")
-    CONVERSIONS["PSI:PETAPA"] = \
-        lambda: noconversion("PSI", "PETAPA")
-    CONVERSIONS["PSI:PPA"] = \
-        lambda: noconversion("PSI", "PPA")
-    CONVERSIONS["PSI:TERAPA"] = \
-        lambda: noconversion("PSI", "TERAPA")
+    CONVERSIONS["PSI:NANOPASCAL"] = \
+        lambda: noconversion("PSI", "NANOPASCAL")
+    CONVERSIONS["PSI:PASCAL"] = \
+        lambda: noconversion("PSI", "PASCAL")
+    CONVERSIONS["PSI:PETAPASCAL"] = \
+        lambda: noconversion("PSI", "PETAPASCAL")
+    CONVERSIONS["PSI:PICOPASCAL"] = \
+        lambda: noconversion("PSI", "PICOPASCAL")
+    CONVERSIONS["PSI:TERAPASCAL"] = \
+        lambda: noconversion("PSI", "TERAPASCAL")
     CONVERSIONS["PSI:TORR"] = \
         lambda: noconversion("PSI", "TORR")
-    CONVERSIONS["PSI:YOTTAPA"] = \
-        lambda: noconversion("PSI", "YOTTAPA")
-    CONVERSIONS["PSI:YPA"] = \
-        lambda: noconversion("PSI", "YPA")
-    CONVERSIONS["PSI:ZETTAPA"] = \
-        lambda: noconversion("PSI", "ZETTAPA")
-    CONVERSIONS["PSI:ZPA"] = \
-        lambda: noconversion("PSI", "ZPA")
-    CONVERSIONS["TERAPA:APA"] = \
+    CONVERSIONS["PSI:YOCTOPASCAL"] = \
+        lambda: noconversion("PSI", "YOCTOPASCAL")
+    CONVERSIONS["PSI:YOTTAPASCAL"] = \
+        lambda: noconversion("PSI", "YOTTAPASCAL")
+    CONVERSIONS["PSI:ZEPTOPASCAL"] = \
+        lambda: noconversion("PSI", "ZEPTOPASCAL")
+    CONVERSIONS["PSI:ZETTAPASCAL"] = \
+        lambda: noconversion("PSI", "ZETTAPASCAL")
+    CONVERSIONS["TERAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("TERAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["TERAPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["TERAPA:ATM"] = \
-        lambda: noconversion("TERAPA", "ATM")
-    CONVERSIONS["TERAPA:BAR"] = \
-        lambda: noconversion("TERAPA", "BAR")
-    CONVERSIONS["TERAPA:CBAR"] = \
-        lambda: noconversion("TERAPA", "CBAR")
-    CONVERSIONS["TERAPA:CPA"] = \
+    CONVERSIONS["TERAPASCAL:BAR"] = \
+        lambda: noconversion("TERAPASCAL", "BAR")
+    CONVERSIONS["TERAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("TERAPASCAL", "CENTIBAR")
+    CONVERSIONS["TERAPASCAL:CENTIPASCAL"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["TERAPA:DAPA"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["TERAPA:DBAR"] = \
-        lambda: noconversion("TERAPA", "DBAR")
-    CONVERSIONS["TERAPA:DPA"] = \
+    CONVERSIONS["TERAPASCAL:DECIBAR"] = \
+        lambda: noconversion("TERAPASCAL", "DECIBAR")
+    CONVERSIONS["TERAPASCAL:DECIPASCAL"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAPA:EXAPA"] = \
+    CONVERSIONS["TERAPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["TERAPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["TERAPA:FPA"] = \
+    CONVERSIONS["TERAPASCAL:FEMTOPASCAL"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["TERAPA:GIGAPA"] = \
+    CONVERSIONS["TERAPASCAL:GIGAPASCAL"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["TERAPA:HPA"] = \
+    CONVERSIONS["TERAPASCAL:HECTOPASCAL"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["TERAPA:KBAR"] = \
-        lambda: noconversion("TERAPA", "KBAR")
-    CONVERSIONS["TERAPA:KPA"] = \
+    CONVERSIONS["TERAPASCAL:KILOBAR"] = \
+        lambda: noconversion("TERAPASCAL", "KILOBAR")
+    CONVERSIONS["TERAPASCAL:KILOPASCAL"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAPA:MBAR"] = \
-        lambda: noconversion("TERAPA", "MBAR")
-    CONVERSIONS["TERAPA:MEGABAR"] = \
-        lambda: noconversion("TERAPA", "MEGABAR")
-    CONVERSIONS["TERAPA:MEGAPA"] = \
+    CONVERSIONS["TERAPASCAL:MEGABAR"] = \
+        lambda: noconversion("TERAPASCAL", "MEGABAR")
+    CONVERSIONS["TERAPASCAL:MEGAPASCAL"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["TERAPA:MICROPA"] = \
+    CONVERSIONS["TERAPASCAL:MICROPASCAL"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["TERAPA:MMHG"] = \
-        lambda: noconversion("TERAPA", "MMHG")
-    CONVERSIONS["TERAPA:MPA"] = \
+    CONVERSIONS["TERAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("TERAPASCAL", "MILLIBAR")
+    CONVERSIONS["TERAPASCAL:MILLIPASCAL"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["TERAPA:MTORR"] = \
-        lambda: noconversion("TERAPA", "MTORR")
-    CONVERSIONS["TERAPA:NPA"] = \
+    CONVERSIONS["TERAPASCAL:MILLITORR"] = \
+        lambda: noconversion("TERAPASCAL", "MILLITORR")
+    CONVERSIONS["TERAPASCAL:MMHG"] = \
+        lambda: noconversion("TERAPASCAL", "MMHG")
+    CONVERSIONS["TERAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["TERAPA:PA"] = \
+    CONVERSIONS["TERAPASCAL:PASCAL"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["TERAPA:PETAPA"] = \
+    CONVERSIONS["TERAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["TERAPA:PPA"] = \
+    CONVERSIONS["TERAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["TERAPA:PSI"] = \
-        lambda: noconversion("TERAPA", "PSI")
-    CONVERSIONS["TERAPA:TORR"] = \
-        lambda: noconversion("TERAPA", "TORR")
-    CONVERSIONS["TERAPA:YOTTAPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["TERAPA:YPA"] = \
+    CONVERSIONS["TERAPASCAL:PSI"] = \
+        lambda: noconversion("TERAPASCAL", "PSI")
+    CONVERSIONS["TERAPASCAL:TORR"] = \
+        lambda: noconversion("TERAPASCAL", "TORR")
+    CONVERSIONS["TERAPASCAL:YOCTOPASCAL"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["TERAPA:ZETTAPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["TERAPA:ZPA"] = \
+    CONVERSIONS["TERAPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["TERAPASCAL:ZEPTOPASCAL"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["TORR:APA"] = \
-        lambda: noconversion("TORR", "APA")
-    CONVERSIONS["TORR:ATM"] = \
-        lambda: noconversion("TORR", "ATM")
+    CONVERSIONS["TERAPASCAL:ZETTAPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["TORR:ATMOSPHERE"] = \
+        lambda: noconversion("TORR", "ATMOSPHERE")
+    CONVERSIONS["TORR:ATTOPASCAL"] = \
+        lambda: noconversion("TORR", "ATTOPASCAL")
     CONVERSIONS["TORR:BAR"] = \
         lambda: noconversion("TORR", "BAR")
-    CONVERSIONS["TORR:CBAR"] = \
-        lambda: noconversion("TORR", "CBAR")
-    CONVERSIONS["TORR:CPA"] = \
-        lambda: noconversion("TORR", "CPA")
-    CONVERSIONS["TORR:DAPA"] = \
-        lambda: noconversion("TORR", "DAPA")
-    CONVERSIONS["TORR:DBAR"] = \
-        lambda: noconversion("TORR", "DBAR")
-    CONVERSIONS["TORR:DPA"] = \
-        lambda: noconversion("TORR", "DPA")
-    CONVERSIONS["TORR:EXAPA"] = \
-        lambda: noconversion("TORR", "EXAPA")
-    CONVERSIONS["TORR:FPA"] = \
-        lambda: noconversion("TORR", "FPA")
-    CONVERSIONS["TORR:GIGAPA"] = \
-        lambda: noconversion("TORR", "GIGAPA")
-    CONVERSIONS["TORR:HPA"] = \
-        lambda: noconversion("TORR", "HPA")
-    CONVERSIONS["TORR:KBAR"] = \
-        lambda: noconversion("TORR", "KBAR")
-    CONVERSIONS["TORR:KPA"] = \
-        lambda: noconversion("TORR", "KPA")
-    CONVERSIONS["TORR:MBAR"] = \
-        lambda: noconversion("TORR", "MBAR")
+    CONVERSIONS["TORR:CENTIBAR"] = \
+        lambda: noconversion("TORR", "CENTIBAR")
+    CONVERSIONS["TORR:CENTIPASCAL"] = \
+        lambda: noconversion("TORR", "CENTIPASCAL")
+    CONVERSIONS["TORR:DECIBAR"] = \
+        lambda: noconversion("TORR", "DECIBAR")
+    CONVERSIONS["TORR:DECIPASCAL"] = \
+        lambda: noconversion("TORR", "DECIPASCAL")
+    CONVERSIONS["TORR:DEKAPASCAL"] = \
+        lambda: noconversion("TORR", "DEKAPASCAL")
+    CONVERSIONS["TORR:EXAPASCAL"] = \
+        lambda: noconversion("TORR", "EXAPASCAL")
+    CONVERSIONS["TORR:FEMTOPASCAL"] = \
+        lambda: noconversion("TORR", "FEMTOPASCAL")
+    CONVERSIONS["TORR:GIGAPASCAL"] = \
+        lambda: noconversion("TORR", "GIGAPASCAL")
+    CONVERSIONS["TORR:HECTOPASCAL"] = \
+        lambda: noconversion("TORR", "HECTOPASCAL")
+    CONVERSIONS["TORR:KILOBAR"] = \
+        lambda: noconversion("TORR", "KILOBAR")
+    CONVERSIONS["TORR:KILOPASCAL"] = \
+        lambda: noconversion("TORR", "KILOPASCAL")
     CONVERSIONS["TORR:MEGABAR"] = \
         lambda: noconversion("TORR", "MEGABAR")
-    CONVERSIONS["TORR:MEGAPA"] = \
-        lambda: noconversion("TORR", "MEGAPA")
-    CONVERSIONS["TORR:MICROPA"] = \
-        lambda: noconversion("TORR", "MICROPA")
+    CONVERSIONS["TORR:MEGAPASCAL"] = \
+        lambda: noconversion("TORR", "MEGAPASCAL")
+    CONVERSIONS["TORR:MICROPASCAL"] = \
+        lambda: noconversion("TORR", "MICROPASCAL")
+    CONVERSIONS["TORR:MILLIBAR"] = \
+        lambda: noconversion("TORR", "MILLIBAR")
+    CONVERSIONS["TORR:MILLIPASCAL"] = \
+        lambda: noconversion("TORR", "MILLIPASCAL")
+    CONVERSIONS["TORR:MILLITORR"] = \
+        lambda: noconversion("TORR", "MILLITORR")
     CONVERSIONS["TORR:MMHG"] = \
         lambda: noconversion("TORR", "MMHG")
-    CONVERSIONS["TORR:MPA"] = \
-        lambda: noconversion("TORR", "MPA")
-    CONVERSIONS["TORR:MTORR"] = \
-        lambda: noconversion("TORR", "MTORR")
-    CONVERSIONS["TORR:NPA"] = \
-        lambda: noconversion("TORR", "NPA")
-    CONVERSIONS["TORR:PA"] = \
-        lambda: noconversion("TORR", "PA")
-    CONVERSIONS["TORR:PETAPA"] = \
-        lambda: noconversion("TORR", "PETAPA")
-    CONVERSIONS["TORR:PPA"] = \
-        lambda: noconversion("TORR", "PPA")
+    CONVERSIONS["TORR:NANOPASCAL"] = \
+        lambda: noconversion("TORR", "NANOPASCAL")
+    CONVERSIONS["TORR:PASCAL"] = \
+        lambda: noconversion("TORR", "PASCAL")
+    CONVERSIONS["TORR:PETAPASCAL"] = \
+        lambda: noconversion("TORR", "PETAPASCAL")
+    CONVERSIONS["TORR:PICOPASCAL"] = \
+        lambda: noconversion("TORR", "PICOPASCAL")
     CONVERSIONS["TORR:PSI"] = \
         lambda: noconversion("TORR", "PSI")
-    CONVERSIONS["TORR:TERAPA"] = \
-        lambda: noconversion("TORR", "TERAPA")
-    CONVERSIONS["TORR:YOTTAPA"] = \
-        lambda: noconversion("TORR", "YOTTAPA")
-    CONVERSIONS["TORR:YPA"] = \
-        lambda: noconversion("TORR", "YPA")
-    CONVERSIONS["TORR:ZETTAPA"] = \
-        lambda: noconversion("TORR", "ZETTAPA")
-    CONVERSIONS["TORR:ZPA"] = \
-        lambda: noconversion("TORR", "ZPA")
-    CONVERSIONS["YOTTAPA:APA"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["YOTTAPA:ATM"] = \
-        lambda: noconversion("YOTTAPA", "ATM")
-    CONVERSIONS["YOTTAPA:BAR"] = \
-        lambda: noconversion("YOTTAPA", "BAR")
-    CONVERSIONS["YOTTAPA:CBAR"] = \
-        lambda: noconversion("YOTTAPA", "CBAR")
-    CONVERSIONS["YOTTAPA:CPA"] = \
-        lambda value: (10 ** 26) * value
-    CONVERSIONS["YOTTAPA:DAPA"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["YOTTAPA:DBAR"] = \
-        lambda: noconversion("YOTTAPA", "DBAR")
-    CONVERSIONS["YOTTAPA:DPA"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAPA:EXAPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["YOTTAPA:FPA"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["YOTTAPA:GIGAPA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["YOTTAPA:HPA"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["YOTTAPA:KBAR"] = \
-        lambda: noconversion("YOTTAPA", "KBAR")
-    CONVERSIONS["YOTTAPA:KPA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAPA:MBAR"] = \
-        lambda: noconversion("YOTTAPA", "MBAR")
-    CONVERSIONS["YOTTAPA:MEGABAR"] = \
-        lambda: noconversion("YOTTAPA", "MEGABAR")
-    CONVERSIONS["YOTTAPA:MEGAPA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["YOTTAPA:MICROPA"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["YOTTAPA:MMHG"] = \
-        lambda: noconversion("YOTTAPA", "MMHG")
-    CONVERSIONS["YOTTAPA:MPA"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["YOTTAPA:MTORR"] = \
-        lambda: noconversion("YOTTAPA", "MTORR")
-    CONVERSIONS["YOTTAPA:NPA"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["YOTTAPA:PA"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["YOTTAPA:PETAPA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["YOTTAPA:PPA"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["YOTTAPA:PSI"] = \
-        lambda: noconversion("YOTTAPA", "PSI")
-    CONVERSIONS["YOTTAPA:TERAPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["YOTTAPA:TORR"] = \
-        lambda: noconversion("YOTTAPA", "TORR")
-    CONVERSIONS["YOTTAPA:YPA"] = \
-        lambda value: (10 ** 48) * value
-    CONVERSIONS["YOTTAPA:ZETTAPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["YOTTAPA:ZPA"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["YPA:APA"] = \
+    CONVERSIONS["TORR:TERAPASCAL"] = \
+        lambda: noconversion("TORR", "TERAPASCAL")
+    CONVERSIONS["TORR:YOCTOPASCAL"] = \
+        lambda: noconversion("TORR", "YOCTOPASCAL")
+    CONVERSIONS["TORR:YOTTAPASCAL"] = \
+        lambda: noconversion("TORR", "YOTTAPASCAL")
+    CONVERSIONS["TORR:ZEPTOPASCAL"] = \
+        lambda: noconversion("TORR", "ZEPTOPASCAL")
+    CONVERSIONS["TORR:ZETTAPASCAL"] = \
+        lambda: noconversion("TORR", "ZETTAPASCAL")
+    CONVERSIONS["YOCTOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("YOCTOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["YOCTOPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["YPA:ATM"] = \
-        lambda: noconversion("YPA", "ATM")
-    CONVERSIONS["YPA:BAR"] = \
-        lambda: noconversion("YPA", "BAR")
-    CONVERSIONS["YPA:CBAR"] = \
-        lambda: noconversion("YPA", "CBAR")
-    CONVERSIONS["YPA:CPA"] = \
+    CONVERSIONS["YOCTOPASCAL:BAR"] = \
+        lambda: noconversion("YOCTOPASCAL", "BAR")
+    CONVERSIONS["YOCTOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("YOCTOPASCAL", "CENTIBAR")
+    CONVERSIONS["YOCTOPASCAL:CENTIPASCAL"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["YPA:DAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:DECIBAR"] = \
+        lambda: noconversion("YOCTOPASCAL", "DECIBAR")
+    CONVERSIONS["YOCTOPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["YOCTOPASCAL:DEKAPASCAL"] = \
         lambda value: (10 ** -25) * value
-    CONVERSIONS["YPA:DBAR"] = \
-        lambda: noconversion("YPA", "DBAR")
-    CONVERSIONS["YPA:DPA"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["YPA:EXAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:EXAPASCAL"] = \
         lambda value: (10 ** -42) * value
-    CONVERSIONS["YPA:FPA"] = \
+    CONVERSIONS["YOCTOPASCAL:FEMTOPASCAL"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["YPA:GIGAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:GIGAPASCAL"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["YPA:HPA"] = \
+    CONVERSIONS["YOCTOPASCAL:HECTOPASCAL"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["YPA:KBAR"] = \
-        lambda: noconversion("YPA", "KBAR")
-    CONVERSIONS["YPA:KPA"] = \
+    CONVERSIONS["YOCTOPASCAL:KILOBAR"] = \
+        lambda: noconversion("YOCTOPASCAL", "KILOBAR")
+    CONVERSIONS["YOCTOPASCAL:KILOPASCAL"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["YPA:MBAR"] = \
-        lambda: noconversion("YPA", "MBAR")
-    CONVERSIONS["YPA:MEGABAR"] = \
-        lambda: noconversion("YPA", "MEGABAR")
-    CONVERSIONS["YPA:MEGAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:MEGABAR"] = \
+        lambda: noconversion("YOCTOPASCAL", "MEGABAR")
+    CONVERSIONS["YOCTOPASCAL:MEGAPASCAL"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["YPA:MICROPA"] = \
+    CONVERSIONS["YOCTOPASCAL:MICROPASCAL"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["YPA:MMHG"] = \
-        lambda: noconversion("YPA", "MMHG")
-    CONVERSIONS["YPA:MPA"] = \
+    CONVERSIONS["YOCTOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("YOCTOPASCAL", "MILLIBAR")
+    CONVERSIONS["YOCTOPASCAL:MILLIPASCAL"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["YPA:MTORR"] = \
-        lambda: noconversion("YPA", "MTORR")
-    CONVERSIONS["YPA:NPA"] = \
+    CONVERSIONS["YOCTOPASCAL:MILLITORR"] = \
+        lambda: noconversion("YOCTOPASCAL", "MILLITORR")
+    CONVERSIONS["YOCTOPASCAL:MMHG"] = \
+        lambda: noconversion("YOCTOPASCAL", "MMHG")
+    CONVERSIONS["YOCTOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["YPA:PA"] = \
+    CONVERSIONS["YOCTOPASCAL:PASCAL"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["YPA:PETAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["YPA:PPA"] = \
+    CONVERSIONS["YOCTOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["YPA:PSI"] = \
-        lambda: noconversion("YPA", "PSI")
-    CONVERSIONS["YPA:TERAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:PSI"] = \
+        lambda: noconversion("YOCTOPASCAL", "PSI")
+    CONVERSIONS["YOCTOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["YPA:TORR"] = \
-        lambda: noconversion("YPA", "TORR")
-    CONVERSIONS["YPA:YOTTAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:TORR"] = \
+        lambda: noconversion("YOCTOPASCAL", "TORR")
+    CONVERSIONS["YOCTOPASCAL:YOTTAPASCAL"] = \
         lambda value: (10 ** -48) * value
-    CONVERSIONS["YPA:ZETTAPA"] = \
+    CONVERSIONS["YOCTOPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["YOCTOPASCAL:ZETTAPASCAL"] = \
         lambda value: (10 ** -45) * value
-    CONVERSIONS["YPA:ZPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAPA:APA"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["ZETTAPA:ATM"] = \
-        lambda: noconversion("ZETTAPA", "ATM")
-    CONVERSIONS["ZETTAPA:BAR"] = \
-        lambda: noconversion("ZETTAPA", "BAR")
-    CONVERSIONS["ZETTAPA:CBAR"] = \
-        lambda: noconversion("ZETTAPA", "CBAR")
-    CONVERSIONS["ZETTAPA:CPA"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["ZETTAPA:DAPA"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["ZETTAPA:DBAR"] = \
-        lambda: noconversion("ZETTAPA", "DBAR")
-    CONVERSIONS["ZETTAPA:DPA"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAPA:EXAPA"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZETTAPA:FPA"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["ZETTAPA:GIGAPA"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["ZETTAPA:HPA"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["ZETTAPA:KBAR"] = \
-        lambda: noconversion("ZETTAPA", "KBAR")
-    CONVERSIONS["ZETTAPA:KPA"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["ZETTAPA:MBAR"] = \
-        lambda: noconversion("ZETTAPA", "MBAR")
-    CONVERSIONS["ZETTAPA:MEGABAR"] = \
-        lambda: noconversion("ZETTAPA", "MEGABAR")
-    CONVERSIONS["ZETTAPA:MEGAPA"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["ZETTAPA:MICROPA"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["ZETTAPA:MMHG"] = \
-        lambda: noconversion("ZETTAPA", "MMHG")
-    CONVERSIONS["ZETTAPA:MPA"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["ZETTAPA:MTORR"] = \
-        lambda: noconversion("ZETTAPA", "MTORR")
-    CONVERSIONS["ZETTAPA:NPA"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["ZETTAPA:PA"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["ZETTAPA:PETAPA"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ZETTAPA:PPA"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["ZETTAPA:PSI"] = \
-        lambda: noconversion("ZETTAPA", "PSI")
-    CONVERSIONS["ZETTAPA:TERAPA"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["ZETTAPA:TORR"] = \
-        lambda: noconversion("ZETTAPA", "TORR")
-    CONVERSIONS["ZETTAPA:YOTTAPA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAPA:YPA"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAPA:ZPA"] = \
+    CONVERSIONS["YOTTAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("YOTTAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["YOTTAPASCAL:ATTOPASCAL"] = \
         lambda value: (10 ** 42) * value
-    CONVERSIONS["ZPA:APA"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZPA:ATM"] = \
-        lambda: noconversion("ZPA", "ATM")
-    CONVERSIONS["ZPA:BAR"] = \
-        lambda: noconversion("ZPA", "BAR")
-    CONVERSIONS["ZPA:CBAR"] = \
-        lambda: noconversion("ZPA", "CBAR")
-    CONVERSIONS["ZPA:CPA"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["ZPA:DAPA"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["ZPA:DBAR"] = \
-        lambda: noconversion("ZPA", "DBAR")
-    CONVERSIONS["ZPA:DPA"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ZPA:EXAPA"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["ZPA:FPA"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ZPA:GIGAPA"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["ZPA:HPA"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["ZPA:KBAR"] = \
-        lambda: noconversion("ZPA", "KBAR")
-    CONVERSIONS["ZPA:KPA"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ZPA:MBAR"] = \
-        lambda: noconversion("ZPA", "MBAR")
-    CONVERSIONS["ZPA:MEGABAR"] = \
-        lambda: noconversion("ZPA", "MEGABAR")
-    CONVERSIONS["ZPA:MEGAPA"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["ZPA:MICROPA"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["ZPA:MMHG"] = \
-        lambda: noconversion("ZPA", "MMHG")
-    CONVERSIONS["ZPA:MPA"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ZPA:MTORR"] = \
-        lambda: noconversion("ZPA", "MTORR")
-    CONVERSIONS["ZPA:NPA"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ZPA:PA"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ZPA:PETAPA"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["ZPA:PPA"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ZPA:PSI"] = \
-        lambda: noconversion("ZPA", "PSI")
-    CONVERSIONS["ZPA:TERAPA"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["ZPA:TORR"] = \
-        lambda: noconversion("ZPA", "TORR")
-    CONVERSIONS["ZPA:YOTTAPA"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["ZPA:YPA"] = \
+    CONVERSIONS["YOTTAPASCAL:BAR"] = \
+        lambda: noconversion("YOTTAPASCAL", "BAR")
+    CONVERSIONS["YOTTAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("YOTTAPASCAL", "CENTIBAR")
+    CONVERSIONS["YOTTAPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAPASCAL:DECIBAR"] = \
+        lambda: noconversion("YOTTAPASCAL", "DECIBAR")
+    CONVERSIONS["YOTTAPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["YOTTAPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["YOTTAPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["YOTTAPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["YOTTAPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["YOTTAPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["YOTTAPASCAL:KILOBAR"] = \
+        lambda: noconversion("YOTTAPASCAL", "KILOBAR")
+    CONVERSIONS["YOTTAPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["YOTTAPASCAL:MEGABAR"] = \
+        lambda: noconversion("YOTTAPASCAL", "MEGABAR")
+    CONVERSIONS["YOTTAPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["YOTTAPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["YOTTAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("YOTTAPASCAL", "MILLIBAR")
+    CONVERSIONS["YOTTAPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["YOTTAPASCAL:MILLITORR"] = \
+        lambda: noconversion("YOTTAPASCAL", "MILLITORR")
+    CONVERSIONS["YOTTAPASCAL:MMHG"] = \
+        lambda: noconversion("YOTTAPASCAL", "MMHG")
+    CONVERSIONS["YOTTAPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["YOTTAPASCAL:PASCAL"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["YOTTAPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["YOTTAPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["YOTTAPASCAL:PSI"] = \
+        lambda: noconversion("YOTTAPASCAL", "PSI")
+    CONVERSIONS["YOTTAPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["YOTTAPASCAL:TORR"] = \
+        lambda: noconversion("YOTTAPASCAL", "TORR")
+    CONVERSIONS["YOTTAPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 48) * value
+    CONVERSIONS["YOTTAPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["YOTTAPASCAL:ZETTAPASCAL"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["ZPA:ZETTAPA"] = \
+    CONVERSIONS["ZEPTOPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("ZEPTOPASCAL", "ATMOSPHERE")
+    CONVERSIONS["ZEPTOPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZEPTOPASCAL:BAR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "BAR")
+    CONVERSIONS["ZEPTOPASCAL:CENTIBAR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "CENTIBAR")
+    CONVERSIONS["ZEPTOPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOPASCAL:DECIBAR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "DECIBAR")
+    CONVERSIONS["ZEPTOPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["ZEPTOPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["ZEPTOPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["ZEPTOPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["ZEPTOPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["ZEPTOPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["ZEPTOPASCAL:KILOBAR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "KILOBAR")
+    CONVERSIONS["ZEPTOPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["ZEPTOPASCAL:MEGABAR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "MEGABAR")
+    CONVERSIONS["ZEPTOPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["ZEPTOPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["ZEPTOPASCAL:MILLIBAR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "MILLIBAR")
+    CONVERSIONS["ZEPTOPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["ZEPTOPASCAL:MILLITORR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "MILLITORR")
+    CONVERSIONS["ZEPTOPASCAL:MMHG"] = \
+        lambda: noconversion("ZEPTOPASCAL", "MMHG")
+    CONVERSIONS["ZEPTOPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["ZEPTOPASCAL:PASCAL"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["ZEPTOPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["ZEPTOPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["ZEPTOPASCAL:PSI"] = \
+        lambda: noconversion("ZEPTOPASCAL", "PSI")
+    CONVERSIONS["ZEPTOPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["ZEPTOPASCAL:TORR"] = \
+        lambda: noconversion("ZEPTOPASCAL", "TORR")
+    CONVERSIONS["ZEPTOPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZEPTOPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -45) * value
+    CONVERSIONS["ZEPTOPASCAL:ZETTAPASCAL"] = \
         lambda value: (10 ** -42) * value
+    CONVERSIONS["ZETTAPASCAL:ATMOSPHERE"] = \
+        lambda: noconversion("ZETTAPASCAL", "ATMOSPHERE")
+    CONVERSIONS["ZETTAPASCAL:ATTOPASCAL"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["ZETTAPASCAL:BAR"] = \
+        lambda: noconversion("ZETTAPASCAL", "BAR")
+    CONVERSIONS["ZETTAPASCAL:CENTIBAR"] = \
+        lambda: noconversion("ZETTAPASCAL", "CENTIBAR")
+    CONVERSIONS["ZETTAPASCAL:CENTIPASCAL"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAPASCAL:DECIBAR"] = \
+        lambda: noconversion("ZETTAPASCAL", "DECIBAR")
+    CONVERSIONS["ZETTAPASCAL:DECIPASCAL"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["ZETTAPASCAL:DEKAPASCAL"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["ZETTAPASCAL:EXAPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZETTAPASCAL:FEMTOPASCAL"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["ZETTAPASCAL:GIGAPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["ZETTAPASCAL:HECTOPASCAL"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["ZETTAPASCAL:KILOBAR"] = \
+        lambda: noconversion("ZETTAPASCAL", "KILOBAR")
+    CONVERSIONS["ZETTAPASCAL:KILOPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["ZETTAPASCAL:MEGABAR"] = \
+        lambda: noconversion("ZETTAPASCAL", "MEGABAR")
+    CONVERSIONS["ZETTAPASCAL:MEGAPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["ZETTAPASCAL:MICROPASCAL"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["ZETTAPASCAL:MILLIBAR"] = \
+        lambda: noconversion("ZETTAPASCAL", "MILLIBAR")
+    CONVERSIONS["ZETTAPASCAL:MILLIPASCAL"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["ZETTAPASCAL:MILLITORR"] = \
+        lambda: noconversion("ZETTAPASCAL", "MILLITORR")
+    CONVERSIONS["ZETTAPASCAL:MMHG"] = \
+        lambda: noconversion("ZETTAPASCAL", "MMHG")
+    CONVERSIONS["ZETTAPASCAL:NANOPASCAL"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["ZETTAPASCAL:PASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["ZETTAPASCAL:PETAPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["ZETTAPASCAL:PICOPASCAL"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["ZETTAPASCAL:PSI"] = \
+        lambda: noconversion("ZETTAPASCAL", "PSI")
+    CONVERSIONS["ZETTAPASCAL:TERAPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["ZETTAPASCAL:TORR"] = \
+        lambda: noconversion("ZETTAPASCAL", "TORR")
+    CONVERSIONS["ZETTAPASCAL:YOCTOPASCAL"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["ZETTAPASCAL:YOTTAPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZETTAPASCAL:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 42) * value
 
     SYMBOLS = dict()
-    SYMBOLS["APA"] = "aPa"
-    SYMBOLS["ATM"] = "atm"
+    SYMBOLS["ATMOSPHERE"] = "atm"
+    SYMBOLS["ATTOPASCAL"] = "aPa"
     SYMBOLS["BAR"] = "bar"
-    SYMBOLS["CBAR"] = "cbar"
-    SYMBOLS["CPA"] = "cPa"
-    SYMBOLS["DAPA"] = "daPa"
-    SYMBOLS["DBAR"] = "dbar"
-    SYMBOLS["DPA"] = "dPa"
-    SYMBOLS["EXAPA"] = "EPa"
-    SYMBOLS["FPA"] = "fPa"
-    SYMBOLS["GIGAPA"] = "GPa"
-    SYMBOLS["HPA"] = "hPa"
-    SYMBOLS["KBAR"] = "kBar"
-    SYMBOLS["KPA"] = "kPa"
-    SYMBOLS["MBAR"] = "mbar"
+    SYMBOLS["CENTIBAR"] = "cbar"
+    SYMBOLS["CENTIPASCAL"] = "cPa"
+    SYMBOLS["DECIBAR"] = "dbar"
+    SYMBOLS["DECIPASCAL"] = "dPa"
+    SYMBOLS["DEKAPASCAL"] = "daPa"
+    SYMBOLS["EXAPASCAL"] = "EPa"
+    SYMBOLS["FEMTOPASCAL"] = "fPa"
+    SYMBOLS["GIGAPASCAL"] = "GPa"
+    SYMBOLS["HECTOPASCAL"] = "hPa"
+    SYMBOLS["KILOBAR"] = "kBar"
+    SYMBOLS["KILOPASCAL"] = "kPa"
     SYMBOLS["MEGABAR"] = "Mbar"
-    SYMBOLS["MEGAPA"] = "MPa"
-    SYMBOLS["MICROPA"] = "µPa"
+    SYMBOLS["MEGAPASCAL"] = "MPa"
+    SYMBOLS["MICROPASCAL"] = "µPa"
+    SYMBOLS["MILLIBAR"] = "mbar"
+    SYMBOLS["MILLIPASCAL"] = "mPa"
+    SYMBOLS["MILLITORR"] = "mTorr"
     SYMBOLS["MMHG"] = "mm Hg"
-    SYMBOLS["MPA"] = "mPa"
-    SYMBOLS["MTORR"] = "mTorr"
-    SYMBOLS["NPA"] = "nPa"
-    SYMBOLS["PA"] = "Pa"
-    SYMBOLS["PETAPA"] = "PPa"
-    SYMBOLS["PPA"] = "pPa"
+    SYMBOLS["NANOPASCAL"] = "nPa"
+    SYMBOLS["PASCAL"] = "Pa"
+    SYMBOLS["PETAPASCAL"] = "PPa"
+    SYMBOLS["PICOPASCAL"] = "pPa"
     SYMBOLS["PSI"] = "psi"
-    SYMBOLS["TERAPA"] = "TPa"
+    SYMBOLS["TERAPASCAL"] = "TPa"
     SYMBOLS["TORR"] = "Torr"
-    SYMBOLS["YOTTAPA"] = "YPa"
-    SYMBOLS["YPA"] = "yPa"
-    SYMBOLS["ZETTAPA"] = "ZPa"
-    SYMBOLS["ZPA"] = "zPa"
+    SYMBOLS["YOCTOPASCAL"] = "yPa"
+    SYMBOLS["YOTTAPASCAL"] = "YPa"
+    SYMBOLS["ZEPTOPASCAL"] = "zPa"
+    SYMBOLS["ZETTAPASCAL"] = "ZPa"
 
     def __init__(self, value=None, unit=None):
         _omero_model.Pressure.__init__(self)

@@ -25,29 +25,34 @@ namespace omero {
 
     namespace model {
 
-        std::map<omero::model::enums::UnitsFrequency, std::string> FrequencyI::SYMBOLS= {
-            {omero::model::enums::UnitsFrequency::AHZ, "aHz"},
-            {omero::model::enums::UnitsFrequency::CHZ, "cHz"},
-            {omero::model::enums::UnitsFrequency::DAHZ, "daHz"},
-            {omero::model::enums::UnitsFrequency::DHZ, "dHz"},
-            {omero::model::enums::UnitsFrequency::EXAHZ, "EHz"},
-            {omero::model::enums::UnitsFrequency::FHZ, "fHz"},
-            {omero::model::enums::UnitsFrequency::GIGAHZ, "GHz"},
-            {omero::model::enums::UnitsFrequency::HHZ, "hHz"},
-            {omero::model::enums::UnitsFrequency::HZ, "Hz"},
-            {omero::model::enums::UnitsFrequency::KHZ, "kHz"},
-            {omero::model::enums::UnitsFrequency::MEGAHZ, "MHz"},
-            {omero::model::enums::UnitsFrequency::MHZ, "mHz"},
-            {omero::model::enums::UnitsFrequency::MICROHZ, "µHz"},
-            {omero::model::enums::UnitsFrequency::NHZ, "nHz"},
-            {omero::model::enums::UnitsFrequency::PETAHZ, "PHz"},
-            {omero::model::enums::UnitsFrequency::PHZ, "pHz"},
-            {omero::model::enums::UnitsFrequency::TERAHZ, "THz"},
-            {omero::model::enums::UnitsFrequency::YHZ, "yHz"},
-            {omero::model::enums::UnitsFrequency::YOTTAHZ, "YHz"},
-            {omero::model::enums::UnitsFrequency::ZETTAHZ, "ZHz"},
-            {omero::model::enums::UnitsFrequency::ZHZ, "zHz"},
+
+        static std::map<omero::model::enums::UnitsFrequency, std::string> makeSymbols(){
+            std::map<omero::model::enums::UnitsFrequency, std::string> s;
+            s[omero::model::enums::ATTOHERTZ] = "aHz";
+            s[omero::model::enums::CENTIHERTZ] = "cHz";
+            s[omero::model::enums::DECIHERTZ] = "dHz";
+            s[omero::model::enums::DEKAHERTZ] = "daHz";
+            s[omero::model::enums::EXAHERTZ] = "EHz";
+            s[omero::model::enums::FEMTOHERTZ] = "fHz";
+            s[omero::model::enums::GIGAHERTZ] = "GHz";
+            s[omero::model::enums::HECTOHERTZ] = "hHz";
+            s[omero::model::enums::HERTZ] = "Hz";
+            s[omero::model::enums::KILOHERTZ] = "kHz";
+            s[omero::model::enums::MEGAHERTZ] = "MHz";
+            s[omero::model::enums::MICROHERTZ] = "µHz";
+            s[omero::model::enums::MILLIHERTZ] = "mHz";
+            s[omero::model::enums::NANOHERTZ] = "nHz";
+            s[omero::model::enums::PETAHERTZ] = "PHz";
+            s[omero::model::enums::PICOHERTZ] = "pHz";
+            s[omero::model::enums::TERAHERTZ] = "THz";
+            s[omero::model::enums::YOCTOHERTZ] = "yHz";
+            s[omero::model::enums::YOTTAHERTZ] = "YHz";
+            s[omero::model::enums::ZEPTOHERTZ] = "zHz";
+            s[omero::model::enums::ZETTAHERTZ] = "ZHz";
+            return s;
         };
+
+        std::map<omero::model::enums::UnitsFrequency, std::string> FrequencyI::SYMBOLS = makeSymbols();
 
         FrequencyI::~FrequencyI() {}
 
