@@ -135,30 +135,6 @@ public class ExampleUsageTest extends TestCase {
         }
     }
 
-    /** disabling; need proper logic to find common/ component FIXME */
-    public void DISABLEDtestReal() throws Exception {
-        File currentDir = new File(System.getProperty("user.dir"));// TODO Util
-        File mappings = new File(currentDir.getParent() + File.separator
-                + "common" + File.separator + "resources" + File.separator
-                + "Mappings.ome.xml"); // FIXME circular deps.
-        log.error(mappings);
-        SaxReader nsr = new SaxReader("psql", mappings);
-        nsr.parse();
-        for (Iterator<SemanticType> it = nsr.process().iterator(); it.hasNext();) {
-            SemanticType st = (SemanticType) it.next();
-            VelocityHelper vh = new VelocityHelper();
-            vh.put("type", st);
-            // FileWriter fw = new
-            // FileWriter("/tmp/"+st.getId().replaceAll("[.]","_")+".hbm.xml");
-            StringWriter sw = new StringWriter();
-            vh.invoke(DSLTask.getStream("ome/dsl/mapping.vm"), sw);
-            sw.flush();
-            sw.close();
-            // fw.flush();
-            // fw.close();
-        }
-    }
-
     // ~ Helpers
     // =========================================================================
     private Map<String, SemanticType> toMap(Collection<SemanticType> coll) {
