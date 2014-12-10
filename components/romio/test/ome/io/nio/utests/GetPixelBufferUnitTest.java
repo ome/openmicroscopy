@@ -117,7 +117,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         service.retry = null; // no messages!
         touchRomio();
         touchPyramid();
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.getPixelBuffer(pixels, false);
         assertEquals(0, service.events.size());
     }
 
@@ -130,7 +130,7 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         service.isRequirePyramid = false;
         String path = service.getPixelsPath(pixels.getId());
         touchPyramid();
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service.getPixelBuffer(pixels, false);
         assertEquals(0, service.events.size());
     }
 
@@ -284,7 +284,10 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         } catch (ResourceError re) {
             // ok
         } finally {
-            pb.close();
+            if (pb != null) {
+                pb.close();
+                pb = null;
+            }
         }
     }
 
