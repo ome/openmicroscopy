@@ -259,8 +259,8 @@ class AdminTests (WebAdminTestBase):
         sel.click("default_group_%d" % group1Id)
         # self.waitForElementVisibility('id_default_group_%d' % group1Id,
         # False)
-        self.waitForElementVisibility('default_group_%d' % group1Id, False)
         # BUG: this is not working at the moment.
+        self.waitForElementVisibility('default_group_%d' % group1Id, False)
 
         # save
         sel.click("//input[@value='Save']")

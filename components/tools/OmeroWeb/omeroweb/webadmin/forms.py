@@ -477,8 +477,8 @@ class EmailForm(forms.Form):
              (' - Inactive' if not experimenter.isActive() else ''))
             for experimenter in experimenters]
 
-        self.fields['groups'].choices = [(group.id, group.name)
-                                         for group in groups]
+        self.fields['groups'].choices = [
+            (group.id, group.name) for group in groups]
 
         # TODO If these are adapted to support inactive users for experimenters
         # and not show the permissions for groups, can use these:

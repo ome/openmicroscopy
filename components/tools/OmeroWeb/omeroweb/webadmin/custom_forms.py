@@ -234,8 +234,8 @@ class ExperimenterQuerySetIterator(object):
         if self.empty_label is not None:
             self.rendered_set.append((u"", self.empty_label))
 
-        # queryset may be a list of Experimenters 'exp_list' OR may be (
-        # ("Leaders", exp_list), ("Members", exp_list)  )
+        # queryset may be a list of Experimenters 'exp_list' OR may be
+        # (("Leaders", exp_list), ("Members", exp_list))
         for obj in queryset:
             if hasattr(obj, 'id'):
                 self.rendered_set.append(self.render(obj))
