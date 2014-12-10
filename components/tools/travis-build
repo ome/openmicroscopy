@@ -17,7 +17,7 @@ clean()
 build_java()
 {
     TEST="-p" ./build.py build-default test-compile
-    for dir in dsl model common rendering romio server blitz
+    for dir in dsl model common rendering romio server
     do
         ./build.py -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
     done
