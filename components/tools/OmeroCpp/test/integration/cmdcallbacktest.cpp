@@ -236,11 +236,15 @@ TEST(CmdCallbackTest, testDoNothingFinishesOnLoop) {
 }
 
 TEST(CmdCallbackTest, testDoAllTimingFinishesOnLoop) {
-    CBFixture f;
-    TestCBPtr cb = f.doAllTiming(5);
-    cb->loop(5, 1000);
-    cb->assertFinished();
-    // For some reason the number of steps is varying between 10 and 15
+    try {
+        CBFixture f;
+        TestCBPtr cb = f.doAllTiming(5);
+        cb->loop(5, 1000);
+        cb->assertFinished();
+        // For some reason the number of steps is varying between 10 and 15
+    } catch (const Ice::ConnectionLostException& cle) {
+        FAIL() << "connection lost: " << cle << endl;
+    }
 }
 
 TEST(CmdCallbackTest, testAddAfterFinish) {
