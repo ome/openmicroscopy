@@ -174,7 +174,7 @@ module omero {
 
             enum UnitsTemperature {
                 KELVIN,
-                CENTIGRADE,
+                CELSIUS,
                 FAHRENHEIT,
                 RANKINE
             };

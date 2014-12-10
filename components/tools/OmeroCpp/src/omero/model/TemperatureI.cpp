@@ -28,7 +28,7 @@ namespace omero {
 
         static std::map<omero::model::enums::UnitsTemperature, std::string> makeSymbols(){
             std::map<omero::model::enums::UnitsTemperature, std::string> s;
-            s[omero::model::enums::CENTIGRADE] = "°C";
+            s[omero::model::enums::CELSIUS] = "°C";
             s[omero::model::enums::FAHRENHEIT] = "°F";
             s[omero::model::enums::KELVIN] = "K";
             s[omero::model::enums::RANKINE] = "°R";

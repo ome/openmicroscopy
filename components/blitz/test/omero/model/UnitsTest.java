@@ -47,7 +47,7 @@ public class UnitsTest extends TestCase {
     @Test
     public void testTemperatureConversion() throws IOException {
         Temperature f = new TemperatureI(32, UnitsTemperature.FAHRENHEIT);
-        Temperature c = new TemperatureI(f, UnitsTemperature.CENTIGRADE);
+        Temperature c = new TemperatureI(f, UnitsTemperature.CELSIUS);
         Temperature k = new TemperatureI(c, UnitsTemperature.KELVIN);
 
         assertEquals(0, c.getValue(), 1e-5);

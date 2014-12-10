@@ -44,33 +44,33 @@ def noconversion(cfrom, cto):
 class TemperatureI(_omero_model.Temperature, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["CENTIGRADE:FAHRENHEIT"] = \
+    CONVERSIONS["CELSIUS:FAHRENHEIT"] = \
         lambda value: 32+1.8 * value
-    CONVERSIONS["CENTIGRADE:KELVIN"] = \
+    CONVERSIONS["CELSIUS:KELVIN"] = \
         lambda value: 273.15
-    CONVERSIONS["CENTIGRADE:RANKINE"] = \
-        lambda: noconversion("CENTIGRADE", "RANKINE")
-    CONVERSIONS["FAHRENHEIT:CENTIGRADE"] = \
+    CONVERSIONS["CELSIUS:RANKINE"] = \
+        lambda: noconversion("CELSIUS", "RANKINE")
+    CONVERSIONS["FAHRENHEIT:CELSIUS"] = \
         lambda value: -17.777777777+0.55555555555 * value
     CONVERSIONS["FAHRENHEIT:KELVIN"] = \
         lambda: noconversion("FAHRENHEIT", "KELVIN")
     CONVERSIONS["FAHRENHEIT:RANKINE"] = \
         lambda: noconversion("FAHRENHEIT", "RANKINE")
-    CONVERSIONS["KELVIN:CENTIGRADE"] = \
+    CONVERSIONS["KELVIN:CELSIUS"] = \
         lambda value: -273.15
     CONVERSIONS["KELVIN:FAHRENHEIT"] = \
         lambda: noconversion("KELVIN", "FAHRENHEIT")
     CONVERSIONS["KELVIN:RANKINE"] = \
         lambda: noconversion("KELVIN", "RANKINE")
-    CONVERSIONS["RANKINE:CENTIGRADE"] = \
-        lambda: noconversion("RANKINE", "CENTIGRADE")
+    CONVERSIONS["RANKINE:CELSIUS"] = \
+        lambda: noconversion("RANKINE", "CELSIUS")
     CONVERSIONS["RANKINE:FAHRENHEIT"] = \
         lambda: noconversion("RANKINE", "FAHRENHEIT")
     CONVERSIONS["RANKINE:KELVIN"] = \
         lambda: noconversion("RANKINE", "KELVIN")
 
     SYMBOLS = dict()
-    SYMBOLS["CENTIGRADE"] = "°C"
+    SYMBOLS["CELSIUS"] = "°C"
     SYMBOLS["FAHRENHEIT"] = "°F"
     SYMBOLS["KELVIN"] = "K"
     SYMBOLS["RANKINE"] = "°R"

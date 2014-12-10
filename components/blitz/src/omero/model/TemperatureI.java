@@ -48,17 +48,17 @@ public class TemperatureI extends Temperature implements ModelBased {
     static {
         Map<String, double[][]> c = new HashMap<String, double[][]>();
 
-        c.put("CENTIGRADE:FAHRENHEIT", new double[][]{new double[]{32, 1}, new double[]{1.8, 1}});
-        c.put("CENTIGRADE:KELVIN", new double[][]{new double[]{273.15, 1}, new double[]{0, 1}});
-        c.put("FAHRENHEIT:CENTIGRADE", new double[][]{new double[]{-17.777777777, 1}, new double[]{0.55555555555, 1}});
-        c.put("KELVIN:CENTIGRADE", new double[][]{new double[]{-273.15, 1}, new double[]{0, 1}});
+        c.put("CELSIUS:FAHRENHEIT", new double[][]{new double[]{32, 1}, new double[]{1.8, 1}});
+        c.put("CELSIUS:KELVIN", new double[][]{new double[]{273.15, 1}, new double[]{0, 1}});
+        c.put("FAHRENHEIT:CELSIUS", new double[][]{new double[]{-17.777777777, 1}, new double[]{0.55555555555, 1}});
+        c.put("KELVIN:CELSIUS", new double[][]{new double[]{-273.15, 1}, new double[]{0, 1}});
         conversions = Collections.unmodifiableMap(c);
     }
 
     private static final Map<UnitsTemperature, String> SYMBOLS;
     static {
         Map<UnitsTemperature, String> s = new HashMap<UnitsTemperature, String>();
-        s.put(UnitsTemperature.CENTIGRADE, "°C");
+        s.put(UnitsTemperature.CELSIUS, "°C");
         s.put(UnitsTemperature.FAHRENHEIT, "°F");
         s.put(UnitsTemperature.KELVIN, "K");
         s.put(UnitsTemperature.RANKINE, "°R");

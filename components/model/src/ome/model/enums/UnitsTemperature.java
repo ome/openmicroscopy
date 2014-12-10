@@ -26,7 +26,7 @@ import java.util.Map;
 public enum UnitsTemperature {
 
     KELVIN("K"),
-    CENTIGRADE("°C"),
+    CELSIUS("°C"),
     FAHRENHEIT("°F"),
     RANKINE("°R");
 
