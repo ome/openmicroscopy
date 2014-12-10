@@ -277,7 +277,7 @@ public class GraphPolicyRule {
         boolean isMatch(Map<String, Details> namedTerms, MutableBoolean isCheckAllPermissions,
                 Details leftDetails, Details rightDetails, String classProperty, boolean notNullable) {
             if ((this.sameOwner != null && leftDetails.ownerId != null && rightDetails.ownerId != null &&
-                    this.sameOwner != (leftDetails.ownerId == rightDetails.ownerId)) ||
+                 this.sameOwner != leftDetails.ownerId.equals(rightDetails.ownerId)) ||
                 (this.notNullable != null && this.notNullable != notNullable) ||
                 (this.propertyName != null && !classProperty.endsWith(propertyName))) {
                 return false;
