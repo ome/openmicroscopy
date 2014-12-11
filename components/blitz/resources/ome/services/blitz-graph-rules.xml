@@ -215,9 +215,9 @@
         <bean parent="graphPolicyRule" p:matches="WRL:WellReagentLink.parent = [E], WRL.child = R:Reagent[E]{!a}"
                                        p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Screen[E].reagents = R:Reagent[E]{!a}" p:changes="R:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="R:Roi[E].image =/!o [I]" p:changes="R:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[E].pixels =/!o [I]" p:changes="RD:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="T:Thumbnail[E].pixels =/!o [I]" p:changes="T:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="R:Roi[!O].image =/!o [I]" p:changes="R:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[!O].pixels =/!o [I]" p:changes="RD:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="T:Thumbnail[!O].pixels =/!o [I]" p:changes="T:[O]"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].quantization = Q:[E]{i}" p:changes="Q:[E]{r}"/>
         <bean parent="graphPolicyRule" p:matches="RenderingDef[D].quantization = Q:[E]{o}" p:changes="Q:[D]"/>
         <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/o == [I]" p:changes="X:[I]"/>
