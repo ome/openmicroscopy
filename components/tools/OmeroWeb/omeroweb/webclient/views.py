@@ -2773,6 +2773,23 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         context['tags'] = uniqueTags
         context['figureName'] = figureName.replace(" ", "_")
 
+    elif scriptName == "MakeMovie":
+        scriptPath = "/omero/export_scripts/Make_Movie.py"
+        template = "webclient/scripts/make_movie.html"
+
+        # expect to run on a single image at a time
+        image = conn.getObject("Image", imageIds[0])
+        context['movieName'] = image.getName().replace("/", "|").replace("\\", "|")
+        chs = []
+        for c in image.getChannels():
+            chs.append({
+                'active': c.isActive(),
+                'color': c.getColor().getCss(),
+                'label': c.getLabel()
+                })
+        context['channels'] = chs
+
+
     scriptService = conn.getScriptService()
     scriptId = scriptService.getScriptID(scriptPath);
     if (scriptId < 0):

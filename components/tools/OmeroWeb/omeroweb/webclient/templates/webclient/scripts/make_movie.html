@@ -1,0 +1,100 @@
+{% extends "webclient/scripts/base_custom_dialog.html" %}
+{% load i18n %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% comment %}
+<!--
+    This page displays a UI for Make Movie script.
+-->
+{% endcomment %}
+
+{% block title %}
+    Make Movie
+{% endblock %}
+
+
+
+{% block script %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.make_movie.js" %}"></script>
+
+    <style type="text/css">
+        
+        button.pressed {
+            border-style: inset;
+        }
+    </style>
+{% endblock %}
+
+
+
+    {% block script_form %}
+
+        <h1>Make Movie</h1>
+
+        <hr/>
+
+        <!-- Data_Type and IDs are already set (we can hide these) -->
+        <input name="Data_Type" style="display:none" value="{{ dtype }}" />
+        <input type="text" name="IDs" value="{{ idString }}" style="display:none">
+
+        <span title="File name of the movie to save.">
+            Name:
+            <input type="text" name="Movie_Name"  value="{{ movieName }}"  />
+        </span>
+
+        <hr/>
+
+        <span title="Format to save image">
+            Format:
+            <select name="Format">
+                <option value="Quicktime"  selected="True"  >Quick Time</option>
+                <option value="MPEG"  >MPEG</option>
+                <option value="WMV"  >Windows Media Play</option>
+            </select>
+        </span>
+
+        <span style="padding-left: 20px">
+            Frame Rate:
+            <input type="number" name="FPS" class="number" value="25" style="width: 50px" />
+            fps
+        </span>
+
+        <hr/>
+
+        <span>
+            Channels Selection:
+
+            <!-- TODO - need isDark() in js to add font-white -->
+            {% for ch in channels %}
+                <button class="{% if ch.active %}pressed{% endif %}"
+                        style="background-color: {{ch.color}}">
+                    {{ ch.label }}
+                </button>
+            {% endfor %}
+
+
+    {% endblock %}
+
+<!-- remove preview block -->
+{% block figure_preview_container %}
+{% endblock %}

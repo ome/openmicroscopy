@@ -208,8 +208,15 @@ class BaseContainer(BaseController):
         elif objDict is not None:
             if 'image' in objDict or 'dataset' in objDict:
                 thumbnailFig['enabled'] = True
+
+        makeMovie = {'id': 'MakeMovie', 'name': 'Make Movie', 'enabled': False,
+            'tooltip': "Create a movie of the image"}
+        if self.image and (self.image.getSizeT() > 0 or self.image.getSizeZ() > 0):
+            makeMovie['enabled'] = True
+
         figureScripts.append(splitView)
         figureScripts.append(thumbnailFig)
+        figureScripts.append(makeMovie)
         return figureScripts
 
 
