@@ -1591,7 +1591,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  16,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  17,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2576,6 +2576,14 @@ create table _fs_deletelog (
     repo varchar(36) not null,
     params text[2][]);
 
+create index _fs_deletelog_event on _fs_deletelog(event_id);
+create index _fs_deletelog_file on _fs_deletelog(file_id);
+create index _fs_deletelog_owner on _fs_deletelog(owner_id);
+create index _fs_deletelog_group on _fs_deletelog(group_id);
+create index _fs_deletelog_path on _fs_deletelog(path);
+create index _fs_deletelog_name on _fs_deletelog(name);
+create index _fs_deletelog_repo on _fs_deletelog(repo);
+
 create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
     begin
         if OLD.repo is not null then
@@ -2614,7 +2622,7 @@ ALTER TABLE transmittancerange
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 16 and
+        currentPatch = 17 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 
