@@ -21,6 +21,8 @@ package ome.formats.importer.transfers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
@@ -108,7 +110,11 @@ public class TransferState implements TimeEstimator {
      * @throws ServerError
      */
     public void save() throws ServerError {
-        RawFileStorePrx rawFileStore = getUploader();
+        // We don't need write access here, and considering that
+        // a symlink or similar to a non-executable file may have
+        // replaced the previous test file (see checkLocation), we
+        // try to be as conservative as possible.
+        RawFileStorePrx rawFileStore = getUploader("r");
         checksum = cp.checksumAsString();
         ofile = rawFileStore.save();
         if (log.isDebugEnabled()) {
@@ -186,6 +192,19 @@ public class TransferState implements TimeEstimator {
      * Return the {@link RawFileStorePrx} instance for this index.
      */
     public RawFileStorePrx getUploader() throws ServerError {
+        return getUploader(null);
+    }
+
+    /**
+     * Return the {@link RawFileStorePrx} instance for this index setting
+     * the mode if not null. Valid values include "r" and "rw".
+     */
+    public RawFileStorePrx getUploader(String mode) throws ServerError {
+        if (mode != null) {
+            Map<String, String> ctx = new HashMap<String, String>();
+            ctx.put("omero.fs.mode", mode);
+            return this.proc.getUploader(this.index, ctx);
+        }
         return this.proc.getUploader(this.index);
     }
 
