@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2014 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.testing;
@@ -50,6 +50,7 @@ public class CreatePojosFixture {
         String G_NAME = UUID.randomUUID().toString();
         fixture.g = new ExperimenterGroup();
         fixture.g.setName(G_NAME);
+        fixture.g.setLdap(false);
         fixture.g = new ExperimenterGroup(rootAdmin.createGroup(fixture.g),
                 false);
 
@@ -58,6 +59,7 @@ public class CreatePojosFixture {
         fixture.e.setOmeName(fixture.TESTER);
         fixture.e.setFirstName("Mr.");
         fixture.e.setLastName("Allen");
+        fixture.e.setLdap(false);
         fixture.e = new Experimenter(rootAdmin.createUser(fixture.e, G_NAME),
                 false);
 

@@ -182,7 +182,7 @@
 
 
 {% block body %}
-    <form id='script_form' method="post" action="{% url 'script_run' paramData.id %}">
+    <form id='script_form' method="post" action="{% url 'script_run' paramData.id %}">{% csrf_token %}
         <div style="padding:10px; margin-bottom:40px">
             <h3 id="scriptName">{{ paramData.name }}</h3>
             <div id='script_desc'>{{ paramData.description|linebreaks }}

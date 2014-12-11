@@ -25,7 +25,7 @@ function callback (obj, method) {
 
 function isClientPhone () {
     // Apple
-    if (navigator.userAgent.indexOf("iPhone")>=0) return true;
+    //if (navigator.userAgent.indexOf("iPhone")>=0) return true;
     if (navigator.userAgent.indexOf("iPod")>=0) return true;    
 
     // Google

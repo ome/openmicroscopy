@@ -24,8 +24,8 @@ module omero {
          **/
         ["ami", "amd"] interface IRenderingSettings extends ServiceInterface
             {
-                bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
-                omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
+                idempotent bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
+                idempotent omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
                 omero::model::RenderingDef createNewRenderingDef(omero::model::Pixels pixels) throws ServerError;
                 void resetDefaults(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
                 omero::model::RenderingDef resetDefaultsNoSave(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;

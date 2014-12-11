@@ -45,6 +45,7 @@ import java.util.Map;
 
 
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -163,6 +164,8 @@ public class MeasureLineFigure
 	private String formatValue(double value, boolean degree)
 	{
 	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+	    if (degree) 
+	    	return addDegrees(formatter.format(value));
 	    if (units.isInMicrons()){ 
 	        UnitsObject v = UIUtilities.transformSize(value);
 	        StringBuffer buffer = new StringBuffer();
@@ -170,7 +173,6 @@ public class MeasureLineFigure
 	        buffer.append(v.getUnits());
 	        return buffer.toString();
 	    }
-	    if (degree) return addDegrees(formatter.format(value));
 	    else return addUnits(formatter.format(value));
 	}
 
@@ -214,6 +216,7 @@ public class MeasureLineFigure
 		super(text);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+        setAttribute(MeasurementAttributes.SCALE_PROPORTIONALLY, Boolean.FALSE);
 		boundsArray = new ArrayList<Rectangle2D>();
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();

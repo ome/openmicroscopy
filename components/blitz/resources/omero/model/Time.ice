@@ -17,17 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 #ifndef CLASS_TIME
 #define CLASS_TIME
 
-#include <omero/model/UnitsTime.ice>
+#include <omero/model/Units.ice>
 
 module omero {
 
     module model {
 
       /**
-       * Unit of time which is used through the model. This is not
+       * Unit of Time which is used through the model. This is not
        * an [omero::model::IObject] implementation and as such does
        * not have an ID value. Instead, the entire object is embedded
        * into the containing class, so that the value and unit rows
@@ -37,30 +38,40 @@ module omero {
     ["protected"] class Time
     {
 
+      /**
+       * PositiveFloat value
+       */
       double value;
 
-      UnitsTime unit;
+      omero::model::enums::UnitsTime unit;
 
       /**
        * Actual value for this unit-based field. The interpretation of
-       * the value is only possible along with the [omero::model::UnitsTime]
+       * the value is only possible along with the [omero::model::enums::UnitsTime]
        * enum.
        **/
       double getValue();
 
-      void setValue(double time);
+      void setValue(double value);
 
       /**
-       * [omero::model::UnitsTime] instance which is an [omero::model::IObject]
-       * meaning that its ID is sufficient for identying equality.
+       * [omero::model::enums::UnitsTime] instance which is an [omero::model::IObject]
+       * meaning that its ID is sufficient for identifying equality.
        **/
-      UnitsTime getUnit();
+      omero::model::enums::UnitsTime getUnit();
 
-      void setUnit(UnitsTime unit);
+      void setUnit(omero::model::enums::UnitsTime unit);
+
+      /**
+       * Returns the possibly unicode representation of the "unit"
+       * value for display.
+       **/
+      string getSymbol();
 
       Time copy();
 
     };
   };
 };
-#endif 
+#endif
+

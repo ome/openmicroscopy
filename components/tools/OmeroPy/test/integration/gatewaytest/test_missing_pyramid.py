@@ -67,7 +67,7 @@ class MockRenderingEngine(object):
     def loadRenderingDef(self, id, ctx=None):
         pass
 
-    def resetDefaults(self, ctx=None):
+    def resetDefaultSettings(self, save=True, ctx=None):
         pass
 
     def getRenderingDefId(self, ctx=None):

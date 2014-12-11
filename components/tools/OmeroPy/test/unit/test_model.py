@@ -23,6 +23,8 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
+from omero_model_LengthI import LengthI
+from omero.rtypes import rbool
 from omero.rtypes import rlong
 from omero.rtypes import rstring
 from omero.rtypes import rtime
@@ -203,6 +205,7 @@ class TestModel(object):
         user.setFirstName(rstring("test"))
         user.setLastName(rstring("user"))
         user.setOmeName(rstring("UUID"))
+        user.setLdap(rbool(False))
 
         # possibly setOmeName() and setOmeName(string) ??
         # and then don't need omero/types.h
@@ -331,3 +334,29 @@ class TestModel(object):
         link = DatasetImageLinkI()
         link.setParent("Dataset:1")
         link.setChild("Image:1")
+
+    UL = omero.model.enums.UnitsLength
+    try:
+        UL = sorted(UL._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UL = [getattr(UL, x) for x in sorted(UL._names)]
+
+    @pytest.mark.parametrize("ul", UL)
+    def testEnumerators(self, ul):
+        assert hasattr(omero.model.enums.UnitsLength, str(ul))
+
+    def testCtorConversions(self):
+        nm = LengthI(1.0, omero.model.enums.UnitsLength.NM)
+        ang = LengthI(nm, omero.model.enums.UnitsLength.ANGSTROM)
+        assert nm.getValue() == ang.getValue() / 10
+
+    def testLengthGetSymbol(self):
+        um = LengthI(1.0, omero.model.enums.UnitsLength.MICROM)
+        assert "µm" == um.getSymbol()
+
+    def testLengthLookupSymbol(self):
+        um = omero.model.enums.UnitsLength.MICROM
+        sym = LengthI.lookupSymbol(um)
+        assert "µm" == sym

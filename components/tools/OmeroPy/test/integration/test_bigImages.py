@@ -77,7 +77,7 @@ class TestFigureExportScripts(lib.ITest):
         renderingEngine = session.createRenderingEngine()
         renderingEngine.lookupPixels(pixelsId)
         if not renderingEngine.lookupRenderingDef(pixelsId):
-            renderingEngine.resetDefaults()
+            renderingEngine.resetDefaultSettings(save=True)
         renderingEngine.lookupRenderingDef(pixelsId)
         renderingEngine.load()
 

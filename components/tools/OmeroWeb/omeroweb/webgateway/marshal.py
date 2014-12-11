@@ -261,7 +261,9 @@ def shapeMarshal(shape):
     if text_value is not None:
         # only populate json with font styles if we have some text
         rv['textValue'] = text_value
-        set_if('fontSize', shape.getFontSize())
+        # FIXME: units ignored for font size
+        if shape.getFontSize() is not None:
+            set_if('fontSize', shape.getFontSize().getValue())
         set_if('fontStyle', shape.getFontStyle())
         set_if('fontFamily', shape.getFontFamily())
 
@@ -273,7 +275,9 @@ def shapeMarshal(shape):
     stroke_color = unwrap(shape.getStrokeColor())
     if stroke_color is not None:
         rv['strokeColor'], rv['strokeAlpha'] = rgb_int2css(stroke_color)
-    set_if('strokeWidth', shape.getStrokeWidth())
+    if shape.getStrokeWidth() is not None:
+        # FIXME: units ignored for stroke width
+        set_if('strokeWidth', shape.getStrokeWidth().getValue())
     return rv
 
 def stringToSvg(string):

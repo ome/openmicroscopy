@@ -202,6 +202,7 @@ public class MeasureEllipseFigure
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+		setAttribute(MeasurementAttributes.SCALE_PROPORTIONALLY, Boolean.FALSE);
 	   	shape = null;
 		roi = null;
 		status = IDLE;

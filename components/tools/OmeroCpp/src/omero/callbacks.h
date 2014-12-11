@@ -19,7 +19,7 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Thread.h>
 #include <Ice/Handle.h>
-#include <omero/api/IDelete.h>
+#include <omero/Scripts.h>
 #include <omero/cmd/API.h>
 #include <omero/Scripts.h>
 #include <omero/IceNoWarnPop.h>
@@ -38,9 +38,8 @@
 
 namespace omero {
     namespace callbacks {
-	class ProcessCallbackI;
-	class DeleteCallbackI;
-	class CmdCallbackI;
+        class ProcessCallbackI;
+        class CmdCallbackI;
     }
 }
 
@@ -83,7 +82,6 @@ namespace omero {
 
         typedef CallbackWrapper<CmdCallbackI> CmdCallbackIPtr;
         typedef CallbackWrapper<ProcessCallbackI> ProcessCallbackIPtr;
-        typedef CallbackWrapper<DeleteCallbackI> DeleteCallbackIPtr;
 
         /*
          * Simple callback which registers itself with the given process.
@@ -135,62 +133,6 @@ namespace omero {
             virtual void processKilled(bool success, const Ice::Current& current = Ice::Current());
 
         };
-
-
-        namespace OME_API_DEL = omero::api::_cpp_delete;
-
-        /*
-         * Callback used for waiting until DeleteHandlePrx will return true on
-         * finished(). The block(long) method will wait the given number of
-         * milliseconds and then return the number of errors if any or None
-         * if the delete is not yet complete.
-         *
-         * Example usage:
-         *
-         *     DeleteCallbackI cb(client, handle);
-         *     omero::RTypePtr errors;
-         *     while (!errors) {
-         *         errors = cb.block(500);
-         *     }
-         */
-
-        class OMERO_CLIENT DeleteCallbackI : virtual public IceUtil::Shared {
-
-        // Preventing copy-construction and assigning by value.
-        private:
-            DeleteCallbackI& operator=(const DeleteCallbackI& rv);
-            DeleteCallbackI(DeleteCallbackI&);
-            // State
-            omero::util::concurrency::Event event;
-            Ice::ObjectAdapterPtr adapter;
-            bool poll;
-            omero::RIntPtr result;
-	protected:
-            /**
-             * Proxy passed to this instance on creation. Can be used by subclasses
-             * freely. The object will not be nulled, but may be closed server-side.
-             */
-            OME_API_DEL::DeleteHandlePrx handle;
-        public:
-            DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool pool = true);
-
-            /**
-             * closes the remote handle
-             *
-             * WARNING:
-             * This cannot be called from the destructor, because during session destruction,
-             * the Ice ServantManager will delete this class, and that would cause a
-             * double delete, as we'd be calling back into the servant manager to remove us,
-             * when it's already in the process of doing the remove/deletion.
-             */
-            void close();
-
-            virtual omero::RIntPtr block(long ms);
-            virtual omero::api::_cpp_delete::DeleteReports loop(int loops, long ms);
-            virtual void finished(int errors);
-        };
-
-        int count(omero::cmd::StateList list, omero::cmd::State s);
 
         /*
          * Callback used for waiting until omero::cmd::HandlePrx will return
@@ -273,6 +215,10 @@ namespace omero {
             bool closeHandle;
 
             omero::cmd::StatusPtr getStatusOrThrow();
+
+            int count(
+                    omero::cmd::StateList list,
+                    omero::cmd::State s);
 
             void doinit(std::string category);
 

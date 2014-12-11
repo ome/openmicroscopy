@@ -24,16 +24,16 @@ module omero {
             {
                 long submit(omero::model::Job j) throws ServerError;
                 omero::model::JobStatus attach(long jobId) throws ServerError;
-                omero::model::Job getJob()  throws ServerError;
-                omero::model::JobStatus jobStatus()  throws ServerError;
-                omero::RTime jobFinished()  throws ServerError;
-                string jobMessage()  throws ServerError;
-                bool jobRunning()  throws ServerError;
-                bool jobError()  throws ServerError;
+                idempotent omero::model::Job getJob()  throws ServerError;
+                idempotent omero::model::JobStatus jobStatus()  throws ServerError;
+                idempotent omero::RTime jobFinished()  throws ServerError;
+                idempotent string jobMessage()  throws ServerError;
+                idempotent bool jobRunning()  throws ServerError;
+                idempotent bool jobError()  throws ServerError;
                 void cancelJob()  throws ServerError;
-                string setStatus(string status) throws ServerError;
-                string setMessage(string message) throws ServerError;
-                string setStatusAndMessage(string status, omero::RString message) throws ServerError;
+                idempotent string setStatus(string status) throws ServerError;
+                idempotent string setMessage(string message) throws ServerError;
+                idempotent string setStatusAndMessage(string status, omero::RString message) throws ServerError;
             };
     };
 };

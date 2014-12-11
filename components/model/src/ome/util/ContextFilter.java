@@ -29,18 +29,18 @@ import org.slf4j.LoggerFactory;
  * modified (hierarchical) visitor pattern. See
  * http://c2.com/cgi/wiki?HierarchicalVisitorPattern for more information. (A
  * better name may be "contextual visitor pattern" for graph traversing.)
- * 
+ *
  * The modifications to Visitor make use of a model graph (here: the ome
  * generated model classes) implementing Filterable. As documented in
  * Filterable, model objects are responsible for calling
  * <code>filter.filter(someField)</code> for all fields <b>and setting the
  * value of that field to the return value of the method call</b>.
- * 
+ *
  * The Filter itself is responsible for returning a compatible object and
  * (optionally) stepping into objects and keeping up with context.
- * 
+ *
  * Note: This class is not thread-safe.
- * 
+ *
  * template method to filter domain objects. The standard idiom is: <code>
  *  if (m != null && hasntSeen(m)){
  *      enter(m); // Provides context
@@ -48,10 +48,10 @@ import org.slf4j.LoggerFactory;
  *      m.acceptFilter(this); // Visits all fields
  *      exit(m); // Remove from context
  *  }
- * 
+ *
  * </code>
- * 
- * 
+ *
+ *
  * Implementation notes: - nulls are already "seen"
  */
 public class ContextFilter implements Filter {
@@ -156,7 +156,11 @@ public class ContextFilter implements Filter {
     /** used when type is unknown. this is possibly omittable with generics */
     public Object filter(String fieldId, Object o) {
         Object result;
-        if (o instanceof Filterable) {
+        if (o instanceof Enum) {
+            result = o;
+        } else if (o instanceof ome.model.internal.Primitive) {
+            result = o;
+        } else if (o instanceof Filterable) {
             result = filter(fieldId, (Filterable) o);
         } else if (o instanceof Collection) {
             result = filter(fieldId, (Collection) o);

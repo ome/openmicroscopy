@@ -63,9 +63,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -89,6 +87,7 @@ import pojos.FileAnnotationData;
 import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
+import pojos.TimeAnnotationData;
 import pojos.XMLAnnotationData;
 
 /** 
@@ -562,7 +561,8 @@ class DocComponent
 				data instanceof XMLAnnotationData ||
 				data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
-				data instanceof DoubleAnnotationData) {
+				data instanceof DoubleAnnotationData ||
+				data instanceof BooleanAnnotationData) {
 			unlinkButton.setToolTipText("Remove the annotation.");
 			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
 			if (isModulo) editButton.setText("View");
@@ -674,6 +674,22 @@ class DocComponent
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof DoubleAnnotationData) {
 				DoubleAnnotationData tag = (DoubleAnnotationData) data;
+				label.setText(tag.getContentAsString());
+				label.setToolTipText(formatToolTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			}
+			else if (data instanceof BooleanAnnotationData) {
+				BooleanAnnotationData tag = (BooleanAnnotationData) data;
+				label.setText(tag.getContentAsString());
+				label.setToolTipText(formatToolTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			}
+			else if (data instanceof TimeAnnotationData) {
+				TimeAnnotationData tag = (TimeAnnotationData) data;
 				label.setText(tag.getContentAsString());
 				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
@@ -921,6 +937,20 @@ class DocComponent
 				data instanceof XMLAnnotationData) {
 				annotation = (AnnotationData) data;
 				text = annotation.getContentAsString();
+				text = EditorUtil.truncate(text, TEXT_LENGTH,
+				        false);
+			}
+			if(data instanceof DoubleAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = ""+((DoubleAnnotationData) data).getDataValue();
+			}
+			if(data instanceof LongAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = ""+((LongAnnotationData) data).getDataValue();
+			}
+			if(data instanceof BooleanAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = ""+((BooleanAnnotationData) data).getValue();
 			}
 			description = model.getAnnotationDescription(annotation);
 			if (annotation == null) return;

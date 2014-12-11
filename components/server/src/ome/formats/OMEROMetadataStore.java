@@ -43,6 +43,7 @@ import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.model.enums.Format;
 import ome.model.experiment.Experiment;
 import ome.model.experiment.MicrobeamManipulation;
 import ome.model.fs.Fileset;
@@ -60,6 +61,7 @@ import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
+import ome.util.SqlAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,11 +83,16 @@ import org.perf4j.StopWatch;
  */
 public class OMEROMetadataStore
 {
+    /** List of graphics domains we are checking.*/
+    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif", "tiff"};
+
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;
+
+    private SqlAction sql;
 
     /** A map of imageIndex vs. Image object ordered by first access. */
     private Map<Integer, Image> imageList = 
@@ -1842,12 +1849,13 @@ public class OMEROMetadataStore
      * @throws MetadataStoreException if the factory is null or there
      *             is another error instantiating required services.
      */
-    public OMEROMetadataStore(ServiceFactory factory)
+    public OMEROMetadataStore(ServiceFactory factory, SqlAction sql)
     	throws Exception
     {
-        if (factory == null)
-            throw new Exception("Factory argument cannot be null.");
+        if (factory == null || sql == null)
+            throw new Exception("arguments cannot be null.");
         sf = factory;
+        this.sql = sql;
     }
 
     /*
@@ -2220,7 +2228,25 @@ public class OMEROMetadataStore
     	//s2.stop();
         return toReturn;
     }
-    
+
+    /**
+     * Checks if the format is a graphics format or not.
+     *
+     * @param value The value to check
+     * @return See above.
+     */
+    private boolean isRGB(String value)
+    {
+        if (value == null) return false;
+        value = value.toLowerCase();
+        for (int i = 0; i < DOMAINS.length; i++) {
+            if (DOMAINS[i].equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Synchronize the minimum and maximum intensity values with those
      * specified by the client and save them in the DB.
@@ -2228,7 +2254,6 @@ public class OMEROMetadataStore
      */
     public void populateMinMax(double[][][] imageChannelGlobalMinMax)
     {
-    	List<Channel> channelList = new ArrayList<Channel>();
     	double[][] channelGlobalMinMax;
     	double[] globalMinMax;
     	Channel channel;
@@ -2238,20 +2263,28 @@ public class OMEROMetadataStore
     	{
     		channelGlobalMinMax = imageChannelGlobalMinMax[i];
     		pixels = pixelsList.get(i);
+    		Format f = pixels.getImage().getFormat();
+    		String v = null;
+    		if (f != null) {
+    		    v = f.getValue();
+    		}
+    		boolean rgb = isRGB(v);
+    		String type = pixels.getPixelsType().getValue();
     		unloadedPixels = new Pixels(pixels.getId(), false);
     		for (int c = 0; c < channelGlobalMinMax.length; c++)
     		{
     			globalMinMax = channelGlobalMinMax[c];
     			channel = pixels.getChannel(c);
     			statsInfo = new StatsInfo();
-    			statsInfo.setGlobalMin(globalMinMax[0]);
-    			statsInfo.setGlobalMax(globalMinMax[1]);
-    			channel.setStatsInfo(statsInfo);
-    			channel.setPixels(unloadedPixels);
-    			channelList.add(channel);
+    			if (rgb && "uint8".equals(type)) {
+    			    statsInfo.setGlobalMin(0.0);
+                    statsInfo.setGlobalMax(255.0);
+    			} else {
+    			    statsInfo.setGlobalMin(globalMinMax[0]);
+                    statsInfo.setGlobalMax(globalMinMax[1]);
+    			}
+    			sql.setStatsInfo(channel, statsInfo);
     		}
     	}
-    	Channel[] toSave = channelList.toArray(new Channel[channelList.size()]);
-    	sf.getUpdateService().saveArray(toSave);
     }
 }

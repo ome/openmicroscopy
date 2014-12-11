@@ -85,7 +85,6 @@ module omero {
         interface IAdmin;
         interface IConfig;
         interface IContainer;
-        interface IDelete;
         interface ILdap;
         interface IMetadata;
         interface IPixels;
@@ -104,7 +103,6 @@ module omero {
         // Stateful
 
         interface Exporter;
-        interface Gateway;
         interface JobHandle;
         interface RawFileStore;
         interface RawPixelsStore;

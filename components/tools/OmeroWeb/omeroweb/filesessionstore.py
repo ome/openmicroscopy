@@ -6,7 +6,8 @@ import shutil
 import tempfile
 
 from django.conf import settings
-from django.contrib.sessions.backends.base import SessionBase, CreateError, VALID_KEY_CHARS
+from django.contrib.sessions.backends.base import SessionBase, CreateError
+from django.contrib.sessions.backends.base import VALID_KEY_CHARS
 from django.core.exceptions import SuspiciousOperation, ImproperlyConfigured
 from django.utils import timezone
 from django.utils.encoding import force_text
@@ -16,6 +17,7 @@ from django.contrib.sessions.exceptions import InvalidSessionKey
 # Aleksandra Tarkowska:
 # This is temporary solution to fix clearout of expiered sessions
 # See: https://code.djangoproject.com/ticket/22938
+
 
 class SessionStore(SessionBase):
     """
@@ -38,9 +40,9 @@ class SessionStore(SessionBase):
             # Make sure the storage path is valid.
             if not os.path.isdir(storage_path):
                 raise ImproperlyConfigured(
-                    "The session storage path %r doesn't exist. Please set your"
-                    " SESSION_FILE_PATH setting to an existing directory in which"
-                    " Django can store session data." % storage_path)
+                    "The session storage path %r doesn't exist. Please set"
+                    " your SESSION_FILE_PATH setting to an existing directory"
+                    " in which Django can store session data." % storage_path)
 
             cls._storage_path = storage_path
             return storage_path
@@ -80,7 +82,7 @@ class SessionStore(SessionBase):
         expiry = session_data.get('_session_expiry', None)
         if expiry is None:
             expiry = self._last_modification() + \
-                    datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)
+                datetime.timedelta(seconds=settings.SESSION_COOKIE_AGE)
         return expiry
 
     def load(self):
@@ -95,8 +97,8 @@ class SessionStore(SessionBase):
                     session_data = self.decode(file_data)
                 except (EOFError, SuspiciousOperation) as e:
                     if isinstance(e, SuspiciousOperation):
-                        logger = logging.getLogger('django.security.%s' %
-                                e.__class__.__name__)
+                        logger = logging.getLogger(
+                            'django.security.%s' % e.__class__.__name__)
                         logger.warning(force_text(e))
                     self.create()
 
@@ -162,12 +164,13 @@ class SessionStore(SessionBase):
         dir, prefix = os.path.split(session_file_name)
 
         try:
-            output_file_fd, output_file_name = tempfile.mkstemp(dir=dir,
-                prefix=prefix + '_out_')
+            output_file_fd, output_file_name = tempfile.mkstemp(
+                dir=dir, prefix=prefix + '_out_')
             renamed = False
             try:
                 try:
-                    os.write(output_file_fd, self.encode(session_data).encode())
+                    os.write(
+                        output_file_fd, self.encode(session_data).encode())
                 finally:
                     os.close(output_file_fd)
 

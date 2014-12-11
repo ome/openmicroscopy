@@ -57,6 +57,7 @@ module omero {
              * Returns a map between Repository descriptions (omero::model::OriginalFile
              * instances) and RepositoryPrx instances (possibly null).
              **/
+            idempotent
             omero::grid::RepositoryMap
                 repositories()
                 throws ServerError;
@@ -65,6 +66,7 @@ module omero {
              * Returns the single (possibly mirrored) script repository which makes
              * all official scripts available.
              **/
+            idempotent
             omero::grid::Repository*
                 getScriptRepository()
                 throws ServerError;
@@ -75,6 +77,7 @@ module omero {
              * or [openTable] will either fail or return null (possibly
              * blocking while waiting for a service to startup)
              **/
+            idempotent
              bool
                 areTablesEnabled()
                 throws ServerError;
@@ -97,6 +100,7 @@ module omero {
              * be of the format "OMERO.tables". Use newTable() to create
              * a new instance.
              */
+            idempotent
             omero::grid::Table*
                 openTable(omero::model::OriginalFile file)
                 throws ServerError;

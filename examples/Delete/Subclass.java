@@ -1,7 +1,6 @@
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.client;
-import omero.api.IDeletePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;

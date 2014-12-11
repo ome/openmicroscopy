@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-
-
-//Java imports
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -35,19 +32,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-
-
-//Third-party libraries
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-
-
-//Application-internal dependencies
+import ome.formats.model.UnitsFactory;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
 import omero.model.Annotation;
@@ -63,6 +51,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
+import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Medium;
@@ -76,11 +65,14 @@ import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.Temperature;
 import omero.model.TermAnnotation;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -115,6 +107,9 @@ import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.XMLAnnotationData;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /** 
  * Implementation of the {@link OmeroMetadataService} I/F.
@@ -325,15 +320,15 @@ class OmeroMetadataServiceImpl
 				toUpdate.add(label);
 			}
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
-			Object o = data.getPositionX();
+			Length o = data.getPositionX(UnitsFactory.StageLabel_X);
 			if (o != null)
-				label.setPositionX(omero.rtypes.rdouble((Float) o));
-			o = data.getPositionY();
+				label.setPositionX(o);
+			o = data.getPositionY(UnitsFactory.StageLabel_Y);
 			if (o != null)
-				label.setPositionY(omero.rtypes.rdouble((Float) o));
-			o = data.getPositionZ();
+				label.setPositionY(o);
+			o = data.getPositionZ(UnitsFactory.StageLabel_Z);
 			if (o != null)
-				label.setPositionZ(omero.rtypes.rdouble((Float) o));
+				label.setPositionZ(o);
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {
@@ -347,13 +342,12 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(omero.rtypes.rdouble(
-					data.getAirPressure()));
+			condition.setAirPressure(data.getAirPressure(UnitsFactory.ImagingEnvironment_AirPressure));
 			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
-			Object o = data.getTemperature();
+			Temperature o = data.getTemperature(UnitsFactory.ImagingEnvironment_Temperature);
 			if (o != null)
-				condition.setTemperature(omero.rtypes.rdouble((Float) o));
+				condition.setTemperature(o);
 			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}

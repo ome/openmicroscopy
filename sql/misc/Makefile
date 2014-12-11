@@ -22,7 +22,7 @@
 PREVDBVERS ?= OMERO5.0
 PREVDBPATCH ?= 0
 CURRDBVERS ?= OMERO5.1DEV
-CURRDBPATCH ?= 11
+CURRDBPATCH ?= 16
 PREV ?= $(PREVDBVERS)__$(PREVDBPATCH)
 CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
 
@@ -32,7 +32,12 @@ OMERO_HOME ?= $(OMERO_SOURCE)/dist
 OMERO_EXE ?= $(OMERO_HOME)/bin/omero
 DIFF_JAR ?= "apgdiff-2.3.jar"
 DIFF_CMD ?= java -jar $(DIFF_JAR) --ignore-start-with
-PSQL_CMD ?= env PGOPTIONS=--client-min-messages=warning psql -q -v ON_ERROR_STOP=1 --pset pager=off
+PSQL_HOST ?= localhost
+PSQL_USER ?= omero
+PSQL_CMD ?= env PGOPTIONS=--client-min-messages=warning psql -h $(PSQL_HOST) -U $(PSQL_USER) -q -v ON_ERROR_STOP=1 --pset pager=off
+PSQL_CREATE ?= createdb -h $(PSQL_HOST) -U $(PSQL_USER)
+PSQL_DROP ?= dropdb -h $(PSQL_HOST) -U $(PSQL_USER)
+PSQL_DUMP ?= pg_dump -h $(PSQL_HOST) -U $(PSQL_USER)
 
 # Naming
 PREFIX=
@@ -66,8 +71,8 @@ MAKE_DIFF = $(DIFF_CMD) $(TARGET)/$(2).schema $(TARGET)/$(1).schema > $(TARGET)/
 #   createlang plpgsql $(PREFIX)$(1)) &&\
 
 MAKE_DB = \
-	(dropdb $(PREFIX)$(1) || echo 'DNE') &&\
-	createdb $(PREFIX)$(1) &&\
+	($(PSQL_DROP) $(PREFIX)$(1) || echo 'DNE') &&\
+	$(PSQL_CREATE) $(PREFIX)$(1) &&\
 	$(PSQL_CMD) $(PREFIX)$(1) -f $(TARGET)/$(1).sql
 
 ##################################################
@@ -80,7 +85,7 @@ $(TARGET)/$(UPGRADED).diff: $(TARGET)/$(FRESH).schema $(TARGET)/$(UPGRADED).sche
 $(TARGET)/$(UPGRADED).schema: $(TARGET)/$(UPGRADED).db
 	(cd $(SCRIPTDIR) && $(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(SCRIPT))
 	$(HAS_FIXTURE) && $(HAS_TEST) && $(PSQL_CMD) $(PREFIX)$(UPGRADED) -f $(TEST) || echo No test
-	pg_dump -s $(PREFIX)$(UPGRADED) > $(TARGET)/$(UPGRADED).schema
+	$(PSQL_DUMP) -s $(PREFIX)$(UPGRADED) > $(TARGET)/$(UPGRADED).schema
 
 $(TARGET)/$(UPGRADED).db: $(TARGET)/$(UPGRADED).sql
 	$(call MAKE_DB,$(UPGRADED))
@@ -105,7 +110,7 @@ $(TARGET)/$(FRESH).diff: $(TARGET)/$(PREV).schema $(TARGET)/$(FRESH).schema
 	$(call MAKE_DIFF,$(PREV),$(FRESH))
 
 $(TARGET)/$(FRESH).schema: $(TARGET)/$(FRESH).db
-	pg_dump -s $(PREFIX)$(FRESH) > $(TARGET)/$(FRESH).schema
+	$(PSQL_DUMP) -s $(PREFIX)$(FRESH) > $(TARGET)/$(FRESH).schema
 
 $(TARGET)/$(FRESH).db: $(TARGET)/$(FRESH).sql
 	$(call MAKE_DB,$(FRESH))
@@ -122,7 +127,7 @@ $(TARGET)/$(FRESH).sql:
 
 $(TARGET)/$(PREV).schema: $(TARGET)/$(PREV).sql
 	$(call MAKE_DB,$(PREV))
-	pg_dump -s $(PREFIX)$(PREV) > $(TARGET)/$(PREV).schema
+	$(PSQL_DUMP) -s $(PREFIX)$(PREV) > $(TARGET)/$(PREV).schema
 
 $(TARGET)/$(PREV).sql:
 	mkdir -p $(TARGET)
@@ -177,7 +182,7 @@ pyscript:
 
 pyrun:
 	python $(PYSCRIPT)
-	pg_dump $(PREFIX)$(PREV) > $(FIXTURE)
+	$(PSQL_DUMP) $(PREFIX)$(PREV) > $(FIXTURE)
 
 test:
 	vi $(TEST)

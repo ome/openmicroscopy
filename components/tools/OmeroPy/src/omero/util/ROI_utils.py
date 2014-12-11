@@ -40,6 +40,8 @@
 # </small>
 # @since 3.0-Beta4
 #
+from omero.model.enums import UnitsLength
+from omero.model import LengthI
 from omero.model import EllipseI
 from omero.model import LineI
 from omero.model import RectI
@@ -78,7 +80,9 @@ class ShapeSettingsData:
         self.BLACK = 0
         self.GREY = 11184810
         self.strokeColour = rint(self.GREY)
-        self.strokeWidth = rint(1)
+        self.strokeWidth = LengthI()
+        self.strokeWidth.setValue(1)
+        self.strokeWidth.setUnit(UnitsLength.POINT)
         self.strokeDashArray = rstring('')
         self.strokeDashOffset = rint(0)
         self.strokeLineCap = rstring('')
@@ -110,7 +114,9 @@ class ShapeSettingsData:
     #
     def setStrokeSettings(self, colour, width=1):
         self.strokeColour = rint(colour)
-        self.strokeWidth = rint(width)
+        self.strokeWidth = LengthI()
+        self.strokeWidth.setValue(width)
+        self.strokeWidth.setUnit(UnitsLength.POINT)
 
     ###
     # Set the Fill Settings for the ShapeSettings.

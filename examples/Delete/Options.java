@@ -2,12 +2,7 @@ import java.util.Map;
 import java.util.HashMap;
 import omero.LockTimeout;
 import omero.ServerError;
-import omero.api.IDeletePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
-import omero.grid.DeleteCallbackI;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 

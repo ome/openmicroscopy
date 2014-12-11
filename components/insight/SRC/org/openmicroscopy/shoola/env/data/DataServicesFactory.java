@@ -641,9 +641,7 @@ public class DataServicesFactory
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);
         executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
-        
-        //String ldap = omeroGateway.lookupLdapAuthExperimenter(exp.getId());
-        //registry.bind(LookupNames.USER_AUTHENTICATION, ldap);
+
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
@@ -651,6 +649,7 @@ public class DataServicesFactory
         Collection<GroupData> groups;
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
+        String ldap = null;
         try {
             GroupData defaultGroup = null;
             long gid = exp.getDefaultGroup().getId();
@@ -714,7 +713,6 @@ public class DataServicesFactory
 			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
 				reg = agentInfo.getRegistry();
-				//reg.bind(LookupNames.USER_AUTHENTICATION, ldap);
 				reg.bind(LookupNames.CURRENT_USER_DETAILS, exp);
 				reg.bind(LookupNames.USER_GROUP_DETAILS, available);
 				reg.bind(LookupNames.USERS_DETAILS, exps);

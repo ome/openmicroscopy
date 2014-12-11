@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,6 +29,7 @@ from omero_version import omero_version
 
 logger = logging.getLogger(__name__)
 
+
 class IterRegistry(type):
     def __new__(cls, name, bases, attr):
         attr['_registry'] = {}
@@ -37,6 +38,7 @@ class IterRegistry(type):
 
     def __iter__(cls):
         return iter(cls._registry.values())
+
 
 class ServerBase(object):
     __metaclass__ = IterRegistry
@@ -65,7 +67,7 @@ class ServerBase(object):
 
     @classmethod
     def instance(cls, pk):
-        if cls._registry.has_key(pk):
+        if pk in cls._registry:
             return cls._registry[pk]
         return None
 
@@ -78,6 +80,7 @@ class ServerBase(object):
         cls._registry = {}
         cls._frozen = False
         cls._next_id = 1
+
 
 class Server(ServerBase):
 
@@ -101,7 +104,7 @@ class Server(ServerBase):
         except:
             pass
         else:
-            if cls._registry.has_key(pk):
+            if pk in cls._registry:
                 r = cls._registry[pk]
         return r
 
@@ -115,6 +118,7 @@ class Server(ServerBase):
                 continue
             rv.append(s)
         return rv
+
 
 class Connector(object):
     """
@@ -137,11 +141,12 @@ class Connector(object):
             server = Server.find(server=self.server_id)[0]
         return (server.host, server.port)
 
-    def create_gateway(self, useragent, username=None, password=None, userip=None):
+    def create_gateway(self, useragent, username=None, password=None,
+                       userip=None):
         host, port = self.lookup_host_and_port()
         return client_wrapper(
-                username, password, host=host, port=port, secure=self.is_secure,
-                useragent=useragent, anonymous=self.is_public, userip=userip )
+            username, password, host=host, port=port, secure=self.is_secure,
+            useragent=useragent, anonymous=self.is_public, userip=userip)
 
     def prepare_gateway(self, connection):
         connection.server_id = self.server_id
@@ -153,17 +158,19 @@ class Connector(object):
         connection.user.logIn()
         self.omero_session_key = connection._sessionUuid
         self.user_id = connection.getUserId()
-        logger.debug('Successfully prepared gateway: %s' % \
-                self.omero_session_key)
+        logger.debug('Successfully prepared gateway: %s'
+                     % self.omero_session_key)
         # TODO: Properly handle activating the weblitz_cache
 
-    def create_connection(self, useragent, username, password, is_public=False, userip=None):
+    def create_connection(self, useragent, username, password,
+                          is_public=False, userip=None):
         self.is_public = is_public
         try:
-            connection = self.create_gateway(useragent, username, password, userip)
+            connection = self.create_gateway(
+                useragent, username, password, userip)
             if connection.connect():
-                logger.debug('Successfully created connection for: %s' % \
-                        username)
+                logger.debug('Successfully created connection for: %s'
+                             % username)
                 self.prepare_gateway(connection)
                 return connection
         except:
@@ -187,8 +194,8 @@ class Connector(object):
         try:
             connection = self.create_gateway(useragent, userip=userip)
             if connection.connect(sUuid=self.omero_session_key):
-                logger.debug('Successfully joined connection: %s' % \
-                        self.omero_session_key)
+                logger.debug('Successfully joined connection: %s'
+                             % self.omero_session_key)
                 connection.setUserId(self.user_id)
                 self.prepare_gateway(connection)
                 return connection
@@ -218,10 +225,10 @@ class Connector(object):
 
             client_version = self.SERVER_VERSION_RE.match(omero_version)
             client_version = client_version.group(1).split('.')
-            logger.info("Client version: '%s'; Server version: '%s'" % \
-                    (client_version, server_version))
+            logger.info("Client version: '%s'; Server version: '%s'"
+                        % (client_version, server_version))
             return server_version == client_version
         except:
             logger.error('Cannot compare server to client version.',
-                    exc_info=True)
+                         exc_info=True)
         return False

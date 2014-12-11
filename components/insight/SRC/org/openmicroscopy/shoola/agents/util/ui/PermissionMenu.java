@@ -81,7 +81,8 @@ public class PermissionMenu
 	 */
 	private void buildMenu(String action, String type)
 	{
-		JMenuItem item = new JMenuItem(action+" All "+type);
+	        type = type.toLowerCase();
+		JMenuItem item = new JMenuItem(action+" all "+type);
 		item.addActionListener(this);
 		item.setActionCommand(""+ALL);
 		add(item);

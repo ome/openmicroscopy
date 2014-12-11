@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.io.OutputServerStrategy
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -65,6 +65,8 @@ import pojos.ShapeData;
 import pojos.ShapeSettingsData;
 import pojos.TextData;
 import pojos.RectangleData;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /**
  * Handles ROI from server.
@@ -523,7 +525,7 @@ class OutputServerStrategy
 					MeasurementAttributes.STROKE_COLOR.get(fig));
 		if (MeasurementAttributes.STROKE_WIDTH.get(fig) != null)
 			settings.setStrokeWidth(
-					MeasurementAttributes.STROKE_WIDTH.get(fig));
+					new LengthI(MeasurementAttributes.STROKE_WIDTH.get(fig), UnitsLength.PIXEL));
 		if (MeasurementAttributes.FONT_FACE.get(fig) != null) {
 			settings.setFontFamily(UIUtilities.convertFont(
 					MeasurementAttributes.FONT_FACE.get(fig).getName()));
@@ -531,9 +533,9 @@ class OutputServerStrategy
 			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
 		if (MeasurementAttributes.FONT_SIZE.get(fig) != null)
 			settings.setFontSize(
-					MeasurementAttributes.FONT_SIZE.get(fig).intValue());
+					new LengthI(MeasurementAttributes.FONT_SIZE.get(fig), UnitsLength.POINT));
 		else
-			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
+			settings.setFontSize(new LengthI(ShapeSettingsData.DEFAULT_FONT_SIZE, UnitsLength.POINT));
 		bold = MeasurementAttributes.FONT_BOLD.get(fig);
 		italic = MeasurementAttributes.FONT_ITALIC.get(fig);
 		if (bold != null) {

@@ -747,8 +747,13 @@
         margin: 2px 1px;
     }
     
-    
-    
+    .exposureTimeData {
+        border-width: 0
+    }
+
+    .exposureTimeData td {
+        white-space: nowrap;
+    }
         
         
     /* Tags, Attachments, Ratings, Comments */
@@ -1054,7 +1059,6 @@
 			.removeComment {
 				float:right;
 				cursor:pointer;
-				display:none;
 				-webkit-border-radius:2px;
 				-webkit-border-radius:2px; /* Saf3+, Chrome */
 				   -moz-border-radius:2px; /* FF1+ */

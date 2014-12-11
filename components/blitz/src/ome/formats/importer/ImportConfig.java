@@ -31,8 +31,8 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
-import omero.RString;
 import omero.model.Annotation;
+import omero.model.NamedValue;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -289,7 +289,7 @@ public class ImportConfig {
      * as provenance that is useful for debugging.
      * @param versionInfo the map into which version information is to be added
      */
-    public void fillVersionInfo(Map<String, RString> versionInfo) {
+    public void fillVersionInfo(List<NamedValue> versionInfo) {
         final Map<VersionInfo, String> properties = new HashMap<VersionInfo, String>();
         properties.put(VersionInfo.BIO_FORMATS_VERSION, getBioFormatsVersion());
         properties.put(VersionInfo.CLIENT_LANGUAGE_NAME, "Java");
@@ -304,7 +304,7 @@ public class ImportConfig {
         /* fill any useful information for Ice to serialize */
         for (final Map.Entry<VersionInfo, String> property : properties.entrySet()) {
             if (StringUtils.isNotEmpty(property.getValue())) {
-                versionInfo.put(property.getKey().key, rstring(property.getValue()));
+                versionInfo.add(new NamedValue(property.getKey().key, property.getValue()));
             }
         }
     }

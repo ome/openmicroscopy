@@ -31,6 +31,14 @@ import static omero.rtypes.rlong;
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
+import static ome.formats.model.UnitsFactory.convertElectricPotential;
+import static ome.formats.model.UnitsFactory.convertFrequency;
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.convertPower;
+import static ome.formats.model.UnitsFactory.convertPressure;
+import static ome.formats.model.UnitsFactory.convertTemperature;
+import static ome.formats.model.UnitsFactory.convertTime;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -68,10 +76,17 @@ import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
 import ome.services.blitz.repo.ManagedImportRequestI;
+import ome.units.quantity.ElectricPotential;
+import ome.units.quantity.Frequency;
+import ome.units.quantity.Length;
+import ome.units.quantity.Power;
+import ome.units.quantity.Pressure;
+import ome.units.quantity.Temperature;
 import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
+import ome.xml.model.MapPair;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
@@ -861,22 +876,9 @@ public class OMEROMetadataStoreClient
         return instanceProvider;
     }
 
-
     //
     // RTYPES
     //
-
-    public omero.model.Time toTime(Time value)
-    {
-        if (value == null) return null;
-        omero.model.UnitsTime ut = new omero.model.UnitsTimeI();
-        ut.setValue(rstring(value.unit().getSymbol()));
-
-        omero.model.Time t = new omero.model.TimeI();
-        t.setValue(value.value().doubleValue());
-        t.setUnit(ut);
-        return t;
-    }
 
   /**
      * Transforms a Java type into the corresponding OMERO RType.
@@ -893,8 +895,13 @@ public class OMEROMetadataStoreClient
     private omero.model.Time toRType(Time timeIncrement) {
         if (timeIncrement == null) return null;
 
-        omero.model.UnitsTime ut = new omero.model.UnitsTimeI();
-        ut.setValue(rstring(timeIncrement.unit().getSymbol()));
+        ome.model.enums.UnitsTime internal =
+            ome.model.enums.UnitsTime.bySymbol(
+                    timeIncrement.unit().getSymbol());
+
+        omero.model.enums.UnitsTime ut =
+            omero.model.enums.UnitsTime.valueOf(
+                internal.toString());
 
         omero.model.Time t = new omero.model.TimeI();
         t.setValue(timeIncrement.value().doubleValue());
@@ -2670,11 +2677,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setArcPower(java.lang.Double, int, int)
      */
     @Override
-    public void setArcPower(Double power, int instrumentIndex,
+    public void setArcPower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         Arc o = getArc(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)
@@ -2849,10 +2856,10 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setChannelEmissionWavelength(
-            PositiveFloat emissionWavelength, int imageIndex, int channelIndex)
+            Length emissionWavelength, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength));
+        o.getLogicalChannel().setEmissionWave(convertLength(emissionWavelength));
     }
 
     /** (non-Javadoc)
@@ -2860,11 +2867,11 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setChannelExcitationWavelength(
-            PositiveFloat excitationWavelength, int imageIndex,
+            Length excitationWavelength, int imageIndex,
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setExcitationWave(toRType(excitationWavelength));
+        o.getLogicalChannel().setExcitationWave(convertLength(excitationWavelength));
     }
 
     /* (non-Javadoc)
@@ -2928,11 +2935,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setChannelPinholeSize(java.lang.Double, int, int)
      */
     @Override
-    public void setChannelPinholeSize(Double pinholeSize, int imageIndex,
+    public void setChannelPinholeSize(Length pinholeSize, int imageIndex,
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setPinHoleSize(toRType(pinholeSize));
+        o.getLogicalChannel().setPinHoleSize(convertLength(pinholeSize));
     }
 
     /* (non-Javadoc)
@@ -3015,10 +3022,10 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setChannelLightSourceSettingsWavelength(
-            PositiveFloat wavelength, int imageIndex, int channelIndex)
+            Length wavelength, int imageIndex, int channelIndex)
     {
         LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
-        o.setWavelength(toRType(wavelength));
+        o.setWavelength(convertLength(wavelength));
     }
 
     ////////Dataset/////////
@@ -3203,11 +3210,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setDetectorVoltage(java.lang.Double, int, int)
      */
     @Override
-    public void setDetectorVoltage(Double voltage, int instrumentIndex,
+    public void setDetectorVoltage(ElectricPotential voltage, int instrumentIndex,
             int detectorIndex)
     {
         Detector o = getDetector(instrumentIndex, detectorIndex);
-        o.setVoltage(toRType(voltage));
+        o.setVoltage(convertElectricPotential(voltage));
     }
 
     /* (non-Javadoc)
@@ -3297,22 +3304,22 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsReadOutRate(java.lang.Double, int, int)
      */
     @Override
-    public void setDetectorSettingsReadOutRate(Double readOutRate,
+    public void setDetectorSettingsReadOutRate(Frequency readOutRate,
             int imageIndex, int channelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
-        o.setReadOutRate(toRType(readOutRate));
+        o.setReadOutRate(convertFrequency(readOutRate));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsVoltage(java.lang.Double, int, int)
      */
     @Override
-    public void setDetectorSettingsVoltage(Double voltage, int imageIndex,
+    public void setDetectorSettingsVoltage(ElectricPotential voltage, int imageIndex,
             int channelIndex)
     {
         DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
-        o.setVoltage(toRType(voltage));
+        o.setVoltage(convertElectricPotential(voltage));
     }
 
     /* (non-Javadoc)
@@ -3493,11 +3500,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setEllipseFontSize(java.lang.Integer, int, int)
      */
     @Override
-    public void setEllipseFontSize(NonNegativeInteger fontSize, int ROIIndex,
+    public void setEllipseFontSize(Length fontSize, int ROIIndex,
             int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -3555,12 +3562,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setEllipseStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setEllipseStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setEllipseStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Ellipse o = getEllipse(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Ellipse.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength(strokeWidth));
     }
 
     /* (non-Javadoc)
@@ -3829,11 +3835,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setFilamentPower(java.lang.Double, int, int)
      */
     @Override
-    public void setFilamentPower(Double power, int instrumentIndex,
+    public void setFilamentPower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         Filament o = getFilament(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)
@@ -4133,9 +4139,9 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setGenericExcitationSourceMap(Map<String, String> map, int instrumentIndex, int lightSourceIndex) {
+    public void setGenericExcitationSourceMap(List<MapPair> map, int instrumentIndex, int lightSourceIndex) {
         final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
-        o.setMap(IceMapper.convertStringStringMap(map));
+        o.setMap(IceMapper.convertMapPairs(map));
     }
 
     // Manufacturer accessor from parent LightSource
@@ -4154,9 +4160,9 @@ public class OMEROMetadataStoreClient
 
     // Power accessor from parent LightSource
     // @Override
-    public void setGenericExcitationSourcePower(Double power, int instrumentIndex, int lightSourceIndex) {
+    public void setGenericExcitationSourcePower(Power power, int instrumentIndex, int lightSourceIndex) {
         final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     // SerialNumber accessor from parent LightSource
@@ -4409,11 +4415,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setImagingEnvironmentAirPressure(java.lang.Double, int)
      */
     @Override
-    public void setImagingEnvironmentAirPressure(Double airPressure,
+    public void setImagingEnvironmentAirPressure(Pressure airPressure,
             int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setAirPressure(toRType(airPressure));
+        o.setAirPressure(convertPressure(airPressure));
     }
 
     /* (non-Javadoc)
@@ -4439,20 +4445,20 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setImagingEnvironmentMap(Map<String, String> map, int imageIndex) {
+    public void setImagingEnvironmentMap(List<MapPair> map, int imageIndex) {
         final ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setMap(IceMapper.convertStringStringMap(map));
+        o.setMap(IceMapper.convertMapPairs(map));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImagingEnvironmentTemperature(java.lang.Double, int)
      */
     @Override
-    public void setImagingEnvironmentTemperature(Double temperature,
+    public void setImagingEnvironmentTemperature(Temperature temperature,
             int imageIndex)
     {
         ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setTemperature(toRType(temperature));
+        o.setTemperature(convertTemperature(temperature));
     }
 
     //////// Instrument /////////
@@ -4571,11 +4577,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLaserPower(java.lang.Double, int, int)
      */
     @Override
-    public void setLaserPower(Double power, int instrumentIndex,
+    public void setLaserPower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)
@@ -4604,11 +4610,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLaserRepetitionRate(java.lang.Double, int, int)
      */
     @Override
-    public void setLaserRepetitionRate(Double repetitionRate,
+    public void setLaserRepetitionRate(Frequency repetitionRate,
             int instrumentIndex, int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setRepetitionRate(toRType(repetitionRate));
+        o.setRepetitionRate(convertFrequency(repetitionRate));
     }
 
     /* (non-Javadoc)
@@ -4648,11 +4654,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLaserWavelength(ome.xml.model.primitives.PositiveFloat, int, int)
      */
     @Override
-    public void setLaserWavelength(PositiveFloat wavelength,
+    public void setLaserWavelength(Length wavelength,
             int instrumentIndex, int lightSourceIndex)
     {
         Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setWavelength(toRType(wavelength));
+        o.setWavelength(convertLength(wavelength));
     }
 
     //////// Laser Emitting Diode /////////
@@ -4721,11 +4727,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLightEmittingDiodePower(java.lang.Double, int, int)
      */
     @Override
-    public void setLightEmittingDiodePower(Double power, int instrumentIndex,
+    public void setLightEmittingDiodePower(Power power, int instrumentIndex,
             int lightSourceIndex)
     {
         LightEmittingDiode o = getLightEmittingDiode(instrumentIndex, lightSourceIndex);
-        o.setPower(toRType(power));
+        o.setPower(convertPower(power));
     }
 
     /* (non-Javadoc)
@@ -4837,10 +4843,10 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLineFontSize(java.lang.Integer, int, int)
      */
     @Override
-    public void setLineFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
+    public void setLineFontSize(Length fontSize, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -4850,7 +4856,7 @@ public class OMEROMetadataStoreClient
     public void setLineStrokeColor(Color stroke, int ROIIndex, int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(stroke));
+        o.setStrokeColor(toRType(stroke));
     }
 
     /* (non-Javadoc)
@@ -4868,12 +4874,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLineStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setLineStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setLineStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Line o = getLine(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Line.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength(strokeWidth));
     }
 
     /* (non-Javadoc)
@@ -5073,16 +5078,9 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setMapAnnotationValue(Map<String, String> value, int mapAnnotationIndex) {
+    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
         final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
-        if (o != null && value != null) {
-            final Map<String, RString> stringRStringMap = new HashMap<String, RString>();
-
-            for (final Entry<String, String> mapEntry : value.entrySet()) {
-                stringRStringMap.put(mapEntry.getKey(), toRType(mapEntry.getValue()));
-            }
-            o.setMapValue(stringRStringMap);
-        }
+        o.setMapValue(IceMapper.convertMapPairs(value));
     }
 
     /* (non-Javadoc)
@@ -5110,10 +5108,10 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setMaskFontSize(java.lang.Integer, int, int)
      */
     @Override
-    public void setMaskFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
+    public void setMaskFontSize(Length fontSize, int ROIIndex, int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -5157,12 +5155,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setMaskStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setMaskStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setMaskStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Mask o = getMask(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Mask.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength(strokeWidth));
     }
 
     /* (non-Javadoc)
@@ -5361,12 +5358,12 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setMicrobeamManipulationLightSourceSettingsWavelength(
-            PositiveFloat wavelength, int experimentIndex,
+            Length wavelength, int experimentIndex,
             int microbeamManipulationIndex, int lightSourceSettingsIndex)
     {
         LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex,
                 microbeamManipulationIndex, lightSourceSettingsIndex);
-        o.setWavelength(toRType(wavelength));
+        o.setWavelength(convertLength(wavelength));
     }
 
     //////// Microscope ////////
@@ -5580,11 +5577,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setObjectiveWorkingDistance(java.lang.Double, int, int)
      */
     @Override
-    public void setObjectiveWorkingDistance(Double workingDistance,
+    public void setObjectiveWorkingDistance(Length workingDistance,
             int instrumentIndex, int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
-        o.setWorkingDistance(toRType(workingDistance));
+        o.setWorkingDistance(convertLength(workingDistance));
     }
 
     //////// Pixels /////////
@@ -5662,30 +5659,30 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat, int)
      */
     @Override
-    public void setPixelsPhysicalSizeX(PositiveFloat physicalSizeX, int imageIndex)
+    public void setPixelsPhysicalSizeX(Length physicalSizeX, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setPhysicalSizeX(toRType(physicalSizeX));
+        o.setPhysicalSizeX(convertLength(physicalSizeX));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeY(ome.xml.model.primitives.PositiveFloat, int)
      */
     @Override
-    public void setPixelsPhysicalSizeY(PositiveFloat physicalSizeY, int imageIndex)
+    public void setPixelsPhysicalSizeY(Length physicalSizeY, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setPhysicalSizeY(toRType(physicalSizeY));
+        o.setPhysicalSizeY(convertLength(physicalSizeY));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeZ(ome.xml.model.primitives.PositiveFloat, int)
      */
     @Override
-    public void setPixelsPhysicalSizeZ(PositiveFloat physicalSizeZ, int imageIndex)
+    public void setPixelsPhysicalSizeZ(Length physicalSizeZ, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
-        o.setPhysicalSizeZ(toRType(physicalSizeZ));
+        o.setPhysicalSizeZ(convertLength(physicalSizeZ));
     }
 
     /* (non-Javadoc)
@@ -5799,7 +5796,7 @@ public class OMEROMetadataStoreClient
     public void setPlaneDeltaT(Time deltaT, int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setDeltaT(toTime(deltaT));
+        o.setDeltaT(convertTime(deltaT));
     }
 
     /* (non-Javadoc)
@@ -5810,7 +5807,7 @@ public class OMEROMetadataStoreClient
             int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setExposureTime(toTime(exposureTime));
+        o.setExposureTime(convertTime(exposureTime));
     }
 
     /* (non-Javadoc)
@@ -5826,33 +5823,33 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPlanePositionX(java.lang.Double, int, int)
      */
     @Override
-    public void setPlanePositionX(Double positionX, int imageIndex,
+    public void setPlanePositionX(Length positionX, int imageIndex,
             int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setPositionX(toRType(positionX));
+        o.setPositionX(convertLength(positionX));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlanePositionY(java.lang.Double, int, int)
      */
     @Override
-    public void setPlanePositionY(Double positionY, int imageIndex,
+    public void setPlanePositionY(Length positionY, int imageIndex,
             int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setPositionY(toRType(positionY));
+        o.setPositionY(convertLength(positionY));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlanePositionZ(java.lang.Double, int, int)
      */
     @Override
-    public void setPlanePositionZ(Double positionZ, int imageIndex,
+    public void setPlanePositionZ(Length positionZ, int imageIndex,
             int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        o.setPositionZ(toRType(positionZ));
+        o.setPositionZ(convertLength(positionZ));
     }
 
     /* (non-Javadoc)
@@ -6122,20 +6119,20 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPlateWellOriginX(java.lang.Double, int)
      */
     @Override
-    public void setPlateWellOriginX(Double wellOriginX, int plateIndex)
+    public void setPlateWellOriginX(Length wellOriginX, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
-        o.setWellOriginX(toRType(wellOriginX));
+        o.setWellOriginX(convertLength(wellOriginX));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlateWellOriginY(java.lang.Double, int)
      */
     @Override
-    public void setPlateWellOriginY(Double wellOriginY, int plateIndex)
+    public void setPlateWellOriginY(Length wellOriginY, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
-        o.setWellOriginY(toRType(wellOriginY));
+        o.setWellOriginY(convertLength(wellOriginY));
     }
 
     //////// Point /////////
@@ -6173,10 +6170,10 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPointFontSize(java.lang.Integer, int, int)
      */
     @Override
-    public void setPointFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
+    public void setPointFontSize(Length fontSize, int ROIIndex, int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -6220,12 +6217,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPointStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setPointStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setPointStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Point o = getPoint(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Point.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength(strokeWidth));
     }
 
     /* (non-Javadoc)
@@ -6339,11 +6335,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPolylineFontSize(java.lang.Integer, int, int)
      */
     @Override
-    public void setPolylineFontSize(NonNegativeInteger fontSize, int ROIIndex,
+    public void setPolylineFontSize(Length fontSize, int ROIIndex,
             int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -6381,12 +6377,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPolylineStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setPolylineStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setPolylineStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Polyline o = getPolyline(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Polyline.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength(strokeWidth));
     }
 
     /* (non-Javadoc)
@@ -6688,11 +6683,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setRectangleFontSize(java.lang.Integer, int, int)
      */
     @Override
-    public void setRectangleFontSize(NonNegativeInteger fontSize, int ROIIndex,
+    public void setRectangleFontSize(Length fontSize, int ROIIndex,
             int shapeIndex)
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -6730,12 +6725,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setRectangleStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setRectangleStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setRectangleStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Rect o = getRectangle(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Rect.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength(strokeWidth));
     }
 
     /* (non-Javadoc)
@@ -6983,30 +6977,30 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setStageLabelX(java.lang.Double, int)
      */
     @Override
-    public void setStageLabelX(Double x, int imageIndex)
+    public void setStageLabelX(Length x, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
-        o.setPositionX(toRType(x));
+        o.setPositionX(convertLength(x));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setStageLabelY(java.lang.Double, int)
      */
     @Override
-    public void setStageLabelY(Double y, int imageIndex)
+    public void setStageLabelY(Length y, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
-        o.setPositionY(toRType(y));
+        o.setPositionY(convertLength(y));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setStageLabelZ(java.lang.Double, int)
      */
     @Override
-    public void setStageLabelZ(Double z, int imageIndex)
+    public void setStageLabelZ(Length z, int imageIndex)
     {
         StageLabel o = getStageLabel(imageIndex);
-        o.setPositionZ(toRType(z));
+        o.setPositionZ(convertLength(z));
     }
 
     //////// String Annotation /////////
@@ -7127,10 +7121,10 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLabelFontSize(ome.xml.model.primitives.NonNegativeInteger, int, int)
      */
     @Override
-    public void setLabelFontSize(NonNegativeInteger fontSize, int ROIIndex, int shapeIndex)
+    public void setLabelFontSize(Length fontSize, int ROIIndex, int shapeIndex)
     {
         Label o = getLabel(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -7158,12 +7152,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setLabelStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setLabelStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setLabelStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Label o = getLabel(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Label.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength (strokeWidth));
     }
 
     /* (non-Javadoc)
@@ -7346,44 +7339,44 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutIn(java.lang.Integer, int, int)
      */
     @Override
-    public void setTransmittanceRangeCutIn(PositiveInteger cutIn, int instrumentIndex,
+    public void setTransmittanceRangeCutIn(Length cutIn, int instrumentIndex,
             int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
-        o.setCutIn(toRType(cutIn));
+        o.setCutIn(convertLength(cutIn));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutInTolerance(java.lang.Integer, int, int)
      */
     @Override
-    public void setTransmittanceRangeCutInTolerance(NonNegativeInteger cutInTolerance,
+    public void setTransmittanceRangeCutInTolerance(Length cutInTolerance,
             int instrumentIndex, int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
-        o.setCutInTolerance(toRType(cutInTolerance));
+        o.setCutInTolerance(convertLength(cutInTolerance));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOut(java.lang.Integer, int, int)
      */
     @Override
-    public void setTransmittanceRangeCutOut(PositiveInteger cutOut,
+    public void setTransmittanceRangeCutOut(Length cutOut,
             int instrumentIndex, int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
-        o.setCutOut(toRType(cutOut));
+        o.setCutOut(convertLength(cutOut));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTransmittanceRangeCutOutTolerance(java.lang.Integer, int, int)
      */
     @Override
-    public void setTransmittanceRangeCutOutTolerance(NonNegativeInteger cutOutTolerance,
+    public void setTransmittanceRangeCutOutTolerance(Length cutOutTolerance,
             int instrumentIndex, int filterIndex)
     {
         TransmittanceRange o = getTransmittanceRange(instrumentIndex, filterIndex);
-        o.setCutOutTolerance(toRType(cutOutTolerance));
+        o.setCutOutTolerance(convertLength(cutOutTolerance));
     }
 
     /* (non-Javadoc)
@@ -7601,22 +7594,22 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setWellSamplePositionX(java.lang.Double, int, int, int)
      */
     @Override
-    public void setWellSamplePositionX(Double positionX, int plateIndex,
+    public void setWellSamplePositionX(Length positionX, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setPosX(toRType(positionX));
+        o.setPosX(convertLength(positionX));
     }
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setWellSamplePositionY(java.lang.Double, int, int, int)
      */
     @Override
-    public void setWellSamplePositionY(Double positionY, int plateIndex,
+    public void setWellSamplePositionY(Length positionY, int plateIndex,
             int wellIndex, int wellSampleIndex)
     {
         WellSample o = getWellSample(plateIndex, wellIndex, wellSampleIndex);
-        o.setPosY(toRType(positionY));
+        o.setPosY(convertLength(positionY));
     }
 
     /* (non-Javadoc)
@@ -8562,11 +8555,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPolygonFontSize(ome.xml.model.primitives.NonNegativeInteger, int, int)
      */
     @Override
-    public void setPolygonFontSize(NonNegativeInteger fontSize, int ROIIndex,
+    public void setPolygonFontSize(Length fontSize, int ROIIndex,
             int shapeIndex)
     {
         Polygon o = getPolygon(ROIIndex, shapeIndex);
-        o.setFontSize(toRType(fontSize));
+        o.setFontSize(convertLength(fontSize));
     }
 
     /* (non-Javadoc)
@@ -8641,12 +8634,11 @@ public class OMEROMetadataStoreClient
      * @see loci.formats.meta.MetadataStore#setPolygonStrokeWidth(java.lang.Double, int, int)
      */
     @Override
-    public void setPolygonStrokeWidth(Double strokeWidth, int ROIIndex,
+    public void setPolygonStrokeWidth(Length strokeWidth, int ROIIndex,
             int shapeIndex)
     {
         Polygon o = getPolygon(ROIIndex, shapeIndex);
-        o.setStrokeWidth(toRType(strokeWidth.intValue()));
-        // TODO: OMERO data type mismatch Polygon.setStrokeWidth(int)
+        o.setStrokeWidth(convertLength(strokeWidth));
     }
 
     /* (non-Javadoc)

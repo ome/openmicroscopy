@@ -36,13 +36,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
 
 //Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.sys.Roles;
+
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -607,18 +612,18 @@ class AdminServiceImpl
 			
 		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
 		UserCredentials uc;
-		Entry entry;
+		Entry<ExperimenterData, UserCredentials> entry;
 		ExperimenterData exp;
-		Iterator i = map.entrySet().iterator();
+		Iterator<Entry<ExperimenterData, UserCredentials>> i = map.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			exp = (ExperimenterData) entry.getKey();
-			uc = (UserCredentials) entry.getValue();
+			entry = i.next();
+			exp = entry.getKey();
+			uc = entry.getValue();
 			try {
 				//check that the user is not ldap
 				String ldap = gateway.lookupLdapAuthExperimenter(ctx,
 						exp.getId());
-				if (ldap != null && ldap.length() > 0) l.add(exp);
+				if (StringUtils.isNotBlank(ldap)) l.add(exp);
 				else 
 					gateway.resetPassword(ctx, exp.getUserName(), exp.getId(), 
 						uc.getPassword());
@@ -871,5 +876,15 @@ class AdminServiceImpl
             return roles.guestId == userID;
         }
         throw new IllegalArgumentException("Key not valid.");
+    }
+
+    /**
+     * Implemented as specified by {@link AdminService}.
+     * @see AdminService#lookupLdapAuthExperimenter(SecurityContext, long)
+     */
+    public String lookupLdapAuthExperimenter(SecurityContext ctx, long userID)
+            throws DSOutOfServiceException, DSAccessException
+    {
+        return gateway.lookupLdapAuthExperimenter(ctx, userID);
     }
 }

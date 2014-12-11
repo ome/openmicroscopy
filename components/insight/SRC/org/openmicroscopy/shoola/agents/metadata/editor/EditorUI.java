@@ -40,11 +40,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -60,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -338,8 +341,6 @@ class EditorUI
 		setDataToSave(false);
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, RENDERER_DESCRIPTION);
-		boolean preview = false;
-		int selected = getSelectedTab();
 		if (!(uo instanceof DataObject)) {
 			//saved = false;
 			setDataToSave(false);
@@ -1070,6 +1071,13 @@ class EditorUI
 	}
 	
 	/**
+	 * Shows the location dialog
+	 */
+	void displayLocation() {
+	    toolBar.displayLocation();
+	}
+	
+	/**
 	 * Returns the file set.
 	 * 
 	 * @return See above.
@@ -1104,14 +1112,12 @@ class EditorUI
 	}
 
 	/**
-	 * Overridden to wrap the description.
-	 * @see JComponent#setSize(Dimension)
-	 */
-	public void setSize(Dimension d)
-	{
-		super.setSize(d);
-		if (generalPane != null) 
-			generalPane.setExtentWidth(getVisibleRect().width);
+     * Sets the LDAP details.
+     *
+     * @param userID The user's id.
+     */
+	void setLDAPDetails(String result) {
+	    userUI.setLDAPDetails(result);
 	}
 
 }

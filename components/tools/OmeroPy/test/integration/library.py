@@ -24,23 +24,27 @@
 
 """
 
-import Ice
 import sys
 import time
 import weakref
 import logging
 import subprocess
-import Glacier2
 
+import Ice
+import Glacier2
 import omero
 import omero.gateway
-
-from omero.util.temp_files import create_path
-from omero.rtypes import rbool, rstring, rtime, rint, unwrap
-from path import path
-
-from omero.cmd import DoAll, State, ERR, OK
+from omero.cmd import DoAll, State, ERR, OK, Chgrp, Delete
 from omero.callbacks import CmdCallbackI
+from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
+from omero.model import DimensionOrderI, PixelsI, PixelsTypeI
+from omero.model import Experimenter, ExperimenterI
+from omero.model import ExperimenterGroup, ExperimenterGroupI
+from omero.model import ProjectDatasetLinkI
+from omero.model import PermissionsI
+from omero.rtypes import rbool, rstring, rtime, rint, unwrap
+from omero.util.temp_files import create_path
+from path import path
 
 
 class Clients(object):
@@ -138,10 +142,11 @@ class ITest(object):
     def new_group(self, experimenters=None, perms=None):
         admin = self.root.sf.getAdminService()
         gname = self.uuid()
-        group = omero.model.ExperimenterGroupI()
+        group = ExperimenterGroupI()
         group.name = rstring(gname)
+        group.ldap = rbool(False)
         if perms:
-            group.details.permissions = omero.model.PermissionsI(perms)
+            group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
         group = admin.getGroup(gid)
         self.add_experimenters(group, experimenters)
@@ -173,11 +178,10 @@ class ITest(object):
         rv = client.getStatefulServices()
         for prx in rv:
             prx.close()
-        client.sf.setSecurityContext(
-            omero.model.ExperimenterGroupI(gid, False))
+        client.sf.setSecurityContext(ExperimenterGroupI(gid, False))
 
     def new_image(self, name=""):
-        img = omero.model.ImageI()
+        img = ImageI()
         img.name = rstring(name)
         img.acquisitionDate = rtime(0)
         return img
@@ -295,7 +299,7 @@ class ITest(object):
         update = client.sf.getUpdateService()
         dsets = []
         for i in range(count):
-            ds = omero.model.DatasetI()
+            ds = DatasetI()
             suffix = " [" + str(i + 1) + "]"
             ds.name = rstring(baseName + suffix)
             dsets.append(ds)
@@ -306,7 +310,7 @@ class ITest(object):
         """
         Creates a test image of the required dimensions, where each pixel
         value is set to the value of x+y.
-        Returns the image (omero.model.ImageI)
+        Returns the image (ImageI)
         """
         from numpy import fromfunction, int16
         from omero.util import script_utils
@@ -423,15 +427,15 @@ class ITest(object):
         callback = omero.callbacks.CmdCallbackI(client, handle)
         callback.loop(loops, ms)  # throws on timeout
         rsp = callback.getResponse()
-        is_ok = isinstance(rsp, omero.cmd.OK)
+        is_ok = isinstance(rsp, OK)
         assert passes == is_ok, str(rsp)
         return callback
 
     def new_user(self, group=None, perms=None,
-                 admin=False, system=False):
+                 owner=False, system=False):
         """
-        admin: If user is to be an admin of the created group
-        system: If user is to be a system admin
+        :owner: If user is to be an owner of the created group
+        :system: If user is to be a system admin
         """
 
         if not self.root:
@@ -448,7 +452,7 @@ class ITest(object):
             g, group = self.group_and_name(group)
 
         # Create user
-        e = omero.model.ExperimenterI()
+        e = ExperimenterI()
         e.omeName = rstring(name)
         e.firstName = rstring(name)
         e.lastName = rstring(name)
@@ -458,16 +462,15 @@ class ITest(object):
         uid = adminService.createExperimenterWithPassword(
             e, rstring(name), g, listOfGroups)
         e = adminService.lookupExperimenter(name)
-        if admin:
+        if owner:
             adminService.setGroupOwner(g, e)
         if system:
-            adminService.addGroups(e,
-                                   [omero.model.ExperimenterGroupI(0, False)])
+            adminService.addGroups(e, [ExperimenterGroupI(0, False)])
 
         return adminService.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
-                   admin=False, system=False, session=None, password=None):
+                   owner=False, system=False, session=None, password=None):
         """
         Like new_user() but returns an active client.
 
@@ -486,7 +489,7 @@ class ITest(object):
             if user is not None:
                 user, name = self.user_and_name(user)
             else:
-                user = self.new_user(group, perms, admin, system=system)
+                user = self.new_user(group, perms, owner=owner, system=system)
             props["omero.user"] = user.omeName.val
             if password is not None:
                 props["omero.pass"] = password
@@ -500,10 +503,10 @@ class ITest(object):
         return client
 
     def new_client_and_user(self, group=None, perms=None,
-                            admin=False, system=False):
-        user = self.new_user(group, admin=admin, system=system, perms=perms)
+                            owner=False, system=False):
+        user = self.new_user(group, owner=owner, system=system, perms=perms)
         client = self.new_client(
-            group, user, perms=perms, admin=admin, system=system)
+            group, user, perms=perms, owner=owner, system=system)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
@@ -516,7 +519,7 @@ class ITest(object):
     def group_and_name(self, group):
         group = unwrap(group)
         admin = self.root.sf.getAdminService()
-        if isinstance(group, omero.model.ExperimenterGroup):
+        if isinstance(group, ExperimenterGroup):
             if group.isLoaded():
                 name = group.name.val
                 group = admin.lookupGroup(name)
@@ -526,7 +529,7 @@ class ITest(object):
         elif isinstance(group, (str, unicode)):
             name = group
             group = admin.lookupGroup(name)
-        elif isinstance(group, omero.model.Experimenter):
+        elif isinstance(group, Experimenter):
             assert False,\
                 "group is a user! Try adding group= to your method invocation"
         else:
@@ -542,7 +545,7 @@ class ITest(object):
             ec = admin.getEventContext()
             name = ec.userName
             user = admin.lookupExperimenter(name)
-        elif isinstance(user, omero.model.Experimenter):
+        elif isinstance(user, Experimenter):
             if user.isLoaded():
                 name = user.omeName.val
                 user = admin.lookupExperimenter(name)
@@ -552,7 +555,7 @@ class ITest(object):
         elif isinstance(user, (str, unicode)):
             name = user
             user = admin.lookupExperimenter(name)
-        elif isinstance(user, omero.model.ExperimenterGroup):
+        elif isinstance(user, ExperimenterGroup):
             assert False,\
                 "user is a group! Try adding user= to your method invocation"
         else:
@@ -600,16 +603,16 @@ class ITest(object):
         No data is written.
         """
         image = self.new_image()
-        pixels = omero.model.PixelsI()
+        pixels = PixelsI()
         pixels.sizeX = rint(x)
         pixels.sizeY = rint(y)
         pixels.sizeZ = rint(z)
         pixels.sizeC = rint(c)
         pixels.sizeT = rint(t)
         pixels.sha1 = rstring("")
-        pixels.pixelsType = omero.model.PixelsTypeI()
+        pixels.pixelsType = PixelsTypeI()
         pixels.pixelsType.value = rstring("int8")
-        pixels.dimensionOrder = omero.model.DimensionOrderI()
+        pixels.dimensionOrder = DimensionOrderI()
         pixels.dimensionOrder.value = rstring("XYZCT")
         image.addPixels(pixels)
 
@@ -749,3 +752,115 @@ class ITest(object):
         self.root.killSession()
         self.root = None
         self.__clients.__del__()
+
+    def make_project(self, name=None, client=None):
+        """
+        Creates a new ProjectI instance and returns the persisted object.
+        If no name has been provided, a UUID string shall be used.
+
+        :param name: the name of the project
+        :param client: user context
+        """
+        if client is None:
+            client = self.client
+        project = ProjectI()
+        if name:
+            project.name = rstring(name)
+        else:
+            project.name = rstring(self.uuid())
+        return client.sf.getUpdateService().saveAndReturnObject(project)
+
+    def make_dataset(self, name=None, client=None):
+        """
+        Creates a new DatasetI instance and returns the persisted object.
+        If no name has been provided, a UUID string shall be used.
+
+        :param name: the name of the project
+        :param client: user context
+        """
+        if client is None:
+            client = self.client
+        dataset = DatasetI()
+        if name:
+            dataset.name = rstring(name)
+        else:
+            dataset.name = rstring(self.uuid())
+        return client.sf.getUpdateService().saveAndReturnObject(dataset)
+
+    def link(self, obj1, obj2, client=None):
+        """
+        Links two linkable model entities together by creating an instance
+        of the correct link entity (e.g. ProjectDatasetLinkI) and persisting
+        it in the DB. Accepts client instance to allow calls to happen
+        in correct user contexts. Limited to ProjectI-DatasetI
+        and DatasetI-ImageI links.
+
+        :param obj1: parent object
+        :param obj2: child object
+        :param client: user context
+        """
+        if client is None:
+            client = self.client
+        if isinstance(obj1, ProjectI):
+            if isinstance(obj2, DatasetI):
+                link = ProjectDatasetLinkI()
+        elif isinstance(obj1, DatasetI):
+            if isinstance(obj2, ImageI):
+                link = DatasetImageLinkI()
+        else:
+            assert False, "Object type not supported."
+
+        link.setParent(obj1.proxy())
+        link.setChild(obj2.proxy())
+        client.sf.getUpdateService().saveAndReturnObject(link)
+
+    def delete(self, obj):
+        """
+        Deletes a list of model entities (ProjectI, DatasetI or ImageI)
+        by creating Delete commands and calling
+        :func:`~test.ITest.doAllSubmit`.
+
+        :param obj: a list of objects to be deleted
+        """
+        if isinstance(obj[0], ProjectI):
+            t = "/Project"
+        elif isinstance(obj[0], DatasetI):
+            t = "/Dataset"
+        elif isinstance(obj[0], ImageI):
+            t = "/Image"
+        else:
+            assert False, "Object type not supported."
+
+        commands = list()
+        for i in obj:
+            commands.append(Delete(t, i.id.val, None))
+
+        self.doAllSubmit(commands, self.client)
+
+    def change_group(self, obj, target, client=None):
+        """
+        Moves a list of model entities (ProjectI, DatasetI or ImageI)
+        to the target group. Accepts a client instance to guarantee calls
+        in correct user contexts. Creates Chgrp commands and calls
+        :func:`~test.ITest.doAllSubmit`.
+
+        :param obj: a list of objects to be moved
+        :param target: the ID of the target group
+        :param client: user context
+        """
+        if client is None:
+            client = self.client
+        if isinstance(obj[0], ProjectI):
+            t = "/Project"
+        elif isinstance(obj[0], DatasetI):
+            t = "/Dataset"
+        elif isinstance(obj[0], ImageI):
+            t = "/Image"
+        else:
+            assert False, "Object type not supported."
+
+        commands = list()
+        for i in obj:
+            commands.append(Chgrp(t, id=i.id.val, grp=target))
+
+        self.doAllSubmit(commands, client)

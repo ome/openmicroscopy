@@ -54,6 +54,7 @@ import omero.RTime;
 import omero.RType;
 import omero.ServerError;
 import omero.rtypes.Conversion;
+import omero.model.NamedValue;
 import omero.model.PermissionsI;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
@@ -723,30 +724,39 @@ public class IceMapper extends ome.util.ModelMapper implements
         return filter;
     }
 
-    public omero.model.Time convert(ome.model.units.Time t) {
-        if (t == null) {
+    public static List<NamedValue> convertNamedValueList(List<ome.model.internal.NamedValue> map) {
+        if (map == null) {
             return null;
         }
-        omero.model.TimeI copy = new omero.model.TimeI();
-        copy.setValue(t.getValue());
-        copy.setUnit((omero.model.UnitsTime) map(t.getUnit()));
-        return copy;
+        final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
+        for (final ome.model.internal.NamedValue nv : map) {
+            if (nv == null) {
+                nvl.add(null);
+            } else {
+                final String name = nv.getName();
+                final String value = nv.getValue();
+                nvl.add(new NamedValue(name, value));
+            }
+        }
+        return nvl;
     }
 
-     public ome.model.units.Time convert(omero.model.Time t) {
-        if (t == null) {
+    public static List<NamedValue> convertMapPairs(List<ome.xml.model.MapPair> map) {
+        if (map == null) {
             return null;
         }
-        ome.model.units.Time copy = new ome.model.units.Time();
-        copy.setValue(t.getValue());
-        try {
-            copy.setUnit((ome.model.enums.UnitsTime) reverse(t.getUnit()));
-        } catch (ApiUsageException e) {
-            throw new IllegalArgumentException(
-                    "convert(omero.model.Time) failed", e);
+        final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
+        for (final ome.xml.model.MapPair nv : map) {
+            if (nv == null) {
+                nvl.add(null);
+            } else {
+                final String name = nv.getName();
+                final String value = nv.getValue();
+                nvl.add(new NamedValue(name, value));
+            }
         }
-        return copy;
-     }
+        return nvl;
+    }
 
     /**
      * Convert a String&rarr;String map's values to {@link RString}s.
@@ -807,7 +817,7 @@ public class IceMapper extends ome.util.ModelMapper implements
     // ~ For Reversing (omero->ome). Copied from ReverseModelMapper.
     // =========================================================================
 
-    protected Map target2model = new IdentityHashMap();
+    protected Map<Object, Object> target2model = new IdentityHashMap<Object, Object>();
 
     public static omero.model.Permissions convert(ome.model.internal.Permissions p) {
         if (p == null) {
@@ -980,7 +990,6 @@ public class IceMapper extends ome.util.ModelMapper implements
      * Copied from {@link ReverseModelMapper#map(ModelBased)}
      * 
      * @param source
-     * @return
      */
     public Filterable reverse(ModelBased source) {
 
@@ -990,10 +999,9 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         } else if (target2model.containsKey(source)) {
 
-            return (ome.model.IObject) target2model.get(source);
+            return (Filterable) target2model.get(source);
 
         } else {
-
             Filterable object = source.fillObject(this);
             target2model.put(source, object);
             return object;
@@ -1021,6 +1029,23 @@ public class IceMapper extends ome.util.ModelMapper implements
             }
         }
         return map;
+    }
+
+    public static List<ome.model.internal.NamedValue> reverseNamedList(List<NamedValue> map) {
+        if (map == null) {
+            return null;
+        }
+        final List<ome.model.internal.NamedValue> nvl = new ArrayList<ome.model.internal.NamedValue>(map.size());
+        for (final NamedValue nv : map) {
+            if (nv == null) {
+                nvl.add(null);
+            } else {
+                final String name = nv.name;
+                final String value = nv.value;
+                nvl.add(new ome.model.internal.NamedValue(name, value));
+            }
+        }
+        return nvl;
     }
 
     public void store(Object source, Object target) {

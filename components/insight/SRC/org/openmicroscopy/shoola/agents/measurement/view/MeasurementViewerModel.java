@@ -61,7 +61,6 @@ import org.openmicroscopy.shoola.agents.measurement.WorkflowLoader;
 import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -97,6 +96,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import omero.model.enums.UnitsLength;
 
 /** 
  * The Model component in the <code>MeasurementViewer</code> MVC triad.
@@ -705,21 +705,21 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeX() { return pixels.getPixelSizeX(); }
+	double getPixelSizeX() { return pixels.getPixelSizeX(UnitsLength.MICROM).getValue(); }
 	
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeY() { return pixels.getPixelSizeY(); }
+	double getPixelSizeY() { return pixels.getPixelSizeY(UnitsLength.MICROM).getValue(); }
 	
 	/**
 	 * Returns the size in microns of a pixel along the Z-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeZ() { return pixels.getPixelSizeZ(); }
+	double getPixelSizeZ() { return pixels.getPixelSizeZ(UnitsLength.MICROM).getValue(); }
 	
 	/**
 	 * Returns the number of z sections in an image.
@@ -937,14 +937,6 @@ class MeasurementViewerModel
 	{
 		ROI roi = roiComponent.addROI(figure, getCurrentView(), addAttribs);
 		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0 ; i < keyword.size() ; i++)
-		{
-			buffer.append(keyword.get(i));
-			if (i < keyword.size()-1)
-				buffer.append(",");
-		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());		
 		return roi;
 	}
 	

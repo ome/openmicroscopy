@@ -23,7 +23,6 @@ import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.AdminI;
 import ome.services.blitz.impl.ConfigI;
-import ome.services.blitz.impl.DeleteI;
 import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.impl.ShareI;

@@ -9,15 +9,15 @@
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 2 of the 
+ * published by the Free Software Foundation, either version 2 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public 
+ *
+ * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-2.0.html>.
  * #L%
@@ -25,10 +25,12 @@
 
 package loci.ome.io;
 
-import static omero.rtypes.unwrap;
+import static ome.formats.model.UnitsFactory.convertLength;
+import static ome.formats.model.UnitsFactory.convertTime;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
@@ -42,14 +44,10 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
-import ome.xml.model.enums.EnumerationException;
-import ome.xml.model.primitives.PositiveFloat;
 import ome.xml.model.primitives.Timestamp;
-import omero.RDouble;
 import omero.RString;
 import omero.RTime;
 import omero.ServerError;
-import omero.api.GatewayPrx;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.RawPixelsStorePrx;
@@ -60,6 +58,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
 import omero.model.Time;
@@ -311,8 +310,8 @@ public class OmeroReader extends FormatReader {
 
       store = serviceFactory.createRawPixelsStore();
 
-      final GatewayPrx gateway = serviceFactory.createGateway();
-      img = gateway.getImage(iid);
+      img = (Image) serviceFactory.getContainerService()
+        .getImages("Image", Arrays.asList(iid), null).get(0);
 
       if (img == null) {
         throw new FormatException("Could not find Image with ID=" + iid +
@@ -321,9 +320,9 @@ public class OmeroReader extends FormatReader {
 
       long pixelsId = img.getPixels(0).getId().getValue();
 
+      pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
       store.setPixelsId(pixelsId, false);
 
-      pix = gateway.getPixels(pixelsId);
       final int sizeX = pix.getSizeX().getValue();
       final int sizeY = pix.getSizeY().getValue();
       final int sizeZ = pix.getSizeZ().getValue();
@@ -347,15 +346,15 @@ public class OmeroReader extends FormatReader {
       m.imageCount = sizeZ * sizeC * sizeT;
       m.pixelType = FormatTools.pixelTypeFromString(pixelType);
 
-      RDouble x = pix.getPhysicalSizeX();
-      Double px = x == null ? null : x.getValue();
-      RDouble y = pix.getPhysicalSizeY();
-      Double py = y == null ? null : y.getValue();
-      RDouble z = pix.getPhysicalSizeZ();
-      Double pz = z == null ? null : z.getValue();
+      Length x = pix.getPhysicalSizeX();
+      Length y = pix.getPhysicalSizeY();
+      Length z = pix.getPhysicalSizeZ();
       Time t = pix.getTimeIncrement();
 
       ome.units.quantity.Time t2 = convertTime(t);
+      ome.units.quantity.Length px = convertLength(x);
+      ome.units.quantity.Length py = convertLength(y);
+      ome.units.quantity.Length pz = convertLength(z);
 
       RString imageName = img.getName();
       String name = imageName == null ? null : imageName.getValue();
@@ -382,14 +381,14 @@ public class OmeroReader extends FormatReader {
           0);
       }
 
-      if (px != null && px > 0) {
-        store.setPixelsPhysicalSizeX(new PositiveFloat(px), 0);
+      if (px != null && px.value().doubleValue() > 0) {
+        store.setPixelsPhysicalSizeX(px, 0);
       }
-      if (py != null && py > 0) {
-        store.setPixelsPhysicalSizeY(new PositiveFloat(py), 0);
+      if (py != null && py.value().doubleValue() > 0) {
+        store.setPixelsPhysicalSizeY(py, 0);
       }
-      if (pz != null && pz > 0) {
-        store.setPixelsPhysicalSizeZ(new PositiveFloat(pz), 0);
+      if (pz != null && pz.value().doubleValue() > 0) {
+        store.setPixelsPhysicalSizeZ(pz, 0);
       }
       if (t2 != null) {
         store.setPixelsTimeIncrement(t2, 0);
@@ -399,29 +398,27 @@ public class OmeroReader extends FormatReader {
       for (int c=0; c<channels.size(); c++) {
         LogicalChannel channel = channels.get(c).getLogicalChannel();
 
-        RDouble emWave = channel.getEmissionWave();
-        RDouble exWave = channel.getExcitationWave();
-        RDouble pinholeSize = channel.getPinHoleSize();
+        Length emWave = channel.getEmissionWave();
+        Length exWave = channel.getExcitationWave();
+        Length pinholeSize = channel.getPinHoleSize();
         RString cname = channel.getName();
 
-        Double emission = emWave == null ? null : emWave.getValue();
-        Double excitation = exWave == null ? null : exWave.getValue();
+        ome.units.quantity.Length emission = convertLength(emWave);
+        ome.units.quantity.Length excitation = convertLength(exWave);
         String channelName = cname == null ? null : cname.getValue();
-        Double pinhole = pinholeSize == null ? null : pinholeSize.getValue();
+        ome.units.quantity.Length pinhole = convertLength(pinholeSize);
 
         if (channelName != null) {
           store.setChannelName(channelName, 0, c);
         }
-        if (pinhole != null) {
+        if (pinholeSize != null) {
           store.setChannelPinholeSize(pinhole, 0, c);
         }
-        if (emission != null && emission > 0) {
-          store.setChannelEmissionWavelength(
-            new PositiveFloat(emission), 0, c);
+        if (emission != null && emission.value().doubleValue() > 0) {
+          store.setChannelEmissionWavelength( emission, 0, c);
         }
-        if (excitation != null && excitation > 0) {
-          store.setChannelExcitationWavelength(
-            new PositiveFloat(excitation), 0, c);
+        if (excitation != null && excitation.value().doubleValue() > 0) {
+          store.setChannelExcitationWavelength(excitation, 0, c);
         }
       }
     }
@@ -434,25 +431,6 @@ public class OmeroReader extends FormatReader {
     catch (ServerError e) {
       throw new FormatException(e);
     }
-  }
-
-  public static ome.units.quantity.Time convertTime(Time t) {
-    if (t == null) {
-      return null;
-    }
-
-    Double time = t.getValue();
-    ome.xml.model.enums.UnitsTime units;
-    try {
-      units = ome.xml.model.enums.UnitsTime.fromString(
-         (String) unwrap(t.getUnit().getValue()));
-    } catch (EnumerationException e) {
-      throw new RuntimeException("Bad time: " + t, e);
-    }
-    ome.units.unit.Unit<ome.units.quantity.Time> units2 = 
-      ome.xml.model.enums.handlers.UnitsTimeEnumHandler.getBaseUnit(units);
-    ome.units.quantity.Time t2 = new ome.units.quantity.Time(time, units2);
-    return t2;
   }
 
   /** A simple command line tool for downloading images from OMERO. */

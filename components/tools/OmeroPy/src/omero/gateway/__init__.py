@@ -70,7 +70,7 @@ def omero_type(val):
      - IntType to rint
      - LongType to rlong
 
-    elswere return the argument itself
+    else return the argument itself
 
     :param val: value
     :rtype:     omero.rtype
@@ -142,7 +142,7 @@ class BlitzObjectWrapper (object):
     Object wrapper class which provides various methods for hierarchy
     traversing, saving, handling permissions etc. This is the 'abstract' super
     class which is subclassed by E.g. _ProjectWrapper, _DatasetWrapper etc.
-    All ojbects have a reference to the :class:`BlitzGateway` connection, and
+    All objects have a reference to the :class:`BlitzGateway` connection, and
     therefore all services are available for handling calls on the object
     wrapper. E.g listChildren() uses queryservice etc.
     """
@@ -221,6 +221,12 @@ class BlitzObjectWrapper (object):
         if hasattr(self, '_oid'):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(BlitzObjectWrapper, self).__repr__()
+
+    def _unwrapunits(self, unit, default=None):
+        # FIXME: This should handle returning units
+        if unit is not None:
+            return unit.getValue()
+        return default
 
     def _getQueryString(self):
         """
@@ -645,7 +651,7 @@ class BlitzObjectWrapper (object):
         """
         List a single parent, if available.
 
-        While the model suports many to many relationships between most
+        While the model supports many to many relationships between most
         objects, there are implementations that assume a single project per
         dataset, a single dataset per image, etc. This is just a shortcut
         method to return a single parent object.
@@ -1342,7 +1348,7 @@ class NoProxies (object):
 class _BlitzGateway (object):
     """
     Connection wrapper. Handles connecting and keeping the session alive,
-    creation of various services, context switching, security privilidges etc.
+    creation of various services, context switching, security privileges etc.
     """
 
     """
@@ -1525,7 +1531,7 @@ class _BlitzGateway (object):
         :param passwd:      Password.
         :type passwd:       String
         :param _internal:   If False, set _anonymous = False
-        :type _internal:    Booelan
+        :type _internal:    Boolean
         """
         self._ic_props = {omero.constants.USERNAME: username,
                           omero.constants.PASSWORD: passwd}
@@ -2590,7 +2596,7 @@ class _BlitzGateway (object):
                 yield ExperimenterGroupWrapper(self, e)
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
-                    description=None):
+                    description=None, ldap=False):
         """
         Creates a new ExperimenterGroup.
         Must have Admin permissions to call this.
@@ -2604,6 +2610,7 @@ class _BlitzGateway (object):
                             E.g. 'rw----' (private), 'rwr---'(read-only),
                             'rwrw--'
         :param description: Group description
+        :param ldap:        Group ldap setting
         """
         admin_serv = self.getAdminService()
 
@@ -2614,6 +2621,7 @@ class _BlitzGateway (object):
             and rstring(str(description)) or None)
         if perms is not None:
             group.details.permissions = omero.model.PermissionsI(perms)
+        group.ldap = rbool(ldap)
 
         gr_id = admin_serv.createGroup(group)
 
@@ -3849,7 +3857,7 @@ class _BlitzGateway (object):
 
     def chmodGroup(self, group_Id, permissions):
         """
-        Change the permissions of a particluar Group.
+        Change the permissions of a particular Group.
         Returns the proxy 'prx' handle that can be processed like this:
         callback = CmdCallbackI(self.gateway.c, prx)
         callback.loop(20, 500)
@@ -4186,7 +4194,7 @@ class ProxyObjectWrapper (object):
 
     def close(self, *args, **kwargs):
         """
-        Closes the underlaying service, so next call to the proxy will create
+        Closes the underlying service, so next call to the proxy will create
         a new instance of it.
         """
 
@@ -4488,7 +4496,7 @@ from omero_model_FileAnnotationI import FileAnnotationI
 
 class FileAnnotationWrapper (AnnotationWrapper):
     """
-    omero_model_FileAnnotatio class wrapper extends AnnotationWrapper.
+    omero_model_FileAnnotationI class wrapper extends AnnotationWrapper.
     """
 
     OMERO_TYPE = FileAnnotationI
@@ -4622,7 +4630,7 @@ from omero_model_TimestampAnnotationI import TimestampAnnotationI
 
 class TimestampAnnotationWrapper (AnnotationWrapper):
     """
-    omero_model_TimestampAnnotatio class wrapper extends AnnotationWrapper.
+    omero_model_TimestampAnnotationI class wrapper extends AnnotationWrapper.
     """
 
     OMERO_TYPE = TimestampAnnotationI
@@ -5701,7 +5709,7 @@ class _WellWrapper (BlitzObjectWrapper):
 
     def getWellSample(self, index=None):
         """
-        Return the well sample at the specified index. If index is ommited,
+        Return the well sample at the specified index. If index is omitted,
         the currently selected index is used instead (self.index) and if
         that is not defined, the first one (index 0) is returned.
 
@@ -5723,7 +5731,7 @@ class _WellWrapper (BlitzObjectWrapper):
     def getImage(self, index=None):
         """
         Return the image at the specified well sample index. If index is
-        ommited, the currently selected index is used instead (self.index) and
+        omitted, the currently selected index is used instead (self.index) and
         if that is not defined, the first one (index 0) is returned.
 
         :param index: the well sample index
@@ -5795,7 +5803,7 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         """
         rv = self._conn.getQueryService().findAllByQuery(
             ("select w from Well w "
-             "left outer join fetch w.wellSamples as ws"
+             "left outer join fetch w.wellSamples as ws "
              "where ws.id=%d" % self.getId()),
             None, self._conn.SERVICE_OPTS)
         if not len(rv):
@@ -6140,7 +6148,10 @@ class _PixelsWrapper (BlitzObjectWrapper):
         params = omero.sys.Parameters()
         params.map = {}
         params.map["pid"] = rlong(self._obj.id)
-        query = "select info from PlaneInfo as info where pixels.id=:pid"
+        query = "select info from PlaneInfo as info" \
+                " join fetch info.deltaT as dt" \
+                " join fetch info.exposureTime as et" \
+                " where info.pixels.id=:pid"
         if theC is not None:
             params.map["theC"] = rint(theC)
             query += " and info.theC=:theC"
@@ -6362,6 +6373,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if rv is None or len(rv.strip()) == 0:
             rv = lc.emissionWave
             if rv is not None:
+                rv = rv.getValue()  # FIXME: units ignored for wavelength
                 # Don't show as double if it's really an int
                 if int(rv) == rv:
                     rv = int(rv)
@@ -6391,10 +6403,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        wave = lc.emissionWave
-        if wave is not None and int(wave) == wave:
-            wave = int(wave)
-        return wave
+        return self._unwrapunits(lc.emissionWave)
 
     def getExcitationWave(self):
         """
@@ -6405,10 +6414,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
 
         lc = self.getLogicalChannel()
-        wave = lc.excitationWave
-        if wave is not None and int(wave) == wave:
-            wave = int(wave)
-        return wave
+        return self._unwrapunits(lc.excitationWave)
 
     def getColor(self):
         """
@@ -6516,7 +6522,7 @@ class assert_re (object):
         'True'.
         :type onPrepareFailureReturnNone: Boolean
         :param ignoreExceptions: A set of exceptions thrown during the
-        preparation of the rendering engine for whith the decorator should
+        preparation of the rendering engine for which the decorator should
         ignore and allow the execution of the decorated function or method.
         Defaults to 'None'.
         :type ignoreExceptions: Set
@@ -6599,7 +6605,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         :param conn:    The connection
         :type conn:     :class:`BlitzGateway`
-        :param pid:     Pixles ID
+        :param pid:     Pixels ID
         :type pid:      Long
         :return:        New Image wrapper
         :rtype:         :class:`ImageWrapper`
@@ -6626,6 +6632,19 @@ class _ImageWrapper (BlitzObjectWrapper):
         ctx.setOmeroGroup(self.getDetails().group.id.val)
         self._obj = self._conn.getContainerService().getImages(
             self.OMERO_CLASS, (self._oid,), None, ctx)[0]
+
+    def getAcquisitionDate(self):
+        """
+        Returns the acquisition date for the image or None if not set.
+
+        :return:    A :meth:`datetime.datetime` object
+        :rtype:     datetime
+        """
+
+        t = unwrap(self._obj.acquisitionDate)
+        print t
+        if t is not None and t > 0:
+            return datetime.fromtimestamp(t/1000)
 
     def getInstrument(self):
         """
@@ -6719,7 +6738,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rdid = self._getRDef()
         if rdid is None:
             if not re.lookupRenderingDef(pid, ctx):
-                re.resetDefaults(ctx)
+                re.resetDefaultSettings(True, ctx)
                 re.lookupRenderingDef(pid, ctx)
             self._onResetDefaults(re.getRenderingDefId(ctx))
         else:
@@ -6833,7 +6852,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         :param length:  The ideal length to return.
                         If truncated, will be ...length
         :type length:   Int
-        :param hist:    The amount of leeway allowed before trunction
+        :param hist:    The amount of leeway allowed before truncation
                         (avoid truncating 1 or 2 letters)
         :type hist:     Int
         :return:        Truncated ...name
@@ -6938,7 +6957,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getObjectiveSettings(self):
         """
-        Gets the Ojbective Settings of the Image, or None
+        Gets the Objective Settings of the Image, or None
 
         :return:    Objective Settings
         :rtype:     :class:`ObjectiveSettingsWrapper`
@@ -8307,8 +8326,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in x or O
         :rtype:     float
         """
-        rv = self._obj.getPrimaryPixels().getPhysicalSizeX()
-        return rv is not None and rv.val or 0
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeX(), 0)
 
     @assert_pixels
     def getPixelSizeY(self):
@@ -8318,9 +8337,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in y or O
         :rtype:     float
         """
-
-        rv = self._obj.getPrimaryPixels().getPhysicalSizeY()
-        return rv is not None and rv.val or 0
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeY(), 0)
 
     @assert_pixels
     def getPixelSizeZ(self):
@@ -8330,9 +8348,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:    Size of pixel in z or O
         :rtype:     float
         """
-
-        rv = self._obj.getPrimaryPixels().getPhysicalSizeZ()
-        return rv is not None and rv.val or 0
+        return self._unwrapunits(
+            self._obj.getPrimaryPixels().getPhysicalSizeZ(), 0)
 
     @assert_pixels
     def getSizeX(self):

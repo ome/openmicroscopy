@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
@@ -47,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
@@ -542,4 +544,12 @@ public interface Editor
 	 * usage.
 	 */
 	void loadRnd();
+
+	/**
+	 * Sets the LDAP details of the specified user.
+	 *
+	 * @param userID The user's id.
+	 * @param result The value to set.
+	 */
+    void setLDAPDetails(long userID, String result);
 }

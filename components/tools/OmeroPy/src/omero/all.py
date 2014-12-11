@@ -28,11 +28,9 @@ if omero.__import_style__ is None:
     IceImport.load("omero_SharedResources_ice")
     IceImport.load("omero_Scripts_ice")
     IceImport.load("omero_Tables_ice")
-    IceImport.load("omero_api_Gateway_ice")
     IceImport.load("omero_api_IAdmin_ice")
     IceImport.load("omero_api_IConfig_ice")
     IceImport.load("omero_api_IContainer_ice")
-    IceImport.load("omero_api_IDelete_ice")
     IceImport.load("omero_api_ILdap_ice")
     IceImport.load("omero_api_IMetadata_ice")
     IceImport.load("omero_api_IPixels_ice")
@@ -61,5 +59,6 @@ if omero.__import_style__ is None:
     IceImport.load("omero_cmd_FS_ice")
     IceImport.load("omero_cmd_Graphs_ice")
     IceImport.load("omero_cmd_Mail_ice")
+    IceImport.load("omero_model_Units_ice")
     import omero_sys_ParametersI
     import omero_model_PermissionsI

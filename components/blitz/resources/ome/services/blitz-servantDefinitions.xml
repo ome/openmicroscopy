@@ -158,20 +158,6 @@
     </constructor-arg>
   </bean>
 
-  <bean id="omero.api.IDelete" class="omero.api._IDeleteTie" singleton="false">
-    <constructor-arg ref="DeleteI"/>
-  </bean>
-  <!-- External for use as a factory method during testing. -->
-  <bean id="DeleteI" class="ome.services.blitz.impl.DeleteI">
-      <constructor-arg index="0" ref="extendedMetadata"/>
-      <constructor-arg index="1" ref="managed-ome.api.IDelete"/>
-      <constructor-arg index="2" ref="throttlingStrategy"/>
-      <constructor-arg index="3" ref="threadPool"/>
-      <constructor-arg index="4" value="${omero.threads.cancel_timeout}"/>
-      <constructor-arg index="5" value="${omero.data.dir}"/>
-  </bean>
-
-
   <bean id="omero.api.ILdap" class="omero.api._ILdapTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.LdapI">
@@ -274,14 +260,6 @@
 
 
   <!-- Stateful ome.api service-based -->
-
-  <bean id="omero.api.Gateway" class="omero.api._GatewayTie" singleton="false">
-    <constructor-arg>
-        <bean class="ome.services.blitz.gateway.OmeroGateway">
-            <constructor-arg ref="throttlingStrategy"/>
-        </bean>
-    </constructor-arg>
-  </bean>
 
   <bean id="omero.api.JobHandle" class="omero.api._JobHandleTie" singleton="false">
     <constructor-arg>

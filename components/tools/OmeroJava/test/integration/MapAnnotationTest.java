@@ -18,11 +18,10 @@
  */
 package integration;
 
+import static omero.rtypes.rbool;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -32,6 +31,7 @@ import omero.api.IUpdatePrx;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.MapAnnotation;
+import omero.model.NamedValue;
 
 import org.testng.annotations.Test;
 
@@ -54,13 +54,15 @@ public class MapAnnotationTest extends AbstractServerTest {
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
-        group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", omero.rtypes.rstring("bar"));
+        group.setLdap(rbool(false));
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", "bar"));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("bar", group.getConfig().get("foo").getValue());
+        assertEquals("foo", group.getConfig().get(0).name);
+        assertEquals("bar", group.getConfig().get(0).value);
     }
 
     /**
@@ -74,34 +76,41 @@ public class MapAnnotationTest extends AbstractServerTest {
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
-        group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", omero.rtypes.rstring(""));
+        group.setLdap(rbool(false));
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", ""));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
         group = (ExperimenterGroup) queryService.findByQuery(
                 "select g from ExperimenterGroup g join fetch g.config " +
                 "where g.id = " + group.getId().getValue(), null);
-        assertEquals("", group.getConfig().get("foo").getValue());
+        assertEquals("foo", group.getConfig().get(0).name);
+        assertEquals("", group.getConfig().get(0).value);
     }
 
     /**
      * Test persistence of a bar &rarr; <code>null</code> map.
-     * @throws ServerError unexpected
+     * These null fields get converted to the empty string by Ice.
      */
     @Test
     public void testNulledMapValue() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        IQueryPrx queryService = root.getSession().getQueryService();
         IUpdatePrx updateService = root.getSession().getUpdateService();
         ExperimenterGroup group = new ExperimenterGroupI();
         group.setName(omero.rtypes.rstring(uuid));
-        group.setConfig(new HashMap<String, omero.RString>());
-        group.getConfig().put("foo", omero.rtypes.rstring(""));
-        group.getConfig().put("bar", null);
+        group.setLdap(rbool(false));
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", ""));
+        group.getConfig().add(new NamedValue("bar", null));
         group = (ExperimenterGroup) updateService.saveAndReturnObject(group);
-        group = (ExperimenterGroup) queryService.findByQuery(
-                "select g from ExperimenterGroup g join fetch g.config " +
-                "where g.id = " + group.getId().getValue(), null);
-        assertTrue(group.getConfig().containsKey("foo"));
-        assertFalse(group.getConfig().containsKey("bar"));
+        assertEquals("", group.getConfig().get(0).value);
+    }
+
+    @Test
+    public void testMapGetters() throws Exception {
+        ExperimenterGroup group = new ExperimenterGroupI();
+        group.setConfig(new ArrayList<NamedValue>());
+        group.getConfig().add(new NamedValue("foo", ""));
+        group.getConfig().add(new NamedValue("bar", null));
+        group.getConfigAsMap();
     }
 }

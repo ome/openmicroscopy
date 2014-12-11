@@ -112,7 +112,9 @@
     <replace dir="${app.config.dir}"
         token="@OMERO_DISPLAY_VERSION@"
         value="${omero.display_version}"/>
-
+    <replace dir="${app.config.dir}"
+        token="@QA_BASEURL@"
+        value="${env.QA_BASEURL}"/>
     <copy todir="${app.lib.dir}">
       <fileset refid="app.libs"/>
     </copy>
