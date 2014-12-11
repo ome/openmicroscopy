@@ -489,7 +489,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             ImportLocation location, ImportSettings settings, Current __current)
                 throws ServerError {
         final ImportConfig config = new ImportConfig();
-        final Map<String, RString> serverVersionInfo = new HashMap<String, RString>();
+        final List<NamedValue> serverVersionInfo = new ArrayList<NamedValue>();
         config.fillVersionInfo(serverVersionInfo);
 
         MetadataImportJob metadata = new MetadataImportJobI();
