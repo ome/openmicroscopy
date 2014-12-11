@@ -17,17 +17,15 @@ Creates composite builds from the various client build artifacts/platforms.
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 import time
-import sys
 import re
 import os
 
-from getopt import getopt, GetoptError
 from glob import glob
 from zipfile import ZipFile
 
@@ -47,6 +45,7 @@ IMPORTER = 'OMERO.importer'
 
 IGNORE = []
 
+
 def find(pattern):
     """Grabs platform specific distribution targets from target"""
     target = os.path.join(os.path.dirname(os.path.dirname(__file__)), "target")
@@ -54,6 +53,7 @@ def find(pattern):
     if not artifacts and pattern.find("*win.zip") == -1:
         raise Exception("Nothing found! %s" % pattern)
     return artifacts
+
 
 def extract(artifact, target, ignore):
     """
@@ -99,6 +99,7 @@ def extract(artifact, target, ignore):
                     out.close()
     finally:
         zip_file.close()
+
 
 def compress(target, base):
     """Creates a ZIP recursively from a given base directory."""
@@ -155,4 +156,3 @@ for artifact in target_artifacts:
 compress('%s.zip' % target, target)
 
 # Insight no longer uses omero_client.jar
-
