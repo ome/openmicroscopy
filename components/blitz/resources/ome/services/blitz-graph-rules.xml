@@ -117,9 +117,9 @@
         <bean parent="graphPolicyRule" p:matches="WRL:WellReagentLink.parent = [E], WRL.child = R:Reagent[E]{!a}"
                                        p:changes="R:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Screen[E].reagents = R:Reagent[E]{!a}" p:changes="R:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, R:Roi[E].image =/!o [I]" p:changes="R:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, RD:RenderingDef[E].pixels =/!o [I]" p:changes="RD:[I]/n"/>
-        <bean parent="graphPolicyRule" p:matches="!$to_private, T:Thumbnail[E].pixels =/!o [I]" p:changes="T:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, R:Roi[ED].image =/!o [I]" p:changes="R:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, RD:RenderingDef[ED].pixels =/!o [I]" p:changes="RD:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, T:Thumbnail[ED].pixels =/!o [I]" p:changes="T:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="$to_private, R:Roi[E].image =/!o [I]" p:changes="R:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="$to_private, RD:RenderingDef[E].pixels =/!o [I]" p:changes="RD:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="$to_private, T:Thumbnail[E].pixels =/!o [I]" p:changes="T:[D]/n"/>
