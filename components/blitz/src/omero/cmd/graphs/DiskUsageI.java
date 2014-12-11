@@ -57,6 +57,7 @@ import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
+import omero.model.OriginalFile;
 
 /**
  * Calculate the disk usage entailed by the given objects.
@@ -561,10 +562,6 @@ public class DiskUsageI extends DiskUsage implements IRequest {
             }
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("final usage is " + usage);
-        }
-
         /* collate file counts and sizes by referer type */
         for (final Map.Entry<Long, OwnershipAndSize> fileIdSize : fileSizes.entrySet()) {
             final Long fileId = fileIdSize.getKey();
@@ -577,6 +574,10 @@ public class DiskUsageI extends DiskUsage implements IRequest {
             for (final String type : types) {
                 usage.add(fileSize.owner, fileSize.group, type, fileSize.size);
             }
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("usage is " + usage + " after including " + OriginalFile.class.getSimpleName() + " sizes");
         }
 
         return usage.getDiskUsageResponse();
