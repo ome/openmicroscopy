@@ -47,16 +47,12 @@ import ome.units.UNITS;
 import omero.model.ElectricPotential;
 import omero.model.Frequency;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.PlaneInfo;
 import omero.model.Power;
 import omero.model.Pressure;
 import omero.model.Temperature;
-import omero.model.enums.UnitsElectricPotential;
-import omero.model.enums.UnitsFrequency;
 import omero.model.enums.UnitsLength;
-import omero.model.enums.UnitsPower;
-import omero.model.enums.UnitsPressure;
-import omero.model.enums.UnitsTemperature;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -69,7 +65,6 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 import com.google.common.math.DoubleMath;
 
@@ -205,10 +200,10 @@ public class EditorUtil
     public static final String EMAIL = "E-mail";
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS_NO_BRACKET = UnitsObject.MICRONS;
+    public static final String MICRONS_NO_BRACKET = LengthI.lookupSymbol(UnitsLength.MICROM);
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS = "("+UnitsObject.MICRONS+")";
+    public static final String MICRONS = "("+MICRONS_NO_BRACKET+")";
 
     /** String to represent the celsius symbol. */
     public static final String CELSIUS = "(℃)";
@@ -585,17 +580,6 @@ public class EditorUtil
     }
 
     /**
-     * Transforms the size and returns the value and units.
-     * 
-     * @param value The value to transform.
-     * @return See above.
-     */
-    public static UnitsObject transformSize(Double value)
-    {
-        return UIUtilities.transformSize(value);
-    }
-
-    /**
      * Returns the pixels size as a string.
      *
      * @param details The map to convert.
@@ -604,31 +588,27 @@ public class EditorUtil
     private static String formatPixelsSize(Map details)
     {
         String units = null;
-        UnitsObject o;
-        String x = (String) details.get(PIXEL_SIZE_X);
-        String y = (String) details.get(PIXEL_SIZE_Y);
-        String z = (String) details.get(PIXEL_SIZE_Z);
+        Length x = (Length) details.get(PIXEL_SIZE_X);
+        Length y = (Length) details.get(PIXEL_SIZE_Y);
+        Length z = (Length) details.get(PIXEL_SIZE_Z);
         Double dx = null, dy = null, dz = null;
         NumberFormat nf = NumberFormat.getInstance();
         try {
-            dx = Double.parseDouble(x);
-            o = transformSize(dx);
-            units = o.getUnits();
-            dx = o.getValue();
+        	x = UIUtilities.transformSize(x);
+            dx = x.getValue();
+            units = ((LengthI)x).getSymbol();
         } catch (Exception e) {
         }
         try {
-            dy = Double.parseDouble(y);
-            o = transformSize(dy);
-            if (units == null) units = o.getUnits();
-            dy = o.getValue();
+        	y = UIUtilities.transformSize(y);
+            dy = y.getValue();
+            if (units == null) units = ((LengthI)y).getSymbol();
         } catch (Exception e) {
         }
         try {
-            dz = Double.parseDouble(z);
-            o = transformSize(dz);
-            if (units == null) units = o.getUnits();
-            dz = o.getValue();
+        	z = UIUtilities.transformSize(z);
+            dz = z.getValue();
+            if (units == null) units = ((LengthI)z).getSymbol();
         } catch (Exception e) {
         }
 
@@ -650,7 +630,7 @@ public class EditorUtil
         }
         label += ") ";
         if (value.length() == 0) return null;
-        if (units == null) units = UnitsObject.MICRONS;
+        if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROM);
         return label+units+": </b>"+value;
     }
 
@@ -704,6 +684,7 @@ public class EditorUtil
      */
     public static Map<String, Object> transformPixelsData(PixelsData data)
     {
+    	Length nullLength = new LengthI(0, UnitsLength.PIXEL);
         LinkedHashMap<String, Object> details =
                 new LinkedHashMap<String, Object>(9);
         if (data == null) {
@@ -711,9 +692,9 @@ public class EditorUtil
             details.put(SIZE_Y, "");
             details.put(SECTIONS, "");
             details.put(TIMEPOINTS, "");
-            details.put(PIXEL_SIZE_X, "");
-            details.put(PIXEL_SIZE_Y, "");
-            details.put(PIXEL_SIZE_Z, "");
+            details.put(PIXEL_SIZE_X, nullLength);
+            details.put(PIXEL_SIZE_Y, nullLength);
+            details.put(PIXEL_SIZE_Z, nullLength);
             details.put(PIXEL_TYPE, "");
             details.put(CHANNELS, "");
         } else {
@@ -723,11 +704,11 @@ public class EditorUtil
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
             Length l = data.getPixelSizeX(UnitsLength.MICROM);
-			details.put(PIXEL_SIZE_X,  l == null ? "0" : ""+l.getValue());
+			details.put(PIXEL_SIZE_X,  l == null ? nullLength : l);
 			l = data.getPixelSizeY(UnitsLength.MICROM);
-			details.put(PIXEL_SIZE_Y,  l == null ? "0" : ""+l.getValue());
+			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
 			l = data.getPixelSizeZ(UnitsLength.MICROM);
-			details.put(PIXEL_SIZE_Z,  l == null ? "0" : ""+l.getValue());
+			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
 			details.put(PIXEL_TYPE,
 					PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
         }
@@ -1847,6 +1828,7 @@ public class EditorUtil
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
                 details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
+                notSet.remove(WAVELENGTH);
             }
         } else {
             Double vi = 0.0;
@@ -1855,6 +1837,7 @@ public class EditorUtil
             else  {
             	vi = wl.getValue();
             	details.put(WAVELENGTH, vi+NONBRSPACE+wl.getSymbol());
+            	notSet.remove(WAVELENGTH);
             }
         }
         details.put(NOT_SET, notSet);

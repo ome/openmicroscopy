@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -96,6 +96,8 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 
 /** 
@@ -279,9 +281,7 @@ class MeasurementViewerModel
 		drawingComponent = new DrawingComponent();
 		roiComponent = new ROIComponent();
 		fileSaved = null;
-		roiComponent.setMicronsPixelX(getPixelSizeX());
-		roiComponent.setMicronsPixelY(getPixelSizeY());
-		roiComponent.setMicronsPixelZ(getPixelSizeZ());
+		roiComponent.setPixelSizes(getPixelSizeX(), getPixelSizeY(), getPixelSizeZ());
 		workflows = new HashMap<String, WorkflowData>();
 		this.workflowNamespace = WorkflowData.DEFAULTWORKFLOW;
 		this.keyword = new ArrayList<String>();
@@ -696,30 +696,35 @@ class MeasurementViewerModel
 	 */
 	boolean sizeInMicrons()
 	{
-		double v = getPixelSizeX();
-		return (v != 0 && v != 1);
+		return !getPixelSizeX().getUnit().equals(UnitsLength.PIXEL);
 	}
 	
 	/**
-	 * Returns the size in microns of a pixel along the X-axis.
+	 * Returns the size of a pixel along the X-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeX() { return pixels.getPixelSizeX(UnitsLength.MICROM).getValue(); }
+	Length getPixelSizeX() {
+		Length l = pixels.getPixelSizeX(UnitsLength.MICROM);
+		return l != null ? l : new LengthI(1, UnitsLength.PIXEL);
+	}
 	
 	/**
-	 * Returns the size in microns of a pixel along the Y-axis.
+	 * Returns the size of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeY() { return pixels.getPixelSizeY(UnitsLength.MICROM).getValue(); }
+	Length getPixelSizeY() {
+		Length l = pixels.getPixelSizeY(UnitsLength.MICROM);
+		return l != null ? l : new LengthI(1, UnitsLength.PIXEL);
+	}
 	
 	/**
-	 * Returns the size in microns of a pixel along the Z-axis.
+	 * Returns the size of a pixel along the Z-axis.
 	 * 
 	 * @return See above.
 	 */
-	double getPixelSizeZ() { return pixels.getPixelSizeZ(UnitsLength.MICROM).getValue(); }
+	Length getPixelSizeZ() { return pixels.getPixelSizeZ(UnitsLength.MICROM); }
 	
 	/**
 	 * Returns the number of z sections in an image.
@@ -1314,7 +1319,10 @@ class MeasurementViewerModel
 	 */
 	void showMeasurementsInMicrons(boolean inMicrons)
 	{
-		roiComponent.showMeasurementsInMicrons(inMicrons);
+		if (inMicrons)
+			roiComponent.setPixelSizes(getPixelSizeX(), getPixelSizeY(), getPixelSizeZ());
+		else
+			roiComponent.setPixelSizes(new LengthI(1, UnitsLength.PIXEL), new LengthI(1, UnitsLength.PIXEL), new LengthI(1, UnitsLength.PIXEL));
 	}
 
 	/** 

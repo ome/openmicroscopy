@@ -30,8 +30,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,7 +52,6 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -433,7 +430,7 @@ class BrowserModel
     private double getBarSize(double ratio)
     {
     	double v = unitInRefUnits;
-        double t = EditorUtil.transformSize(getPixelsSizeX()).getValue();
+        double t = UIUtilities.transformSize(getPixelsSizeX()).getValue();
         if (t > 0) v = unitInRefUnits/t;
         v *= ratio;
         return v;
@@ -675,7 +672,7 @@ class BrowserModel
      */
     void setUnitBar(boolean unitBar)
     {
-    	double v = EditorUtil.transformSize(parent.getPixelsSizeX()).getValue();
+    	double v = UIUtilities.transformSize(parent.getPixelsSizeX()).getValue();
     	if (v == 0 || v == 1) unitBar = false;
     	this.unitBar = unitBar;
     }
