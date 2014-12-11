@@ -141,6 +141,7 @@
         <bean parent="graphPolicyRule" p:matches="LS:LightSettings[E]{i}.lightSource = [E]{r}" p:changes="LS:{r}"/>
         <bean parent="graphPolicyRule" p:matches="OS:ObjectiveSettings[E]{i}.objective = [E]{r}" p:changes="OS:{r}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{ia} == [DI]" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E] ==/o [D]" p:changes="X:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[ED]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[I] = I:Image[ED].fileset" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[D] = I:Image[E].fileset" p:changes="I:[D]"/>
@@ -237,6 +238,7 @@
         <bean parent="graphPolicyRule" p:matches="LS:LightSettings[E]{i}.lightSource = [E]{r}" p:changes="LS:{r}"/>
         <bean parent="graphPolicyRule" p:matches="OS:ObjectiveSettings[E]{i}.objective = [E]{r}" p:changes="OS:{r}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{ia} == [DI]" p:changes="X:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="X:[E] ==/o [D]" p:changes="X:[D]"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].pixels = P:[ED]" p:changes="P:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[I] = I:Image[ED].fileset" p:changes="I:[I]"/>
         <bean parent="graphPolicyRule" p:matches="Fileset[D] = I:Image[E].fileset" p:changes="I:[D]"/>
