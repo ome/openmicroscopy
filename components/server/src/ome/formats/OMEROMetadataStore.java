@@ -1935,12 +1935,15 @@ public class OMEROMetadataStore
                     + "left outer join i.pixels as p "
                     + "left outer join p.channels as c "
                     + "left outer join c.logicalChannel as lc "
-                    + "where i.id = :id ";
+                    + "where i.id = :id";
 
             Image eximg = sf.getQueryService().findByQuery(imageQuery, new Parameters().addId(eximgId));
 
+            img.setName(eximg.getName());
+            img.setDescription(eximg.getDescription());
+            
             int j = 0;
-            for(Iterator<Pixels> iterPixel = imageList.get(i).iteratePixels(); iterPixel.hasNext();) {
+            for(Iterator<Pixels> iterPixel = img.iteratePixels(); iterPixel.hasNext();) {
                 Pixels pix = iterPixel.next();
                 Pixels expix = eximg.getPixels(j);
                 pix.setId(expix.getId());
@@ -1979,13 +1982,13 @@ public class OMEROMetadataStore
             }
 
             if (eximg.getInstrument() != null) {
-                imageList.get(i).getInstrument().setId(eximg.getInstrument().getId());
+                img.getInstrument().setId(eximg.getInstrument().getId());
             }
 
             if (eximg.getObjectiveSettings() != null) {
-                imageList.get(i).getObjectiveSettings().setId(eximg.getObjectiveSettings().getId());
+                img.getObjectiveSettings().setId(eximg.getObjectiveSettings().getId());
                 if (eximg.getObjectiveSettings().getObjective() != null) {
-                    imageList.get(i).getObjectiveSettings().getObjective().setId(eximg.getObjectiveSettings().getObjective().getId());
+                    img.getObjectiveSettings().getObjective().setId(eximg.getObjectiveSettings().getObjective().getId());
                 }
             }
 
