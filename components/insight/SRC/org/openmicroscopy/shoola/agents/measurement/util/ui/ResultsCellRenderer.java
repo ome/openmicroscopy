@@ -241,8 +241,7 @@ public class ResultsCellRenderer
 		MeasurementTableModel tm = (MeasurementTableModel) table.getModel();
 		KeyDescription key = tm.getColumnNames().get(column);
         String k = key.getKey();
-        System.out.println(row+","+column+" : "+k+"="+value);
-        
+ 
 		if (value instanceof Length)
 		{
 	        MeasurementUnits units = tm.getUnitsType();
@@ -282,7 +281,15 @@ public class ResultsCellRenderer
     		}
     		else {
     			s = UIUtilities.twoDecimalPlaces(((Number) value).doubleValue());
+				if (s == null) {
+					s = "0";
+				}
     		}
+    		
+    		if(k.equals(AnnotationKeys.ANGLE.getKey())) {
+    			s += UIUtilities.DEGREE_SYMBOL;
+    		}
+    		
     		label.setText(s);
     		thisComponent = label;
     	}
