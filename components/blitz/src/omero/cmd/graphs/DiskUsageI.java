@@ -20,6 +20,7 @@
 package omero.cmd.graphs;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +49,7 @@ import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.parameters.Parameters;
 import ome.system.Login;
+import omero.api.LongPair;
 import omero.cmd.DiskUsage;
 import omero.cmd.DiskUsageResponse;
 import omero.cmd.HandleI.Cancel;
@@ -59,7 +61,7 @@ import omero.cmd.Response;
 /**
  * Calculate the disk usage entailed by the given objects.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.1
+ * @since 5.1.0
  */
 @SuppressWarnings("serial")
 public class DiskUsageI extends DiskUsage implements IRequest {
@@ -234,14 +236,14 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     /**
      * Track the disk usage subtotals and totals. Not thread-safe.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.1
+     * @since 5.1.0
      */
     private static class Usage {
-        private final Map<String, Integer> countByType = new HashMap<String, Integer>();
-        private final Map<String, Long> sizeByType = new HashMap<String, Long>();
+        private final Map<LongPair, Map<String, Integer>> countByTypeByWho = new HashMap<LongPair, Map<String, Integer>>();
+        private final Map<LongPair, Map<String, Long>> sizeByTypeByWho = new HashMap<LongPair, Map<String, Long>>();
 
-        private int totalCount = 0;
-        private long totalSize = 0;
+        private final Map<LongPair, Integer> totalCountByWho = new HashMap<LongPair, Integer>();
+        private final Map<LongPair, Long> totalSizeByWho = new HashMap<LongPair, Long>();
 
         private boolean bumpTotals = false;
 
@@ -255,16 +257,30 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         }
 
         /**
-         * Adjust counts and sizes according to given type and size.
+         * Adjust counts and sizes according to given ownership, type and size.
          * Does not adjust anything unless {@code size > 0}.
          * @see #bumpTotals()
+         * @param owner the ID of an owner
+         * @param group the ID of a group
          * @param type a type
          * @param size a size
          */
-        void add(String type, Long size) {
+        void add(long owner, long group, String type, Long size) {
             if (size <= 0) {
                 bumpTotals = false;
                 return;
+            }
+            final LongPair ownership = new LongPair(owner, group);
+            final Map<String, Integer> countByType;
+            final Map<String, Long> sizeByType;
+            if (countByTypeByWho.containsKey(ownership)) {
+                countByType = countByTypeByWho.get(ownership);
+                sizeByType = sizeByTypeByWho.get(ownership);
+            } else {
+                countByType = new HashMap<String, Integer>();
+                sizeByType = new HashMap<String, Long>();
+                countByTypeByWho.put(ownership, countByType);
+                sizeByTypeByWho.put(ownership, sizeByType);
             }
             Long sizeThisType = sizeByType.get(type);
             if (sizeThisType == null) {
@@ -275,8 +291,18 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 sizeByType.put(type, sizeThisType + size);
             }
             if (bumpTotals) {
+                Integer totalCount = totalCountByWho.get(ownership);
+                Long totalSize = totalSizeByWho.get(ownership);
+                if (totalCount == null) {
+                    totalCount = 0;
+                }
+                if (totalSize == null) {
+                    totalSize = 0L;
+                }
                 totalCount++;
                 totalSize += size;
+                totalCountByWho.put(ownership, totalCount);
+                totalSizeByWho.put(ownership, totalSize);
                 bumpTotals = false;
             }
         }
@@ -285,12 +311,32 @@ public class DiskUsageI extends DiskUsage implements IRequest {
          * @return a disk usage response corresponding to the current usage
          */
         public DiskUsageResponse getDiskUsageResponse() {
-            return new DiskUsageResponse(countByType, sizeByType, totalCount, totalSize);
+            return new DiskUsageResponse(countByTypeByWho, sizeByTypeByWho, totalCountByWho, totalSizeByWho);
+        }
+
+        /**
+         * Convert a map into a concise string representation.
+         * @param byWho a map with owner, group keys
+         * @return the string representation
+         */
+        private String toString(Map<LongPair, ?> byWho) {
+            final List<String> asStrings = new ArrayList<String>(byWho.size());
+            final StringBuffer sb = new StringBuffer();
+            for (final Map.Entry<LongPair, ?> entry : byWho.entrySet()) {
+                sb.setLength(0);
+                sb.append(entry.getKey().first);
+                sb.append('/');
+                sb.append(entry.getKey().second);
+                sb.append('=');
+                sb.append(entry.getValue());
+                asStrings.add(sb.toString());
+            }
+            return Joiner.on(", ").join(asStrings);
         }
 
         @Override
         public String toString() {
-            return "files = " + totalCount + ", bytes = " + totalSize;
+            return "files = [" + toString(totalCountByWho) + "], bytes = [" + toString(totalSizeByWho) + "]";
         }
     }
 
@@ -340,6 +386,34 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     /* DISK USAGE CALCULATION */
 
     /**
+     * Notes the ownership and disk usage of an original file. Immutable.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 5.1.0
+     */
+    private static class OwnershipAndSize {
+        /** the ID of the owner of the file */
+        public final long owner;
+
+        /** the ID of the group of the file */
+        public final long group;
+
+        /** the size of the file */
+        public final long size;
+
+        /**
+         * Construct a tuple of a file's ownership and disk usage.
+         * @param owner the ID of the owner of the file
+         * @param group the ID of the group of the file
+         * @param size the size of the file
+         */
+        OwnershipAndSize(long owner, long group, long size) {
+            this.owner = owner;
+            this.group = group;
+            this.size = size;
+        }
+    }
+
+    /**
      * Get the size of the file at the given path, or {@code 0} if it does not exist.
      * @param path a file path
      * @return the file's size, or {@code 0} if the file does not exist
@@ -364,8 +438,8 @@ public class DiskUsageI extends DiskUsage implements IRequest {
 
         /* original file ID to types that refer to them */
         final SetMultimap<Long, String> typesWithFiles = HashMultimap.create();
-        /* original file ID to file size */
-        final Map<Long, Long> fileSizes = new HashMap<Long, Long>();
+        /* original file ID to file ownership and size */
+        final Map<Long, OwnershipAndSize> fileSizes = new HashMap<Long, OwnershipAndSize>();
 
         /* note the objects to process */
 
@@ -404,27 +478,41 @@ public class DiskUsageI extends DiskUsage implements IRequest {
 
             if ("Pixels".equals(className)) {
                 /* Pixels may have /OMERO/Pixels/<id> files */
-                for (final Long id : idsToQuery) {
-                    final String pixelsPath = pixelsService.getPixelsPath(id);
-                    usage.bumpTotals().add(className, getFileSize(pixelsPath));
-                    usage.bumpTotals().add(className, getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX));
-                    usage.bumpTotals().add(className, getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX +
-                            BfPyramidPixelBuffer.PYR_LOCK_EXT));
+                final String hql = "SELECT id, details.owner.id, details.group.id FROM " + className + " WHERE id IN (:ids)";
+                for (final Object[] resultRow : queryService.projection(hql, parameters)) {
+                    if (resultRow != null) {
+                        final Long pixelsId = (Long) resultRow[0];
+                        final Long ownerId = (Long) resultRow[1];
+                        final Long groupId = (Long) resultRow[2];
+                        final String pixelsPath = pixelsService.getPixelsPath(pixelsId);
+                        usage.bumpTotals().add(ownerId, groupId, className, getFileSize(pixelsPath));
+                        usage.bumpTotals().add(ownerId, groupId, className, getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX));
+                        usage.bumpTotals().add(ownerId, groupId, className, getFileSize(pixelsPath + PixelsService.PYRAMID_SUFFIX +
+                                BfPyramidPixelBuffer.PYR_LOCK_EXT));
+                    }
                 }
             } else if ("Thumbnail".equals(className)) {
                 /* Thumbnails may have /OMERO/Thumbnails/<id> files */
-                for (final Long id : idsToQuery) {
-                    final String thumbnailPath = thumbnailService.getThumbnailPath(id);
-                    usage.bumpTotals().add(className, getFileSize(thumbnailPath));
+                final String hql = "SELECT id, details.owner.id, details.group.id FROM " + className + " WHERE id IN (:ids)";
+                for (final Object[] resultRow : queryService.projection(hql, parameters)) {
+                    if (resultRow != null) {
+                        final Long thumbnailId = (Long) resultRow[0];
+                        final Long ownerId = (Long) resultRow[1];
+                        final Long groupId = (Long) resultRow[2];
+                        final String thumbnailPath = thumbnailService.getThumbnailPath(thumbnailId);
+                        usage.bumpTotals().add(ownerId, groupId, className, getFileSize(thumbnailPath));
+                    }
                 }
             } else if ("OriginalFile".equals(className)) {
                 /* OriginalFiles have their size noted */
-                final String hql = "SELECT id, size FROM OriginalFile WHERE id IN (:ids)";
+                final String hql = "SELECT id, details.owner.id, details.group.id, size FROM OriginalFile WHERE id IN (:ids)";
                 for (final Object[] resultRow : queryService.projection(hql, parameters)) {
-                    if (resultRow != null && resultRow[1] instanceof Long) {
-                        final Long fileId   = (Long) resultRow[0];
-                        final Long fileSize = (Long) resultRow[1];
-                        fileSizes.put(fileId, fileSize);
+                    if (resultRow != null && resultRow[3] instanceof Long) {
+                        final Long fileId = (Long) resultRow[0];
+                        final Long ownerId = (Long) resultRow[1];
+                        final Long groupId = (Long) resultRow[2];
+                        final Long fileSize = (Long) resultRow[3];
+                        fileSizes.put(fileId, new OwnershipAndSize(ownerId, groupId, fileSize));
                     }
                 }
             } else if ("Experimenter".equals(className)) {
@@ -478,16 +566,16 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         }
 
         /* collate file counts and sizes by referer type */
-        for (final Map.Entry<Long, Long> fileIdSize : fileSizes.entrySet()) {
+        for (final Map.Entry<Long, OwnershipAndSize> fileIdSize : fileSizes.entrySet()) {
             final Long fileId = fileIdSize.getKey();
-            final Long fileSize = fileIdSize.getValue();
+            final OwnershipAndSize fileSize = fileIdSize.getValue();
             Set<String> types = typesWithFiles.get(fileId);
             if (types.isEmpty()) {
                 types = ImmutableSet.of("OriginalFile");
             }
             usage.bumpTotals();
             for (final String type : types) {
-                usage.add(type, fileSize);
+                usage.add(fileSize.owner, fileSize.group, type, fileSize.size);
             }
         }
 
