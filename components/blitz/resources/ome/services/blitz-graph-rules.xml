@@ -274,7 +274,9 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = X:[E]/!d, L.child = T:TagAnnotation[D]"
                                        p:error="may not delete {T} because {X} is tagged with it"/>
         <bean parent="graphPolicyRule" p:matches="E:IEnum[E]" p:changes="E:[O]"/>
-        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[D]/!no.pixels = [ED]/o" p:changes="RD:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="R:Roi[D]/!no.image = [!O]/o" p:changes="R:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="RD:RenderingDef[D]/!no.pixels = [!O]/o" p:changes="RD:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="T:Thumbnail[D]/!no.pixels = [!O]/o" p:changes="T:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="[D] =? X:!ILink[E]{o}" p:changes="X:[D]"/>
         <bean parent="graphPolicyRule" p:matches="POFM:PixelsOriginalFileMap[!D].parent = [E]/!d, POFM.child = Pixels[D]"
                                        p:changes="POFM:[D]/n"/>
