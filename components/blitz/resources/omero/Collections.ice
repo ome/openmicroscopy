@@ -145,6 +145,16 @@ module omero {
         dictionary<string, long>                       StringLongMap;
         dictionary<string, int>                        StringIntMap;
 
+        struct LongPair {
+          long first;
+          long second;
+        };
+
+        dictionary<LongPair, long>                     LongPairLongMap;
+        dictionary<LongPair, int>                      LongPairIntMap;
+        dictionary<LongPair, StringLongMap>            LongPairToStringLongMap;
+        dictionary<LongPair, StringIntMap>             LongPairToStringIntMap;
+
         // Multimaps (dictionaries with sequence values)
 
         dictionary<string, Ice::LongSeq>               IdListMap;
