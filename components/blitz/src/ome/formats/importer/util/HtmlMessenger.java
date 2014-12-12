@@ -164,7 +164,7 @@ public class HtmlMessenger
 		  //Create request.
 	        if (StringUtils.isBlank(url))
 	            throw new HtmlMessengerException("No URL specified.");
-	        HttpPost request = new HttpPost(url);
+	        request = new HttpPost(url);
 	        request.addHeader("Accept", "text/plain");
 	        request.addHeader("Content-type", "application/x-www-form-urlencoded");
 	        List<BasicNameValuePair> p = new ArrayList<BasicNameValuePair>();
