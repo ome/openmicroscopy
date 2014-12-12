@@ -77,6 +77,13 @@ build_cpp()
     )
 }
 
+if [ $# -eq 0 ]
+then
+    clean
+    build_java
+    build_python
+fi
+
 for arg in "$@"
 do
     case $arg in
