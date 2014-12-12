@@ -331,28 +331,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
                 if (sendLogs)
                 {
+                    //To be reviewed.
                     errorContainer.addFile(config.getLogFile());
-                }
-
-                if (sendFiles)
-                {
-                    postList.put("selected_file",
-                            errorContainer.getSelectedFile().getName());
-                    postList.put("absolute_path",
-                            errorContainer.getAbsolutePath());
-                    String[] files = errorContainer.getFiles();
-
-                    if (files != null && files.length > 0) {
-                        for (String f : errorContainer.getFiles()) {
-                            File file = new File(f);
-                            postList.put("additional_files", file.getName());
-                            if (file.getParent() != null)
-                                postList.put("additional_files_path",
-                                        file.getParent() + "/");
-                            postList.put("additional_files_size",
-                                    ((Long) file.length()).toString());
-                        }
-                    }
                 }
             }
 
