@@ -86,14 +86,38 @@
 
         <span>
             Channels Selection:
-
-            <!-- TODO - need isDark() in js to add font-white -->
+            <!-- hidden Channels field updated by buttons -->
+            <input type="text" name="Channels" style="display:none"/>
             {% for ch in channels %}
                 <button class="ch-btn{% if ch.active %} pressed{% endif %}"
                         style="background-color: #{{ch.color}}">
                     {{ ch.label }}
                 </button>
             {% endfor %}
+        </span>
+
+        <hr/>
+
+        Time Interval:
+        <div id="tSlider" style="margin: 10px 20px"></div>
+        <!-- we have hidden fields of true T_Start etc, and display fields where value is +1 -->
+        Start:
+        <input name="T_Start" value="0" type="number" style="display:none" class="number"/>
+        <input name="T_StartPlus1" value="1" type="number" style="width: 50px" class="number"/>
+        End:
+        <input name="T_End" value="{{ sizeT|add:'-1'  }}" type="number" style="display:none" class="number"/>
+        <input name="T_EndPlus1" value="{{ sizeT  }}" type="number" style="width: 50px" class="number"/>
+
+        <hr/>
+
+        Z-section Interval:
+        <div id="zSlider" style="margin: 10px 20px"></div>
+        Start:
+        <input name="Z_Start" value="0" type="number" style="display:none" class="number"/>
+        <input name="Z_StartPlus1" value="1" type="number" style="width: 50px" class="number"/>
+        End:
+        <input name="Z_End" value="{{ sizeZ|add:'-1' }}" type="number" style="display:none" class="number"/>
+        <input name="Z_EndPlus1" value="{{ sizeZ }}" type="number" style="width: 50px" class="number"/>
 
 
     {% endblock %}

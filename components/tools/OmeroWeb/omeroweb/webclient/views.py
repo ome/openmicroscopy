@@ -2788,6 +2788,8 @@ def figure_script(request, scriptName, conn=None, **kwargs):
                 'label': c.getLabel()
                 })
         context['channels'] = chs
+        context['sizeT'] = image.getSizeT()
+        context['sizeZ'] = image.getSizeZ()
 
 
     scriptService = conn.getScriptService()
