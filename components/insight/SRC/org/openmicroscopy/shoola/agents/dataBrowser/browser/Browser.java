@@ -459,7 +459,7 @@ public interface Browser
 	public void setSelectedDisplays(List<ImageDisplay> nodes);
 	
 	/**
-         * Select the ImageDisplay whichs is located at the given coordinates
+         * Select the ImageDisplay which is located at the given coordinates
          *
          * @param coords The component coordinates
          * @param multiSel Pass <code>true</code> for adding selection 

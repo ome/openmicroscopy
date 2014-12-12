@@ -454,7 +454,7 @@ class BrowserControl
 
         // choose a point which lies 50% of the ImageDisplay width/height 
         // to the left/right/above/under the current ImageDisplay;
-        // (this will work unless the gap between the ImageDisplays is not 
+        // (this will work if the gap between the ImageDisplays is not 
         //  too big)
         switch (direction) {
             case DIRECTION_LEFT:
