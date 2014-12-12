@@ -2784,7 +2784,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         for c in image.getChannels():
             chs.append({
                 'active': c.isActive(),
-                'color': c.getColor().getCss(),
+                'color': c.getColor().getHtml(),
                 'label': c.getLabel()
                 })
         context['channels'] = chs

@@ -42,6 +42,9 @@
         button.pressed {
             border-style: inset;
         }
+        button.fontWhite {
+            color: white;
+        }
     </style>
 {% endblock %}
 
@@ -86,8 +89,8 @@
 
             <!-- TODO - need isDark() in js to add font-white -->
             {% for ch in channels %}
-                <button class="{% if ch.active %}pressed{% endif %}"
-                        style="background-color: {{ch.color}}">
+                <button class="ch-btn{% if ch.active %} pressed{% endif %}"
+                        style="background-color: #{{ch.color}}">
                     {{ ch.label }}
                 </button>
             {% endfor %}
