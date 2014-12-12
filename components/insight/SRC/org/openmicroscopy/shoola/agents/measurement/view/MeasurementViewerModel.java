@@ -940,14 +940,6 @@ class MeasurementViewerModel
 	{
 		ROI roi = roiComponent.addROI(figure, getCurrentView(), addAttribs);
 		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0 ; i < keyword.size() ; i++)
-		{
-			buffer.append(keyword.get(i));
-			if (i < keyword.size()-1)
-				buffer.append(",");
-		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());		
 		return roi;
 	}
 	
