@@ -50,7 +50,6 @@ public:
 
     TestCB(const omero::client_ptr client, const HandlePrx& handle) :
         CmdCallbackI(client, handle), steps(0), finished(0) {
-            cout << client->getSessionId() << endl;
         }
 
     ~TestCB(){}
@@ -85,7 +84,20 @@ public:
     void assertFinished(bool testSteps = true) {
         try {
             IceUtil::RecMutex::Lock lock(mutex);
-            ASSERT_EQ(1, finished);
+            if (0 == finished) {
+                // If things work as expected, then
+                // the callback is added to the server
+                // in time for onFinished to be called.
+                // If that has failed, then we try again
+                // since there seems to be some race
+                // condition in C++.
+                poll();
+                if (!getResponse()) {
+                    FAIL() << "finished uncalled";
+                }
+            } else {
+                ASSERT_EQ(1, finished);
+            }
             ASSERT_FALSE(isCancelled());
             ASSERT_FALSE(isFailure());
             ResponsePtr rsp = getResponse();
@@ -117,7 +129,20 @@ public:
     void assertCancelled() {
         try {
             IceUtil::RecMutex::Lock lock(mutex);
-            ASSERT_EQ(1, finished);
+            if (0 == finished) {
+                // If things work as expected, then
+                // the callback is added to the server
+                // in time for onFinished to be called.
+                // If that has failed, then we try again
+                // since there seems to be some race
+                // condition in C++.
+                poll();
+                if (!getResponse()) {
+                    FAIL() << "finished uncalled";
+                }
+            } else {
+                ASSERT_EQ(1, finished);
+            }
             ASSERT_TRUE(isCancelled());
         } catch (const omero::ValidationException& ve) {
             FAIL() << "validation exception:" << ve.message;
@@ -211,11 +236,15 @@ TEST(CmdCallbackTest, testDoNothingFinishesOnLoop) {
 }
 
 TEST(CmdCallbackTest, testDoAllTimingFinishesOnLoop) {
-    CBFixture f;
-    TestCBPtr cb = f.doAllTiming(5);
-    cb->loop(5, 1000);
-    cb->assertFinished();
-    // For some reason the number of steps is varying between 10 and 15
+    try {
+        CBFixture f;
+        TestCBPtr cb = f.doAllTiming(5);
+        cb->loop(5, 1000);
+        cb->assertFinished();
+        // For some reason the number of steps is varying between 10 and 15
+    } catch (const Ice::ConnectionLostException& cle) {
+        FAIL() << "connection lost: " << cle << endl;
+    }
 }
 
 TEST(CmdCallbackTest, testAddAfterFinish) {

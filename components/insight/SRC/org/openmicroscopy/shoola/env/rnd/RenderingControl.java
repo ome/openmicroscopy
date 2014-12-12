@@ -72,7 +72,7 @@ public interface RenderingControl
 	public static final int		MAX_SIZE_THREE = 3*MAX_SIZE;
 	
 	/** The maximum number of channels. */
-	public static final int		MAX_CHANNELS = 10;
+	public static final int		MAX_CHANNELS = 100;
 	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int		UNCOMPRESSED = 0;

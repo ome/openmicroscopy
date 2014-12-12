@@ -307,11 +307,11 @@ TEST(ModelTest, OrderedCollectionsTicket2547 ) {
 TEST(ModelTest, LengthGetSymbol) {
     LengthPtr l = new LengthI();
     l->setValue(1.0);
-    l->setUnit(omero::model::enums::UnitsLength::MICROM);
+    l->setUnit(omero::model::enums::MICROM);
     ASSERT_EQ("µm", l->getSymbol());
 }
 
 TEST(ModelTest, LengthLookupSymbol) {
     ASSERT_EQ("µm", LengthI::lookupSymbol(
-            omero::model::enums::UnitsLength::MICROM));
+            omero::model::enums::MICROM));
 }
