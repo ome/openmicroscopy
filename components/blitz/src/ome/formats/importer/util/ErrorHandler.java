@@ -12,7 +12,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import loci.formats.MissingLibraryException;
 import ome.formats.importer.IObservable;
@@ -21,8 +23,6 @@ import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -304,28 +304,22 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 // it
                 continue;
 
-            List<Part> postList = new ArrayList<Part>();
+            Map<String, String> postList = new HashMap<String, String>();
 
-            postList.add(new StringPart("java_version", errorContainer
-                    .getJavaVersion()));
-            postList.add(new StringPart("java_classpath", errorContainer
-                    .getJavaClasspath()));
-            postList.add(new StringPart("app_version", errorContainer
-                    .getAppVersion()));
-            postList.add(new StringPart("comment_type", errorContainer
-                    .getCommentType()));
-            postList.add(new StringPart("os_name", errorContainer.getOSName()));
-            postList.add(new StringPart("os_arch", errorContainer.getOSArch()));
-            postList.add(new StringPart("os_version", errorContainer
-                    .getOSVersion()));
-            postList.add(new StringPart("extra", errorContainer.getExtra()));
-            postList.add(new StringPart("error", getStackTrace(errorContainer.getError())));
-            postList
-                    .add(new StringPart("comment", errorContainer.getComment()));
-            postList.add(new StringPart("email", errorContainer.getEmail()));
-            postList.add(new StringPart("app_name", "2"));
-            postList.add(new StringPart("import_session", "test"));
-            postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath() + "/"));
+            postList.put("java_version", errorContainer.getJavaVersion());
+            postList.put("java_classpath", errorContainer.getJavaClasspath());
+            postList.put("app_version", errorContainer.getAppVersion());
+            postList.put("comment_type", errorContainer.getCommentType());
+            postList.put("os_name", errorContainer.getOSName());
+            postList.put("os_arch", errorContainer.getOSArch());
+            postList.put("os_version", errorContainer.getOSVersion());
+            postList.put("extra", errorContainer.getExtra());
+            postList.put("error", getStackTrace(errorContainer.getError()));
+            postList.put("comment", errorContainer.getComment());
+            postList.put("email", errorContainer.getEmail());
+            postList.put("app_name", "2");
+            postList.put("import_session", "test");
+            postList.put("absolute_path", errorContainer.getAbsolutePath() + "/");
 
             String sendUrl = config.getTokenUrl();
 
@@ -342,17 +336,21 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
                 if (sendFiles)
                 {
-                    postList.add(new StringPart("selected_file", errorContainer.getSelectedFile().getName()));
-                    postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath()));
+                    postList.put("selected_file",
+                            errorContainer.getSelectedFile().getName());
+                    postList.put("absolute_path",
+                            errorContainer.getAbsolutePath());
                     String[] files = errorContainer.getFiles();
 
                     if (files != null && files.length > 0) {
                         for (String f : errorContainer.getFiles()) {
                             File file = new File(f);
-                            postList.add(new StringPart("additional_files", file.getName()));
+                            postList.put("additional_files", file.getName());
                             if (file.getParent() != null)
-                                postList.add(new StringPart("additional_files_path", file.getParent() + "/"));
-                            postList.add(new StringPart("additional_files_size", ((Long) file.length()).toString()));
+                                postList.put("additional_files_path",
+                                        file.getParent() + "/");
+                            postList.put("additional_files_size",
+                                    ((Long) file.length()).toString());
                         }
                     }
                 }
@@ -360,11 +358,16 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
             try {
 
-                executePost(sendUrl, postList);
-
+                messenger = new HtmlMessenger(sendUrl, postList);
+                serverReply = messenger.executePost();
                 if (sendFiles || sendLogs) {
                     onSending(i);
-                    uploadFile(errorContainer);
+                    errorContainer.setToken(serverReply);
+                    fileUploader = new FileUploader(messenger.getCommunicationLink(
+                            config.getUploaderUrl()));
+                    fileUploader.addObserver(this);
+                    fileUploader.uploadFiles(config.getUploaderUrl(), 2000,
+                            errorContainer);
                     onSent(i);
                 } else {
                     onNotSending(i, serverReply);
@@ -387,34 +390,6 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             finishComplete();
             notifyObservers(new ImportEvent.ERRORS_COMPLETE());
         }
-    }
-
-    /**
-     * Execute a post with the given post list. This can be overwritten in order
-     * to test error handling without touching QA. The server reply should be
-     * non-null, but is otherwise unimportant.
-     *
-     * @param sendUrl
-     * @param postList
-     * @throws HtmlMessengerException
-     */
-    public void executePost(String sendUrl, List<Part> postList)
-            throws HtmlMessengerException {
-        messenger = new HtmlMessenger(sendUrl, postList);
-        serverReply = messenger.executePost();
-    }
-
-    /**
-     * Upload a single {@link ErrorContainer}. This can be overwritten in order
-     * to test error handling without touching QA.
-     *
-     * @param errorContainer
-     */
-    public void uploadFile(ErrorContainer errorContainer) {
-        errorContainer.setToken(serverReply);
-        fileUploader = new FileUploader(messenger.getHttpClient());
-        fileUploader.addObserver(this);
-        fileUploader.uploadFiles(config.getUploaderUrl(), 2000, errorContainer);
     }
 
     /**
@@ -508,7 +483,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      */
     protected void onCancel()
     {
-        fileUploader.cancel();
+        
     }
 
 
@@ -571,7 +546,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      */
     protected void finishCancelled()
     {
-        fileUploader.cancel();
+        
     }
 
     /**
