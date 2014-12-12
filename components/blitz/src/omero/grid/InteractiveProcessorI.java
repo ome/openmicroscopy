@@ -263,21 +263,18 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
                 // one system. Adding debugging to detect which.
                 if (control == null) {
                     log.error("Control null on execute");
-                    throw new omero.InternalException(null, null,
-                            "Control null on execute");
+                } else {
+                    IdentitySetPrx identities = control.identities();
+                    if (identities == null) {
+                        log.error("Identities null on execute");
+                    } else {
+                        // Have to add the process to the control, otherwise the
+                        // user won't be able to view it: ObjectNotExistException!
+                        // ticket:1522
+                        identities.add(
+                            new Ice.Identity[]{currentProcess.ice_getIdentity()});
+                    }
                 }
-                IdentitySetPrx identities = control.identities();
-                if (identities == null) {
-                    log.error("Identities null on execute");
-                    throw new omero.InternalException(null, null,
-                            "Identities null on execute");
-                }
-
-                // Have to add the process to the control, otherwise the
-                // user won't be able to view it: ObjectNotExistException!
-                // ticket:1522
-                identities.add(
-                        new Ice.Identity[]{currentProcess.ice_getIdentity()});
 
             } catch (omero.ValidationException ve) {
                 failJob(ve, __current);
