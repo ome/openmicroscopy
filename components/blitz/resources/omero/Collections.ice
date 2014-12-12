@@ -145,6 +145,7 @@ module omero {
         dictionary<string, long>                       StringLongMap;
         dictionary<string, int>                        StringIntMap;
 
+        // if using to store owner and group ID, use first=owner, second=group
         struct LongPair {
           long first;
           long second;
