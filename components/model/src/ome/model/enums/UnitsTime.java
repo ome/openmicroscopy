@@ -34,7 +34,7 @@ public enum UnitsTime {
     MEGASECOND("Ms"),
     KILOSECOND("ks"),
     HECTOSECOND("hs"),
-    DEKASECOND("das"),
+    DECASECOND("das"),
     SECOND("s"),
     DECISECOND("ds"),
     CENTISECOND("cs"),

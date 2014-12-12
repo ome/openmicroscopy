@@ -34,7 +34,7 @@ public enum UnitsFrequency {
     MEGAHERTZ("MHz"),
     KILOHERTZ("kHz"),
     HECTOHERTZ("hHz"),
-    DEKAHERTZ("daHz"),
+    DECAHERTZ("daHz"),
     HERTZ("Hz"),
     DECIHERTZ("dHz"),
     CENTIHERTZ("cHz"),

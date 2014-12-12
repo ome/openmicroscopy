@@ -30,8 +30,8 @@ namespace omero {
             std::map<omero::model::enums::UnitsPower, std::string> s;
             s[omero::model::enums::ATTOWATT] = "aW";
             s[omero::model::enums::CENTIWATT] = "cW";
+            s[omero::model::enums::DECAWATT] = "daW";
             s[omero::model::enums::DECIWATT] = "dW";
-            s[omero::model::enums::DEKAWATT] = "daW";
             s[omero::model::enums::EXAWATT] = "EW";
             s[omero::model::enums::FEMTOWATT] = "fW";
             s[omero::model::enums::GIGAWATT] = "GW";

@@ -30,8 +30,8 @@ namespace omero {
             std::map<omero::model::enums::UnitsElectricPotential, std::string> s;
             s[omero::model::enums::ATTOVOLT] = "aV";
             s[omero::model::enums::CENTIVOLT] = "cV";
+            s[omero::model::enums::DECAVOLT] = "daV";
             s[omero::model::enums::DECIVOLT] = "dV";
-            s[omero::model::enums::DEKAVOLT] = "daV";
             s[omero::model::enums::EXAVOLT] = "EV";
             s[omero::model::enums::FEMTOVOLT] = "fV";
             s[omero::model::enums::GIGAVOLT] = "GV";

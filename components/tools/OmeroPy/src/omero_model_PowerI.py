@@ -46,10 +46,10 @@ class PowerI(_omero_model.Power, UnitBase):
     CONVERSIONS = dict()
     CONVERSIONS["ATTOWATT:CENTIWATT"] = \
         lambda value: (10 ** -16) * value
+    CONVERSIONS["ATTOWATT:DECAWATT"] = \
+        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOWATT:DECIWATT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["ATTOWATT:DEKAWATT"] = \
-        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOWATT:EXAWATT"] = \
         lambda value: (10 ** -36) * value
     CONVERSIONS["ATTOWATT:FEMTOWATT"] = \
@@ -86,10 +86,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** -39) * value
     CONVERSIONS["CENTIWATT:ATTOWATT"] = \
         lambda value: (10 ** 16) * value
+    CONVERSIONS["CENTIWATT:DECAWATT"] = \
+        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIWATT:DECIWATT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CENTIWATT:DEKAWATT"] = \
-        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIWATT:EXAWATT"] = \
         lambda value: (10 ** -20) * value
     CONVERSIONS["CENTIWATT:FEMTOWATT"] = \
@@ -124,11 +124,51 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 19) * value
     CONVERSIONS["CENTIWATT:ZETTAWATT"] = \
         lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAWATT:ATTOWATT"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["DECAWATT:CENTIWATT"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["DECAWATT:DECIWATT"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DECAWATT:EXAWATT"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["DECAWATT:FEMTOWATT"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["DECAWATT:GIGAWATT"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["DECAWATT:HECTOWATT"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["DECAWATT:KILOWATT"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DECAWATT:MEGAWATT"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["DECAWATT:MICROWATT"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["DECAWATT:MILLIWATT"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["DECAWATT:NANOWATT"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["DECAWATT:PETAWATT"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["DECAWATT:PICOWATT"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["DECAWATT:TERAWATT"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["DECAWATT:WATT"] = \
+        lambda value: 10 * value
+    CONVERSIONS["DECAWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["DECAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DECAWATT:ZETTAWATT"] = \
+        lambda value: (10 ** -20) * value
     CONVERSIONS["DECIWATT:ATTOWATT"] = \
         lambda value: (10 ** 17) * value
     CONVERSIONS["DECIWATT:CENTIWATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["DECIWATT:DEKAWATT"] = \
+    CONVERSIONS["DECIWATT:DECAWATT"] = \
         lambda value: (10 ** -2) * value
     CONVERSIONS["DECIWATT:EXAWATT"] = \
         lambda value: (10 ** -19) * value
@@ -164,54 +204,14 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["DECIWATT:ZETTAWATT"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DEKAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DEKAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DEKAWATT:DECIWATT"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DEKAWATT:EXAWATT"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DEKAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DEKAWATT:GIGAWATT"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DEKAWATT:HECTOWATT"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DEKAWATT:KILOWATT"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DEKAWATT:MEGAWATT"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DEKAWATT:MICROWATT"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DEKAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DEKAWATT:NANOWATT"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DEKAWATT:PETAWATT"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DEKAWATT:PICOWATT"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DEKAWATT:TERAWATT"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DEKAWATT:WATT"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DEKAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DEKAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DEKAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DEKAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -20) * value
     CONVERSIONS["EXAWATT:ATTOWATT"] = \
         lambda value: (10 ** 36) * value
     CONVERSIONS["EXAWATT:CENTIWATT"] = \
         lambda value: (10 ** 20) * value
+    CONVERSIONS["EXAWATT:DECAWATT"] = \
+        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAWATT:DECIWATT"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAWATT:DEKAWATT"] = \
-        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAWATT:FEMTOWATT"] = \
         lambda value: (10 ** 33) * value
     CONVERSIONS["EXAWATT:GIGAWATT"] = \
@@ -248,10 +248,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 3) * value
     CONVERSIONS["FEMTOWATT:CENTIWATT"] = \
         lambda value: (10 ** -13) * value
+    CONVERSIONS["FEMTOWATT:DECAWATT"] = \
+        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOWATT:DECIWATT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FEMTOWATT:DEKAWATT"] = \
-        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOWATT:EXAWATT"] = \
         lambda value: (10 ** -33) * value
     CONVERSIONS["FEMTOWATT:GIGAWATT"] = \
@@ -288,10 +288,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 27) * value
     CONVERSIONS["GIGAWATT:CENTIWATT"] = \
         lambda value: (10 ** 11) * value
+    CONVERSIONS["GIGAWATT:DECAWATT"] = \
+        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAWATT:DECIWATT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAWATT:DEKAWATT"] = \
-        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAWATT:EXAWATT"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["GIGAWATT:FEMTOWATT"] = \
@@ -328,10 +328,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["HECTOWATT:CENTIWATT"] = \
         lambda value: (10 ** 4) * value
+    CONVERSIONS["HECTOWATT:DECAWATT"] = \
+        lambda value: 10 * value
     CONVERSIONS["HECTOWATT:DECIWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HECTOWATT:DEKAWATT"] = \
-        lambda value: 10 * value
     CONVERSIONS["HECTOWATT:EXAWATT"] = \
         lambda value: (10 ** -16) * value
     CONVERSIONS["HECTOWATT:FEMTOWATT"] = \
@@ -368,10 +368,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 21) * value
     CONVERSIONS["KILOWATT:CENTIWATT"] = \
         lambda value: (10 ** 5) * value
+    CONVERSIONS["KILOWATT:DECAWATT"] = \
+        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOWATT:DECIWATT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KILOWATT:DEKAWATT"] = \
-        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOWATT:EXAWATT"] = \
         lambda value: (10 ** -15) * value
     CONVERSIONS["KILOWATT:FEMTOWATT"] = \
@@ -408,10 +408,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 24) * value
     CONVERSIONS["MEGAWATT:CENTIWATT"] = \
         lambda value: (10 ** 8) * value
+    CONVERSIONS["MEGAWATT:DECAWATT"] = \
+        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAWATT:DECIWATT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAWATT:DEKAWATT"] = \
-        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAWATT:EXAWATT"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["MEGAWATT:FEMTOWATT"] = \
@@ -448,10 +448,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 12) * value
     CONVERSIONS["MICROWATT:CENTIWATT"] = \
         lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROWATT:DECAWATT"] = \
+        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROWATT:DECIWATT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROWATT:DEKAWATT"] = \
-        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROWATT:EXAWATT"] = \
         lambda value: (10 ** -24) * value
     CONVERSIONS["MICROWATT:FEMTOWATT"] = \
@@ -488,10 +488,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 15) * value
     CONVERSIONS["MILLIWATT:CENTIWATT"] = \
         lambda value: (10 ** -1) * value
+    CONVERSIONS["MILLIWATT:DECAWATT"] = \
+        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIWATT:DECIWATT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MILLIWATT:DEKAWATT"] = \
-        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIWATT:EXAWATT"] = \
         lambda value: (10 ** -21) * value
     CONVERSIONS["MILLIWATT:FEMTOWATT"] = \
@@ -528,10 +528,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 9) * value
     CONVERSIONS["NANOWATT:CENTIWATT"] = \
         lambda value: (10 ** -7) * value
+    CONVERSIONS["NANOWATT:DECAWATT"] = \
+        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOWATT:DECIWATT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["NANOWATT:DEKAWATT"] = \
-        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOWATT:EXAWATT"] = \
         lambda value: (10 ** -27) * value
     CONVERSIONS["NANOWATT:FEMTOWATT"] = \
@@ -568,10 +568,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 33) * value
     CONVERSIONS["PETAWATT:CENTIWATT"] = \
         lambda value: (10 ** 17) * value
+    CONVERSIONS["PETAWATT:DECAWATT"] = \
+        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAWATT:DECIWATT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAWATT:DEKAWATT"] = \
-        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAWATT:EXAWATT"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["PETAWATT:FEMTOWATT"] = \
@@ -608,10 +608,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 6) * value
     CONVERSIONS["PICOWATT:CENTIWATT"] = \
         lambda value: (10 ** -10) * value
+    CONVERSIONS["PICOWATT:DECAWATT"] = \
+        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOWATT:DECIWATT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PICOWATT:DEKAWATT"] = \
-        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOWATT:EXAWATT"] = \
         lambda value: (10 ** -30) * value
     CONVERSIONS["PICOWATT:FEMTOWATT"] = \
@@ -648,10 +648,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 30) * value
     CONVERSIONS["TERAWATT:CENTIWATT"] = \
         lambda value: (10 ** 14) * value
+    CONVERSIONS["TERAWATT:DECAWATT"] = \
+        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAWATT:DECIWATT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAWATT:DEKAWATT"] = \
-        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAWATT:EXAWATT"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["TERAWATT:FEMTOWATT"] = \
@@ -688,10 +688,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 18) * value
     CONVERSIONS["WATT:CENTIWATT"] = \
         lambda value: (10 ** 2) * value
+    CONVERSIONS["WATT:DECAWATT"] = \
+        lambda value: (10 ** -1) * value
     CONVERSIONS["WATT:DECIWATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["WATT:DEKAWATT"] = \
-        lambda value: (10 ** -1) * value
     CONVERSIONS["WATT:EXAWATT"] = \
         lambda value: (10 ** -18) * value
     CONVERSIONS["WATT:FEMTOWATT"] = \
@@ -728,10 +728,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** -6) * value
     CONVERSIONS["YOCTOWATT:CENTIWATT"] = \
         lambda value: (10 ** -22) * value
+    CONVERSIONS["YOCTOWATT:DECAWATT"] = \
+        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOWATT:DECIWATT"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["YOCTOWATT:DEKAWATT"] = \
-        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOWATT:EXAWATT"] = \
         lambda value: (10 ** -42) * value
     CONVERSIONS["YOCTOWATT:FEMTOWATT"] = \
@@ -768,10 +768,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 42) * value
     CONVERSIONS["YOTTAWATT:CENTIWATT"] = \
         lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAWATT:DECAWATT"] = \
+        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAWATT:DECIWATT"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAWATT:DEKAWATT"] = \
-        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAWATT:EXAWATT"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["YOTTAWATT:FEMTOWATT"] = \
@@ -808,10 +808,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** -3) * value
     CONVERSIONS["ZEPTOWATT:CENTIWATT"] = \
         lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOWATT:DECAWATT"] = \
+        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOWATT:DECIWATT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["ZEPTOWATT:DEKAWATT"] = \
-        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOWATT:EXAWATT"] = \
         lambda value: (10 ** -39) * value
     CONVERSIONS["ZEPTOWATT:FEMTOWATT"] = \
@@ -848,10 +848,10 @@ class PowerI(_omero_model.Power, UnitBase):
         lambda value: (10 ** 39) * value
     CONVERSIONS["ZETTAWATT:CENTIWATT"] = \
         lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAWATT:DECAWATT"] = \
+        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAWATT:DECIWATT"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAWATT:DEKAWATT"] = \
-        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAWATT:EXAWATT"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["ZETTAWATT:FEMTOWATT"] = \
@@ -888,8 +888,8 @@ class PowerI(_omero_model.Power, UnitBase):
     SYMBOLS = dict()
     SYMBOLS["ATTOWATT"] = "aW"
     SYMBOLS["CENTIWATT"] = "cW"
+    SYMBOLS["DECAWATT"] = "daW"
     SYMBOLS["DECIWATT"] = "dW"
-    SYMBOLS["DEKAWATT"] = "daW"
     SYMBOLS["EXAWATT"] = "EW"
     SYMBOLS["FEMTOWATT"] = "fW"
     SYMBOLS["GIGAWATT"] = "GW"

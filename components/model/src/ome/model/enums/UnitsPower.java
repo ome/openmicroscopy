@@ -34,7 +34,7 @@ public enum UnitsPower {
     MEGAWATT("MW"),
     KILOWATT("kW"),
     HECTOWATT("hW"),
-    DEKAWATT("daW"),
+    DECAWATT("daW"),
     WATT("W"),
     DECIWATT("dW"),
     CENTIWATT("cW"),

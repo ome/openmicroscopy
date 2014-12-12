@@ -46,10 +46,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
     CONVERSIONS = dict()
     CONVERSIONS["ATTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -16) * value
+    CONVERSIONS["ATTOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["ATTOVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -36) * value
     CONVERSIONS["ATTOVOLT:FEMTOVOLT"] = \
@@ -86,10 +86,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** -39) * value
     CONVERSIONS["CENTIVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 16) * value
+    CONVERSIONS["CENTIVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIVOLT:DECIVOLT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CENTIVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIVOLT:EXAVOLT"] = \
         lambda value: (10 ** -20) * value
     CONVERSIONS["CENTIVOLT:FEMTOVOLT"] = \
@@ -124,11 +124,51 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 19) * value
     CONVERSIONS["CENTIVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAVOLT:ATTOVOLT"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["DECAVOLT:CENTIVOLT"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["DECAVOLT:DECIVOLT"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DECAVOLT:EXAVOLT"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["DECAVOLT:FEMTOVOLT"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["DECAVOLT:GIGAVOLT"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["DECAVOLT:HECTOVOLT"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["DECAVOLT:KILOVOLT"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DECAVOLT:MEGAVOLT"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["DECAVOLT:MICROVOLT"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["DECAVOLT:MILLIVOLT"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["DECAVOLT:NANOVOLT"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["DECAVOLT:PETAVOLT"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["DECAVOLT:PICOVOLT"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["DECAVOLT:TERAVOLT"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["DECAVOLT:VOLT"] = \
+        lambda value: 10 * value
+    CONVERSIONS["DECAVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["DECAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DECAVOLT:ZETTAVOLT"] = \
+        lambda value: (10 ** -20) * value
     CONVERSIONS["DECIVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 17) * value
     CONVERSIONS["DECIVOLT:CENTIVOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["DECIVOLT:DEKAVOLT"] = \
+    CONVERSIONS["DECIVOLT:DECAVOLT"] = \
         lambda value: (10 ** -2) * value
     CONVERSIONS["DECIVOLT:EXAVOLT"] = \
         lambda value: (10 ** -19) * value
@@ -164,54 +204,14 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["DECIVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DEKAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DEKAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DEKAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DEKAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DEKAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DEKAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DEKAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DEKAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DEKAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DEKAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DEKAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DEKAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DEKAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DEKAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DEKAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DEKAVOLT:VOLT"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DEKAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DEKAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DEKAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DEKAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -20) * value
     CONVERSIONS["EXAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 36) * value
     CONVERSIONS["EXAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 20) * value
+    CONVERSIONS["EXAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 33) * value
     CONVERSIONS["EXAVOLT:GIGAVOLT"] = \
@@ -248,10 +248,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 3) * value
     CONVERSIONS["FEMTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -13) * value
+    CONVERSIONS["FEMTOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FEMTOVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -33) * value
     CONVERSIONS["FEMTOVOLT:GIGAVOLT"] = \
@@ -288,10 +288,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 27) * value
     CONVERSIONS["GIGAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 11) * value
+    CONVERSIONS["GIGAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["GIGAVOLT:FEMTOVOLT"] = \
@@ -328,10 +328,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["HECTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 4) * value
+    CONVERSIONS["HECTOVOLT:DECAVOLT"] = \
+        lambda value: 10 * value
     CONVERSIONS["HECTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HECTOVOLT:DEKAVOLT"] = \
-        lambda value: 10 * value
     CONVERSIONS["HECTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -16) * value
     CONVERSIONS["HECTOVOLT:FEMTOVOLT"] = \
@@ -368,10 +368,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 21) * value
     CONVERSIONS["KILOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 5) * value
+    CONVERSIONS["KILOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOVOLT:DECIVOLT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KILOVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -15) * value
     CONVERSIONS["KILOVOLT:FEMTOVOLT"] = \
@@ -408,10 +408,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 24) * value
     CONVERSIONS["MEGAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 8) * value
+    CONVERSIONS["MEGAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["MEGAVOLT:FEMTOVOLT"] = \
@@ -448,10 +448,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 12) * value
     CONVERSIONS["MICROVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROVOLT:DECIVOLT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROVOLT:EXAVOLT"] = \
         lambda value: (10 ** -24) * value
     CONVERSIONS["MICROVOLT:FEMTOVOLT"] = \
@@ -488,10 +488,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 15) * value
     CONVERSIONS["MILLIVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -1) * value
+    CONVERSIONS["MILLIVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIVOLT:DECIVOLT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MILLIVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIVOLT:EXAVOLT"] = \
         lambda value: (10 ** -21) * value
     CONVERSIONS["MILLIVOLT:FEMTOVOLT"] = \
@@ -528,10 +528,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 9) * value
     CONVERSIONS["NANOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -7) * value
+    CONVERSIONS["NANOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["NANOVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -27) * value
     CONVERSIONS["NANOVOLT:FEMTOVOLT"] = \
@@ -568,10 +568,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 33) * value
     CONVERSIONS["PETAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 17) * value
+    CONVERSIONS["PETAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["PETAVOLT:FEMTOVOLT"] = \
@@ -608,10 +608,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 6) * value
     CONVERSIONS["PICOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -10) * value
+    CONVERSIONS["PICOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PICOVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -30) * value
     CONVERSIONS["PICOVOLT:FEMTOVOLT"] = \
@@ -648,10 +648,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 30) * value
     CONVERSIONS["TERAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 14) * value
+    CONVERSIONS["TERAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["TERAVOLT:FEMTOVOLT"] = \
@@ -688,10 +688,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 18) * value
     CONVERSIONS["VOLT:CENTIVOLT"] = \
         lambda value: (10 ** 2) * value
+    CONVERSIONS["VOLT:DECAVOLT"] = \
+        lambda value: (10 ** -1) * value
     CONVERSIONS["VOLT:DECIVOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["VOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -1) * value
     CONVERSIONS["VOLT:EXAVOLT"] = \
         lambda value: (10 ** -18) * value
     CONVERSIONS["VOLT:FEMTOVOLT"] = \
@@ -728,10 +728,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** -6) * value
     CONVERSIONS["YOCTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -22) * value
+    CONVERSIONS["YOCTOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["YOCTOVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -42) * value
     CONVERSIONS["YOCTOVOLT:FEMTOVOLT"] = \
@@ -768,10 +768,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 42) * value
     CONVERSIONS["YOTTAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAVOLT:EXAVOLT"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["YOTTAVOLT:FEMTOVOLT"] = \
@@ -808,10 +808,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** -3) * value
     CONVERSIONS["ZEPTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["ZEPTOVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -39) * value
     CONVERSIONS["ZEPTOVOLT:FEMTOVOLT"] = \
@@ -848,10 +848,10 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         lambda value: (10 ** 39) * value
     CONVERSIONS["ZETTAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAVOLT:DEKAVOLT"] = \
-        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAVOLT:EXAVOLT"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["ZETTAVOLT:FEMTOVOLT"] = \
@@ -888,8 +888,8 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
     SYMBOLS = dict()
     SYMBOLS["ATTOVOLT"] = "aV"
     SYMBOLS["CENTIVOLT"] = "cV"
+    SYMBOLS["DECAVOLT"] = "daV"
     SYMBOLS["DECIVOLT"] = "dV"
-    SYMBOLS["DEKAVOLT"] = "daV"
     SYMBOLS["EXAVOLT"] = "EV"
     SYMBOLS["FEMTOVOLT"] = "fV"
     SYMBOLS["GIGAVOLT"] = "GV"

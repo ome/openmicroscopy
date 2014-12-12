@@ -32,8 +32,8 @@ namespace omero {
             s[omero::model::enums::ASTRONOMICALUNIT] = "ua";
             s[omero::model::enums::ATTOMETER] = "am";
             s[omero::model::enums::CENTIMETER] = "cm";
+            s[omero::model::enums::DECAMETER] = "dam";
             s[omero::model::enums::DECIMETER] = "dm";
-            s[omero::model::enums::DEKAMETER] = "dam";
             s[omero::model::enums::EXAMETER] = "Em";
             s[omero::model::enums::FEMTOMETER] = "fm";
             s[omero::model::enums::FOOT] = "ft";

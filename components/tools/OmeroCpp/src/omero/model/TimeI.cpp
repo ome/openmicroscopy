@@ -31,8 +31,8 @@ namespace omero {
             s[omero::model::enums::ATOOSECOND] = "as";
             s[omero::model::enums::CENTISECOND] = "cs";
             s[omero::model::enums::DAY] = "d";
+            s[omero::model::enums::DECASECOND] = "das";
             s[omero::model::enums::DECISECOND] = "ds";
-            s[omero::model::enums::DEKASECOND] = "das";
             s[omero::model::enums::EXASECOND] = "Es";
             s[omero::model::enums::FEMTOSECOND] = "fs";
             s[omero::model::enums::GIGASECOND] = "Gs";

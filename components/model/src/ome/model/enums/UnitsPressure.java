@@ -34,7 +34,7 @@ public enum UnitsPressure {
     MEGAPASCAL("MPa"),
     KILOPASCAL("kPa"),
     HECTOPASCAL("hPa"),
-    DEKAPASCAL("daPa"),
+    DECAPASCAL("daPa"),
     PASCAL("Pa"),
     DECIPASCAL("dPa"),
     CENTIPASCAL("cPa"),

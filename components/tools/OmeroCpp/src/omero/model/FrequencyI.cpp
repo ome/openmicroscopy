@@ -30,8 +30,8 @@ namespace omero {
             std::map<omero::model::enums::UnitsFrequency, std::string> s;
             s[omero::model::enums::ATTOHERTZ] = "aHz";
             s[omero::model::enums::CENTIHERTZ] = "cHz";
+            s[omero::model::enums::DECAHERTZ] = "daHz";
             s[omero::model::enums::DECIHERTZ] = "dHz";
-            s[omero::model::enums::DEKAHERTZ] = "daHz";
             s[omero::model::enums::EXAHERTZ] = "EHz";
             s[omero::model::enums::FEMTOHERTZ] = "fHz";
             s[omero::model::enums::GIGAHERTZ] = "GHz";

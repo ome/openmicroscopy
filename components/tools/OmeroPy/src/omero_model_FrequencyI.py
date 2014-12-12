@@ -46,10 +46,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
     CONVERSIONS = dict()
     CONVERSIONS["ATTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -16) * value
+    CONVERSIONS["ATTOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["ATTOHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -36) * value
     CONVERSIONS["ATTOHERTZ:FEMTOHERTZ"] = \
@@ -86,10 +86,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** -39) * value
     CONVERSIONS["CENTIHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 16) * value
+    CONVERSIONS["CENTIHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CENTIHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -20) * value
     CONVERSIONS["CENTIHERTZ:FEMTOHERTZ"] = \
@@ -124,11 +124,51 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 19) * value
     CONVERSIONS["CENTIHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAHERTZ:ATTOHERTZ"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["DECAHERTZ:CENTIHERTZ"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["DECAHERTZ:DECIHERTZ"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DECAHERTZ:EXAHERTZ"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["DECAHERTZ:FEMTOHERTZ"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["DECAHERTZ:GIGAHERTZ"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["DECAHERTZ:HECTOHERTZ"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["DECAHERTZ:HERTZ"] = \
+        lambda value: 10 * value
+    CONVERSIONS["DECAHERTZ:KILOHERTZ"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DECAHERTZ:MEGAHERTZ"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["DECAHERTZ:MICROHERTZ"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["DECAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["DECAHERTZ:NANOHERTZ"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["DECAHERTZ:PETAHERTZ"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["DECAHERTZ:PICOHERTZ"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["DECAHERTZ:TERAHERTZ"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["DECAHERTZ:YOCTOHERTZ"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["DECAHERTZ:YOTTAHERTZ"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAHERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DECAHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -20) * value
     CONVERSIONS["DECIHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 17) * value
     CONVERSIONS["DECIHERTZ:CENTIHERTZ"] = \
         lambda value: 10 * value
-    CONVERSIONS["DECIHERTZ:DEKAHERTZ"] = \
+    CONVERSIONS["DECIHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -2) * value
     CONVERSIONS["DECIHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -19) * value
@@ -164,54 +204,14 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["DECIHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DEKAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DEKAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DEKAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DEKAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DEKAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DEKAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DEKAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DEKAHERTZ:HERTZ"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DEKAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DEKAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DEKAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DEKAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DEKAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DEKAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DEKAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DEKAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DEKAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DEKAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DEKAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DEKAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -20) * value
     CONVERSIONS["EXAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 36) * value
     CONVERSIONS["EXAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 20) * value
+    CONVERSIONS["EXAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 33) * value
     CONVERSIONS["EXAHERTZ:GIGAHERTZ"] = \
@@ -248,10 +248,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 3) * value
     CONVERSIONS["FEMTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -13) * value
+    CONVERSIONS["FEMTOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FEMTOHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -33) * value
     CONVERSIONS["FEMTOHERTZ:GIGAHERTZ"] = \
@@ -288,10 +288,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 27) * value
     CONVERSIONS["GIGAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 11) * value
+    CONVERSIONS["GIGAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["GIGAHERTZ:FEMTOHERTZ"] = \
@@ -328,10 +328,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["HECTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 4) * value
+    CONVERSIONS["HECTOHERTZ:DECAHERTZ"] = \
+        lambda value: 10 * value
     CONVERSIONS["HECTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HECTOHERTZ:DEKAHERTZ"] = \
-        lambda value: 10 * value
     CONVERSIONS["HECTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -16) * value
     CONVERSIONS["HECTOHERTZ:FEMTOHERTZ"] = \
@@ -368,10 +368,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 18) * value
     CONVERSIONS["HERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 2) * value
+    CONVERSIONS["HERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -1) * value
     CONVERSIONS["HERTZ:DECIHERTZ"] = \
         lambda value: 10 * value
-    CONVERSIONS["HERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -1) * value
     CONVERSIONS["HERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -18) * value
     CONVERSIONS["HERTZ:FEMTOHERTZ"] = \
@@ -408,10 +408,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 21) * value
     CONVERSIONS["KILOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 5) * value
+    CONVERSIONS["KILOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KILOHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -15) * value
     CONVERSIONS["KILOHERTZ:FEMTOHERTZ"] = \
@@ -448,10 +448,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 24) * value
     CONVERSIONS["MEGAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 8) * value
+    CONVERSIONS["MEGAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["MEGAHERTZ:FEMTOHERTZ"] = \
@@ -488,10 +488,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 12) * value
     CONVERSIONS["MICROHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -24) * value
     CONVERSIONS["MICROHERTZ:FEMTOHERTZ"] = \
@@ -528,10 +528,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 15) * value
     CONVERSIONS["MILLIHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -1) * value
+    CONVERSIONS["MILLIHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MILLIHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -21) * value
     CONVERSIONS["MILLIHERTZ:FEMTOHERTZ"] = \
@@ -568,10 +568,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 9) * value
     CONVERSIONS["NANOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -7) * value
+    CONVERSIONS["NANOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["NANOHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -27) * value
     CONVERSIONS["NANOHERTZ:FEMTOHERTZ"] = \
@@ -608,10 +608,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 33) * value
     CONVERSIONS["PETAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 17) * value
+    CONVERSIONS["PETAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["PETAHERTZ:FEMTOHERTZ"] = \
@@ -648,10 +648,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 6) * value
     CONVERSIONS["PICOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -10) * value
+    CONVERSIONS["PICOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PICOHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -30) * value
     CONVERSIONS["PICOHERTZ:FEMTOHERTZ"] = \
@@ -688,10 +688,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 30) * value
     CONVERSIONS["TERAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 14) * value
+    CONVERSIONS["TERAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["TERAHERTZ:FEMTOHERTZ"] = \
@@ -728,10 +728,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** -6) * value
     CONVERSIONS["YOCTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -22) * value
+    CONVERSIONS["YOCTOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["YOCTOHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -42) * value
     CONVERSIONS["YOCTOHERTZ:FEMTOHERTZ"] = \
@@ -768,10 +768,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 42) * value
     CONVERSIONS["YOTTAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["YOTTAHERTZ:FEMTOHERTZ"] = \
@@ -808,10 +808,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** -3) * value
     CONVERSIONS["ZEPTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["ZEPTOHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -39) * value
     CONVERSIONS["ZEPTOHERTZ:FEMTOHERTZ"] = \
@@ -848,10 +848,10 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         lambda value: (10 ** 39) * value
     CONVERSIONS["ZETTAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAHERTZ:DEKAHERTZ"] = \
-        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["ZETTAHERTZ:FEMTOHERTZ"] = \
@@ -888,8 +888,8 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
     SYMBOLS = dict()
     SYMBOLS["ATTOHERTZ"] = "aHz"
     SYMBOLS["CENTIHERTZ"] = "cHz"
+    SYMBOLS["DECAHERTZ"] = "daHz"
     SYMBOLS["DECIHERTZ"] = "dHz"
-    SYMBOLS["DEKAHERTZ"] = "daHz"
     SYMBOLS["EXAHERTZ"] = "EHz"
     SYMBOLS["FEMTOHERTZ"] = "fHz"
     SYMBOLS["GIGAHERTZ"] = "GHz"

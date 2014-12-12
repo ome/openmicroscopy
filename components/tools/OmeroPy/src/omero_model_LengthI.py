@@ -50,10 +50,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 8) * value
     CONVERSIONS["ANGSTROM:CENTIMETER"] = \
         lambda value: (10 ** -8) * value
+    CONVERSIONS["ANGSTROM:DECAMETER"] = \
+        lambda value: (10 ** -11) * value
     CONVERSIONS["ANGSTROM:DECIMETER"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["ANGSTROM:DEKAMETER"] = \
-        lambda value: (10 ** -11) * value
     CONVERSIONS["ANGSTROM:EXAMETER"] = \
         lambda value: (10 ** -28) * value
     CONVERSIONS["ANGSTROM:FEMTOMETER"] = \
@@ -116,10 +116,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("ASTRONOMICALUNIT", "ATTOMETER")
     CONVERSIONS["ASTRONOMICALUNIT:CENTIMETER"] = \
         lambda: noconversion("ASTRONOMICALUNIT", "CENTIMETER")
+    CONVERSIONS["ASTRONOMICALUNIT:DECAMETER"] = \
+        lambda: noconversion("ASTRONOMICALUNIT", "DECAMETER")
     CONVERSIONS["ASTRONOMICALUNIT:DECIMETER"] = \
         lambda: noconversion("ASTRONOMICALUNIT", "DECIMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:DEKAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "DEKAMETER")
     CONVERSIONS["ASTRONOMICALUNIT:EXAMETER"] = \
         lambda: noconversion("ASTRONOMICALUNIT", "EXAMETER")
     CONVERSIONS["ASTRONOMICALUNIT:FEMTOMETER"] = \
@@ -182,10 +182,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("ATTOMETER", "ASTRONOMICALUNIT")
     CONVERSIONS["ATTOMETER:CENTIMETER"] = \
         lambda value: (10 ** -16) * value
+    CONVERSIONS["ATTOMETER:DECAMETER"] = \
+        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOMETER:DECIMETER"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["ATTOMETER:DEKAMETER"] = \
-        lambda value: (10 ** -19) * value
     CONVERSIONS["ATTOMETER:EXAMETER"] = \
         lambda value: (10 ** -36) * value
     CONVERSIONS["ATTOMETER:FEMTOMETER"] = \
@@ -248,10 +248,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("CENTIMETER", "ASTRONOMICALUNIT")
     CONVERSIONS["CENTIMETER:ATTOMETER"] = \
         lambda value: (10 ** 16) * value
+    CONVERSIONS["CENTIMETER:DECAMETER"] = \
+        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIMETER:DECIMETER"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CENTIMETER:DEKAMETER"] = \
-        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTIMETER:EXAMETER"] = \
         lambda value: (10 ** -20) * value
     CONVERSIONS["CENTIMETER:FEMTOMETER"] = \
@@ -308,6 +308,72 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 19) * value
     CONVERSIONS["CENTIMETER:ZETTAMETER"] = \
         lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAMETER:ANGSTROM"] = \
+        lambda value: (10 ** 11) * value
+    CONVERSIONS["DECAMETER:ASTRONOMICALUNIT"] = \
+        lambda: noconversion("DECAMETER", "ASTRONOMICALUNIT")
+    CONVERSIONS["DECAMETER:ATTOMETER"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["DECAMETER:CENTIMETER"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["DECAMETER:DECIMETER"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DECAMETER:EXAMETER"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["DECAMETER:FEMTOMETER"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["DECAMETER:FT"] = \
+        lambda: noconversion("DECAMETER", "FT")
+    CONVERSIONS["DECAMETER:GIGAMETER"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["DECAMETER:HECTOMETER"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["DECAMETER:IN"] = \
+        lambda: noconversion("DECAMETER", "IN")
+    CONVERSIONS["DECAMETER:KILOMETER"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DECAMETER:LI"] = \
+        lambda: noconversion("DECAMETER", "LI")
+    CONVERSIONS["DECAMETER:LIGHTYEAR"] = \
+        lambda: noconversion("DECAMETER", "LIGHTYEAR")
+    CONVERSIONS["DECAMETER:MEGAMETER"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["DECAMETER:METER"] = \
+        lambda value: 10 * value
+    CONVERSIONS["DECAMETER:MI"] = \
+        lambda: noconversion("DECAMETER", "MI")
+    CONVERSIONS["DECAMETER:MICROMETER"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["DECAMETER:MILLIMETER"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["DECAMETER:NANOMETER"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["DECAMETER:PARSEC"] = \
+        lambda: noconversion("DECAMETER", "PARSEC")
+    CONVERSIONS["DECAMETER:PETAMETER"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["DECAMETER:PICOMETER"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["DECAMETER:PIXEL"] = \
+        lambda: noconversion("DECAMETER", "PIXEL")
+    CONVERSIONS["DECAMETER:PT"] = \
+        lambda: noconversion("DECAMETER", "PT")
+    CONVERSIONS["DECAMETER:REFERENCEFRAME"] = \
+        lambda: noconversion("DECAMETER", "REFERENCEFRAME")
+    CONVERSIONS["DECAMETER:TERAMETER"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["DECAMETER:THOU"] = \
+        lambda: noconversion("DECAMETER", "THOU")
+    CONVERSIONS["DECAMETER:YD"] = \
+        lambda: noconversion("DECAMETER", "YD")
+    CONVERSIONS["DECAMETER:YOCTOMETER"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["DECAMETER:YOTTAMETER"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAMETER:ZEPTOMETER"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DECAMETER:ZETTAMETER"] = \
+        lambda value: (10 ** -20) * value
     CONVERSIONS["DECIMETER:ANGSTROM"] = \
         lambda value: (10 ** 9) * value
     CONVERSIONS["DECIMETER:ASTRONOMICALUNIT"] = \
@@ -316,7 +382,7 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 17) * value
     CONVERSIONS["DECIMETER:CENTIMETER"] = \
         lambda value: 10 * value
-    CONVERSIONS["DECIMETER:DEKAMETER"] = \
+    CONVERSIONS["DECIMETER:DECAMETER"] = \
         lambda value: (10 ** -2) * value
     CONVERSIONS["DECIMETER:EXAMETER"] = \
         lambda value: (10 ** -19) * value
@@ -374,72 +440,6 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["DECIMETER:ZETTAMETER"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DEKAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["DEKAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("DEKAMETER", "ASTRONOMICALUNIT")
-    CONVERSIONS["DEKAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DEKAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DEKAMETER:DECIMETER"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DEKAMETER:EXAMETER"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DEKAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DEKAMETER:FT"] = \
-        lambda: noconversion("DEKAMETER", "FT")
-    CONVERSIONS["DEKAMETER:GIGAMETER"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DEKAMETER:HECTOMETER"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DEKAMETER:IN"] = \
-        lambda: noconversion("DEKAMETER", "IN")
-    CONVERSIONS["DEKAMETER:KILOMETER"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DEKAMETER:LI"] = \
-        lambda: noconversion("DEKAMETER", "LI")
-    CONVERSIONS["DEKAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("DEKAMETER", "LIGHTYEAR")
-    CONVERSIONS["DEKAMETER:MEGAMETER"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DEKAMETER:METER"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DEKAMETER:MI"] = \
-        lambda: noconversion("DEKAMETER", "MI")
-    CONVERSIONS["DEKAMETER:MICROMETER"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DEKAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DEKAMETER:NANOMETER"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DEKAMETER:PARSEC"] = \
-        lambda: noconversion("DEKAMETER", "PARSEC")
-    CONVERSIONS["DEKAMETER:PETAMETER"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DEKAMETER:PICOMETER"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DEKAMETER:PIXEL"] = \
-        lambda: noconversion("DEKAMETER", "PIXEL")
-    CONVERSIONS["DEKAMETER:PT"] = \
-        lambda: noconversion("DEKAMETER", "PT")
-    CONVERSIONS["DEKAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("DEKAMETER", "REFERENCEFRAME")
-    CONVERSIONS["DEKAMETER:TERAMETER"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DEKAMETER:THOU"] = \
-        lambda: noconversion("DEKAMETER", "THOU")
-    CONVERSIONS["DEKAMETER:YD"] = \
-        lambda: noconversion("DEKAMETER", "YD")
-    CONVERSIONS["DEKAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DEKAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DEKAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DEKAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -20) * value
     CONVERSIONS["EXAMETER:ANGSTROM"] = \
         lambda value: (10 ** 28) * value
     CONVERSIONS["EXAMETER:ASTRONOMICALUNIT"] = \
@@ -448,10 +448,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 36) * value
     CONVERSIONS["EXAMETER:CENTIMETER"] = \
         lambda value: (10 ** 20) * value
+    CONVERSIONS["EXAMETER:DECAMETER"] = \
+        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAMETER:DECIMETER"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAMETER:DEKAMETER"] = \
-        lambda value: (10 ** 17) * value
     CONVERSIONS["EXAMETER:FEMTOMETER"] = \
         lambda value: (10 ** 33) * value
     CONVERSIONS["EXAMETER:FT"] = \
@@ -514,10 +514,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 3) * value
     CONVERSIONS["FEMTOMETER:CENTIMETER"] = \
         lambda value: (10 ** -13) * value
+    CONVERSIONS["FEMTOMETER:DECAMETER"] = \
+        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOMETER:DECIMETER"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FEMTOMETER:DEKAMETER"] = \
-        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOMETER:EXAMETER"] = \
         lambda value: (10 ** -33) * value
     CONVERSIONS["FEMTOMETER:FT"] = \
@@ -580,10 +580,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("FT", "ATTOMETER")
     CONVERSIONS["FT:CENTIMETER"] = \
         lambda: noconversion("FT", "CENTIMETER")
+    CONVERSIONS["FT:DECAMETER"] = \
+        lambda: noconversion("FT", "DECAMETER")
     CONVERSIONS["FT:DECIMETER"] = \
         lambda: noconversion("FT", "DECIMETER")
-    CONVERSIONS["FT:DEKAMETER"] = \
-        lambda: noconversion("FT", "DEKAMETER")
     CONVERSIONS["FT:EXAMETER"] = \
         lambda: noconversion("FT", "EXAMETER")
     CONVERSIONS["FT:FEMTOMETER"] = \
@@ -646,10 +646,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 27) * value
     CONVERSIONS["GIGAMETER:CENTIMETER"] = \
         lambda value: (10 ** 11) * value
+    CONVERSIONS["GIGAMETER:DECAMETER"] = \
+        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAMETER:DECIMETER"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAMETER:DEKAMETER"] = \
-        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGAMETER:EXAMETER"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["GIGAMETER:FEMTOMETER"] = \
@@ -712,10 +712,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["HECTOMETER:CENTIMETER"] = \
         lambda value: (10 ** 4) * value
+    CONVERSIONS["HECTOMETER:DECAMETER"] = \
+        lambda value: 10 * value
     CONVERSIONS["HECTOMETER:DECIMETER"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HECTOMETER:DEKAMETER"] = \
-        lambda value: 10 * value
     CONVERSIONS["HECTOMETER:EXAMETER"] = \
         lambda value: (10 ** -16) * value
     CONVERSIONS["HECTOMETER:FEMTOMETER"] = \
@@ -778,10 +778,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("IN", "ATTOMETER")
     CONVERSIONS["IN:CENTIMETER"] = \
         lambda: noconversion("IN", "CENTIMETER")
+    CONVERSIONS["IN:DECAMETER"] = \
+        lambda: noconversion("IN", "DECAMETER")
     CONVERSIONS["IN:DECIMETER"] = \
         lambda: noconversion("IN", "DECIMETER")
-    CONVERSIONS["IN:DEKAMETER"] = \
-        lambda: noconversion("IN", "DEKAMETER")
     CONVERSIONS["IN:EXAMETER"] = \
         lambda: noconversion("IN", "EXAMETER")
     CONVERSIONS["IN:FEMTOMETER"] = \
@@ -844,10 +844,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 21) * value
     CONVERSIONS["KILOMETER:CENTIMETER"] = \
         lambda value: (10 ** 5) * value
+    CONVERSIONS["KILOMETER:DECAMETER"] = \
+        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOMETER:DECIMETER"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KILOMETER:DEKAMETER"] = \
-        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOMETER:EXAMETER"] = \
         lambda value: (10 ** -15) * value
     CONVERSIONS["KILOMETER:FEMTOMETER"] = \
@@ -910,10 +910,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("LI", "ATTOMETER")
     CONVERSIONS["LI:CENTIMETER"] = \
         lambda: noconversion("LI", "CENTIMETER")
+    CONVERSIONS["LI:DECAMETER"] = \
+        lambda: noconversion("LI", "DECAMETER")
     CONVERSIONS["LI:DECIMETER"] = \
         lambda: noconversion("LI", "DECIMETER")
-    CONVERSIONS["LI:DEKAMETER"] = \
-        lambda: noconversion("LI", "DEKAMETER")
     CONVERSIONS["LI:EXAMETER"] = \
         lambda: noconversion("LI", "EXAMETER")
     CONVERSIONS["LI:FEMTOMETER"] = \
@@ -976,10 +976,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("LIGHTYEAR", "ATTOMETER")
     CONVERSIONS["LIGHTYEAR:CENTIMETER"] = \
         lambda: noconversion("LIGHTYEAR", "CENTIMETER")
+    CONVERSIONS["LIGHTYEAR:DECAMETER"] = \
+        lambda: noconversion("LIGHTYEAR", "DECAMETER")
     CONVERSIONS["LIGHTYEAR:DECIMETER"] = \
         lambda: noconversion("LIGHTYEAR", "DECIMETER")
-    CONVERSIONS["LIGHTYEAR:DEKAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "DEKAMETER")
     CONVERSIONS["LIGHTYEAR:EXAMETER"] = \
         lambda: noconversion("LIGHTYEAR", "EXAMETER")
     CONVERSIONS["LIGHTYEAR:FEMTOMETER"] = \
@@ -1042,10 +1042,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 24) * value
     CONVERSIONS["MEGAMETER:CENTIMETER"] = \
         lambda value: (10 ** 8) * value
+    CONVERSIONS["MEGAMETER:DECAMETER"] = \
+        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAMETER:DECIMETER"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAMETER:DEKAMETER"] = \
-        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGAMETER:EXAMETER"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["MEGAMETER:FEMTOMETER"] = \
@@ -1108,10 +1108,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 18) * value
     CONVERSIONS["METER:CENTIMETER"] = \
         lambda value: (10 ** 2) * value
+    CONVERSIONS["METER:DECAMETER"] = \
+        lambda value: (10 ** -1) * value
     CONVERSIONS["METER:DECIMETER"] = \
         lambda value: 10 * value
-    CONVERSIONS["METER:DEKAMETER"] = \
-        lambda value: (10 ** -1) * value
     CONVERSIONS["METER:EXAMETER"] = \
         lambda value: (10 ** -18) * value
     CONVERSIONS["METER:FEMTOMETER"] = \
@@ -1174,10 +1174,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("MI", "ATTOMETER")
     CONVERSIONS["MI:CENTIMETER"] = \
         lambda: noconversion("MI", "CENTIMETER")
+    CONVERSIONS["MI:DECAMETER"] = \
+        lambda: noconversion("MI", "DECAMETER")
     CONVERSIONS["MI:DECIMETER"] = \
         lambda: noconversion("MI", "DECIMETER")
-    CONVERSIONS["MI:DEKAMETER"] = \
-        lambda: noconversion("MI", "DEKAMETER")
     CONVERSIONS["MI:EXAMETER"] = \
         lambda: noconversion("MI", "EXAMETER")
     CONVERSIONS["MI:FEMTOMETER"] = \
@@ -1240,10 +1240,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 12) * value
     CONVERSIONS["MICROMETER:CENTIMETER"] = \
         lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROMETER:DECAMETER"] = \
+        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROMETER:DECIMETER"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROMETER:DEKAMETER"] = \
-        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROMETER:EXAMETER"] = \
         lambda value: (10 ** -24) * value
     CONVERSIONS["MICROMETER:FEMTOMETER"] = \
@@ -1306,10 +1306,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 15) * value
     CONVERSIONS["MILLIMETER:CENTIMETER"] = \
         lambda value: (10 ** -1) * value
+    CONVERSIONS["MILLIMETER:DECAMETER"] = \
+        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIMETER:DECIMETER"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MILLIMETER:DEKAMETER"] = \
-        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLIMETER:EXAMETER"] = \
         lambda value: (10 ** -21) * value
     CONVERSIONS["MILLIMETER:FEMTOMETER"] = \
@@ -1372,10 +1372,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 9) * value
     CONVERSIONS["NANOMETER:CENTIMETER"] = \
         lambda value: (10 ** -7) * value
+    CONVERSIONS["NANOMETER:DECAMETER"] = \
+        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOMETER:DECIMETER"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["NANOMETER:DEKAMETER"] = \
-        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOMETER:EXAMETER"] = \
         lambda value: (10 ** -27) * value
     CONVERSIONS["NANOMETER:FEMTOMETER"] = \
@@ -1438,10 +1438,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("PARSEC", "ATTOMETER")
     CONVERSIONS["PARSEC:CENTIMETER"] = \
         lambda: noconversion("PARSEC", "CENTIMETER")
+    CONVERSIONS["PARSEC:DECAMETER"] = \
+        lambda: noconversion("PARSEC", "DECAMETER")
     CONVERSIONS["PARSEC:DECIMETER"] = \
         lambda: noconversion("PARSEC", "DECIMETER")
-    CONVERSIONS["PARSEC:DEKAMETER"] = \
-        lambda: noconversion("PARSEC", "DEKAMETER")
     CONVERSIONS["PARSEC:EXAMETER"] = \
         lambda: noconversion("PARSEC", "EXAMETER")
     CONVERSIONS["PARSEC:FEMTOMETER"] = \
@@ -1504,10 +1504,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 33) * value
     CONVERSIONS["PETAMETER:CENTIMETER"] = \
         lambda value: (10 ** 17) * value
+    CONVERSIONS["PETAMETER:DECAMETER"] = \
+        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAMETER:DECIMETER"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAMETER:DEKAMETER"] = \
-        lambda value: (10 ** 14) * value
     CONVERSIONS["PETAMETER:EXAMETER"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["PETAMETER:FEMTOMETER"] = \
@@ -1570,10 +1570,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 6) * value
     CONVERSIONS["PICOMETER:CENTIMETER"] = \
         lambda value: (10 ** -10) * value
+    CONVERSIONS["PICOMETER:DECAMETER"] = \
+        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOMETER:DECIMETER"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PICOMETER:DEKAMETER"] = \
-        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOMETER:EXAMETER"] = \
         lambda value: (10 ** -30) * value
     CONVERSIONS["PICOMETER:FEMTOMETER"] = \
@@ -1636,10 +1636,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("PIXEL", "ATTOMETER")
     CONVERSIONS["PIXEL:CENTIMETER"] = \
         lambda: noconversion("PIXEL", "CENTIMETER")
+    CONVERSIONS["PIXEL:DECAMETER"] = \
+        lambda: noconversion("PIXEL", "DECAMETER")
     CONVERSIONS["PIXEL:DECIMETER"] = \
         lambda: noconversion("PIXEL", "DECIMETER")
-    CONVERSIONS["PIXEL:DEKAMETER"] = \
-        lambda: noconversion("PIXEL", "DEKAMETER")
     CONVERSIONS["PIXEL:EXAMETER"] = \
         lambda: noconversion("PIXEL", "EXAMETER")
     CONVERSIONS["PIXEL:FEMTOMETER"] = \
@@ -1702,10 +1702,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("PT", "ATTOMETER")
     CONVERSIONS["PT:CENTIMETER"] = \
         lambda: noconversion("PT", "CENTIMETER")
+    CONVERSIONS["PT:DECAMETER"] = \
+        lambda: noconversion("PT", "DECAMETER")
     CONVERSIONS["PT:DECIMETER"] = \
         lambda: noconversion("PT", "DECIMETER")
-    CONVERSIONS["PT:DEKAMETER"] = \
-        lambda: noconversion("PT", "DEKAMETER")
     CONVERSIONS["PT:EXAMETER"] = \
         lambda: noconversion("PT", "EXAMETER")
     CONVERSIONS["PT:FEMTOMETER"] = \
@@ -1768,10 +1768,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("REFERENCEFRAME", "ATTOMETER")
     CONVERSIONS["REFERENCEFRAME:CENTIMETER"] = \
         lambda: noconversion("REFERENCEFRAME", "CENTIMETER")
+    CONVERSIONS["REFERENCEFRAME:DECAMETER"] = \
+        lambda: noconversion("REFERENCEFRAME", "DECAMETER")
     CONVERSIONS["REFERENCEFRAME:DECIMETER"] = \
         lambda: noconversion("REFERENCEFRAME", "DECIMETER")
-    CONVERSIONS["REFERENCEFRAME:DEKAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "DEKAMETER")
     CONVERSIONS["REFERENCEFRAME:EXAMETER"] = \
         lambda: noconversion("REFERENCEFRAME", "EXAMETER")
     CONVERSIONS["REFERENCEFRAME:FEMTOMETER"] = \
@@ -1834,10 +1834,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 30) * value
     CONVERSIONS["TERAMETER:CENTIMETER"] = \
         lambda value: (10 ** 14) * value
+    CONVERSIONS["TERAMETER:DECAMETER"] = \
+        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAMETER:DECIMETER"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAMETER:DEKAMETER"] = \
-        lambda value: (10 ** 11) * value
     CONVERSIONS["TERAMETER:EXAMETER"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["TERAMETER:FEMTOMETER"] = \
@@ -1900,10 +1900,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("THOU", "ATTOMETER")
     CONVERSIONS["THOU:CENTIMETER"] = \
         lambda: noconversion("THOU", "CENTIMETER")
+    CONVERSIONS["THOU:DECAMETER"] = \
+        lambda: noconversion("THOU", "DECAMETER")
     CONVERSIONS["THOU:DECIMETER"] = \
         lambda: noconversion("THOU", "DECIMETER")
-    CONVERSIONS["THOU:DEKAMETER"] = \
-        lambda: noconversion("THOU", "DEKAMETER")
     CONVERSIONS["THOU:EXAMETER"] = \
         lambda: noconversion("THOU", "EXAMETER")
     CONVERSIONS["THOU:FEMTOMETER"] = \
@@ -1966,10 +1966,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda: noconversion("YD", "ATTOMETER")
     CONVERSIONS["YD:CENTIMETER"] = \
         lambda: noconversion("YD", "CENTIMETER")
+    CONVERSIONS["YD:DECAMETER"] = \
+        lambda: noconversion("YD", "DECAMETER")
     CONVERSIONS["YD:DECIMETER"] = \
         lambda: noconversion("YD", "DECIMETER")
-    CONVERSIONS["YD:DEKAMETER"] = \
-        lambda: noconversion("YD", "DEKAMETER")
     CONVERSIONS["YD:EXAMETER"] = \
         lambda: noconversion("YD", "EXAMETER")
     CONVERSIONS["YD:FEMTOMETER"] = \
@@ -2032,10 +2032,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** -6) * value
     CONVERSIONS["YOCTOMETER:CENTIMETER"] = \
         lambda value: (10 ** -22) * value
+    CONVERSIONS["YOCTOMETER:DECAMETER"] = \
+        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOMETER:DECIMETER"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["YOCTOMETER:DEKAMETER"] = \
-        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOMETER:EXAMETER"] = \
         lambda value: (10 ** -42) * value
     CONVERSIONS["YOCTOMETER:FEMTOMETER"] = \
@@ -2098,10 +2098,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 42) * value
     CONVERSIONS["YOTTAMETER:CENTIMETER"] = \
         lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAMETER:DECAMETER"] = \
+        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAMETER:DECIMETER"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAMETER:DEKAMETER"] = \
-        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTAMETER:EXAMETER"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["YOTTAMETER:FEMTOMETER"] = \
@@ -2164,10 +2164,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** -3) * value
     CONVERSIONS["ZEPTOMETER:CENTIMETER"] = \
         lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOMETER:DECAMETER"] = \
+        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOMETER:DECIMETER"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["ZEPTOMETER:DEKAMETER"] = \
-        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOMETER:EXAMETER"] = \
         lambda value: (10 ** -39) * value
     CONVERSIONS["ZEPTOMETER:FEMTOMETER"] = \
@@ -2230,10 +2230,10 @@ class LengthI(_omero_model.Length, UnitBase):
         lambda value: (10 ** 39) * value
     CONVERSIONS["ZETTAMETER:CENTIMETER"] = \
         lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAMETER:DECAMETER"] = \
+        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAMETER:DECIMETER"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAMETER:DEKAMETER"] = \
-        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTAMETER:EXAMETER"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["ZETTAMETER:FEMTOMETER"] = \
@@ -2294,8 +2294,8 @@ class LengthI(_omero_model.Length, UnitBase):
     SYMBOLS["ASTRONOMICALUNIT"] = "ua"
     SYMBOLS["ATTOMETER"] = "am"
     SYMBOLS["CENTIMETER"] = "cm"
+    SYMBOLS["DECAMETER"] = "dam"
     SYMBOLS["DECIMETER"] = "dm"
-    SYMBOLS["DEKAMETER"] = "dam"
     SYMBOLS["EXAMETER"] = "Em"
     SYMBOLS["FEMTOMETER"] = "fm"
     SYMBOLS["FOOT"] = "ft"

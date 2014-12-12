@@ -34,7 +34,7 @@ public enum UnitsLength {
     MEGAMETER("Mm"),
     KILOMETER("km"),
     HECTOMETER("hm"),
-    DEKAMETER("dam"),
+    DECAMETER("dam"),
     METER("m"),
     DECIMETER("dm"),
     CENTIMETER("cm"),

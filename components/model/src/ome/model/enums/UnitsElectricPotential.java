@@ -34,7 +34,7 @@ public enum UnitsElectricPotential {
     MEGAVOLT("MV"),
     KILOVOLT("kV"),
     HECTOVOLT("hV"),
-    DEKAVOLT("daV"),
+    DECAVOLT("daV"),
     VOLT("V"),
     DECIVOLT("dV"),
     CENTIVOLT("cV"),

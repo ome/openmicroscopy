@@ -33,9 +33,9 @@ namespace omero {
             s[omero::model::enums::BAR] = "bar";
             s[omero::model::enums::CENTIBAR] = "cbar";
             s[omero::model::enums::CENTIPASCAL] = "cPa";
+            s[omero::model::enums::DECAPASCAL] = "daPa";
             s[omero::model::enums::DECIBAR] = "dbar";
             s[omero::model::enums::DECIPASCAL] = "dPa";
-            s[omero::model::enums::DEKAPASCAL] = "daPa";
             s[omero::model::enums::EXAPASCAL] = "EPa";
             s[omero::model::enums::FEMTOPASCAL] = "fPa";
             s[omero::model::enums::GIGAPASCAL] = "GPa";

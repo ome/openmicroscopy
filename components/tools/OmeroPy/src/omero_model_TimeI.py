@@ -48,10 +48,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -16) * value
     CONVERSIONS["ATOOSECOND:DAY"] = \
         lambda: noconversion("ATOOSECOND", "DAY")
+    CONVERSIONS["ATOOSECOND:DECASECOND"] = \
+        lambda value: (10 ** -19) * value
     CONVERSIONS["ATOOSECOND:DECISECOND"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["ATOOSECOND:DEKASECOND"] = \
-        lambda value: (10 ** -19) * value
     CONVERSIONS["ATOOSECOND:EXASECOND"] = \
         lambda value: (10 ** -36) * value
     CONVERSIONS["ATOOSECOND:FEMTOSECOND"] = \
@@ -94,10 +94,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 16) * value
     CONVERSIONS["CENTISECOND:DAY"] = \
         lambda: noconversion("CENTISECOND", "DAY")
+    CONVERSIONS["CENTISECOND:DECASECOND"] = \
+        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTISECOND:DECISECOND"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CENTISECOND:DEKASECOND"] = \
-        lambda value: (10 ** -3) * value
     CONVERSIONS["CENTISECOND:EXASECOND"] = \
         lambda value: (10 ** -20) * value
     CONVERSIONS["CENTISECOND:FEMTOSECOND"] = \
@@ -140,10 +140,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda: noconversion("DAY", "ATOOSECOND")
     CONVERSIONS["DAY:CENTISECOND"] = \
         lambda: noconversion("DAY", "CENTISECOND")
+    CONVERSIONS["DAY:DECASECOND"] = \
+        lambda: noconversion("DAY", "DECASECOND")
     CONVERSIONS["DAY:DECISECOND"] = \
         lambda: noconversion("DAY", "DECISECOND")
-    CONVERSIONS["DAY:DEKASECOND"] = \
-        lambda: noconversion("DAY", "DEKASECOND")
     CONVERSIONS["DAY:EXASECOND"] = \
         lambda: noconversion("DAY", "EXASECOND")
     CONVERSIONS["DAY:FEMTOSECOND"] = \
@@ -182,13 +182,59 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda: noconversion("DAY", "ZEPTOSECOND")
     CONVERSIONS["DAY:ZETTASECOND"] = \
         lambda: noconversion("DAY", "ZETTASECOND")
+    CONVERSIONS["DECASECOND:ATOOSECOND"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["DECASECOND:CENTISECOND"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["DECASECOND:DAY"] = \
+        lambda: noconversion("DECASECOND", "DAY")
+    CONVERSIONS["DECASECOND:DECISECOND"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DECASECOND:EXASECOND"] = \
+        lambda value: (10 ** -17) * value
+    CONVERSIONS["DECASECOND:FEMTOSECOND"] = \
+        lambda value: (10 ** 16) * value
+    CONVERSIONS["DECASECOND:GIGASECOND"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["DECASECOND:HECTOSECOND"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["DECASECOND:HOUR"] = \
+        lambda: noconversion("DECASECOND", "HOUR")
+    CONVERSIONS["DECASECOND:KILOSECOND"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["DECASECOND:MEGASECOND"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["DECASECOND:MICROSECOND"] = \
+        lambda value: (10 ** 7) * value
+    CONVERSIONS["DECASECOND:MILLISECOND"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["DECASECOND:MINUTE"] = \
+        lambda: noconversion("DECASECOND", "MINUTE")
+    CONVERSIONS["DECASECOND:NANOSECOND"] = \
+        lambda value: (10 ** 10) * value
+    CONVERSIONS["DECASECOND:PETASECOND"] = \
+        lambda value: (10 ** -14) * value
+    CONVERSIONS["DECASECOND:PICOSECOND"] = \
+        lambda value: (10 ** 13) * value
+    CONVERSIONS["DECASECOND:SECOND"] = \
+        lambda value: 10 * value
+    CONVERSIONS["DECASECOND:TERASECOND"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["DECASECOND:YOCTOSECOND"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["DECASECOND:YOTTASECOND"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECASECOND:ZEPTOSECOND"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DECASECOND:ZETTASECOND"] = \
+        lambda value: (10 ** -20) * value
     CONVERSIONS["DECISECOND:ATOOSECOND"] = \
         lambda value: (10 ** 17) * value
     CONVERSIONS["DECISECOND:CENTISECOND"] = \
         lambda value: 10 * value
     CONVERSIONS["DECISECOND:DAY"] = \
         lambda: noconversion("DECISECOND", "DAY")
-    CONVERSIONS["DECISECOND:DEKASECOND"] = \
+    CONVERSIONS["DECISECOND:DECASECOND"] = \
         lambda value: (10 ** -2) * value
     CONVERSIONS["DECISECOND:EXASECOND"] = \
         lambda value: (10 ** -19) * value
@@ -228,62 +274,16 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 20) * value
     CONVERSIONS["DECISECOND:ZETTASECOND"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DEKASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DEKASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DEKASECOND:DAY"] = \
-        lambda: noconversion("DEKASECOND", "DAY")
-    CONVERSIONS["DEKASECOND:DECISECOND"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DEKASECOND:EXASECOND"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DEKASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DEKASECOND:GIGASECOND"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DEKASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DEKASECOND:HOUR"] = \
-        lambda: noconversion("DEKASECOND", "HOUR")
-    CONVERSIONS["DEKASECOND:KILOSECOND"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DEKASECOND:MEGASECOND"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DEKASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DEKASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DEKASECOND:MINUTE"] = \
-        lambda: noconversion("DEKASECOND", "MINUTE")
-    CONVERSIONS["DEKASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DEKASECOND:PETASECOND"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DEKASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DEKASECOND:SECOND"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DEKASECOND:TERASECOND"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DEKASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DEKASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DEKASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DEKASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -20) * value
     CONVERSIONS["EXASECOND:ATOOSECOND"] = \
         lambda value: (10 ** 36) * value
     CONVERSIONS["EXASECOND:CENTISECOND"] = \
         lambda value: (10 ** 20) * value
     CONVERSIONS["EXASECOND:DAY"] = \
         lambda: noconversion("EXASECOND", "DAY")
+    CONVERSIONS["EXASECOND:DECASECOND"] = \
+        lambda value: (10 ** 17) * value
     CONVERSIONS["EXASECOND:DECISECOND"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXASECOND:DEKASECOND"] = \
-        lambda value: (10 ** 17) * value
     CONVERSIONS["EXASECOND:FEMTOSECOND"] = \
         lambda value: (10 ** 33) * value
     CONVERSIONS["EXASECOND:GIGASECOND"] = \
@@ -326,10 +326,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -13) * value
     CONVERSIONS["FEMTOSECOND:DAY"] = \
         lambda: noconversion("FEMTOSECOND", "DAY")
+    CONVERSIONS["FEMTOSECOND:DECASECOND"] = \
+        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOSECOND:DECISECOND"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FEMTOSECOND:DEKASECOND"] = \
-        lambda value: (10 ** -16) * value
     CONVERSIONS["FEMTOSECOND:EXASECOND"] = \
         lambda value: (10 ** -33) * value
     CONVERSIONS["FEMTOSECOND:GIGASECOND"] = \
@@ -372,10 +372,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 11) * value
     CONVERSIONS["GIGASECOND:DAY"] = \
         lambda: noconversion("GIGASECOND", "DAY")
+    CONVERSIONS["GIGASECOND:DECASECOND"] = \
+        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGASECOND:DECISECOND"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGASECOND:DEKASECOND"] = \
-        lambda value: (10 ** 8) * value
     CONVERSIONS["GIGASECOND:EXASECOND"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["GIGASECOND:FEMTOSECOND"] = \
@@ -418,10 +418,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 4) * value
     CONVERSIONS["HECTOSECOND:DAY"] = \
         lambda: noconversion("HECTOSECOND", "DAY")
+    CONVERSIONS["HECTOSECOND:DECASECOND"] = \
+        lambda value: 10 * value
     CONVERSIONS["HECTOSECOND:DECISECOND"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HECTOSECOND:DEKASECOND"] = \
-        lambda value: 10 * value
     CONVERSIONS["HECTOSECOND:EXASECOND"] = \
         lambda value: (10 ** -16) * value
     CONVERSIONS["HECTOSECOND:FEMTOSECOND"] = \
@@ -464,10 +464,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda: noconversion("HOUR", "CENTISECOND")
     CONVERSIONS["HOUR:DAY"] = \
         lambda: noconversion("HOUR", "DAY")
+    CONVERSIONS["HOUR:DECASECOND"] = \
+        lambda: noconversion("HOUR", "DECASECOND")
     CONVERSIONS["HOUR:DECISECOND"] = \
         lambda: noconversion("HOUR", "DECISECOND")
-    CONVERSIONS["HOUR:DEKASECOND"] = \
-        lambda: noconversion("HOUR", "DEKASECOND")
     CONVERSIONS["HOUR:EXASECOND"] = \
         lambda: noconversion("HOUR", "EXASECOND")
     CONVERSIONS["HOUR:FEMTOSECOND"] = \
@@ -510,10 +510,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 5) * value
     CONVERSIONS["KILOSECOND:DAY"] = \
         lambda: noconversion("KILOSECOND", "DAY")
+    CONVERSIONS["KILOSECOND:DECASECOND"] = \
+        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOSECOND:DECISECOND"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KILOSECOND:DEKASECOND"] = \
-        lambda value: (10 ** 2) * value
     CONVERSIONS["KILOSECOND:EXASECOND"] = \
         lambda value: (10 ** -15) * value
     CONVERSIONS["KILOSECOND:FEMTOSECOND"] = \
@@ -556,10 +556,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 8) * value
     CONVERSIONS["MEGASECOND:DAY"] = \
         lambda: noconversion("MEGASECOND", "DAY")
+    CONVERSIONS["MEGASECOND:DECASECOND"] = \
+        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGASECOND:DECISECOND"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGASECOND:DEKASECOND"] = \
-        lambda value: (10 ** 5) * value
     CONVERSIONS["MEGASECOND:EXASECOND"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["MEGASECOND:FEMTOSECOND"] = \
@@ -602,10 +602,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -4) * value
     CONVERSIONS["MICROSECOND:DAY"] = \
         lambda: noconversion("MICROSECOND", "DAY")
+    CONVERSIONS["MICROSECOND:DECASECOND"] = \
+        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROSECOND:DECISECOND"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROSECOND:DEKASECOND"] = \
-        lambda value: (10 ** -7) * value
     CONVERSIONS["MICROSECOND:EXASECOND"] = \
         lambda value: (10 ** -24) * value
     CONVERSIONS["MICROSECOND:FEMTOSECOND"] = \
@@ -648,10 +648,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -1) * value
     CONVERSIONS["MILLISECOND:DAY"] = \
         lambda: noconversion("MILLISECOND", "DAY")
+    CONVERSIONS["MILLISECOND:DECASECOND"] = \
+        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLISECOND:DECISECOND"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MILLISECOND:DEKASECOND"] = \
-        lambda value: (10 ** -4) * value
     CONVERSIONS["MILLISECOND:EXASECOND"] = \
         lambda value: (10 ** -21) * value
     CONVERSIONS["MILLISECOND:FEMTOSECOND"] = \
@@ -694,10 +694,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda: noconversion("MINUTE", "CENTISECOND")
     CONVERSIONS["MINUTE:DAY"] = \
         lambda: noconversion("MINUTE", "DAY")
+    CONVERSIONS["MINUTE:DECASECOND"] = \
+        lambda: noconversion("MINUTE", "DECASECOND")
     CONVERSIONS["MINUTE:DECISECOND"] = \
         lambda: noconversion("MINUTE", "DECISECOND")
-    CONVERSIONS["MINUTE:DEKASECOND"] = \
-        lambda: noconversion("MINUTE", "DEKASECOND")
     CONVERSIONS["MINUTE:EXASECOND"] = \
         lambda: noconversion("MINUTE", "EXASECOND")
     CONVERSIONS["MINUTE:FEMTOSECOND"] = \
@@ -740,10 +740,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -7) * value
     CONVERSIONS["NANOSECOND:DAY"] = \
         lambda: noconversion("NANOSECOND", "DAY")
+    CONVERSIONS["NANOSECOND:DECASECOND"] = \
+        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOSECOND:DECISECOND"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["NANOSECOND:DEKASECOND"] = \
-        lambda value: (10 ** -10) * value
     CONVERSIONS["NANOSECOND:EXASECOND"] = \
         lambda value: (10 ** -27) * value
     CONVERSIONS["NANOSECOND:FEMTOSECOND"] = \
@@ -786,10 +786,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 17) * value
     CONVERSIONS["PETASECOND:DAY"] = \
         lambda: noconversion("PETASECOND", "DAY")
+    CONVERSIONS["PETASECOND:DECASECOND"] = \
+        lambda value: (10 ** 14) * value
     CONVERSIONS["PETASECOND:DECISECOND"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETASECOND:DEKASECOND"] = \
-        lambda value: (10 ** 14) * value
     CONVERSIONS["PETASECOND:EXASECOND"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["PETASECOND:FEMTOSECOND"] = \
@@ -832,10 +832,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -10) * value
     CONVERSIONS["PICOSECOND:DAY"] = \
         lambda: noconversion("PICOSECOND", "DAY")
+    CONVERSIONS["PICOSECOND:DECASECOND"] = \
+        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOSECOND:DECISECOND"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PICOSECOND:DEKASECOND"] = \
-        lambda value: (10 ** -13) * value
     CONVERSIONS["PICOSECOND:EXASECOND"] = \
         lambda value: (10 ** -30) * value
     CONVERSIONS["PICOSECOND:FEMTOSECOND"] = \
@@ -878,10 +878,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 2) * value
     CONVERSIONS["SECOND:DAY"] = \
         lambda: noconversion("SECOND", "DAY")
+    CONVERSIONS["SECOND:DECASECOND"] = \
+        lambda value: (10 ** -1) * value
     CONVERSIONS["SECOND:DECISECOND"] = \
         lambda value: 10 * value
-    CONVERSIONS["SECOND:DEKASECOND"] = \
-        lambda value: (10 ** -1) * value
     CONVERSIONS["SECOND:EXASECOND"] = \
         lambda value: (10 ** -18) * value
     CONVERSIONS["SECOND:FEMTOSECOND"] = \
@@ -924,10 +924,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 14) * value
     CONVERSIONS["TERASECOND:DAY"] = \
         lambda: noconversion("TERASECOND", "DAY")
+    CONVERSIONS["TERASECOND:DECASECOND"] = \
+        lambda value: (10 ** 11) * value
     CONVERSIONS["TERASECOND:DECISECOND"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERASECOND:DEKASECOND"] = \
-        lambda value: (10 ** 11) * value
     CONVERSIONS["TERASECOND:EXASECOND"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["TERASECOND:FEMTOSECOND"] = \
@@ -970,10 +970,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -22) * value
     CONVERSIONS["YOCTOSECOND:DAY"] = \
         lambda: noconversion("YOCTOSECOND", "DAY")
+    CONVERSIONS["YOCTOSECOND:DECASECOND"] = \
+        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOSECOND:DECISECOND"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["YOCTOSECOND:DEKASECOND"] = \
-        lambda value: (10 ** -25) * value
     CONVERSIONS["YOCTOSECOND:EXASECOND"] = \
         lambda value: (10 ** -42) * value
     CONVERSIONS["YOCTOSECOND:FEMTOSECOND"] = \
@@ -1016,10 +1016,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 26) * value
     CONVERSIONS["YOTTASECOND:DAY"] = \
         lambda: noconversion("YOTTASECOND", "DAY")
+    CONVERSIONS["YOTTASECOND:DECASECOND"] = \
+        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTASECOND:DECISECOND"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTASECOND:DEKASECOND"] = \
-        lambda value: (10 ** 23) * value
     CONVERSIONS["YOTTASECOND:EXASECOND"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["YOTTASECOND:FEMTOSECOND"] = \
@@ -1062,10 +1062,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** -19) * value
     CONVERSIONS["ZEPTOSECOND:DAY"] = \
         lambda: noconversion("ZEPTOSECOND", "DAY")
+    CONVERSIONS["ZEPTOSECOND:DECASECOND"] = \
+        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOSECOND:DECISECOND"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["ZEPTOSECOND:DEKASECOND"] = \
-        lambda value: (10 ** -22) * value
     CONVERSIONS["ZEPTOSECOND:EXASECOND"] = \
         lambda value: (10 ** -39) * value
     CONVERSIONS["ZEPTOSECOND:FEMTOSECOND"] = \
@@ -1108,10 +1108,10 @@ class TimeI(_omero_model.Time, UnitBase):
         lambda value: (10 ** 23) * value
     CONVERSIONS["ZETTASECOND:DAY"] = \
         lambda: noconversion("ZETTASECOND", "DAY")
+    CONVERSIONS["ZETTASECOND:DECASECOND"] = \
+        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTASECOND:DECISECOND"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTASECOND:DEKASECOND"] = \
-        lambda value: (10 ** 20) * value
     CONVERSIONS["ZETTASECOND:EXASECOND"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["ZETTASECOND:FEMTOSECOND"] = \
@@ -1153,8 +1153,8 @@ class TimeI(_omero_model.Time, UnitBase):
     SYMBOLS["ATOOSECOND"] = "as"
     SYMBOLS["CENTISECOND"] = "cs"
     SYMBOLS["DAY"] = "d"
+    SYMBOLS["DECASECOND"] = "das"
     SYMBOLS["DECISECOND"] = "ds"
-    SYMBOLS["DEKASECOND"] = "das"
     SYMBOLS["EXASECOND"] = "Es"
     SYMBOLS["FEMTOSECOND"] = "fs"
     SYMBOLS["GIGASECOND"] = "Gs"
