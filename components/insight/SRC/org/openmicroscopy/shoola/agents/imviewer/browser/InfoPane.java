@@ -57,8 +57,8 @@ class InfoPane
 {
 	
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in " + LengthI.lookupSymbol(UnitsLength.MICROM) + ")";
-    
+    private static final String MICRONS = "(in " + LengthI.lookupSymbol(UnitsLength.MICROMETER) + ")";
+
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";
     

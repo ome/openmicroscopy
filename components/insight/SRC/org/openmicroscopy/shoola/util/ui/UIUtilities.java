@@ -2504,7 +2504,7 @@ public class UIUtilities
      * @return The transformed value as unit object
      */
     public static Length transformSize(double value) {
-    	return transformSize(new LengthI(value, UnitsLength.MICROM));
+    	return transformSize(new LengthI(value, UnitsLength.MICROMETER));
 	}
     
     /**
@@ -2514,11 +2514,11 @@ public class UIUtilities
      */
 	public static Length transformSize(Length value) {
 		
-		if(value.getUnit().equals(UnitsLength.MICROM)) { 
+		if(value.getUnit().equals(UnitsLength.MICROMETER)) { 
 			double v = value.getValue();
-			UnitsLength unit = UnitsLength.MICROM;
+			UnitsLength unit = UnitsLength.MICROMETER;
 			if (v > 0.0 && v < 0.1) {
-				unit = UnitsLength.NM;
+				unit = UnitsLength.NANOMETER;
 				v *= 1000;
 				if (v < 1) {
 					unit = UnitsLength.ANGSTROM;
@@ -2527,15 +2527,15 @@ public class UIUtilities
 				return new LengthI(v, unit);
 			}
 			if (v > 1000) {
-				unit = UnitsLength.MM;
+				unit = UnitsLength.MILLIMETER;
 				v /= 1000;
 			}
 			if (v > 1000) {
-				unit = UnitsLength.CM;
+				unit = UnitsLength.CENTIMETER;
 				v /= 1000;
 			}
 			if (v > 1000) {
-				unit = UnitsLength.M;
+				unit = UnitsLength.METER;
 				v /= 1000;
 			}
 			
@@ -2554,12 +2554,12 @@ public class UIUtilities
      */
 	public static Length transformSquareSize(Length value)
     {
-		if(value.getUnit().equals(UnitsLength.MICROM)) { 
+		if(value.getUnit().equals(UnitsLength.MICROMETER)) { 
 	        double v = value.getValue();
 	        double pow = Math.pow(10, 6);
-	        UnitsLength unit = UnitsLength.MICROM;
+	        UnitsLength unit = UnitsLength.MICROMETER;
 	        if (v > 0.0 && v < 0.1) {
-	            unit = UnitsLength.NM;
+	            unit = UnitsLength.NANOMETER;
 	            v *= pow;
 	            if (v < 100) {
 	                unit = UnitsLength.ANGSTROM;
@@ -2569,15 +2569,15 @@ public class UIUtilities
 	        }
 	        
 	        if (v > pow) {
-	            unit = UnitsLength.MM;
+	            unit = UnitsLength.MILLIMETER;
 	            v /= pow;
 	        }
 	        if (v > pow) {
-	            unit = UnitsLength.CM;;
+	            unit = UnitsLength.CENTIMETER;;
 	            v /= pow;
 	        }
 	        if (v > pow) {
-	            unit = UnitsLength.M;
+	            unit = UnitsLength.METER;
 	            v /= pow;
 	        }
         
@@ -2605,7 +2605,7 @@ public class UIUtilities
      * @return See above. 
      */
 	public static String formatValue(double value) {
-		return formatValue(new LengthI(value, UnitsLength.MICROM), false);
+		return formatValue(new LengthI(value, UnitsLength.MICROMETER), false);
 	}
 	
 	/**
