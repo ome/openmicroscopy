@@ -112,4 +112,11 @@ $(document).ready(function() {
         $controls.find('.ui-slider').slider( "option", "disabled", !enabled );
     });
 
+
+    // Scalebar - can be disabled
+    $("#scalebarToggle").click(function(){
+        var enabled = $(this).prop('checked');
+        $("input[name='Scalebar']").prop('disabled', !enabled);
+    });
+
 });
