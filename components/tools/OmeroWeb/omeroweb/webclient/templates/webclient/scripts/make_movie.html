@@ -140,7 +140,24 @@
         Scalebar:
         <input type="number" name="Scalebar" class="number" value="5" style="width: 50px" />
         microns
+        <select name="Overlay_Colour" style="margin-left:20px">
+            <option value='White'/>White</option>
+            <option value='Red'/>Red</option>
+            <option value='Green'/>Green</option>
+            <option value='Blue'/>Blue</option>
+            <option value='Yellow'/>Yellow</option>
+            <option value='Violet'/>Violet</option>
+            <option value='Indigo'/>Indigo</option>
+            <option value='Black'/>Black</option>
+            <option value='Orange'/>Orange</option>
+            <option value='Gray'/>Gray</option>
+        </select>
 
+        <hr />
+
+        Show Labels: <input name="Show_Plane_Info" type="checkbox"/>
+        <!-- also need to pass 'Show_Time' to script - keep in sync with 'Show_Plane_Info' -->
+        <input name="Show_Time" type="checkbox" style="display:block"/>
 
 
     {% endblock %}

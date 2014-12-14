@@ -119,4 +119,11 @@ $(document).ready(function() {
         $("input[name='Scalebar']").prop('disabled', !enabled);
     });
 
+
+    // Keep 'Show Labels' checkboxes in sync
+    $("input[name='Show_Plane_Info']").click(function(){
+        var chkd = $(this).prop('checked');
+        $("input[name='Show_Time']").prop('checked', chkd);
+    });
+
 });
