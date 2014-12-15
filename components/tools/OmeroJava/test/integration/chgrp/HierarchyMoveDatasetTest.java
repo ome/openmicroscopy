@@ -241,7 +241,6 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
     public void testMoveDatasetWithSharedImage() throws Exception {
         String perms = "rw----";
         EventContext ctx = newUserAndGroup(perms);

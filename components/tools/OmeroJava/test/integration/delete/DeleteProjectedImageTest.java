@@ -73,7 +73,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      * Creates an image and projects it either by the owner or by another
      * member of the group. The image is then deleted by the owner of the image
      * or by another user.
-     * 
+     *
      * @param src The permissions of the source group.
      * @param memberRole The role of the other group member projecting the
      * image or <code>-1</code> if the owner projects the image.
@@ -83,6 +83,28 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      * @throws Exception Thrown if an error occurred.
      */
     private void deleteImage(String src, int memberRole,
+            int deleteMemberRole, int action)
+            throws Exception
+    {
+        deleteImage(true, src, memberRole, deleteMemberRole, action);
+    }
+
+    /** 
+     * Creates an image and projects it either by the owner or by another
+     * member of the group. The image is then deleted by the owner of the image
+     * or by another user.
+     *
+     * @param passes if the delete request's response is expected to be
+     * {@link omero.cmd.OK}
+     * @param src The permissions of the source group.
+     * @param memberRole The role of the other group member projecting the
+     * image or <code>-1</code> if the owner projects the image.
+     * @param deleteMemberRole The role of the member deleting the image
+     * image or <code>-1</code> if the owner projects the image.
+     * @param action One of the constants defined by this class.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void deleteImage(boolean passes, String src, int memberRole,
             int deleteMemberRole, int action)
             throws Exception
     {
@@ -113,10 +135,10 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         //delete the image(s)
         switch (action) {
         case SOURCE_IMAGE:
-            delete(client, new Delete(DeleteServiceTest.REF_IMAGE, id, null));
+            delete(passes, client, new Delete(DeleteServiceTest.REF_IMAGE, id, null));
             break;
         case PROJECTED_IMAGE:
-            delete(client, new Delete(DeleteServiceTest.REF_IMAGE, projectedID,
+            delete(passes, client, new Delete(DeleteServiceTest.REF_IMAGE, projectedID,
                     null));
             break;
         case BOTH_IMAGES:
@@ -126,7 +148,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
                     null));
             DoAll all = new DoAll();
             all.requests = commands;
-            doChange(all);
+            doChange(client, factory, all, passes, null);
         }
 
         //Check the result
@@ -604,7 +626,7 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
      */
     @Test(expectedExceptions = SecurityViolation.class)
     public void testSourceImageByMemberdeleteByOwnerRW() throws Exception {
-        deleteImage("rw----", AbstractServerTest.MEMBER,
+        deleteImage(false, "rw----", AbstractServerTest.MEMBER,
                 -1, SOURCE_IMAGE);
     }
 

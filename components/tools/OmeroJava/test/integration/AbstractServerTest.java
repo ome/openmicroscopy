@@ -1838,8 +1838,6 @@ public class AbstractServerTest extends AbstractTest {
     }
 
     protected Response assertCmd(CmdCallbackI cb, boolean pass) {
-        assertNotNull(cb.getResponse());
-
         Status status = cb.getStatus();
         Response rsp = cb.getResponse();
         assertNotNull(rsp);

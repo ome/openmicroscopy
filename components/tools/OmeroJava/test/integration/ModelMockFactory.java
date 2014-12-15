@@ -202,6 +202,15 @@ public class ModelMockFactory {
     }
 
     /**
+     * @return a default fileset
+     */
+    public Fileset simpleFileset() {
+        Fileset fs = new FilesetI();
+        fs.setTemplatePrefix(omero.rtypes.rstring("fileset-" + System.nanoTime() + "/"));
+        return fs;
+    }
+
+    /**
      * Creates and returns an original file object.
      *
      * @return See above.

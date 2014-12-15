@@ -349,7 +349,37 @@
       <constructor-arg ref="passwordUtil"/>
       <constructor-arg ref="securitySystem"/>
       <constructor-arg ref="passwordProvider"/>
+      <constructor-arg ref="graphRequestFactory"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
+  </bean>
+
+  <bean id="graphRequestFactory" class="omero.cmd.graphs.GraphRequestFactory">
+      <constructor-arg ref="aclVoter"/>
+      <constructor-arg ref="systemTypes"/>
+      <constructor-arg ref="graphPathBean"/>
+      <constructor-arg ref="ome.services.delete.Deletion"/>
+      <constructor-arg>
+        <map>
+          <entry key="omero.cmd.graphs.Chgrp2I" value-ref="chgrpRules"/>
+          <entry key="omero.cmd.graphs.Chown2I" value-ref="chownRules"/>
+          <entry key="omero.cmd.graphs.Delete2I" value-ref="deleteRules"/>
+        </map>
+      </constructor-arg>
+      <constructor-arg>
+        <list>
+          <value>Image.fileset</value>
+          <value>Image.instrument</value>
+        </list>
+      </constructor-arg>
+      <constructor-arg>
+        <set>
+          <!-- omero::constants::namespaces::NSCOMPANIONFILE -->
+          <value>openmicroscopy.org/omero/import/companionFile</value>
+          <!-- omero::constants::namespaces::NSMEASUREMENT -->
+          <value>openmicroscopy.org/omero/measurement</value>
+        </set>
+      </constructor-arg>
+      <constructor-arg value="${omero.graphs.wrap}"/>
   </bean>
 
   <bean class="ome.services.blitz.impl.commands.RequestObjectFactoryRegistry"
