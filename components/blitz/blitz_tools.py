@@ -18,14 +18,14 @@ from SCons.Script.SConscript import SConsEnvironment
 #
 cwd = os.path.abspath(os.path.dirname(__file__))
 top = os.path.abspath(os.path.join(cwd, os.path.pardir, os.path.pardir))
-blitz_resources = os.path.abspath(os.path.join(top, "components", "blitz",
-                                               "resources"))
-blitz_generated = os.path.abspath(os.path.join(top, "components", "blitz",
-                                               "generated"))
-tools_include = os.path.abspath(os.path.join(top, "components", "tools",
-                                             "target", "include"))
-tools_library = os.path.abspath(os.path.join(top, "components", "tools",
-                                             "target", "lib"))
+blitz_resources = os.path.abspath(
+    os.path.join(top, "components", "blitz", "resources"))
+blitz_generated = os.path.abspath(
+    os.path.join(top, "components", "blitz", "generated"))
+tools_include = os.path.abspath(
+    os.path.join(top, "components", "tools", "target", "include"))
+tools_library = os.path.abspath(
+    os.path.join(top, "components", "tools", "target", "lib"))
 header = os.path.join(blitz_resources, "header.txt")
 
 # Relative
