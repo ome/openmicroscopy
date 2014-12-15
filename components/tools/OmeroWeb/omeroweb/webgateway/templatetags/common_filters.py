@@ -233,8 +233,9 @@ def timeformat( value ):
             value = Decimal(force_unicode(float(value)))
         except (ValueError, InvalidOperation, TypeError, UnicodeEncodeError):
             return u'%s s' % str(value)
-        
-    if value < 1 / 1000 :
+    if value == 0:
+        return u'%d\u00A0s' % value
+    if value < 1.0 / 1000 :
         return u'%d\u00A0\u00B5s' % (value * 1000 * 1000)
     elif value < 1 :
         return u'%d\u00A0ms' % (value * 1000)
