@@ -281,7 +281,7 @@ public class PixelsService extends AbstractFileSystemService
             }
         }
 
-        final PixelBuffer pixelsPyramid = createPyramidPixelBuffer(
+        final BfPyramidPixelBuffer pixelsPyramid = createPyramidPixelBuffer(
                 pixels, pixelsPyramidFilePath, true);
 
         try
@@ -327,7 +327,7 @@ public class PixelsService extends AbstractFileSystemService
 
     private PixelsPyramidMinMaxStore performWrite(
             final Pixels pixels,final File pixelsPyramidFile,
-            final PixelBuffer pixelsPyramid, final File pixelsFile,
+            final BfPyramidPixelBuffer pixelsPyramid, final File pixelsFile,
             final String pixelsFilePath, final String originalFilePath) {
 
         final PixelBuffer source;
@@ -349,16 +349,9 @@ public class PixelsService extends AbstractFileSystemService
             int series = getSeries(pixels);
             BfPixelBuffer bfPixelBuffer = createMinMaxBfPixelBuffer(
                     originalFilePath, series, minMaxStore);
-            if (pixelsPyramid instanceof BfPyramidPixelBuffer) {
-                // This is a workaround so that the mocks in unit testing
-                // do not need to know about particular PixelBuffer
-                // implementations. There are a couple of options moving
-                // forward: a) add this to the general contract or b)
-                // have everything pushed down into Bio-Formats.
-                ((BfPyramidPixelBuffer) pixelsPyramid).setByteOrder(
+            pixelsPyramid.setByteOrder(
                     bfPixelBuffer.isLittleEndian()? ByteOrder.LITTLE_ENDIAN
                             : ByteOrder.BIG_ENDIAN);
-            }
             source = bfPixelBuffer;
             // If the tile sizes we've been given are completely ridiculous
             // then reset them to WIDTHxHEIGHT. Currently these conditions are:
@@ -801,7 +794,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param series series to use
      * @return
      */
-    protected PixelBuffer createBfPixelBuffer(final String filePath,
+    protected BfPixelBuffer createBfPixelBuffer(final String filePath,
                                               final int series) {
         try
         {
@@ -826,7 +819,7 @@ public class PixelsService extends AbstractFileSystemService
      * @param reader passed to {@link BfPixelBuffer}
      * @return
      */
-    protected PixelBuffer createPyramidPixelBuffer(final Pixels pixels,
+    protected BfPyramidPixelBuffer createPyramidPixelBuffer(final Pixels pixels,
             final String filePath, boolean write) {
 
         try
