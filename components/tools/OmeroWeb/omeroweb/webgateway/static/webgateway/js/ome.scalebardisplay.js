@@ -5,19 +5,25 @@
 $.fn.scalebar_display = function(options) {
     return this.each(function(){
 
-        var self = this;
-        var scalebar_name = (options.scalebar_name ? options.scalebar_name : 'scalebar');
+        var viewerId = this.id;
+        var $viewportimg = $(this);
+
         var tiles =  (options.tiles ? options.tiles : false);
         var pixSizeX =  (options.pixSizeX ? options.pixSizeX : 0);
         var imageWidth =  (options.imageWidth ? options.imageWidth : 0);
-        var $viewportimg = $(this);
+
         var scalebar_displayed = false;   // flag to toggle visability.
 
+        var scalebar_class = (options.scalebar_class ? options.scalebar_class : 'weblitz-viewport-scalebar');
+
         if (!tiles) {
+            // add our ROI canvas as a sibling to the image plane. Parent is the 'draggable' div
             var $dragdiv = $viewportimg.parent().parent();
-            var $scalebar = $('<div id="weblitz-viewport-'+scalebar_name+'" class="weblitz-viewport-'+scalebar_name+'">').appendTo($dragdiv);
+            var scalebar_name = (options.scalebar_name ? options.scalebar_name : viewerId + '-scalebar');
+            var $scalebar =   $('<div id="'+scalebar_name+'" class="'+scalebar_class+'">').appendTo($dragdiv);
         } else {
-            var $scalebar = $('#'+scalebar_name);
+            var scalebar_name = (options.scalebar_name ? options.scalebar_name : viewerId + '-tiles-scalebar');
+            var $scalebar = $('#'+viewerId + '-tiles-scalebar')
         }
         
         // loads the Scalebar if needed and displays them

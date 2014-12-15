@@ -83,8 +83,8 @@ public class UpdateFilter extends ContextFilter {
             return null;
         } else if (o instanceof Enum) {
             result = o; // 5.1: Enums are unfiltered
-        } else if (o instanceof ome.model.units.Unit) {
-            result = o; // 5.1: units as well
+        } else if (o instanceof ome.model.internal.Primitive) {
+            result = o; // 5.1: units and named values as well
         } else if (o instanceof Filterable) {
             result = filter(fieldId, (Filterable) o);
         } else if (o instanceof Collection) {

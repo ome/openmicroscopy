@@ -1,6 +1,50 @@
 OMERO version history
 =====================
 
+5.1.0-m2 (November 2014)
+------------------------
+
+Developer preview release - 2 of 3 development milestones being released in
+the lead up to 5.1.0. **Only intended as a developer preview for updating code
+before the full public release of 5.1.0. Use at your own risk**.
+
+Model changes include:
+
+-  units support, meaning units now have real enums
+-  minor fixes for model changes introduced in m1
+
+The units changes mean that the following fields have changed:
+
+-  Plane.PositionX, Y, Z; Plane.DeltaT; Plane.ExposureTime
+-  Shape.StrokeWidth; Shape.FontSize
+-  DetectorSettings.Voltage; DetectorSettings.ReadOutRate
+-  ImagingEnvironment.Temperature; ImagingEnvironment.AirPressure
+-  LightSourceSettings.Wavelength
+-  Plate.WellOriginX, Y
+-  Objective.WorkingDistance
+-  Pixels.PhysicalSizeX, Y, Z; Pixels.TimeIncrement
+-  StageLabel.X, Y, Z
+-  LightSource.Power
+-  Detector.Voltage
+-  WellSample.PositionX, Y
+-  Channel.EmissionWavelength; Channel.PinholeSize;
+   Channel.ExcitationWavelength
+-  TransmittanceRange.CutOutTolerance; TransmittanceRange.CutInTolerance;
+   TransmittanceRange.CutOut; TransmittanceRange.CutIn
+-  Laser.RepetitionRate; Laser.Wavelength
+
+Other changes that may affect developers include:
+
+-  ongoing C++ implementation improvements
+-  ongoing work to add unit support in OMERO.insight
+-  further flake8 work
+-  removal of webtest app from OMERO.web to a separate repository
+-  removal of deprecated methods in IContainer and RenderingEngine
+-  removal of deprecated services IDelete and Gateway
+-  Blitz gateway fixes
+-  CLI fixes
+-  ROI and tables work
+
 5.0.6 (November 2014)
 ---------------------
 

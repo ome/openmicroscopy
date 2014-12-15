@@ -51,7 +51,7 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
-import omero.model.LengthI;
+import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Medium;
@@ -60,13 +60,12 @@ import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
-import omero.model.PressureI;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.TemperatureI;
+import omero.model.Temperature;
 import omero.model.TermAnnotation;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
@@ -321,16 +320,15 @@ class OmeroMetadataServiceImpl
 				toUpdate.add(label);
 			}
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
-			Object o = data.getPositionX();
-			Float f = (Float) o;
+			Length o = data.getPositionX(UnitsFactory.StageLabel_X);
 			if (o != null)
-				label.setPositionX(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_X));
-			o = data.getPositionY();
+				label.setPositionX(o);
+			o = data.getPositionY(UnitsFactory.StageLabel_Y);
 			if (o != null)
-				label.setPositionY(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_Y));
-			o = data.getPositionZ();
+				label.setPositionY(o);
+			o = data.getPositionZ(UnitsFactory.StageLabel_Z);
 			if (o != null)
-				label.setPositionZ(new LengthI(f.doubleValue(), UnitsFactory.StageLabel_Z));
+				label.setPositionZ(o);
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {
@@ -344,14 +342,12 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(new PressureI(data.getAirPressure(),
-			        UnitsFactory.ImagingEnvironment_AirPressure));
+			condition.setAirPressure(data.getAirPressure(UnitsFactory.ImagingEnvironment_AirPressure));
 			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
-			Object o = data.getTemperature();
+			Temperature o = data.getTemperature(UnitsFactory.ImagingEnvironment_Temperature);
 			if (o != null)
-				condition.setTemperature(new TemperatureI(((Float) o).doubleValue(),
-				        UnitsFactory.ImagingEnvironment_Temperature));
+				condition.setTemperature(o);
 			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}

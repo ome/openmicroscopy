@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.model.AnnotationKeys 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,11 +32,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pojos.WorkflowData;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
+import pojos.WorkflowData;
 
 /** 
  * 
@@ -58,16 +60,16 @@ public class AnnotationKeys
 		new AnnotationKey<String>("basicTextAnnotation", "");
 	
 	/** The area of the figure. */
-	public static final AnnotationKey<Double> AREA = 
-		new AnnotationKey<Double>("measurementArea", 0.0);
+	public static final AnnotationKey<Length> AREA = 
+		new AnnotationKey<Length>("measurementArea", new LengthI(0, UnitsLength.PIXEL));
 	
 	/** The perimeter of the figure. */
-	public static final AnnotationKey<Double> PERIMETER = 
-		new AnnotationKey<Double>("measurementPerimeter", 0.0);
+	public static final AnnotationKey<Length> PERIMETER = 
+		new AnnotationKey<Length>("measurementPerimeter", new LengthI(0, UnitsLength.PIXEL));
 	
 	/** The volume of the figure. */
-	public static final AnnotationKey<Double> VOLUME = 
-		new AnnotationKey<Double>("measurementVolume", 0.0);
+	public static final AnnotationKey<Length> VOLUME = 
+		new AnnotationKey<Length>("measurementVolume", new LengthI(0, UnitsLength.PIXEL));
 	
 	/** A list of angles in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows. 
@@ -78,62 +80,58 @@ public class AnnotationKeys
 	/** A list of lenghts in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows. 
 	 */
-	public static final AnnotationKey<List<Double>> LENGTH = 
-		new AnnotationKey<List<Double>>("measurementLength", null);
+	public static final AnnotationKey<List<Length>> LENGTH = 
+		new AnnotationKey<List<Length>>("measurementLength", null);
 	
 	/** A list of X coords in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows, this is 
 	 * the x coord of the eablow and start and end point. 
 	 */
-	public static final AnnotationKey<List<Double>> POINTARRAYX= 
-		new AnnotationKey<List<Double>>("measurementPointsX", null);
+	public static final AnnotationKey<List<Length>> POINTARRAYX= 
+		new AnnotationKey<List<Length>>("measurementPointsX", null);
 	
 	/** A list of Y coords in the figure, used for bezier, line and 
 	 * line connection figures which can have a number of elbows, this is 
 	 * the y coord of the eablow and start and end point. 
 	 */
-	public static final AnnotationKey<List<Double>> POINTARRAYY= 
-		new AnnotationKey<List<Double>>("measurementPointsY", null);
+	public static final AnnotationKey<List<Length>> POINTARRAYY= 
+		new AnnotationKey<List<Length>>("measurementPointsY", null);
 	
 	/** The X coord of the centre of the object. */
-	public static final AnnotationKey<Double> CENTREX= 
-		new AnnotationKey<Double>("measurementCentreX", 0.0);
+	public static final AnnotationKey<Length> CENTREX= 
+		new AnnotationKey<Length>("measurementCentreX", new LengthI(0, UnitsLength.PIXEL));
 
 	/** The Y coord of the centre of the object. */
-	public static final AnnotationKey<Double> CENTREY= 
-		new AnnotationKey<Double>("measurementCentreY", 0.0);
+	public static final AnnotationKey<Length> CENTREY= 
+		new AnnotationKey<Length>("measurementCentreY", new LengthI(0, UnitsLength.PIXEL));
 
 	/** The X coord of the start of the object, this is used for line,
 	 * lineconnection and bezier figures. */
-	public static final AnnotationKey<Double> STARTPOINTX= 
-		new AnnotationKey<Double>("measurementStartPointX", 0.0);
+	public static final AnnotationKey<Length> STARTPOINTX= 
+		new AnnotationKey<Length>("measurementStartPointX", new LengthI(0, UnitsLength.PIXEL));
 
 	/** The X coord of the start of the object, this is used for line,
 	 * lineconnection and bezier figures. */
-	public static final AnnotationKey<Double> STARTPOINTY= 
-		new AnnotationKey<Double>("measurementStartPointY", 0.0);
+	public static final AnnotationKey<Length> STARTPOINTY= 
+		new AnnotationKey<Length>("measurementStartPointY", new LengthI(0, UnitsLength.PIXEL));
 	
 	/** The X coord of the end of the object, this is used for line,
 	 * lineconnection and bezier figures. */
-	public static final AnnotationKey<Double> ENDPOINTX= 
-		new AnnotationKey<Double>("measurementEndPointX", 0.0);
+	public static final AnnotationKey<Length> ENDPOINTX= 
+		new AnnotationKey<Length>("measurementEndPointX", new LengthI(0, UnitsLength.PIXEL));
 	
 	/** The Y coord of the end of the object, this is used for line,
 	 * lineconnection and bezier figures. */
-	public static final AnnotationKey<Double> ENDPOINTY= 
-		new AnnotationKey<Double>("measurementEndPointY", 0.0);
+	public static final AnnotationKey<Length> ENDPOINTY= 
+		new AnnotationKey<Length>("measurementEndPointY", new LengthI(0, UnitsLength.PIXEL));
 	
 	/** The width of the figure. */
-	public static final AnnotationKey<Double> WIDTH = 
-		new AnnotationKey<Double>("measurementWidth", 0.0);
+	public static final AnnotationKey<Length> WIDTH = 
+		new AnnotationKey<Length>("measurementWidth", new LengthI(0, UnitsLength.PIXEL));
 	
 	/** The height of the figure.*/
-	public static final AnnotationKey<Double> HEIGHT = 
-		new AnnotationKey<Double>("measurementHeight", 0.0);
-//	public static final AnnotationKey<Long> ROIID = 
-//		new AnnotationKey<Long>("regionOfInterestID", null);
-//	public static final AnnotationKey<String> FIGURETYPE = 
-//		new AnnotationKey<String>("figureType", null);
+	public static final AnnotationKey<Length> HEIGHT = 
+		new AnnotationKey<Length>("measurementHeight", new LengthI(0, UnitsLength.PIXEL));
 	
 	
 	/**

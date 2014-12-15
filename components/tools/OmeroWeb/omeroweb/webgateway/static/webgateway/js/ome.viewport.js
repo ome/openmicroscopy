@@ -275,18 +275,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     // refresh allow_resize = true, seems to *prevent* resize (good) but don't fully understand
     _this.refresh(true);
-    _load(function () {
-      //_this.refresh();
-      if (!_this.loadedImg.current.query.zm && !_this.loadedImg.tiles) {
-        var size = getSizeDict();
-        _this.viewportimg.get(0).setZoomToFit(false, size.width, size.height);
-      }
-      if (_this.loadedImg.current.query.lp) {
-        _this.refreshPlot();
-      }
-      _this.self.trigger('imageLoad', [_this]);
-    });
-
+    
     // Here we set up PanoJs Big image viewer...
     if (_this.loadedImg.tiles) {
         // This is called for every tile, each time they move
@@ -335,7 +324,18 @@ jQuery._WeblitzViewport = function (container, server, options) {
           }
         _this.viewportimg.get(0).setUpTiles(img_w, img_h, tile_w, tile_h, init_zoom, zoom_levels, hrefProvider, thref, cx, cy, zoomLevelScaling, nominalMagnification);
     }
-
+    
+    _load(function () {
+      //_this.refresh();
+      if (!_this.loadedImg.current.query.zm && !_this.loadedImg.tiles) {
+        var size = getSizeDict();
+        _this.viewportimg.get(0).setZoomToFit(false, size.width, size.height);
+      }
+      if (_this.loadedImg.current.query.lp) {
+        _this.refreshPlot();
+      }
+      _this.self.trigger('imageLoad', [_this]);
+    });
 
     channels_undo_stack = [];
     channels_undo_stack_ptr = -1;

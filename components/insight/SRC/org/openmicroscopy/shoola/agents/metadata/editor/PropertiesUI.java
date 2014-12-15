@@ -86,9 +86,12 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.ClickableTooltip;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -666,35 +669,31 @@ public class PropertiesUI
      */
     private String formatPixelsSize(Map details, JLabel component)
     {
-    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
-    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
+    	Length x = (Length) details.get(EditorUtil.PIXEL_SIZE_X);
+    	Length y = (Length) details.get(EditorUtil.PIXEL_SIZE_Y);
+    	Length z = (Length) details.get(EditorUtil.PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
     	NumberFormat nf = NumberFormat.getInstance();
     	String units = null;
-    	UnitsObject o;
     	try {
-			dx = Double.parseDouble(x);
-			o = EditorUtil.transformSize(dx);
-			units = o.getUnits();
-			dx = o.getValue();
+    		x = UIUtilities.transformSize(x);
+			dx = x.getValue();
+			units = ((LengthI)x).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			dy = Double.parseDouble(y);
-			o = EditorUtil.transformSize(dy);
-			if (units == null) units = o.getUnits();
-			dy = o.getValue();
+			y = UIUtilities.transformSize(y);
+			dy = y.getValue();
+			if (units == null) units = ((LengthI)y).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
 		try {
-			dz = Double.parseDouble(z);
-			o = EditorUtil.transformSize(dz);
-			if (units == null) units = o.getUnits();
-			dz = o.getValue();
+			z = UIUtilities.transformSize(z);
+			dz = z.getValue();
+			if (units == null) units = ((LengthI)z).getSymbol();
 		} catch (Exception e) {
 			number = false;
 		}
@@ -728,7 +727,7 @@ public class PropertiesUI
     	}
     	if (value.length() == 0) return null;
     	component.setText(value);
-    	if (units == null) units = UnitsObject.MICRONS;
+    	if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
     	label += "("+units+")";
     	return label+":";
     }

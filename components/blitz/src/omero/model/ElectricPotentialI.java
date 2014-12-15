@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.google.common.base.Function;
-
 import ome.model.ModelBased;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
@@ -46,2137 +44,462 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, Function<Double, Double>> conversions;
+    private static final Map<String, double[][]> conversions;
     static {
-        Map<String, Function<Double, Double>> c = new HashMap<String, Function<Double, Double>>();
-
-        c.put("AV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("AV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("AV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("AV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("AV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("AV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("AV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("AV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("AV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("AV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("AV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("AV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("AV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("AV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("AV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("AV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("AV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
-
-        c.put("AV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("AV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("AV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("CV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("CV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("CV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("CV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("CV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("CV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("CV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("CV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("CV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("CV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("CV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("CV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("CV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("CV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("CV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("CV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("CV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -26) * value;
-              }});
-
-        c.put("CV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("CV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("CV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("DAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("DAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("DAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("DAV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("DAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("DAV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("DAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("DAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("DAV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("DAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("DAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("DAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("DAV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("DAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("DAV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("DAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("DAV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("DAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 25) * value;
-              }});
-
-        c.put("DAV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("DAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("DV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("DV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("DV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("DV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("DV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("DV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("DV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("DV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("DV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("DV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("DV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("DV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("DV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("DV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("DV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("DV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("DV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -25) * value;
-              }});
-
-        c.put("DV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("DV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("DV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("EXAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("EXAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("EXAV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("EXAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("EXAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("EXAV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("EXAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("EXAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("EXAV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("EXAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("EXAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("EXAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("EXAV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("EXAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("EXAV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("EXAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("EXAV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("EXAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("EXAV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("EXAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("FV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("FV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("FV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("FV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("FV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("FV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("FV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("FV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("FV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("FV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("FV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("FV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("FV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("FV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("FV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("FV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("FV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("FV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("FV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("FV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("GIGAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("GIGAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("GIGAV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("GIGAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("GIGAV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("GIGAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("GIGAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("GIGAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("GIGAV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("GIGAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("GIGAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("GIGAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("GIGAV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("GIGAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("GIGAV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("GIGAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("GIGAV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("GIGAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("GIGAV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("GIGAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("HV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("HV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("HV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("HV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("HV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("HV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("HV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("HV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("HV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("HV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("HV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("HV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("HV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("HV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("HV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("HV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("HV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("HV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 26) * value;
-              }});
-
-        c.put("HV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("HV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("KV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("KV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("KV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("KV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("KV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("KV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("KV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("KV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("KV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("KV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("KV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("KV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("KV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("KV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("KV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("KV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("KV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("KV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("KV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("KV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("MEGAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("MEGAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("MEGAV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("MEGAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("MEGAV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MEGAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("MEGAV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MEGAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("MEGAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MEGAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MEGAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MEGAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MEGAV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MEGAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("MEGAV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MEGAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MEGAV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MEGAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("MEGAV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MEGAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("MICROV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MICROV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("MICROV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("MICROV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("MICROV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("MICROV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MICROV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MICROV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("MICROV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MICROV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MICROV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MICROV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MICROV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("MICROV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MICROV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MICROV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MICROV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("MICROV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("MICROV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("MICROV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("MV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("MV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("MV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("MV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("MV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("MV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("MV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("MV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("NV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("NV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("NV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("NV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("NV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("NV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("NV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("NV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("NV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("NV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("NV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("NV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("NV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("NV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("NV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("NV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("NV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("NV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("NV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("NV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PETAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("PETAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("PETAV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("PETAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("PETAV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("PETAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("PETAV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("PETAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("PETAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PETAV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("PETAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("PETAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("PETAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("PETAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("PETAV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("PETAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("PETAV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("PETAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("PETAV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("PETAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("PV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("PV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("PV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("PV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("PV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("PV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("PV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("PV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("PV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("PV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("PV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("PV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("PV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("PV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("PV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("PV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("PV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("PV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("PV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("TERAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("TERAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("TERAV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("TERAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("TERAV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("TERAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("TERAV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("TERAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("TERAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("TERAV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("TERAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("TERAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("TERAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("TERAV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("TERAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("TERAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("TERAV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("TERAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("TERAV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("TERAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("V:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("V:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("V:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("V:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("V:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("V:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("V:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("V:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("V:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("V:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("V:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("V:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("V:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("V:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("V:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("V:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("V:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("V:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("V:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("V:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("YOTTAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("YOTTAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 26) * value;
-              }});
-
-        c.put("YOTTAV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("YOTTAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 25) * value;
-              }});
-
-        c.put("YOTTAV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("YOTTAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("YOTTAV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("YOTTAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("YOTTAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("YOTTAV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("YOTTAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("YOTTAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("YOTTAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("YOTTAV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("YOTTAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("YOTTAV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("YOTTAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("YOTTAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 48) * value;
-              }});
-
-        c.put("YOTTAV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("YOTTAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 45) * value;
-              }});
-
-        c.put("YV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("YV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("YV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -25) * value;
-              }});
-
-        c.put("YV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("YV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
-
-        c.put("YV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("YV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("YV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -26) * value;
-              }});
-
-        c.put("YV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("YV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("YV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("YV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("YV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("YV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("YV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("YV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("YV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("YV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -48) * value;
-              }});
-
-        c.put("YV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -45) * value;
-              }});
-
-        c.put("YV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZETTAV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("ZETTAV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("ZETTAV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("ZETTAV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("ZETTAV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("ZETTAV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("ZETTAV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("ZETTAV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("ZETTAV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("ZETTAV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("ZETTAV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("ZETTAV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("ZETTAV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("ZETTAV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("ZETTAV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("ZETTAV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("ZETTAV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("ZETTAV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZETTAV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 45) * value;
-              }});
-
-        c.put("ZETTAV:ZV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("ZV:AV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZV:CV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("ZV:DAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("ZV:DV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("ZV:EXAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("ZV:FV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("ZV:GIGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("ZV:HV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("ZV:KV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("ZV:MEGAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("ZV:MICROV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("ZV:MV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("ZV:NV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("ZV:PETAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("ZV:PV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("ZV:TERAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("ZV:V", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("ZV:YOTTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -45) * value;
-              }});
-
-        c.put("ZV:YV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("ZV:ZETTAV", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
+        Map<String, double[][]> c = new HashMap<String, double[][]>();
+
+        c.put("ATTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("ATTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("ATTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("ATTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("ATTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ATTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("ATTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("ATTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("ATTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("ATTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("ATTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("ATTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("ATTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("ATTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("ATTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("ATTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("ATTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("ATTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("ATTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ATTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("CENTIVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("CENTIVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("CENTIVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("CENTIVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("CENTIVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("CENTIVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("CENTIVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("CENTIVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("CENTIVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("CENTIVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("CENTIVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("CENTIVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("CENTIVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("CENTIVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("CENTIVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("CENTIVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("CENTIVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("CENTIVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
+        c.put("CENTIVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("CENTIVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("DECAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("DECAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("DECAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("DECAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("DECAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("DECAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("DECAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("DECAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("DECAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("DECAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("DECAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("DECAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("DECAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("DECAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("DECAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("DECAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("DECAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
+        c.put("DECAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("DECAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("DECAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("DECIVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("DECIVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("DECIVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("DECIVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("DECIVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("DECIVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("DECIVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("DECIVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("DECIVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("DECIVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("DECIVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("DECIVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("DECIVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("DECIVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("DECIVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("DECIVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("DECIVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("DECIVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
+        c.put("DECIVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("DECIVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("EXAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("EXAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("EXAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("EXAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("EXAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("EXAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("EXAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("EXAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("EXAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("EXAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("EXAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("EXAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("EXAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("EXAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("EXAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("EXAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("EXAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+        c.put("EXAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("EXAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("EXAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("FEMTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("FEMTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("FEMTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("FEMTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("FEMTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("FEMTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("FEMTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("FEMTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("FEMTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("FEMTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("FEMTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("FEMTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("FEMTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("FEMTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("FEMTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("FEMTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("FEMTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("FEMTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("FEMTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("FEMTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("GIGAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("GIGAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("GIGAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("GIGAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("GIGAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("GIGAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("GIGAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("GIGAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("GIGAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("GIGAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("GIGAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("GIGAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("GIGAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("GIGAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("GIGAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("GIGAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("GIGAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("GIGAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("GIGAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("GIGAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("HECTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("HECTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("HECTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("HECTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("HECTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("HECTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("HECTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("HECTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("HECTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("HECTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("HECTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("HECTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("HECTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("HECTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("HECTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("HECTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("HECTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
+        c.put("HECTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("HECTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("HECTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("KILOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("KILOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("KILOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("KILOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("KILOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("KILOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("KILOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("KILOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("KILOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("KILOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("KILOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("KILOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("KILOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("KILOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("KILOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("KILOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("KILOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("KILOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("KILOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("KILOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MEGAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("MEGAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("MEGAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("MEGAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("MEGAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MEGAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("MEGAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MEGAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("MEGAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MEGAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MEGAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MEGAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MEGAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MEGAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MEGAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MEGAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MEGAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("MEGAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MEGAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("MEGAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MICROVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MICROVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("MICROVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("MICROVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("MICROVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("MICROVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MICROVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MICROVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("MICROVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MICROVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MICROVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MICROVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MICROVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("MICROVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MICROVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MICROVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MICROVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MICROVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("MICROVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MICROVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("MILLIVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MILLIVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("MILLIVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("MILLIVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("MILLIVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("MILLIVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MILLIVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MILLIVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("MILLIVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MILLIVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MILLIVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MILLIVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MILLIVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MILLIVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MILLIVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MILLIVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MILLIVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("MILLIVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("MILLIVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MILLIVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("NANOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("NANOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("NANOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("NANOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("NANOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("NANOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("NANOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("NANOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("NANOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("NANOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("NANOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("NANOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("NANOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("NANOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("NANOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("NANOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("NANOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("NANOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("NANOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("NANOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("PETAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("PETAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("PETAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("PETAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("PETAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("PETAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("PETAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("PETAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("PETAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("PETAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("PETAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("PETAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("PETAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("PETAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("PETAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("PETAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("PETAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("PETAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("PETAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("PETAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("PICOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("PICOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("PICOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("PICOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("PICOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("PICOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("PICOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("PICOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("PICOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("PICOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("PICOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("PICOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("PICOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("PICOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("PICOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("PICOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("PICOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("PICOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("PICOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("PICOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("TERAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("TERAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("TERAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("TERAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("TERAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("TERAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("TERAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("TERAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("TERAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("TERAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("TERAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("TERAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("TERAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("TERAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("TERAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("TERAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("TERAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("TERAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("TERAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("TERAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("VOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("VOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("VOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("VOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("VOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("VOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("VOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("VOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("VOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("VOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("VOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("VOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("VOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("VOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("VOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("VOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("VOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("VOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("VOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("VOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("YOCTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("YOCTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("YOCTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
+        c.put("YOCTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("YOCTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("YOCTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("YOCTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("YOCTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
+        c.put("YOCTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("YOCTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("YOCTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("YOCTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("YOCTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("YOCTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("YOCTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("YOCTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("YOCTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("YOCTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
+        c.put("YOCTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("YOCTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
+        c.put("YOTTAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+        c.put("YOTTAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
+        c.put("YOTTAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("YOTTAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
+        c.put("YOTTAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("YOTTAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("YOTTAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("YOTTAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("YOTTAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("YOTTAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("YOTTAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("YOTTAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("YOTTAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("YOTTAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("YOTTAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("YOTTAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("YOTTAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("YOTTAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
+        c.put("YOTTAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
+        c.put("YOTTAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZEPTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ZEPTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("ZEPTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("ZEPTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("ZEPTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("ZEPTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("ZEPTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("ZEPTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("ZEPTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("ZEPTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("ZEPTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("ZEPTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("ZEPTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("ZEPTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("ZEPTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("ZEPTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("ZEPTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("ZEPTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZEPTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
+        c.put("ZEPTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("ZETTAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("ZETTAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("ZETTAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("ZETTAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("ZETTAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZETTAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("ZETTAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("ZETTAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("ZETTAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("ZETTAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("ZETTAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("ZETTAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("ZETTAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("ZETTAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("ZETTAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("ZETTAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("ZETTAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("ZETTAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
+        c.put("ZETTAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ZETTAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
         conversions = Collections.unmodifiableMap(c);
     }
 
     private static final Map<UnitsElectricPotential, String> SYMBOLS;
     static {
         Map<UnitsElectricPotential, String> s = new HashMap<UnitsElectricPotential, String>();
-        s.put(UnitsElectricPotential.AV, "aV");
-        s.put(UnitsElectricPotential.CV, "cV");
-        s.put(UnitsElectricPotential.DAV, "daV");
-        s.put(UnitsElectricPotential.DV, "dV");
-        s.put(UnitsElectricPotential.EXAV, "EV");
-        s.put(UnitsElectricPotential.FV, "fV");
-        s.put(UnitsElectricPotential.GIGAV, "GV");
-        s.put(UnitsElectricPotential.HV, "hV");
-        s.put(UnitsElectricPotential.KV, "kV");
-        s.put(UnitsElectricPotential.MEGAV, "MV");
-        s.put(UnitsElectricPotential.MICROV, "µV");
-        s.put(UnitsElectricPotential.MV, "mV");
-        s.put(UnitsElectricPotential.NV, "nV");
-        s.put(UnitsElectricPotential.PETAV, "PV");
-        s.put(UnitsElectricPotential.PV, "pV");
-        s.put(UnitsElectricPotential.TERAV, "TV");
-        s.put(UnitsElectricPotential.V, "V");
-        s.put(UnitsElectricPotential.YOTTAV, "YV");
-        s.put(UnitsElectricPotential.YV, "yV");
-        s.put(UnitsElectricPotential.ZETTAV, "ZV");
-        s.put(UnitsElectricPotential.ZV, "zV");
+        s.put(UnitsElectricPotential.ATTOVOLT, "aV");
+        s.put(UnitsElectricPotential.CENTIVOLT, "cV");
+        s.put(UnitsElectricPotential.DECAVOLT, "daV");
+        s.put(UnitsElectricPotential.DECIVOLT, "dV");
+        s.put(UnitsElectricPotential.EXAVOLT, "EV");
+        s.put(UnitsElectricPotential.FEMTOVOLT, "fV");
+        s.put(UnitsElectricPotential.GIGAVOLT, "GV");
+        s.put(UnitsElectricPotential.HECTOVOLT, "hV");
+        s.put(UnitsElectricPotential.KILOVOLT, "kV");
+        s.put(UnitsElectricPotential.MEGAVOLT, "MV");
+        s.put(UnitsElectricPotential.MICROVOLT, "µV");
+        s.put(UnitsElectricPotential.MILLIVOLT, "mV");
+        s.put(UnitsElectricPotential.NANOVOLT, "nV");
+        s.put(UnitsElectricPotential.PETAVOLT, "PV");
+        s.put(UnitsElectricPotential.PICOVOLT, "pV");
+        s.put(UnitsElectricPotential.TERAVOLT, "TV");
+        s.put(UnitsElectricPotential.VOLT, "V");
+        s.put(UnitsElectricPotential.YOCTOVOLT, "yV");
+        s.put(UnitsElectricPotential.YOTTAVOLT, "YV");
+        s.put(UnitsElectricPotential.ZEPTOVOLT, "zV");
+        s.put(UnitsElectricPotential.ZETTAVOLT, "ZV");
         SYMBOLS = s;
+    }
+
+    public static String lookupSymbol(UnitsElectricPotential unit) {
+        return SYMBOLS.get(unit);
     }
 
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
@@ -2292,13 +615,29 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            Function<Double, Double> c = conversions.get(source + ":" + target);
-            if (c == null) {
+            double[][] coeffs = conversions.get(source + ":" + target);
+            if (coeffs == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
-            setValue(c.apply(value.getValue()));
+            double orig = value.getValue();
+            double k, p, v;
+            if (coeffs.length == 0) {
+                v = orig;
+            } else if (coeffs.length == 2){
+                k = coeffs[0][0];
+                p = coeffs[0][1];
+                v = Math.pow(k, p);
+
+                k = coeffs[1][0];
+                p = coeffs[1][1];
+                v += Math.pow(k, p) * orig;
+            } else {
+                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            }
+
+            setValue(v);
             setUnit(UnitsElectricPotential.valueOf(target));
        }
     }
@@ -2339,7 +678,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
         this.unit = unit;
     }
 
-    public String getSymbol() {
+    public String getSymbol(Ice.Current current) {
         return SYMBOLS.get(this.unit);
     }
 

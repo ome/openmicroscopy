@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ImageAcquisitionComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -47,6 +47,10 @@ import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import ome.formats.model.UnitsFactory;
+import omero.model.LengthI;
+import omero.model.PressureI;
+import omero.model.TemperatureI;
 import pojos.ImageAcquisitionData;
 
 /** 
@@ -400,11 +404,11 @@ class ImageAcquisitionComponent
 				if (EditorUtil.TEMPERATURE.equals(key)) {
 					number = UIUtilities.extractNumber((String) value, 
 							Float.class);
-					if (number != null) data.setTemperature((Float) number);
+					if (number != null) data.setTemperature(new TemperatureI((Float) number, UnitsFactory.ImagingEnvironment_Temperature));
 				} else if (EditorUtil.AIR_PRESSURE.equals(key)) {
 					number = UIUtilities.extractNumber((String) value, 
 							Float.class);
-					if (number != null) data.setAirPressure((Float) number);
+					if (number != null) data.setAirPressure(new PressureI((Float) number, UnitsFactory.ImagingEnvironment_AirPressure));
 				} else if (EditorUtil.HUMIDITY.equals(key)) {
 					number = UIUtilities.extractNumber((String) value, 
 							Float.class);
@@ -437,15 +441,15 @@ class ImageAcquisitionComponent
 				} else if (EditorUtil.POSITION_X.equals(key)) {
 					number = UIUtilities.extractNumber((String) value, 
 							Float.class);
-					if (number != null) data.setPositionX((Float) number);
+					if (number != null) data.setPositionX(new LengthI((Float) number, UnitsFactory.StageLabel_X));
 				} else if (EditorUtil.POSITION_Y.equals(key)) {
 					number = UIUtilities.extractNumber((String) value, 
 							Float.class);
-					if (number != null) data.setPositionY((Float) number);
+					if (number != null) data.setPositionY(new LengthI((Float) number, UnitsFactory.StageLabel_Z));
 				} else if (EditorUtil.POSITION_Z.equals(key)) {
 					number = UIUtilities.extractNumber((String) value, 
 							Float.class);
-					if (number != null) data.setPositionZ((Float) number);
+					if (number != null) data.setPositionZ(new LengthI((Float) number, UnitsFactory.StageLabel_Y));
 				}
 			}
 		}

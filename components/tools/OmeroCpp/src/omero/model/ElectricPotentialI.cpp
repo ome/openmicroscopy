@@ -25,6 +25,35 @@ namespace omero {
 
     namespace model {
 
+
+        static std::map<omero::model::enums::UnitsElectricPotential, std::string> makeSymbols(){
+            std::map<omero::model::enums::UnitsElectricPotential, std::string> s;
+            s[omero::model::enums::ATTOVOLT] = "aV";
+            s[omero::model::enums::CENTIVOLT] = "cV";
+            s[omero::model::enums::DECAVOLT] = "daV";
+            s[omero::model::enums::DECIVOLT] = "dV";
+            s[omero::model::enums::EXAVOLT] = "EV";
+            s[omero::model::enums::FEMTOVOLT] = "fV";
+            s[omero::model::enums::GIGAVOLT] = "GV";
+            s[omero::model::enums::HECTOVOLT] = "hV";
+            s[omero::model::enums::KILOVOLT] = "kV";
+            s[omero::model::enums::MEGAVOLT] = "MV";
+            s[omero::model::enums::MICROVOLT] = "µV";
+            s[omero::model::enums::MILLIVOLT] = "mV";
+            s[omero::model::enums::NANOVOLT] = "nV";
+            s[omero::model::enums::PETAVOLT] = "PV";
+            s[omero::model::enums::PICOVOLT] = "pV";
+            s[omero::model::enums::TERAVOLT] = "TV";
+            s[omero::model::enums::VOLT] = "V";
+            s[omero::model::enums::YOCTOVOLT] = "yV";
+            s[omero::model::enums::YOTTAVOLT] = "YV";
+            s[omero::model::enums::ZEPTOVOLT] = "zV";
+            s[omero::model::enums::ZETTAVOLT] = "ZV";
+            return s;
+        };
+
+        std::map<omero::model::enums::UnitsElectricPotential, std::string> ElectricPotentialI::SYMBOLS = makeSymbols();
+
         ElectricPotentialI::~ElectricPotentialI() {}
 
         ElectricPotentialI::ElectricPotentialI() : ElectricPotential() {
@@ -44,6 +73,10 @@ namespace omero {
 
         void ElectricPotentialI::setUnit(omero::model::enums::UnitsElectricPotential _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string ElectricPotentialI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         ElectricPotentialPtr ElectricPotentialI::copy(const Ice::Current& /* current */) {

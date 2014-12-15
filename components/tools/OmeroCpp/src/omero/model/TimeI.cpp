@@ -25,6 +25,38 @@ namespace omero {
 
     namespace model {
 
+
+        static std::map<omero::model::enums::UnitsTime, std::string> makeSymbols(){
+            std::map<omero::model::enums::UnitsTime, std::string> s;
+            s[omero::model::enums::ATOOSECOND] = "as";
+            s[omero::model::enums::CENTISECOND] = "cs";
+            s[omero::model::enums::DAY] = "d";
+            s[omero::model::enums::DECASECOND] = "das";
+            s[omero::model::enums::DECISECOND] = "ds";
+            s[omero::model::enums::EXASECOND] = "Es";
+            s[omero::model::enums::FEMTOSECOND] = "fs";
+            s[omero::model::enums::GIGASECOND] = "Gs";
+            s[omero::model::enums::HECTOSECOND] = "hs";
+            s[omero::model::enums::HOUR] = "h";
+            s[omero::model::enums::KILOSECOND] = "ks";
+            s[omero::model::enums::MEGASECOND] = "Ms";
+            s[omero::model::enums::MICROSECOND] = "µs";
+            s[omero::model::enums::MILLISECOND] = "ms";
+            s[omero::model::enums::MINUTE] = "min";
+            s[omero::model::enums::NANOSECOND] = "ns";
+            s[omero::model::enums::PETASECOND] = "Ps";
+            s[omero::model::enums::PICOSECOND] = "ps";
+            s[omero::model::enums::SECOND] = "s";
+            s[omero::model::enums::TERASECOND] = "Ts";
+            s[omero::model::enums::YOCTOSECOND] = "ys";
+            s[omero::model::enums::YOTTASECOND] = "Ys";
+            s[omero::model::enums::ZEPTOSECOND] = "zs";
+            s[omero::model::enums::ZETTASECOND] = "Zs";
+            return s;
+        };
+
+        std::map<omero::model::enums::UnitsTime, std::string> TimeI::SYMBOLS = makeSymbols();
+
         TimeI::~TimeI() {}
 
         TimeI::TimeI() : Time() {
@@ -44,6 +76,10 @@ namespace omero {
 
         void TimeI::setUnit(omero::model::enums::UnitsTime _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string TimeI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         TimePtr TimeI::copy(const Ice::Current& /* current */) {

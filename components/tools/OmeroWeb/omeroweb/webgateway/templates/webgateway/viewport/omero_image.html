@@ -327,7 +327,6 @@
                        'imageWidth': viewport.getSizes().width};
         if (viewport.loadedImg.tiles) {
             options['tiles'] = true;
-            options['scalebar_name'] = 'scalebar_big';
         }
         viewport.viewportimg.scalebar_display(options);
     }
@@ -365,7 +364,6 @@
                      'json_url':'{% url 'webgateway_get_rois_json' image.id %}'};
           if (viewport.loadedImg.tiles) {
               options['tiles'] = true;
-              options['canvas_name'] = 'roi_canvas_big';
           }
           viewport.viewportimg.roi_display(options);
           viewport.viewportimg.get(0).setRoiZoom(viewport.viewportimg.get(0).getZoom());

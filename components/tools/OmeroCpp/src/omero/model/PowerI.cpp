@@ -25,6 +25,35 @@ namespace omero {
 
     namespace model {
 
+
+        static std::map<omero::model::enums::UnitsPower, std::string> makeSymbols(){
+            std::map<omero::model::enums::UnitsPower, std::string> s;
+            s[omero::model::enums::ATTOWATT] = "aW";
+            s[omero::model::enums::CENTIWATT] = "cW";
+            s[omero::model::enums::DECAWATT] = "daW";
+            s[omero::model::enums::DECIWATT] = "dW";
+            s[omero::model::enums::EXAWATT] = "EW";
+            s[omero::model::enums::FEMTOWATT] = "fW";
+            s[omero::model::enums::GIGAWATT] = "GW";
+            s[omero::model::enums::HECTOWATT] = "hW";
+            s[omero::model::enums::KILOWATT] = "kW";
+            s[omero::model::enums::MEGAWATT] = "MW";
+            s[omero::model::enums::MICROWATT] = "µW";
+            s[omero::model::enums::MILLIWATT] = "mW";
+            s[omero::model::enums::NANOWATT] = "nW";
+            s[omero::model::enums::PETAWATT] = "PW";
+            s[omero::model::enums::PICOWATT] = "pW";
+            s[omero::model::enums::TERAWATT] = "TW";
+            s[omero::model::enums::WATT] = "W";
+            s[omero::model::enums::YOCTOWATT] = "yW";
+            s[omero::model::enums::YOTTAWATT] = "YW";
+            s[omero::model::enums::ZEPTOWATT] = "zW";
+            s[omero::model::enums::ZETTAWATT] = "ZW";
+            return s;
+        };
+
+        std::map<omero::model::enums::UnitsPower, std::string> PowerI::SYMBOLS = makeSymbols();
+
         PowerI::~PowerI() {}
 
         PowerI::PowerI() : Power() {
@@ -44,6 +73,10 @@ namespace omero {
 
         void PowerI::setUnit(omero::model::enums::UnitsPower _unit, const Ice::Current& /* current */) {
             unit = _unit;
+        }
+
+        std::string PowerI::getSymbol(const Ice::Current& /* current */) {
+            return SYMBOLS[unit];
         }
 
         PowerPtr PowerI::copy(const Ice::Current& /* current */) {

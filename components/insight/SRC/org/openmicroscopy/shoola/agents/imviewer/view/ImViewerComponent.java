@@ -2896,7 +2896,7 @@ class ImViewerComponent
 	private void buildView()
 	{
 		int index = UnitBarSizeAction.getDefaultIndex(
-				EditorUtil.transformSize(5*getPixelsSizeX()).getValue());
+				UIUtilities.transformSize(5*getPixelsSizeX()).getValue());
 		setUnitBarSize(UnitBarSizeAction.getValue(index));
 		view.setDefaultScaleBarMenu(index);
 		colorModel = model.getColorModel();

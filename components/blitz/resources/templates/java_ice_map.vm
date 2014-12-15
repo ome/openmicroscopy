@@ -101,6 +101,10 @@ public class IceMap {
         _omero2ome.put(omero.model.Time.class, ome.model.units.Time.class);
         _omero2ome.put(omero.model.TimeI.class, ome.model.units.Time.class);
 
+        // Other
+        _ome2omero.put(ome.model.internal.NamedValue.class, omero.model.NamedValue.class);
+        _omero2ome.put(omero.model.NamedValue.class, ome.model.internal.NamedValue.class);
+
         // Sealing
         OMEtoOMERO = Collections.unmodifiableMap(_ome2omero);
         OMEROtoOME = Collections.unmodifiableMap(_omero2ome);

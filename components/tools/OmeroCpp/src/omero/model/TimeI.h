@@ -52,8 +52,14 @@ namespace omero {
 
     protected:
         virtual ~TimeI(); // protected as outlined in Ice docs.
+        static std::map<omero::model::enums::UnitsTime, std::string> SYMBOLS;
 
     public:
+
+        static std::string lookupSymbol(omero::model::enums::UnitsTime unit) {
+            return SYMBOLS[unit];
+        }
+
         TimeI();
 
         virtual Ice::Double getValue(
@@ -68,6 +74,9 @@ namespace omero {
 
         virtual void setUnit(
                 omero::model::enums::UnitsTime unit,
+                const Ice::Current& current = Ice::Current());
+
+        virtual std::string getSymbol(
                 const Ice::Current& current = Ice::Current());
 
         virtual TimePtr copy(

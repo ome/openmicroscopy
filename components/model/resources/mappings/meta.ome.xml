@@ -72,7 +72,7 @@
 		<properties>
 			<onemany name="sessions" type="ome.model.meta.Session" inverse="node"/>
 			<required name="uuid"  type="string" unique="true"/>
-			<required name="conn"  type="string"/>
+			<required name="conn"  type="text"/>
 			<required name="up"    type="timestamp"/>
 			<optional name="down"  type="timestamp"/>
 			<optional name="scale" type="int"/>

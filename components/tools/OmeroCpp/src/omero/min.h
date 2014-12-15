@@ -20,4 +20,5 @@
 #include<omero/cmd/API.h>
 #include <omero/IceNoWarnPop.h>
 #include<omero/RTypesI.h>
+#include<omero/model/NamedValue.h>
 #endif

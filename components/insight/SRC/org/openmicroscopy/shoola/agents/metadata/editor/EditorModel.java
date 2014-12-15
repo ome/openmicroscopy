@@ -43,13 +43,18 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+
+
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -64,6 +69,7 @@ import org.openmicroscopy.shoola.agents.metadata.FilesetLoader;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.ImageSizeLoader;
 import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.LDAPLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalMetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
@@ -81,16 +87,12 @@ import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionMenu;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -104,13 +106,13 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
@@ -4437,5 +4439,32 @@ class EditorModel
     	StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
     	return CollectionUtils.isNotEmpty(data.getTransferLinks());
+    }
+
+    /**
+     * Fires an asynchronous call to retrieve the LDAP details.
+     */
+    void fireLDAPDetailsLoading()
+    {
+        if (!(getRefObject() instanceof ExperimenterData)) return;
+        ExperimenterData exp = (ExperimenterData) getRefObject();
+        EditorLoader l = new LDAPLoader(component, getSecurityContext(),
+                exp.getId());
+        l.load();
+    }
+
+    /**
+     * Returns <code>true</code> if the user is connected via LDAP,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    boolean isLDAP()
+    {
+        if (getRefObject() instanceof ExperimenterData) {
+            ExperimenterData exp = (ExperimenterData) getRefObject();
+            return exp.isLDAP();
+        }
+        return false;
     }
 }

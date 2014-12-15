@@ -48,7 +48,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -56,7 +55,9 @@ import org.jdesktop.swingx.JXTaskPane;
 import omero.model.AcquisitionMode;
 import omero.model.ContrastMethod;
 import omero.model.Illumination;
+import omero.model.LengthI;
 import omero.model.PlaneInfo;
+import ome.formats.model.UnitsFactory;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -575,7 +576,7 @@ class ChannelAcquisitionComponent
 						number = UIUtilities.extractNumber((String) value, 
 								Float.class);
 						if (number != null)
-							channel.setPinholeSize((Float) number);
+							channel.setPinholeSize(new LengthI((Float) number, UnitsFactory.Channel_PinholeSize));
 					} else if (EditorUtil.ND_FILTER.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
 								Float.class);
@@ -590,12 +591,12 @@ class ChannelAcquisitionComponent
 						number = UIUtilities.extractNumber((String) value, 
 						        Double.class);
 						if (number != null)
-							channel.setEmissionWavelength((Double) number);
+							channel.setEmissionWavelength(new LengthI((Double) number, UnitsFactory.Channel_EmissionWavelength));
 					} else if (EditorUtil.EXCITATION.equals(key)) {
 						number = UIUtilities.extractNumber((String) value, 
 								Double.class);
 						if (number != null)
-							channel.setExcitationWavelength((Double) number);
+							channel.setExcitationWavelength(new LengthI((Double) number, UnitsFactory.Channel_ExcitationWavelength));
 					} else if (EditorUtil.ILLUMINATION.equals(key)) {
 						enumObject = (EnumerationObject) value;
 						if (enumObject.getObject() instanceof Illumination)

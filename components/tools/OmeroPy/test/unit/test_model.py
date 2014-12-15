@@ -348,10 +348,15 @@ class TestModel(object):
         assert hasattr(omero.model.enums.UnitsLength, str(ul))
 
     def testCtorConversions(self):
-        nm = LengthI(1.0, omero.model.enums.UnitsLength.NM)
+        nm = LengthI(1.0, omero.model.enums.UnitsLength.NANOMETER)
         ang = LengthI(nm, omero.model.enums.UnitsLength.ANGSTROM)
         assert nm.getValue() == ang.getValue() / 10
 
     def testLengthGetSymbol(self):
-        um = LengthI(1.0, omero.model.enums.UnitsLength.MICROM)
+        um = LengthI(1.0, omero.model.enums.UnitsLength.MICROMETER)
         assert "µm" == um.getSymbol()
+
+    def testLengthLookupSymbol(self):
+        um = omero.model.enums.UnitsLength.MICROMETER
+        sym = LengthI.lookupSymbol(um)
+        assert "µm" == sym

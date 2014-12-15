@@ -30,14 +30,20 @@ import omero.model.ArcType;
 import omero.model.Filament;
 import omero.model.FilamentType;
 import omero.model.Frequency;
+import omero.model.FrequencyI;
 import omero.model.Laser;
 import omero.model.LaserMedium;
 import omero.model.LaserType;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
 import omero.model.Power;
+import omero.model.PowerI;
 import omero.model.Pulse;
+import omero.model.enums.UnitsFrequency;
+import omero.model.enums.UnitsLength;
+import omero.model.enums.UnitsPower;
 
 /** 
  * Object hosting a light source: filament, arc, laser or light emitting diode
@@ -143,21 +149,25 @@ public class LightSourceData
 	/**
 	 * Returns the power of the light source.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Power getPowerAsPower()
+	public Power getPower(UnitsPower unit)
 	{
 		LightSource light = (LightSource) asIObject();
 		if (light == null)
 			return null;
-		return light.getPower();
+		Power p = light.getPower();
+		return unit == null ? p : new PowerI(p, unit);
 	}
 	
 	/**
 	 * Returns the power of the light source.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getPowerAsPower()}
+	 * @deprecated Replaced by {@link #getPower(UnitsPower)}
 	 */
 	@Deprecated
 	public double getPower()
@@ -210,21 +220,27 @@ public class LightSourceData
 	/**
 	 * Returns the laser's wavelength.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Length getLaserWavelengthAsLength()
+	public Length getLaserWavelength(UnitsLength unit)
 	{
 		if (!LASER.equals(getKind())) 
 			return null;
 		Laser laser = (Laser) asIObject();
-		return laser.getWavelength();
+		Length l = laser.getWavelength();
+		if (l==null)
+			return null;
+		return unit == null ? l : new LengthI(l, unit);
 	}
 	
 	/**
 	 * Returns the laser's wavelength.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getLaserWavelengthAsLength()}
+	 * @deprecated Replaced by {@link #getLaserWavelength(UnitsLength)}
 	 */
 	@Deprecated
 	public double getLaserWavelength()
@@ -326,20 +342,26 @@ public class LightSourceData
 	/**
 	 * Returns the repetition rate (Hz) if the laser is repetitive.
 	 * 
+	 * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
 	 * @return See above.
 	 */
-	public Frequency getLaserRepetitionRateAsFrequency()
+	public Frequency getLaserRepetitionRate(UnitsFrequency unit)
 	{
 		if (!LASER.equals(getKind())) return null;
 		Laser laser = (Laser) asIObject();
-		return laser.getRepetitionRate();
+		Frequency f = laser.getRepetitionRate();
+		if (f==null)
+			return null;
+		return unit == null ? f : new FrequencyI(f, unit);
 	}
 	
 	/**
 	 * Returns the repetition rate (Hz) if the laser is repetitive.
 	 * 
 	 * @return See above.
-	 * @deprecated Replaced by {@link #getLaserRepetitionRateAsFrequency()}
+	 * @deprecated Replaced by {@link #getLaserRepetitionRate(UnitsFrequency)}
 	 */
 	@Deprecated
 	public double getLaserRepetitionRate()

@@ -229,11 +229,11 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeX(double pixelSizeX) {
         setDirty(true);
-        asPixels().setPhysicalSizeX(new LengthI(pixelSizeX, UnitsLength.MICROM));
+        asPixels().setPhysicalSizeX(new LengthI(pixelSizeX, UnitsLength.MICROMETER));
     }
 
     /**
-     * Sets the dimension of a pixel along the X-axis, dimension is in microns.
+     * Sets the dimension of a pixel along the X-axis
      * 
      * @param pixelSizeX
      *            The dimension of a pixel along the X-axis.
@@ -249,7 +249,7 @@ public class PixelsData extends DataObject {
      * microns.
      * 
      * @return See above.
-     * @deprecated Replaced by {@link #getPixelSizeXAsLength()}
+     * @deprecated Replaced by {@link #getPixelSizeX(UnitsLength)}
      */
     @Deprecated
     public double getPixelSizeX() {
@@ -257,13 +257,18 @@ public class PixelsData extends DataObject {
     }
     
     /**
-     * Returns the dimension of a pixel along the X-axis, dimension is in
-     * microns.
+     * Returns the dimension of a pixel along the X-axis
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above.
      */
-    public Length getPixelSizeXAsLength() {
-        return asPixels().getPhysicalSizeX();
+    public Length getPixelSizeX(UnitsLength unit) {
+    	Length l = asPixels().getPhysicalSizeX();
+    	if(l == null)
+    		return null;
+    	return unit == null ? l : new LengthI(l, unit);
     }
 
     /**
@@ -276,11 +281,11 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeY(double pixelSizeY) {
         setDirty(true);
-        asPixels().setPhysicalSizeY(new LengthI(pixelSizeY, UnitsLength.MICROM));
+        asPixels().setPhysicalSizeY(new LengthI(pixelSizeY, UnitsLength.MICROMETER));
     }
     
     /**
-     * Sets the dimension of a pixel along the Y-axis, dimension is in microns.
+     * Sets the dimension of a pixel along the Y-axis
      * 
      * @param pixelSizeY
      *            The dimension of a pixel along the Y-axis.
@@ -295,7 +300,7 @@ public class PixelsData extends DataObject {
      * microns.
      * 
      * @return See above.
-     * @deprecated Replaced by {@link #getPixelSizeYAsLength()}
+     * @deprecated Replaced by {@link #getPixelSizeY(UnitsLength)}
      */
     @Deprecated
     public double getPixelSizeY() {
@@ -303,13 +308,18 @@ public class PixelsData extends DataObject {
     }
 
     /**
-     * Returns the dimension of a pixel along the Y-axis, dimension is in
-     * microns.
+     * Returns the dimension of a pixel along the Y-axis
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above.
      */
-    public Length getPixelSizeYAsLength() {
-        return asPixels().getPhysicalSizeY();
+    public Length getPixelSizeY(UnitsLength unit) {
+    	Length l = asPixels().getPhysicalSizeY();
+    	if(l == null)
+    		return null;
+    	return unit == null ? l : new LengthI(l, unit);
     }
     
     /**
@@ -322,11 +332,11 @@ public class PixelsData extends DataObject {
     @Deprecated
     public void setPixelSizeZ(double pixelSizeZ) {
         setDirty(true);
-        asPixels().setPhysicalSizeZ(new LengthI(pixelSizeZ, UnitsLength.MICROM));
+        asPixels().setPhysicalSizeZ(new LengthI(pixelSizeZ, UnitsLength.MICROMETER));
     }
 
     /**
-     * Sets the dimension of a pixel along the Z-axis, dimension is in microns.
+     * Sets the dimension of a pixel along the Z-axis
      * 
      * @param pixelSizeZ
      *            The dimension of a pixel along the Z-axis.
@@ -341,7 +351,7 @@ public class PixelsData extends DataObject {
      * microns.
      * 
      * @return See above.
-     * @deprecated Replaced by {@link #getPixelSizeZAsLength()}
+     * @deprecated Replaced by {@link #getPixelSizeZ(UnitsLength)}
      */
     @Deprecated
     public double getPixelSizeZ() {
@@ -349,13 +359,18 @@ public class PixelsData extends DataObject {
     }
   
     /**
-     * Returns the dimension of a pixel along the Z-axis, dimension is in
-     * microns.
+     * Returns the dimension of a pixel along the Z-axis
      * 
+     * @param unit
+	 *            The unit (may be null, in which case no conversion will be
+	 *            performed)
      * @return See above.
      */
-    public Length getPixelSizeZAsLength() {
-        return asPixels().getPhysicalSizeZ();
+    public Length getPixelSizeZ(UnitsLength unit) {
+    	Length l = asPixels().getPhysicalSizeZ();
+    	if(l == null)
+    		return null;
+    	return unit == null ? l : new LengthI(l, unit);
     }
     
     /**

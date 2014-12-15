@@ -404,16 +404,17 @@ implements java.io.Serializable, IObject
 ##  row/field of some model object.
 ##
 
-    public void set${prop.nameCapped}(java.util.Map<String, String> map) {
+    public void set${prop.nameCapped}(${prop.fieldType} map) {
         this.${prop.name} = map;
     }
 
     @javax.persistence.ElementCollection
-    @javax.persistence.Column(name="${prop.name}", nullable=false)
+    @javax.persistence.OrderColumn(name="index")
     @javax.persistence.CollectionTable(name="${type.tableName()}_${prop.name}",
         joinColumns = @javax.persistence.JoinColumn(name="${type.tableName()}_id"))
+    @javax.persistence.Column(name="${prop.name}", nullable=false)
     @org.hibernate.annotations.ForeignKey(name="FK${type.tableName()}_${prop.name}_map")
-    public java.util.Map<String, String> get${prop.nameCapped}() {
+    public ${prop.fieldType} get${prop.nameCapped}() {
         return this.${prop.name};
     }
 #elseif($prop.class.name == "ome.dsl.EntryField")#############################TYPE
@@ -1236,7 +1237,7 @@ implements java.io.Serializable, IObject
 #end
         } else if (field.equals(${prop.nameUpper})) {
 #if($prop.class.name == "ome.dsl.MapField")
-            set${prop.nameCapped}((java.util.Map<String, String>)value);
+            set${prop.nameCapped}((${prop.fieldType})value);
 #else
             set${prop.nameCapped}((${prop.fieldType})value);
 #end

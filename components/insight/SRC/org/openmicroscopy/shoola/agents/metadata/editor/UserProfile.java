@@ -73,8 +73,6 @@ import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
-import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -188,6 +186,9 @@ class UserProfile
     /** Save the changes.*/
     private JButton saveButton;
 
+    /** The component hosting the password controls.*/
+    private JPanel passwordPanel;
+
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -203,8 +204,6 @@ class UserProfile
                 passwordNew.requestFocus();
                 return;
             }
-            un = MetadataViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo(PASSWORD_CHANGE_TITLE, "Password changed.");
             passwordNew.setText("");
             model.resetPassword(newPass);
             return;
@@ -349,6 +348,8 @@ class UserProfile
                 manageGroup();
             }
         });
+        passwordPanel = new JPanel();
+        passwordPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         passwordNew = new JPasswordField();
         passwordNew.setBackground(UIUtilities.BACKGROUND_COLOR);
         passwordConfirm = new JPasswordField();
@@ -777,21 +778,20 @@ class UserProfile
      * Builds the UI component hosting the UI component used to modify 
      * the password.
      * 
+     * @param ldap
      * @return See above.
      */
-    private JPanel buildPasswordPanel()
+    private JPanel buildPasswordPanel(String ldap)
     {
+        passwordPanel.removeAll();
+        if (StringUtils.isNotBlank(ldap)) {
+            passwordPanel.setBorder( BorderFactory.createTitledBorder("LDAP"));
+            passwordPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+            passwordPanel.add(new JLabel(ldap));
+            return passwordPanel;
+        }
         JPanel content = new JPanel();
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
-        Registry reg = MetadataViewerAgent.getRegistry();
-        String ldap = (String) reg.lookup(LookupNames.USER_AUTHENTICATION);
-        if (ldap != null && ldap.length() > 0) {
-            content.setBorder(
-                    BorderFactory.createTitledBorder("LDAP Authentication"));
-            content.setLayout(new FlowLayout(FlowLayout.LEFT));
-            content.add(new JLabel(ldap));
-            return content;
-        }
         content.setBorder(
                 BorderFactory.createTitledBorder("Change Password"));
 
@@ -845,14 +845,14 @@ class UserProfile
             c.gridx = 0;
         }
 
-        JPanel p = new JPanel();
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(content);
+        passwordPanel = new JPanel();
+        passwordPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        passwordPanel.setLayout(new BoxLayout(passwordPanel, BoxLayout.Y_AXIS));
+        passwordPanel.add(content);
         JPanel buttonPanel = UIUtilities.buildComponentPanel(passwordButton);
         buttonPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(buttonPanel);
-        return p;
+        passwordPanel.add(buttonPanel);
+        return passwordPanel;
     }
 
     /** Message displayed when one of the required fields is left blank. */
@@ -905,7 +905,15 @@ class UserProfile
             c.gridy++;
             add(Box.createVerticalStrut(5), c);
             c.gridy++;
-            add(buildPasswordPanel(), c);
+            boolean ldap = model.isLDAP();
+            loginArea.setEnabled(!ldap);
+            loginArea.setEditable(!ldap);
+            if (ldap) {
+                model.fireLDAPDetailsLoading();
+            } else {
+                buildPasswordPanel(null);
+            }
+            add(passwordPanel, c);
         }
         ExperimenterData exp = (ExperimenterData) model.getRefObject();
         BufferedImage photo = model.getUserPhoto(exp.getId());
@@ -1111,6 +1119,17 @@ class UserProfile
         if (parentRootObject instanceof GroupData) {
             setGroupOwner((GroupData) parentRootObject);
         }
+    }
+
+    /** Displays the LDAP details for the user.*/
+    void setLDAPDetails(String ldap)
+    {
+        loginArea.setEnabled(false);
+        loginArea.setEditable(false);
+        loginArea.getDocument().removeDocumentListener(this);
+        buildPasswordPanel(ldap);
+        revalidate();
+        repaint();
     }
 
     /** 

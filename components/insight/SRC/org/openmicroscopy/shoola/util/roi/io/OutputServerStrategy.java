@@ -533,9 +533,9 @@ class OutputServerStrategy
 			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
 		if (MeasurementAttributes.FONT_SIZE.get(fig) != null)
 			settings.setFontSize(
-					new LengthI(MeasurementAttributes.FONT_SIZE.get(fig), UnitsLength.PT));
+					new LengthI(MeasurementAttributes.FONT_SIZE.get(fig), UnitsLength.POINT));
 		else
-			settings.setFontSize(new LengthI(ShapeSettingsData.DEFAULT_FONT_SIZE, UnitsLength.PT));
+			settings.setFontSize(new LengthI(ShapeSettingsData.DEFAULT_FONT_SIZE, UnitsLength.POINT));
 		bold = MeasurementAttributes.FONT_BOLD.get(fig);
 		italic = MeasurementAttributes.FONT_ITALIC.get(fig);
 		if (bold != null) {

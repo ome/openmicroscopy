@@ -366,13 +366,16 @@ class HdfStorage(object):
         ic = current.adapter.getCommunicator()
         types = self.__types
         names = self.__mea.colnames
+        descs = self.__descriptions
         cols = []
         for i in range(len(types)):
             t = types[i]
             n = names[i]
+            d = descs[i]
             try:
                 col = ic.findObjectFactory(t).create(t)
                 col.name = n
+                col.description = d
                 col.setsize(size)
                 col.settable(self.__mea)
                 cols.append(col)

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.LightSourceComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -303,6 +303,13 @@ class LightSourceComponent
             		set = false;
             		value = AnnotationUI.DEFAULT_TEXT;
             	}
+            	((OMETextArea) area).setEditable(false);
+            	((OMETextArea) area).setText((String) value);
+            	((OMETextArea) area).setEditedColor(
+            			UIUtilities.EDITED_COLOR);
+            }
+            else {
+            	area = UIUtilities.createComponent(OMETextArea.class, null);
             	((OMETextArea) area).setEditable(false);
             	((OMETextArea) area).setText((String) value);
             	((OMETextArea) area).setEditedColor(

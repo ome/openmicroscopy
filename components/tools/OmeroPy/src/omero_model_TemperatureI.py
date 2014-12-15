@@ -44,36 +44,36 @@ def noconversion(cfrom, cto):
 class TemperatureI(_omero_model.Temperature, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["DEGREEC:DEGREEF"] = \
-        lambda: noconversion("DEGREEC", "DEGREEF")
-    CONVERSIONS["DEGREEC:DEGREER"] = \
-        lambda: noconversion("DEGREEC", "DEGREER")
-    CONVERSIONS["DEGREEC:K"] = \
-        lambda: noconversion("DEGREEC", "K")
-    CONVERSIONS["DEGREEF:DEGREEC"] = \
-        lambda: noconversion("DEGREEF", "DEGREEC")
-    CONVERSIONS["DEGREEF:DEGREER"] = \
-        lambda: noconversion("DEGREEF", "DEGREER")
-    CONVERSIONS["DEGREEF:K"] = \
-        lambda: noconversion("DEGREEF", "K")
-    CONVERSIONS["DEGREER:DEGREEC"] = \
-        lambda: noconversion("DEGREER", "DEGREEC")
-    CONVERSIONS["DEGREER:DEGREEF"] = \
-        lambda: noconversion("DEGREER", "DEGREEF")
-    CONVERSIONS["DEGREER:K"] = \
-        lambda: noconversion("DEGREER", "K")
-    CONVERSIONS["K:DEGREEC"] = \
-        lambda: noconversion("K", "DEGREEC")
-    CONVERSIONS["K:DEGREEF"] = \
-        lambda: noconversion("K", "DEGREEF")
-    CONVERSIONS["K:DEGREER"] = \
-        lambda: noconversion("K", "DEGREER")
+    CONVERSIONS["CELSIUS:FAHRENHEIT"] = \
+        lambda value: 32+1.8 * value
+    CONVERSIONS["CELSIUS:KELVIN"] = \
+        lambda value: 273.15
+    CONVERSIONS["CELSIUS:RANKINE"] = \
+        lambda: noconversion("CELSIUS", "RANKINE")
+    CONVERSIONS["FAHRENHEIT:CELSIUS"] = \
+        lambda value: -17.777777777+0.55555555555 * value
+    CONVERSIONS["FAHRENHEIT:KELVIN"] = \
+        lambda: noconversion("FAHRENHEIT", "KELVIN")
+    CONVERSIONS["FAHRENHEIT:RANKINE"] = \
+        lambda: noconversion("FAHRENHEIT", "RANKINE")
+    CONVERSIONS["KELVIN:CELSIUS"] = \
+        lambda value: -273.15
+    CONVERSIONS["KELVIN:FAHRENHEIT"] = \
+        lambda: noconversion("KELVIN", "FAHRENHEIT")
+    CONVERSIONS["KELVIN:RANKINE"] = \
+        lambda: noconversion("KELVIN", "RANKINE")
+    CONVERSIONS["RANKINE:CELSIUS"] = \
+        lambda: noconversion("RANKINE", "CELSIUS")
+    CONVERSIONS["RANKINE:FAHRENHEIT"] = \
+        lambda: noconversion("RANKINE", "FAHRENHEIT")
+    CONVERSIONS["RANKINE:KELVIN"] = \
+        lambda: noconversion("RANKINE", "KELVIN")
 
     SYMBOLS = dict()
-    SYMBOLS["DEGREEC"] = "°C"
-    SYMBOLS["DEGREEF"] = "°F"
-    SYMBOLS["DEGREER"] = "°R"
-    SYMBOLS["K"] = "K"
+    SYMBOLS["CELSIUS"] = "°C"
+    SYMBOLS["FAHRENHEIT"] = "°F"
+    SYMBOLS["KELVIN"] = "K"
+    SYMBOLS["RANKINE"] = "°R"
 
     def __init__(self, value=None, unit=None):
         _omero_model.Temperature.__init__(self)
@@ -102,8 +102,12 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
     def getValue(self, current=None):
         return self._value
 
-    def getSymbol(self):
+    def getSymbol(self, current=None):
         return self.SYMBOLS.get(str(self.getUnit()))
+
+    @staticmethod
+    def lookupSymbol(unit):
+        return TemperatureI.SYMBOLS.get(str(unit))
 
     def setUnit(self, unit, current=None):
         self._unit = unit

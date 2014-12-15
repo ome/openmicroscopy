@@ -31,12 +31,14 @@ import java.util.Map;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -469,6 +471,18 @@ public interface AdminService
     public void addExperimenters(SecurityContext ctx, GroupData group,
             List<ExperimenterData> experimenters)
                     throws DSOutOfServiceException, DSAccessException;
+
+    /**
+     * Returns the LDAP details or an empty string.
+     *
+     * @param ctx The security context.
+     * @param userID The id of the user.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection can't be established
+     *                                  or the credentials are invalid.
+     */
+    public String lookupLdapAuthExperimenter(SecurityContext ctx, long userID)
+       throws DSOutOfServiceException, DSAccessException;
 
     /**
      * Helper method returning the current user's details.

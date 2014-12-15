@@ -23,8 +23,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.google.common.base.Function;
-
 import ome.model.ModelBased;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
@@ -46,2137 +44,462 @@ public class FrequencyI extends Frequency implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, Function<Double, Double>> conversions;
+    private static final Map<String, double[][]> conversions;
     static {
-        Map<String, Function<Double, Double>> c = new HashMap<String, Function<Double, Double>>();
-
-        c.put("AHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("AHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("AHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("AHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("AHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("AHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("AHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("AHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("AHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("AHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("AHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("AHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("AHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("AHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("AHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("AHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("AHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("AHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
-
-        c.put("AHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("AHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("CHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("CHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("CHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("CHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("CHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("CHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("CHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("CHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("CHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("CHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("CHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("CHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("CHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("CHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("CHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("CHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("CHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("CHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -26) * value;
-              }});
-
-        c.put("CHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("CHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("DAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("DAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("DAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("DAHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("DAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("DAHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("DAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("DAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("DAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("DAHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("DAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("DAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("DAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("DAHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("DAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("DAHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("DAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 25) * value;
-              }});
-
-        c.put("DAHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("DAHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("DAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("DHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("DHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("DHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("DHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("DHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("DHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("DHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("DHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("DHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("DHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("DHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("DHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("DHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("DHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("DHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("DHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("DHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("DHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -25) * value;
-              }});
-
-        c.put("DHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("DHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("EXAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("EXAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("EXAHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("EXAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("EXAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("EXAHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("EXAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("EXAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("EXAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("EXAHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("EXAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("EXAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("EXAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("EXAHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("EXAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("EXAHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("EXAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("EXAHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("EXAHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("EXAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("FHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("FHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("FHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("FHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("FHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("FHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("FHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -17) * value;
-              }});
-
-        c.put("FHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("FHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("FHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("FHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("FHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("FHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("FHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("FHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("FHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("FHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("FHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("FHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("FHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("GIGAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("GIGAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("GIGAHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("GIGAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("GIGAHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("GIGAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("GIGAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("GIGAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("GIGAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("GIGAHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("GIGAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("GIGAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("GIGAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("GIGAHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("GIGAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("GIGAHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("GIGAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("GIGAHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("GIGAHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("GIGAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("HHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("HHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("HHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("HHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("HHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -16) * value;
-              }});
-
-        c.put("HHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("HHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("HHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("HHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("HHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("HHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("HHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("HHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("HHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("HHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("HHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("HHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 26) * value;
-              }});
-
-        c.put("HHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("HHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("HHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("HZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("HZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("HZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("HZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("HZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("HZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("HZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("HZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("HZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("HZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("HZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("HZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("HZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("HZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("HZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("HZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("HZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("HZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("HZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("HZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("KHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("KHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("KHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 2) * value;
-              }});
-
-        c.put("KHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("KHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("KHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("KHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("KHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return 10 * value;
-              }});
-
-        c.put("KHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("KHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("KHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("KHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("KHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("KHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("KHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("KHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("KHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("KHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("KHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("KHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("MEGAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("MEGAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 8) * value;
-              }});
-
-        c.put("MEGAHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 5) * value;
-              }});
-
-        c.put("MEGAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 7) * value;
-              }});
-
-        c.put("MEGAHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MEGAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("MEGAHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MEGAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 4) * value;
-              }});
-
-        c.put("MEGAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MEGAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MEGAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MEGAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MEGAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MEGAHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MEGAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("MEGAHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MEGAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("MEGAHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MEGAHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MEGAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("MHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("MHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -1) * value;
-              }});
-
-        c.put("MHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("MHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -2) * value;
-              }});
-
-        c.put("MHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("MHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("MHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("MHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("MHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("MHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("MICROHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("MICROHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -4) * value;
-              }});
-
-        c.put("MICROHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("MICROHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -5) * value;
-              }});
-
-        c.put("MICROHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("MICROHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("MICROHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("MICROHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("MICROHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("MICROHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("MICROHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("MICROHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("MICROHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("MICROHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("MICROHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("MICROHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("MICROHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("MICROHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("MICROHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("MICROHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("NHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("NHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -7) * value;
-              }});
-
-        c.put("NHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("NHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -8) * value;
-              }});
-
-        c.put("NHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("NHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("NHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("NHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("NHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("NHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("NHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("NHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("NHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("NHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("NHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("NHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("NHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("NHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("NHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("NHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PETAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("PETAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 17) * value;
-              }});
-
-        c.put("PETAHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("PETAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 16) * value;
-              }});
-
-        c.put("PETAHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("PETAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("PETAHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("PETAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("PETAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("PETAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PETAHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("PETAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("PETAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("PETAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("PETAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("PETAHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("PETAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("PETAHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("PETAHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("PETAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("PHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("PHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -10) * value;
-              }});
-
-        c.put("PHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -13) * value;
-              }});
-
-        c.put("PHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -11) * value;
-              }});
-
-        c.put("PHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("PHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("PHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("PHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -14) * value;
-              }});
-
-        c.put("PHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("PHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("PHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("PHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("PHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("PHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("PHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("PHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("PHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("PHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("PHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("PHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("TERAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("TERAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 14) * value;
-              }});
-
-        c.put("TERAHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 11) * value;
-              }});
-
-        c.put("TERAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 13) * value;
-              }});
-
-        c.put("TERAHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("TERAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("TERAHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("TERAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 10) * value;
-              }});
-
-        c.put("TERAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("TERAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("TERAHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("TERAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("TERAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("TERAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("TERAHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("TERAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("TERAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("TERAHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("TERAHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("TERAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("YHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("YHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("YHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -25) * value;
-              }});
-
-        c.put("YHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("YHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
-
-        c.put("YHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("YHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("YHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -26) * value;
-              }});
-
-        c.put("YHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("YHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("YHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("YHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("YHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("YHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("YHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("YHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("YHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("YHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -48) * value;
-              }});
-
-        c.put("YHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -45) * value;
-              }});
-
-        c.put("YHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("YOTTAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("YOTTAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 26) * value;
-              }});
-
-        c.put("YOTTAHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("YOTTAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 25) * value;
-              }});
-
-        c.put("YOTTAHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("YOTTAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("YOTTAHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("YOTTAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("YOTTAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("YOTTAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("YOTTAHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("YOTTAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("YOTTAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("YOTTAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("YOTTAHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("YOTTAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("YOTTAHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("YOTTAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 48) * value;
-              }});
-
-        c.put("YOTTAHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("YOTTAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 45) * value;
-              }});
-
-        c.put("ZETTAHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 39) * value;
-              }});
-
-        c.put("ZETTAHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 23) * value;
-              }});
-
-        c.put("ZETTAHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 20) * value;
-              }});
-
-        c.put("ZETTAHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 22) * value;
-              }});
-
-        c.put("ZETTAHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("ZETTAHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 36) * value;
-              }});
-
-        c.put("ZETTAHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 12) * value;
-              }});
-
-        c.put("ZETTAHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 19) * value;
-              }});
-
-        c.put("ZETTAHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 21) * value;
-              }});
-
-        c.put("ZETTAHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 18) * value;
-              }});
-
-        c.put("ZETTAHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 15) * value;
-              }});
-
-        c.put("ZETTAHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 24) * value;
-              }});
-
-        c.put("ZETTAHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 27) * value;
-              }});
-
-        c.put("ZETTAHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 30) * value;
-              }});
-
-        c.put("ZETTAHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 6) * value;
-              }});
-
-        c.put("ZETTAHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 33) * value;
-              }});
-
-        c.put("ZETTAHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 9) * value;
-              }});
-
-        c.put("ZETTAHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 45) * value;
-              }});
-
-        c.put("ZETTAHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZETTAHZ:ZHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 42) * value;
-              }});
-
-        c.put("ZHZ:AHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -3) * value;
-              }});
-
-        c.put("ZHZ:CHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -19) * value;
-              }});
-
-        c.put("ZHZ:DAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -22) * value;
-              }});
-
-        c.put("ZHZ:DHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -20) * value;
-              }});
-
-        c.put("ZHZ:EXAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -39) * value;
-              }});
-
-        c.put("ZHZ:FHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -6) * value;
-              }});
-
-        c.put("ZHZ:GIGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -30) * value;
-              }});
-
-        c.put("ZHZ:HHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -23) * value;
-              }});
-
-        c.put("ZHZ:HZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -21) * value;
-              }});
-
-        c.put("ZHZ:KHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -24) * value;
-              }});
-
-        c.put("ZHZ:MEGAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -27) * value;
-              }});
-
-        c.put("ZHZ:MHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -18) * value;
-              }});
-
-        c.put("ZHZ:MICROHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -15) * value;
-              }});
-
-        c.put("ZHZ:NHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -12) * value;
-              }});
-
-        c.put("ZHZ:PETAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -36) * value;
-              }});
-
-        c.put("ZHZ:PHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -9) * value;
-              }});
-
-        c.put("ZHZ:TERAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -33) * value;
-              }});
-
-        c.put("ZHZ:YHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, 3) * value;
-              }});
-
-        c.put("ZHZ:YOTTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -45) * value;
-              }});
-
-        c.put("ZHZ:ZETTAHZ", new Function<Double, Double>() {
-              public Double apply(Double value) {
-                  return Math.pow(10, -42) * value;
-              }});
+        Map<String, double[][]> c = new HashMap<String, double[][]>();
+
+        c.put("ATTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("ATTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("ATTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("ATTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("ATTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ATTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("ATTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("ATTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("ATTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("ATTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("ATTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("ATTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("ATTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("ATTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("ATTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("ATTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("ATTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("ATTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("ATTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ATTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("CENTIHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("CENTIHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("CENTIHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("CENTIHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("CENTIHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("CENTIHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("CENTIHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("CENTIHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("CENTIHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("CENTIHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("CENTIHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("CENTIHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("CENTIHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("CENTIHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("CENTIHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("CENTIHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("CENTIHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("CENTIHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
+        c.put("CENTIHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("CENTIHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("DECAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("DECAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("DECAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("DECAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("DECAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("DECAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("DECAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("DECAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("DECAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("DECAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("DECAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("DECAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("DECAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("DECAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("DECAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("DECAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("DECAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
+        c.put("DECAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("DECAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("DECAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("DECIHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("DECIHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("DECIHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("DECIHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("DECIHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("DECIHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("DECIHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("DECIHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("DECIHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("DECIHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("DECIHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("DECIHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("DECIHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("DECIHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("DECIHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("DECIHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("DECIHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("DECIHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
+        c.put("DECIHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("DECIHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("EXAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("EXAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("EXAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("EXAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("EXAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("EXAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("EXAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("EXAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("EXAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("EXAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("EXAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("EXAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("EXAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("EXAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("EXAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("EXAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("EXAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+        c.put("EXAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("EXAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("EXAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("FEMTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("FEMTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("FEMTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("FEMTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("FEMTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("FEMTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("FEMTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
+        c.put("FEMTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("FEMTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("FEMTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("FEMTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("FEMTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("FEMTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("FEMTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("FEMTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("FEMTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("FEMTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("FEMTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("FEMTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("FEMTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("GIGAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("GIGAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("GIGAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("GIGAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("GIGAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("GIGAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("GIGAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("GIGAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("GIGAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("GIGAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("GIGAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("GIGAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("GIGAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("GIGAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("GIGAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("GIGAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("GIGAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("GIGAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("GIGAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("GIGAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("HECTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("HECTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("HECTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("HECTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("HECTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
+        c.put("HECTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("HECTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("HECTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("HECTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("HECTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("HECTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("HECTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("HECTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("HECTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("HECTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("HECTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("HECTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
+        c.put("HECTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("HECTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("HECTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("HERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("HERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("HERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("HERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("HERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("HERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("HERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("HERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("HERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("HERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("HERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("HERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("HERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("HERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("HERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("HERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("HERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("HERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("HERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("HERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("KILOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("KILOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("KILOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
+        c.put("KILOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("KILOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("KILOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("KILOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("KILOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
+        c.put("KILOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("KILOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("KILOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("KILOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("KILOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("KILOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("KILOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("KILOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("KILOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("KILOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("KILOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("KILOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MEGAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("MEGAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
+        c.put("MEGAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
+        c.put("MEGAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
+        c.put("MEGAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MEGAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("MEGAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MEGAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
+        c.put("MEGAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MEGAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MEGAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MEGAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MEGAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MEGAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MEGAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MEGAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MEGAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("MEGAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MEGAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("MEGAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MICROHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MICROHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("MICROHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("MICROHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("MICROHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("MICROHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MICROHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MICROHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("MICROHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MICROHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MICROHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MICROHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MICROHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MICROHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("MICROHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MICROHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MICROHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MICROHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("MICROHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MICROHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("MILLIHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("MILLIHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
+        c.put("MILLIHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
+        c.put("MILLIHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
+        c.put("MILLIHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("MILLIHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("MILLIHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("MILLIHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
+        c.put("MILLIHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("MILLIHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("MILLIHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("MILLIHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("MILLIHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("MILLIHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("MILLIHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("MILLIHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("MILLIHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("MILLIHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("MILLIHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("MILLIHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("NANOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("NANOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
+        c.put("NANOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("NANOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
+        c.put("NANOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("NANOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("NANOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("NANOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("NANOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("NANOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("NANOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("NANOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("NANOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("NANOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("NANOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("NANOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("NANOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("NANOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("NANOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("NANOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("PETAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("PETAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
+        c.put("PETAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("PETAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
+        c.put("PETAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("PETAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("PETAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("PETAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("PETAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("PETAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("PETAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("PETAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("PETAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("PETAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("PETAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("PETAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("PETAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("PETAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("PETAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("PETAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("PICOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("PICOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
+        c.put("PICOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
+        c.put("PICOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
+        c.put("PICOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("PICOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("PICOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("PICOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
+        c.put("PICOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("PICOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("PICOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("PICOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("PICOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("PICOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("PICOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("PICOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("PICOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("PICOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("PICOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("PICOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("TERAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("TERAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
+        c.put("TERAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
+        c.put("TERAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
+        c.put("TERAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("TERAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("TERAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("TERAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
+        c.put("TERAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("TERAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("TERAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("TERAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("TERAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("TERAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("TERAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("TERAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("TERAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("TERAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("TERAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("TERAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("YOCTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("YOCTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("YOCTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
+        c.put("YOCTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("YOCTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("YOCTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("YOCTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("YOCTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
+        c.put("YOCTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("YOCTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("YOCTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("YOCTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("YOCTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("YOCTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("YOCTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("YOCTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("YOCTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("YOCTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
+        c.put("YOCTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("YOCTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
+        c.put("YOTTAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+        c.put("YOTTAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
+        c.put("YOTTAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("YOTTAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
+        c.put("YOTTAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("YOTTAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("YOTTAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("YOTTAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("YOTTAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("YOTTAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("YOTTAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("YOTTAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("YOTTAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("YOTTAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("YOTTAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("YOTTAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("YOTTAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("YOTTAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
+        c.put("YOTTAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
+        c.put("YOTTAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZEPTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ZEPTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
+        c.put("ZEPTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
+        c.put("ZEPTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
+        c.put("ZEPTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
+        c.put("ZEPTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
+        c.put("ZEPTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
+        c.put("ZEPTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
+        c.put("ZEPTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
+        c.put("ZEPTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
+        c.put("ZEPTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
+        c.put("ZEPTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
+        c.put("ZEPTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
+        c.put("ZEPTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
+        c.put("ZEPTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
+        c.put("ZEPTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
+        c.put("ZEPTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
+        c.put("ZEPTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZEPTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
+        c.put("ZEPTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
+        c.put("ZETTAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
+        c.put("ZETTAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
+        c.put("ZETTAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
+        c.put("ZETTAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
+        c.put("ZETTAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
+        c.put("ZETTAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
+        c.put("ZETTAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
+        c.put("ZETTAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
+        c.put("ZETTAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
+        c.put("ZETTAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
+        c.put("ZETTAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
+        c.put("ZETTAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
+        c.put("ZETTAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
+        c.put("ZETTAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
+        c.put("ZETTAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
+        c.put("ZETTAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
+        c.put("ZETTAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
+        c.put("ZETTAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
+        c.put("ZETTAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
+        c.put("ZETTAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
         conversions = Collections.unmodifiableMap(c);
     }
 
     private static final Map<UnitsFrequency, String> SYMBOLS;
     static {
         Map<UnitsFrequency, String> s = new HashMap<UnitsFrequency, String>();
-        s.put(UnitsFrequency.AHZ, "aHz");
-        s.put(UnitsFrequency.CHZ, "cHz");
-        s.put(UnitsFrequency.DAHZ, "daHz");
-        s.put(UnitsFrequency.DHZ, "dHz");
-        s.put(UnitsFrequency.EXAHZ, "EHz");
-        s.put(UnitsFrequency.FHZ, "fHz");
-        s.put(UnitsFrequency.GIGAHZ, "GHz");
-        s.put(UnitsFrequency.HHZ, "hHz");
-        s.put(UnitsFrequency.HZ, "Hz");
-        s.put(UnitsFrequency.KHZ, "kHz");
-        s.put(UnitsFrequency.MEGAHZ, "MHz");
-        s.put(UnitsFrequency.MHZ, "mHz");
-        s.put(UnitsFrequency.MICROHZ, "µHz");
-        s.put(UnitsFrequency.NHZ, "nHz");
-        s.put(UnitsFrequency.PETAHZ, "PHz");
-        s.put(UnitsFrequency.PHZ, "pHz");
-        s.put(UnitsFrequency.TERAHZ, "THz");
-        s.put(UnitsFrequency.YHZ, "yHz");
-        s.put(UnitsFrequency.YOTTAHZ, "YHz");
-        s.put(UnitsFrequency.ZETTAHZ, "ZHz");
-        s.put(UnitsFrequency.ZHZ, "zHz");
+        s.put(UnitsFrequency.ATTOHERTZ, "aHz");
+        s.put(UnitsFrequency.CENTIHERTZ, "cHz");
+        s.put(UnitsFrequency.DECAHERTZ, "daHz");
+        s.put(UnitsFrequency.DECIHERTZ, "dHz");
+        s.put(UnitsFrequency.EXAHERTZ, "EHz");
+        s.put(UnitsFrequency.FEMTOHERTZ, "fHz");
+        s.put(UnitsFrequency.GIGAHERTZ, "GHz");
+        s.put(UnitsFrequency.HECTOHERTZ, "hHz");
+        s.put(UnitsFrequency.HERTZ, "Hz");
+        s.put(UnitsFrequency.KILOHERTZ, "kHz");
+        s.put(UnitsFrequency.MEGAHERTZ, "MHz");
+        s.put(UnitsFrequency.MICROHERTZ, "µHz");
+        s.put(UnitsFrequency.MILLIHERTZ, "mHz");
+        s.put(UnitsFrequency.NANOHERTZ, "nHz");
+        s.put(UnitsFrequency.PETAHERTZ, "PHz");
+        s.put(UnitsFrequency.PICOHERTZ, "pHz");
+        s.put(UnitsFrequency.TERAHERTZ, "THz");
+        s.put(UnitsFrequency.YOCTOHERTZ, "yHz");
+        s.put(UnitsFrequency.YOTTAHERTZ, "YHz");
+        s.put(UnitsFrequency.ZEPTOHERTZ, "zHz");
+        s.put(UnitsFrequency.ZETTAHERTZ, "ZHz");
         SYMBOLS = s;
+    }
+
+    public static String lookupSymbol(UnitsFrequency unit) {
+        return SYMBOLS.get(unit);
     }
 
     public static final Ice.ObjectFactory makeFactory(final omero.client client) {
@@ -2292,13 +615,29 @@ public class FrequencyI extends Frequency implements ModelBased {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            Function<Double, Double> c = conversions.get(source + ":" + target);
-            if (c == null) {
+            double[][] coeffs = conversions.get(source + ":" + target);
+            if (coeffs == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
-            setValue(c.apply(value.getValue()));
+            double orig = value.getValue();
+            double k, p, v;
+            if (coeffs.length == 0) {
+                v = orig;
+            } else if (coeffs.length == 2){
+                k = coeffs[0][0];
+                p = coeffs[0][1];
+                v = Math.pow(k, p);
+
+                k = coeffs[1][0];
+                p = coeffs[1][1];
+                v += Math.pow(k, p) * orig;
+            } else {
+                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            }
+
+            setValue(v);
             setUnit(UnitsFrequency.valueOf(target));
        }
     }
@@ -2339,7 +678,7 @@ public class FrequencyI extends Frequency implements ModelBased {
         this.unit = unit;
     }
 
-    public String getSymbol() {
+    public String getSymbol(Ice.Current current) {
         return SYMBOLS.get(this.unit);
     }
 

@@ -86,6 +86,7 @@ import ome.units.quantity.Time;
 import ome.util.LSID;
 import ome.xml.meta.MetadataRoot;
 import ome.xml.model.AffineTransform;
+import ome.xml.model.MapPair;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
 import ome.xml.model.enums.FontStyle;
@@ -4138,9 +4139,9 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setGenericExcitationSourceMap(Map<String, String> map, int instrumentIndex, int lightSourceIndex) {
+    public void setGenericExcitationSourceMap(List<MapPair> map, int instrumentIndex, int lightSourceIndex) {
         final GenericExcitationSource o = getGenericExcitationSource(instrumentIndex, lightSourceIndex);
-        o.setMap(IceMapper.convertStringStringMap(map));
+        o.setMap(IceMapper.convertMapPairs(map));
     }
 
     // Manufacturer accessor from parent LightSource
@@ -4444,9 +4445,9 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setImagingEnvironmentMap(Map<String, String> map, int imageIndex) {
+    public void setImagingEnvironmentMap(List<MapPair> map, int imageIndex) {
         final ImagingEnvironment o = getImagingEnvironment(imageIndex);
-        o.setMap(IceMapper.convertStringStringMap(map));
+        o.setMap(IceMapper.convertMapPairs(map));
     }
 
     /* (non-Javadoc)
@@ -5077,16 +5078,9 @@ public class OMEROMetadataStoreClient
     }
 
     @Override
-    public void setMapAnnotationValue(Map<String, String> value, int mapAnnotationIndex) {
+    public void setMapAnnotationValue(List<MapPair> value, int mapAnnotationIndex) {
         final MapAnnotation o = getMapAnnotation(mapAnnotationIndex);
-        if (o != null && value != null) {
-            final Map<String, RString> stringRStringMap = new HashMap<String, RString>();
-
-            for (final Entry<String, String> mapEntry : value.entrySet()) {
-                stringRStringMap.put(mapEntry.getKey(), toRType(mapEntry.getValue()));
-            }
-            o.setMapValue(stringRStringMap);
-        }
+        o.setMapValue(IceMapper.convertMapPairs(value));
     }
 
     /* (non-Javadoc)

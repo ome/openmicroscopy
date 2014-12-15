@@ -19,10 +19,12 @@
 
 package ome.model.units;
 
+import ome.model.internal.Primitive;
+
 /**
  * marker interface for all of ome.model.unit types.
  */
-public interface Unit {
+public interface Unit extends Primitive {
 
     public double getValue();
     public void setValue(double d);
