@@ -228,10 +228,10 @@ class BlitzObjectWrapper (object):
         If units is true, return the omero model unit object,
         e.g. omero.model.LengthI
         e.g. _unwrapunits(obj).getValue() == 10
-        e.g. _unwrapunits(obj).getUnit() == NM # unit enum
+        e.g. _unwrapunits(obj).getUnit() == NANOMETER # unit enum
         e.g. _unwrapunits(obj).getSymbol() == "nm"
         If units specifies a valid unit for the type of value, then we convert
-        E.g. _unwrapunits(obj, units="MICROM").getValue() == 10000
+        E.g. _unwrapunits(obj, units="MICROMETER").getValue() == 10000
 
         :param obj:         The Value + Unit object
         :param default:     Default value if obj is None
@@ -6137,7 +6137,7 @@ class _PlaneInfoWrapper (BlitzObjectWrapper):
         """
         Gets the PlaneInfo deltaT with units support
         If units is True, return omero.model.TimeI
-        If units specifies a different unit E.g. "MS", we convert
+        If units specifies a different unit E.g. "MILLISECOND", we convert
 
         :param units:       Option to include units in tuple
         :type units:        True or unit string, e.g. "S"
@@ -6150,7 +6150,7 @@ class _PlaneInfoWrapper (BlitzObjectWrapper):
         """
         Gets the PlaneInfo ExposureTime with units support
         If units is True, return omero.model.TimeI
-        If units specifies a different unit E.g. "MS", we convert
+        If units specifies a different unit E.g. "MILLISECOND", we convert
 
         :param units:       Option to include units in tuple
         :type units:        True or unit string
@@ -6457,7 +6457,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
         Returns the emission wave or None.
         If units is true, returns omero.model.LengthI
-        If units specifies a unit e,g, "M", we convert.
+        If units specifies a unit e,g, "METER", we convert.
 
         :return:    Emission wavelength or None
         :rtype:     float or omero.model.LengthI
@@ -6470,7 +6470,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
         Returns the excitation wave or None.
         If units is true, returns omero.model.LengthI
-        If units specifies a unit e,g, "M", we convert.
+        If units specifies a unit e,g, "METER", we convert.
 
         :return:    Excitation wavelength or None
         :rtype:     float or omero.model.LengthI
@@ -8385,7 +8385,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelSizeX(self, units=None):
         """
         Gets the physical size X of pixels in microns.
-        If units is True, or a valid length, e.g. "M"
+        If units is True, or a valid length, e.g. "METER"
         return omero.model.LengthI.
 
         :return:    Size of pixel in x or None
@@ -8398,7 +8398,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelSizeY(self, units=None):
         """
         Gets the physical size Y of pixels in microns.
-        If units is True, or a valid length, e.g. "M"
+        If units is True, or a valid length, e.g. "METER"
         return omero.model.LengthI.
 
         :return:    Size of pixel in y or None
@@ -8411,7 +8411,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelSizeZ(self, units=None):
         """
         Gets the physical size Z of pixels in microns.
-        If units is True, or a valid length, e.g. "M"
+        If units is True, or a valid length, e.g. "METER"
         return omero.model.LengthI.
 
         :return:    Size of pixel in z or None
