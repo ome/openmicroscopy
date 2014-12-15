@@ -8,11 +8,11 @@ assert image.isLoaded()
 image.unload()                              # can then be unloaded
 assert (not image.isLoaded())
 
-image = omero.model.ImageI( 1L, False )     # Creates an unloaded "proxy"
+image = omero.model.ImageI(1L, False)     # Creates an unloaded "proxy"
 assert (not image.isLoaded())
 
-image.getId()                               # Ok
+image.getId()        # Ok
 try:
-    image.getName()                         # No data access is allowed other than id.
+    image.getName()  # No data access is allowed other than id.
 except:
     pass
