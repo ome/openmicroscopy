@@ -44,869 +44,869 @@ def noconversion(cfrom, cto):
 class PowerI(_omero_model.Power, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["AW:CW"] = \
+    CONVERSIONS["ATTOWATT:CENTIWATT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["AW:DAW"] = \
+    CONVERSIONS["ATTOWATT:DECAWATT"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["AW:DW"] = \
+    CONVERSIONS["ATTOWATT:DECIWATT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["AW:EXAW"] = \
+    CONVERSIONS["ATTOWATT:EXAWATT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["AW:FW"] = \
+    CONVERSIONS["ATTOWATT:FEMTOWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["AW:GIGAW"] = \
+    CONVERSIONS["ATTOWATT:GIGAWATT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["AW:HW"] = \
+    CONVERSIONS["ATTOWATT:HECTOWATT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["AW:KW"] = \
+    CONVERSIONS["ATTOWATT:KILOWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["AW:MEGAW"] = \
+    CONVERSIONS["ATTOWATT:MEGAWATT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["AW:MICROW"] = \
+    CONVERSIONS["ATTOWATT:MICROWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["AW:MW"] = \
+    CONVERSIONS["ATTOWATT:MILLIWATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["AW:NW"] = \
+    CONVERSIONS["ATTOWATT:NANOWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["AW:PETAW"] = \
+    CONVERSIONS["ATTOWATT:PETAWATT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["AW:PW"] = \
+    CONVERSIONS["ATTOWATT:PICOWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["AW:TERAW"] = \
+    CONVERSIONS["ATTOWATT:TERAWATT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["AW:W"] = \
+    CONVERSIONS["ATTOWATT:WATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["AW:YOTTAW"] = \
+    CONVERSIONS["ATTOWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["ATTOWATT:YOTTAWATT"] = \
         lambda value: (10 ** -42) * value
-    CONVERSIONS["AW:YW"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["AW:ZETTAW"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["AW:ZW"] = \
+    CONVERSIONS["ATTOWATT:ZEPTOWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["CW:AW"] = \
+    CONVERSIONS["ATTOWATT:ZETTAWATT"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["CENTIWATT:ATTOWATT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["CW:DAW"] = \
+    CONVERSIONS["CENTIWATT:DECAWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["CW:DW"] = \
+    CONVERSIONS["CENTIWATT:DECIWATT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CW:EXAW"] = \
+    CONVERSIONS["CENTIWATT:EXAWATT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["CW:FW"] = \
+    CONVERSIONS["CENTIWATT:FEMTOWATT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["CW:GIGAW"] = \
+    CONVERSIONS["CENTIWATT:GIGAWATT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["CW:HW"] = \
+    CONVERSIONS["CENTIWATT:HECTOWATT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["CW:KW"] = \
+    CONVERSIONS["CENTIWATT:KILOWATT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["CW:MEGAW"] = \
+    CONVERSIONS["CENTIWATT:MEGAWATT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["CW:MICROW"] = \
+    CONVERSIONS["CENTIWATT:MICROWATT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["CW:MW"] = \
+    CONVERSIONS["CENTIWATT:MILLIWATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["CW:NW"] = \
+    CONVERSIONS["CENTIWATT:NANOWATT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["CW:PETAW"] = \
+    CONVERSIONS["CENTIWATT:PETAWATT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["CW:PW"] = \
+    CONVERSIONS["CENTIWATT:PICOWATT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["CW:TERAW"] = \
+    CONVERSIONS["CENTIWATT:TERAWATT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["CW:W"] = \
+    CONVERSIONS["CENTIWATT:WATT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["CW:YOTTAW"] = \
+    CONVERSIONS["CENTIWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["CENTIWATT:YOTTAWATT"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["CW:YW"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["CW:ZETTAW"] = \
+    CONVERSIONS["CENTIWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["CENTIWATT:ZETTAWATT"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["CW:ZW"] = \
+    CONVERSIONS["DECAWATT:ATTOWATT"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["DAW:AW"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DAW:CW"] = \
+    CONVERSIONS["DECAWATT:CENTIWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["DAW:DW"] = \
+    CONVERSIONS["DECAWATT:DECIWATT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["DAW:EXAW"] = \
+    CONVERSIONS["DECAWATT:EXAWATT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["DAW:FW"] = \
+    CONVERSIONS["DECAWATT:FEMTOWATT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["DAW:GIGAW"] = \
+    CONVERSIONS["DECAWATT:GIGAWATT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["DAW:HW"] = \
+    CONVERSIONS["DECAWATT:HECTOWATT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["DAW:KW"] = \
+    CONVERSIONS["DECAWATT:KILOWATT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["DAW:MEGAW"] = \
+    CONVERSIONS["DECAWATT:MEGAWATT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["DAW:MICROW"] = \
+    CONVERSIONS["DECAWATT:MICROWATT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["DAW:MW"] = \
+    CONVERSIONS["DECAWATT:MILLIWATT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["DAW:NW"] = \
+    CONVERSIONS["DECAWATT:NANOWATT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["DAW:PETAW"] = \
+    CONVERSIONS["DECAWATT:PETAWATT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["DAW:PW"] = \
+    CONVERSIONS["DECAWATT:PICOWATT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["DAW:TERAW"] = \
+    CONVERSIONS["DECAWATT:TERAWATT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["DAW:W"] = \
+    CONVERSIONS["DECAWATT:WATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["DAW:YOTTAW"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DAW:YW"] = \
+    CONVERSIONS["DECAWATT:YOCTOWATT"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["DAW:ZETTAW"] = \
+    CONVERSIONS["DECAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DECAWATT:ZETTAWATT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["DAW:ZW"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DW:AW"] = \
+    CONVERSIONS["DECIWATT:ATTOWATT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["DW:CW"] = \
+    CONVERSIONS["DECIWATT:CENTIWATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["DW:DAW"] = \
+    CONVERSIONS["DECIWATT:DECAWATT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["DW:EXAW"] = \
+    CONVERSIONS["DECIWATT:EXAWATT"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["DW:FW"] = \
+    CONVERSIONS["DECIWATT:FEMTOWATT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["DW:GIGAW"] = \
+    CONVERSIONS["DECIWATT:GIGAWATT"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["DW:HW"] = \
+    CONVERSIONS["DECIWATT:HECTOWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["DW:KW"] = \
+    CONVERSIONS["DECIWATT:KILOWATT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["DW:MEGAW"] = \
+    CONVERSIONS["DECIWATT:MEGAWATT"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["DW:MICROW"] = \
+    CONVERSIONS["DECIWATT:MICROWATT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["DW:MW"] = \
+    CONVERSIONS["DECIWATT:MILLIWATT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["DW:NW"] = \
+    CONVERSIONS["DECIWATT:NANOWATT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["DW:PETAW"] = \
+    CONVERSIONS["DECIWATT:PETAWATT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["DW:PW"] = \
+    CONVERSIONS["DECIWATT:PICOWATT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["DW:TERAW"] = \
+    CONVERSIONS["DECIWATT:TERAWATT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["DW:W"] = \
+    CONVERSIONS["DECIWATT:WATT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["DW:YOTTAW"] = \
-        lambda value: (10 ** -25) * value
-    CONVERSIONS["DW:YW"] = \
+    CONVERSIONS["DECIWATT:YOCTOWATT"] = \
         lambda value: (10 ** 23) * value
-    CONVERSIONS["DW:ZETTAW"] = \
+    CONVERSIONS["DECIWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -25) * value
+    CONVERSIONS["DECIWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["DECIWATT:ZETTAWATT"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DW:ZW"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAW:AW"] = \
+    CONVERSIONS["EXAWATT:ATTOWATT"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["EXAW:CW"] = \
+    CONVERSIONS["EXAWATT:CENTIWATT"] = \
         lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAW:DAW"] = \
+    CONVERSIONS["EXAWATT:DECAWATT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["EXAW:DW"] = \
+    CONVERSIONS["EXAWATT:DECIWATT"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAW:FW"] = \
+    CONVERSIONS["EXAWATT:FEMTOWATT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["EXAW:GIGAW"] = \
+    CONVERSIONS["EXAWATT:GIGAWATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["EXAW:HW"] = \
+    CONVERSIONS["EXAWATT:HECTOWATT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["EXAW:KW"] = \
+    CONVERSIONS["EXAWATT:KILOWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["EXAW:MEGAW"] = \
+    CONVERSIONS["EXAWATT:MEGAWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["EXAW:MICROW"] = \
+    CONVERSIONS["EXAWATT:MICROWATT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["EXAW:MW"] = \
+    CONVERSIONS["EXAWATT:MILLIWATT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["EXAW:NW"] = \
+    CONVERSIONS["EXAWATT:NANOWATT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["EXAW:PETAW"] = \
+    CONVERSIONS["EXAWATT:PETAWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["EXAW:PW"] = \
+    CONVERSIONS["EXAWATT:PICOWATT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["EXAW:TERAW"] = \
+    CONVERSIONS["EXAWATT:TERAWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["EXAW:W"] = \
+    CONVERSIONS["EXAWATT:WATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["EXAW:YOTTAW"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["EXAW:YW"] = \
+    CONVERSIONS["EXAWATT:YOCTOWATT"] = \
         lambda value: (10 ** 42) * value
-    CONVERSIONS["EXAW:ZETTAW"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["EXAW:ZW"] = \
+    CONVERSIONS["EXAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["EXAWATT:ZEPTOWATT"] = \
         lambda value: (10 ** 39) * value
-    CONVERSIONS["FW:AW"] = \
+    CONVERSIONS["EXAWATT:ZETTAWATT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["FEMTOWATT:ATTOWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["FW:CW"] = \
+    CONVERSIONS["FEMTOWATT:CENTIWATT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["FW:DAW"] = \
+    CONVERSIONS["FEMTOWATT:DECAWATT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["FW:DW"] = \
+    CONVERSIONS["FEMTOWATT:DECIWATT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FW:EXAW"] = \
+    CONVERSIONS["FEMTOWATT:EXAWATT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["FW:GIGAW"] = \
+    CONVERSIONS["FEMTOWATT:GIGAWATT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["FW:HW"] = \
+    CONVERSIONS["FEMTOWATT:HECTOWATT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["FW:KW"] = \
+    CONVERSIONS["FEMTOWATT:KILOWATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["FW:MEGAW"] = \
+    CONVERSIONS["FEMTOWATT:MEGAWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["FW:MICROW"] = \
+    CONVERSIONS["FEMTOWATT:MICROWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["FW:MW"] = \
+    CONVERSIONS["FEMTOWATT:MILLIWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["FW:NW"] = \
+    CONVERSIONS["FEMTOWATT:NANOWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["FW:PETAW"] = \
+    CONVERSIONS["FEMTOWATT:PETAWATT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["FW:PW"] = \
+    CONVERSIONS["FEMTOWATT:PICOWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["FW:TERAW"] = \
+    CONVERSIONS["FEMTOWATT:TERAWATT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["FW:W"] = \
+    CONVERSIONS["FEMTOWATT:WATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["FW:YOTTAW"] = \
+    CONVERSIONS["FEMTOWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["FEMTOWATT:YOTTAWATT"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["FW:YW"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["FW:ZETTAW"] = \
+    CONVERSIONS["FEMTOWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["FEMTOWATT:ZETTAWATT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["FW:ZW"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAW:AW"] = \
+    CONVERSIONS["GIGAWATT:ATTOWATT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["GIGAW:CW"] = \
+    CONVERSIONS["GIGAWATT:CENTIWATT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["GIGAW:DAW"] = \
+    CONVERSIONS["GIGAWATT:DECAWATT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["GIGAW:DW"] = \
+    CONVERSIONS["GIGAWATT:DECIWATT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAW:EXAW"] = \
+    CONVERSIONS["GIGAWATT:EXAWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["GIGAW:FW"] = \
+    CONVERSIONS["GIGAWATT:FEMTOWATT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["GIGAW:HW"] = \
+    CONVERSIONS["GIGAWATT:HECTOWATT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["GIGAW:KW"] = \
+    CONVERSIONS["GIGAWATT:KILOWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAW:MEGAW"] = \
+    CONVERSIONS["GIGAWATT:MEGAWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["GIGAW:MICROW"] = \
+    CONVERSIONS["GIGAWATT:MICROWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["GIGAW:MW"] = \
+    CONVERSIONS["GIGAWATT:MILLIWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["GIGAW:NW"] = \
+    CONVERSIONS["GIGAWATT:NANOWATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["GIGAW:PETAW"] = \
+    CONVERSIONS["GIGAWATT:PETAWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["GIGAW:PW"] = \
+    CONVERSIONS["GIGAWATT:PICOWATT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["GIGAW:TERAW"] = \
+    CONVERSIONS["GIGAWATT:TERAWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["GIGAW:W"] = \
+    CONVERSIONS["GIGAWATT:WATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["GIGAW:YOTTAW"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["GIGAW:YW"] = \
+    CONVERSIONS["GIGAWATT:YOCTOWATT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["GIGAW:ZETTAW"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["GIGAW:ZW"] = \
+    CONVERSIONS["GIGAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["GIGAWATT:ZEPTOWATT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["HW:AW"] = \
+    CONVERSIONS["GIGAWATT:ZETTAWATT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["HECTOWATT:ATTOWATT"] = \
         lambda value: (10 ** 20) * value
-    CONVERSIONS["HW:CW"] = \
+    CONVERSIONS["HECTOWATT:CENTIWATT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["HW:DAW"] = \
+    CONVERSIONS["HECTOWATT:DECAWATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["HW:DW"] = \
+    CONVERSIONS["HECTOWATT:DECIWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HW:EXAW"] = \
+    CONVERSIONS["HECTOWATT:EXAWATT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["HW:FW"] = \
+    CONVERSIONS["HECTOWATT:FEMTOWATT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["HW:GIGAW"] = \
+    CONVERSIONS["HECTOWATT:GIGAWATT"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["HW:KW"] = \
+    CONVERSIONS["HECTOWATT:KILOWATT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["HW:MEGAW"] = \
+    CONVERSIONS["HECTOWATT:MEGAWATT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["HW:MICROW"] = \
+    CONVERSIONS["HECTOWATT:MICROWATT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["HW:MW"] = \
+    CONVERSIONS["HECTOWATT:MILLIWATT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["HW:NW"] = \
+    CONVERSIONS["HECTOWATT:NANOWATT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["HW:PETAW"] = \
+    CONVERSIONS["HECTOWATT:PETAWATT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["HW:PW"] = \
+    CONVERSIONS["HECTOWATT:PICOWATT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["HW:TERAW"] = \
+    CONVERSIONS["HECTOWATT:TERAWATT"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["HW:W"] = \
+    CONVERSIONS["HECTOWATT:WATT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["HW:YOTTAW"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["HW:YW"] = \
+    CONVERSIONS["HECTOWATT:YOCTOWATT"] = \
         lambda value: (10 ** 26) * value
-    CONVERSIONS["HW:ZETTAW"] = \
+    CONVERSIONS["HECTOWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["HECTOWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["HECTOWATT:ZETTAWATT"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["HW:ZW"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["KW:AW"] = \
+    CONVERSIONS["KILOWATT:ATTOWATT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["KW:CW"] = \
+    CONVERSIONS["KILOWATT:CENTIWATT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["KW:DAW"] = \
+    CONVERSIONS["KILOWATT:DECAWATT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["KW:DW"] = \
+    CONVERSIONS["KILOWATT:DECIWATT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KW:EXAW"] = \
+    CONVERSIONS["KILOWATT:EXAWATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["KW:FW"] = \
+    CONVERSIONS["KILOWATT:FEMTOWATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["KW:GIGAW"] = \
+    CONVERSIONS["KILOWATT:GIGAWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["KW:HW"] = \
+    CONVERSIONS["KILOWATT:HECTOWATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["KW:MEGAW"] = \
+    CONVERSIONS["KILOWATT:MEGAWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["KW:MICROW"] = \
+    CONVERSIONS["KILOWATT:MICROWATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["KW:MW"] = \
+    CONVERSIONS["KILOWATT:MILLIWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["KW:NW"] = \
+    CONVERSIONS["KILOWATT:NANOWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["KW:PETAW"] = \
+    CONVERSIONS["KILOWATT:PETAWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["KW:PW"] = \
+    CONVERSIONS["KILOWATT:PICOWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["KW:TERAW"] = \
+    CONVERSIONS["KILOWATT:TERAWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["KW:W"] = \
+    CONVERSIONS["KILOWATT:WATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["KW:YOTTAW"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["KW:YW"] = \
+    CONVERSIONS["KILOWATT:YOCTOWATT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["KW:ZETTAW"] = \
+    CONVERSIONS["KILOWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["KILOWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["KILOWATT:ZETTAWATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["KW:ZW"] = \
+    CONVERSIONS["MEGAWATT:ATTOWATT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAW:AW"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAW:CW"] = \
+    CONVERSIONS["MEGAWATT:CENTIWATT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["MEGAW:DAW"] = \
+    CONVERSIONS["MEGAWATT:DECAWATT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["MEGAW:DW"] = \
+    CONVERSIONS["MEGAWATT:DECIWATT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAW:EXAW"] = \
+    CONVERSIONS["MEGAWATT:EXAWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MEGAW:FW"] = \
+    CONVERSIONS["MEGAWATT:FEMTOWATT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAW:GIGAW"] = \
+    CONVERSIONS["MEGAWATT:GIGAWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MEGAW:HW"] = \
+    CONVERSIONS["MEGAWATT:HECTOWATT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["MEGAW:KW"] = \
+    CONVERSIONS["MEGAWATT:KILOWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MEGAW:MICROW"] = \
+    CONVERSIONS["MEGAWATT:MICROWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MEGAW:MW"] = \
+    CONVERSIONS["MEGAWATT:MILLIWATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MEGAW:NW"] = \
+    CONVERSIONS["MEGAWATT:NANOWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MEGAW:PETAW"] = \
+    CONVERSIONS["MEGAWATT:PETAWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MEGAW:PW"] = \
+    CONVERSIONS["MEGAWATT:PICOWATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MEGAW:TERAW"] = \
+    CONVERSIONS["MEGAWATT:TERAWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MEGAW:W"] = \
+    CONVERSIONS["MEGAWATT:WATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MEGAW:YOTTAW"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGAW:YW"] = \
+    CONVERSIONS["MEGAWATT:YOCTOWATT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["MEGAW:ZETTAW"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MEGAW:ZW"] = \
+    CONVERSIONS["MEGAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["MEGAWATT:ZEPTOWATT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["MICROW:AW"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MICROW:CW"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MICROW:DAW"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["MICROW:DW"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROW:EXAW"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MICROW:FW"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MICROW:GIGAW"] = \
+    CONVERSIONS["MEGAWATT:ZETTAWATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROW:HW"] = \
+    CONVERSIONS["MICROWATT:ATTOWATT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["MICROWATT:CENTIWATT"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROWATT:DECAWATT"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["MICROWATT:DECIWATT"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["MICROWATT:EXAWATT"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["MICROWATT:FEMTOWATT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["MICROWATT:GIGAWATT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["MICROWATT:HECTOWATT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["MICROW:KW"] = \
+    CONVERSIONS["MICROWATT:KILOWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MICROW:MEGAW"] = \
+    CONVERSIONS["MICROWATT:MEGAWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MICROW:MW"] = \
+    CONVERSIONS["MICROWATT:MILLIWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MICROW:NW"] = \
+    CONVERSIONS["MICROWATT:NANOWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MICROW:PETAW"] = \
+    CONVERSIONS["MICROWATT:PETAWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["MICROW:PW"] = \
+    CONVERSIONS["MICROWATT:PICOWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MICROW:TERAW"] = \
+    CONVERSIONS["MICROWATT:TERAWATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MICROW:W"] = \
+    CONVERSIONS["MICROWATT:WATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MICROW:YOTTAW"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["MICROW:YW"] = \
+    CONVERSIONS["MICROWATT:YOCTOWATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MICROW:ZETTAW"] = \
+    CONVERSIONS["MICROWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["MICROWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["MICROWATT:ZETTAWATT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["MICROW:ZW"] = \
+    CONVERSIONS["MILLIWATT:ATTOWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MW:AW"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MW:CW"] = \
+    CONVERSIONS["MILLIWATT:CENTIWATT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["MW:DAW"] = \
+    CONVERSIONS["MILLIWATT:DECAWATT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["MW:DW"] = \
+    CONVERSIONS["MILLIWATT:DECIWATT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MW:EXAW"] = \
+    CONVERSIONS["MILLIWATT:EXAWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["MW:FW"] = \
+    CONVERSIONS["MILLIWATT:FEMTOWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MW:GIGAW"] = \
+    CONVERSIONS["MILLIWATT:GIGAWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MW:HW"] = \
+    CONVERSIONS["MILLIWATT:HECTOWATT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MW:KW"] = \
+    CONVERSIONS["MILLIWATT:KILOWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MW:MEGAW"] = \
+    CONVERSIONS["MILLIWATT:MEGAWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MW:MICROW"] = \
+    CONVERSIONS["MILLIWATT:MICROWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MW:NW"] = \
+    CONVERSIONS["MILLIWATT:NANOWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MW:PETAW"] = \
+    CONVERSIONS["MILLIWATT:PETAWATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MW:PW"] = \
+    CONVERSIONS["MILLIWATT:PICOWATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MW:TERAW"] = \
+    CONVERSIONS["MILLIWATT:TERAWATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["MW:W"] = \
+    CONVERSIONS["MILLIWATT:WATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MW:YOTTAW"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MW:YW"] = \
+    CONVERSIONS["MILLIWATT:YOCTOWATT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MW:ZETTAW"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MW:ZW"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["NW:AW"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["NW:CW"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["NW:DAW"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["NW:DW"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["NW:EXAW"] = \
+    CONVERSIONS["MILLIWATT:YOTTAWATT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["NW:FW"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["NW:GIGAW"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["NW:HW"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["NW:KW"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["NW:MEGAW"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["NW:MICROW"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["NW:MW"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["NW:PETAW"] = \
+    CONVERSIONS["MILLIWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["MILLIWATT:ZETTAWATT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["NW:PW"] = \
+    CONVERSIONS["NANOWATT:ATTOWATT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["NANOWATT:CENTIWATT"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["NANOWATT:DECAWATT"] = \
+        lambda value: (10 ** -10) * value
+    CONVERSIONS["NANOWATT:DECIWATT"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["NANOWATT:EXAWATT"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["NANOWATT:FEMTOWATT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["NANOWATT:GIGAWATT"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["NANOWATT:HECTOWATT"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["NANOWATT:KILOWATT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["NANOWATT:MEGAWATT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["NANOWATT:MICROWATT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["NANOWATT:MILLIWATT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["NANOWATT:PETAWATT"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["NANOWATT:PICOWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["NW:TERAW"] = \
+    CONVERSIONS["NANOWATT:TERAWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["NW:W"] = \
+    CONVERSIONS["NANOWATT:WATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["NW:YOTTAW"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["NW:YW"] = \
+    CONVERSIONS["NANOWATT:YOCTOWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["NW:ZETTAW"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["NW:ZW"] = \
+    CONVERSIONS["NANOWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["NANOWATT:ZEPTOWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAW:AW"] = \
+    CONVERSIONS["NANOWATT:ZETTAWATT"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["PETAWATT:ATTOWATT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["PETAW:CW"] = \
+    CONVERSIONS["PETAWATT:CENTIWATT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["PETAW:DAW"] = \
+    CONVERSIONS["PETAWATT:DECAWATT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["PETAW:DW"] = \
+    CONVERSIONS["PETAWATT:DECIWATT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAW:EXAW"] = \
+    CONVERSIONS["PETAWATT:EXAWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["PETAW:FW"] = \
+    CONVERSIONS["PETAWATT:FEMTOWATT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["PETAW:GIGAW"] = \
+    CONVERSIONS["PETAWATT:GIGAWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["PETAW:HW"] = \
+    CONVERSIONS["PETAWATT:HECTOWATT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["PETAW:KW"] = \
+    CONVERSIONS["PETAWATT:KILOWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAW:MEGAW"] = \
+    CONVERSIONS["PETAWATT:MEGAWATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["PETAW:MICROW"] = \
+    CONVERSIONS["PETAWATT:MICROWATT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["PETAW:MW"] = \
+    CONVERSIONS["PETAWATT:MILLIWATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["PETAW:NW"] = \
+    CONVERSIONS["PETAWATT:NANOWATT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["PETAW:PW"] = \
+    CONVERSIONS["PETAWATT:PICOWATT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["PETAW:TERAW"] = \
+    CONVERSIONS["PETAWATT:TERAWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["PETAW:W"] = \
+    CONVERSIONS["PETAWATT:WATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["PETAW:YOTTAW"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PETAW:YW"] = \
+    CONVERSIONS["PETAWATT:YOCTOWATT"] = \
         lambda value: (10 ** 39) * value
-    CONVERSIONS["PETAW:ZETTAW"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PETAW:ZW"] = \
+    CONVERSIONS["PETAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PETAWATT:ZEPTOWATT"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["PW:AW"] = \
+    CONVERSIONS["PETAWATT:ZETTAWATT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PICOWATT:ATTOWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["PW:CW"] = \
+    CONVERSIONS["PICOWATT:CENTIWATT"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["PW:DAW"] = \
+    CONVERSIONS["PICOWATT:DECAWATT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["PW:DW"] = \
+    CONVERSIONS["PICOWATT:DECIWATT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PW:EXAW"] = \
+    CONVERSIONS["PICOWATT:EXAWATT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["PW:FW"] = \
+    CONVERSIONS["PICOWATT:FEMTOWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["PW:GIGAW"] = \
+    CONVERSIONS["PICOWATT:GIGAWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["PW:HW"] = \
+    CONVERSIONS["PICOWATT:HECTOWATT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["PW:KW"] = \
+    CONVERSIONS["PICOWATT:KILOWATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["PW:MEGAW"] = \
+    CONVERSIONS["PICOWATT:MEGAWATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["PW:MICROW"] = \
+    CONVERSIONS["PICOWATT:MICROWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["PW:MW"] = \
+    CONVERSIONS["PICOWATT:MILLIWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["PW:NW"] = \
+    CONVERSIONS["PICOWATT:NANOWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["PW:PETAW"] = \
+    CONVERSIONS["PICOWATT:PETAWATT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["PW:TERAW"] = \
+    CONVERSIONS["PICOWATT:TERAWATT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["PW:W"] = \
+    CONVERSIONS["PICOWATT:WATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["PW:YOTTAW"] = \
+    CONVERSIONS["PICOWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["PICOWATT:YOTTAWATT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["PW:YW"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PW:ZETTAW"] = \
+    CONVERSIONS["PICOWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["PICOWATT:ZETTAWATT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["PW:ZW"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAW:AW"] = \
+    CONVERSIONS["TERAWATT:ATTOWATT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["TERAW:CW"] = \
+    CONVERSIONS["TERAWATT:CENTIWATT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["TERAW:DAW"] = \
+    CONVERSIONS["TERAWATT:DECAWATT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["TERAW:DW"] = \
+    CONVERSIONS["TERAWATT:DECIWATT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAW:EXAW"] = \
+    CONVERSIONS["TERAWATT:EXAWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["TERAW:FW"] = \
+    CONVERSIONS["TERAWATT:FEMTOWATT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["TERAW:GIGAW"] = \
+    CONVERSIONS["TERAWATT:GIGAWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["TERAW:HW"] = \
+    CONVERSIONS["TERAWATT:HECTOWATT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["TERAW:KW"] = \
+    CONVERSIONS["TERAWATT:KILOWATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAW:MEGAW"] = \
+    CONVERSIONS["TERAWATT:MEGAWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["TERAW:MICROW"] = \
+    CONVERSIONS["TERAWATT:MICROWATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["TERAW:MW"] = \
+    CONVERSIONS["TERAWATT:MILLIWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["TERAW:NW"] = \
+    CONVERSIONS["TERAWATT:NANOWATT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["TERAW:PETAW"] = \
+    CONVERSIONS["TERAWATT:PETAWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["TERAW:PW"] = \
+    CONVERSIONS["TERAWATT:PICOWATT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["TERAW:W"] = \
+    CONVERSIONS["TERAWATT:WATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["TERAW:YOTTAW"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["TERAW:YW"] = \
+    CONVERSIONS["TERAWATT:YOCTOWATT"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["TERAW:ZETTAW"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["TERAW:ZW"] = \
+    CONVERSIONS["TERAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["TERAWATT:ZEPTOWATT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["W:AW"] = \
+    CONVERSIONS["TERAWATT:ZETTAWATT"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["WATT:ATTOWATT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["W:CW"] = \
+    CONVERSIONS["WATT:CENTIWATT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["W:DAW"] = \
+    CONVERSIONS["WATT:DECAWATT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["W:DW"] = \
+    CONVERSIONS["WATT:DECIWATT"] = \
         lambda value: 10 * value
-    CONVERSIONS["W:EXAW"] = \
+    CONVERSIONS["WATT:EXAWATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["W:FW"] = \
+    CONVERSIONS["WATT:FEMTOWATT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["W:GIGAW"] = \
+    CONVERSIONS["WATT:GIGAWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["W:HW"] = \
+    CONVERSIONS["WATT:HECTOWATT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["W:KW"] = \
+    CONVERSIONS["WATT:KILOWATT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["W:MEGAW"] = \
+    CONVERSIONS["WATT:MEGAWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["W:MICROW"] = \
+    CONVERSIONS["WATT:MICROWATT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["W:MW"] = \
+    CONVERSIONS["WATT:MILLIWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["W:NW"] = \
+    CONVERSIONS["WATT:NANOWATT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["W:PETAW"] = \
+    CONVERSIONS["WATT:PETAWATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["W:PW"] = \
+    CONVERSIONS["WATT:PICOWATT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["W:TERAW"] = \
+    CONVERSIONS["WATT:TERAWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["W:YOTTAW"] = \
+    CONVERSIONS["WATT:YOCTOWATT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["WATT:YOTTAWATT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["W:YW"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["W:ZETTAW"] = \
+    CONVERSIONS["WATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["WATT:ZETTAWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["W:ZW"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAW:AW"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["YOTTAW:CW"] = \
-        lambda value: (10 ** 26) * value
-    CONVERSIONS["YOTTAW:DAW"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["YOTTAW:DW"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAW:EXAW"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["YOTTAW:FW"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["YOTTAW:GIGAW"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["YOTTAW:HW"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["YOTTAW:KW"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAW:MEGAW"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["YOTTAW:MICROW"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["YOTTAW:MW"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["YOTTAW:NW"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["YOTTAW:PETAW"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["YOTTAW:PW"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["YOTTAW:TERAW"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["YOTTAW:W"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["YOTTAW:YW"] = \
-        lambda value: (10 ** 48) * value
-    CONVERSIONS["YOTTAW:ZETTAW"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["YOTTAW:ZW"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["YW:AW"] = \
+    CONVERSIONS["YOCTOWATT:ATTOWATT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["YW:CW"] = \
+    CONVERSIONS["YOCTOWATT:CENTIWATT"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["YW:DAW"] = \
+    CONVERSIONS["YOCTOWATT:DECAWATT"] = \
         lambda value: (10 ** -25) * value
-    CONVERSIONS["YW:DW"] = \
+    CONVERSIONS["YOCTOWATT:DECIWATT"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["YW:EXAW"] = \
+    CONVERSIONS["YOCTOWATT:EXAWATT"] = \
         lambda value: (10 ** -42) * value
-    CONVERSIONS["YW:FW"] = \
+    CONVERSIONS["YOCTOWATT:FEMTOWATT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["YW:GIGAW"] = \
+    CONVERSIONS["YOCTOWATT:GIGAWATT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["YW:HW"] = \
+    CONVERSIONS["YOCTOWATT:HECTOWATT"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["YW:KW"] = \
+    CONVERSIONS["YOCTOWATT:KILOWATT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["YW:MEGAW"] = \
+    CONVERSIONS["YOCTOWATT:MEGAWATT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["YW:MICROW"] = \
+    CONVERSIONS["YOCTOWATT:MICROWATT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["YW:MW"] = \
+    CONVERSIONS["YOCTOWATT:MILLIWATT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["YW:NW"] = \
+    CONVERSIONS["YOCTOWATT:NANOWATT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["YW:PETAW"] = \
+    CONVERSIONS["YOCTOWATT:PETAWATT"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["YW:PW"] = \
+    CONVERSIONS["YOCTOWATT:PICOWATT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["YW:TERAW"] = \
+    CONVERSIONS["YOCTOWATT:TERAWATT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["YW:W"] = \
+    CONVERSIONS["YOCTOWATT:WATT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["YW:YOTTAW"] = \
+    CONVERSIONS["YOCTOWATT:YOTTAWATT"] = \
         lambda value: (10 ** -48) * value
-    CONVERSIONS["YW:ZETTAW"] = \
+    CONVERSIONS["YOCTOWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["YOCTOWATT:ZETTAWATT"] = \
         lambda value: (10 ** -45) * value
-    CONVERSIONS["YW:ZW"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAW:AW"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["ZETTAW:CW"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["ZETTAW:DAW"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["ZETTAW:DW"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAW:EXAW"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZETTAW:FW"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["ZETTAW:GIGAW"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["ZETTAW:HW"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["ZETTAW:KW"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["ZETTAW:MEGAW"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["ZETTAW:MICROW"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["ZETTAW:MW"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["ZETTAW:NW"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["ZETTAW:PETAW"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ZETTAW:PW"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["ZETTAW:TERAW"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["ZETTAW:W"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["ZETTAW:YOTTAW"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAW:YW"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAW:ZW"] = \
+    CONVERSIONS["YOTTAWATT:ATTOWATT"] = \
         lambda value: (10 ** 42) * value
-    CONVERSIONS["ZW:AW"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZW:CW"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["ZW:DAW"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["ZW:DW"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ZW:EXAW"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["ZW:FW"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ZW:GIGAW"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["ZW:HW"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["ZW:KW"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ZW:MEGAW"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["ZW:MICROW"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["ZW:MW"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ZW:NW"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ZW:PETAW"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["ZW:PW"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ZW:TERAW"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["ZW:W"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ZW:YOTTAW"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["ZW:YW"] = \
+    CONVERSIONS["YOTTAWATT:CENTIWATT"] = \
+        lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAWATT:DECAWATT"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["YOTTAWATT:DECIWATT"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["YOTTAWATT:EXAWATT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["YOTTAWATT:FEMTOWATT"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["YOTTAWATT:GIGAWATT"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["YOTTAWATT:HECTOWATT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["YOTTAWATT:KILOWATT"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["YOTTAWATT:MEGAWATT"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["YOTTAWATT:MICROWATT"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["YOTTAWATT:MILLIWATT"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["YOTTAWATT:NANOWATT"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["YOTTAWATT:PETAWATT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["YOTTAWATT:PICOWATT"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["YOTTAWATT:TERAWATT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["YOTTAWATT:WATT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["YOTTAWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 48) * value
+    CONVERSIONS["YOTTAWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["YOTTAWATT:ZETTAWATT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["ZW:ZETTAW"] = \
+    CONVERSIONS["ZEPTOWATT:ATTOWATT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZEPTOWATT:CENTIWATT"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOWATT:DECAWATT"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["ZEPTOWATT:DECIWATT"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["ZEPTOWATT:EXAWATT"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["ZEPTOWATT:FEMTOWATT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["ZEPTOWATT:GIGAWATT"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["ZEPTOWATT:HECTOWATT"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["ZEPTOWATT:KILOWATT"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["ZEPTOWATT:MEGAWATT"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["ZEPTOWATT:MICROWATT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["ZEPTOWATT:MILLIWATT"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["ZEPTOWATT:NANOWATT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["ZEPTOWATT:PETAWATT"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["ZEPTOWATT:PICOWATT"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["ZEPTOWATT:TERAWATT"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["ZEPTOWATT:WATT"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["ZEPTOWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZEPTOWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -45) * value
+    CONVERSIONS["ZEPTOWATT:ZETTAWATT"] = \
         lambda value: (10 ** -42) * value
+    CONVERSIONS["ZETTAWATT:ATTOWATT"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["ZETTAWATT:CENTIWATT"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAWATT:DECAWATT"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["ZETTAWATT:DECIWATT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["ZETTAWATT:EXAWATT"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZETTAWATT:FEMTOWATT"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["ZETTAWATT:GIGAWATT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["ZETTAWATT:HECTOWATT"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["ZETTAWATT:KILOWATT"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["ZETTAWATT:MEGAWATT"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["ZETTAWATT:MICROWATT"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["ZETTAWATT:MILLIWATT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["ZETTAWATT:NANOWATT"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["ZETTAWATT:PETAWATT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["ZETTAWATT:PICOWATT"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["ZETTAWATT:TERAWATT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["ZETTAWATT:WATT"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["ZETTAWATT:YOCTOWATT"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["ZETTAWATT:YOTTAWATT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZETTAWATT:ZEPTOWATT"] = \
+        lambda value: (10 ** 42) * value
 
     SYMBOLS = dict()
-    SYMBOLS["AW"] = "aW"
-    SYMBOLS["CW"] = "cW"
-    SYMBOLS["DAW"] = "daW"
-    SYMBOLS["DW"] = "dW"
-    SYMBOLS["EXAW"] = "EW"
-    SYMBOLS["FW"] = "fW"
-    SYMBOLS["GIGAW"] = "GW"
-    SYMBOLS["HW"] = "hW"
-    SYMBOLS["KW"] = "kW"
-    SYMBOLS["MEGAW"] = "MW"
-    SYMBOLS["MICROW"] = "µW"
-    SYMBOLS["MW"] = "mW"
-    SYMBOLS["NW"] = "nW"
-    SYMBOLS["PETAW"] = "PW"
-    SYMBOLS["PW"] = "pW"
-    SYMBOLS["TERAW"] = "TW"
-    SYMBOLS["W"] = "W"
-    SYMBOLS["YOTTAW"] = "YW"
-    SYMBOLS["YW"] = "yW"
-    SYMBOLS["ZETTAW"] = "ZW"
-    SYMBOLS["ZW"] = "zW"
+    SYMBOLS["ATTOWATT"] = "aW"
+    SYMBOLS["CENTIWATT"] = "cW"
+    SYMBOLS["DECAWATT"] = "daW"
+    SYMBOLS["DECIWATT"] = "dW"
+    SYMBOLS["EXAWATT"] = "EW"
+    SYMBOLS["FEMTOWATT"] = "fW"
+    SYMBOLS["GIGAWATT"] = "GW"
+    SYMBOLS["HECTOWATT"] = "hW"
+    SYMBOLS["KILOWATT"] = "kW"
+    SYMBOLS["MEGAWATT"] = "MW"
+    SYMBOLS["MICROWATT"] = "µW"
+    SYMBOLS["MILLIWATT"] = "mW"
+    SYMBOLS["NANOWATT"] = "nW"
+    SYMBOLS["PETAWATT"] = "PW"
+    SYMBOLS["PICOWATT"] = "pW"
+    SYMBOLS["TERAWATT"] = "TW"
+    SYMBOLS["WATT"] = "W"
+    SYMBOLS["YOCTOWATT"] = "yW"
+    SYMBOLS["YOTTAWATT"] = "YW"
+    SYMBOLS["ZEPTOWATT"] = "zW"
+    SYMBOLS["ZETTAWATT"] = "ZW"
 
     def __init__(self, value=None, unit=None):
         _omero_model.Power.__init__(self)

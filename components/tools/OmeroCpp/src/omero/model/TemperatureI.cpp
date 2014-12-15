@@ -28,10 +28,10 @@ namespace omero {
 
         static std::map<omero::model::enums::UnitsTemperature, std::string> makeSymbols(){
             std::map<omero::model::enums::UnitsTemperature, std::string> s;
-            s[omero::model::enums::DEGREEC] = "°C";
-            s[omero::model::enums::DEGREEF] = "°F";
-            s[omero::model::enums::DEGREER] = "°R";
-            s[omero::model::enums::K] = "K";
+            s[omero::model::enums::CELSIUS] = "°C";
+            s[omero::model::enums::FAHRENHEIT] = "°F";
+            s[omero::model::enums::KELVIN] = "K";
+            s[omero::model::enums::RANKINE] = "°R";
             return s;
         };
 

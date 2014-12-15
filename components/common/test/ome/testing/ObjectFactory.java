@@ -33,7 +33,7 @@ import ome.model.units.Time;
  * these method serve as a both client and test data store. An object that has
  * no id is "new"; an object with an id is detached and can represent something
  * serialized from IQuery.
- * 
+ *
  * NOTE: this is a bit dangerous, causing model builds to fail sometimes. where
  * else could it live?
  */
@@ -137,7 +137,7 @@ public class ObjectFactory {
                 pl[w].setTheZ(new Integer(0));
                 pl[w].setTheT(new Integer(0));
 
-                Time deltaT = new Time(0.0, "S");
+                Time deltaT = new Time(0.0, UnitsTime.SECOND);
                 pl[w].setDeltaT(deltaT);
                 p.addPlaneInfo(pl[w]);
 
@@ -148,7 +148,7 @@ public class ObjectFactory {
 
         }
 
-        Length mm1 = new Length(1.0, "MM");
+        Length mm1 = new Length(1.0, UnitsLength.MILLIMETER);
         p.setSizeX(new Integer(1));
         p.setSizeY(new Integer(1));
         p.setSizeZ(new Integer(1));

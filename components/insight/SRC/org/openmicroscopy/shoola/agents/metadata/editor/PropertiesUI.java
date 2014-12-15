@@ -727,7 +727,7 @@ public class PropertiesUI
     	}
     	if (value.length() == 0) return null;
     	component.setText(value);
-    	if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROM);
+    	if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
     	label += "("+units+")";
     	return label+":";
     }

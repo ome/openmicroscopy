@@ -28,27 +28,27 @@ namespace omero {
 
         static std::map<omero::model::enums::UnitsElectricPotential, std::string> makeSymbols(){
             std::map<omero::model::enums::UnitsElectricPotential, std::string> s;
-            s[omero::model::enums::AV] = "aV";
-            s[omero::model::enums::CV] = "cV";
-            s[omero::model::enums::DAV] = "daV";
-            s[omero::model::enums::DV] = "dV";
-            s[omero::model::enums::EXAV] = "EV";
-            s[omero::model::enums::FV] = "fV";
-            s[omero::model::enums::GIGAV] = "GV";
-            s[omero::model::enums::HV] = "hV";
-            s[omero::model::enums::KV] = "kV";
-            s[omero::model::enums::MEGAV] = "MV";
-            s[omero::model::enums::MICROV] = "µV";
-            s[omero::model::enums::MV] = "mV";
-            s[omero::model::enums::NV] = "nV";
-            s[omero::model::enums::PETAV] = "PV";
-            s[omero::model::enums::PV] = "pV";
-            s[omero::model::enums::TERAV] = "TV";
-            s[omero::model::enums::V] = "V";
-            s[omero::model::enums::YOTTAV] = "YV";
-            s[omero::model::enums::YV] = "yV";
-            s[omero::model::enums::ZETTAV] = "ZV";
-            s[omero::model::enums::ZV] = "zV";
+            s[omero::model::enums::ATTOVOLT] = "aV";
+            s[omero::model::enums::CENTIVOLT] = "cV";
+            s[omero::model::enums::DECAVOLT] = "daV";
+            s[omero::model::enums::DECIVOLT] = "dV";
+            s[omero::model::enums::EXAVOLT] = "EV";
+            s[omero::model::enums::FEMTOVOLT] = "fV";
+            s[omero::model::enums::GIGAVOLT] = "GV";
+            s[omero::model::enums::HECTOVOLT] = "hV";
+            s[omero::model::enums::KILOVOLT] = "kV";
+            s[omero::model::enums::MEGAVOLT] = "MV";
+            s[omero::model::enums::MICROVOLT] = "µV";
+            s[omero::model::enums::MILLIVOLT] = "mV";
+            s[omero::model::enums::NANOVOLT] = "nV";
+            s[omero::model::enums::PETAVOLT] = "PV";
+            s[omero::model::enums::PICOVOLT] = "pV";
+            s[omero::model::enums::TERAVOLT] = "TV";
+            s[omero::model::enums::VOLT] = "V";
+            s[omero::model::enums::YOCTOVOLT] = "yV";
+            s[omero::model::enums::YOTTAVOLT] = "YV";
+            s[omero::model::enums::ZEPTOVOLT] = "zV";
+            s[omero::model::enums::ZETTAVOLT] = "ZV";
             return s;
         };
 

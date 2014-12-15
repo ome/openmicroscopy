@@ -48,20 +48,20 @@ public class TemperatureI extends Temperature implements ModelBased {
     static {
         Map<String, double[][]> c = new HashMap<String, double[][]>();
 
-        c.put("DEGREEC:DEGREEF", new double[][]{new double[]{32, 1}, new double[]{1.8, 1}});
-        c.put("DEGREEC:K", new double[][]{new double[]{273.15, 1}, new double[]{0, 1}});
-        c.put("DEGREEF:DEGREEC", new double[][]{new double[]{-17.777777777, 1}, new double[]{0.55555555555, 1}});
-        c.put("K:DEGREEC", new double[][]{new double[]{-273.15, 1}, new double[]{0, 1}});
+        c.put("CELSIUS:FAHRENHEIT", new double[][]{new double[]{32, 1}, new double[]{1.8, 1}});
+        c.put("CELSIUS:KELVIN", new double[][]{new double[]{273.15, 1}, new double[]{0, 1}});
+        c.put("FAHRENHEIT:CELSIUS", new double[][]{new double[]{-17.777777777, 1}, new double[]{0.55555555555, 1}});
+        c.put("KELVIN:CELSIUS", new double[][]{new double[]{-273.15, 1}, new double[]{0, 1}});
         conversions = Collections.unmodifiableMap(c);
     }
 
     private static final Map<UnitsTemperature, String> SYMBOLS;
     static {
         Map<UnitsTemperature, String> s = new HashMap<UnitsTemperature, String>();
-        s.put(UnitsTemperature.DEGREEC, "°C");
-        s.put(UnitsTemperature.DEGREEF, "°F");
-        s.put(UnitsTemperature.DEGREER, "°R");
-        s.put(UnitsTemperature.K, "K");
+        s.put(UnitsTemperature.CELSIUS, "°C");
+        s.put(UnitsTemperature.FAHRENHEIT, "°F");
+        s.put(UnitsTemperature.KELVIN, "K");
+        s.put(UnitsTemperature.RANKINE, "°R");
         SYMBOLS = s;
     }
 

@@ -62,14 +62,14 @@ class DetailsPane
     private static final String SIZE_Y = "Size Y";
     
     /** Identifies the <code>PixelSizeX</code> field. */
-    private static final String PIXEL_SIZE_X = "Pixel size X "+LengthI.lookupSymbol(UnitsLength.MICROM);
-    
+    private static final String PIXEL_SIZE_X = "Pixel size X "+LengthI.lookupSymbol(UnitsLength.MICROMETER);
+
     /** Identifies the <code>PixelSizeY</code> field. */
-    private static final String PIXEL_SIZE_Y = "Pixel size Y "+LengthI.lookupSymbol(UnitsLength.MICROM);
-    
+    private static final String PIXEL_SIZE_Y = "Pixel size Y "+LengthI.lookupSymbol(UnitsLength.MICROMETER);
+
     /** Identifies the <code>PixelSizeZ</code> field. */
-    private static final String PIXEL_SIZE_Z = "Pixel size Z "+LengthI.lookupSymbol(UnitsLength.MICROM);
-    
+    private static final String PIXEL_SIZE_Z = "Pixel size Z "+LengthI.lookupSymbol(UnitsLength.MICROMETER);
+
     /**
      * Creates a non-editable text field.
      * 

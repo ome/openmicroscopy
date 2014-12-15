@@ -25,10 +25,10 @@ import java.util.Map;
 
 public enum UnitsTemperature {
 
-    K("K"),
-    DEGREEC("°C"),
-    DEGREEF("°F"),
-    DEGREER("°R");
+    KELVIN("K"),
+    CELSIUS("°C"),
+    FAHRENHEIT("°F"),
+    RANKINE("°R");
 
     private static final Map<String, UnitsTemperature> bySymbol
         = new HashMap<String, UnitsTemperature>();

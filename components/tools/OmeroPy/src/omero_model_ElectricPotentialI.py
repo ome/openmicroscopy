@@ -44,869 +44,869 @@ def noconversion(cfrom, cto):
 class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["AV:CV"] = \
+    CONVERSIONS["ATTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["AV:DAV"] = \
+    CONVERSIONS["ATTOVOLT:DECAVOLT"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["AV:DV"] = \
+    CONVERSIONS["ATTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["AV:EXAV"] = \
+    CONVERSIONS["ATTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["AV:FV"] = \
+    CONVERSIONS["ATTOVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["AV:GIGAV"] = \
+    CONVERSIONS["ATTOVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["AV:HV"] = \
+    CONVERSIONS["ATTOVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["AV:KV"] = \
+    CONVERSIONS["ATTOVOLT:KILOVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["AV:MEGAV"] = \
+    CONVERSIONS["ATTOVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["AV:MICROV"] = \
+    CONVERSIONS["ATTOVOLT:MICROVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["AV:MV"] = \
+    CONVERSIONS["ATTOVOLT:MILLIVOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["AV:NV"] = \
+    CONVERSIONS["ATTOVOLT:NANOVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["AV:PETAV"] = \
+    CONVERSIONS["ATTOVOLT:PETAVOLT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["AV:PV"] = \
+    CONVERSIONS["ATTOVOLT:PICOVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["AV:TERAV"] = \
+    CONVERSIONS["ATTOVOLT:TERAVOLT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["AV:V"] = \
+    CONVERSIONS["ATTOVOLT:VOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["AV:YOTTAV"] = \
+    CONVERSIONS["ATTOVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["ATTOVOLT:YOTTAVOLT"] = \
         lambda value: (10 ** -42) * value
-    CONVERSIONS["AV:YV"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["AV:ZETTAV"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["AV:ZV"] = \
+    CONVERSIONS["ATTOVOLT:ZEPTOVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["CV:AV"] = \
+    CONVERSIONS["ATTOVOLT:ZETTAVOLT"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["CENTIVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["CV:DAV"] = \
+    CONVERSIONS["CENTIVOLT:DECAVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["CV:DV"] = \
+    CONVERSIONS["CENTIVOLT:DECIVOLT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CV:EXAV"] = \
+    CONVERSIONS["CENTIVOLT:EXAVOLT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["CV:FV"] = \
+    CONVERSIONS["CENTIVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["CV:GIGAV"] = \
+    CONVERSIONS["CENTIVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["CV:HV"] = \
+    CONVERSIONS["CENTIVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["CV:KV"] = \
+    CONVERSIONS["CENTIVOLT:KILOVOLT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["CV:MEGAV"] = \
+    CONVERSIONS["CENTIVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["CV:MICROV"] = \
+    CONVERSIONS["CENTIVOLT:MICROVOLT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["CV:MV"] = \
+    CONVERSIONS["CENTIVOLT:MILLIVOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["CV:NV"] = \
+    CONVERSIONS["CENTIVOLT:NANOVOLT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["CV:PETAV"] = \
+    CONVERSIONS["CENTIVOLT:PETAVOLT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["CV:PV"] = \
+    CONVERSIONS["CENTIVOLT:PICOVOLT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["CV:TERAV"] = \
+    CONVERSIONS["CENTIVOLT:TERAVOLT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["CV:V"] = \
+    CONVERSIONS["CENTIVOLT:VOLT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["CV:YOTTAV"] = \
+    CONVERSIONS["CENTIVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["CENTIVOLT:YOTTAVOLT"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["CV:YV"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["CV:ZETTAV"] = \
+    CONVERSIONS["CENTIVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["CENTIVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["CV:ZV"] = \
+    CONVERSIONS["DECAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["DAV:AV"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DAV:CV"] = \
+    CONVERSIONS["DECAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["DAV:DV"] = \
+    CONVERSIONS["DECAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["DAV:EXAV"] = \
+    CONVERSIONS["DECAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["DAV:FV"] = \
+    CONVERSIONS["DECAVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["DAV:GIGAV"] = \
+    CONVERSIONS["DECAVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["DAV:HV"] = \
+    CONVERSIONS["DECAVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["DAV:KV"] = \
+    CONVERSIONS["DECAVOLT:KILOVOLT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["DAV:MEGAV"] = \
+    CONVERSIONS["DECAVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["DAV:MICROV"] = \
+    CONVERSIONS["DECAVOLT:MICROVOLT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["DAV:MV"] = \
+    CONVERSIONS["DECAVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["DAV:NV"] = \
+    CONVERSIONS["DECAVOLT:NANOVOLT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["DAV:PETAV"] = \
+    CONVERSIONS["DECAVOLT:PETAVOLT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["DAV:PV"] = \
+    CONVERSIONS["DECAVOLT:PICOVOLT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["DAV:TERAV"] = \
+    CONVERSIONS["DECAVOLT:TERAVOLT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["DAV:V"] = \
+    CONVERSIONS["DECAVOLT:VOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["DAV:YOTTAV"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DAV:YV"] = \
+    CONVERSIONS["DECAVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["DAV:ZETTAV"] = \
+    CONVERSIONS["DECAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["DECAVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["DECAVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["DAV:ZV"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DV:AV"] = \
+    CONVERSIONS["DECIVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["DV:CV"] = \
+    CONVERSIONS["DECIVOLT:CENTIVOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["DV:DAV"] = \
+    CONVERSIONS["DECIVOLT:DECAVOLT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["DV:EXAV"] = \
+    CONVERSIONS["DECIVOLT:EXAVOLT"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["DV:FV"] = \
+    CONVERSIONS["DECIVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["DV:GIGAV"] = \
+    CONVERSIONS["DECIVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["DV:HV"] = \
+    CONVERSIONS["DECIVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["DV:KV"] = \
+    CONVERSIONS["DECIVOLT:KILOVOLT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["DV:MEGAV"] = \
+    CONVERSIONS["DECIVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["DV:MICROV"] = \
+    CONVERSIONS["DECIVOLT:MICROVOLT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["DV:MV"] = \
+    CONVERSIONS["DECIVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["DV:NV"] = \
+    CONVERSIONS["DECIVOLT:NANOVOLT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["DV:PETAV"] = \
+    CONVERSIONS["DECIVOLT:PETAVOLT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["DV:PV"] = \
+    CONVERSIONS["DECIVOLT:PICOVOLT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["DV:TERAV"] = \
+    CONVERSIONS["DECIVOLT:TERAVOLT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["DV:V"] = \
+    CONVERSIONS["DECIVOLT:VOLT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["DV:YOTTAV"] = \
-        lambda value: (10 ** -25) * value
-    CONVERSIONS["DV:YV"] = \
+    CONVERSIONS["DECIVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 23) * value
-    CONVERSIONS["DV:ZETTAV"] = \
+    CONVERSIONS["DECIVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -25) * value
+    CONVERSIONS["DECIVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["DECIVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DV:ZV"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAV:AV"] = \
+    CONVERSIONS["EXAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["EXAV:CV"] = \
+    CONVERSIONS["EXAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAV:DAV"] = \
+    CONVERSIONS["EXAVOLT:DECAVOLT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["EXAV:DV"] = \
+    CONVERSIONS["EXAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAV:FV"] = \
+    CONVERSIONS["EXAVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["EXAV:GIGAV"] = \
+    CONVERSIONS["EXAVOLT:GIGAVOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["EXAV:HV"] = \
+    CONVERSIONS["EXAVOLT:HECTOVOLT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["EXAV:KV"] = \
+    CONVERSIONS["EXAVOLT:KILOVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["EXAV:MEGAV"] = \
+    CONVERSIONS["EXAVOLT:MEGAVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["EXAV:MICROV"] = \
+    CONVERSIONS["EXAVOLT:MICROVOLT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["EXAV:MV"] = \
+    CONVERSIONS["EXAVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["EXAV:NV"] = \
+    CONVERSIONS["EXAVOLT:NANOVOLT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["EXAV:PETAV"] = \
+    CONVERSIONS["EXAVOLT:PETAVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["EXAV:PV"] = \
+    CONVERSIONS["EXAVOLT:PICOVOLT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["EXAV:TERAV"] = \
+    CONVERSIONS["EXAVOLT:TERAVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["EXAV:V"] = \
+    CONVERSIONS["EXAVOLT:VOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["EXAV:YOTTAV"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["EXAV:YV"] = \
+    CONVERSIONS["EXAVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 42) * value
-    CONVERSIONS["EXAV:ZETTAV"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["EXAV:ZV"] = \
+    CONVERSIONS["EXAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["EXAVOLT:ZEPTOVOLT"] = \
         lambda value: (10 ** 39) * value
-    CONVERSIONS["FV:AV"] = \
+    CONVERSIONS["EXAVOLT:ZETTAVOLT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["FEMTOVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["FV:CV"] = \
+    CONVERSIONS["FEMTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["FV:DAV"] = \
+    CONVERSIONS["FEMTOVOLT:DECAVOLT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["FV:DV"] = \
+    CONVERSIONS["FEMTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FV:EXAV"] = \
+    CONVERSIONS["FEMTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["FV:GIGAV"] = \
+    CONVERSIONS["FEMTOVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["FV:HV"] = \
+    CONVERSIONS["FEMTOVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["FV:KV"] = \
+    CONVERSIONS["FEMTOVOLT:KILOVOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["FV:MEGAV"] = \
+    CONVERSIONS["FEMTOVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["FV:MICROV"] = \
+    CONVERSIONS["FEMTOVOLT:MICROVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["FV:MV"] = \
+    CONVERSIONS["FEMTOVOLT:MILLIVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["FV:NV"] = \
+    CONVERSIONS["FEMTOVOLT:NANOVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["FV:PETAV"] = \
+    CONVERSIONS["FEMTOVOLT:PETAVOLT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["FV:PV"] = \
+    CONVERSIONS["FEMTOVOLT:PICOVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["FV:TERAV"] = \
+    CONVERSIONS["FEMTOVOLT:TERAVOLT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["FV:V"] = \
+    CONVERSIONS["FEMTOVOLT:VOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["FV:YOTTAV"] = \
+    CONVERSIONS["FEMTOVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["FEMTOVOLT:YOTTAVOLT"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["FV:YV"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["FV:ZETTAV"] = \
+    CONVERSIONS["FEMTOVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["FEMTOVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["FV:ZV"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAV:AV"] = \
+    CONVERSIONS["GIGAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["GIGAV:CV"] = \
+    CONVERSIONS["GIGAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["GIGAV:DAV"] = \
+    CONVERSIONS["GIGAVOLT:DECAVOLT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["GIGAV:DV"] = \
+    CONVERSIONS["GIGAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAV:EXAV"] = \
+    CONVERSIONS["GIGAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["GIGAV:FV"] = \
+    CONVERSIONS["GIGAVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["GIGAV:HV"] = \
+    CONVERSIONS["GIGAVOLT:HECTOVOLT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["GIGAV:KV"] = \
+    CONVERSIONS["GIGAVOLT:KILOVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAV:MEGAV"] = \
+    CONVERSIONS["GIGAVOLT:MEGAVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["GIGAV:MICROV"] = \
+    CONVERSIONS["GIGAVOLT:MICROVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["GIGAV:MV"] = \
+    CONVERSIONS["GIGAVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["GIGAV:NV"] = \
+    CONVERSIONS["GIGAVOLT:NANOVOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["GIGAV:PETAV"] = \
+    CONVERSIONS["GIGAVOLT:PETAVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["GIGAV:PV"] = \
+    CONVERSIONS["GIGAVOLT:PICOVOLT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["GIGAV:TERAV"] = \
+    CONVERSIONS["GIGAVOLT:TERAVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["GIGAV:V"] = \
+    CONVERSIONS["GIGAVOLT:VOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["GIGAV:YOTTAV"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["GIGAV:YV"] = \
+    CONVERSIONS["GIGAVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["GIGAV:ZETTAV"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["GIGAV:ZV"] = \
+    CONVERSIONS["GIGAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["GIGAVOLT:ZEPTOVOLT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["HV:AV"] = \
+    CONVERSIONS["GIGAVOLT:ZETTAVOLT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["HECTOVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 20) * value
-    CONVERSIONS["HV:CV"] = \
+    CONVERSIONS["HECTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["HV:DAV"] = \
+    CONVERSIONS["HECTOVOLT:DECAVOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["HV:DV"] = \
+    CONVERSIONS["HECTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HV:EXAV"] = \
+    CONVERSIONS["HECTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["HV:FV"] = \
+    CONVERSIONS["HECTOVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["HV:GIGAV"] = \
+    CONVERSIONS["HECTOVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["HV:KV"] = \
+    CONVERSIONS["HECTOVOLT:KILOVOLT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["HV:MEGAV"] = \
+    CONVERSIONS["HECTOVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["HV:MICROV"] = \
+    CONVERSIONS["HECTOVOLT:MICROVOLT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["HV:MV"] = \
+    CONVERSIONS["HECTOVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["HV:NV"] = \
+    CONVERSIONS["HECTOVOLT:NANOVOLT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["HV:PETAV"] = \
+    CONVERSIONS["HECTOVOLT:PETAVOLT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["HV:PV"] = \
+    CONVERSIONS["HECTOVOLT:PICOVOLT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["HV:TERAV"] = \
+    CONVERSIONS["HECTOVOLT:TERAVOLT"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["HV:V"] = \
+    CONVERSIONS["HECTOVOLT:VOLT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["HV:YOTTAV"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["HV:YV"] = \
+    CONVERSIONS["HECTOVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 26) * value
-    CONVERSIONS["HV:ZETTAV"] = \
+    CONVERSIONS["HECTOVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["HECTOVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["HECTOVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["HV:ZV"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["KV:AV"] = \
+    CONVERSIONS["KILOVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["KV:CV"] = \
+    CONVERSIONS["KILOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["KV:DAV"] = \
+    CONVERSIONS["KILOVOLT:DECAVOLT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["KV:DV"] = \
+    CONVERSIONS["KILOVOLT:DECIVOLT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KV:EXAV"] = \
+    CONVERSIONS["KILOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["KV:FV"] = \
+    CONVERSIONS["KILOVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["KV:GIGAV"] = \
+    CONVERSIONS["KILOVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["KV:HV"] = \
+    CONVERSIONS["KILOVOLT:HECTOVOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["KV:MEGAV"] = \
+    CONVERSIONS["KILOVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["KV:MICROV"] = \
+    CONVERSIONS["KILOVOLT:MICROVOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["KV:MV"] = \
+    CONVERSIONS["KILOVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["KV:NV"] = \
+    CONVERSIONS["KILOVOLT:NANOVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["KV:PETAV"] = \
+    CONVERSIONS["KILOVOLT:PETAVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["KV:PV"] = \
+    CONVERSIONS["KILOVOLT:PICOVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["KV:TERAV"] = \
+    CONVERSIONS["KILOVOLT:TERAVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["KV:V"] = \
+    CONVERSIONS["KILOVOLT:VOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["KV:YOTTAV"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["KV:YV"] = \
+    CONVERSIONS["KILOVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["KV:ZETTAV"] = \
+    CONVERSIONS["KILOVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["KILOVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["KILOVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["KV:ZV"] = \
+    CONVERSIONS["MEGAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAV:AV"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAV:CV"] = \
+    CONVERSIONS["MEGAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["MEGAV:DAV"] = \
+    CONVERSIONS["MEGAVOLT:DECAVOLT"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["MEGAV:DV"] = \
+    CONVERSIONS["MEGAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAV:EXAV"] = \
+    CONVERSIONS["MEGAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MEGAV:FV"] = \
+    CONVERSIONS["MEGAVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAV:GIGAV"] = \
+    CONVERSIONS["MEGAVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MEGAV:HV"] = \
+    CONVERSIONS["MEGAVOLT:HECTOVOLT"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["MEGAV:KV"] = \
+    CONVERSIONS["MEGAVOLT:KILOVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MEGAV:MICROV"] = \
+    CONVERSIONS["MEGAVOLT:MICROVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MEGAV:MV"] = \
+    CONVERSIONS["MEGAVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MEGAV:NV"] = \
+    CONVERSIONS["MEGAVOLT:NANOVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MEGAV:PETAV"] = \
+    CONVERSIONS["MEGAVOLT:PETAVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MEGAV:PV"] = \
+    CONVERSIONS["MEGAVOLT:PICOVOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MEGAV:TERAV"] = \
+    CONVERSIONS["MEGAVOLT:TERAVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MEGAV:V"] = \
+    CONVERSIONS["MEGAVOLT:VOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MEGAV:YOTTAV"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGAV:YV"] = \
+    CONVERSIONS["MEGAVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["MEGAV:ZETTAV"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MEGAV:ZV"] = \
+    CONVERSIONS["MEGAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["MEGAVOLT:ZEPTOVOLT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["MICROV:AV"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MICROV:CV"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MICROV:DAV"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["MICROV:DV"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROV:EXAV"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MICROV:FV"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MICROV:GIGAV"] = \
+    CONVERSIONS["MEGAVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROV:HV"] = \
+    CONVERSIONS["MICROVOLT:ATTOVOLT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["MICROVOLT:CENTIVOLT"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["MICROVOLT:DECIVOLT"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["MICROVOLT:EXAVOLT"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["MICROVOLT:FEMTOVOLT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["MICROVOLT:GIGAVOLT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["MICROVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["MICROV:KV"] = \
+    CONVERSIONS["MICROVOLT:KILOVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MICROV:MEGAV"] = \
+    CONVERSIONS["MICROVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MICROV:MV"] = \
+    CONVERSIONS["MICROVOLT:MILLIVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MICROV:NV"] = \
+    CONVERSIONS["MICROVOLT:NANOVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MICROV:PETAV"] = \
+    CONVERSIONS["MICROVOLT:PETAVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["MICROV:PV"] = \
+    CONVERSIONS["MICROVOLT:PICOVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MICROV:TERAV"] = \
+    CONVERSIONS["MICROVOLT:TERAVOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MICROV:V"] = \
+    CONVERSIONS["MICROVOLT:VOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MICROV:YOTTAV"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["MICROV:YV"] = \
+    CONVERSIONS["MICROVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MICROV:ZETTAV"] = \
+    CONVERSIONS["MICROVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["MICROVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["MICROVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["MICROV:ZV"] = \
+    CONVERSIONS["MILLIVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MV:AV"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MV:CV"] = \
+    CONVERSIONS["MILLIVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["MV:DAV"] = \
+    CONVERSIONS["MILLIVOLT:DECAVOLT"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["MV:DV"] = \
+    CONVERSIONS["MILLIVOLT:DECIVOLT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MV:EXAV"] = \
+    CONVERSIONS["MILLIVOLT:EXAVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["MV:FV"] = \
+    CONVERSIONS["MILLIVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MV:GIGAV"] = \
+    CONVERSIONS["MILLIVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MV:HV"] = \
+    CONVERSIONS["MILLIVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MV:KV"] = \
+    CONVERSIONS["MILLIVOLT:KILOVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MV:MEGAV"] = \
+    CONVERSIONS["MILLIVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MV:MICROV"] = \
+    CONVERSIONS["MILLIVOLT:MICROVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MV:NV"] = \
+    CONVERSIONS["MILLIVOLT:NANOVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MV:PETAV"] = \
+    CONVERSIONS["MILLIVOLT:PETAVOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MV:PV"] = \
+    CONVERSIONS["MILLIVOLT:PICOVOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MV:TERAV"] = \
+    CONVERSIONS["MILLIVOLT:TERAVOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["MV:V"] = \
+    CONVERSIONS["MILLIVOLT:VOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MV:YOTTAV"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MV:YV"] = \
+    CONVERSIONS["MILLIVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MV:ZETTAV"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MV:ZV"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["NV:AV"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["NV:CV"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["NV:DAV"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["NV:DV"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["NV:EXAV"] = \
+    CONVERSIONS["MILLIVOLT:YOTTAVOLT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["NV:FV"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["NV:GIGAV"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["NV:HV"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["NV:KV"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["NV:MEGAV"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["NV:MICROV"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["NV:MV"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["NV:PETAV"] = \
+    CONVERSIONS["MILLIVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["MILLIVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["NV:PV"] = \
+    CONVERSIONS["NANOVOLT:ATTOVOLT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["NANOVOLT:CENTIVOLT"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["NANOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -10) * value
+    CONVERSIONS["NANOVOLT:DECIVOLT"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["NANOVOLT:EXAVOLT"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["NANOVOLT:FEMTOVOLT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["NANOVOLT:GIGAVOLT"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["NANOVOLT:HECTOVOLT"] = \
+        lambda value: (10 ** -11) * value
+    CONVERSIONS["NANOVOLT:KILOVOLT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["NANOVOLT:MEGAVOLT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["NANOVOLT:MICROVOLT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["NANOVOLT:MILLIVOLT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["NANOVOLT:PETAVOLT"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["NANOVOLT:PICOVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["NV:TERAV"] = \
+    CONVERSIONS["NANOVOLT:TERAVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["NV:V"] = \
+    CONVERSIONS["NANOVOLT:VOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["NV:YOTTAV"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["NV:YV"] = \
+    CONVERSIONS["NANOVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["NV:ZETTAV"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["NV:ZV"] = \
+    CONVERSIONS["NANOVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["NANOVOLT:ZEPTOVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAV:AV"] = \
+    CONVERSIONS["NANOVOLT:ZETTAVOLT"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["PETAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["PETAV:CV"] = \
+    CONVERSIONS["PETAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["PETAV:DAV"] = \
+    CONVERSIONS["PETAVOLT:DECAVOLT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["PETAV:DV"] = \
+    CONVERSIONS["PETAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAV:EXAV"] = \
+    CONVERSIONS["PETAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["PETAV:FV"] = \
+    CONVERSIONS["PETAVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["PETAV:GIGAV"] = \
+    CONVERSIONS["PETAVOLT:GIGAVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["PETAV:HV"] = \
+    CONVERSIONS["PETAVOLT:HECTOVOLT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["PETAV:KV"] = \
+    CONVERSIONS["PETAVOLT:KILOVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAV:MEGAV"] = \
+    CONVERSIONS["PETAVOLT:MEGAVOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["PETAV:MICROV"] = \
+    CONVERSIONS["PETAVOLT:MICROVOLT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["PETAV:MV"] = \
+    CONVERSIONS["PETAVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["PETAV:NV"] = \
+    CONVERSIONS["PETAVOLT:NANOVOLT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["PETAV:PV"] = \
+    CONVERSIONS["PETAVOLT:PICOVOLT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["PETAV:TERAV"] = \
+    CONVERSIONS["PETAVOLT:TERAVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["PETAV:V"] = \
+    CONVERSIONS["PETAVOLT:VOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["PETAV:YOTTAV"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PETAV:YV"] = \
+    CONVERSIONS["PETAVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 39) * value
-    CONVERSIONS["PETAV:ZETTAV"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PETAV:ZV"] = \
+    CONVERSIONS["PETAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PETAVOLT:ZEPTOVOLT"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["PV:AV"] = \
+    CONVERSIONS["PETAVOLT:ZETTAVOLT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PICOVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["PV:CV"] = \
+    CONVERSIONS["PICOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["PV:DAV"] = \
+    CONVERSIONS["PICOVOLT:DECAVOLT"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["PV:DV"] = \
+    CONVERSIONS["PICOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PV:EXAV"] = \
+    CONVERSIONS["PICOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["PV:FV"] = \
+    CONVERSIONS["PICOVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["PV:GIGAV"] = \
+    CONVERSIONS["PICOVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["PV:HV"] = \
+    CONVERSIONS["PICOVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["PV:KV"] = \
+    CONVERSIONS["PICOVOLT:KILOVOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["PV:MEGAV"] = \
+    CONVERSIONS["PICOVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["PV:MICROV"] = \
+    CONVERSIONS["PICOVOLT:MICROVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["PV:MV"] = \
+    CONVERSIONS["PICOVOLT:MILLIVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["PV:NV"] = \
+    CONVERSIONS["PICOVOLT:NANOVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["PV:PETAV"] = \
+    CONVERSIONS["PICOVOLT:PETAVOLT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["PV:TERAV"] = \
+    CONVERSIONS["PICOVOLT:TERAVOLT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["PV:V"] = \
+    CONVERSIONS["PICOVOLT:VOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["PV:YOTTAV"] = \
+    CONVERSIONS["PICOVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["PICOVOLT:YOTTAVOLT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["PV:YV"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PV:ZETTAV"] = \
+    CONVERSIONS["PICOVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["PICOVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["PV:ZV"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAV:AV"] = \
+    CONVERSIONS["TERAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["TERAV:CV"] = \
+    CONVERSIONS["TERAVOLT:CENTIVOLT"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["TERAV:DAV"] = \
+    CONVERSIONS["TERAVOLT:DECAVOLT"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["TERAV:DV"] = \
+    CONVERSIONS["TERAVOLT:DECIVOLT"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAV:EXAV"] = \
+    CONVERSIONS["TERAVOLT:EXAVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["TERAV:FV"] = \
+    CONVERSIONS["TERAVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["TERAV:GIGAV"] = \
+    CONVERSIONS["TERAVOLT:GIGAVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["TERAV:HV"] = \
+    CONVERSIONS["TERAVOLT:HECTOVOLT"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["TERAV:KV"] = \
+    CONVERSIONS["TERAVOLT:KILOVOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAV:MEGAV"] = \
+    CONVERSIONS["TERAVOLT:MEGAVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["TERAV:MICROV"] = \
+    CONVERSIONS["TERAVOLT:MICROVOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["TERAV:MV"] = \
+    CONVERSIONS["TERAVOLT:MILLIVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["TERAV:NV"] = \
+    CONVERSIONS["TERAVOLT:NANOVOLT"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["TERAV:PETAV"] = \
+    CONVERSIONS["TERAVOLT:PETAVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["TERAV:PV"] = \
+    CONVERSIONS["TERAVOLT:PICOVOLT"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["TERAV:V"] = \
+    CONVERSIONS["TERAVOLT:VOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["TERAV:YOTTAV"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["TERAV:YV"] = \
+    CONVERSIONS["TERAVOLT:YOCTOVOLT"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["TERAV:ZETTAV"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["TERAV:ZV"] = \
+    CONVERSIONS["TERAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["TERAVOLT:ZEPTOVOLT"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["V:AV"] = \
+    CONVERSIONS["TERAVOLT:ZETTAVOLT"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["VOLT:ATTOVOLT"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["V:CV"] = \
+    CONVERSIONS["VOLT:CENTIVOLT"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["V:DAV"] = \
+    CONVERSIONS["VOLT:DECAVOLT"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["V:DV"] = \
+    CONVERSIONS["VOLT:DECIVOLT"] = \
         lambda value: 10 * value
-    CONVERSIONS["V:EXAV"] = \
+    CONVERSIONS["VOLT:EXAVOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["V:FV"] = \
+    CONVERSIONS["VOLT:FEMTOVOLT"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["V:GIGAV"] = \
+    CONVERSIONS["VOLT:GIGAVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["V:HV"] = \
+    CONVERSIONS["VOLT:HECTOVOLT"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["V:KV"] = \
+    CONVERSIONS["VOLT:KILOVOLT"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["V:MEGAV"] = \
+    CONVERSIONS["VOLT:MEGAVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["V:MICROV"] = \
+    CONVERSIONS["VOLT:MICROVOLT"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["V:MV"] = \
+    CONVERSIONS["VOLT:MILLIVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["V:NV"] = \
+    CONVERSIONS["VOLT:NANOVOLT"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["V:PETAV"] = \
+    CONVERSIONS["VOLT:PETAVOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["V:PV"] = \
+    CONVERSIONS["VOLT:PICOVOLT"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["V:TERAV"] = \
+    CONVERSIONS["VOLT:TERAVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["V:YOTTAV"] = \
+    CONVERSIONS["VOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["VOLT:YOTTAVOLT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["V:YV"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["V:ZETTAV"] = \
+    CONVERSIONS["VOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["VOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["V:ZV"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAV:AV"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["YOTTAV:CV"] = \
-        lambda value: (10 ** 26) * value
-    CONVERSIONS["YOTTAV:DAV"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["YOTTAV:DV"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAV:EXAV"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["YOTTAV:FV"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["YOTTAV:GIGAV"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["YOTTAV:HV"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["YOTTAV:KV"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAV:MEGAV"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["YOTTAV:MICROV"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["YOTTAV:MV"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["YOTTAV:NV"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["YOTTAV:PETAV"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["YOTTAV:PV"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["YOTTAV:TERAV"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["YOTTAV:V"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["YOTTAV:YV"] = \
-        lambda value: (10 ** 48) * value
-    CONVERSIONS["YOTTAV:ZETTAV"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["YOTTAV:ZV"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["YV:AV"] = \
+    CONVERSIONS["YOCTOVOLT:ATTOVOLT"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["YV:CV"] = \
+    CONVERSIONS["YOCTOVOLT:CENTIVOLT"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["YV:DAV"] = \
+    CONVERSIONS["YOCTOVOLT:DECAVOLT"] = \
         lambda value: (10 ** -25) * value
-    CONVERSIONS["YV:DV"] = \
+    CONVERSIONS["YOCTOVOLT:DECIVOLT"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["YV:EXAV"] = \
+    CONVERSIONS["YOCTOVOLT:EXAVOLT"] = \
         lambda value: (10 ** -42) * value
-    CONVERSIONS["YV:FV"] = \
+    CONVERSIONS["YOCTOVOLT:FEMTOVOLT"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["YV:GIGAV"] = \
+    CONVERSIONS["YOCTOVOLT:GIGAVOLT"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["YV:HV"] = \
+    CONVERSIONS["YOCTOVOLT:HECTOVOLT"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["YV:KV"] = \
+    CONVERSIONS["YOCTOVOLT:KILOVOLT"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["YV:MEGAV"] = \
+    CONVERSIONS["YOCTOVOLT:MEGAVOLT"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["YV:MICROV"] = \
+    CONVERSIONS["YOCTOVOLT:MICROVOLT"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["YV:MV"] = \
+    CONVERSIONS["YOCTOVOLT:MILLIVOLT"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["YV:NV"] = \
+    CONVERSIONS["YOCTOVOLT:NANOVOLT"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["YV:PETAV"] = \
+    CONVERSIONS["YOCTOVOLT:PETAVOLT"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["YV:PV"] = \
+    CONVERSIONS["YOCTOVOLT:PICOVOLT"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["YV:TERAV"] = \
+    CONVERSIONS["YOCTOVOLT:TERAVOLT"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["YV:V"] = \
+    CONVERSIONS["YOCTOVOLT:VOLT"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["YV:YOTTAV"] = \
+    CONVERSIONS["YOCTOVOLT:YOTTAVOLT"] = \
         lambda value: (10 ** -48) * value
-    CONVERSIONS["YV:ZETTAV"] = \
+    CONVERSIONS["YOCTOVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["YOCTOVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -45) * value
-    CONVERSIONS["YV:ZV"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAV:AV"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["ZETTAV:CV"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["ZETTAV:DAV"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["ZETTAV:DV"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAV:EXAV"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZETTAV:FV"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["ZETTAV:GIGAV"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["ZETTAV:HV"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["ZETTAV:KV"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["ZETTAV:MEGAV"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["ZETTAV:MICROV"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["ZETTAV:MV"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["ZETTAV:NV"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["ZETTAV:PETAV"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ZETTAV:PV"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["ZETTAV:TERAV"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["ZETTAV:V"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["ZETTAV:YOTTAV"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAV:YV"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAV:ZV"] = \
+    CONVERSIONS["YOTTAVOLT:ATTOVOLT"] = \
         lambda value: (10 ** 42) * value
-    CONVERSIONS["ZV:AV"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZV:CV"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["ZV:DAV"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["ZV:DV"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ZV:EXAV"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["ZV:FV"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ZV:GIGAV"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["ZV:HV"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["ZV:KV"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ZV:MEGAV"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["ZV:MICROV"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["ZV:MV"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ZV:NV"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ZV:PETAV"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["ZV:PV"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ZV:TERAV"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["ZV:V"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ZV:YOTTAV"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["ZV:YV"] = \
+    CONVERSIONS["YOTTAVOLT:CENTIVOLT"] = \
+        lambda value: (10 ** 26) * value
+    CONVERSIONS["YOTTAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["YOTTAVOLT:DECIVOLT"] = \
+        lambda value: (10 ** 25) * value
+    CONVERSIONS["YOTTAVOLT:EXAVOLT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["YOTTAVOLT:FEMTOVOLT"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["YOTTAVOLT:GIGAVOLT"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["YOTTAVOLT:HECTOVOLT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["YOTTAVOLT:KILOVOLT"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["YOTTAVOLT:MEGAVOLT"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["YOTTAVOLT:MICROVOLT"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["YOTTAVOLT:MILLIVOLT"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["YOTTAVOLT:NANOVOLT"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["YOTTAVOLT:PETAVOLT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["YOTTAVOLT:PICOVOLT"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["YOTTAVOLT:TERAVOLT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["YOTTAVOLT:VOLT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["YOTTAVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 48) * value
+    CONVERSIONS["YOTTAVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["YOTTAVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["ZV:ZETTAV"] = \
+    CONVERSIONS["ZEPTOVOLT:ATTOVOLT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZEPTOVOLT:CENTIVOLT"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["ZEPTOVOLT:DECAVOLT"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["ZEPTOVOLT:DECIVOLT"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["ZEPTOVOLT:EXAVOLT"] = \
+        lambda value: (10 ** -39) * value
+    CONVERSIONS["ZEPTOVOLT:FEMTOVOLT"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["ZEPTOVOLT:GIGAVOLT"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["ZEPTOVOLT:HECTOVOLT"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["ZEPTOVOLT:KILOVOLT"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["ZEPTOVOLT:MEGAVOLT"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["ZEPTOVOLT:MICROVOLT"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["ZEPTOVOLT:MILLIVOLT"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["ZEPTOVOLT:NANOVOLT"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["ZEPTOVOLT:PETAVOLT"] = \
+        lambda value: (10 ** -36) * value
+    CONVERSIONS["ZEPTOVOLT:PICOVOLT"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["ZEPTOVOLT:TERAVOLT"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["ZEPTOVOLT:VOLT"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["ZEPTOVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZEPTOVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -45) * value
+    CONVERSIONS["ZEPTOVOLT:ZETTAVOLT"] = \
         lambda value: (10 ** -42) * value
+    CONVERSIONS["ZETTAVOLT:ATTOVOLT"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["ZETTAVOLT:CENTIVOLT"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAVOLT:DECAVOLT"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["ZETTAVOLT:DECIVOLT"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["ZETTAVOLT:EXAVOLT"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZETTAVOLT:FEMTOVOLT"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["ZETTAVOLT:GIGAVOLT"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["ZETTAVOLT:HECTOVOLT"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["ZETTAVOLT:KILOVOLT"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["ZETTAVOLT:MEGAVOLT"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["ZETTAVOLT:MICROVOLT"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["ZETTAVOLT:MILLIVOLT"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["ZETTAVOLT:NANOVOLT"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["ZETTAVOLT:PETAVOLT"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["ZETTAVOLT:PICOVOLT"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["ZETTAVOLT:TERAVOLT"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["ZETTAVOLT:VOLT"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["ZETTAVOLT:YOCTOVOLT"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["ZETTAVOLT:YOTTAVOLT"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZETTAVOLT:ZEPTOVOLT"] = \
+        lambda value: (10 ** 42) * value
 
     SYMBOLS = dict()
-    SYMBOLS["AV"] = "aV"
-    SYMBOLS["CV"] = "cV"
-    SYMBOLS["DAV"] = "daV"
-    SYMBOLS["DV"] = "dV"
-    SYMBOLS["EXAV"] = "EV"
-    SYMBOLS["FV"] = "fV"
-    SYMBOLS["GIGAV"] = "GV"
-    SYMBOLS["HV"] = "hV"
-    SYMBOLS["KV"] = "kV"
-    SYMBOLS["MEGAV"] = "MV"
-    SYMBOLS["MICROV"] = "µV"
-    SYMBOLS["MV"] = "mV"
-    SYMBOLS["NV"] = "nV"
-    SYMBOLS["PETAV"] = "PV"
-    SYMBOLS["PV"] = "pV"
-    SYMBOLS["TERAV"] = "TV"
-    SYMBOLS["V"] = "V"
-    SYMBOLS["YOTTAV"] = "YV"
-    SYMBOLS["YV"] = "yV"
-    SYMBOLS["ZETTAV"] = "ZV"
-    SYMBOLS["ZV"] = "zV"
+    SYMBOLS["ATTOVOLT"] = "aV"
+    SYMBOLS["CENTIVOLT"] = "cV"
+    SYMBOLS["DECAVOLT"] = "daV"
+    SYMBOLS["DECIVOLT"] = "dV"
+    SYMBOLS["EXAVOLT"] = "EV"
+    SYMBOLS["FEMTOVOLT"] = "fV"
+    SYMBOLS["GIGAVOLT"] = "GV"
+    SYMBOLS["HECTOVOLT"] = "hV"
+    SYMBOLS["KILOVOLT"] = "kV"
+    SYMBOLS["MEGAVOLT"] = "MV"
+    SYMBOLS["MICROVOLT"] = "µV"
+    SYMBOLS["MILLIVOLT"] = "mV"
+    SYMBOLS["NANOVOLT"] = "nV"
+    SYMBOLS["PETAVOLT"] = "PV"
+    SYMBOLS["PICOVOLT"] = "pV"
+    SYMBOLS["TERAVOLT"] = "TV"
+    SYMBOLS["VOLT"] = "V"
+    SYMBOLS["YOCTOVOLT"] = "yV"
+    SYMBOLS["YOTTAVOLT"] = "YV"
+    SYMBOLS["ZEPTOVOLT"] = "zV"
+    SYMBOLS["ZETTAVOLT"] = "ZV"
 
     def __init__(self, value=None, unit=None):
         _omero_model.ElectricPotential.__init__(self)

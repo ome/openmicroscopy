@@ -28,27 +28,27 @@ namespace omero {
 
         static std::map<omero::model::enums::UnitsFrequency, std::string> makeSymbols(){
             std::map<omero::model::enums::UnitsFrequency, std::string> s;
-            s[omero::model::enums::AHZ] = "aHz";
-            s[omero::model::enums::CHZ] = "cHz";
-            s[omero::model::enums::DAHZ] = "daHz";
-            s[omero::model::enums::DHZ] = "dHz";
-            s[omero::model::enums::EXAHZ] = "EHz";
-            s[omero::model::enums::FHZ] = "fHz";
-            s[omero::model::enums::GIGAHZ] = "GHz";
-            s[omero::model::enums::HHZ] = "hHz";
-            s[omero::model::enums::HZ] = "Hz";
-            s[omero::model::enums::KHZ] = "kHz";
-            s[omero::model::enums::MEGAHZ] = "MHz";
-            s[omero::model::enums::MHZ] = "mHz";
-            s[omero::model::enums::MICROHZ] = "µHz";
-            s[omero::model::enums::NHZ] = "nHz";
-            s[omero::model::enums::PETAHZ] = "PHz";
-            s[omero::model::enums::PHZ] = "pHz";
-            s[omero::model::enums::TERAHZ] = "THz";
-            s[omero::model::enums::YHZ] = "yHz";
-            s[omero::model::enums::YOTTAHZ] = "YHz";
-            s[omero::model::enums::ZETTAHZ] = "ZHz";
-            s[omero::model::enums::ZHZ] = "zHz";
+            s[omero::model::enums::ATTOHERTZ] = "aHz";
+            s[omero::model::enums::CENTIHERTZ] = "cHz";
+            s[omero::model::enums::DECAHERTZ] = "daHz";
+            s[omero::model::enums::DECIHERTZ] = "dHz";
+            s[omero::model::enums::EXAHERTZ] = "EHz";
+            s[omero::model::enums::FEMTOHERTZ] = "fHz";
+            s[omero::model::enums::GIGAHERTZ] = "GHz";
+            s[omero::model::enums::HECTOHERTZ] = "hHz";
+            s[omero::model::enums::HERTZ] = "Hz";
+            s[omero::model::enums::KILOHERTZ] = "kHz";
+            s[omero::model::enums::MEGAHERTZ] = "MHz";
+            s[omero::model::enums::MICROHERTZ] = "µHz";
+            s[omero::model::enums::MILLIHERTZ] = "mHz";
+            s[omero::model::enums::NANOHERTZ] = "nHz";
+            s[omero::model::enums::PETAHERTZ] = "PHz";
+            s[omero::model::enums::PICOHERTZ] = "pHz";
+            s[omero::model::enums::TERAHERTZ] = "THz";
+            s[omero::model::enums::YOCTOHERTZ] = "yHz";
+            s[omero::model::enums::YOTTAHERTZ] = "YHz";
+            s[omero::model::enums::ZEPTOHERTZ] = "zHz";
+            s[omero::model::enums::ZETTAHERTZ] = "ZHz";
             return s;
         };
 

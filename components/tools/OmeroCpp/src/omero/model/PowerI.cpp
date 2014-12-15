@@ -28,27 +28,27 @@ namespace omero {
 
         static std::map<omero::model::enums::UnitsPower, std::string> makeSymbols(){
             std::map<omero::model::enums::UnitsPower, std::string> s;
-            s[omero::model::enums::AW] = "aW";
-            s[omero::model::enums::CW] = "cW";
-            s[omero::model::enums::DAW] = "daW";
-            s[omero::model::enums::DW] = "dW";
-            s[omero::model::enums::EXAW] = "EW";
-            s[omero::model::enums::FW] = "fW";
-            s[omero::model::enums::GIGAW] = "GW";
-            s[omero::model::enums::HW] = "hW";
-            s[omero::model::enums::KW] = "kW";
-            s[omero::model::enums::MEGAW] = "MW";
-            s[omero::model::enums::MICROW] = "µW";
-            s[omero::model::enums::MW] = "mW";
-            s[omero::model::enums::NW] = "nW";
-            s[omero::model::enums::PETAW] = "PW";
-            s[omero::model::enums::PW] = "pW";
-            s[omero::model::enums::TERAW] = "TW";
-            s[omero::model::enums::W] = "W";
-            s[omero::model::enums::YOTTAW] = "YW";
-            s[omero::model::enums::YW] = "yW";
-            s[omero::model::enums::ZETTAW] = "ZW";
-            s[omero::model::enums::ZW] = "zW";
+            s[omero::model::enums::ATTOWATT] = "aW";
+            s[omero::model::enums::CENTIWATT] = "cW";
+            s[omero::model::enums::DECAWATT] = "daW";
+            s[omero::model::enums::DECIWATT] = "dW";
+            s[omero::model::enums::EXAWATT] = "EW";
+            s[omero::model::enums::FEMTOWATT] = "fW";
+            s[omero::model::enums::GIGAWATT] = "GW";
+            s[omero::model::enums::HECTOWATT] = "hW";
+            s[omero::model::enums::KILOWATT] = "kW";
+            s[omero::model::enums::MEGAWATT] = "MW";
+            s[omero::model::enums::MICROWATT] = "µW";
+            s[omero::model::enums::MILLIWATT] = "mW";
+            s[omero::model::enums::NANOWATT] = "nW";
+            s[omero::model::enums::PETAWATT] = "PW";
+            s[omero::model::enums::PICOWATT] = "pW";
+            s[omero::model::enums::TERAWATT] = "TW";
+            s[omero::model::enums::WATT] = "W";
+            s[omero::model::enums::YOCTOWATT] = "yW";
+            s[omero::model::enums::YOTTAWATT] = "YW";
+            s[omero::model::enums::ZEPTOWATT] = "zW";
+            s[omero::model::enums::ZETTAWATT] = "ZW";
             return s;
         };
 
