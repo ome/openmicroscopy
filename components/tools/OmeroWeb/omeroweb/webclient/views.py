@@ -1039,8 +1039,10 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                     exposure = pi.getExposureTime(units="SECOND")
                     if deltaT is None and exposure is None:
                         continue
-                    deltaT = deltaT is not None and deltaT.getValue() or ""
-                    exposure = exposure is not None and exposure.getValue() or ""
+                    if deltaT is not None:
+                        deltaT = deltaT.getValue()
+                    if exposure is not None:
+                        exposure = exposure.getValue()
                     plane_info.append({
                         'theT': pi.theT,
                         'deltaT': deltaT,

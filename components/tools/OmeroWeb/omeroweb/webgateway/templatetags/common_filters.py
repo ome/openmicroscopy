@@ -222,6 +222,8 @@ def timeformat( value ):
     from decimal import Decimal, InvalidOperation
     from django.utils.encoding import force_unicode
     
+    if value is None:
+        return ''
     try:
         value = Decimal(force_unicode(value))
     except UnicodeEncodeError:
