@@ -104,6 +104,18 @@ Params in render_thumbnail/<iid>/<w>/<h> are:
     - h:    Optional max height
 """
 
+render_slice_thumbnail = url(r'^render_slice_thumbnail/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_slice_thumbnail')
+"""
+Returns a thumbnail jpeg of the OMERO Image in the z and t slice position, optionally scaled to max-width and max-height.
+See L{views.render_thumbnail}. Default rendering settings can be set in the function call.
+Params in render_thumbnail/<iid>/<w>/<h> are:
+    - iid:  Image ID
+    - z:    Z index
+    - t:    T index
+    - w:    Optional max width
+    - h:    Optional max height
+"""
+
 render_roi_thumbnail = (r'^render_roi_thumbnail/(?P<roiId>[^/]+)/?$', 'webgateway.views.render_roi_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO ROI. See L{views.render_roi_thumbnail}. Uses current rendering settings. 
@@ -311,6 +323,7 @@ urlpatterns = patterns('',
     render_roi_thumbnail,
     render_shape_thumbnail,
     render_thumbnail,
+    render_slice_thumbnail,
     render_birds_eye_view,
     render_ome_tiff,
     render_movie,
