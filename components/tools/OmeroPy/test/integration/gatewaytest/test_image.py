@@ -173,9 +173,9 @@ class TestImage (object):
         sizeXMicrons = 0.10639449954032898
         assert self.image.getPixelSizeX() == sizeXMicrons
         self.assertUnits(self.image.getPixelSizeX(units=True),
-                         (sizeXMicrons, "µm", "MICROM"))
-        self.assertUnits(self.image.getPixelSizeX(units="NM"),
-                         (sizeXMicrons * 1000, "nm", "NM"))
+                         (sizeXMicrons, "µm", "MICROMETER"))
+        self.assertUnits(self.image.getPixelSizeX(units="NANOMETER"),
+                         (sizeXMicrons * 1000, "nm", "NANOMETER"))
         self.assertUnits(self.image.getPixelSizeX(units="ANGSTROM"),
                          (sizeXMicrons * 10000, "Å", "ANGSTROM"))
         # Can't convert from Length to Seconds
@@ -184,7 +184,8 @@ class TestImage (object):
         # return None if no data
         assert author_testimg_generated.getPixelSizeX() is None
         assert author_testimg_generated.getPixelSizeX(units=True) is None
-        assert author_testimg_generated.getPixelSizeX(units="NM") is None
+        assert author_testimg_generated.getPixelSizeX(
+            units="NANOMETER") is None
 
     def testChannelWavelengthUnits(self, author_testimg_generated):
         """
@@ -195,9 +196,9 @@ class TestImage (object):
             assert ch.getExcitationWave() == waves[0]
             assert ch.getEmissionWave() == waves[1]
             self.assertUnits(ch.getExcitationWave(units=True),
-                             (waves[0], "nm", "NM"))
+                             (waves[0], "nm", "NANOMETER"))
             self.assertUnits(ch.getEmissionWave(units=True),
-                             (waves[1], "nm", "NM"))
+                             (waves[1], "nm", "NANOMETER"))
             self.assertUnits(ch.getExcitationWave(units="ANGSTROM"),
                              (waves[0] * 10, "Å", "ANGSTROM"))
             self.assertUnits(ch.getEmissionWave(units="ANGSTROM"),
@@ -219,9 +220,9 @@ class TestImage (object):
             for pi in pInfo:
                 assert pi.getExposureTime() == eTime
                 self.assertUnits(pi.getExposureTime(units=True),
-                                 (eTime, 's', 'S'))
-                self.assertUnits(pi.getExposureTime(units="MS"),
-                                 (eTime * 1000, 'ms', 'MS'))
+                                 (eTime, 's', 'SECOND'))
+                self.assertUnits(pi.getExposureTime(units="MILLISECOND"),
+                                 (eTime * 1000, 'ms', 'MILLISECOND'))
 
     def testShortname(self):
         """ Test the shortname method """
