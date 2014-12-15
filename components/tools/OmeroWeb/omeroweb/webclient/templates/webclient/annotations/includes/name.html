@@ -41,12 +41,12 @@
     <table style="width: 50%">
         {% if wellImageId %}
         <tr>
-            <th>IMAGE ID:</th>
+            <th>Image ID:</th>
             <td><strong>{{ wellImageId }}</strong></td>
         </tr>
         {% endif %}
         <tr class="data_heading_id">
-            <th>{{ manager.obj_type }} ID:</th>
+            <th>{{ manager.obj_type|title }} ID:</th>
             <td><strong>{{ manager.obj_id }}</strong></td>
         </tr>
         <tr>

@@ -646,7 +646,6 @@
 	        position: relative;
 	        font-size:1em;
 	        color:hsl(210,5%,60%);
-	        text-transform: uppercase;
 	    }
     
 	    .data_heading_id strong {
