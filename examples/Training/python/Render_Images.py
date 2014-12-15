@@ -37,7 +37,7 @@ imageId = 27544
 image = conn.getObject("Image", imageId)
 img_data = image.getThumbnail()
 renderedThumb = Image.open(StringIO(img_data))
-#renderedThumb.show()           # shows a pop-up
+# renderedThumb.show()           # shows a pop-up
 renderedThumb.save("thumbnail.jpg")
 
 
@@ -45,7 +45,8 @@ renderedThumb.save("thumbnail.jpg")
 # =================================================================
 print "Channel rendering settings:"
 for ch in image.getChannels():
-    print "Name: ", ch.getLabel()   # if no name, get emission wavelength or index
+    # if no name, get emission wavelength or index
+    print "Name: ", ch.getLabel()
     print "  Color:", ch.getColor().getHtml()
     print "  Active:", ch.isActive()
     print "  Levels:", ch.getWindowStart(), "-", ch.getWindowEnd()
@@ -62,7 +63,7 @@ for c in range(1, sizeC + 1):       # Channel index starts at 1
     channels = [c]                  # Turn on a single channel at a time
     image.setActiveChannels(channels)
     renderedImage = image.renderImage(z, t)
-    #renderedImage.show()                        # popup (use for debug only)
+    # renderedImage.show()                        # popup (use for debug only)
     renderedImage.save("channel%s.jpg" % c)     # save in the current folder
 
 
@@ -70,11 +71,12 @@ for c in range(1, sizeC + 1):       # Channel index starts at 1
 # =================================================================
 image.setColorRenderingModel()
 channels = [1, 2, 3]
-colorList = ['F00', None, 'FFFF00']         # do not change colour of 2nd channel
+colorList = ['F00', None, 'FFFF00']  # do not change colour of 2nd channel
 image.setActiveChannels(channels, colors=colorList)
-image.setProjection('intmax')               # max intensity projection 'intmean' for mean-intensity
-renderedImage = image.renderImage(z, t)     # z and t are ignored for projections
-#renderedImage.show()
+# max intensity projection 'intmean' for mean-intensity
+image.setProjection('intmax')
+renderedImage = image.renderImage(z, t)  # z and t are ignored for projections
+# renderedImage.show()
 renderedImage.save("all_channels.jpg")
 image.setProjection('normal')               # turn off projection
 
@@ -84,8 +86,9 @@ image.setProjection('normal')               # turn off projection
 channels = [1, 2]
 rangeList = [[100.0, 120.2], [None, None]]
 image.setActiveChannels(channels, windows=rangeList)
-renderedImage = image.renderImage(z, t, compression=0.5)    # default compression is 0.9
-#renderedImage.show()
+# default compression is 0.9
+renderedImage = image.renderImage(z, t, compression=0.5)
+# renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
 

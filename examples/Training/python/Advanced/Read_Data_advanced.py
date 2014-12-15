@@ -63,7 +63,8 @@ for d in datasets:
 Tags = conn.getObjects("TagAnnotation", attributes={'textValue': tag_name})
 print "\nList Tags:"
 for t in Tags:
-    print "ID:", t.getId(), "Text:", t.getTextValue(), "Desc:", t.getDescription()
+    print "ID: %s Text: %s Desc: %s" % (
+        t.getId(), t.getTextValue(), t.getDescription())
 
 
 # Close connection:

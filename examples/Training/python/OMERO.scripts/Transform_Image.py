@@ -6,37 +6,41 @@ Flip or Rotate an Image and create a new Image in OMERO
 
 import omero
 import omero.scripts as scripts
-from numpy import array, rot90, fliplr, flipud
+from numpy import rot90, fliplr, flipud
 from omero.gateway import BlitzGateway
-from omero.rtypes import *
+from omero.rtypes import rstring, rint, rlong, robject
 
 
 def rotate90(plane):
     return rot90(plane)
 
+
 def rotate180(plane):
     return rot90(plane, 2)
+
 
 def rotate270(plane):
     return rot90(plane, 3)
 
+
 def flipHorizontal(plane):
     return fliplr(plane)
+
 
 def flipVertical(plane):
     return flipud(plane)
 
 # The transforms that we support
-actions = {"Rotate_Left": rotate90,
-        "Rotate_180": rotate180,
-        "Rotate_Right": rotate270,
-        "Flip_Vertical": flipVertical,
-        "Flip_Horizontal": flipHorizontal}
+actions = {
+    "Rotate_Left": rotate90,
+    "Rotate_180": rotate180,
+    "Rotate_Right": rotate270,
+    "Flip_Vertical": flipVertical,
+    "Flip_Horizontal": flipHorizontal}
 
 # Options for Script Parameters
-actionOptions = omero.rtypes.wrap( list(actions.keys()) )
+actionOptions = omero.rtypes.wrap(list(actions.keys()))
 dataTypes = omero.rtypes.wrap(['Image'])
-
 
 
 def createImageFromTransform(conn, image, transforms):
@@ -46,7 +50,8 @@ def createImageFromTransform(conn, image, transforms):
 
     @param conn:        BlitzGateway connection
     @param image:       ImageWrapper
-    @param transforms:  List of strings ["Rotate_Left", "Flip_Horizontal"] etc.
+    @param transforms:  List of strings ["Rotate_Left", "Flip_Horizontal"]
+                        etc.
     @return:            New ImageWrapper
     """
 
@@ -64,32 +69,36 @@ def createImageFromTransform(conn, image, transforms):
     for z in range(sizeZ):
         for c in range(sizeC):
             for t in range(sizeT):
-                zctList.append( (z,c,t) )
+                zctList.append((z, c, t))
 
     # This generator will get each plane as needed and apply transforms
     def planeGen():
         planes = image.getPrimaryPixels().getPlanes(zctList)
         for p in planes:
             for t in transforms:
-                print "  Transform plane with...", t, 
+                print "  Transform plane with...", t,
                 action = actions[t]
                 p = action(p)
             yield p
 
-    # Create new image with the plane generator prepared above (don't need all the planes in memory at once)
+    # Create new image with the plane generator prepared above (don't need all
+    # the planes in memory at once)
     imageName = "%s-transformed" % image.getName()
     dataset = image.getParent()
     tfList = "\n".join(transforms)
-    description="Created from Image ID: %s by applying the following transforms:\n%s" % (image.id, tfList)
+    description = ("Created from Image ID: %s by applying the following"
+                   " transforms:\n%s" % (image.id, tfList))
 
-    newImg = conn.createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, description=description, dataset=dataset)
+    newImg = conn.createImageFromNumpySeq(
+        planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT,
+        description=description, dataset=dataset)
 
     # Apply colors from the original image to the new one
     for i, c in enumerate(newImg.getChannels()):
         lc = c.getLogicalChannel()
         lc.setName(cNames[i])
         lc.save()
-        r,g,b = colors[i]
+        r, g, b = colors[i]
         # need to reload channels to avoid optimistic lock on update
         cObj = conn.getQueryService().get("Channel", c.id)
         cObj.red = rint(r)
@@ -98,14 +107,15 @@ def createImageFromTransform(conn, image, transforms):
         cObj.alpha = rint(255)
         conn.getUpdateService().saveObject(cObj)
 
-    newImg.resetRDefs() # reset based on colors above
+    newImg.resetRDefs()  # reset based on colors above
 
     return newImg
 
 
 def transformImages(conn, scriptParams):
     """
-    Processes the list of Images and returns a single Image or Dataset and message
+    Processes the list of Images and returns a single Image or Dataset and
+    message
 
     @param conn:            BlitzGateway conn
     @param scriptParams     Dictionary of script parameters
@@ -136,17 +146,23 @@ def transformImages(conn, scriptParams):
 
 
 def runAsScript():
-    client = scripts.client('Transform_Image.py',
+    client = scripts.client(
+        'Transform_Image.py',
         "Flip or Rotate an Image and create a new Image in OMERO",
 
-        scripts.String("Data_Type", optional=False, grouping="1",
-        description="The data you want to work with.", values=dataTypes, default="Image"),
+        scripts.String(
+            "Data_Type", optional=False, grouping="1",
+            description="The data you want to work with.", values=dataTypes,
+            default="Image"),
 
-        scripts.List("IDs", optional=False, grouping="2",
-        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
+        scripts.List(
+            "IDs", optional=False, grouping="2",
+            description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
 
-        scripts.List("Transforms", optional=False, grouping="3",
-        description="List of transforms to apply to the Image", values=actionOptions),
+        scripts.List(
+            "Transforms", optional=False, grouping="3",
+            description="List of transforms to apply to the Image",
+            values=actionOptions),
     )
 
     try:
@@ -160,7 +176,7 @@ def runAsScript():
         print scriptParams
 
         robj, message = transformImages(conn, scriptParams)
-        
+
         client.setOutput("Message", rstring(message))
         if robj is not None:
             client.setOutput("Result", robject(robj))

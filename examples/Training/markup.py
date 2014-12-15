@@ -15,8 +15,8 @@ $ python markup.py > wikiText.txt    # to file
 
 """
 
-import sys, re
-import fileinput
+import sys
+import re
 
 
 def lines(file):
@@ -30,13 +30,14 @@ def lines(file):
             yield line
     yield '\n'
 
+
 def blocks(file):
     block = []
     for line in lines(file):
         if line.strip() and not line.startswith("# ======================="):
             block.append(line.rstrip())
         elif block:
-            #yield ''.join(block).strip()
+            # yield ''.join(block).strip()
             yield block
             block = []
 
@@ -63,7 +64,8 @@ class SubtitleRule(Rule):
     afterCode = True
 
     def condition(self, block):
-        if len(block) == 1 and block[0].startswith(self.comment_char) and self.afterCode:
+        if (len(block) == 1 and block[0].startswith(self.comment_char)
+                and self.afterCode):
             block[0] = block[0].lstrip('%s ' % self.comment_char)
             self.afterCode = False
             return True
@@ -87,6 +89,7 @@ class CommentRule(Rule):
     A comment block is a block where every line starts with a comment character
     """
     type = 'comment'
+
     def condition(self, block):
         for line in block:
             if not line.startswith(self.comment_char):
@@ -112,8 +115,10 @@ class CodeRule(Rule):
     other rules. NB: Other rules will be tested before this one
     """
     type = 'code'
+
     def condition(self, block):
         return True
+
 
 class Handler:
     """
@@ -127,13 +132,18 @@ class Handler:
     """
     def callback(self, prefix, name, *args):
         method = getattr(self, prefix+name, None)
-        if callable(method): return method(*args)
+        if callable(method):
+            return method(*args)
+
     def start(self, name, *args):
         self.callback('start_', name, *args)
+
     def end(self, name):
         self.callback('end_', name)
+
     def sub(self, name):
-        return lambda match: self.callback('sub_', name, match) or match.group(0)
+        return lambda match: (self.callback('sub_', name, match)
+                              or match.group(0))
 
 
 class SphinxRenderer(Handler):
@@ -143,43 +153,59 @@ class SphinxRenderer(Handler):
     def start_document(self, title):
         print title
         print "^" * len(title)
+
     def end_document(self):
         print ''
+
     def start_code(self):
         print '\n::\n'
+
     def end_code(self):
         print ''
+
     def start_subtitle(self, block):
         print "\n-  **%s**" % block[0]
+
     def end_subtitle(self):
         print ""
+
     def start_comment(self):
         print '\n'
+
     def end_comment(self):
         print '\n'
+
     def start_list(self):
         print '\n'
+
     def end_list(self):
         print '\n'
+
     def start_listitem(self):
         print ' * '
+
     def end_listitem(self):
         print ''
+
     def start_title(self):
         print '='
+
     def end_title(self):
         print '='
+
     def sub_emphasis(self, match):
         return '**%s**' % match.group(1)
+
     def sub_url(self, match):
         return '[%s]' % (match.group(1))
+
     def sub_mail(self, match):
         return '<a href="mailto:%s">%s</a>' % (match.group(1), match.group(1))
+
     def feed(self, block, indent="    "):
         for i in range(len(block)-1):
             print indent + block[i]
         print indent + block[-1],
-
 
 
 class WikiRenderer(Handler):
@@ -188,43 +214,61 @@ class WikiRenderer(Handler):
     """
     def start_document(self, title):
         print '== %s ==' % title
+
     def end_document(self):
         print ''
+
     def start_code(self):
         print '\n{{{'
+
     def end_code(self):
         print '\n}}}'
+
     def start_subtitle(self):
         print " * ''' ",
+
     def end_subtitle(self):
         print " ''' "
+
     def start_comment(self):
         print '\n'
+
     def end_comment(self):
         print '\n'
+
     def start_list(self):
         print '\n'
+
     def end_list(self):
         print '\n'
+
     def start_listitem(self):
         print ' * '
+
     def end_listitem(self):
         print ''
+
     def start_title(self):
         print '='
+
     def end_title(self):
         print '='
+
     def sub_emphasis(self, match):
         return '**%s**' % match.group(1)
+
     def sub_url(self, match):
         return '[%s]' % (match.group(1))
+
     def sub_mail(self, match):
         return '<a href="mailto:%s">%s</a>' % (match.group(1), match.group(1))
+
     def feed(self, block):
         for i in range(len(block)-1):
             print block[i]
         print block[-1],
-        
+
+
 class Parser:
     """
     A Parser reads a text file, applying rules and controlling a
@@ -234,25 +278,31 @@ class Parser:
         self.handler = handler
         self.rules = []
         self.filters = []
+
     def addRule(self, rule):
         self.rules.append(rule)
+
     def addFilter(self, pattern, name):
         def filter(block, handler):
             return re.sub(pattern, handler.sub(name), block)
         self.filters.append(filter)
+
     def parse(self, file, title):
         self.handler.start('document', title)
         for c, block in enumerate(blocks(file)):
             if c == 0:
-                continue    # don't output the first block (connection, imports etc)
+                # don't output the first block (connection, imports etc)
+                continue
             for i in range(len(block)):
                 for filter in self.filters:
                     block[i] = filter(block[i], self.handler)
             for rule in self.rules:
                 if rule.condition(block):
                     last = rule.action(block, self.handler)
-                    if last: break
+                    if last:
+                        break
         self.handler.end('document')
+
 
 class PythonParser(Parser):
     """
@@ -264,7 +314,7 @@ class PythonParser(Parser):
         self.addRule(SphinxCommentRule('#'))
         self.addRule(CodeRule())
 
-        #self.addFilter(r'\*(.+?)\*', 'emphasis')
+        # self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z0-9_/]+)', 'url')
 
 
@@ -278,11 +328,11 @@ class MatlabParser(Parser):
         self.addRule(SphinxCommentRule('%'))
         self.addRule(CodeRule())
 
-        #self.addFilter(r'\*(.+?)\*', 'emphasis')
+        # self.addFilter(r'\*(.+?)\*', 'emphasis')
         self.addFilter(r'(http://[\.a-zA-Z_/]+)', 'url')
 
 
-PYHEADER="""#!/usr/bin/env python
+PYHEADER = """#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
@@ -308,21 +358,40 @@ def check_header(file_lines, quiet=False):
         try:
             test = PYHEADER[idx]
             if test.strip() != line.strip():
-                raise Exception("bad header. expected: '%s'. found: '%s'." % \
-                    (line.strip(), test.strip()))
+                raise Exception("bad header. expected: '%s'. found: '%s'."
+                                % (line.strip(), test.strip()))
         except IndexError:
             if not quiet:
                 print "ok"
             break
     return len(lines)
 
+
 if __name__ == "__main__":
 
-    pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Groups_Permissions.py', 'python/Raw_Data_Access.py', 
-        'python/Write_Data.py', 'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 
-        'python/Create_Image.py', 'python/Filesets.py']
-    titles = ['Connect to OMERO', 'Read data', 'Groups and permissions', 'Raw data access', 'Write data', 
-        'OMERO tables', 'ROIs', 'Delete data', 'Render Images', 'Create Image', 'Filesets - New in OMERO 5']
+    pythonFiles = [
+        'python/Connect_To_OMERO.py',
+        'python/Read_Data.py',
+        'python/Groups_Permissions.py',
+        'python/Raw_Data_Access.py',
+        'python/Write_Data.py',
+        'python/Tables.py',
+        'python/ROIs.py',
+        'python/Delete.py',
+        'python/Render_Images.py',
+        'python/Create_Image.py',
+        'python/Filesets.py']
+    titles = [
+        'Connect to OMERO',
+        'Read data',
+        'Groups and permissions',
+        'Raw data access', 'Write data',
+        'OMERO tables',
+        'ROIs',
+        'Delete data',
+        'Render Images',
+        'Create Image',
+        'Filesets - New in OMERO 5']
 
     if "--check_header" in sys.argv:
         for py in pythonFiles:
@@ -330,25 +399,38 @@ if __name__ == "__main__":
             check_header([x for x in open(py, "r")])
 
     else:
-
-        #handler = HTMLRenderer()
+        # handler = HTMLRenderer()
         handler = SphinxRenderer()
 
-        #parser.parse(sys.stdin)
+        # parser.parse(sys.stdin)
 
-
-        print "\n\n------------------------------------------------PYTHON-------------------------------------------------------------\n\n"
+        print ("\n\n----------------------------------------"
+               "--------PYTHON------------------------------"
+               "-------------------------------\n\n")
         parser = PythonParser(handler)
         for f, name in zip(pythonFiles, titles):
             read = open(f, 'r')
             parser.parse(read, name)
 
-
-        matlabFiles = [ 'matlab/ConnectToOMERO.m', 'matlab/ReadData.m', 'matlab/RawDataAccess.m', \
-                        'matlab/WriteData.m', 'matlab/ROIs.m', 'matlab/DeleteData.m', 'matlab/RenderImages.m']
-        mTitles = ['Connect to OMERO', 'Read data', 'Raw data access', 'Write data', \
-                        'ROIs', 'Delete data', 'Render Images']
-        print "\n\n------------------------------------------------MATLAB-------------------------------------------------------------\n\n"
+        matlabFiles = [
+            'matlab/ConnectToOMERO.m',
+            'matlab/ReadData.m',
+            'matlab/RawDataAccess.m',
+            'matlab/WriteData.m',
+            'matlab/ROIs.m',
+            'matlab/DeleteData.m',
+            'matlab/RenderImages.m']
+        mTitles = [
+            'Connect to OMERO',
+            'Read data',
+            'Raw data access',
+            'Write data',
+            'ROIs',
+            'Delete data',
+            'Render Images']
+        print ("\n\n----------------------------------------"
+               "--------MATLAB------------------------------"
+               "-------------------------------\n\n")
         parser = MatlabParser(handler)
         for f, name in zip(matlabFiles, mTitles):
             read = open(f, 'r')

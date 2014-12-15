@@ -27,7 +27,7 @@ conn.connect()
 # Configuration
 # =================================================================
 projectId = 2
-#Specify a local file. E.g. could be result of some analysis
+# Specify a local file. E.g. could be result of some analysis
 fileToUpload = "README.txt"   # This file should already exist
 
 
@@ -59,8 +59,10 @@ dataset = conn.getObject("Dataset", datasetId)
 # create the original file and file annotation (uploads the file etc.)
 namespace = "imperial.training.demo"
 print "\nCreating an OriginalFile and FileAnnotation"
-fileAnn = conn.createFileAnnfromLocalFile(fileToUpload, mimetype="text/plain", ns=namespace, desc=None)
-print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
+fileAnn = conn.createFileAnnfromLocalFile(
+    fileToUpload, mimetype="text/plain", ns=namespace, desc=None)
+print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), \
+    ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
 dataset.linkAnnotation(fileAnn)     # link it to dataset.
 
 
@@ -71,11 +73,13 @@ path = os.path.join(os.path.dirname(__file__), "download")
 if not os.path.exists(path):
     os.makedirs(path)
 
-# Go through all the annotations on the Dataset. Download any file annotations we find.
+# Go through all the annotations on the Dataset. Download any file annotations
+# we find.
 print "\nAnnotations on Dataset:", dataset.getName()
 for ann in dataset.listAnnotations():
     if isinstance(ann, omero.gateway.FileAnnotationWrapper):
-        print "File ID:", ann.getFile().getId(), ann.getFile().getName(), "Size:", ann.getFile().getSize()
+        print "File ID:", ann.getFile().getId(), ann.getFile().getName(), \
+            "Size:", ann.getFile().getSize()
 
         file_path = os.path.join(path, ann.getFile().getName())
 
@@ -94,7 +98,8 @@ for ann in dataset.listAnnotations():
 nsToInclude = [namespace]
 nsToExclude = []
 metadataService = conn.getMetadataService()
-annotations = metadataService.loadSpecifiedAnnotations('omero.model.FileAnnotation', nsToInclude, nsToExclude, None)
+annotations = metadataService.loadSpecifiedAnnotations(
+    'omero.model.FileAnnotation', nsToInclude, nsToExclude, None)
 for ann in annotations:
     print ann.getId().getValue(), ann.file.name.val
 

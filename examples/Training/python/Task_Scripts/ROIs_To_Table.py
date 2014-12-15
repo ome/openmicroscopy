@@ -13,20 +13,23 @@ import math
 from numpy import array
 from omero.gateway import BlitzGateway
 import omero
-from omero.rtypes import *
+from omero.rtypes import rstring, rdouble, rlong
 
 
 def processData(conn, scriptParams):
     """
-    For each Dataset, process each Image adding the length of each ROI line to an OMERO.table.
-    Also calculate the average of all lines for each Image and add this as a Double Annotation on Image.
+    For each Dataset, process each Image adding the length of each ROI line to
+    an OMERO.table.
+    Also calculate the average of all lines for each Image and add this as a
+    Double Annotation on Image.
     """
-    
+
     datasetIds = scriptParams['IDs']
     for dataset in conn.getObjects("Dataset", datasetIds):
 
         # first create our table...
-        # columns we want are: imageId, roiId, shapeId, theZ, theT, lineLength, shapetext.
+        # columns we want are: imageId, roiId, shapeId, theZ, theT,
+        # lineLength, shapetext.
         columns = [
             omero.grid.LongColumn('imageId', '', []),
             omero.grid.RoiColumn('roidId', '', []),
@@ -37,7 +40,8 @@ def processData(conn, scriptParams):
             omero.grid.StringColumn('shapeText', '', 64, [])
             ]
         # create and initialize the table
-        table = conn.c.sf.sharedResources().newTable(1, "LineLengths%s" % str(random()))
+        table = conn.c.sf.sharedResources().newTable(
+            1, "LineLengths%s" % str(random()))
         table.initialize(columns)
 
         # make a local array of our data (add it to table in one go)
@@ -52,7 +56,7 @@ def processData(conn, scriptParams):
         lengthsForImage = []
         imgCount = 0
         for image in dataset.listChildren():
-            imgCount +=1
+            imgCount += 1
             result = roiService.findByImage(image.getId(), None)
             for roi in result.rois:
                 for s in roi.copyShapes():
@@ -79,20 +83,21 @@ def processData(conn, scriptParams):
                 print "No lines found on Image:", image.getName()
                 continue
             imgAverage = sum(lengthsForImage) / len(lengthsForImage)
-            print "Average length of line for Image: %s is %s" % (image.getName(), imgAverage)
+            print ("Average length of line for Image: %s is %s"
+                   % (image.getName(), imgAverage))
 
             # Add the average as an annotation on each image.
             lengthAnn = omero.model.DoubleAnnotationI()
             lengthAnn.setDoubleValue(rdouble(imgAverage))
-            lengthAnn.setNs(rstring("imperial.training.demo.lineLengthAverage"))
+            lengthAnn.setNs(
+                rstring("imperial.training.demo.lineLengthAverage"))
             link = omero.model.ImageAnnotationLinkI()
             link.setParent(omero.model.ImageI(image.getId(), False))
             link.setChild(lengthAnn)
             conn.getUpdateService().saveAndReturnObject(link)
             lengthsForImage = []    # reset for next image.
 
-
-        # Prepare data for adding to OMERO table. 
+        # Prepare data for adding to OMERO table.
         data = [
             omero.grid.LongColumn('imageId', '', imageIds),
             omero.grid.RoiColumn('roidId', '', roiIds),
@@ -111,7 +116,7 @@ def processData(conn, scriptParams):
         link = omero.model.DatasetAnnotationLinkI()
         link.setParent(omero.model.DatasetI(dataset.getId(), False))
         link.setChild(fileAnn)
-        #conn.getUpdateService().saveAndReturnObject(link)
+        # conn.getUpdateService().saveAndReturnObject(link)
 
         a = array(lineLengths)
         print "std", a.std()
@@ -119,11 +124,14 @@ def processData(conn, scriptParams):
         print "max", a.max()
         print "min", a.min()
 
-        # lets retrieve all the lines that are longer than 2 standard deviations above mean
+        # lets retrieve all the lines that are longer than 2 standard
+        # deviations above mean
         limit = a.mean() + (2 * a.std())
         print "Retrieving all lines longer than: ", limit
         rowCount = table.getNumberOfRows()
-        queryRows = table.getWhereList("lineLength > %s" % limit, variables={}, start=0, stop=rowCount, step=0)
+        queryRows = table.getWhereList(
+            "lineLength > %s" % limit, variables={}, start=0, stop=rowCount,
+            step=0)
         if len(queryRows) == 0:
             print "No lines found"
         else:
@@ -132,32 +140,41 @@ def processData(conn, scriptParams):
                 print "Query Results for Column: ", col.name
                 for v in col.values:
                     print "   ", v
-    
-        # Assume we only have 1 dataset. This will return after the first dataset
-        message = "Counted %s images, %s lines. Mean length: %s, std: %s" % (imgCount, len(shapeIds), a.mean(), a.std())
+
+        # Assume we only have 1 dataset. This will return after the first
+        # dataset
+        message = ("Counted %s images, %s lines. Mean length: %s, std: %s"
+                   % (imgCount, len(shapeIds), a.mean(), a.std()))
         return message
 
 
 def runAsScript():
     """
-    The main entry point of the script, as called by the client via the scripting service, passing the required parameters.
+    The main entry point of the script, as called by the client via the
+    scripting service, passing the required parameters.
     """
 
     dataTypes = [rstring('Dataset')]
 
-    client = scripts.client('Shapes_To_Table.py', """This script processes images, measuring the length of ROI Lines and
-saving the results to an OMERO.table.""",
+    client = scripts.client(
+        'Shapes_To_Table.py',
+        ("This script processes images, measuring the length of ROI Lines and"
+         " saving the results to an OMERO.table."),
 
-    scripts.String("Data_Type", optional=False, grouping="1",
-        description="Choose source of images (only Dataset supported)", values=dataTypes, default="Dataset"),
+        scripts.String(
+            "Data_Type", optional=False, grouping="1",
+            description="Choose source of images (only Dataset supported)",
+            values=dataTypes, default="Dataset"),
 
-    scripts.List("IDs", optional=False, grouping="2",
-        description="List of Dataset IDs to convert to new Plates.").ofType(rlong(0)),
+        scripts.List(
+            "IDs", optional=False, grouping="2",
+            description="List of Dataset IDs to convert to new"
+            " Plates.").ofType(rlong(0)),
 
-    version = "4.3.2",
-    authors = ["William Moore", "OME Team"],
-    institutions = ["University of Dundee"],
-    contact = "ome-users@lists.openmicroscopy.org.uk",
+        version="4.3.2",
+        authors=["William Moore", "OME Team"],
+        institutions=["University of Dundee"],
+        contact="ome-users@lists.openmicroscopy.org.uk",
     )
 
     try:
