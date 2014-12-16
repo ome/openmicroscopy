@@ -7221,7 +7221,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return None
             if isinstance(size, IntType):
                 size = (size,)
-            if z is not None and t is not None:
+            if z is not None or t is not None:
+                if z is None:
+                    z = self.getDefaultZ()
+                if t is None:
+                    t = self.getDefaultT()
                 pos = z, t
             else:
                 pos = None
