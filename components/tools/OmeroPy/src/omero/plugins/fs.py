@@ -785,33 +785,39 @@ Examples:
             self.ctx.err(err)
         else:
             if args.size_only:
-                self.ctx.out(rsp.totalBytesUsed)
+                self.ctx.out(sum(rsp.totalBytesUsed.values()))
             elif args.units:
-                size = self._to_units(rsp.totalBytesUsed, args.units)
-                files = rsp.totalFileCount
+                size = self._to_units(
+                    sum(rsp.totalBytesUsed.values()), args.units)
+                files = sum(rsp.totalFileCount.values())
                 self.ctx.out(
                     "Total disk usage: %d %siB in %d files"
                     % (size, args.units, files))
             else:
                 self.ctx.out(
                     "Total disk usage: %d bytes in %d files"
-                    % (rsp.totalBytesUsed, rsp.totalFileCount))
+                    % (sum(rsp.totalBytesUsed.values()),
+                       sum(rsp.totalFileCount.values())))
 
         if args.report and not args.size_only:
             self._detailed_usage_report(req, rsp, status, args)
 
     def _detailed_usage_report(self, req, rsp, status, args):
         """
-        Print a breakdown of disk usage in table form.
+        Print a breakdown of disk usage in table form, including user
+        and group information.
         """
         from omero.util.text import TableBuilder
-        tb = TableBuilder("component", "size (bytes)", "files")
+        tb = TableBuilder(
+            "user", "group", "component", "size (bytes)", "files")
         if args.style:
             tb.set_style(args.style)
 
-        for (element, size) in rsp.bytesUsedByReferer.items():
-            row = [element, size, rsp.fileCountByReferer[element]]
-            tb.row(*tuple(row))
+        for userGroup in rsp.bytesUsedByReferer.keys():
+            for (element, size) in rsp.bytesUsedByReferer[userGroup].items():
+                row = [userGroup.first, userGroup.second, element, size,
+                       rsp.fileCountByReferer[userGroup][element]]
+                tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
 
 try:
