@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -84,6 +84,18 @@ class BrowserControl
     
     //TODO: Implement scroll listener.  When the currently selected node is 
     //scrolled out of the parent's viewport then it has to be deselected. 
+    
+    /** Indicates to navigate to the left */
+    private static final int DIRECTION_LEFT = 0;
+    
+    /** Indicates to navigate to the right */
+    private static final int DIRECTION_RIGHT = 1;
+
+    /** Indicates to navigate upwards */
+    private static final int DIRECTION_UP = 2;
+
+    /** Indicates to navigate downwards */
+    private static final int DIRECTION_DOWN = 3;
     
     /** The Model controlled by this Controller. */
     private BrowserModel    model;
@@ -379,7 +391,7 @@ class BrowserControl
      * @param model The Model.
      * @param view The View.
      */
-    BrowserControl(BrowserModel model, RootDisplay view)
+    BrowserControl(final BrowserModel model, RootDisplay view)
     {
         if (model == null) throw new NullPointerException("No model.");
         if (view == null) throw new NullPointerException("No view.");
@@ -391,7 +403,7 @@ class BrowserControl
         view.getInternalDesktop().addMouseMotionListener(this);
 		view.getInternalDesktop().setCursor(Cursor.getDefaultCursor());
 		keyListener = new KeyAdapter() {
-			
+		    
 			/** 
 			 * Selects all the nodes if <code>Ctrl-A</code> or
 			 * <code>Cmd-A</code> is pressed.
@@ -399,18 +411,69 @@ class BrowserControl
 			 */
 			public void keyPressed(KeyEvent e)
 			{
-				switch (e.getKeyCode()) {
-					case KeyEvent.VK_A:
-						if ((UIUtilities.isMacOS() && e.isMetaDown()) ||
-							(!UIUtilities.isMacOS() && e.isControlDown())) {
-							handleKeySelection();
-						}
-				}
+                            switch (e.getKeyCode()) {
+                                case KeyEvent.VK_A:
+                                    if ((UIUtilities.isMacOS() && e.isMetaDown())
+                                            || (!UIUtilities.isMacOS() && e.isControlDown())) {
+                                        handleKeySelection();
+                                    }
+                                    break;
+                                case KeyEvent.VK_UP:
+                                    navigate(DIRECTION_UP, e.isShiftDown());
+                                    break;
+                                case KeyEvent.VK_DOWN:
+                                    navigate(DIRECTION_DOWN, e.isShiftDown());
+                                    break;
+                                case KeyEvent.VK_LEFT:
+                                    navigate(DIRECTION_LEFT, e.isShiftDown());
+                                    break;
+                                case KeyEvent.VK_RIGHT:
+                                    navigate(DIRECTION_RIGHT, e.isShiftDown());
+                                    break;
+                            }
 			}
 			
 		};
     }
     
+    /**
+     * Moves the current selection to the right, left, up or down.
+     * 
+     * @param direction
+     *            The direction to move to 
+     * @param multiSel
+     *            Pass <code>true</code> to add the selection 
+     *            to a multiple selection
+     */
+    public void navigate(int direction, boolean multiSel) {
+        ImageDisplay current = model.getLastSelectedDisplay();
+        Rectangle b = current.getBounds();
+        
+        int x = b.x;
+        int y = b.y;
+
+        // choose a point which lies 50% of the ImageDisplay width/height 
+        // to the left/right/above/under the current ImageDisplay;
+        // (this will work if the gap between the ImageDisplays is not 
+        //  too big)
+        switch (direction) {
+            case DIRECTION_LEFT:
+                x = b.x - (int) (b.width * 0.5);
+                break;
+            case DIRECTION_RIGHT:
+                x = b.x + (int) (b.width * 1.5);
+                break;
+            case DIRECTION_UP:
+                y = b.y - (int) (b.height * 0.5);
+                break;
+            case DIRECTION_DOWN:
+                y = b.y + (int) (b.height * 1.5);
+                break;
+        }
+
+        model.setSelectedDisplay(new Point(x, y), multiSel);
+    }
+
     /**
      * Subscribes for mouse events notification with each node in the
      * various visualization trees.
@@ -523,8 +586,10 @@ class BrowserControl
     public void mousePressed(MouseEvent me)
     {
     	anchor = me.getPoint();
-    	((Component) me.getSource()).requestFocus();
-    	((Component) me.getSource()).addKeyListener(keyListener);
+    	Component s = ((Component) me.getSource());
+    	s.requestFocus();
+    	s.removeKeyListener(keyListener);
+    	s.addKeyListener(keyListener);
     	shiftDown = me.isShiftDown();
 		if (dragging) return;
 		Collection<ImageDisplay> l = model.getSelectedDisplays();
