@@ -668,8 +668,8 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
     img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
     if saveDefs:
-        r.has_key('z') and img._re.setDefaultZ(long(r['z'])-1)
-        r.has_key('t') and img._re.setDefaultT(long(r['t'])-1)
+        r.has_key('z') and img.setDefaultZ(long(r['z'])-1)
+        r.has_key('t') and img.setDefaultT(long(r['t'])-1)
         img.saveDefaults()
     return (img, compress_quality)
 
