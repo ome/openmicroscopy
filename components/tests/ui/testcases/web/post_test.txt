@@ -121,7 +121,7 @@ Test Rdef Copy Paste Save
 
     Select Experimenter
     Select And Expand Image
-    Wait Until Page Contains Element        xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'image')]
+    Wait Until Page Contains Element        xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
     ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
     Click Link                              Preview
     Wait Until Page Contains Element        id=viewport-img

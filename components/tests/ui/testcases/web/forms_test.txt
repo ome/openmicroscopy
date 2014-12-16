@@ -19,7 +19,7 @@ Test Script Run
     Select And Expand Project
     Select And Expand Dataset
     Select And Expand Image
-    Wait Until Page Contains Element            xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'image')]
+    Wait Until Page Contains Element            xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
     ${imageId}=                                 Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
 
     # First Test 'custom' script forms
