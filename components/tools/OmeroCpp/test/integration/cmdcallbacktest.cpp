@@ -92,12 +92,8 @@ public:
                 // since there seems to be some race
                 // condition in C++.
                 poll();
-                if (!getResponse()) {
-                    FAIL() << "finished uncalled";
-                }
-            } else {
-                ASSERT_EQ(1, finished);
             }
+            ASSERT_GT(finished, 0);
             ASSERT_FALSE(isCancelled());
             ASSERT_FALSE(isFailure());
             ResponsePtr rsp = getResponse();
@@ -137,12 +133,8 @@ public:
                 // since there seems to be some race
                 // condition in C++.
                 poll();
-                if (!getResponse()) {
-                    FAIL() << "finished uncalled";
-                }
-            } else {
-                ASSERT_EQ(1, finished);
             }
+            ASSERT_GT(finished, 0);
             ASSERT_TRUE(isCancelled());
         } catch (const omero::ValidationException& ve) {
             FAIL() << "validation exception:" << ve.message;
