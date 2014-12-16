@@ -239,39 +239,44 @@ CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
-    AS '
+CREATE TABLE _updated_annotations (
+    event_id BIGINT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id BIGINT NOT NULL,
+    CONSTRAINT FK_updated_annotations_event_id
+        FOREIGN KEY (event_id)
+        REFERENCES event);
+
+CREATE INDEX _updated_annotations_event_index
+    ON _updated_annotations (event_id);
+
+CREATE INDEX _updated_annotations_row_index
+    ON _updated_annotations (event_id, entity_type, entity_id);
+
+CREATE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
+
     DECLARE
-        rec RECORD;
-        eid int8;
-        cnt int8;
+        pid BIGINT;
+        eid BIGINT;
+
     BEGIN
-
-        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_updated_annotations'') THEN
-            CREATE TEMP TABLE _updated_annotations (entitytype varchar, entityid int8) ON COMMIT DELETE ROWS;
-        END IF;
-
+        SELECT INTO eid _current_or_new_event();
+ 
 #foreach($type in $types)
 #if( ${type.annotated} && !${type.superclass})
-
-        FOR rec IN SELECT id, parent FROM ${type.tableName()}annotationlink WHERE child = new.id LOOP
-            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''${type.id}'');
+        FOR pid IN SELECT DISTINCT parent FROM ${type.tableName()}annotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, '${type.id}', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = '${type.id}' AND ua.entity_id = pid);
         END LOOP;
+
 #end
 #end
-
-        SELECT INTO cnt count(*) FROM _updated_annotations;
-        IF cnt <> 0 THEN
-            SELECT INTO eid _current_or_new_event();
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -52, entityid, entitytype, eid
-                   FROM _updated_annotations;
-        END IF;
-
         RETURN new;
-
-    END;'
-LANGUAGE plpgsql;
+    END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER annotation_trigger
         AFTER UPDATE ON annotation
