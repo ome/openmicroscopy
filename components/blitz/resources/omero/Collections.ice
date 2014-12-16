@@ -145,6 +145,17 @@ module omero {
         dictionary<string, long>                       StringLongMap;
         dictionary<string, int>                        StringIntMap;
 
+        // if using to store owner and group ID, use first=owner, second=group
+        struct LongPair {
+          long first;
+          long second;
+        };
+
+        dictionary<LongPair, long>                     LongPairLongMap;
+        dictionary<LongPair, int>                      LongPairIntMap;
+        dictionary<LongPair, StringLongMap>            LongPairToStringLongMap;
+        dictionary<LongPair, StringIntMap>             LongPairToStringIntMap;
+
         // Multimaps (dictionaries with sequence values)
 
         dictionary<string, Ice::LongSeq>               IdListMap;

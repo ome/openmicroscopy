@@ -140,12 +140,13 @@ module omero {
          *   Job for import logs
          *   Pixels for pyramids and OMERO 4 images and archived files
          *   Thumbnail for the image thumbnails
+         * The above map values are broken down by owner-group keys.
          **/
         class DiskUsageResponse extends Response {
-            omero::api::StringIntMap fileCountByReferer;
-            omero::api::StringLongMap bytesUsedByReferer;
-            int totalFileCount;
-            long totalBytesUsed;
+            omero::api::LongPairToStringIntMap fileCountByReferer;
+            omero::api::LongPairToStringLongMap bytesUsedByReferer;
+            omero::api::LongPairIntMap totalFileCount;
+            omero::api::LongPairLongMap totalBytesUsed;
         };
 
     };
