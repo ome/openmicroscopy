@@ -1,6 +1,4 @@
 /*
- * org.openmicroscopy.shoola.util.ui.tdialog.BorderListener
- *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2014 University of Dundee. All rights reserved.
  *

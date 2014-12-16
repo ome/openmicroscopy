@@ -39,22 +39,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
-
-
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-
-
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-
+import omero.model.NamedValue;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -129,6 +124,7 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -1925,6 +1921,69 @@ class EditorModel
 		if (others != null && !others.isEmpty())
 			l.addAll(others);
 		return l;
+	}
+	
+	public MapAnnotationData fakeMap;
+	
+	/**
+	 * Returns the collection of map annotations
+	 * 
+	 * @return See above.
+	 */
+	List<MapAnnotationData> getMapAnnotations() {
+		if(fakeMap==null)
+			fakeMap = getFakeMapAnnotation();
+		
+		List<MapAnnotationData> l = new ArrayList<MapAnnotationData>();
+		l.add(fakeMap);
+		return l;
+		
+//		StructuredDataResults data = parent.getStructuredData();
+//		if (data == null)
+//			return Collections.emptyList();
+//
+//		MapAnnotationData myMap = null;
+//		List<MapAnnotationData> otherMaps = new ArrayList<MapAnnotationData>();
+//		List<MapAnnotationData> nonUserMaps = new ArrayList<MapAnnotationData>();
+//
+//		Collection<MapAnnotationData> maps = data.getMapAnnotations();
+//		if (!CollectionUtils.isEmpty(maps)) {
+//			for (MapAnnotationData d : maps) {
+//				if (MapAnnotationData.NS_CLIENT_CREATED
+//						.equals(d.getNameSpace())) {
+//					if (MetadataViewerAgent.getUserDetails().getId() == d
+//							.getOwner().getId())
+//						myMap = d;
+//					else
+//						otherMaps.add(d);
+//				} else {
+//					nonUserMaps.add(d);
+//				}
+//			}
+//		}
+//
+//		if (myMap == null) {
+//			myMap = new MapAnnotationData();
+//			myMap.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
+//		}
+//
+//		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
+//		result.add(myMap);
+//		result.addAll(otherMaps);
+//		result.addAll(nonUserMaps);
+//		return result;
+	}
+	
+	private MapAnnotationData getFakeMapAnnotation() {
+		MapAnnotationData m = new MapAnnotationData();
+		m.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
+
+		List<NamedValue> l = new ArrayList<NamedValue>();
+		for (int j = 0; j < 3; j++) {
+			l.add(new NamedValue("name" + j, "value" + j));
+		}
+		m.setContent(l);
+		return m;
 	}
 	
 	/**

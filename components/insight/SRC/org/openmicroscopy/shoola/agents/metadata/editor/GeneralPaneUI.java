@@ -29,6 +29,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import javax.swing.JPanel;
 
 
 import javax.swing.JSeparator;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -170,12 +172,20 @@ class GeneralPaneUI
 		
 		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
 		annotationTaskPane.setCollapsed(false);
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(annotationUI);
-		p.add(new JSeparator());
-		p.add(textualAnnotationsUI);
+		p.setLayout(new GridBagLayout());
+		p.add(annotationUI,c );
+		c.gridy++;
+		p.add(new JSeparator(), c);
+		c.gridy++;
+		p.add(textualAnnotationsUI, c);
 		annotationTaskPane.add(p);
 	}
 	

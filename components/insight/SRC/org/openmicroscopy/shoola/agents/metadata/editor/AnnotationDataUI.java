@@ -24,8 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -62,15 +62,17 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
+import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTable;
+import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
@@ -80,6 +82,7 @@ import pojos.DataObject;
 import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
@@ -217,6 +220,10 @@ class AnnotationDataUI
 	/** Components hosting the other annotations. */
 	private JPanel otherPane;
 	
+	private JPanel mapsPane;
+	
+	private List<MapTable> mapTables = new ArrayList<MapTable>();
+	
 	/** Collection of other annotations objects. */
 	private List<DocComponent> otherList;
 	
@@ -321,7 +328,7 @@ class AnnotationDataUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		setLayout(new BorderLayout());
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());
 		
@@ -454,6 +461,11 @@ class AnnotationDataUI
 									Boolean.TRUE);
 			}
 		});
+		
+		mapsPane = new JPanel();
+		mapsPane.setLayout(new GridBagLayout());
+		mapsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		
 		otherPane = new JPanel();
 		otherPane.setLayout(new GridBagLayout());
 		otherPane.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -481,25 +493,29 @@ class AnnotationDataUI
 	private void buildGUI()
 	{
 		removeAll();
-		
+
 		JLabel l = new JLabel();
 		Font f = l.getFont();
-		int size = f.getSize()-1;
+		int size = f.getSize() - 1;
 		content.removeAll();
-		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		JPanel p;
-		
+		content.setLayout(new GridBagLayout());
+
+		GridBagConstraints c = new GridBagConstraints();
+		c.insets = new Insets(2, 1, 2, 1);
+		c.anchor = GridBagConstraints.WEST;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = 1;
+		c.gridwidth = 2;
+		c.fill = GridBagConstraints.HORIZONTAL;
+
 		if (!model.isAnnotationLoaded()) {
 			l.setText("Annotation could not be loaded");
-			p = UIUtilities.buildComponentPanel(l, 0, 0);
-			p.setBackground(UIUtilities.BACKGROUND_COLOR);
-			p.add(Box.createHorizontalStrut(2));
-			content.add(p);
-			add(content);
+			content.add(l, c);
 			return;
 		}
-		
-		
+
 		if (model.isMultiSelection()) {
 			Object refObject = model.getRefObject();
 			StringBuffer buffer = new StringBuffer();
@@ -507,133 +523,73 @@ class AnnotationDataUI
 			buffer.append(model.getObjectTypeAsString(refObject));
 			buffer.append("s");
 			l.setText(buffer.toString());
-			p = UIUtilities.buildComponentPanel(l, 0, 0);
-			p.setBackground(UIUtilities.BACKGROUND_COLOR);
-			p.add(Box.createHorizontalStrut(2));
-			content.add(p);
+			content.add(l, c);
+			c.gridy++;
 		}
-		//layout button.
-		//filters
-		p = UIUtilities.buildComponentPanel(
-				createBar(filterButton, null), 0, 0);
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		content.add(p);
-		
-		JPanel panel = new JPanel(new GridBagLayout());
-		panel.setBorder(null);
-		panel.setBackground(UIUtilities.BACKGROUND_COLOR);
-		GridBagConstraints c = new GridBagConstraints();
-		//c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.fill = GridBagConstraints.HORIZONTAL;      //reset to default
-		c.insets = new Insets(2, 0, 2, 0);
-		c.gridy = 0;
-		
+
+		// filters
+		content.add(createBar(filterButton, null), c);
+		c.gridy++;
+
 		// rating
+		c.gridwidth = 1;
 		c.gridx = 0;
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		c.weightx = 0;
+		c.fill = GridBagConstraints.NONE;
+		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("Rating:", Font.BOLD, size));
 		p.add(createBar(unrateButton, null));
-		panel.add(p, c);
+		content.add(p, c);
 		c.gridx = 1;
+		c.weightx = 1;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(rating);
 		p.add(Box.createHorizontalStrut(2));
-        p.add(rating);
-        p.add(Box.createHorizontalStrut(2));
-        p.add(otherRating);
-		panel.add(p, c);
+		p.add(otherRating);
+		content.add(p, c);
 		c.gridy++;
-		
-		//tags
+
+		// tags
 		c.gridx = 0;
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("Tags:", Font.BOLD, size));
 		p.add(createBar(addTagsButton, removeTagsButton));
-		panel.add(p, c);
-		c.gridx = 1;
-		panel.add(tagsPane, c);
+		content.add(p, c);
 		c.gridy++;
-		
-		//attachment
+		content.add(tagsPane, c);
+		c.gridy++;
+
+		// attachment
 		c.gridx = 0;
 		c.gridwidth = 2;
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("Attachments:", Font.BOLD, size));
 		p.add(createBar(addDocsButton, removeDocsButton));
-		panel.add(p, c);
+		content.add(p, c);
 		c.gridy++;
-		panel.add(docRef, c);
+		content.add(docRef, c);
 		c.gridy++;
-		
-		//other
+
+		content.add(mapsPane, c);
+		c.gridy++;
+
+		// other
 		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations())) {
-			c.gridx = 0;
 			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
 			p.add(UIUtilities.setTextFont("Others:", Font.BOLD, size));
 			p.add(createBar(null, removeOtherAnnotationsButton));
-			panel.add(p, c);
+			content.add(p, c);
 			c.gridy++;
-		    panel.add(otherPane, c);
+			content.add(otherPane, c);
 		}
 
-		content.add(panel);
-		
-		
-		//analysis results
-		List results = model.getAnalysisResults();
-		if (results != null && results.size() > 0) {
-			//panel = new JPanel(new GridBagLayout());
-			//panel.setBorder(null);
-			//panel.setBackground(UIUtilities.BACKGROUND_COLOR);
-			//c = new GridBagConstraints();
-			//c.fill = GridBagConstraints.HORIZONTAL;
-			c.anchor = GridBagConstraints.WEST;
-			c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-			c.fill = GridBagConstraints.NONE;      //reset to default
-			c.insets = new Insets(0, 2, 2, 0);
-			c.gridy = 4;
-			c.gridx = 0;
-			
-			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-			p.setBackground(UIUtilities.BACKGROUND_COLOR);
-			p.setBorder(null);
-			l = UIUtilities.setTextFont("analysis", Font.BOLD, size);
-			l.setToolTipText("Displays the results of analysis run.");
-			p.add(l);
-			panel.add(p, c);
-			Iterator i = results.iterator();
-			AnalysisResultsItem item;
-			JPanel list = new JPanel();
-			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
-			list.setBackground(UIUtilities.BACKGROUND_COLOR);
-			int n = 0;
-			JPanel row = null;
-			while (i.hasNext()) {
-				item = (AnalysisResultsItem) i.next();
-				item.addPropertyChangeListener(controller);
-				if (n == 0) {
-					row = initRow();
-					row.add(item);
-					n++;
-				} else if (n == 1) {
-					row.add(item);
-					list.add(row);
-					n = 0;
-				}
-			}
-			if (row != null) list.add(row);
-			c.gridx++;
-			c.gridheight = 2;
-			panel.add(UIUtilities.buildComponentPanel(list, 0, 0), c);
-		}
-		
-		add(content);
+		add(content, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -836,6 +792,51 @@ class AnnotationDataUI
 		tagsPane.repaint();
 	}
 	
+	private void layoutMaps(Collection<MapAnnotationData> list)
+	{
+		mapsPane.removeAll();
+		mapTables.clear();
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(3, 2, 3, 2);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;	
+		
+		for(MapAnnotationData m : list) {
+			JPanel p = new JPanel();
+			p.setLayout(new BorderLayout());
+			MapTable t = createMapTable(m);
+			p.add(t.getTableHeader(), BorderLayout.NORTH);
+			p.add(t, BorderLayout.CENTER);
+			mapsPane.add(p, c);
+			c.gridy++;
+		}
+		
+		mapsPane.revalidate();
+		mapsPane.repaint();
+	}
+	
+	private MapTable createMapTable(MapAnnotationData m) {
+		boolean editable = MapAnnotationData.NS_CLIENT_CREATED.equals(m.getNameSpace()) && model.canEdit();
+		final MapTable t = new MapTable(editable);
+		t.setData(m);
+		t.getModel().addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				MapTableModel m = (MapTableModel) t.getModel();
+				if(m.isDirty()) {
+					view.saveData(true);
+				}
+			}
+		});
+		mapTables.add(t);
+		return t;
+	}
+	
 	/**
 	 * Lays out the other annotations.
 	 * 
@@ -980,6 +981,8 @@ class AnnotationDataUI
 			otherRating.setVisible(true);
 		}
 
+		layoutMaps(model.getMapAnnotations());
+		
 		otherRating.setText(buffer.toString()); 
 		
 		initialValue = selectedValue;
@@ -1792,6 +1795,16 @@ class AnnotationDataUI
 				l.add(data);
 			}
 		}
+		
+		for(MapTable t : mapTables) {
+			MapTableModel model = (MapTableModel)t.getModel();
+			if(model.isDirty()) {
+				// TODO: Don't save for now
+				//l.add(model.getMap());
+				((EditorModel)this.model).fakeMap = model.getMap();
+			}
+		}
+		
 		return l;
 	}
 	
@@ -1811,6 +1824,12 @@ class AnnotationDataUI
 		} else {
 			if (publishedBox.isSelected()) return true;
 		}
+		
+		for(MapTable m : mapTables) {
+			if(((MapTableModel)m.getModel()).isDirty())
+				return true;
+		}
+		
 		return (selectedValue != initialValue);
 	}
 
