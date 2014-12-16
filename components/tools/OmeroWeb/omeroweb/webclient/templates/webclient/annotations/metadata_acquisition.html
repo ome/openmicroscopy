@@ -110,7 +110,7 @@
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
                         <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global"> <span class="loading_global"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
-                        <table id="global_metadata" class="metadata_details"
+                        <table id="global_metadata"
                             style="word-wrap: break-word;"><tbody>
                             {% for gm in manager.global_metadata %}
                             <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
@@ -192,7 +192,7 @@
                 {% endfor %}
                 {% for form in form_lasers %}
                 <table class="metadata_details">
-                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    <tr><th><br/>{{ form.lightSourceType }}:</th><th colspan="2"></th></tr>
                     {% for field in form %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                         <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
@@ -278,7 +278,7 @@
                     {% endfor %}
                     {% endif %}                
                     {% if ch.form_light_source %}
-                    <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
+                    <tr><th><br/>{{ ch.form_light_source.lightSourceType }}:</th><th colspan="2"></th></tr>
                     {% for field in ch.form_light_source %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                         <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>

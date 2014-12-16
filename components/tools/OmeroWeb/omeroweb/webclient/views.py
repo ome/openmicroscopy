@@ -1024,6 +1024,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                     if lightSourceSettings is not None and lightSourceSettings._obj is not None:
                         if lightSourceSettings.getLightSource() is not None:
                             channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
+                                            'lightSourceSettings': lightSourceSettings,
                                             'lstypes': list(conn.getEnumerationEntries("LaserType")),
                                             'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                             'pulses': list(conn.getEnumerationEntries("PulseI"))})
