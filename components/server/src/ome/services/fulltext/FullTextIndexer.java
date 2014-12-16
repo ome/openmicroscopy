@@ -202,9 +202,8 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
                     final SqlAction sql = getSqlAction();
 
                     // Re-index entries noted in the _updated_annotations table.
-                    if (sql.refreshEventLogFromUpdatedAnnotations() > 0) {
-                        sql.clearUpdatedAnnotations();
-                    }
+                    sql.refreshEventLogFromUpdatedAnnotations();
+                    sql.clearUpdatedAnnotations();
 
                     // ticket:1254 -
                     // The following is non-portable and can later be refactored
