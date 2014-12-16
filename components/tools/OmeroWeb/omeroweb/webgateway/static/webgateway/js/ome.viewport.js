@@ -1000,7 +1000,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
-      ch += '$' + rgbToHex(channels[i].color);
+      ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
     }
     query.push('c=' + chs.join(','));
