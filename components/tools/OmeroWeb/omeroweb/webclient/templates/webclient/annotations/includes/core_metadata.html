@@ -21,10 +21,6 @@
 
 
 <table class="core_metadata">
-    <tr>
-        <th>Owner:</th>
-        <td id='owner_fullname'>{{ image.getOwner.getFullName }}</td>
-    </tr>
     {% if image.getAcquisitionDate %}
     <tr>
         <th>Acquisition Date:</th>
@@ -98,7 +94,7 @@
         </td>
     </tr>
     <tr>
-        <th>ROI count:</th>
+        <th>ROI Count:</th>
         <td>{{ image.getROICount }}</td>
     </tr>
     {% if manager.well %}

@@ -6642,7 +6642,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
 
         t = unwrap(self._obj.acquisitionDate)
-        print t
         if t is not None and t > 0:
             return datetime.fromtimestamp(t/1000)
 

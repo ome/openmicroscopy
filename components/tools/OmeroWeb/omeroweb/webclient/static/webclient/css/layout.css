@@ -522,7 +522,18 @@
         
         
             
-            
+    #toolbar_info_panel textarea {
+    	width:99%;
+    	float:right;
+    	resize:none;
+    	border:none;
+    	padding:5px 0 0 0;
+    	margin:0px;
+    }
+
+    #toolbar_info_panel .panel_div {
+        border-top: solid #ddd 1px;
+    }
     
 
 
@@ -547,7 +558,7 @@
     /* Seperator */
     
     hr {
-        margin:10px 0;
+        margin: 8px 0;
         display:block;
         border:none;
         border-bottom: solid 1px rgba(255,255,255,.8);
@@ -564,7 +575,8 @@
     }
     
         #right_panel th, #right_panel td {
-            padding: 0 0 5px 0;
+            padding: 0 5px 5px 0;
+            white-space: nowrap;
         }
     
         #right_panel th{
@@ -586,7 +598,7 @@
     
     
 	.data_heading {
-		margin-bottom:15px;
+		margin-bottom:12px;
 		border-bottom:solid 1px hsl(210,10%,90%);
 		overflow:hidden;
 		-webkit-box-shadow:0 1px 0 rgba(255,255,255,.5);
@@ -638,7 +650,7 @@
     
 	    .data_heading_id strong {
 	        font-weight:bold;
-	        color:hsl(210,10%,30%);
+	        color: hsl(210,10%,50%);
 	    }
 
         #chgrp_split_filesets .split_fileset {
