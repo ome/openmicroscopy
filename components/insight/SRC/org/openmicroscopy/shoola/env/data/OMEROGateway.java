@@ -90,6 +90,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
+
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -194,6 +195,7 @@ import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -244,6 +246,7 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
@@ -1694,6 +1697,8 @@ class OMEROGateway
 			return XmlAnnotation.class;
 		else if (FilesetData.class.equals(nodeType))
 			return Fileset.class;
+		else if (MapAnnotationData.class.equals(nodeType))
+			return MapAnnotation.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 

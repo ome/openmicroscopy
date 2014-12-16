@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
@@ -77,6 +78,9 @@ public class StructuredDataResults
 	
 	/** Collection of annotations not already stored. */
 	private Collection<AnnotationData>     otherAnnotation;
+	
+	/** The MapAnnotations. */
+	private Collection<MapAnnotationData>     mapAnnotations;
 	
 	/** The object the results are for. */
 	private DataObject					relatedObject;
@@ -346,4 +350,14 @@ public class StructuredDataResults
 	{
 		return transferlinks;
 	}
+
+	public Collection<MapAnnotationData> getMapAnnotations() {
+		return mapAnnotations;
+	}
+
+	public void setMapAnnotations(Collection<MapAnnotationData> mapAnnotations) {
+		this.mapAnnotations = mapAnnotations;
+	}
+	
+	
 }

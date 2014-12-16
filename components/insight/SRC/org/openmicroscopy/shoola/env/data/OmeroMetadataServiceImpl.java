@@ -54,7 +54,9 @@ import omero.model.ImagingEnvironmentI;
 import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Medium;
+import omero.model.NamedValue;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
@@ -99,6 +101,7 @@ import pojos.FilesetData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ROIData;
@@ -503,7 +506,8 @@ class OmeroMetadataServiceImpl
 			} else {
 				if (ann instanceof TagAnnotationData ||
 					ann instanceof TermAnnotationData ||
-					ann instanceof XMLAnnotationData) {
+					ann instanceof XMLAnnotationData ||
+					ann instanceof MapAnnotationData) {
 					//update description
 					tag = (AnnotationData) ann;
 					ann = (AnnotationData) updateAnnotationData(ctx, tag);
@@ -601,6 +605,7 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
+	@SuppressWarnings("unchecked")
 	private DataObject updateAnnotationData(SecurityContext ctx, DataObject ann)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -662,6 +667,17 @@ class OmeroMetadataServiceImpl
 					ioType, id);
 			ho.setBoolValue(omero.rtypes.rbool(tag.getValue()));
 			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		}
+		else if (ann instanceof MapAnnotationData && ann.isDirty()) {
+			MapAnnotationData map = (MapAnnotationData) ann;
+			id = map.getId();
+			ioType = gateway.convertPojos(MapAnnotationData.class).getName();
+			
+			MapAnnotation m = (MapAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			m.setMapValue((List<NamedValue>) map.getContent());
+			IObject object = gateway.updateObject(ctx, m, new Parameters());
 			return PojoMapper.asDataObject(object);
 		}
 		return ann;
@@ -830,6 +846,8 @@ class OmeroMetadataServiceImpl
             ratings = new ArrayList<RatingAnnotationData>();
             List<XMLAnnotationData> 
             xml = new ArrayList<XMLAnnotationData>();
+            List<MapAnnotationData> 
+            maps = new ArrayList<MapAnnotationData>();
             
             List<AnnotationData> 
             other = new ArrayList<AnnotationData>();
@@ -860,7 +878,11 @@ class OmeroMetadataServiceImpl
                 } else if (data instanceof XMLAnnotationData) {
                     annotationIds.add(data.getId());
                     xml.add((XMLAnnotationData) data);
-                } else {
+                } else if (data instanceof MapAnnotationData) {
+                    annotationIds.add(data.getId());
+                    maps.add((MapAnnotationData) data);
+                } 
+                else {
                     annotationIds.add(data.getId());
                     other.add(data);
                 }
@@ -880,6 +902,7 @@ class OmeroMetadataServiceImpl
             results.setTags(tags);
             results.setRatings(ratings);
             results.setAttachments(attachments);
+            results.setMapAnnotations(maps);
         }
     }
     
