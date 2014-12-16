@@ -388,9 +388,9 @@
         $('#wblitz-image-z-count').html(tmp.z);
         $('#wblitz-image-t-count').html(tmp.t);
         tmp = viewport.getPixelSizes();
-        $('#wblitz-image-pixel-size-x').html(tmp.x===0?'-':(tmp.x.lengthformat()));
-        $('#wblitz-image-pixel-size-y').html(tmp.y===0?'-':(tmp.y.lengthformat()));
-        $('#wblitz-image-pixel-size-z').html(tmp.z===0?'-':(tmp.z.lengthformat()));
+        $('#wblitz-image-pixel-size-x').html(tmp.x===null?'-':(tmp.x.lengthformat()));
+        $('#wblitz-image-pixel-size-y').html(tmp.y===null?'-':(tmp.y.lengthformat()));
+        $('#wblitz-image-pixel-size-z').html(tmp.z===null?'-':(tmp.z.lengthformat()));
 
         if (tmp.x!==0) {
             $("#wblitz-scalebar").prop("disabled", false);
