@@ -17,11 +17,10 @@ clean()
 build_java()
 {
     TEST="-p" ./build.py build-default test-compile
-    ./build.py -f components/model/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
-    ./build.py -f components/common/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
-    ./build.py -f components/rendering/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
-    ./build.py -f components/server/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
-    # Failing: dsl, romio, blitz
+    for dir in dsl model common rendering romio server
+    do
+        ./build.py -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
+    done
 
     # make sure that the current db script has no code-generated
     # foreign key names in it
