@@ -1855,6 +1855,253 @@ create index _fs_deletelog_path on _fs_deletelog(path);
 create index _fs_deletelog_name on _fs_deletelog(name);
 create index _fs_deletelog_repo on _fs_deletelog(repo);
 
+
+-- fix #11182: reduce duplication in REINDEX logs upon chgrp
+
+CREATE TABLE _updated_annotations (
+    event_id BIGINT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id BIGINT NOT NULL,
+    CONSTRAINT FK_updated_annotations_event_id
+        FOREIGN KEY (event_id)
+        REFERENCES event);
+
+CREATE INDEX _updated_annotations_event_index
+    ON _updated_annotations (event_id);
+
+CREATE INDEX _updated_annotations_row_index
+    ON _updated_annotations (event_id, entity_type, entity_id);
+
+
+CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        pid BIGINT;
+        eid BIGINT;
+
+    BEGIN
+        SELECT INTO eid _current_or_new_event();
+ 
+        FOR pid IN SELECT DISTINCT parent FROM annotationannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.annotations.Annotation', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.annotations.Annotation' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM channelannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Channel', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Channel' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM datasetannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.containers.Dataset', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Dataset' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM detectorannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Detector', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Detector' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM dichroicannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Dichroic', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Dichroic' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM experimenterannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Experimenter', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Experimenter' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM experimentergroupannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.ExperimenterGroup', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.ExperimenterGroup' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM filesetannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.fs.Fileset', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.fs.Fileset' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM filterannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Filter', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Filter' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM imageannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Image' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM instrumentannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Instrument', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Instrument' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM lightpathannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.LightPath', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightPath' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM lightsourceannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.LightSource', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightSource' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM namespaceannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Namespace', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Namespace' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM nodeannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Node', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Node' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM objectiveannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Objective', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Objective' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM originalfileannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.OriginalFile', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.OriginalFile' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM planeinfoannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.PlaneInfo', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.PlaneInfo' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM plateannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Plate', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Plate' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM plateacquisitionannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.PlateAcquisition', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.PlateAcquisition' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM projectannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.containers.Project', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Project' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM reagentannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Reagent', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Reagent' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM roiannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.roi.Roi', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Roi' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM screenannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Screen', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Screen' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM sessionannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Session', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Session' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM shapeannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.roi.Shape', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Shape' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM wellannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Well', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Well' AND ua.entity_id = pid);
+        END LOOP;
+
+        RETURN new;
+    END;
+$$ LANGUAGE plpgsql;
+
 --
 -- FINISHED
 --
