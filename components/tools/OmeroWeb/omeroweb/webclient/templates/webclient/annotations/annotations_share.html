@@ -50,8 +50,6 @@
                 var acquisition_load = false;
                 var preview_load = false;
                 
-                $('#annotation_tabs').tabs({cache : true});
-
                 // handle submit of Add Comment form
                 $("#add_share_comment_form").ajaxForm({
                     beforeSubmit: function(data) {
@@ -177,19 +175,9 @@
     <!-- This is used by AJAX loading the right panel, to check it matches current selection -->
     <div id='object-id' style="display:none">{{manager.obj_type}}-{{ manager.obj_id }}</div>
         
-        {% if manager.image %}
-        <!-- VIEWER "Preview"-->
-        <div class="right_tab_inner" id="preview_tab"></div>
-        {% endif %}
-        
-        <!-- METADATA "Acquisition" TAB  - only show for images -->
-        {% if manager.image %}
-        <div class="right_tab_inner" id="metadata_tab"></div>
-        {% endif %}
-        
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
-        <div class="right_tab_inner" id="general_tab">
+        <div class="right_tab_inner">
             
             {% if manager.image %}            
             <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
