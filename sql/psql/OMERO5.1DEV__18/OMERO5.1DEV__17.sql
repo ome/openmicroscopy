@@ -296,6 +296,44 @@ CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS 
     END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid int8;
+
+    BEGIN
+        SELECT INTO eid _current_or_new_event();
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], new.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
+
+        RETURN new;
+
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid int8;
+
+    BEGIN
+        SELECT INTO eid _current_or_new_event();
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], old.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
+
+        RETURN old;
+
+    END;
+$$ LANGUAGE plpgsql;
+
+
 --
 -- FINISHED
 --
