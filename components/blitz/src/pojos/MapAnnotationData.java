@@ -27,6 +27,7 @@ public class MapAnnotationData extends AnnotationData {
 	public void setContent(Object content) {
 		MapAnnotation anno = (MapAnnotation) asAnnotation();
 		anno.setMapValue((List<NamedValue>) content);
+		setDirty(true);
 	}
 
 	@Override
