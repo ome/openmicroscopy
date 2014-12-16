@@ -81,20 +81,13 @@ from omeroweb.webclient.decorators import render_response
 from omeroweb.webclient.show import Show, IncorrectMenuError
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url, get_client_ip
+from omeroweb.webgateway.util import getIntOrDefault
 
 import tree
 
 logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
-
-# helper method
-def getIntOrDefault(request, name, default):
-    try:
-        index = int(request.REQUEST.get(name, default))
-    except ValueError:
-        index = 0
-    return index
 
 
 ################################################################################

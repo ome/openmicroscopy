@@ -26,6 +26,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# helper method
+def getIntOrDefault(request, name, default):
+    try:
+        index = request.REQUEST.get(name, default)
+        if index is not None:
+            index = int(index)
+    except ValueError:
+        index = 0
+    return index
+
 def zip_archived_files(images, temp, zipName):
     """
     Util function to download original files from a list of images
