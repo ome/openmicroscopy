@@ -456,7 +456,7 @@ public class IniFileLoader {
     public String getUploaderTokenURL()
     {
         return staticPref("Uploader", "TokenURL",
-                "http://qa.openmicroscopy.org.uk/qa/initial/");
+                "https://qa.staging.openmicroscopy.org/qa/initial/");
     }
 
     /**
@@ -465,7 +465,7 @@ public class IniFileLoader {
     public String getUploaderURL()
     {
         return staticPref("Uploader", "URL",
-                "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
+                "https://qa.staging.openmicroscopy.org/qa/upload_processing/");
     }
 
     /**
@@ -474,7 +474,7 @@ public class IniFileLoader {
     public String getBugTrackerURL()
     {
         return staticPref("Uploader", "BugTrackerURL",
-                "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
+                "https://qa.staging.openmicroscopy.org/qa/upload_processing/");
     }
 
     /**
