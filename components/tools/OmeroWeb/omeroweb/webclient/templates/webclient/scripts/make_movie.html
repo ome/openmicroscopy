@@ -65,7 +65,7 @@
 
         <span title="File name of the movie to save.">
             Name:
-            <input type="text" name="Movie_Name"  value="{{ movieName }}"  />
+            <input type="text" name="Movie_Name"  value="{{ movieName }}" style="width:250px" />
         </span>
 
         <hr/>
@@ -156,7 +156,8 @@
         <hr />
 
         <span title="Add time stamps and Z/T labels" >
-            Show Labels: <input name="Show_Plane_Info" type="checkbox"/>
+            <input name="Show_Plane_Info" type="checkbox"/>
+            Show Labels
             <!-- also need to pass 'Show_Time' to script - keep in sync with 'Show_Plane_Info' -->
             <input name="Show_Time" type="checkbox" style="display:none"/>
         </span>

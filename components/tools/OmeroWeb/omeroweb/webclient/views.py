@@ -2779,7 +2779,12 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
         # expect to run on a single image at a time
         image = conn.getObject("Image", imageIds[0])
-        context['movieName'] = image.getName().replace("/", "|").replace("\\", "|")
+        movieName = image.getName().rsplit(".",1)   # remove extension
+        if len(movieName) > 1 and len(movieName[1]) > 3:
+            movieName = ".".join(movieName)
+        else:
+            movieName = movieName[0]
+        context['movieName'] = movieName.replace("/", "|").replace("\\", "|")
         chs = []
         for c in image.getChannels():
             chs.append({
