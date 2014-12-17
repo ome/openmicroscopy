@@ -318,6 +318,69 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
     return rsp
 
 @login_required()
+def render_slice_thumbnail (request, iid, z, t, w=None, h=None, conn=None, _defcb=None, **kwargs):
+    """
+    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' for the z, t slice
+
+    @param request:     http request
+    @param iid:         Image ID
+    @param z:           Z index
+    @param t:           T index
+    @param w:           Thumbnail max width. 64 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing jpeg
+    """
+
+    server_id = request.session['connector'].server_id
+    direct = True
+    if w is None:
+        size = (64,)
+    else:
+        if h is None:
+            size = (int(w),)
+        else:
+            size = (int(w), int(h))
+    if size == (96,):
+        direct = False
+
+    #OMERO only generates thumbnails for saved rendering settings
+    pi = _get_prepared_image(request, iid, server_id=server_id, saveDefs=True, conn=conn)
+    if pi is None:
+        logger.debug("(b)Image %s not found..." % (str(iid)))
+        if _defcb:
+            jpeg_data = _defcb(size=size)
+            prevent_cache = True
+        else:
+            raise Http404
+    img, compress_quality = pi
+
+    rdefId = request.REQUEST.get('rdefId', None)
+    if rdefId is not None:
+        rdefId = int(rdefId)
+
+    #Thumbnail code
+    jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t, ctx='thumbslice' + w + 'x' + h)
+    if jpeg_data is None:
+        prevent_cache = False
+        jpeg_data = img.getThumbnail(size=size, z=int(z), t=int(t), direct=direct, rdefId=rdefId)
+        if jpeg_data is None:
+            logger.debug("(c)Image %s not found..." % (str(iid)))
+            if _defcb:
+                jpeg_data = _defcb(size=size)
+                prevent_cache = True
+            else:
+                return HttpResponseServerError('Failed to render thumbnail')
+        else:
+            prevent_cache = img._thumbInProgress
+        if not prevent_cache:
+            webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data, ctx='thumbslice' + w + 'x' + h)
+    else:
+        pass
+    rsp = HttpResponse(jpeg_data, content_type='image/jpeg')
+    return rsp
+
+
+@login_required()
 def render_roi_thumbnail (request, roiId, w=None, h=None, conn=None, **kwargs):
     """
     For the given ROI, choose the shape to render (first time-point, mid z-section) then render
