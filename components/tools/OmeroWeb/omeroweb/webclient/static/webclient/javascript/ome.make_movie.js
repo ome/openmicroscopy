@@ -109,15 +109,18 @@ $(document).ready(function() {
         $tEndPlus1.prop('disabled', true);
         $("#tRangeControls .sliderToggle").prop('checked', false);
     }
-    // Z/T range can be enabled / disabled
-    $(".sliderToggle").click(function(){
-        var $this = $(this),
-            enabled = $this.prop('checked'),
-            $controls = $this.parent();
-        $controls.find('.number').prop('disabled', !enabled);
-        $controls.find('.ui-slider').slider( "option", "disabled", !enabled );
-    });
-
+    // Z/T range can be enabled / disabled if we have a choice
+    if (tEnd > 1 && zEnd > 1) {
+        $(".sliderToggle").click(function(){
+            var $this = $(this),
+                enabled = $this.prop('checked'),
+                $controls = $this.parent();
+            $controls.find('.number').prop('disabled', !enabled);
+            $controls.find('.ui-slider').slider( "option", "disabled", !enabled );
+        });
+    } else {
+        $(".sliderToggle").prop('disabled', true);
+    }
 
     // Scalebar - can be disabled
     $("#scalebarToggle").click(function(){
