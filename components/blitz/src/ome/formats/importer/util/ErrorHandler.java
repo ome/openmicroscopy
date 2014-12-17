@@ -37,6 +37,7 @@ import omero.model.OriginalFile;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -658,7 +659,35 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     {
     }
 
+    /**
+     * Execute a post with the given post list. This can be overwritten in order
+     * to test error handling without touching QA. The server reply should be
+     * non-null, but is otherwise unimportant.
+     *
+     * @param sendUrl
+     * @param postList
+     * @throws HtmlMessengerException
+     */
+    public void executePost(String sendUrl, Map<String, String> postList)
+            throws HtmlMessengerException {
+        messenger = new HtmlMessenger(sendUrl, postList);
+        serverReply = messenger.executePost();
+    }
 
+    /**
+     * Upload a single {@link ErrorContainer}. This can be overwritten in order
+     * to test error handling without touching QA.
+     *
+     * @param errorContainer
+     */
+    public void uploadFile(ErrorContainer errorContainer) {
+        errorContainer.setToken(serverReply);
+        fileUploader = new FileUploader(messenger.getCommunicationLink(
+                config.getUploaderUrl()));
+        fileUploader.addObserver(this);
+        fileUploader.uploadFiles(config.getUploaderUrl(), 2000, errorContainer);
+    }
+    
     /**
      * Return stack trace from throwable
      * @param throwable
