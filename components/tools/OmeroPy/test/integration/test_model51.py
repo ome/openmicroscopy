@@ -23,7 +23,7 @@
 Basic tests for additions/changes to the 5.1 model.
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 import omero.model

@@ -10,7 +10,7 @@
 
 """
 import time
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 from omero.rtypes import rbool, rstring, rtime, rlong, rint

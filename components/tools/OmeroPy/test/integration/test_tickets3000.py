@@ -9,7 +9,7 @@
 
 """
 import omero
-import test.integration.library as lib
+import library as lib
 import pytest
 import Ice
 

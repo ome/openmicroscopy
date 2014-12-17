@@ -24,7 +24,7 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import omero
 import omero.scripts
 from omero.rtypes import rstring

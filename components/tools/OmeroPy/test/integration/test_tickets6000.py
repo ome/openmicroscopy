@@ -11,7 +11,7 @@ Integration tests for tickets between 5000 and 5999
 """
 
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from omero.rtypes import rstring
 

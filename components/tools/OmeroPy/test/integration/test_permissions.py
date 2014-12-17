@@ -25,7 +25,7 @@
 """
 
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 from omero_model_PermissionsI import PermissionsI
 from omero_model_DatasetI import DatasetI

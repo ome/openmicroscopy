@@ -12,7 +12,7 @@
 import platform
 import locale
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 
 from omero import CmdError
