@@ -682,10 +682,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      */
     public void uploadFile(ErrorContainer errorContainer) {
         errorContainer.setToken(serverReply);
-        fileUploader = new FileUploader(messenger.getCommunicationLink(
-                config.getUploaderUrl()));
-        fileUploader.addObserver(this);
-        fileUploader.uploadFiles(config.getUploaderUrl(), 2000, errorContainer);
+        try {
+            fileUploader = new FileUploader(messenger.getCommunicationLink(
+                    config.getUploaderUrl()));
+            fileUploader.addObserver(this);
+            fileUploader.uploadFiles(config.getUploaderUrl(), 2000, errorContainer);
+        } catch (Exception e) {
+            log.error("Error during upload", e);
+        }
     }
     
     /**
