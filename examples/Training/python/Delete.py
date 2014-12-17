@@ -25,7 +25,7 @@ conn.connect()
 
 # Configuration
 # =================================================================
-projectId = 507        # NB: This will be deleted! 
+projectId = 507        # NB: This will be deleted!
 
 
 # Load the Project
@@ -46,13 +46,13 @@ print "\nProject:", project.getName()
 # deleting a Project and you want to delete Datasets and Images.
 obj_ids = [projectId]
 deleteChildren = False
-handle = conn.deleteObjects("Project", obj_ids,\
-        deleteAnns=True, deleteChildren=deleteChildren)
+handle = conn.deleteObjects(
+    "Project", obj_ids, deleteAnns=True, deleteChildren=deleteChildren)
 
 
 # Retrieve callback and wait until delete completes
 # =================================================================
-# This is not necessary for the Delete to complete. Can be used 
+# This is not necessary for the Delete to complete. Can be used
 # if you want to know when delete is finished or if there were any errors
 cb = omero.callbacks.CmdCallbackI(conn.c, handle)
 print "Deleting, please wait."

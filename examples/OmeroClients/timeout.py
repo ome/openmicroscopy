@@ -10,6 +10,7 @@ c = omero.client()
 s = c.createSession()
 re = s.createRenderingEngine()
 
+
 class KeepAlive(threading.Thread):
     def run(self):
         self.stop = False

@@ -34,27 +34,28 @@ if __name__ == '__main__':
     conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
     connected = conn.connect()
 
-
     # Check if you are connected.
     # =============================================================
     if not connected:
         import sys
-        sys.stderr.write("Error: Connection not available, please check your user name and password.\n")
+        sys.stderr.write(
+            "Error: Connection not available, please check your user name and"
+            " password.\n")
         sys.exit(1)
-
 
     # Using secure connection.
     # =============================================================
-    # By default, once we have logged in, data transfer is not encrypted (faster)
+    # By default, once we have logged in, data transfer is not encrypted
+    # (faster)
     # To use a secure connection, call setSecure(True):
 
     # conn.setSecure(True)         # <--------- Uncomment this
 
-
     # Current session details
     # =============================================================
-    # By default, you will have logged into your 'current' group in OMERO. This
-    # can be changed by switching group in the OMERO.insight or OMERO.web clients.
+    # By default, you will have logged into your 'current' group in OMERO.
+    # This can be changed by switching group in the OMERO.insight or OMERO.web
+    # clients.
 
     user = conn.getUser()
     print "Current user:"
@@ -70,21 +71,22 @@ if __name__ == '__main__':
 
     print "Other Members of current group:"
     for exp in conn.listColleagues():
-        print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
+        print "   ID: %s %s Name: %s" % (
+            exp.getId(), exp.getOmeName(), exp.getFullName())
 
     print "Owner of:"
     for g in conn.listOwnedGroups():
-        print "   ID:", g.getName(), " Name:", g.getId()
+        print "   ID: ", g.getName(), " Name:", g.getId()
 
     # New in OMERO 5
     print "Admins:"
     for exp in conn.getAdministrators():
-        print "   ID:", exp.getId(), exp.getOmeName(), " Name:", exp.getFullName()
+        print "   ID: %s %s Name: %s" % (
+            exp.getId(), exp.getOmeName(), exp.getFullName())
 
     # The 'context' of our current session
     ctx = conn.getEventContext()
     # print ctx     # for more info
-
 
     # Close connection:
     # =================================================================

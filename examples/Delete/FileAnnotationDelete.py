@@ -12,8 +12,9 @@ import omero.callbacks
 c = omero.client()
 ice_config = c.getProperty("Ice.Config")
 
-from omero.rtypes import *
-from omero.model import *
+from omero.rtypes import rstring
+from omero.model import DatasetI, FileAnnotationI, OriginalFileI
+from omero.model import DatasetAnnotationLinkI
 
 try:
     s = c.createSession()
