@@ -305,9 +305,18 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      */
     protected abstract void onUpdate(IObservable importLibrary, ImportEvent event);
 
-    private File retrieveLogFile(long id, ServiceFactoryPrx session)
+    /**
+     * Retrieve the log file.
+     *
+     * @param id The id of the file to load.
+     * @param session The OMERO session.
+     * @return See above.
+     * @throws Throwable Thrown if an error occurred while loading file.
+     */
+    private File retrieveLogFile(Long id, ServiceFactoryPrx session)
             throws Throwable
     {
+        if (id == null) return null;
         //dowload the file
         StringBuffer buf = new StringBuffer();
         buf.append("importLog_");
@@ -428,7 +437,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                         //need to log the log
                         File f = errorContainer.getSelectedFile();
                         if (f != null) {
-                            long id = logFiles.get(f.getAbsolutePath());
+                            Long id = logFiles.get(f.getAbsolutePath());
                             //load the log
                             File logFile = null;
                             try {
