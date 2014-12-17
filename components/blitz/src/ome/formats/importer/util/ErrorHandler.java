@@ -8,11 +8,15 @@
 package ome.formats.importer.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,9 +26,21 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
+import omero.ServerError;
+import omero.client;
+import omero.api.IQueryPrx;
+import omero.api.RawFileStorePrx;
+import omero.api.ServiceFactoryPrx;
+import omero.model.Fileset;
+import omero.model.IObject;
+import omero.model.OriginalFile;
+import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.Files;
 
 /**
  * Top of the error handling hierarchy. Will add errors to a queue
@@ -167,7 +183,6 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
         @Override
         public String toLog() {
-            //this.exception.printStackTrace();
             return super.toLog() + ": "+filename;
         }
     }
@@ -185,9 +200,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     final protected Logger log = LoggerFactory.getLogger(getClass());
 
-    final protected ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    final protected List<IObserver> observers = new ArrayList<IObserver>();
 
-    final protected ArrayList<ErrorContainer> errors = new ArrayList<ErrorContainer>();
+    final protected List<ErrorContainer> errors = new ArrayList<ErrorContainer>();
 
     final protected ImportConfig config;
 
@@ -210,6 +225,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
     private String serverReply;
 
+    /** Host information about the file and its corresponding log file.*/
+    private Map<String, Long> logFiles;
+
     /**
      * Initialize
      *
@@ -218,6 +236,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     public ErrorHandler(ImportConfig config)
     {
         this.config = config;
+        logFiles = new HashMap<String, Long>();
     }
 
     /* (non-Javadoc)
@@ -259,6 +278,11 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         else if (event instanceof EXCEPTION_EVENT) {
             EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
             log.error(ev.toLog(), ev.exception);
+        } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
+            ImportEvent.METADATA_IMPORTED e =
+                    (ImportEvent.METADATA_IMPORTED) event;
+            log.info("Logfile:"+e.logFileId);
+            logFiles.put(e.filename, e.logFileId);
         }
 
         onUpdate(observable, event);
@@ -281,69 +305,151 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      */
     protected abstract void onUpdate(IObservable importLibrary, ImportEvent event);
 
+    private File retrieveLogFile(long id, ServiceFactoryPrx session)
+            throws Throwable
+    {
+        //dowload the file
+        StringBuffer buf = new StringBuffer();
+        buf.append("importLog_");
+        buf.append(id);
+        File logfile = File.createTempFile(buf.toString(), ".log");
+        logfile.deleteOnExit();
+        IQueryPrx svc = session.getQueryService();
+        ParametersI param = new ParametersI();
+        param.map.put("id", omero.rtypes.rlong(id));
+        OriginalFile of = (OriginalFile) svc.findByQuery(
+                "select p from OriginalFile as p where p.id = :id", param);
+        if (of == null) return null;
+
+        final String path = logfile.getAbsolutePath();
+
+        RawFileStorePrx store = null;
+        try {
+            store = session.createRawFileStore();
+            store.setFileId(id);
+        } catch (Throwable e) {
+           store.close();
+          return null; // Never reached.
+        }
+        try {
+            long size = -1;
+            long offset = 0;
+            int INC = 262144;
+            FileOutputStream stream = new FileOutputStream(logfile);
+            try {
+                try {
+                    size = store.size();
+                    for (offset = 0; (offset+INC) < size;) {
+                        stream.write(store.read(offset, INC));
+                        offset += INC;
+                    }
+                } finally {
+                    stream.write(store.read(offset, (int) (size-offset)));
+                    stream.close();
+                }
+            } catch (Exception e) {
+                log.error("Cannot write log file", e);
+                if (stream != null) stream.close();
+            }
+        } catch (IOException e) {
+            log.error("Cannot write log file", e);
+        } finally {
+            store.close();
+        }
+        return logfile;
+    }
     /**
      * Send existing errors in ErrorContainer array to server
      */
     protected void sendErrors() {
 
-        for (int i = 0; i < errors.size(); i++) {
-
-            if (!isSend(i))
-            {
-                onSent(i);
-                continue; // Don't send file if not selected
+        //create an omero client.
+        client sc = null;
+        client client = null;
+        ServiceFactoryPrx session = null;
+        try {
+            if (sendLogs || sendFiles) {
+                sc = new client(config.hostname.get(), config.port.get());
+                ServiceFactoryPrx entryEncrypted;
+                if (!config.sessionKey.empty()) {
+                    entryEncrypted = sc.joinSession(config.sessionKey.get());
+                } else {
+                    entryEncrypted = sc.createSession(config.username.get(),
+                            config.password.get());
+                }
+                client = sc.createClient(false);
+                session = client.getSession();
             }
+            for (int i = 0; i < errors.size(); i++) {
 
-            if (cancelUploads) {
-                onCancel();
-                break;
-            }
-
-            ErrorContainer errorContainer = errors.get(i);
-            if (errorContainer.getStatus() != -1) // if file not pending, skip
-                // it
-                continue;
-
-            Map<String, String> postList = new HashMap<String, String>();
-
-            postList.put("java_version", errorContainer.getJavaVersion());
-            postList.put("java_classpath", errorContainer.getJavaClasspath());
-            postList.put("app_version", errorContainer.getAppVersion());
-            postList.put("comment_type", errorContainer.getCommentType());
-            postList.put("os_name", errorContainer.getOSName());
-            postList.put("os_arch", errorContainer.getOSArch());
-            postList.put("os_version", errorContainer.getOSVersion());
-            postList.put("extra", errorContainer.getExtra());
-            postList.put("error", getStackTrace(errorContainer.getError()));
-            postList.put("comment", errorContainer.getComment());
-            postList.put("email", errorContainer.getEmail());
-            postList.put("app_name", "2");
-            postList.put("import_session", "test");
-            postList.put("absolute_path", errorContainer.getAbsolutePath() + "/");
-
-            String sendUrl = config.getTokenUrl();
-
-            if (isSend(i)) {
-                if (!sendFiles)
+                if (!isSend(i))
                 {
-                    errorContainer.clearFiles();
+                    onSent(i);
+                    continue; // Don't send file if not selected
                 }
 
-                if (sendLogs)
-                {
-                    //To be reviewed.
-                    errorContainer.addFile(config.getLogFile());
+                if (cancelUploads) {
+                    onCancel();
+                    break;
                 }
-            }
 
-            try {
+                ErrorContainer errorContainer = errors.get(i);
+                if (errorContainer.getStatus() != -1) // if file not pending, skip
+                    // it
+                    continue;
 
+                Map<String, String> postList = new HashMap<String, String>();
+
+                postList.put("java_version", errorContainer.getJavaVersion());
+                postList.put("java_classpath", errorContainer.getJavaClasspath());
+                postList.put("app_version", errorContainer.getAppVersion());
+                postList.put("comment_type", errorContainer.getCommentType());
+                postList.put("os_name", errorContainer.getOSName());
+                postList.put("os_arch", errorContainer.getOSArch());
+                postList.put("os_version", errorContainer.getOSVersion());
+                postList.put("extra", errorContainer.getExtra());
+                postList.put("error", getStackTrace(errorContainer.getError()));
+                postList.put("comment", errorContainer.getComment());
+                postList.put("email", errorContainer.getEmail());
+                postList.put("app_name", "2");
+                postList.put("import_session", "test");
+                postList.put("absolute_path", errorContainer.getAbsolutePath() + "/");
+
+                String sendUrl = config.getTokenUrl();
+
+                if (isSend(i)) {
+                    if (!sendFiles)
+                    {
+                        errorContainer.clearFiles();
+                    }
+
+                    if (sendLogs || sendFiles) {
+                        //To be reviewed.
+                        //need to log the log
+                        File f = errorContainer.getSelectedFile();
+                        if (f != null) {
+                            long id = logFiles.get(f.getAbsolutePath());
+                            //load the log
+                            File logFile = null;
+                            try {
+                                logFile = retrieveLogFile(id, session);
+                            } catch (Throwable e) {
+                                log.error("Cannot load log file", e);
+                            }
+                            
+                            if (logFile != null) {
+                                errorContainer.addFile(logFile.getAbsolutePath());
+                            }
+                        }
+                    }
+                }
                 messenger = new HtmlMessenger(sendUrl, postList);
                 serverReply = messenger.executePost();
                 if (sendFiles || sendLogs) {
                     onSending(i);
                     errorContainer.setToken(serverReply);
-                    fileUploader = new FileUploader(messenger.getCommunicationLink(
+                    fileUploader = new FileUploader(
+                            messenger.getCommunicationLink(
                             config.getUploaderUrl()));
                     fileUploader.addObserver(this);
                     fileUploader.uploadFiles(config.getUploaderUrl(), 2000,
@@ -352,13 +458,13 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 } else {
                     onNotSending(i, serverReply);
                 }
-            } catch (Exception e) {
-                log.error("Error while sending error information.", e);
-                onException(e);
             }
-
+        } catch (Exception e) {
+            log.error("Error during upload", e);
+        } finally {
+            if (client != null) client.__del__();
+            if (sc != null) sc.__del__();
         }
-
         if (cancelUploads) {
             finishCancelled();
         }
