@@ -281,7 +281,6 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
             ImportEvent.METADATA_IMPORTED e =
                     (ImportEvent.METADATA_IMPORTED) event;
-            log.info("Logfile:"+e.logFileId);
             logFiles.put(e.filename, e.logFileId);
         }
 
