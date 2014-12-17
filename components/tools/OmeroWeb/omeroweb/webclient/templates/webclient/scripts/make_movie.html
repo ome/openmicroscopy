@@ -155,9 +155,11 @@
 
         <hr />
 
-        Show Labels: <input name="Show_Plane_Info" type="checkbox"/>
-        <!-- also need to pass 'Show_Time' to script - keep in sync with 'Show_Plane_Info' -->
-        <input name="Show_Time" type="checkbox" style="display:block"/>
+        <span title="Add time stamps and Z/T labels" >
+            Show Labels: <input name="Show_Plane_Info" type="checkbox"/>
+            <!-- also need to pass 'Show_Time' to script - keep in sync with 'Show_Plane_Info' -->
+            <input name="Show_Time" type="checkbox" style="display:none"/>
+        </span>
 
 
     {% endblock %}
@@ -165,3 +167,6 @@
 <!-- remove preview block -->
 {% block figure_preview_container %}
 {% endblock %}
+
+{% block submit_text %}Make Movie{% endblock %}
+

@@ -102,6 +102,12 @@ $(document).ready(function() {
         $zStartPlus1.prop('disabled', true);
         $zEndPlus1.prop('disabled', true);
         $("#zRangeControls .sliderToggle").prop('checked', false);
+    } else {
+        // or disable T-range if not a movie
+        $("#tSlider").slider( "disable" );
+        $tStartPlus1.prop('disabled', true);
+        $tEndPlus1.prop('disabled', true);
+        $("#tRangeControls .sliderToggle").prop('checked', false);
     }
     // Z/T range can be enabled / disabled
     $(".sliderToggle").click(function(){
