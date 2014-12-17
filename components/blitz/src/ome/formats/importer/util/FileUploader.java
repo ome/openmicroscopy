@@ -177,12 +177,16 @@ public class FileUploader implements IObservable
         }
         InputStreamReader reader;
         try {
-            for (String f : files) {
-                FileUtils.copyFileToDirectory(new File(f),
-                        directory, true);
+            if (files.length > 1) {
+                for (String f : files) {
+                    FileUtils.copyFileToDirectory(new File(f),
+                            directory, true);
+                }
+                //submit the zip
+                file = zipDirectory(directory, false);
+            } else {
+                file = new File(files[0]);
             }
-            //submit the zip
-            file = zipDirectory(directory, false);
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             builder.addPart(FILE, new FileBody(file,
