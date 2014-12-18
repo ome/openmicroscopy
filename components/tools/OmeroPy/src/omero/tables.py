@@ -42,6 +42,13 @@ def slen(rv):
     return len(rv)
 
 
+def internal_attr(s):
+    """
+    Checks whether this attribute name is reserved for internal use
+    """
+    return s.startswith('__')
+
+
 def stamped(func, update=False):
     """
     Decorator which takes the first argument after "self" and compares
@@ -320,9 +327,7 @@ class HdfStorage(object):
         self.__mea.attrs.version = "v1"
         self.__mea.attrs.initialized = time.time()
         if metadata:
-            for k, v in metadata.items():
-                self.__mea.attrs[k] = v
-                # See attrs._f_list("user") to retrieve these.
+            self._add_meta_map(metadata)
 
         self.__hdf_file.flush()
         self.__initialized = True
@@ -410,13 +415,22 @@ class HdfStorage(object):
     @modifies
     def add_meta_map(self, m, replace=False):
         self.__initcheck()
+        self._add_meta_map(m)
+
+    def _add_meta_map(self, m):
+        for k in m.keys():
+            if internal_attr(k):
+                raise omero.ApiUsageException(
+                    None, None, "Reserved attribute name: %s" % k)
+
         attr = self.__mea.attrs
         if replace:
             for f in list(attr._v_attrnamesuser):
-                if f not in ('initialized', 'version'):
+                if not internal_attr(f):
                     del attr[f]
         if not m:
             return
+
         for k, v in m.items():
             if not isinstance(v, (
                     omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
