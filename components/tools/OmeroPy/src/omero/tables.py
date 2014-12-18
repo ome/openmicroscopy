@@ -330,7 +330,7 @@ class HdfStorage(object):
             self.__ome, "ColumnDescriptions", self.__descriptions)
 
         if metadata:
-            self._add_meta_map(metadata)
+            self.add_meta_map(metadata, replace=True, init=True)
 
         self.__mea.attrs.__version = VERSION
         self.__mea.attrs.__initialized = time.time()
@@ -419,15 +419,17 @@ class HdfStorage(object):
 
     @locked
     @modifies
-    def add_meta_map(self, m, replace=False):
-        self.__initcheck()
-        self._add_meta_map(m, replace)
-
-    def _add_meta_map(self, m, replace):
-        for k in m.keys():
+    def add_meta_map(self, m, replace=False, init=False):
+        if not init:
+            self.__initcheck()
+        for k, v in m.iteritems():
             if internal_attr(k):
                 raise omero.ApiUsageException(
                     None, None, "Reserved attribute name: %s" % k)
+            if not init and not isinstance(v, (
+                    omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
+                raise omero.ValidationException(
+                    "Unsupported type: %s" % type(v))
 
         attr = self.__mea.attrs
         if replace:
@@ -437,11 +439,7 @@ class HdfStorage(object):
         if not m:
             return
 
-        for k, v in m.items():
-            if not isinstance(v, (
-                    omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
-                raise omero.ValidationException(
-                    "Unsupported type: %s" % type(v))
+        for k, v in m.iteritems():
             # This uses the default pytables type conversion, which may
             # convert it to a numpy type or keep it as a native Python type
             attr[k] = unwrap(v)
