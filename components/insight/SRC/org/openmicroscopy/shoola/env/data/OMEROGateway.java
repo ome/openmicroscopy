@@ -7524,6 +7524,7 @@ class OMEROGateway
 
 			g = new ExperimenterGroupI();
 			g.setName(omero.rtypes.rstring(groupData.getName()));
+			g.setLdap(omero.rtypes.rbool(false));
 			g.setDescription(omero.rtypes.rstring(groupData.getDescription()));
 			g.getDetails().setPermissions(createPermissions(
 					object.getPermissions()));
