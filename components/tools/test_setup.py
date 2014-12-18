@@ -19,6 +19,7 @@ from setuptools.command.test import test as TestCommand
 LIB = os.path.join("..", "..", "tests", "python")
 sys.path.insert(0, LIB)
 
+
 class PyTest(TestCommand):
 
     user_options = TestCommand.user_options + \
