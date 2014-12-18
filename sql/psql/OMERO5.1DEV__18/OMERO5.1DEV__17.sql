@@ -333,6 +333,30 @@ CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS TRIGGER AS $
     END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+
+    DECLARE
+        row RECORD;
+
+    BEGIN
+        LOCK TABLE _updated_annotations;
+
+        IF (SELECT COUNT(*) FROM _updated_annotations) > 0 THEN
+            LOCK TABLE eventlog;
+
+            FOR row IN SELECT * FROM _updated_annotations ORDER BY event_id
+            LOOP
+                DELETE FROM _updated_annotations WHERE _updated_annotations = row;
+
+                INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                    SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
+                    WHERE NOT EXISTS (SELECT 1 FROM eventlog AS el
+                        WHERE el.entityid = row.entity_id AND el.entitytype = row.entity_type AND el.event = row.event_id);
+
+            END LOOP;
+        END IF;
+    END;
+$$ LANGUAGE plpgsql;
 
 --
 -- FINISHED
