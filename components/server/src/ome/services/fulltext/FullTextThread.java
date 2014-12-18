@@ -16,7 +16,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -61,7 +60,7 @@ public class FullTextThread extends ExecutionThread {
             }
         }
 
-        @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
+        @Transactional(readOnly = false)
         @Override
         public Object doWork(Session session, ServiceFactory sf) {
             // Re-index entries noted in the _updated_annotations table.
