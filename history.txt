@@ -1,6 +1,20 @@
 OMERO version history
 =====================
 
+5.1.0-m3 (December 2014)
+------------------------
+
+Developer preview release - 3 of 4 development milestones being released in
+the lead up to 5.1.0. **Only intended as a developer preview for updating code
+before the full public release of 5.1.0. Use at your own risk**.
+
+Changes affecting developers include:
+
+-  implementation of units in the OMERO clients
+-  conversions between units
+-  OMERO.web updates
+-  
+
 5.1.0-m2 (November 2014)
 ------------------------
 
