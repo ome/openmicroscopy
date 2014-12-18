@@ -1599,7 +1599,7 @@ public class PropertiesUI
          */
         void loadROICount(ImageData image) {
             ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-            ROICountLoader l = new ROICountLoader(new SecurityContext(exp.getGroupId()), this, image.getId(), exp.getId());
+            ROICountLoader l = new ROICountLoader(new SecurityContext(image.getGroupId()), this, image.getId(), exp.getId());
             l.load();
         }
         
