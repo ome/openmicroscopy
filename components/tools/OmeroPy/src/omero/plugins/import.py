@@ -104,7 +104,7 @@ class ImportControl(BaseControl):
             metavar="DESCRIPTION")
 
         # Feedback options
-        feedback_group =  parser.add_argument_group(
+        feedback_group = parser.add_argument_group(
             'Feedback arguments',
             'Optional arguments passed strictly to Java allowing to report'
             ' errors to the OME team.')
