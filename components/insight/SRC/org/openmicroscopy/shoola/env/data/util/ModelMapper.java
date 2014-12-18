@@ -528,15 +528,15 @@ public class ModelMapper
     		annotation = new DoubleAnnotationI();
     		((DoubleAnnotation) annotation).setDoubleValue(omero.rtypes.rdouble(
     										(Double) data.getContent()));
-    	} else if (data instanceof MapAnnotationData) {
-					annotation = new MapAnnotationI();
-					String ns = data.getNameSpace();
-		    		if (StringUtils.isNotEmpty(ns)) {
-		    			annotation.setNs(omero.rtypes.rstring(ns));
-		    		}
-					((MapAnnotation) annotation).setMapValue((List<NamedValue>) data
-							.getContent());
-				}
+		} else if (data instanceof MapAnnotationData) {
+			annotation = new MapAnnotationI();
+			String ns = data.getNameSpace();
+			if (StringUtils.isNotEmpty(ns)) {
+				annotation.setNs(omero.rtypes.rstring(ns));
+			}
+			((MapAnnotation) annotation).setMapValue((List<NamedValue>) data
+					.getContent());
+		}
     	return annotation;
     }
     
