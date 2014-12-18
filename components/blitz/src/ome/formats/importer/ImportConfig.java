@@ -118,6 +118,7 @@ public class ImportConfig {
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
+    public final StrValue qaBaseURL;
 
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
@@ -133,6 +134,7 @@ public class ImportConfig {
     public final AnnotationListValue annotations;
     public final DoubleArrayValue userPixels;
 
+    public final static String DEFAULT_QABASEURL = "http://qa.openmicroscopy.org.uk/qa";
     /**
      * Keys for fileset version information entries.
      * @author m.t.b.carroll@dundee.ac.uk
@@ -243,6 +245,7 @@ public class ImportConfig {
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         email        = new StrValue("email", this);
+        qaBaseURL    = new StrValue("qaBaseURL", this, DEFAULT_QABASEURL);
         userSpecifiedName = new StrValue("userSpecifiedName", this);
         userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
@@ -516,24 +519,24 @@ public class ImportConfig {
     }
 
     /**
-     * @return ini feedback URL for QA system
+     * @return feedback URL for QA system
      */
     public String getFeedbackUrl() {
-        return ini.getUploaderURL();
+        return qaBaseURL + "/upload_processing/";
     }
 
     /**
-     * @return ini token URL for QA system
+     * @return token URL for QA system
      */
     public String getTokenUrl() {
-        return ini.getUploaderTokenURL();
+        return qaBaseURL + "/initial/";
     }
 
     /**
-     * @return ini upload URL for QA system
+     * @return upload URL for QA system
      */
     public String getUploaderUrl() {
-        return ini.getUploaderURL();
+        return qaBaseURL + "/upload_processing/";
     }
 
     /**
