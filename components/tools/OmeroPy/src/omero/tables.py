@@ -31,6 +31,8 @@ from omero_ext.functional import wraps
 sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
 
+VERSION = 2
+
 
 def slen(rv):
     """
@@ -327,10 +329,11 @@ class HdfStorage(object):
         self.__hdf_file.createArray(
             self.__ome, "ColumnDescriptions", self.__descriptions)
 
-        self.__mea.attrs.version = "v1"
-        self.__mea.attrs.initialized = time.time()
         if metadata:
             self._add_meta_map(metadata)
+
+        self.__mea.attrs.__version = VERSION
+        self.__mea.attrs.__initialized = time.time()
 
         self.__hdf_file.flush()
         self.__initialized = True
