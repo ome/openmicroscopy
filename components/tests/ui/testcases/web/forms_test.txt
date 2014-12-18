@@ -19,7 +19,7 @@ Test Script Run
     Select And Expand Project
     Select And Expand Dataset
     Select And Expand Image
-    Wait Until Page Contains Element            css=button.btn_figscripts
+    Wait Until Page Contains Element            xpath=//h2[contains(@class, 'data_heading_id')][contains(text(), 'image')]
     ${imageId}=                                 Get Text            css=.data_heading_id strong
 
     # First Test 'custom' script forms
