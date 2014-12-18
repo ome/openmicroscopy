@@ -344,8 +344,7 @@ public class FileImportComponent
 	            displayLogFile();
 	        }
 	    });
-	    item.setEnabled(statusLabel.getLogFileID() > 0 ||
-	            statusLabel.getFileset() != null);
+	    item.setEnabled(statusLabel.getLogFileID() > 0);
 	    menu.add(item);
 
 	    item = new JMenuItem(new AbstractAction(checksumText) {
