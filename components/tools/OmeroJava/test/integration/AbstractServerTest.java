@@ -92,6 +92,9 @@ import omero.model.LightSourceAnnotationLink;
 import omero.model.LightSourceAnnotationLinkI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
+import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileAnnotationLink;
 import omero.model.OriginalFileAnnotationLinkI;
@@ -1243,6 +1246,14 @@ public class AbstractServerTest extends AbstractTest {
         f = (FileAnnotation) iUpdate.saveAndReturnObject(f);
         ids.add(f.getId().getValue());
 
+		MapAnnotation ma = new MapAnnotationI();
+		List<NamedValue> values = new ArrayList<NamedValue>();
+		for (int i = 0; i < 3; i++)
+			values.add(new NamedValue("name " + i, "value " + i));
+		ma.setMapValue(values);
+		ma = (MapAnnotation) iUpdate.saveAndReturnObject(ma);
+		ids.add(ma.getId().getValue());
+        
         List<IObject> links = new ArrayList<IObject>();
         if (parent1 instanceof Image) {
             ImageAnnotationLink link = new ImageAnnotationLinkI();
@@ -1604,10 +1615,20 @@ public class AbstractServerTest extends AbstractTest {
 
         b = (BooleanAnnotation) iUpdate.saveAndReturnObject(b);
 
+		MapAnnotation ma = new MapAnnotationI();
+		List<NamedValue> values = new ArrayList<NamedValue>();
+		for (int i = 0; i < 3; i++)
+			values.add(new NamedValue("name " + i, "value " + i));
+		ma.setMapValue(values);
+		if (ns != null)
+			b.setNs(omero.rtypes.rstring(ns));
+		ma = (MapAnnotation) iUpdate.saveAndReturnObject(ma);
+        
         ids.add(c.getId().getValue());
         ids.add(l.getId().getValue());
         ids.add(b.getId().getValue());
-
+        ids.add(ma.getId().getValue());
+        
         List<IObject> links = new ArrayList<IObject>();
         if (parent instanceof Image) {
             ImageAnnotationLink link = new ImageAnnotationLinkI();
