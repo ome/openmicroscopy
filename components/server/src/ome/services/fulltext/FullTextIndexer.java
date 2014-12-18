@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2008-2013 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -199,16 +199,11 @@ public class FullTextIndexer extends SimpleWork implements ApplicationContextAwa
             batch++;
             timer = batchTimer.time();
             try {
-                    final SqlAction sql = getSqlAction();
-
-                    // Re-index entries noted in the _updated_annotations table.
-                    sql.refreshEventLogFromUpdatedAnnotations();
-                    sql.clearUpdatedAnnotations();
 
                     // ticket:1254 -
                     // The following is non-portable and can later be refactored
                     // for a more general solution.
-                    sql.deferConstraints();
+                    getSqlAction().deferConstraints();
 
                     // s.execute("set statement_timeout=10000");
                     // The Postgresql Driver does not currently support the
