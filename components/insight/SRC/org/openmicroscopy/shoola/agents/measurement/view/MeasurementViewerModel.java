@@ -40,8 +40,11 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
@@ -63,6 +66,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 
 import pojos.WorkflowData;
+
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -90,6 +94,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+
 import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -285,6 +290,7 @@ class MeasurementViewerModel
 		workflows = new HashMap<String, WorkflowData>();
 		this.workflowNamespace = WorkflowData.DEFAULTWORKFLOW;
 		this.keyword = new ArrayList<String>();
+		setPlane(0, 0);
 	}
 	
 	/**
@@ -368,9 +374,15 @@ class MeasurementViewerModel
 	 * @param z	The selected z-section.
 	 * @param t	The selected timepoint.
 	 */
-	void setPlane(int z, int t) 
-	{ 
-		currentPlane = new Coord3D(z, t);
+	void setPlane(int z, int t)
+	{
+	    if (z != -1 && t !=-1) {
+	        currentPlane = new Coord3D(z, t);
+	    } else if (z == -1 && t !=-1) {
+            currentPlane = new Coord3D(currentPlane.getZSection(), t);
+        } else if (z != -1 && t ==-1) {
+            currentPlane = new Coord3D(z, currentPlane.getTimePoint());
+        }
 	}
 	
 	/**
@@ -1347,10 +1359,30 @@ class MeasurementViewerModel
 	 */
 	void fireAnalyzeShape(List<ROIShape> shapeList)
 	{
+	    if (CollectionUtils.isEmpty(shapeList)) return;
 		state = MeasurementViewer.ANALYSE_SHAPE;
 		if (currentLoader != null) currentLoader.cancel();
+		List<ROIShape> l = new ArrayList<ROIShape>(shapeList.size());
+		Iterator<ROIShape> i = shapeList.iterator();
+		ROIShape shape;
+		int z, t;
+		while (i.hasNext()) {
+            shape = i.next();
+            z = shape.getZ();
+            t = shape.getT();
+            if (z >= 0 && t >= 0) {
+                l.add(shape);
+            } else if (z == -1 && t >= 0) {
+                l.add(shape.copy(new Coord3D(currentPlane.getZSection(), t)));
+            } else if (z >=0 && t == -1) {
+                l.add(shape.copy(new Coord3D(z, currentPlane.getTimePoint())));
+            } else if (z == -1 && t == -1) {
+                l.add(shape.copy(new Coord3D(currentPlane.getZSection(),
+                        currentPlane.getTimePoint())));
+            }
+        }
 		currentLoader = new Analyser(component, getSecurityContext(), pixels,
-				activeChannels.keySet(), shapeList);
+				activeChannels.keySet(), l);
 		currentLoader.load();
 	}
 	
