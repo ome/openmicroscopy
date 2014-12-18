@@ -311,6 +311,9 @@ class HdfStorage(object):
             if not c.name:
                 raise omero.ApiUsageException(
                     None, None, "Column unnamed: %s" % c)
+            if internal_attr(c.name):
+                raise omero.ApiUsageException(
+                    None, None, "Reserved column name: %s" % c.name)
 
         self.__definition = columns2definition(cols)
         self.__ome = self.__hdf_file.createGroup("/", "OME")
