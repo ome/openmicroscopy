@@ -162,7 +162,7 @@ Test Annotate
 Test Batch Annotate
     [Documentation]     Test Batch Annotation of 2 Projects that we create
 
-    Set Selenium Speed                          1 seconds
+    Go To                                       ${WELCOME URL}
     Select Experimenter
     ${projectId}=                               Create Project      robot test batch annotate
     ${pId}=                                     Create Project      robot test batch annotate
@@ -195,13 +195,14 @@ Test Search
     [Documentation]     Test basic search submission from header field or search page
     [Documentation]     Searching E.g. for the Projects we just created above
 
-    Input Text              id_search_query     test
-    Submit Form             id=search
+    Go To                                   ${WELCOME URL}
+    Input Text                              id_search_query     test
+    Submit Form                             id=search
 
     # We don't care about results, just check we get *some* results in dataTable
     Location Should Be                      ${WELCOME URL}search/
-    Wait Until Page Contains Element        dataTable
+    Wait Until Page Contains Element        dataTable                   60
     # Repeat search
     Submit Form                             searching_form
     Wait Until Page Contains                Loading data...
-    Wait Until Page Contains Element        dataTable
+    Wait Until Page Contains Element        dataTable                   60
