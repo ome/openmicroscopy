@@ -222,7 +222,7 @@ public class FileUploader implements IObservable
             try {
                 FileUtils.deleteDirectory(directory);
             } catch (Exception ex) {}
-            if (file != null) file.delete();
+            if (file != null && files.length > 1) file.delete();
         }
         
 
