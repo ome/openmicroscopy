@@ -421,9 +421,9 @@ class HdfStorage(object):
     @modifies
     def add_meta_map(self, m, replace=False):
         self.__initcheck()
-        self._add_meta_map(m)
+        self._add_meta_map(m, replace)
 
-    def _add_meta_map(self, m):
+    def _add_meta_map(self, m, replace):
         for k in m.keys():
             if internal_attr(k):
                 raise omero.ApiUsageException(
