@@ -395,15 +395,8 @@ public interface SqlAction {
 
     /**
      * Convert the _updated_annotations table to REINDEX entries in the event log.
-     * @return how many REINDEX entries were added to the event log
      */
-    int refreshEventLogFromUpdatedAnnotations();
-
-    /**
-     * Delete the entries from the _updated_annotations table.
-     * @return how many rows were deleted
-     */
-    int clearUpdatedAnnotations();
+    void refreshEventLogFromUpdatedAnnotations();
 
     /**
      * The implementation of this method guarantees that even if the current
@@ -1101,13 +1094,12 @@ public interface SqlAction {
         }
 
         @Override
-        public int refreshEventLogFromUpdatedAnnotations() {
-            return _jdbc().update(_lookup("updated_annotations.refresh_log"));
-        }
-
-        @Override
-        public int clearUpdatedAnnotations() {
-            return _jdbc().update(_lookup("updated_annotations.delete"));
+        public void refreshEventLogFromUpdatedAnnotations() {
+            _jdbc().query(_lookup("event_log.refresh"), new RowMapper<Object>() {
+                @Override
+                public Object mapRow(ResultSet arg0, int arg1) {
+                    return null;
+                }});
         }
 
         @Override
