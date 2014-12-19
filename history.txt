@@ -13,7 +13,8 @@ Changes affecting developers include:
 -  implementation of units in the OMERO clients
 -  conversions between units
 -  OMERO.web updates
--  
+-  server-side Graph work to improve speed for moving and deleting
+-  OMERO.insight bug-fixes especially for ROIs
 
 5.1.0-m2 (November 2014)
 ------------------------
