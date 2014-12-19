@@ -451,33 +451,6 @@ public class IniFileLoader {
     }
 
     /**
-     * @return uploader token URL for QA
-     */
-    public String getUploaderTokenURL()
-    {
-        return staticPref("Uploader", "TokenURL",
-                "https://qa.staging.openmicroscopy.org/qa/initial/");
-    }
-
-    /**
-     * @return uploader URL for QA
-     */
-    public String getUploaderURL()
-    {
-        return staticPref("Uploader", "URL",
-                "https://qa.staging.openmicroscopy.org/qa/upload_processing/");
-    }
-
-    /**
-     * @return bug tracker URL for QA
-     */
-    public String getBugTrackerURL()
-    {
-        return staticPref("Uploader", "BugTrackerURL",
-                "https://qa.staging.openmicroscopy.org/qa/upload_processing/");
-    }
-
-    /**
      * @return Returns the userSettingsDirectory.
      */
     public String getUserSettingsDirectory()
