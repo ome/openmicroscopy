@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.env;
 
 //Java imports
+import ij.IJ;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -320,6 +323,10 @@ public final class Container
 		Integer v = (Integer) singleton.registry.lookup(
 				LookupNames.ENTRY_POINT);
 		int value = LookupNames.INSIGHT_ENTRY;
+		Integer plugin = (Integer) singleton.registry.lookup(LookupNames.PLUGIN);
+        if (plugin != null && plugin.intValue() == LookupNames.IMAGE_J_IMPORT) {
+            v = LookupNames.IMPORTER_ENTRY;
+        }
 		if (v != null) {
 			switch (v.intValue()) {
 				case LookupNames.IMPORTER_ENTRY:
@@ -337,6 +344,7 @@ public final class Container
 			if (agentInfo.isActive() && agentInfo.getNumber() == value) {
 				a = agentInfo.getAgent();
 				a.activate(true);
+				break;
 			}
 		}
 	}

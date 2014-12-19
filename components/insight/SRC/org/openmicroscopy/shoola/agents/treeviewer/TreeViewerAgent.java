@@ -25,14 +25,19 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import ij.IJ;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -64,6 +69,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -484,6 +490,8 @@ public class TreeViewerAgent
     public void activate(boolean master)
     {
     	if (!master) return;
+    	if (runAsPlugin() == LookupNames.IMAGE_J_IMPORT)
+    	    return;
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (env == null) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(

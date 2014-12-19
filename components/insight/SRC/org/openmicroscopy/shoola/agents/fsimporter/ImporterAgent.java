@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import ij.IJ;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -31,10 +33,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
+
+
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
@@ -58,6 +63,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -349,33 +355,35 @@ public class ImporterAgent
     public void activate(boolean master)
     {
         this.isMaster = master;
-        if (!master) return;
-        ExperimenterData exp = (ExperimenterData) registry.lookup(
-                LookupNames.CURRENT_USER_DETAILS);
-        if (exp == null) return;
-        GroupData gp = null;
-        try {
-            gp = exp.getDefaultGroup();
-        } catch (Exception e) {
-            //No default group
-        }
-        long id = -1;
-        if (gp != null) id = gp.getId();
-        Importer importer = ImporterFactory.getImporter(id, true, displayMode);
-        if (importer != null) {
-            Environment env = (Environment) registry.lookup(LookupNames.ENV);
-            int type = Importer.PROJECT_TYPE;
-            if (env != null) {
-                switch (env.getDefaultHierarchy()) {
-                case LookupNames.PD_ENTRY:
-                default:
-                    type = Importer.PROJECT_TYPE;
-                    break;
-                case LookupNames.HCS_ENTRY:
-                    type = Importer.SCREEN_TYPE;
-                }
+        if (runAsPlugin() == LookupNames.IMAGE_J_IMPORT || master) {
+            this.isMaster = true;
+            ExperimenterData exp = (ExperimenterData) registry.lookup(
+                    LookupNames.CURRENT_USER_DETAILS);
+            if (exp == null) return;
+            GroupData gp = null;
+            try {
+                gp = exp.getDefaultGroup();
+            } catch (Exception e) {
+                //No default group
             }
-            importer.activate(type, null, null, importer.getImportFor());
+            long id = -1;
+            if (gp != null) id = gp.getId();
+            Importer importer = ImporterFactory.getImporter(id, true, displayMode);
+            if (importer != null) {
+                Environment env = (Environment) registry.lookup(LookupNames.ENV);
+                int type = Importer.PROJECT_TYPE;
+                if (env != null) {
+                    switch (env.getDefaultHierarchy()) {
+                    case LookupNames.PD_ENTRY:
+                    default:
+                        type = Importer.PROJECT_TYPE;
+                        break;
+                    case LookupNames.HCS_ENTRY:
+                        type = Importer.SCREEN_TYPE;
+                    }
+                }
+                importer.activate(type, null, null, importer.getImportFor());
+            }
         }
     }
 
