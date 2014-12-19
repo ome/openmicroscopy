@@ -7471,6 +7471,7 @@ class OMEROGateway
 						systemGroup = true;
 					}
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					exp.setLdap(omero.rtypes.rbool(false));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
 						id = svc.createExperimenterWithPassword(exp,
@@ -7523,6 +7524,7 @@ class OMEROGateway
 
 			g = new ExperimenterGroupI();
 			g.setName(omero.rtypes.rstring(groupData.getName()));
+			g.setLdap(omero.rtypes.rbool(false));
 			g.setDescription(omero.rtypes.rstring(groupData.getDescription()));
 			g.getDetails().setPermissions(createPermissions(
 					object.getPermissions()));
@@ -7560,6 +7562,7 @@ class OMEROGateway
 						l.add(systemGroup);
 					} else l.add(userGroup);
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
+					exp.setLdap(omero.rtypes.rbool(false));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
 						id = svc.createExperimenterWithPassword(exp,
