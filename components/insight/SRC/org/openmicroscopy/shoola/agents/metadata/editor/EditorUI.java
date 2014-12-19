@@ -209,7 +209,10 @@ class EditorUI
 	 * @param desc The description of (i. e. tooltip for) the tap
 	 */
 	private void addTab(String title, Component comp, String desc) {
-	    tabPane.addTab(title, null, new JScrollPane(comp), desc);
+		JScrollPane sp = new JScrollPane(comp);
+		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+	    tabPane.addTab(title, null, sp, desc);
 	}
 	
 	/** Initializes the UI components. */

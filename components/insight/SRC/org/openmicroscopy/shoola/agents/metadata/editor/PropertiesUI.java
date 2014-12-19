@@ -62,7 +62,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -70,6 +69,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import com.google.common.base.CharMatcher;
 
@@ -157,6 +157,11 @@ public class PropertiesUI
     
     /** The default width of the description.*/
     private static final int WIDTH = 100;
+    
+    /** Maximum number of characters shown per line in the
+     *  channel names component
+     */
+    private static final int MAX_CHANNELNAMES_LENGTH_IN_CHARS = 100;
     
     /** Button to edit the name. */
 	private JToggleButton				editName;
@@ -397,13 +402,13 @@ public class PropertiesUI
 					JToggleButton b = (JToggleButton) e.getSource();
 					if (b == editName) {
 						if (b.isSelected())
-							editField(namePanel, namePane);
+							editField(namePane);
 						else
 							save();
 					} else if (b == descriptionButtonEdit) {
 						if (b.isSelected()) {
 							expandDescriptionField(true);
-							editField(descriptionPanel, descriptionWiki);
+							editField(descriptionWiki);
 						} else
 							save();
 					}
@@ -971,12 +976,10 @@ public class PropertiesUI
         	refObject instanceof PlateAcquisitionData) {
         	
         	descriptionScrollPane = new JScrollPane(descriptionWiki);
-        	descriptionScrollPane.setHorizontalScrollBarPolicy(
-        			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         	descriptionScrollPane.setBorder(AnnotationUI.EDIT_BORDER);
         	
         	descriptionPanel = new JPanel(new GridBagLayout());
-                descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+        	descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
 
         	GridBagConstraints c = new GridBagConstraints();
         	c.insets = new Insets(2, 2, 2, 2);
@@ -987,16 +990,16 @@ public class PropertiesUI
         	c.fill = GridBagConstraints.BOTH;
         	c.weightx = 1;
         	c.weighty = 1;
-        	c.anchor = GridBagConstraints.NORTHEAST;
+        	c.anchor = GridBagConstraints.NORTHWEST;
         	descriptionPanel.add(descriptionScrollPane, c);
         	
         	c.gridx = 1;
         	c.gridy = 0;
         	c.gridheight = 1;
         	c.fill = GridBagConstraints.NONE;
-                c.weightx = 0;
-                c.weighty = 0;
-                c.anchor = GridBagConstraints.NORTH;
+        	c.weightx = 0;
+        	c.weighty = 0;
+        	c.anchor = GridBagConstraints.NORTHEAST;
         	descriptionPanel.add(descriptionButtonEdit, c);
         	
         	boolean hasDescription = !descriptionWiki.getText().equals(DEFAULT_DESCRIPTION_TEXT);
@@ -1068,7 +1071,7 @@ public class PropertiesUI
 	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JComponent field)
+	private void editField(JComponent field)
 	{
 		if (field == namePane) {
 			namePane.setEditable(true);
@@ -1222,7 +1225,6 @@ public class PropertiesUI
             originalDescription = DEFAULT_DESCRIPTION_TEXT;
         descriptionWiki.setText(originalDescription);
         expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
-        //wrap();
         descriptionWiki.setCaretPosition(0);
         descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
         descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
@@ -1350,10 +1352,13 @@ public class PropertiesUI
 		StringBuffer buffer = new StringBuffer();
 		while (k.hasNext()) {
 			buffer.append(((ChannelData) k.next()).getChannelLabeling());
-			if (j != n) buffer.append("<br>");
+			if (j != n) 
+				buffer.append(", ");
 			j++;
 		}
-		channelsArea.setText("<html>"+buffer.toString()+"</html>");
+		
+		String text = WordUtils.wrap(buffer.toString(), MAX_CHANNELNAMES_LENGTH_IN_CHARS, "<br>", true);
+		channelsArea.setText("<html>"+text+"</html>");
 		channelsArea.revalidate();
 		channelsArea.repaint();
 	}
