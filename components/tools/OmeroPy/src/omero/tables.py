@@ -280,6 +280,28 @@ class HdfStorage(object):
                 raise omero.ApiUsageException(
                     None, None, "Rows not specified: %s" % rowNumbers)
 
+    def __getversion(self):
+        """
+        In OMERO.tables v2 the version attribute name was changed to __version
+        and made an int
+        """
+        self.__initcheck()
+        k = '__version'
+        try:
+            v = self.__mea.attrs[k]
+            if isinstance(v, int):
+                return v
+        except KeyError:
+            k = 'version'
+            v = self.__mea.attrs[k]
+            if v == 'v1':
+                return 1
+
+        msg = "Invalid version attribute (%s=%s) in path: %s" % (
+            k, v, self.__hdf_path)
+        self.logger.error(msg)
+        raise omero.ValidationException(None, None, msg)
+
     #
     # Locked methods
     #
@@ -422,6 +444,15 @@ class HdfStorage(object):
     @modifies
     def add_meta_map(self, m, replace=False, init=False):
         if not init:
+            if self.__getversion() < 2:
+                # Metadata methods were generally broken for v1 tables so
+                # the introduction of internal metadata attributes is unlikely
+                # to affect anyone.
+                # http://trac.openmicroscopy.org.uk/ome/ticket/12606
+                msg = 'Tables metadata is only supported for OMERO.tables >= 2'
+                self.logger.error(msg)
+                raise omero.ApiUsageException(None, None, msg)
+
             self.__initcheck()
             for k, v in m.iteritems():
                 if internal_attr(k):
