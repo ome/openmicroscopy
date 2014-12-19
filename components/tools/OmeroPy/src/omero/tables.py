@@ -435,7 +435,7 @@ class HdfStorage(object):
         attr = self.__mea.attrs
         if replace:
             for f in list(attr._v_attrnamesuser):
-                if not internal_attr(f):
+                if init or not internal_attr(f):
                     del attr[f]
         if not m:
             return
