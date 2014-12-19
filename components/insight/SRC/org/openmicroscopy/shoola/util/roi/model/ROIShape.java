@@ -352,6 +352,15 @@ public class ROIShape
         return annotations.containsKey(key);
     }
 
+    /**
+     * Copies the shape.
+     *
+     * @param plane
+     * @return
+     */
+    public ROIShape copy(Coord3D plane)
+    {
+        if (plane == null) plane = this.coord;
+        return new ROIShape(this.parent, plane, this.figure, this.boundingBox);
+    }
 }
-
-
