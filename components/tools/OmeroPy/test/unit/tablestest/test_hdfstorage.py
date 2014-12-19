@@ -148,6 +148,20 @@ class TestHdfStorage(TestCase):
         # Doesn't work yet.
         hdf.cleanup()
 
+    def testInitializeInvalidColoumnNames(self):
+        hdf = omero.tables.HdfStorage(self.hdfpath(), self.lock)
+
+        with pytest.raises(omero.ApiUsageException) as exc:
+            hdf.initialize([omero.columns.LongColumnI('')], None)
+        assert exc.value.message.startswith('Column unnamed:')
+
+        with pytest.raises(omero.ApiUsageException) as exc:
+            hdf.initialize([omero.columns.LongColumnI('__a')], None)
+        assert exc.value.message == 'Reserved column name: __a'
+
+        hdf.initialize([omero.columns.LongColumnI('a')], None)
+        hdf.cleanup()
+
     def testInitializationOnInitializedFileFails(self):
         p = self.hdfpath()
         hdf = omero.tables.HdfStorage(p, self.lock)
