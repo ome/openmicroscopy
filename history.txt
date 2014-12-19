@@ -15,7 +15,6 @@ Changes affecting developers include:
 -  OMERO.web updates
 -  server-side Graph work to improve speed for moving and deleting
 -  OMERO.insight bug-fixes especially for ROIs
--  Further work on C++ implementation
 
 5.1.0-m2 (November 2014)
 ------------------------
