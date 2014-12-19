@@ -167,10 +167,10 @@ class TestTables(lib.ITest):
             easier testing.
             """
             m = unwrap(m)
-            assert "initialized" in m
-            assert "version" in m
-            del m["initialized"]
-            del m["version"]
+            assert "__initialized" in m
+            assert "__version" in m
+            del m["__initialized"]
+            del m["__version"]
             return m
 
         try:

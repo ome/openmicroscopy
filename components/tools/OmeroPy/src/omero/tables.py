@@ -329,11 +329,12 @@ class HdfStorage(object):
         self.__hdf_file.createArray(
             self.__ome, "ColumnDescriptions", self.__descriptions)
 
+        md = {}
         if metadata:
-            self.add_meta_map(metadata, replace=True, init=True)
-
-        self.__mea.attrs.__version = VERSION
-        self.__mea.attrs.__initialized = time.time()
+            md = metadata.copy()
+        md['__version'] = VERSION
+        md['__initialized'] = time.time()
+        self.add_meta_map(md, replace=True, init=True)
 
         self.__hdf_file.flush()
         self.__initialized = True
@@ -422,14 +423,14 @@ class HdfStorage(object):
     def add_meta_map(self, m, replace=False, init=False):
         if not init:
             self.__initcheck()
-        for k, v in m.iteritems():
-            if internal_attr(k):
-                raise omero.ApiUsageException(
-                    None, None, "Reserved attribute name: %s" % k)
-            if not init and not isinstance(v, (
-                    omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
-                raise omero.ValidationException(
-                    "Unsupported type: %s" % type(v))
+            for k, v in m.iteritems():
+                if internal_attr(k):
+                    raise omero.ApiUsageException(
+                        None, None, "Reserved attribute name: %s" % k)
+                if not isinstance(v, (
+                        omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
+                    raise omero.ValidationException(
+                        "Unsupported type: %s" % type(v))
 
         attr = self.__mea.attrs
         if replace:
