@@ -21,10 +21,6 @@
 
 
 <table class="core_metadata">
-    <tr>
-        <th>Owner:</th>
-        <td id='owner_fullname'>{{ image.getOwner.getFullName }}</td>
-    </tr>
     {% if image.getAcquisitionDate %}
     <tr>
         <th>Acquisition Date:</th>
@@ -44,13 +40,13 @@
         <td id='pixels_type'>{{ image.getPixelsType }}</td>
     </tr>
     <tr>
-        <th>Pixels Size (XYZ) ({{ image.getPixelSizeX|lengthunit}}):</th>
+        <th>Pixels Size (XYZ) ({{ image.getPixelSizeXMicrons|lengthunit}}):</th>
         <td id='pixels_size'>
-            <div class='tooltip'>{{ image.getPixelSizeX|lengthformat|floatformat:2 }} x {{ image.getPixelSizeY|lengthformat|floatformat:2 }} 
-                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ|lengthformat|floatformat:2 }} {% endif %}
+            <div class='tooltip'>{{ image.getPixelSizeXMicrons|lengthformat|floatformat:2 }} x {{ image.getPixelSizeYMicrons|lengthformat|floatformat:2 }} 
+                {% if image.getPixelSizeZMicrons %} x {{ image.getPixelSizeZMicrons|lengthformat|floatformat:2 }} {% endif %}
             </div>
-            <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeX }} x {{ image.getPixelSizeY }}
-                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ }} {% endif %} (&#181m)
+            <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeXMicrons }} x {{ image.getPixelSizeYMicrons }}
+                {% if image.getPixelSizeZMicrons %} x {{ image.getPixelSizeZMicrons }} {% endif %} (&#181m)
             </span>
         </td>
     </tr>
@@ -98,7 +94,7 @@
         </td>
     </tr>
     <tr>
-        <th>ROI count:</th>
+        <th>ROI Count:</th>
         <td>{{ image.getROICount }}</td>
     </tr>
     {% if manager.well %}

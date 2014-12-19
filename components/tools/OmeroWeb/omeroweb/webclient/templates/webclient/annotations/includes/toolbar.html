@@ -147,12 +147,26 @@
       </button>
     {% endif %}
 
+
+      <button id="show_image_hierarchy" class="btn silver btn_hierarchy" title="Show parent Projects & Datasets">
+        <span></span>
+      </button>
     {% endif %}
 
 
     <!-- Publishing Options (Figure Scripts) -->
     {% if not differentGroups %}
     {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
+    {% endif %}
+
+    {% if image %}
+    <button class="btn silver btn_text" href="#" style="position: absolute; left: 0; height: 20px"
+            onclick="return OME.openPopup('{% url 'web_image_viewer' image.id %}')"
+            title="Open full image viewer in new window">
+        <span>
+            Full viewer
+        </span>
+    </button>
     {% endif %}
 
 </div>

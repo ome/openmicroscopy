@@ -129,7 +129,6 @@
             OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             OME.preview_viewport.load({{ manager.image.id }});
-            {% endif %}
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
@@ -162,6 +161,13 @@
               if ($.inArray(OME.preview_viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
                 $("#rdef-fullrange-btn").attr("disabled", "disabled");
               }
+
+              // viewport.load() is called after pasting rdef or loading. Cache busting rdef thumbnails...
+              $("img.rdef").each(function(){
+                  var $this = $(this),
+                      base_src = $this.attr('src').split('&_=')[0];
+                  $this.attr('src', base_src + "&_=random"+Math.random());
+              });
             });
 
             // handle 'Color' checkbox
@@ -274,12 +280,6 @@
                   })
               }
             };
-            // when we load page, force refresh of rdef thumbs (in case they are cached)
-            $("img.rdef").each(function(){
-              var $thumb = $(this),
-                src = $thumb.attr('src');
-                $thumb.attr('src', src + '&_=' + Math.random());
-            });
 
 
             {% if manager.image.canAnnotate %}
@@ -318,6 +318,8 @@
             }
             {% endif %}
 
+            {% endif %}
+
             $("#preview_open_viewer").click(function(){
 
               var url = "{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
@@ -334,6 +336,7 @@
     </script>
 
 
+
 <!-- VIEWER "Preview"-->
 <div class="right_tab_inner">
 	
@@ -341,7 +344,7 @@
 
 			<button id="preview_open_viewer" class="btn silver btn_text" href="#" alt="View" title="Open full viewer">
 				<span>
-                {% trans "Launch full viewer" %} 
+                {% trans "Full viewer" %} 
 				</span>
 			</button>
 
@@ -350,13 +353,14 @@
       <div class="miniview" id="viewport">
       </div>
 
+
+    {% if not share_id %}
     <div style="clear:both; height:20px"></div>
 
     <div style="text-align: left">
       Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> &nbsp
       T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
     </div>
-
 
     <ul class="toolbar preview-toolbar">
       <li>
@@ -443,5 +447,6 @@
         {% endfor %}
       </li>
     </ul>
+    {% endif %}
 
 </div>

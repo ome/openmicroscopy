@@ -105,6 +105,8 @@ public class AnnotationDeleteTest extends AbstractServerTest {
      */
     @Test(groups = "ticket:2959")
     public void testForceCannotBeSetByUser() throws Exception {
+        /* note that users in read-write groups can delete each other's data,
+         * the only issue here is that FORCE may not be specified */
         EventContext owner = newUserAndGroup("rwrw--");
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(mmFactory.createOriginalFile());
@@ -228,8 +230,8 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         newUserAndGroup("rw----");
         Annotation ann = (Annotation) iUpdate
                 .saveAndReturnObject(new TagAnnotationI());
-        annotateSaveDeleteAndCheck(ann, DeleteServiceTest.REF_ANN, ann.getId(),
-                false);
+        annotateSaveDeleteAndCheck(ann, DeleteServiceTest.REF_ANN,
+                ann.getId());
     }
 
     /**

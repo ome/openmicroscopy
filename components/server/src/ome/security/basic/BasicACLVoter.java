@@ -287,15 +287,26 @@ public class BasicACLVoter implements ACLVoter {
             throw new IllegalArgumentException("null object");
         }
 
+        // Do not take the details directly from iObject
+        // as it is in a critical state. Values such as
+        // Permissions, owner, and group may have been changed.
+        final Details d = trustedDetails;
+
+        // this can now only happen if a table doesn't have permissions
+        // and there aren't any of those. so let it be updated.
+        if (d == null) {
+            throw new InternalException("trustedDetails are null!");
+        }
+
         final boolean sysType = sysTypes.isSystemType(iObject.getClass()) ||
-            sysTypes.isInSystemGroup(iObject.getDetails());
+            sysTypes.isInSystemGroup(d);
         final boolean sysTypeOrUsrGroup = sysType ||
-            sysTypes.isInUserGroup(iObject.getDetails());
+            sysTypes.isInUserGroup(d);
 
         // needs no details info
         if (tokenHolder.hasPrivilegedToken(iObject)) {
             return 1; // ticket:1794, allow move to "user
-        } else if (!sysTypeOrUsrGroup && currentUser.isGraphCritical(trustedDetails)) { //ticket:1769
+        } else if (!sysTypeOrUsrGroup && currentUser.isGraphCritical(d)) { //ticket:1769
             Boolean belongs = null;
             final Long uid = c.getCurrentUserId();
             for (int i = 0; i < scopes.length; i++) {
@@ -323,21 +334,10 @@ public class BasicACLVoter implements ACLVoter {
             return 0;
         }
 
-        // previously we were taking the details directly from iObject
-        // iObject, however, is in a critical state. Values such as
-        // Permissions, owner, and group may have been changed.
-        final Details d = trustedDetails;
-
-        // this can now only happen if a table doesn't have permissions
-        // and there aren't any of those. so let it be updated.
-        if (d == null) {
-            throw new InternalException("trustedDetails are null!");
-        }
-
         Permissions grpPermissions = c.getCurrentGroupPermissions();
         if (grpPermissions == null || grpPermissions == Permissions.DUMMY) {
-            if (trustedDetails.getGroup() != null) {
-                Long gid = trustedDetails.getGroup().getId();
+            if (d.getGroup() != null) {
+                Long gid = d.getGroup().getId();
                 grpPermissions = c.getPermissionsForGroup(gid);
                 if (grpPermissions == null && gid.equals(roles.getUserGroupId())) {
                     grpPermissions = new Permissions(Permissions.EMPTY);

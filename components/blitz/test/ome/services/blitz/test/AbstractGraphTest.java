@@ -32,6 +32,7 @@ import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
 import omero.cmd._HandleTie;
+import omero.cmd.graphs.GraphRequestFactory;
 import omero.sys.ParametersI;
 
 
@@ -61,7 +62,8 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(MailUtil.class),
                 user.ctx.getBean(PasswordUtil.class),
                 user.ctx.getBean(SecuritySystem.class),
-                user.ctx.getBean(PasswordProvider.class)
+                user.ctx.getBean(PasswordProvider.class),
+                user.ctx.getBean("graphRequestFactory", GraphRequestFactory.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);

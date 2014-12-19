@@ -1024,6 +1024,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                     if lightSourceSettings is not None and lightSourceSettings._obj is not None:
                         if lightSourceSettings.getLightSource() is not None:
                             channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
+                                            'lightSourceSettings': lightSourceSettings,
                                             'lstypes': list(conn.getEnumerationEntries("LaserType")),
                                             'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                             'pulses': list(conn.getEnumerationEntries("PulseI"))})
@@ -1034,22 +1035,19 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
                 plane_info = []
 
-                def unwrapUnit(q):
-                    if q:
-                        u = str(q.getUnit())
-                        v = q.getValue()
-                        return (v, u)
-                    return (None, None)
-
                 for pi in planeInfo:
-                    deltaT, deltaTUnit = unwrapUnit(pi.getDeltaT())
-                    exposure, exposureUnit = unwrapUnit(pi.getExposureTime())
+                    deltaT = pi.getDeltaT(units="SECOND")
+                    exposure = pi.getExposureTime(units="SECOND")
+                    if deltaT is None and exposure is None:
+                        continue
+                    if deltaT is not None:
+                        deltaT = deltaT.getValue()
+                    if exposure is not None:
+                        exposure = exposure.getValue()
                     plane_info.append({
                         'theT': pi.theT,
                         'deltaT': deltaT,
-                        'exposureTime': exposure,
-                        'deltaTUnit': deltaTUnit,
-                        'exposureTimeUnit': exposureUnit})
+                        'exposureTime': exposure})
                 channel['plane_info'] = plane_info
 
                 form_channels.append(channel)

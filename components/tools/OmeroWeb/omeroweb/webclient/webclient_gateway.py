@@ -2203,6 +2203,28 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
     This override standard omero.gateway.ImageWrapper.getChannels 
     and catch exceptions.
     """
+
+    def getPixelSizeXMicrons (self):
+        """ Helper for calling getPixelSizeX(units="MICROMETER") in templates """
+        size = self.getPixelSizeX(units="MICROMETER")
+        if size is None:
+            return 0
+        return size.getValue()
+
+    def getPixelSizeYMicrons (self):
+        """ Helper for calling getPixelSizeX(units="MICROMETER") in templates """
+        size = self.getPixelSizeY(units="MICROMETER")
+        if size is None:
+            return 0
+        return size.getValue()
+
+    def getPixelSizeZMicrons (self):
+        """ Helper for calling getPixelSizeX(units="MICROMETER") in templates """
+        size = self.getPixelSizeZ(units="MICROMETER")
+        if size is None:
+            return 0
+        return size.getValue()
+
     def getChannels (self):
         try:
             return super(ImageWrapper, self).getChannels()

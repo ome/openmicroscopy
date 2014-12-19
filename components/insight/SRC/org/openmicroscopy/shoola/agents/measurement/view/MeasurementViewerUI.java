@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import omero.model.Length;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -457,10 +458,7 @@ class MeasurementViewerUI
         		IconManager.MEASUREMENT_TOOL);
         if (icon != null) setIconImage(icon.getImage());
         initComponents();
-        UnitsAction a = (UnitsAction)
-        	controller.getAction(MeasurementViewerControl.IN_MICRONS);
-    	a.setRefUnits(EditorUtil.transformSize(
-    			model.getPixelSizeX()).getUnits());
+        controller.getAction(MeasurementViewerControl.IN_MICRONS);
         setName("measurement viewer window");
     }
     

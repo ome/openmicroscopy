@@ -27,7 +27,7 @@ public class UnitsTest {
 
     protected omero.model.Length mm(double d) {
         omero.model.Length l = new omero.model.LengthI();
-        l.setUnit(omero.model.enums.UnitsLength.MM);
+        l.setUnit(omero.model.enums.UnitsLength.MILLIMETER);
         l.setValue(d);
         return l;
     }

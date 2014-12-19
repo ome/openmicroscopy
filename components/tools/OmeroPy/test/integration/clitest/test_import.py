@@ -24,6 +24,7 @@ plugin = __import__('omero.plugins.import', globals(), locals(),
 ImportControl = plugin.ImportControl
 from test.integration.clitest.cli import CLITest
 import pytest
+import stat
 import re
 import omero
 from omero.rtypes import rstring
@@ -383,3 +384,20 @@ class TestImport(CLITest):
         obj = self.get_object(e, 'Image', query=client.sf.getQueryService())
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
+
+    def testSymlinkImport(self, tmpdir, capfd):
+        """Test symlink import"""
+
+        fakefile = tmpdir.join("ln_s.fake")
+        fakefile.write('')
+        fakefile.chmod(stat.S_IREAD)
+
+        self.args += [str(fakefile)]
+        self.args += ['--', '--transfer', 'ln_s']
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+
+        assert obj

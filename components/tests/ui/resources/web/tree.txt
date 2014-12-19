@@ -81,9 +81,9 @@ Create Container
     Input Text                  name    ${newName}
     Click Button                OK
     Set Selenium Speed          1
-    Wait Until Page Contains Element    css=h2.data_heading_id
+    Wait Until Page Contains Element    css=tr.data_heading_id
     Set Selenium Speed                  ${DELAY}
-    ${newId}    Get Text                css=h2.data_heading_id>strong
+    ${newId}    Get Text                css=tr.data_heading_id strong
     Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked
     [Return]                            ${newId}
 

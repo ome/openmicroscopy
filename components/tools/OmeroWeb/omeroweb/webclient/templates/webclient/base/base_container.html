@@ -159,6 +159,30 @@
 {% endblock %}
 
 
+{% block center %}
+
+<div id="center_panel_header">
+    <div id="center_panel_chooser">
+        {% if ome.center_plugins|length > 0 %}
+            <select id="source">
+                <option value="#content_details">Thumbnails</option>
+                {% for cp in ome.center_plugins %}
+                    <option value="#{{ cp.plugin_id }}">{{ cp.label }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
+</div>
+
+<div id="content_details" class="center_panel_content"> </div>
+
+{% for cp in ome.center_plugins %}
+    <div id="{{ cp.plugin_id }}" class="center_panel_content"></div>
+{% endfor %}
+
+{% endblock %}
+
+
 
 
 <!-- Right Tabs -->

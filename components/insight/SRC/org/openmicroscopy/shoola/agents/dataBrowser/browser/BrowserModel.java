@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -783,6 +784,18 @@ class BrowserModel
 					node.setHighlight(colors.getUnmodifiedHighLight(node));
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * 
+	 * @see Browser#setSelectedDisplay(Point, boolean)
+	 */
+	public void setSelectedDisplay(Point coords, boolean multiSel) {
+		Component c = rootDisplay.getInternalDesktop().getComponentAt(coords);
+		if (c != null && c instanceof ImageDisplay) {
+			setSelectedDisplay((ImageDisplay) c, multiSel, true);
 		}
 	}
 	

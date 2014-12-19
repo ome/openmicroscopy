@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 import omero
 import omero.clients
-from omero.rtypes import *
+from omero.rtypes import rstring
 
 i = omero.model.ImageI()
 
 #
 # Without __getattr__ and __setattr__
 #
-i.setName( rstring("name") )
+i.setName(rstring("name"))
 assert i.getName().getValue() == "name"
 
 #
@@ -28,4 +28,3 @@ try:
     i.datasetLinks[0]
 except AttributeError, ae:
     pass
-    

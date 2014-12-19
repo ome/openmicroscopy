@@ -179,15 +179,6 @@ class GeneralPaneUI
 		annotationTaskPane.add(p);
 	}
 	
-	@Override
-	public Dimension getPreferredSize() {
-		// Workaround:
-		// Without this, the JTextAreas displaying comments will expand, when the slider is moved
-		// to the left, but never shrink again, when the slider is again moved to the right.
-		// TODO: Replace if a better solution for this is found
-		return new Dimension(getParent().getSize().width, super.getPreferredSize().height);
-	}
-	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{

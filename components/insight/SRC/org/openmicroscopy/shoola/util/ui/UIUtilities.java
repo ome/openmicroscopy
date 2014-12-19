@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -52,7 +52,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
-
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -81,7 +80,6 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -89,6 +87,9 @@ import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * A collection of static methods to perform common UI tasks.
@@ -238,6 +239,9 @@ public class UIUtilities
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
+	
+	/** Degree symbol */
+	public final static String				DEGREE_SYMBOL = "°";
     
 	/** Background color of the highlighted node. */
 	public static final Color				HIGHLIGHT = new Color(204, 255, 
@@ -2494,109 +2498,141 @@ public class UIUtilities
     }
 
     /**
-     * Transforms the size and returns the value and units.
-     * 
-     * @param value The value to transform.
-     * @return See above.
+     * Transforms the given value (it's assumed it's in microns) to
+     * a more readable value
+     * @param value The value to transform
+     * @return The transformed value as unit object
      */
-    public static UnitsObject transformSquareSize(Double value)
-    {
-        double v = value.doubleValue();
-        double pow = Math.pow(10, 6);
-        String units = UnitsObject.MICRONS+UIUtilities.SQUARED_SYMBOL;
-        if (v > 0.0 && v < 0.0001) {
-            units = UnitsObject.NANOMETER;
-            v *= pow;
-            if (v < 100) {
-                units = UnitsObject.ANGSTROM;
-                v *= 100;
-            }
-            return new UnitsObject(units, v);
-        }
-        
-        if (v > pow) {
-            units = UnitsObject.MILLIMETER+UIUtilities.SQUARED_SYMBOL;
-            v /= pow;
-        }
-        if (v > pow) {
-            units = UnitsObject.CENTIMETER+UIUtilities.SQUARED_SYMBOL;
-            v /= pow;
-        }
-        if (v > pow) {
-            units = UnitsObject.METER+UIUtilities.SQUARED_SYMBOL;
-            v /= pow;
-        }
-        return new UnitsObject(units, v);
-    }
-
-    /**
-	 * Transforms the size and returns the value and units.
-	 * 
-	 * @param value The value to transform.
-	 * @return See above.
-	 */
-	public static UnitsObject transformSize(Double value)
-	{
-		double v = value.doubleValue();
-		String units = UnitsObject.MICRONS;
-		if (v > 0.0 && v < 0.01) {
-			units = UnitsObject.NANOMETER;
-			v *= 1000;
-			if (v < 1) {
-				units = UnitsObject.ANGSTROM;
-				v *= 10;
-			}
-			return new UnitsObject(units, v);
-		}
-		if (v > 1000) {
-			units = UnitsObject.MILLIMETER;
-			v /= 1000;
-		}
-		if (v > 1000) {
-			units = UnitsObject.CENTIMETER;
-			v /= 1000;
-		}
-		if (v > 1000) {
-			units = UnitsObject.METER;
-			v /= 1000;
-		}
-		return new UnitsObject(units, v);
+    public static Length transformSize(double value) {
+    	return transformSize(new LengthI(value, UnitsLength.MICROMETER));
 	}
-
+    
     /**
-     * Transforms the size and returns the value and units.
-     * 
-     * @param value The value to transform.
-     * @param refUnits The units of reference.
-     * @return See above.
+     * Transforms the given value to a more readable value
+     * @param value The value to transform
+     * @return The transformed value
      */
-    public static double transformSize(Double value, String refUnits)
+	public static Length transformSize(Length value) {
+		
+		if(value.getUnit().equals(UnitsLength.MICROMETER)) { 
+			double v = value.getValue();
+			UnitsLength unit = UnitsLength.MICROMETER;
+			if (v > 0.0 && v < 0.1) {
+				unit = UnitsLength.NANOMETER;
+				v *= 1000;
+				if (v < 1) {
+					unit = UnitsLength.ANGSTROM;
+					v *= 10;
+				}
+				return new LengthI(v, unit);
+			}
+			if (v > 1000) {
+				unit = UnitsLength.MILLIMETER;
+				v /= 1000;
+			}
+			if (v > 1000) {
+				unit = UnitsLength.CENTIMETER;
+				v /= 1000;
+			}
+			if (v > 1000) {
+				unit = UnitsLength.METER;
+				v /= 1000;
+			}
+			
+			return new LengthI(v, unit);
+		}
+		
+		return value;
+	}
+	
+	/**
+     * Transforms the given (squared) value to a more readable value;
+     * Only use with squared values (e. g. area), for plain values
+     * use {@link #transformSize(Length)}
+     * @param value The value to transform
+     * @return The transformed value
+     */
+	public static Length transformSquareSize(Length value)
     {
-        double v = value.doubleValue();
-        String units = UnitsObject.MICRONS;
-        if (v > 0.0 && v < 0.01) {
-            units = UnitsObject.NANOMETER;
-            if (units.equals(refUnits)) v *= 1000;
-            if (v < 1) {
-                units = UnitsObject.ANGSTROM;
-                if (units.equals(refUnits)) v *= 10;
-            }
-            return v;
-        }
-        if (v > 1000) {
-            units = UnitsObject.MILLIMETER;
-            if (units.equals(refUnits)) v /= 1000;
-        }
-        if (v > 1000) {
-            units = UnitsObject.CENTIMETER;
-            if (units.equals(refUnits)) v /= 1000;
-        }
-        if (v > 1000) {
-            units = UnitsObject.METER;
-            if (units.equals(refUnits)) v /= 1000;
-        }
-        return v;
+		if(value.getUnit().equals(UnitsLength.MICROMETER)) { 
+	        double v = value.getValue();
+	        double pow = Math.pow(10, 6);
+	        UnitsLength unit = UnitsLength.MICROMETER;
+	        if (v > 0.0 && v < 0.1) {
+	            unit = UnitsLength.NANOMETER;
+	            v *= pow;
+	            if (v < 100) {
+	                unit = UnitsLength.ANGSTROM;
+	                v *= 100;
+	            }
+	            return new LengthI(v, unit);
+	        }
+	        
+	        if (v > pow) {
+	            unit = UnitsLength.MILLIMETER;
+	            v /= pow;
+	        }
+	        if (v > pow) {
+	            unit = UnitsLength.CENTIMETER;;
+	            v /= pow;
+	        }
+	        if (v > pow) {
+	            unit = UnitsLength.METER;
+	            v /= pow;
+	        }
+        
+	        return new LengthI(v, unit);
+		}
+		
+        return value;
     }
+	
+	/**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached
+     * @param value The value to format
+     * @return See above. 
+     */
+	public static String formatValue(Length value) {
+		return formatValue(value, false);
+	}
+	
+	/**
+     * Creates a readable String representation of the given value
+     * (assumed it's a value in Microns), i. e.
+     * transformed into a suitable unit, with unit symbol attached
+     * @param value The value to format
+     * @return See above. 
+     */
+	public static String formatValue(double value) {
+		return formatValue(new LengthI(value, UnitsLength.MICROMETER), false);
+	}
+	
+	/**
+     * Creates a readable String representation of the given value, i. e.
+     * transformed into a suitable unit, with unit symbol attached and
+     * if squared flag is set, also attaches the square symbol.
+     * @param value The value to format
+     * @param squared Pass <code>true</code> to attach the square symbol
+     * @return See above. 
+     */
+	public static String formatValue(Length value, boolean squared) {
+		Length converted = squared ? transformSquareSize(value) : transformSize(value);
+		String v;
+		if (value.getUnit().equals(UnitsLength.PIXEL))
+			v = value.getValue() == 0 ? null : ""+((int)value.getValue());
+		else
+			v = UIUtilities.twoDecimalPlaces(converted.getValue());
+		
+		if (v==null)
+			return "";
+		
+		v += ((LengthI)converted).getSymbol();
+		if (squared && !value.getUnit().equals(UnitsLength.PIXEL))
+			v += UIUtilities.SQUARED_SYMBOL;
+		
+		return v;
+	}
     
 	/**
      * Formats the passed value in seconds.

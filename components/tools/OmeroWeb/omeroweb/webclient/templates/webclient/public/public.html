@@ -49,6 +49,15 @@
 
         $(function() 
             {
+
+                // We truncate images when the left panel resizes...
+                $("#left_panel").on('resize', OME.truncateNames);
+                // and also when we load new data in the tree
+                $("#dataTree").on('load_node.jstree', function() {
+                    // wait for images to render, then truncate:
+                    setTimeout(OME.truncateNames, 30);
+                });
+
                 var buttonsShowHide = function(selected) {
                     var toolbar_config = new Object();
                     if(selected.length > 0) {
@@ -299,11 +308,19 @@
     });
     </script>
 
-    <!-- include code to handle middle panel selection -->
+    <!-- set up the middle panel to only show the div chosen by <select> -->
+    {% include "webclient/data/includes/center_plugin_init.js.html" %}
+
+    <!-- include code to handle primary 'thumbs' middle plugin -->
     {% include "webclient/data/includes/center_plugin.thumbs.js.html" %}
 
 
+    {% for cp in ome.center_plugins %}
+        {% include cp.include %}
+    {% endfor %}
+
 {% endblock %}
+
 
 
 {% block left %}
@@ -339,31 +356,5 @@
 </div>
 {% endblock %}
 
-{% block center %}
-
-<!--<div id="content_action"></div>
-<div class="clear"> </div>-->
-
-<div id="content_details"> </div>
-
-{% endblock %}
 
 
-{% block right %}
-<div>
-    <div id="annotation_tabs" class="absolute_fill">
-        <ul id="annotation_tabs_list">
-            <li><a href="#metadata_general">{% trans "General" %}</a></li>
-            <!-- include right tabs, as configured in settings.py under "omero.web.ui.right_tabs" -->
-            {% for rt in ome.right_plugins %}
-                <li><a href="#{{ rt.plugin_id }}">{{ rt.label }}</a></li>
-            {% endfor %}
-        </ul>
-        <div id="metadata_general" class="right_tab_content" ></div>
-        <!-- include right tab bodies, as configured in settings.py under "omero.web.ui.right_tabs" -->
-        {% for rt in ome.right_plugins %}
-            <div id="{{ rt.plugin_id }}" class="right_tab_content"></div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}

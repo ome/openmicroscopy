@@ -72,12 +72,13 @@ import javax.swing.JTabbedPane;
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 import com.sun.opengl.util.texture.TextureData;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import omero.model.Length;
+import omero.model.LengthI;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -103,7 +104,6 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.ChannelData;
@@ -1316,8 +1316,8 @@ class ImViewerUI
 		int n;
 		int max = model.getMaxZ();
 		double d = model.getPixelsSizeZ();
-		UnitsObject o;
 		String units;
+		Length o;
 		StringBuffer buffer = new StringBuffer();
 		if (model.getTabbedIndex() == ImViewer.PROJECTION_INDEX) {
 			n = getProjectionStartZ();
@@ -1325,11 +1325,11 @@ class ImViewerUI
 			buffer.append("Z range:"+(n+1));
 			buffer.append("-"+(getProjectionEndZ()+1));
 			if (d > 0 && max > 0) {
-				o = EditorUtil.transformSize(n*d);
+				o = UIUtilities.transformSize(n*d);
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append("-");
-				o = EditorUtil.transformSize(m*d);
-				units = o.getUnits();
+				o = UIUtilities.transformSize(m*d);
+				units = ((LengthI)o).getSymbol();
 				buffer.append(UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(units+")");
 			}
@@ -1339,8 +1339,8 @@ class ImViewerUI
 			n = model.getDefaultZ();
 			buffer.append("Z="+(n+1));
 			if (d > 0 && max > 0) {
-				o = EditorUtil.transformSize(n*d);
-				units = o.getUnits();
+				o = UIUtilities.transformSize(n*d);
+				units = ((LengthI)o).getSymbol();
 				buffer.append(" ("+UIUtilities.roundTwoDecimals(o.getValue()));
 				buffer.append(units+")");
 			}

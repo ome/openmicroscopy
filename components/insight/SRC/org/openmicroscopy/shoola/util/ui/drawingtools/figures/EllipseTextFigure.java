@@ -113,7 +113,7 @@ public class EllipseTextFigure
   		setText(t);
 		textBounds = null;
 		editable = true;
-		fromTransformUpdate = false;
+		fromTransformUpdate = true;
 	}	
 	
 	/**

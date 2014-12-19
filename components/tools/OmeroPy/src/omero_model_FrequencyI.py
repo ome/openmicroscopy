@@ -44,869 +44,869 @@ def noconversion(cfrom, cto):
 class FrequencyI(_omero_model.Frequency, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["AHZ:CHZ"] = \
+    CONVERSIONS["ATTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["AHZ:DAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["AHZ:DHZ"] = \
+    CONVERSIONS["ATTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["AHZ:EXAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["AHZ:FHZ"] = \
+    CONVERSIONS["ATTOHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["AHZ:GIGAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["AHZ:HHZ"] = \
+    CONVERSIONS["ATTOHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["AHZ:HZ"] = \
+    CONVERSIONS["ATTOHERTZ:HERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["AHZ:KHZ"] = \
+    CONVERSIONS["ATTOHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["AHZ:MEGAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["AHZ:MHZ"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["AHZ:MICROHZ"] = \
+    CONVERSIONS["ATTOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["AHZ:NHZ"] = \
+    CONVERSIONS["ATTOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["ATTOHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["AHZ:PETAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["AHZ:PHZ"] = \
+    CONVERSIONS["ATTOHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["AHZ:TERAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["AHZ:YHZ"] = \
+    CONVERSIONS["ATTOHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["AHZ:YOTTAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -42) * value
-    CONVERSIONS["AHZ:ZETTAHZ"] = \
+    CONVERSIONS["ATTOHERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ATTOHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["AHZ:ZHZ"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["CHZ:AHZ"] = \
+    CONVERSIONS["CENTIHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["CHZ:DAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["CHZ:DHZ"] = \
+    CONVERSIONS["CENTIHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["CHZ:EXAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["CHZ:FHZ"] = \
+    CONVERSIONS["CENTIHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["CHZ:GIGAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["CHZ:HHZ"] = \
+    CONVERSIONS["CENTIHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["CHZ:HZ"] = \
+    CONVERSIONS["CENTIHERTZ:HERTZ"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["CHZ:KHZ"] = \
+    CONVERSIONS["CENTIHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["CHZ:MEGAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["CHZ:MHZ"] = \
-        lambda value: 10 * value
-    CONVERSIONS["CHZ:MICROHZ"] = \
+    CONVERSIONS["CENTIHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["CHZ:NHZ"] = \
+    CONVERSIONS["CENTIHERTZ:MILLIHERTZ"] = \
+        lambda value: 10 * value
+    CONVERSIONS["CENTIHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["CHZ:PETAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["CHZ:PHZ"] = \
+    CONVERSIONS["CENTIHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["CHZ:TERAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["CHZ:YHZ"] = \
+    CONVERSIONS["CENTIHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["CHZ:YOTTAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["CHZ:ZETTAHZ"] = \
+    CONVERSIONS["CENTIHERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["CENTIHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["CHZ:ZHZ"] = \
+    CONVERSIONS["DECAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["DAHZ:AHZ"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DAHZ:CHZ"] = \
+    CONVERSIONS["DECAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["DAHZ:DHZ"] = \
+    CONVERSIONS["DECAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["DAHZ:EXAHZ"] = \
+    CONVERSIONS["DECAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["DAHZ:FHZ"] = \
+    CONVERSIONS["DECAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["DAHZ:GIGAHZ"] = \
+    CONVERSIONS["DECAHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["DAHZ:HHZ"] = \
+    CONVERSIONS["DECAHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["DAHZ:HZ"] = \
+    CONVERSIONS["DECAHERTZ:HERTZ"] = \
         lambda value: 10 * value
-    CONVERSIONS["DAHZ:KHZ"] = \
+    CONVERSIONS["DECAHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["DAHZ:MEGAHZ"] = \
+    CONVERSIONS["DECAHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["DAHZ:MHZ"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DAHZ:MICROHZ"] = \
+    CONVERSIONS["DECAHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["DAHZ:NHZ"] = \
+    CONVERSIONS["DECAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 4) * value
+    CONVERSIONS["DECAHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["DAHZ:PETAHZ"] = \
+    CONVERSIONS["DECAHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["DAHZ:PHZ"] = \
+    CONVERSIONS["DECAHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["DAHZ:TERAHZ"] = \
+    CONVERSIONS["DECAHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["DAHZ:YHZ"] = \
+    CONVERSIONS["DECAHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["DAHZ:YOTTAHZ"] = \
+    CONVERSIONS["DECAHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["DAHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["DAHZ:ZHZ"] = \
+    CONVERSIONS["DECAHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["DHZ:AHZ"] = \
+    CONVERSIONS["DECAHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -20) * value
+    CONVERSIONS["DECIHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["DHZ:CHZ"] = \
+    CONVERSIONS["DECIHERTZ:CENTIHERTZ"] = \
         lambda value: 10 * value
-    CONVERSIONS["DHZ:DAHZ"] = \
+    CONVERSIONS["DECIHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["DHZ:EXAHZ"] = \
+    CONVERSIONS["DECIHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["DHZ:FHZ"] = \
+    CONVERSIONS["DECIHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["DHZ:GIGAHZ"] = \
+    CONVERSIONS["DECIHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["DHZ:HHZ"] = \
+    CONVERSIONS["DECIHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["DHZ:HZ"] = \
+    CONVERSIONS["DECIHERTZ:HERTZ"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["DHZ:KHZ"] = \
+    CONVERSIONS["DECIHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["DHZ:MEGAHZ"] = \
+    CONVERSIONS["DECIHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["DHZ:MHZ"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DHZ:MICROHZ"] = \
+    CONVERSIONS["DECIHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["DHZ:NHZ"] = \
+    CONVERSIONS["DECIHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["DECIHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["DHZ:PETAHZ"] = \
+    CONVERSIONS["DECIHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["DHZ:PHZ"] = \
+    CONVERSIONS["DECIHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["DHZ:TERAHZ"] = \
+    CONVERSIONS["DECIHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["DHZ:YHZ"] = \
+    CONVERSIONS["DECIHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 23) * value
-    CONVERSIONS["DHZ:YOTTAHZ"] = \
+    CONVERSIONS["DECIHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -25) * value
-    CONVERSIONS["DHZ:ZETTAHZ"] = \
+    CONVERSIONS["DECIHERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["DECIHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["DHZ:ZHZ"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAHZ:AHZ"] = \
+    CONVERSIONS["EXAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["EXAHZ:CHZ"] = \
+    CONVERSIONS["EXAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAHZ:DAHZ"] = \
+    CONVERSIONS["EXAHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["EXAHZ:DHZ"] = \
+    CONVERSIONS["EXAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAHZ:FHZ"] = \
+    CONVERSIONS["EXAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["EXAHZ:GIGAHZ"] = \
+    CONVERSIONS["EXAHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["EXAHZ:HHZ"] = \
+    CONVERSIONS["EXAHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["EXAHZ:HZ"] = \
+    CONVERSIONS["EXAHERTZ:HERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["EXAHZ:KHZ"] = \
+    CONVERSIONS["EXAHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["EXAHZ:MEGAHZ"] = \
+    CONVERSIONS["EXAHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["EXAHZ:MHZ"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["EXAHZ:MICROHZ"] = \
+    CONVERSIONS["EXAHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["EXAHZ:NHZ"] = \
+    CONVERSIONS["EXAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["EXAHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["EXAHZ:PETAHZ"] = \
+    CONVERSIONS["EXAHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["EXAHZ:PHZ"] = \
+    CONVERSIONS["EXAHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["EXAHZ:TERAHZ"] = \
+    CONVERSIONS["EXAHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["EXAHZ:YHZ"] = \
+    CONVERSIONS["EXAHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 42) * value
-    CONVERSIONS["EXAHZ:YOTTAHZ"] = \
+    CONVERSIONS["EXAHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["EXAHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["EXAHZ:ZHZ"] = \
+    CONVERSIONS["EXAHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 39) * value
-    CONVERSIONS["FHZ:AHZ"] = \
+    CONVERSIONS["EXAHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["FEMTOHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["FHZ:CHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["FHZ:DAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["FHZ:DHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["FHZ:EXAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["FHZ:GIGAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["FHZ:HHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -17) * value
-    CONVERSIONS["FHZ:HZ"] = \
+    CONVERSIONS["FEMTOHERTZ:HERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["FHZ:KHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["FHZ:MEGAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["FHZ:MHZ"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["FHZ:MICROHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["FHZ:NHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["FEMTOHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["FHZ:PETAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["FHZ:PHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["FHZ:TERAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["FHZ:YHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["FHZ:YOTTAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["FHZ:ZETTAHZ"] = \
+    CONVERSIONS["FEMTOHERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["FEMTOHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["FHZ:ZHZ"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAHZ:AHZ"] = \
+    CONVERSIONS["GIGAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["GIGAHZ:CHZ"] = \
+    CONVERSIONS["GIGAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["GIGAHZ:DAHZ"] = \
+    CONVERSIONS["GIGAHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["GIGAHZ:DHZ"] = \
+    CONVERSIONS["GIGAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAHZ:EXAHZ"] = \
+    CONVERSIONS["GIGAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["GIGAHZ:FHZ"] = \
+    CONVERSIONS["GIGAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["GIGAHZ:HHZ"] = \
+    CONVERSIONS["GIGAHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["GIGAHZ:HZ"] = \
+    CONVERSIONS["GIGAHERTZ:HERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["GIGAHZ:KHZ"] = \
+    CONVERSIONS["GIGAHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAHZ:MEGAHZ"] = \
+    CONVERSIONS["GIGAHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["GIGAHZ:MHZ"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["GIGAHZ:MICROHZ"] = \
+    CONVERSIONS["GIGAHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["GIGAHZ:NHZ"] = \
+    CONVERSIONS["GIGAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["GIGAHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["GIGAHZ:PETAHZ"] = \
+    CONVERSIONS["GIGAHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["GIGAHZ:PHZ"] = \
+    CONVERSIONS["GIGAHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["GIGAHZ:TERAHZ"] = \
+    CONVERSIONS["GIGAHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["GIGAHZ:YHZ"] = \
+    CONVERSIONS["GIGAHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["GIGAHZ:YOTTAHZ"] = \
+    CONVERSIONS["GIGAHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["GIGAHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["GIGAHZ:ZHZ"] = \
+    CONVERSIONS["GIGAHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["HHZ:AHZ"] = \
+    CONVERSIONS["GIGAHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["HECTOHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 20) * value
-    CONVERSIONS["HHZ:CHZ"] = \
+    CONVERSIONS["HECTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["HHZ:DAHZ"] = \
+    CONVERSIONS["HECTOHERTZ:DECAHERTZ"] = \
         lambda value: 10 * value
-    CONVERSIONS["HHZ:DHZ"] = \
+    CONVERSIONS["HECTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["HHZ:EXAHZ"] = \
+    CONVERSIONS["HECTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -16) * value
-    CONVERSIONS["HHZ:FHZ"] = \
+    CONVERSIONS["HECTOHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["HHZ:GIGAHZ"] = \
+    CONVERSIONS["HECTOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["HHZ:HZ"] = \
+    CONVERSIONS["HECTOHERTZ:HERTZ"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["HHZ:KHZ"] = \
+    CONVERSIONS["HECTOHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["HHZ:MEGAHZ"] = \
+    CONVERSIONS["HECTOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["HHZ:MHZ"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["HHZ:MICROHZ"] = \
+    CONVERSIONS["HECTOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["HHZ:NHZ"] = \
+    CONVERSIONS["HECTOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 5) * value
+    CONVERSIONS["HECTOHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["HHZ:PETAHZ"] = \
+    CONVERSIONS["HECTOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["HHZ:PHZ"] = \
+    CONVERSIONS["HECTOHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["HHZ:TERAHZ"] = \
+    CONVERSIONS["HECTOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["HHZ:YHZ"] = \
+    CONVERSIONS["HECTOHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 26) * value
-    CONVERSIONS["HHZ:YOTTAHZ"] = \
+    CONVERSIONS["HECTOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["HHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["HHZ:ZHZ"] = \
+    CONVERSIONS["HECTOHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 23) * value
-    CONVERSIONS["HZ:AHZ"] = \
+    CONVERSIONS["HECTOHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -19) * value
+    CONVERSIONS["HERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["HZ:CHZ"] = \
+    CONVERSIONS["HERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["HZ:DAHZ"] = \
+    CONVERSIONS["HERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["HZ:DHZ"] = \
+    CONVERSIONS["HERTZ:DECIHERTZ"] = \
         lambda value: 10 * value
-    CONVERSIONS["HZ:EXAHZ"] = \
+    CONVERSIONS["HERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["HZ:FHZ"] = \
+    CONVERSIONS["HERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["HZ:GIGAHZ"] = \
+    CONVERSIONS["HERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["HZ:HHZ"] = \
+    CONVERSIONS["HERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["HZ:KHZ"] = \
+    CONVERSIONS["HERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["HZ:MEGAHZ"] = \
+    CONVERSIONS["HERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["HZ:MHZ"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["HZ:MICROHZ"] = \
+    CONVERSIONS["HERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["HZ:NHZ"] = \
+    CONVERSIONS["HERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["HERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["HZ:PETAHZ"] = \
+    CONVERSIONS["HERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["HZ:PHZ"] = \
+    CONVERSIONS["HERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["HZ:TERAHZ"] = \
+    CONVERSIONS["HERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["HZ:YHZ"] = \
+    CONVERSIONS["HERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["HZ:YOTTAHZ"] = \
+    CONVERSIONS["HERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["HZ:ZETTAHZ"] = \
+    CONVERSIONS["HERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["HERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["HZ:ZHZ"] = \
+    CONVERSIONS["KILOHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["KHZ:AHZ"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["KHZ:CHZ"] = \
+    CONVERSIONS["KILOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["KHZ:DAHZ"] = \
+    CONVERSIONS["KILOHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** 2) * value
-    CONVERSIONS["KHZ:DHZ"] = \
+    CONVERSIONS["KILOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["KHZ:EXAHZ"] = \
+    CONVERSIONS["KILOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["KHZ:FHZ"] = \
+    CONVERSIONS["KILOHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["KHZ:GIGAHZ"] = \
+    CONVERSIONS["KILOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["KHZ:HHZ"] = \
+    CONVERSIONS["KILOHERTZ:HECTOHERTZ"] = \
         lambda value: 10 * value
-    CONVERSIONS["KHZ:HZ"] = \
+    CONVERSIONS["KILOHERTZ:HERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["KHZ:MEGAHZ"] = \
+    CONVERSIONS["KILOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["KHZ:MHZ"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["KHZ:MICROHZ"] = \
+    CONVERSIONS["KILOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["KHZ:NHZ"] = \
+    CONVERSIONS["KILOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["KILOHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["KHZ:PETAHZ"] = \
+    CONVERSIONS["KILOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["KHZ:PHZ"] = \
+    CONVERSIONS["KILOHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["KHZ:TERAHZ"] = \
+    CONVERSIONS["KILOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["KHZ:YHZ"] = \
+    CONVERSIONS["KILOHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["KHZ:YOTTAHZ"] = \
+    CONVERSIONS["KILOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["KHZ:ZETTAHZ"] = \
+    CONVERSIONS["KILOHERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["KILOHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["KHZ:ZHZ"] = \
+    CONVERSIONS["MEGAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAHZ:AHZ"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAHZ:CHZ"] = \
+    CONVERSIONS["MEGAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["MEGAHZ:DAHZ"] = \
+    CONVERSIONS["MEGAHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** 5) * value
-    CONVERSIONS["MEGAHZ:DHZ"] = \
+    CONVERSIONS["MEGAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAHZ:EXAHZ"] = \
+    CONVERSIONS["MEGAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MEGAHZ:FHZ"] = \
+    CONVERSIONS["MEGAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAHZ:GIGAHZ"] = \
+    CONVERSIONS["MEGAHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MEGAHZ:HHZ"] = \
+    CONVERSIONS["MEGAHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** 4) * value
-    CONVERSIONS["MEGAHZ:HZ"] = \
+    CONVERSIONS["MEGAHERTZ:HERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MEGAHZ:KHZ"] = \
+    CONVERSIONS["MEGAHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MEGAHZ:MHZ"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MEGAHZ:MICROHZ"] = \
+    CONVERSIONS["MEGAHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MEGAHZ:NHZ"] = \
+    CONVERSIONS["MEGAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["MEGAHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MEGAHZ:PETAHZ"] = \
+    CONVERSIONS["MEGAHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MEGAHZ:PHZ"] = \
+    CONVERSIONS["MEGAHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MEGAHZ:TERAHZ"] = \
+    CONVERSIONS["MEGAHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MEGAHZ:YHZ"] = \
+    CONVERSIONS["MEGAHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["MEGAHZ:YOTTAHZ"] = \
+    CONVERSIONS["MEGAHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGAHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MEGAHZ:ZHZ"] = \
+    CONVERSIONS["MEGAHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["MHZ:AHZ"] = \
+    CONVERSIONS["MEGAHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["MICROHERTZ:ATTOHERTZ"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["MICROHERTZ:CENTIHERTZ"] = \
+        lambda value: (10 ** -4) * value
+    CONVERSIONS["MICROHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -7) * value
+    CONVERSIONS["MICROHERTZ:DECIHERTZ"] = \
+        lambda value: (10 ** -5) * value
+    CONVERSIONS["MICROHERTZ:EXAHERTZ"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["MICROHERTZ:FEMTOHERTZ"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["MICROHERTZ:GIGAHERTZ"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["MICROHERTZ:HECTOHERTZ"] = \
+        lambda value: (10 ** -8) * value
+    CONVERSIONS["MICROHERTZ:HERTZ"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["MICROHERTZ:KILOHERTZ"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["MICROHERTZ:MEGAHERTZ"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["MICROHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["MICROHERTZ:NANOHERTZ"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["MICROHERTZ:PETAHERTZ"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["MICROHERTZ:PICOHERTZ"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["MICROHERTZ:TERAHERTZ"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["MICROHERTZ:YOCTOHERTZ"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["MICROHERTZ:YOTTAHERTZ"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["MICROHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MHZ:CHZ"] = \
+    CONVERSIONS["MICROHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -27) * value
+    CONVERSIONS["MILLIHERTZ:ATTOHERTZ"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["MILLIHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -1) * value
-    CONVERSIONS["MHZ:DAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -4) * value
-    CONVERSIONS["MHZ:DHZ"] = \
+    CONVERSIONS["MILLIHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -2) * value
-    CONVERSIONS["MHZ:EXAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["MHZ:FHZ"] = \
+    CONVERSIONS["MILLIHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["MHZ:GIGAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["MHZ:HHZ"] = \
+    CONVERSIONS["MILLIHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -5) * value
-    CONVERSIONS["MHZ:HZ"] = \
+    CONVERSIONS["MILLIHERTZ:HERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["MHZ:KHZ"] = \
+    CONVERSIONS["MILLIHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["MHZ:MEGAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["MHZ:MICROHZ"] = \
+    CONVERSIONS["MILLIHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MHZ:NHZ"] = \
+    CONVERSIONS["MILLIHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MHZ:PETAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["MHZ:PHZ"] = \
+    CONVERSIONS["MILLIHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MHZ:TERAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["MHZ:YHZ"] = \
+    CONVERSIONS["MILLIHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["MHZ:YOTTAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["MHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MHZ:ZHZ"] = \
+    CONVERSIONS["MILLIHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["MICROHZ:AHZ"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MICROHZ:CHZ"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MICROHZ:DAHZ"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["MICROHZ:DHZ"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROHZ:EXAHZ"] = \
+    CONVERSIONS["MILLIHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["MICROHZ:FHZ"] = \
+    CONVERSIONS["NANOHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["MICROHZ:GIGAHZ"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROHZ:HHZ"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["MICROHZ:HZ"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MICROHZ:KHZ"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["MICROHZ:MEGAHZ"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["MICROHZ:MHZ"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MICROHZ:NHZ"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["MICROHZ:PETAHZ"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["MICROHZ:PHZ"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MICROHZ:TERAHZ"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MICROHZ:YHZ"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["MICROHZ:YOTTAHZ"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["MICROHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MICROHZ:ZHZ"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["NHZ:AHZ"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["NHZ:CHZ"] = \
+    CONVERSIONS["NANOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -7) * value
-    CONVERSIONS["NHZ:DAHZ"] = \
+    CONVERSIONS["NANOHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["NHZ:DHZ"] = \
+    CONVERSIONS["NANOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -8) * value
-    CONVERSIONS["NHZ:EXAHZ"] = \
+    CONVERSIONS["NANOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["NHZ:FHZ"] = \
+    CONVERSIONS["NANOHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["NHZ:GIGAHZ"] = \
+    CONVERSIONS["NANOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["NHZ:HHZ"] = \
+    CONVERSIONS["NANOHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["NHZ:HZ"] = \
+    CONVERSIONS["NANOHERTZ:HERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["NHZ:KHZ"] = \
+    CONVERSIONS["NANOHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["NHZ:MEGAHZ"] = \
+    CONVERSIONS["NANOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["NHZ:MHZ"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["NHZ:MICROHZ"] = \
+    CONVERSIONS["NANOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["NHZ:PETAHZ"] = \
+    CONVERSIONS["NANOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["NANOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["NHZ:PHZ"] = \
+    CONVERSIONS["NANOHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["NHZ:TERAHZ"] = \
+    CONVERSIONS["NANOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["NHZ:YHZ"] = \
+    CONVERSIONS["NANOHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["NHZ:YOTTAHZ"] = \
+    CONVERSIONS["NANOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["NHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["NHZ:ZHZ"] = \
+    CONVERSIONS["NANOHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAHZ:AHZ"] = \
+    CONVERSIONS["NANOHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -30) * value
+    CONVERSIONS["PETAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["PETAHZ:CHZ"] = \
+    CONVERSIONS["PETAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 17) * value
-    CONVERSIONS["PETAHZ:DAHZ"] = \
+    CONVERSIONS["PETAHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["PETAHZ:DHZ"] = \
+    CONVERSIONS["PETAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAHZ:EXAHZ"] = \
+    CONVERSIONS["PETAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["PETAHZ:FHZ"] = \
+    CONVERSIONS["PETAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["PETAHZ:GIGAHZ"] = \
+    CONVERSIONS["PETAHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["PETAHZ:HHZ"] = \
+    CONVERSIONS["PETAHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["PETAHZ:HZ"] = \
+    CONVERSIONS["PETAHERTZ:HERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["PETAHZ:KHZ"] = \
+    CONVERSIONS["PETAHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAHZ:MEGAHZ"] = \
+    CONVERSIONS["PETAHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["PETAHZ:MHZ"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["PETAHZ:MICROHZ"] = \
+    CONVERSIONS["PETAHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["PETAHZ:NHZ"] = \
+    CONVERSIONS["PETAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["PETAHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["PETAHZ:PHZ"] = \
+    CONVERSIONS["PETAHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["PETAHZ:TERAHZ"] = \
+    CONVERSIONS["PETAHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["PETAHZ:YHZ"] = \
+    CONVERSIONS["PETAHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 39) * value
-    CONVERSIONS["PETAHZ:YOTTAHZ"] = \
+    CONVERSIONS["PETAHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["PETAHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PETAHZ:ZHZ"] = \
+    CONVERSIONS["PETAHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["PHZ:AHZ"] = \
+    CONVERSIONS["PETAHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["PICOHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["PHZ:CHZ"] = \
+    CONVERSIONS["PICOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -10) * value
-    CONVERSIONS["PHZ:DAHZ"] = \
+    CONVERSIONS["PICOHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -13) * value
-    CONVERSIONS["PHZ:DHZ"] = \
+    CONVERSIONS["PICOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -11) * value
-    CONVERSIONS["PHZ:EXAHZ"] = \
+    CONVERSIONS["PICOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["PHZ:FHZ"] = \
+    CONVERSIONS["PICOHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["PHZ:GIGAHZ"] = \
+    CONVERSIONS["PICOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["PHZ:HHZ"] = \
+    CONVERSIONS["PICOHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -14) * value
-    CONVERSIONS["PHZ:HZ"] = \
+    CONVERSIONS["PICOHERTZ:HERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["PHZ:KHZ"] = \
+    CONVERSIONS["PICOHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["PHZ:MEGAHZ"] = \
+    CONVERSIONS["PICOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["PHZ:MHZ"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PHZ:MICROHZ"] = \
+    CONVERSIONS["PICOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["PHZ:NHZ"] = \
+    CONVERSIONS["PICOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["PICOHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["PHZ:PETAHZ"] = \
+    CONVERSIONS["PICOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["PHZ:TERAHZ"] = \
+    CONVERSIONS["PICOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["PHZ:YHZ"] = \
+    CONVERSIONS["PICOHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["PHZ:YOTTAHZ"] = \
+    CONVERSIONS["PICOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["PHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["PHZ:ZHZ"] = \
+    CONVERSIONS["PICOHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAHZ:AHZ"] = \
+    CONVERSIONS["PICOHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -33) * value
+    CONVERSIONS["TERAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["TERAHZ:CHZ"] = \
+    CONVERSIONS["TERAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 14) * value
-    CONVERSIONS["TERAHZ:DAHZ"] = \
+    CONVERSIONS["TERAHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["TERAHZ:DHZ"] = \
+    CONVERSIONS["TERAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAHZ:EXAHZ"] = \
+    CONVERSIONS["TERAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["TERAHZ:FHZ"] = \
+    CONVERSIONS["TERAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["TERAHZ:GIGAHZ"] = \
+    CONVERSIONS["TERAHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["TERAHZ:HHZ"] = \
+    CONVERSIONS["TERAHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["TERAHZ:HZ"] = \
+    CONVERSIONS["TERAHERTZ:HERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["TERAHZ:KHZ"] = \
+    CONVERSIONS["TERAHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAHZ:MEGAHZ"] = \
+    CONVERSIONS["TERAHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["TERAHZ:MHZ"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["TERAHZ:MICROHZ"] = \
+    CONVERSIONS["TERAHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["TERAHZ:NHZ"] = \
+    CONVERSIONS["TERAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["TERAHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["TERAHZ:PETAHZ"] = \
+    CONVERSIONS["TERAHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["TERAHZ:PHZ"] = \
+    CONVERSIONS["TERAHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["TERAHZ:YHZ"] = \
+    CONVERSIONS["TERAHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["TERAHZ:YOTTAHZ"] = \
+    CONVERSIONS["TERAHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["TERAHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["TERAHZ:ZHZ"] = \
+    CONVERSIONS["TERAHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["YHZ:AHZ"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["YHZ:CHZ"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["YHZ:DAHZ"] = \
-        lambda value: (10 ** -25) * value
-    CONVERSIONS["YHZ:DHZ"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["YHZ:EXAHZ"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["YHZ:FHZ"] = \
+    CONVERSIONS["TERAHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["YHZ:GIGAHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:ATTOHERTZ"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["YOCTOHERTZ:CENTIHERTZ"] = \
+        lambda value: (10 ** -22) * value
+    CONVERSIONS["YOCTOHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** -25) * value
+    CONVERSIONS["YOCTOHERTZ:DECIHERTZ"] = \
+        lambda value: (10 ** -23) * value
+    CONVERSIONS["YOCTOHERTZ:EXAHERTZ"] = \
+        lambda value: (10 ** -42) * value
+    CONVERSIONS["YOCTOHERTZ:FEMTOHERTZ"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["YOCTOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["YHZ:HHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -26) * value
-    CONVERSIONS["YHZ:HZ"] = \
+    CONVERSIONS["YOCTOHERTZ:HERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["YHZ:KHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["YHZ:MEGAHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["YHZ:MHZ"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["YHZ:MICROHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** -18) * value
-    CONVERSIONS["YHZ:NHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** -21) * value
+    CONVERSIONS["YOCTOHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["YHZ:PETAHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["YHZ:PHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["YHZ:TERAHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["YHZ:YOTTAHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -48) * value
-    CONVERSIONS["YHZ:ZETTAHZ"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["YHZ:ZHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["YOTTAHZ:AHZ"] = \
+    CONVERSIONS["YOCTOHERTZ:ZETTAHERTZ"] = \
+        lambda value: (10 ** -45) * value
+    CONVERSIONS["YOTTAHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** 42) * value
-    CONVERSIONS["YOTTAHZ:CHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** 26) * value
-    CONVERSIONS["YOTTAHZ:DAHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** 23) * value
-    CONVERSIONS["YOTTAHZ:DHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAHZ:EXAHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["YOTTAHZ:FHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** 39) * value
-    CONVERSIONS["YOTTAHZ:GIGAHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["YOTTAHZ:HHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** 22) * value
-    CONVERSIONS["YOTTAHZ:HZ"] = \
+    CONVERSIONS["YOTTAHERTZ:HERTZ"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["YOTTAHZ:KHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAHZ:MEGAHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["YOTTAHZ:MHZ"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["YOTTAHZ:MICROHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["YOTTAHZ:NHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["YOTTAHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["YOTTAHZ:PETAHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** 9) * value
-    CONVERSIONS["YOTTAHZ:PHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** 36) * value
-    CONVERSIONS["YOTTAHZ:TERAHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["YOTTAHZ:YHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 48) * value
-    CONVERSIONS["YOTTAHZ:ZETTAHZ"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["YOTTAHZ:ZHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:ZEPTOHERTZ"] = \
         lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAHZ:AHZ"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["ZETTAHZ:CHZ"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["ZETTAHZ:DAHZ"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["ZETTAHZ:DHZ"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAHZ:EXAHZ"] = \
+    CONVERSIONS["YOTTAHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["ZETTAHZ:FHZ"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["ZETTAHZ:GIGAHZ"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["ZETTAHZ:HHZ"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["ZETTAHZ:HZ"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["ZETTAHZ:KHZ"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["ZETTAHZ:MEGAHZ"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["ZETTAHZ:MHZ"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["ZETTAHZ:MICROHZ"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["ZETTAHZ:NHZ"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["ZETTAHZ:PETAHZ"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ZETTAHZ:PHZ"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["ZETTAHZ:TERAHZ"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["ZETTAHZ:YHZ"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAHZ:YOTTAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:ATTOHERTZ"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAHZ:ZHZ"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["ZHZ:AHZ"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZHZ:CHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:CENTIHERTZ"] = \
         lambda value: (10 ** -19) * value
-    CONVERSIONS["ZHZ:DAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:DECAHERTZ"] = \
         lambda value: (10 ** -22) * value
-    CONVERSIONS["ZHZ:DHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:DECIHERTZ"] = \
         lambda value: (10 ** -20) * value
-    CONVERSIONS["ZHZ:EXAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:EXAHERTZ"] = \
         lambda value: (10 ** -39) * value
-    CONVERSIONS["ZHZ:FHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:FEMTOHERTZ"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["ZHZ:GIGAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:GIGAHERTZ"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["ZHZ:HHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:HECTOHERTZ"] = \
         lambda value: (10 ** -23) * value
-    CONVERSIONS["ZHZ:HZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:HERTZ"] = \
         lambda value: (10 ** -21) * value
-    CONVERSIONS["ZHZ:KHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:KILOHERTZ"] = \
         lambda value: (10 ** -24) * value
-    CONVERSIONS["ZHZ:MEGAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:MEGAHERTZ"] = \
         lambda value: (10 ** -27) * value
-    CONVERSIONS["ZHZ:MHZ"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ZHZ:MICROHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:MICROHERTZ"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["ZHZ:NHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["ZEPTOHERTZ:NANOHERTZ"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["ZHZ:PETAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:PETAHERTZ"] = \
         lambda value: (10 ** -36) * value
-    CONVERSIONS["ZHZ:PHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:PICOHERTZ"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["ZHZ:TERAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:TERAHERTZ"] = \
         lambda value: (10 ** -33) * value
-    CONVERSIONS["ZHZ:YHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:YOCTOHERTZ"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["ZHZ:YOTTAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:YOTTAHERTZ"] = \
         lambda value: (10 ** -45) * value
-    CONVERSIONS["ZHZ:ZETTAHZ"] = \
+    CONVERSIONS["ZEPTOHERTZ:ZETTAHERTZ"] = \
         lambda value: (10 ** -42) * value
+    CONVERSIONS["ZETTAHERTZ:ATTOHERTZ"] = \
+        lambda value: (10 ** 39) * value
+    CONVERSIONS["ZETTAHERTZ:CENTIHERTZ"] = \
+        lambda value: (10 ** 23) * value
+    CONVERSIONS["ZETTAHERTZ:DECAHERTZ"] = \
+        lambda value: (10 ** 20) * value
+    CONVERSIONS["ZETTAHERTZ:DECIHERTZ"] = \
+        lambda value: (10 ** 22) * value
+    CONVERSIONS["ZETTAHERTZ:EXAHERTZ"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["ZETTAHERTZ:FEMTOHERTZ"] = \
+        lambda value: (10 ** 36) * value
+    CONVERSIONS["ZETTAHERTZ:GIGAHERTZ"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["ZETTAHERTZ:HECTOHERTZ"] = \
+        lambda value: (10 ** 19) * value
+    CONVERSIONS["ZETTAHERTZ:HERTZ"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["ZETTAHERTZ:KILOHERTZ"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["ZETTAHERTZ:MEGAHERTZ"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["ZETTAHERTZ:MICROHERTZ"] = \
+        lambda value: (10 ** 27) * value
+    CONVERSIONS["ZETTAHERTZ:MILLIHERTZ"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["ZETTAHERTZ:NANOHERTZ"] = \
+        lambda value: (10 ** 30) * value
+    CONVERSIONS["ZETTAHERTZ:PETAHERTZ"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["ZETTAHERTZ:PICOHERTZ"] = \
+        lambda value: (10 ** 33) * value
+    CONVERSIONS["ZETTAHERTZ:TERAHERTZ"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["ZETTAHERTZ:YOCTOHERTZ"] = \
+        lambda value: (10 ** 45) * value
+    CONVERSIONS["ZETTAHERTZ:YOTTAHERTZ"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["ZETTAHERTZ:ZEPTOHERTZ"] = \
+        lambda value: (10 ** 42) * value
 
     SYMBOLS = dict()
-    SYMBOLS["AHZ"] = "aHz"
-    SYMBOLS["CHZ"] = "cHz"
-    SYMBOLS["DAHZ"] = "daHz"
-    SYMBOLS["DHZ"] = "dHz"
-    SYMBOLS["EXAHZ"] = "EHz"
-    SYMBOLS["FHZ"] = "fHz"
-    SYMBOLS["GIGAHZ"] = "GHz"
-    SYMBOLS["HHZ"] = "hHz"
-    SYMBOLS["HZ"] = "Hz"
-    SYMBOLS["KHZ"] = "kHz"
-    SYMBOLS["MEGAHZ"] = "MHz"
-    SYMBOLS["MHZ"] = "mHz"
-    SYMBOLS["MICROHZ"] = "µHz"
-    SYMBOLS["NHZ"] = "nHz"
-    SYMBOLS["PETAHZ"] = "PHz"
-    SYMBOLS["PHZ"] = "pHz"
-    SYMBOLS["TERAHZ"] = "THz"
-    SYMBOLS["YHZ"] = "yHz"
-    SYMBOLS["YOTTAHZ"] = "YHz"
-    SYMBOLS["ZETTAHZ"] = "ZHz"
-    SYMBOLS["ZHZ"] = "zHz"
+    SYMBOLS["ATTOHERTZ"] = "aHz"
+    SYMBOLS["CENTIHERTZ"] = "cHz"
+    SYMBOLS["DECAHERTZ"] = "daHz"
+    SYMBOLS["DECIHERTZ"] = "dHz"
+    SYMBOLS["EXAHERTZ"] = "EHz"
+    SYMBOLS["FEMTOHERTZ"] = "fHz"
+    SYMBOLS["GIGAHERTZ"] = "GHz"
+    SYMBOLS["HECTOHERTZ"] = "hHz"
+    SYMBOLS["HERTZ"] = "Hz"
+    SYMBOLS["KILOHERTZ"] = "kHz"
+    SYMBOLS["MEGAHERTZ"] = "MHz"
+    SYMBOLS["MICROHERTZ"] = "µHz"
+    SYMBOLS["MILLIHERTZ"] = "mHz"
+    SYMBOLS["NANOHERTZ"] = "nHz"
+    SYMBOLS["PETAHERTZ"] = "PHz"
+    SYMBOLS["PICOHERTZ"] = "pHz"
+    SYMBOLS["TERAHERTZ"] = "THz"
+    SYMBOLS["YOCTOHERTZ"] = "yHz"
+    SYMBOLS["YOTTAHERTZ"] = "YHz"
+    SYMBOLS["ZEPTOHERTZ"] = "zHz"
+    SYMBOLS["ZETTAHERTZ"] = "ZHz"
 
     def __init__(self, value=None, unit=None):
         _omero_model.Frequency.__init__(self)

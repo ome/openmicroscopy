@@ -81,7 +81,7 @@ public class ChannelProcessorTest
 
     private static ome.units.quantity.Length makeWave(double d)
     {
-        return LengthI.convert(new LengthI(d, UnitsLength.NM));
+        return LengthI.convert(new LengthI(d, UnitsLength.NANOMETER));
     }
 
     private static ome.units.quantity.Length makeCut(double d)

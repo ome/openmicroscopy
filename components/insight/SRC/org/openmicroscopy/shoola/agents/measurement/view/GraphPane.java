@@ -469,8 +469,8 @@ public class GraphPane
 	    Point p;
 	    StringBuilder b;
 	    MeasurementUnits units = model.getMeasurementUnits();
-	    double sx = units.getMicronsPixelX();
-	    double sy = units.getMicronsPixelX();
+	    double sx = units.getPixelSizeX().getValue();
+	    double sy = units.getPixelSizeX().getValue();
 	    while (i.hasNext()) {
             p = i.next();
             b = new StringBuilder();

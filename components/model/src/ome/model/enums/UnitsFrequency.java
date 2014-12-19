@@ -25,27 +25,27 @@ import java.util.Map;
 
 public enum UnitsFrequency {
 
-    YOTTAHZ("YHz"),
-    ZETTAHZ("ZHz"),
-    EXAHZ("EHz"),
-    PETAHZ("PHz"),
-    TERAHZ("THz"),
-    GIGAHZ("GHz"),
-    MEGAHZ("MHz"),
-    KHZ("kHz"),
-    HHZ("hHz"),
-    DAHZ("daHz"),
-    HZ("Hz"),
-    DHZ("dHz"),
-    CHZ("cHz"),
-    MHZ("mHz"),
-    MICROHZ("µHz"),
-    NHZ("nHz"),
-    PHZ("pHz"),
-    FHZ("fHz"),
-    AHZ("aHz"),
-    ZHZ("zHz"),
-    YHZ("yHz");
+    YOTTAHERTZ("YHz"),
+    ZETTAHERTZ("ZHz"),
+    EXAHERTZ("EHz"),
+    PETAHERTZ("PHz"),
+    TERAHERTZ("THz"),
+    GIGAHERTZ("GHz"),
+    MEGAHERTZ("MHz"),
+    KILOHERTZ("kHz"),
+    HECTOHERTZ("hHz"),
+    DECAHERTZ("daHz"),
+    HERTZ("Hz"),
+    DECIHERTZ("dHz"),
+    CENTIHERTZ("cHz"),
+    MILLIHERTZ("mHz"),
+    MICROHERTZ("µHz"),
+    NANOHERTZ("nHz"),
+    PICOHERTZ("pHz"),
+    FEMTOHERTZ("fHz"),
+    ATTOHERTZ("aHz"),
+    ZEPTOHERTZ("zHz"),
+    YOCTOHERTZ("yHz");
 
     private static final Map<String, UnitsFrequency> bySymbol
         = new HashMap<String, UnitsFrequency>();

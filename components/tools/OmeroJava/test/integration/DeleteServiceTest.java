@@ -52,6 +52,7 @@ import omero.model.Experiment;
 import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Fileset;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.IObject;
@@ -3566,16 +3567,16 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> images = new ArrayList<IObject>();
         images.add(mmFactory.createImage());
         images.add(mmFactory.createImage());
-        StageLabel sl = mmFactory.createStageLabel();
-        ((Image) images.get(0)).setStageLabel(sl);
-        ((Image) images.get(1)).setStageLabel(sl);
+        Fileset fileset = mmFactory.simpleFileset();
+        ((Image) images.get(0)).setFileset(fileset);
+        ((Image) images.get(1)).setFileset(fileset);
         List<IObject> objs = iUpdate.saveAndReturnArray(images);
 
         Image image0 = (Image) objs.get(0);
         Image image1 = (Image) objs.get(1);
 
-        sl = image0.getStageLabel();
-        assertEquals(sl, image1.getStageLabel());
+        fileset = image0.getFileset();
+        assertEquals(fileset, image1.getFileset());
 
         try {
             delete(new Delete(REF_IMAGE, image0.getId().getValue(), null));
@@ -3591,7 +3592,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         assertExists(image0.getPrimaryPixels());
         assertExists(image1);
         assertExists(image1.getPrimaryPixels());
-        assertExists(sl);
+        assertExists(fileset);
     }
 
     /**
@@ -3840,7 +3841,6 @@ public class DeleteServiceTest extends AbstractServerTest {
      * Simulates an SVS import in which many Pixels are attached to a single,
      * archived OriginalFile.
      */
-    @Test(groups = { "ticket:5237", "ticket:11348", "broken" })
     public void testDeletePixelsAndFiles() throws Exception {
         Image img1 = mmFactory.createImage();
         Image img2 = mmFactory.createImage();

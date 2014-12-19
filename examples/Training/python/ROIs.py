@@ -31,11 +31,11 @@ imageId = 27544
 
 # Create ROI.
 # =================================================================
-# We are using the core Python API and omero.model objects here, since ROIs are
-# not yet supported in the Python Blitz Gateway.
+# We are using the core Python API and omero.model objects here, since ROIs
+# are not yet supported in the Python Blitz Gateway.
 #
-# In this example, we create an ROI with a rectangular shape and attach it to an
-# image.
+# In this example, we create an ROI with a rectangular shape and attach it to
+# an image.
 x = 50
 y = 200
 width = 100
@@ -43,12 +43,13 @@ height = 50
 image = conn.getObject("Image", imageId)
 theZ = image.getSizeZ() / 2
 theT = 0
-print "Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s, height: %s" % \
-        (theZ, theT, x, y, width, height)
+print ("Adding a rectangle at theZ: %s, theT: %s, X: %s, Y: %s, width: %s,"
+       " height: %s" % (theZ, theT, x, y, width, height))
 
 # create an ROI, link it to Image
 roi = omero.model.RoiI()
-roi.setImage(image._obj)    # use the omero.model.ImageI that underlies the 'image' wrapper
+# use the omero.model.ImageI that underlies the 'image' wrapper
+roi.setImage(image._obj)
 
 # create a rectangle shape and add to ROI
 rect = omero.model.RectI()
@@ -111,7 +112,8 @@ for roi in result.rois:
             shape['x2'] = s.getX2().getValue()
             shape['y1'] = s.getY1().getValue()
             shape['y2'] = s.getY2().getValue()
-        elif type(s) in (omero.model.MaskI, omero.model.LabelI, omero.model.PolygonI):
+        elif type(s) in (
+                omero.model.MaskI, omero.model.LabelI, omero.model.PolygonI):
             print type(s), " Not supported by this code"
         # Do some processing here, or just print:
         print "   Shape:",

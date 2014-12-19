@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.util.EditorUtil 
+ * org.openmicroscopy.shoola.agents.util.EditorUtil
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -47,16 +47,12 @@ import ome.units.UNITS;
 import omero.model.ElectricPotential;
 import omero.model.Frequency;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.PlaneInfo;
 import omero.model.Power;
 import omero.model.Pressure;
 import omero.model.Temperature;
-import omero.model.enums.UnitsElectricPotential;
-import omero.model.enums.UnitsFrequency;
 import omero.model.enums.UnitsLength;
-import omero.model.enums.UnitsPower;
-import omero.model.enums.UnitsPressure;
-import omero.model.enums.UnitsTemperature;
 
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -69,7 +65,6 @@ import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMEComboBoxUI;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 import com.google.common.math.DoubleMath;
 
@@ -98,7 +93,7 @@ import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
-/** 
+/**
  * Collection of helper methods to format data objects.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -192,7 +187,7 @@ public class EditorUtil
     public static final String GROUP_VISIBLE = "Collaborative";
 
     /** Text describing the <code>Group</code> permission. */
-    public static final String	 ROUP_DESCRIPTION = 
+    public static final String	 ROUP_DESCRIPTION =
             "Visible to members of the Group only.";
 
     /** Text describing the <code>Private</code> permission. */
@@ -205,10 +200,10 @@ public class EditorUtil
     public static final String EMAIL = "E-mail";
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS_NO_BRACKET = UnitsObject.MICRONS;
+    public static final String MICRONS_NO_BRACKET = LengthI.lookupSymbol(UnitsLength.MICROMETER);
 
     /** String to represent the micron symbol. */
-    public static final String MICRONS = "("+UnitsObject.MICRONS+")";
+    public static final String MICRONS = "("+MICRONS_NO_BRACKET+")";
 
     /** String to represent the celsius symbol. */
     public static final String CELSIUS = "(℃)";
@@ -297,7 +292,7 @@ public class EditorUtil
     /** Identifies the Objective's <code>Nominal Magnification</code> field. */
     public static final String NOMINAL_MAGNIFICATION = "Nominal Magnification";
 
-    /** 
+    /**
      * Identifies the Objective's <code>Calibrated Magnification</code> field.
      */
     public static final String CALIBRATED_MAGNIFICATION = "Calibrated " +
@@ -423,7 +418,7 @@ public class EditorUtil
 
     /** Identifies the ROI count field. */
     public static final String ROI_COUNT = "ROI Count";
-    
+
     /** The text for the external identifier. */
     public static final String EXTERNAL_IDENTIFIER = "External Identifier";
 
@@ -519,8 +514,8 @@ public class EditorUtil
 
     /** Unicode character for a non-breaking space */
     public static final String NONBRSPACE = "\u00A0";
-    
-    /** 
+
+    /**
      * The value to multiply the server value by when it is a percent fraction.
      */
     private static final int PERCENT_FRACTION = 100;
@@ -585,17 +580,6 @@ public class EditorUtil
     }
 
     /**
-     * Transforms the size and returns the value and units.
-     * 
-     * @param value The value to transform.
-     * @return See above.
-     */
-    public static UnitsObject transformSize(Double value)
-    {
-        return UIUtilities.transformSize(value);
-    }
-
-    /**
      * Returns the pixels size as a string.
      *
      * @param details The map to convert.
@@ -604,31 +588,27 @@ public class EditorUtil
     private static String formatPixelsSize(Map details)
     {
         String units = null;
-        UnitsObject o;
-        String x = (String) details.get(PIXEL_SIZE_X);
-        String y = (String) details.get(PIXEL_SIZE_Y);
-        String z = (String) details.get(PIXEL_SIZE_Z);
+        Length x = (Length) details.get(PIXEL_SIZE_X);
+        Length y = (Length) details.get(PIXEL_SIZE_Y);
+        Length z = (Length) details.get(PIXEL_SIZE_Z);
         Double dx = null, dy = null, dz = null;
         NumberFormat nf = NumberFormat.getInstance();
         try {
-            dx = Double.parseDouble(x);
-            o = transformSize(dx);
-            units = o.getUnits();
-            dx = o.getValue();
+        	x = UIUtilities.transformSize(x);
+            dx = x.getValue();
+            units = ((LengthI)x).getSymbol();
         } catch (Exception e) {
         }
         try {
-            dy = Double.parseDouble(y);
-            o = transformSize(dy);
-            if (units == null) units = o.getUnits();
-            dy = o.getValue();
+        	y = UIUtilities.transformSize(y);
+            dy = y.getValue();
+            if (units == null) units = ((LengthI)y).getSymbol();
         } catch (Exception e) {
         }
         try {
-            dz = Double.parseDouble(z);
-            o = transformSize(dz);
-            if (units == null) units = o.getUnits();
-            dz = o.getValue();
+        	z = UIUtilities.transformSize(z);
+            dz = z.getValue();
+            if (units == null) units = ((LengthI)z).getSymbol();
         } catch (Exception e) {
         }
 
@@ -650,7 +630,7 @@ public class EditorUtil
         }
         label += ") ";
         if (value.length() == 0) return null;
-        if (units == null) units = UnitsObject.MICRONS;
+        if (units == null) units = LengthI.lookupSymbol(UnitsLength.MICROMETER);
         return label+units+": </b>"+value;
     }
 
@@ -669,9 +649,9 @@ public class EditorUtil
     }
 
     /**
-     * Transforms the specified {@link ExperimenterData} object into 
+     * Transforms the specified {@link ExperimenterData} object into
      * a visualization form.
-     * 
+     *
      * @param data The {@link ExperimenterData} object to transform.
      * @return See above.
      */
@@ -696,14 +676,15 @@ public class EditorUtil
             }
 
     /**
-     * Transforms the specified {@link PixelsData} object into 
+     * Transforms the specified {@link PixelsData} object into
      * a visualization form.
-     * 
+     *
      * @param data The {@link PixelsData} object to transform.
      * @return See above.
      */
     public static Map<String, Object> transformPixelsData(PixelsData data)
     {
+    	Length nullLength = new LengthI(0, UnitsLength.PIXEL);
         LinkedHashMap<String, Object> details =
                 new LinkedHashMap<String, Object>(9);
         if (data == null) {
@@ -711,9 +692,9 @@ public class EditorUtil
             details.put(SIZE_Y, "");
             details.put(SECTIONS, "");
             details.put(TIMEPOINTS, "");
-            details.put(PIXEL_SIZE_X, "");
-            details.put(PIXEL_SIZE_Y, "");
-            details.put(PIXEL_SIZE_Z, "");
+            details.put(PIXEL_SIZE_X, nullLength);
+            details.put(PIXEL_SIZE_Y, nullLength);
+            details.put(PIXEL_SIZE_Z, nullLength);
             details.put(PIXEL_TYPE, "");
             details.put(CHANNELS, "");
         } else {
@@ -722,12 +703,12 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
-            Length l = data.getPixelSizeX(UnitsLength.MICROM);
-			details.put(PIXEL_SIZE_X,  l == null ? "0" : ""+l.getValue());
-			l = data.getPixelSizeY(UnitsLength.MICROM);
-			details.put(PIXEL_SIZE_Y,  l == null ? "0" : ""+l.getValue());
-			l = data.getPixelSizeZ(UnitsLength.MICROM);
-			details.put(PIXEL_SIZE_Z,  l == null ? "0" : ""+l.getValue());
+            Length l = data.getPixelSizeX(UnitsLength.MICROMETER);
+			details.put(PIXEL_SIZE_X,  l == null ? nullLength : l);
+			l = data.getPixelSizeY(UnitsLength.MICROMETER);
+			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
+			l = data.getPixelSizeZ(UnitsLength.MICROMETER);
+			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
 			details.put(PIXEL_TYPE,
 					PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
         }
@@ -754,7 +735,7 @@ public class EditorUtil
             details.put(PIXEL_SIZE_X, "");
             details.put(PIXEL_SIZE_Y, "");
             details.put(PIXEL_SIZE_Z, "");
-            details.put(PIXEL_TYPE, "");  
+            details.put(PIXEL_TYPE, "");
             details.put(EMISSION+" "+WAVELENGTH+"s", "");
             details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
             return details;
@@ -777,9 +758,9 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             try {
-                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX(UnitsLength.MICROM)));
-                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY(UnitsLength.MICROM)));
-                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ(UnitsLength.MICROM)));
+                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX(UnitsLength.MICROMETER)));
+                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY(UnitsLength.MICROMETER)));
+                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ(UnitsLength.MICROMETER)));
                 details.put(PIXEL_TYPE,
                         PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
             } catch (Exception e) {
@@ -789,11 +770,11 @@ public class EditorUtil
                 details.put(PIXEL_TYPE, "");
             }
         }
-        details.put(EMISSION+" "+WAVELENGTH+"s", ""); 
+        details.put(EMISSION+" "+WAVELENGTH+"s", "");
         Timestamp date = getAcquisitionTime(image);
-        if (date == null) 
+        if (date == null)
             details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
-        else 
+        else
             details.put(ACQUISITION_DATE, UIUtilities.formatTime(date));
         return details;
     }
@@ -850,7 +831,7 @@ public class EditorUtil
      *                   <code>false</code> otherwise.
      * @return See above.
      */
-    public static String formatExperimenterInitial(ExperimenterData exp, 
+    public static String formatExperimenterInitial(ExperimenterData exp,
             boolean capitalize)
     {
         if (exp == null) return "";
@@ -874,7 +855,7 @@ public class EditorUtil
     }
 
     /**
-     * Transforms the specified {@link ExperimenterData} object into 
+     * Transforms the specified {@link ExperimenterData} object into
      * a visualization form.
      *
      * @param data The {@link ExperimenterData} object to transform.
@@ -923,7 +904,7 @@ public class EditorUtil
     /**
      * Returns <code>true</code> it the object has been annotated,
      * <code>false</code> otherwise.
-     * 
+     *
      * @param object The object to handle.
      * @return See above.
      */
@@ -956,7 +937,7 @@ public class EditorUtil
             int n = 1;
             try {
                 String format = image.getFormat();
-                if (format != null && 
+                if (format != null &&
                         FORMATS_WITH_COMPANION.contains(format.toLowerCase()))
                     n = 2;
             } catch (Exception e) {
@@ -998,7 +979,7 @@ public class EditorUtil
         Map<Long, Long> counts = null;
         if (object instanceof DatasetData)
             counts = ((DatasetData) object).getAnnotationsCounts();
-        else if (object instanceof ProjectData) 
+        else if (object instanceof ProjectData)
             counts = ((ProjectData) object).getAnnotationsCounts();
         else if (object instanceof ImageData)
             counts = ((ImageData) object).getAnnotationsCounts();
@@ -1060,7 +1041,7 @@ public class EditorUtil
     /**
      * Returns the last characters of the name when the name is longer that the
      * specified value.
-     * 
+     *
      * @param name The name to truncate.
      * @return See above.
      */
@@ -1094,7 +1075,7 @@ public class EditorUtil
     /**
      * Returns the last characters of the name when the name is longer that the
      * specified value.
-     * 
+     *
      * @param name The name to truncate.
      * @param maxLength The maximum length.
      * @return See above.
@@ -1124,7 +1105,7 @@ public class EditorUtil
     /**
      * Returns <code>true</code> if the specified data object is readable,
      * <code>false</code> otherwise, depending on the permission.
-     * 
+     *
      * @param ho The data object to check.
      * @return See above.
      */
@@ -1225,7 +1206,7 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Length wl = data.getEmissionWavelength(UnitsLength.NM);
+        Length wl = data.getEmissionWavelength(UnitsLength.NANOMETER);
         if (wl == null) {
         	notSet.add(EMISSION);
         } else {
@@ -1242,7 +1223,7 @@ public class EditorUtil
             }
         }
 
-        wl = data.getExcitationWavelength(UnitsLength.NM);
+        wl = data.getExcitationWavelength(UnitsLength.NANOMETER);
         if (wl == null) {
         	notSet.add(EXCITATION);
         } else {
@@ -1260,12 +1241,12 @@ public class EditorUtil
         }
 
         double f = data.getNDFilter();
-        if (f < 0) 
+        if (f < 0)
             notSet.add(ND_FILTER);
         else
         	details.put(ND_FILTER, f*100);
 
-        Length ph = data.getPinholeSize(UnitsLength.MICROM);
+        Length ph = data.getPinholeSize(UnitsLength.MICROMETER);
         if (ph == null) {
             notSet.add(PIN_HOLE_SIZE);
         }
@@ -1273,7 +1254,7 @@ public class EditorUtil
         	f = ph.getValue();
         	details.put(PIN_HOLE_SIZE, f+NONBRSPACE+ph.getSymbol());
         }
-        
+
         s = data.getFluor();
         if (StringUtils.isBlank(s))
             notSet.add(FLUOR);
@@ -1390,7 +1371,7 @@ public class EditorUtil
         s = data.getMicroscopeType();
         if (StringUtils.isBlank(s))
             notSet.add(TYPE);
-        details.put(TYPE, s); 
+        details.put(TYPE, s);
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -1480,7 +1461,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        Length wd = data.getWorkingDistance(UnitsLength.MICROM);
+        Length wd = data.getWorkingDistance(UnitsLength.MICROMETER);
         if (wd==null) {
             notSet.add(WORKING_DISTANCE);
         }
@@ -1544,7 +1525,7 @@ public class EditorUtil
 
     /**
      * Transforms the acquisition's condition.
-     * 
+     *
      * @param data The value to convert.
      * @return See above.
      */
@@ -1575,7 +1556,7 @@ public class EditorUtil
         	f = t.getValue();
         	details.put(TEMPERATURE, f+NONBRSPACE+t.getSymbol());
         }
-        
+
         Pressure p = data.getAirPressure(null);
         if (p == null) {
             notSet.add(AIR_PRESSURE);
@@ -1584,7 +1565,7 @@ public class EditorUtil
         	f = p.getValue();
         	details.put(AIR_PRESSURE, f+NONBRSPACE+p.getSymbol());
         }
-        
+
         f = data.getHumidity();
         if (f < 0) {
             notSet.add(HUMIDITY);
@@ -1638,14 +1619,14 @@ public class EditorUtil
             notSet.add(POSITION_X);
         } else f = p.getValue();
         details.put(POSITION_X, f);
-        
+
         p = data.getPositionY(UnitsLength.REFERENCEFRAME);
         f = 0;
         if (p == null) {
             notSet.add(POSITION_Y);
         } else f = p.getValue();
         details.put(POSITION_Y, f);
-        
+
         p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
         f = 0;
         if (p == null) {
@@ -1704,7 +1685,7 @@ public class EditorUtil
 
     /**
      * Transforms the filter.
-     * 
+     *
      * @param data The value to convert.
      * @return See above.
      */
@@ -1749,7 +1730,7 @@ public class EditorUtil
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s)) 
+        if (StringUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
@@ -1759,39 +1740,39 @@ public class EditorUtil
         s = data.getType();
         if (StringUtils.isBlank(s))
             notSet.add(TYPE);
-        details.put(TYPE, s); 
+        details.put(TYPE, s);
         s = data.getFilterWheel();
         if (StringUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Length wl = data.getCutIn(UnitsLength.NM);
+        Length wl = data.getCutIn(UnitsLength.NANOMETER);
         int i = 0;
-        if (wl == null) 
+        if (wl == null)
         	notSet.add(CUT_IN);
         else  {
         	i = (int)wl.getValue();
         	 details.put(CUT_IN, i+NONBRSPACE+wl.getSymbol());
         }
-       
-        wl = data.getCutOut(UnitsLength.NM);
+
+        wl = data.getCutOut(UnitsLength.NANOMETER);
         if (wl == null) {
             notSet.add(CUT_OUT);
-        } 
+        }
         else {
         	i = (int)wl.getValue();
         	details.put(CUT_OUT, i+NONBRSPACE+wl.getSymbol());
         }
-       
-        wl = data.getCutInTolerance(UnitsLength.NM);
+
+        wl = data.getCutInTolerance(UnitsLength.NANOMETER);
         if (wl == null) {
             notSet.add(CUT_IN_TOLERANCE);
-        } 
+        }
         else {
         	i = (int)wl.getValue();
         	details.put(CUT_IN_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
         }
-        
-        wl = data.getCutOutTolerance(UnitsLength.NM);
+
+        wl = data.getCutOutTolerance(UnitsLength.NANOMETER);
         if (wl == null) {
             notSet.add(CUT_OUT_TOLERANCE);
         }
@@ -1799,7 +1780,7 @@ public class EditorUtil
         	i = (int)wl.getValue();
         	details.put(CUT_OUT_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
         }
-        
+
         Double d = data.getTransmittance();
         double dv = 0;
         if (d == null) {
@@ -1820,7 +1801,7 @@ public class EditorUtil
     public static Map<String, Object> transformLightSourceAndSetting(
             ChannelAcquisitionData data)
     {
-        LinkedHashMap<String, Object> 
+        LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>();
         Map<String, Object> m;
 
@@ -1843,18 +1824,20 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Length wl = data.getLightSettingsWavelength(UnitsLength.NM);
+        Length wl = data.getLightSettingsWavelength(UnitsLength.NANOMETER);
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
                 details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
+                notSet.remove(WAVELENGTH);
             }
         } else {
             Double vi = 0.0;
-            if (wl == null) 
+            if (wl == null)
             	notSet.add(WAVELENGTH);
             else  {
             	vi = wl.getValue();
             	details.put(WAVELENGTH, vi+NONBRSPACE+wl.getSymbol());
+            	notSet.remove(WAVELENGTH);
             }
         }
         details.put(NOT_SET, notSet);
@@ -1947,16 +1930,16 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Length wl = data.getLaserWavelength(UnitsLength.NM);
+            Length wl = data.getLaserWavelength(UnitsLength.NANOMETER);
             double wave = 0;
             if (wl == null) {
                 notSet.add(WAVELENGTH);
             }
             else {
             	wave = wl.getValue();
-            	details.put(WAVELENGTH, (new Float(wave))+NONBRSPACE+wl.getSymbol()); 
+            	details.put(WAVELENGTH, (new Float(wave))+NONBRSPACE+wl.getSymbol());
             }
-            
+
             int i = data.getLaserFrequencyMultiplication();
             if (i < 0) {
                 notSet.add(FREQUENCY_MULTIPLICATION);
@@ -1980,7 +1963,7 @@ public class EditorUtil
             }
             else {
             	f = freq.getValue();
-            	details.put(REPETITION_RATE, f+NONBRSPACE+freq.getSymbol()); 
+            	details.put(REPETITION_RATE, f+NONBRSPACE+freq.getSymbol());
             }
             o = data.getLaserPockelCell();
             if (o == null) {
@@ -2002,13 +1985,13 @@ public class EditorUtil
     public static Map<String, Object> transformDetector(DetectorData data)
     {
 
-        LinkedHashMap<String, Object> 
+        LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>();
         details.put(MODEL, "");
         details.put(MANUFACTURER, "");
         details.put(SERIAL_NUMBER, "");
         details.put(LOT_NUMBER, "");
-        details.put(TYPE, ""); 
+        details.put(TYPE, "");
         details.put(GAIN, new Double(0));
         details.put(VOLTAGE, new Double(0));
         details.put(OFFSET, new Double(0));
@@ -2054,7 +2037,7 @@ public class EditorUtil
         ElectricPotential p = data.getVoltage(null);
         if (p == null) {
             notSet.add(VOLTAGE);
-        } 
+        }
         else {
         	v = p.getValue();
         	details.put(VOLTAGE, v+NONBRSPACE+p.getSymbol());
@@ -2062,7 +2045,7 @@ public class EditorUtil
         f = data.getOffset();
         if (f == null) {
             notSet.add(OFFSET);
-        } 
+        }
         else {
         	v = f.doubleValue();
         	details.put(OFFSET, v);
@@ -2070,7 +2053,7 @@ public class EditorUtil
         f = data.getZoom();
         if (f == null) {
             notSet.add(ZOOM);
-        } 
+        }
         else {
         	v = f.doubleValue();
         	details.put(ZOOM, v);
@@ -2078,7 +2061,7 @@ public class EditorUtil
         f = data.getAmplificationGain();
         if (f == null) {
             notSet.add(AMPLIFICATION);
-        } 
+        }
         else {
         	v = f.doubleValue();
         	 details.put(AMPLIFICATION, v);
@@ -2086,8 +2069,8 @@ public class EditorUtil
         s = data.getType();
         if (StringUtils.isBlank(s))
             notSet.add(TYPE);
-        else 
-        	details.put(TYPE, s); 
+        else
+        	details.put(TYPE, s);
         details.put(NOT_SET, notSet);
         return details;
     }
@@ -2143,7 +2126,7 @@ public class EditorUtil
         double v = 0;
         if (freq == null) {
             notSet.add(READ_OUT_RATE);
-        } 
+        }
         else {
         	v = UIUtilities.roundTwoDecimals(freq.getValue());
         	details.put(READ_OUT_RATE, v+NONBRSPACE+freq.getSymbol());
@@ -2177,7 +2160,7 @@ public class EditorUtil
      */
     public static Map<String, Object> transformPlaneInfo(PlaneInfo plane)
     {
-        LinkedHashMap<String, Object> 
+        LinkedHashMap<String, Object>
         details = new LinkedHashMap<String, Object>(4);
         details.put(DELTA_T, new Double(0));
         details.put(EXPOSURE_TIME, new Double(0));
@@ -2224,7 +2207,7 @@ public class EditorUtil
 
     /**
      * Initializes a <code>JComboBox</code>.
-     * 
+     *
      * @param values The values to display.
      * @param decrement The value by which the font size is reduced.
      * @param backgoundColor The backgoundColor of the combo box.
@@ -2250,7 +2233,7 @@ public class EditorUtil
 
     /**
      * Initializes a <code>JComboBox</code>.
-     * 
+     *
      * @param values The values to display.
      * @param decrement The value by which the font size is reduced.
      * @return See above.
@@ -2303,7 +2286,7 @@ public class EditorUtil
 
     /**
      * Formats the label for a required field.
-     * 
+     *
      * @param value The value to display.
      * @param required Pass <code>true</code> if the field is required,
      *                 <code>false</code> otherwise.
@@ -2355,7 +2338,7 @@ public class EditorUtil
         if (object == null) return date;
         if (object instanceof AnnotationData)
             time = ((AnnotationData) object).getLastModified();
-        else if (object instanceof ImageData) 
+        else if (object instanceof ImageData)
             time = getAcquisitionTime((ImageData) object);
         else time = object.getCreated();
         if (time != null) date = UIUtilities.formatShortDateTime(time);

@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import logging
-import traceback
-import re
-from omero_version import omero_version
 
 from django.core.validators import validate_email
 
-from webclient.webclient_gateway import OmeroWebGateway
-
 logger = logging.getLogger(__name__)
+
 
 def upgradeCheck():
     # upgrade check:
@@ -28,18 +24,21 @@ def upgradeCheck():
         check = UpgradeCheck("web", url=settings.UPGRADES_URL)
         check.run()
         if check.isUpgradeNeeded():
-            logger.error("Upgrade is available. Please visit http://downloads.openmicroscopy.org/latest/omero/.\n")
+            logger.error(
+                "Upgrade is available. Please visit"
+                " http://downloads.openmicroscopy.org/latest/omero/.\n")
         else:
             logger.debug("Up to date.\n")
     except Exception, x:
         logger.error("Upgrade check error: %s" % x)
-    
+
+
 def toBoolean(val):
-    """ 
+    """
     Get the boolean value of the provided input.
 
         If the value is a boolean return the value.
-        Otherwise check to see if the value is in 
+        Otherwise check to see if the value is in
         ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
         and returns True if value is not in the list
     """
@@ -47,9 +46,10 @@ def toBoolean(val):
     if val is True or val is False:
         return val
 
-    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
 
-    return not str( val ).strip().lower() in falseItems
+    return not str(val).strip().lower() in falseItems
+
 
 def removeUnaddressable(experimenters):
     """
@@ -64,8 +64,9 @@ def removeUnaddressable(experimenters):
                 try:
                     validate_email(email)
                     remaining.append(experimenter)
-                except Exception, e:
-                    # Silently ignore experimenters with broken email addresses
+                except Exception:
+                    # Silently ignore experimenters with broken email
+                    # addresses
                     # It would make sense to send an error message back to the
                     # client here if it were not for the fact that in the
                     # experimenter addressee field, these will already have
@@ -74,14 +75,15 @@ def removeUnaddressable(experimenters):
 
     return remaining
 
+
 def resolveExperimenters(conn, everyone=False, group_ids=None,
                          experimenter_ids=None):
     """
     Turn group IDs and experimenter IDs into a list of experimenters broken
     down by if they are inactive or not
 
-    If the everyone paramter is provided, ignore the other parameters and simply
-    get all the available email addresses in the server
+    If the everyone paramter is provided, ignore the other parameters and
+    simply get all the available email addresses in the server
     """
 
     # Ignore all other inputs if everyone is set
@@ -123,4 +125,3 @@ def resolveExperimenters(conn, everyone=False, group_ids=None,
                 experimenters_inactive[experimenter.id] = experimenter
 
     return experimenters.values(), experimenters_inactive.values()
-

@@ -32,7 +32,7 @@ try:
                 print "ERROR: Failed to cancel"
 
         reports = deleteHandlePrx.report()
-        r = reports[0] # We only sent one command
+        r = reports[0]  # We only sent one command
         print "Report:error=%s,warning=%s,deleted=%s" % \
             (r.error, r.warning, r.actualDeletes)
 

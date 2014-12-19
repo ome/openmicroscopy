@@ -5,7 +5,7 @@ import time
 import omero
 import omero.clients
 
-from omero.rtypes import *
+from omero.rtypes import rstring, rtime
 
 client = omero.client(sys.argv)
 try:
@@ -16,6 +16,6 @@ try:
     sf = client.createSession()
     u = sf.getUpdateService()
 
-    i = u.saveAndReturnObject( i )
+    i = u.saveAndReturnObject(i)
 finally:
     client.closeSession()

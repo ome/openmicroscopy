@@ -25,27 +25,27 @@ import java.util.Map;
 
 public enum UnitsElectricPotential {
 
-    YOTTAV("YV"),
-    ZETTAV("ZV"),
-    EXAV("EV"),
-    PETAV("PV"),
-    TERAV("TV"),
-    GIGAV("GV"),
-    MEGAV("MV"),
-    KV("kV"),
-    HV("hV"),
-    DAV("daV"),
-    V("V"),
-    DV("dV"),
-    CV("cV"),
-    MV("mV"),
-    MICROV("µV"),
-    NV("nV"),
-    PV("pV"),
-    FV("fV"),
-    AV("aV"),
-    ZV("zV"),
-    YV("yV");
+    YOTTAVOLT("YV"),
+    ZETTAVOLT("ZV"),
+    EXAVOLT("EV"),
+    PETAVOLT("PV"),
+    TERAVOLT("TV"),
+    GIGAVOLT("GV"),
+    MEGAVOLT("MV"),
+    KILOVOLT("kV"),
+    HECTOVOLT("hV"),
+    DECAVOLT("daV"),
+    VOLT("V"),
+    DECIVOLT("dV"),
+    CENTIVOLT("cV"),
+    MILLIVOLT("mV"),
+    MICROVOLT("µV"),
+    NANOVOLT("nV"),
+    PICOVOLT("pV"),
+    FEMTOVOLT("fV"),
+    ATTOVOLT("aV"),
+    ZEPTOVOLT("zV"),
+    YOCTOVOLT("yV");
 
     private static final Map<String, UnitsElectricPotential> bySymbol
         = new HashMap<String, UnitsElectricPotential>();

@@ -35,6 +35,7 @@
         <value>classpath:omero/test2.xml</value>
         <value>classpath:ome/services/sec-primitives.xml</value>
         <value>classpath:ome/services/blitz-servantDefinitions.xml</value>
+        <value>classpath:ome/services/blitz-graph-rules.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>

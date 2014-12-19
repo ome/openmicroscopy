@@ -28,9 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
-
 import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject;
-import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.KeyDescription;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -116,7 +114,8 @@ public class MeasurementTableModel extends AbstractTableModel
         if (value instanceof List) {
             List<Object> l = (List<Object>) value;
             
-            if (l.size() == 1) return l.get(0);
+            if (l.size() == 1) 
+            	return l.get(0);
             StringBuilder buffer = new StringBuilder();
             Iterator<Object> i = l.iterator();
             Object v;
@@ -153,12 +152,8 @@ public class MeasurementTableModel extends AbstractTableModel
      */
     public String getColumnName(int col) 
     {
-        String s = columnNames.get(col).getKey();
-        if (AttributeUnits.getUnits(s, unitsType).equals(""))
-            return columnNames.get(col).getDescription();
-        else
-            return columnNames.get(col).getDescription()+
-        " (" + AttributeUnits.getUnits(s, unitsType)+")"; }
+    	return columnNames.get(col).getDescription();
+     }
     
     /**
      * Overridden to return the number of columns.
@@ -170,7 +165,9 @@ public class MeasurementTableModel extends AbstractTableModel
      * Overridden to return the number of rows.
      * @see AbstractTableModel#getRowCount()
      */
-    public int getRowCount() { return values.size(); }
+    public int getRowCount() { 
+    	return values.size();
+    	}
     
     /**
      * Overridden so that the cell is not editable.

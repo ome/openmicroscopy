@@ -42,15 +42,15 @@ class TestModel51(lib.ITest):
             "where img.id = :id"), omero.sys.ParametersI().addId(img.id.val))
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
-        assert omero.model.enums.UnitsTime.S == unit
+        assert omero.model.enums.UnitsTime.SECOND == unit
 
-        micros = omero.model.enums.UnitsTime.MICROS
+        micros = omero.model.enums.UnitsTime.MICROSECOND
 
         exposure.setUnit(micros)
         plane_info = self.update.saveAndReturnObject(plane_info)
         exposure = plane_info.getExposureTime()
         unit = exposure.getUnit()
-        assert omero.model.enums.UnitsTime.MICROS == unit
+        assert omero.model.enums.UnitsTime.MICROSECOND == unit
 
     def testPhysicalSize(self):
         img = self.importMIF(name="testPhysicalSize", physicalSizeZ=2.0)[0]
@@ -61,15 +61,15 @@ class TestModel51(lib.ITest):
             omero.sys.ParametersI().addId(img.id.val))
         sizeZ = pixels.getPhysicalSizeZ()
         unit = sizeZ.getUnit()
-        assert omero.model.enums.UnitsLength.MICROM == unit
+        assert omero.model.enums.UnitsLength.MICROMETER == unit
 
-        mm = omero.model.enums.UnitsLength.MM
+        mm = omero.model.enums.UnitsLength.MILLIMETER
 
         sizeZ.setUnit(mm)
         pixels = self.update.saveAndReturnObject(pixels)
         sizeZ = pixels.getPhysicalSizeZ()
         unit = sizeZ.getUnit()
-        assert omero.model.enums.UnitsLength.MM == unit
+        assert omero.model.enums.UnitsLength.MILLIMETER == unit
 
     UL = omero.model.enums.UnitsLength
     try:

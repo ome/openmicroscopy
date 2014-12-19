@@ -34,12 +34,12 @@ def print_obj(obj, indent=0):
     Helper method to display info about OMERO objects.
     Not all objects will have a "name" or owner field.
     """
-    print """%s%s:%s  Name:"%s" (owner=%s)""" % (\
-            " " * indent,
-            obj.OMERO_CLASS,\
-            obj.getId(),\
-            obj.getName(),\
-            obj.getOwnerOmeName())
+    print """%s%s:%s  Name:"%s" (owner=%s)""" % (
+        " " * indent,
+        obj.OMERO_CLASS,
+        obj.getId(),
+        obj.getName(),
+        obj.getOwnerOmeName())
 
 
 # List all Projects available to me, and their Datasets and Images:
@@ -101,8 +101,8 @@ print " T:", image.getSizeT()
 z = image.getSizeZ() / 2
 t = 0
 renderedImage = image.renderImage(z, t)
-#renderedImage.show()               # popup (use for debug only)
-#renderedImage.save("test.jpg")     # save in the current folder
+# renderedImage.show()               # popup (use for debug only)
+# renderedImage.save("test.jpg")     # save in the current folder
 
 
 # Retrieve Screening data:
@@ -130,8 +130,8 @@ if plateId >= 0:
         print "  Well: ", well.row, well.column, " Fields:", index
         for index in xrange(0, index):
             print "    Image: ", \
-                    well.getImage(index).getName(),\
-                    well.getImage(index).getId()
+                well.getImage(index).getName(),\
+                well.getImage(index).getId()
 
 # Close connection:
 # =================================================================

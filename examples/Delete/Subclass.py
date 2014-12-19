@@ -10,6 +10,7 @@ import omero.callbacks
 c = omero.client()
 s = c.createSession()
 
+
 class Subclass(omero.callbacks.DeleteCallbackI):
 
     def finished(self, errors):
@@ -19,8 +20,8 @@ class Subclass(omero.callbacks.DeleteCallbackI):
         try:
             reports = self.handle.report()
             for r in reports:
-                print "Report:error=%s,warning=%s,deleted=%s" % \
-                        (r.error, r.warning, r.actualDeletes)
+                print "Report:error=%s,warning=%s,deleted=%s" % (
+                    r.error, r.warning, r.actualDeletes)
 
         except omero.ServerError:
             print "Something happened to the handle?!?"

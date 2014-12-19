@@ -128,20 +128,68 @@
                 {% elif manager.well.getWellSample.image %}
                 original_file_paths_url = "{% url 'original_file_paths' manager.well.getWellSample.image.id %}";
                 {% endif %}
+
+                var $toolbar_info_panel = $("#toolbar_info_panel"),
+                        // $panel_textarea = $("#toolbar_info_panel textarea"),
+                        $panel_title = $("#toolbar_info_panel .panel_title"),
+                        $panel_div = $("#toolbar_info_panel .panel_div");
+
                 $("#show_fs_files_btn").click(function(){
-                    $("#fs_paths_popup").show();
-                    var fs_input = $("#fs_paths_popup textarea");
+
+                    // If we're already showing Image file info, toggle hide
+                    if ($toolbar_info_panel.is(":visible") && 
+                            $panel_title.text().split("Image file").length > 1) {
+                        $toolbar_info_panel.hide();
+                        return;
+                    }
+                    $("#toolbar_info_panel").show();
+                    $panel_title.html("Loading...");
+                    $panel_div.empty();
                     if (original_file_paths_url) {
                         $.getJSON(original_file_paths_url,
                             function(data) {
-                                fs_input.val(data.join("\n"));
-                                fs_input.attr("cols", 150);
-                                fs_input.attr("rows", Math.max(3, data.length));
+                                $panel_title.html(data.length + " Image file" + (data.length>1 ? "s:" : ":"));
+                                $("<textarea readonly='true'></textarea")
+                                    .val(data.join("\n"))
+                                    .attr("cols", 150)
+                                    .attr("rows", Math.max(3, data.length))
+                                    .appendTo($panel_div);
                             });
                     }
                 });
-                $("#fs_paths_popup img").click(function(){
-                    $("#fs_paths_popup").hide();
+
+                var hierarchy_url;
+                {% if manager.image %}
+                hierarchy_url = "{% url 'load_metadata_hierarchy' 'image' manager.image.id %}";
+                {% elif manager.well %}
+                hierarchy_url = "{% url 'load_metadata_hierarchy' 'image' manager.well.getWellSample.image.id %}";
+                {% endif %}
+                
+                // show Image hierarchy Project/Dataset tree.
+                $("#show_image_hierarchy").click(function(){
+
+                    // If we're already showing Image file info, toggle hide
+                    if ($toolbar_info_panel.is(":visible") && 
+                            $panel_title.text().split("contained").length > 1) {
+                        $toolbar_info_panel.hide();
+                        return;
+                    }
+                    $("#toolbar_info_panel").show();
+
+                    $panel_title.html("Loading...");
+                    $panel_div.empty();
+                    if (hierarchy_url) {
+                        $panel_div.load(hierarchy_url);
+                        $panel_div.load(hierarchy_url,
+                            function(data) {
+                                $panel_title.html("Image contained in:");
+                            });
+                    }
+                });
+
+
+                $("#toolbar_info_panel img").click(function(){
+                    $("#toolbar_info_panel").hide();
                 });
 
                 // handle submit of Add Comment form
@@ -159,6 +207,18 @@
                         OME.filterAnnotationsAddedBy();
                     },
                 });
+
+                // Comment field - show/hide placeholder and submit button.
+                $("#add_comment_wrapper label").inFieldLabels();
+                $("#id_comment")
+                    .blur(function(event){
+                        setTimeout(function(){
+                            $("#add_comment_form input[type='submit']").hide();
+                        }, 200);    // Delay allows clicking on the submit button!
+                    })
+                    .focus(function(){
+                        $("#add_comment_form input[type='submit']").show();
+                    });
 
                 // bind removeItem to various [-] buttons
                 $("#comments_container").on("click", ".removeComment", function(event){
@@ -286,11 +346,12 @@
                 // show dialog for choosing file to attach...
                 $("#choose_file_anns").click(function() {
                     // show dialog first, then do the AJAX call to load files...
-                    var attach_form = $( "#choose_attachments_form" );
-                    attach_form.dialog( "open" );
+                    var $attach_form = $( "#choose_attachments_form" );
+                    $attach_form.dialog( "open" );
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
-                    attach_form.load(load_url);
+                    $attach_form.html("&nbsp<br><img src='{% static 'webgateway/img/spinner.gif' %}' /> Loading attachments");
+                    $attach_form.load(load_url);
                     return false;
                 });
 
@@ -436,59 +497,26 @@
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 
-            <!-- Image Name -->
+
+            <!-- panel for extra info shown by toolbar buttons if needed - Duplicated under well below -->
+            <div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
+                <div class="panel_title" style="margin: 4px">
+                    <!-- text loaded here -->
+                </div>
+                <div class="panel_div"></div>
+                <div style="clear:both"></div>
+            </div>
+
+            <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                <input type="text" size="30">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+            </div>
+
+            <!-- Image Name, ID, owner -->
             {% with obj=manager.image nameText=manager.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
-            
-
-            <div style="padding-bottom:6px; position:relative">
-
-                <h2 class="data_heading_id" style="float:left">
-                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                </h2>
-
-                <button class="btn silver btn_text" href="#" style="float:right"
-                        onclick="return OME.openPopup('{% url 'web_image_viewer' manager.image.id %}')"
-                        title="Open full image viewer in new window">
-                    <span>
-                         {% trans "Launch Full viewer" %}
-                    </span>
-                </button>
-                <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                    <input type="text" size="30">
-                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                </div>
-
-            </div>
-
-            {% if manager.image.showOriginalFilePaths %}
-            <div style="clear:both"></div>
-            <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
-                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
-                <div style="margin: 4px">{{ manager.image.getImportedFilesInfo.count }} Image file{{ manager.image.getImportedFilesInfo.count|pluralize:'s'}}:</div>
-                <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
-                <div style="clear:both"></div>
-            </div>
-            {% endif %}
-
-            <div style="clear:both"></div>
-            <div style="padding-bottom:6px; position:relative">
-
-
-                {% if manager.openAstexViewerCompatible %}
-                
-                <button style="float:right; margin-right:5px" class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url 'open_astex_viewer' 'image_8bit' manager.image.id %}')"
-                        title="Open with Open Astex Viewer">
-                    <span>
-                    {% trans "Volume viewer" %} 
-                    </span>
-                </button>
-                {% endif %}
-                
-            </div>
-                  
-            <div style="clear:both"></div>
                   
 
             <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
@@ -520,16 +548,10 @@
 
                 {% include "webclient/annotations/includes/toolbar.html" %}
 
-                <!-- Dataset Name -->
+                <!-- Dataset Name, ID, Owner -->
                 {% with obj=manager.dataset nameText=manager.dataset.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-
-
-                
-                <h2 class="data_heading_id">
-                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                </h2>
 
                 <hr/>
                 
@@ -540,10 +562,6 @@
                 
                 <table>
                     <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>
-                    </tr>
-                    <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>                    
@@ -553,15 +571,10 @@
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
-                    <!-- Project Name -->
+                    <!-- Project Name, ID, Owner -->
                     {% with obj=manager.project nameText=manager.project.name %}
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
-
-                    
-                    <h2 class="data_heading_id">
-                        {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                    </h2>
 
                     <hr/>
                     
@@ -571,10 +584,6 @@
                     {% endwith %}
                     
                     <table>
-                        <tr>
-                            <th>Owner:</th>
-                            <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>
-                        </tr>
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -590,37 +599,21 @@
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 
-                        <!-- Image (in WellSample) Description -->
-            {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name %}
-                {% include "webclient/annotations/includes/name.html" %}
-            {% endwith %}
 
-                   
-
-             <h2 class="data_heading_id" style="float:left">
-                Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong>
-                Well ID: <strong>{{ manager.well.id }}</strong>
-            </h2>
-            
-            <button class="btn silver btn_text" href="#" style="float:right"
-                onclick="return OME.openPopup('{% url 'web_image_viewer' manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
-                <span>
-                {% trans "Launch full viewer" %} 
-                </span>
-            </button>
-            
-            <div style="clear:both"></div>
-
-            {% if manager.well.getWellSample.image.showOriginalFilePaths %}
-            <!-- duplicated under 'image' above -->
-            <div style="clear:both"></div>
-            <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
+            <!-- panel for extra info shown by toolbar buttons if needed - Duplicated under image above -->
+            <div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
                 <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
-                <div style="margin: 4px">{{ manager.well.getWellSample.image.getImportedFilesInfo.count }} Image file{{ manager.well.getWellSample.image.getImportedFilesInfo.count|pluralize:'s'}}:</div>
-                <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
+                <div class="panel_title" style="margin: 4px">
+                    <!-- text loaded here -->
+                </div>
+                <div class="panel_div"></div>
                 <div style="clear:both"></div>
             </div>
-            {% endif %}
+
+            <!-- Image (in WellSample) Name, ID, Owner -->
+            {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name wellImageId=manager.well.getWellSample.image.id %}
+                {% include "webclient/annotations/includes/name.html" %}
+            {% endwith %}
 
             <hr/>
             
@@ -656,6 +649,13 @@
                         <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
                     </div>
                 </h2>
+                <table style="float:left; width:100px; clear:left">
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
+                    </tr>
+                </table>
+                <div style="clear: both"></div>
 
                 <hr/>
                 
@@ -666,10 +666,6 @@
                 
                 <table>
                     <tr>
-                        <th>Owner:</th>
-                        <td id='owner_fullname'>{{ manager.acquisition.getOwner.getFullName }}</td>
-                    </tr>
-                    <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>
@@ -679,15 +675,10 @@
 
                     {% include "webclient/annotations/includes/toolbar.html" %}
 
-                    <!-- Plate Name -->
+                    <!-- Plate Name, ID, Owner -->
                     {% with obj=manager.plate nameText=manager.plate.name %}
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
-
-
-                    <h2 class="data_heading_id">
-                        {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                    </h2>
                     
                     <hr/>
                     
@@ -698,10 +689,6 @@
 
 
                     <table>
-                        <tr>
-                            <th>Owner:</th>
-                            <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>
-                        </tr>
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
@@ -718,14 +705,10 @@
 
                         {% include "webclient/annotations/includes/toolbar.html" %}
 
-                        <!-- Screen Name -->
+                        <!-- Screen Name, ID, Owner -->
                         {% with obj=manager.screen nameText=manager.screen.name %}
                             {% include "webclient/annotations/includes/name.html" %}
                         {% endwith %}
-
-                        <h2 class="data_heading_id">
-                            {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
-                        </h2>
                             
                         <hr/>   
                             
@@ -737,16 +720,12 @@
 
                         <table>
                             <tr>
-                                <th>Owner:</th>
-                                <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>
-                            </tr>
-                            <tr>
                                 <th>Creation Date:</th>
                                 <td id='creation_date'>{{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td>
                             </tr>                    
                             <tr>
-                                <th>Screen Count:</th>
-                                <td id='child_count'>{{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'screen' 'screens' %}</td>
+                                <th>Plate Count:</th>
+                                <td id='child_count'>{{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'plate' 'plates' %}</td>
                             </tr>
                         </table>
                         {% endif %}
@@ -943,7 +922,6 @@
             
             <!-- COMMENTS -->
             <div class="annotations_section">
-                <h2>{% trans "Comment:" %}</h2>
                 
                     {% if manager.canAnnotate %}
                     <form id="add_comment_form" action="{% url 'annotate_comment' %}" method="post">{% csrf_token %}
@@ -956,10 +934,15 @@
                         <tr class="hiddenField"><td>{{ form_comment.acquisition }}</td></tr>
                         <tr class="hiddenField"><td>{{ form_comment.well }}</td></tr>
                         <tr>
-                            <td>{{ form_comment.comment }}</td>
+                            <td>
+                                <div id="add_comment_wrapper" style="position: relative">
+                                    <label class="inline_label" for="id_comment">Add Comment:</label>
+                                    {{ form_comment.comment }}
+                                </div>
+                            </td>
                         </tr>
                         <tr>
-                            <td><input type="submit" value="{% trans 'Add Comment' %}" /></td>
+                            <td><input type="submit" value="{% trans 'Add Comment' %}" style="display:none" /></td>
                         </tr>
                     </table>
                     </form>
@@ -974,23 +957,6 @@
                     </div>
            
             <div class="clear"></div>          
-
-
-
-
-
-
-            <div class="annotations_section">
-                {% if manager.image %}
-                <!-- HIERARCHY - Contained In -->
-                <h2>Image Contained in:</h2>
-                <div id="hierarchy-pane">
-                    <!-- content is loaded by ajax when this tab is first displayed -->
-                    <a id="hierarchy-link" href="{% url 'load_metadata_hierarchy' 'image' manager.image.id %}">Load hierarchy...</a>
-                    <img id="hierarchy-spinner" style="display:none" src="{% static "webgateway/img/spinner.gif" %}" />
-                </div>
-                {% endif %}
-            </div>
             
         </div>
         {% endif %}
@@ -1007,13 +973,10 @@
             {% include "webclient/annotations/includes/toolbar.html" %}
 
 
-                <!-- Tag TextValue -->
+                <!-- Tag TextValue, ID, Owner -->
                 {% with obj=manager.tag nameText=manager.tag.getValue %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
-
-        
-
 
                 <hr/>
 

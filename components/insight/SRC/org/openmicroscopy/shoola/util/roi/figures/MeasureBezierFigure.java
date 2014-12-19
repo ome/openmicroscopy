@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,16 +32,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
@@ -54,10 +50,13 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
+import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
+import omero.model.Length;
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 /** 
  * Bezier figure with measurement.
@@ -99,13 +98,13 @@ public class MeasureBezierFigure
 	private boolean interactable;
 	
 	/** The list of X coordinates of the nodes on the line. */
-	private List<Double>			pointArrayX;
+	private List<Length>			pointArrayX;
 
 	/** The list of Y coordinates of the nodes on the line. */
-	private List<Double>			pointArrayY;
+	private List<Length>			pointArrayY;
 	
 	/** The list of lengths of sections on the line. */
-	private List<Double>			lengthArray;
+	private List<Length>			lengthArray;
 	
 	/** The bounds of the bezier figure. */
 	private	Rectangle2D bounds;
@@ -115,18 +114,15 @@ public class MeasureBezierFigure
 
 	/** The ROIFigure contains this Figure. */
 	protected 	ROIShape 			shape;
-	
+		
 	/** The Measurement units, and values of the image. */
 	private MeasurementUnits 		units;
-		
+	
 	/** 
 	 * The status of the figure i.e. {@link ROIFigure#IDLE} or 
 	 * {@link ROIFigure#MOVING}. 
 	 */
 	private int 					status;
-	
-	/** The units of reference.*/
-	private String refUnits;
 	
 	/**
 	 * Returns the number of points(pixels) on the polyline.
@@ -144,6 +140,15 @@ public class MeasureBezierFigure
 			iterateLine(new Line2D.Double(pt1, pt2), total);
 		}
 		return total;
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ROIFigure} interface.
+	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
+	 */
+	public void setMeasurementUnits(MeasurementUnits units)
+	{
+		this.units = units;
 	}
 	
 	/**
@@ -228,33 +233,6 @@ public class MeasureBezierFigure
 		total += map.size();
 	}
 
-	/**
-	 * Formats the area.
-	 * 
-	 * @param value The value to format.
-	 * @param lineUnits Pass <code>true</code> to use the line units,
-	 *                  <code>false</code> otherwise.
-	 * @return See above.
-	 */
-	private String formatValue(double value, boolean lineUnits)
-	{
-	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-	    if (units.isInMicrons()){
-	        UnitsObject v;
-	        if (lineUnits) {
-	            v = UIUtilities.transformSize(value);
-	        } else {
-	            v = UIUtilities.transformSquareSize(value);
-	        }
-	        StringBuffer buffer = new StringBuffer();
-	        buffer.append(formatter.format(v.getValue()));
-	        buffer.append(v.getUnits());
-	        return buffer.toString();
-	    }
-	    if (lineUnits) return addLineUnits(formatter.format(value));
-	    return addAreaUnits(formatter.format(value));
-	}
-
 	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure()
 	{
@@ -326,9 +304,9 @@ public class MeasureBezierFigure
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		this.readOnly = readOnly;
-		pointArrayX = new ArrayList<Double>();
-		pointArrayY = new ArrayList<Double>();
-		lengthArray = new ArrayList<Double>();
+		pointArrayX = new ArrayList<Length>();
+		pointArrayY = new ArrayList<Length>();
+		lengthArray = new ArrayList<Length>();
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
@@ -336,7 +314,6 @@ public class MeasureBezierFigure
    		this.annotatable = annotatable;
    		this.editable = editable;
    		interactable = true;
-   		refUnits = UnitsObject.MICRONS;
 	}
 
     /**
@@ -358,7 +335,8 @@ public class MeasureBezierFigure
             }
 			if (isClosed())
 			{
-				String polygonArea = formatValue(getArea(), false);
+				Length a = getArea();
+				String polygonArea = UIUtilities.formatValue(a, true);
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
 				bounds = new Rectangle2D.Double(
 						this.getBounds().getCenterX()-bounds.getWidth()/2,
@@ -381,7 +359,8 @@ public class MeasureBezierFigure
 			}
 			else
 			{
-				String polygonLength = formatValue(getLength(), true);
+				Length l = getLength();
+				String polygonLength = UIUtilities.formatValue(l);
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
 				if (super.getNodeCount() > 1)
@@ -466,34 +445,9 @@ public class MeasureBezierFigure
 	 */
 	public String addDegrees(String str)
 	{
-		return str + UnitsObject.DEGREES;
-	}
-	
-	/**
-	 * Add length unit in pixels or microns to the measurements. 
-	 * 
-	 * @param str the measurement.
-	 * @return see above.
-	 */
-	public String addLineUnits(String str)
-	{
-		if (shape == null) return str;
-		if (units.isInMicrons()) return str+refUnits;
-		return str+UIUtilities.PIXELS_SYMBOL;
-	}
-	
-	/**
-	 * Adds area ^2 to the measurements. 
-	 * 
-	 * @param str the measurement.
-	 * @return see above.
-	 */
-	public String addAreaUnits(String str)
-	{
-		if (shape == null) return str;
-		if (units.isInMicrons())
-			return str+refUnits+UIUtilities.SQUARED_SYMBOL;
-		return str+UIUtilities.PIXELS_SYMBOL+UIUtilities.SQUARED_SYMBOL;
+		if (str == null)
+			str = "0";
+		return str + UIUtilities.DEGREE_SYMBOL;
 	}
 	
 	/**
@@ -502,17 +456,10 @@ public class MeasureBezierFigure
 	 * @param i node
 	 * @return see above.
 	 */
-	private Point2D.Double getPt(int i)
+	private UnitPoint getPt(int i)
 	{
 		Point2D.Double pt = getNode(i).getControlPoint(0); 
-		if (units.isInMicrons()) {
-			double tx = UIUtilities.transformSize(
-					pt.getX()*units.getMicronsPixelX(), refUnits);
-			double ty = UIUtilities.transformSize(
-					pt.getY()*units.getMicronsPixelY(), refUnits);
-			return new Point2D.Double(tx, ty);
-		}
-		return pt;
+		return new UnitPoint(transformX(pt.getX()), transformY(pt.getY()));
 	}
 	
 	/**
@@ -520,7 +467,7 @@ public class MeasureBezierFigure
 	 * 
 	 * @return see above.
 	 */
-	public double getLength()
+	public Length getLength()
 	{
 		double length = 0;
 		Point2D p0, p1;
@@ -530,7 +477,7 @@ public class MeasureBezierFigure
 			p1 = path.get(i+1).getControlPoint(0);
 			length += p0.distance(p1);
 		}
-		return length;
+		return new LengthI(length, getUnit());
 	}
 	
 	/** 
@@ -545,19 +492,10 @@ public class MeasureBezierFigure
 	 * 
 	 * @return see above.
 	 */
-	public Point2D getCentre()
+	public UnitPoint getCentre()
 	{
-		if (units.isInMicrons())
-		{
-			Point2D.Double pt1 =  path.getCenter();
-			double tx = UIUtilities.transformSize(
-					pt1.getX()*units.getMicronsPixelX(), refUnits);
-			double ty = UIUtilities.transformSize(
-					pt1.getY()*units.getMicronsPixelY(), refUnits);
-			pt1.setLocation(tx, ty);
-			return pt1;
-		}
-		return path.getCenter();
+		Point2D.Double pt =  path.getCenter();
+		return new UnitPoint(transformX(pt.x), transformY(pt.y));
 	}
 	
 	/**
@@ -565,22 +503,22 @@ public class MeasureBezierFigure
 	 * 
 	 * @return see above.
 	 */
-	public double getArea()
+	public Length getArea()
 	{
 		double area = 0;
-		Point2D centre = getCentre();
-		Point2D p0, p1;
+		UnitPoint centre = getCentre();
+		UnitPoint p0, p1;
 		for (int i = 0 ; i < path.size() ; i++)
 		{
 			p0 = getPt(i);
 			if (i == path.size()-1) p1 = getPt(0);
 			else p1 = getPt(i+1);
 		
-			p0.setLocation(p0.getX()-centre.getX(), p0.getY()-centre.getY());
-			p1.setLocation(p1.getX()-centre.getX(), p1.getY()-centre.getY());
-			area += (p0.getX()*p1.getY()-p1.getX()*p0.getY());
+			p0.setLocation(p0.x.getValue()-centre.x.getValue(), p0.y.getValue()-centre.y.getValue());
+			p1.setLocation(p1.x.getValue()-centre.x.getValue(), p1.y.getValue()-centre.y.getValue());
+			area += (p0.x.getValue()*p1.y.getValue()-p1.x.getValue()*p0.y.getValue());
 		}
-		return Math.abs(area/2);
+		return new LengthI(Math.abs(area/2), getUnit());
 	}
 
 	/** 
@@ -629,7 +567,7 @@ public class MeasureBezierFigure
 
 		for (int i = 0 ; i < path.size(); i++)
 		{
-			pointArrayY.add(path.get(i).getControlPoint(0).getY());
+			pointArrayY.add(new LengthI(path.get(i).getControlPoint(0).getY(), getUnit()));
 		}
 		AnnotationKeys.POINTARRAYX.set(shape, pointArrayX);
 		AnnotationKeys.POINTARRAYY.set(shape, pointArrayY);
@@ -637,20 +575,20 @@ public class MeasureBezierFigure
 		{
 			AnnotationKeys.AREA.set(shape,getArea());
 			AnnotationKeys.PERIMETER.set(shape, getLength());
-			AnnotationKeys.CENTREX.set(shape, getCentre().getX());
-			AnnotationKeys.CENTREY.set(shape, getCentre().getY());
+			AnnotationKeys.CENTREX.set(shape, getCentre().x);
+			AnnotationKeys.CENTREY.set(shape, getCentre().y);
 		}
 		else
 		{
 			lengthArray.clear();
 			lengthArray.add(getLength());
 			AnnotationKeys.LENGTH.set(shape, lengthArray);
-			AnnotationKeys.CENTREX.set(shape, getCentre().getX());
-			AnnotationKeys.CENTREY.set(shape, getCentre().getY());
-			AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getX());
-			AnnotationKeys.STARTPOINTX.set(shape, getPt(0).getY());
-			AnnotationKeys.ENDPOINTX.set(shape, getPt(path.size()-1).getX());
-			AnnotationKeys.ENDPOINTY.set(shape, getPt(path.size()-1).getY());
+			AnnotationKeys.CENTREX.set(shape, getCentre().x);
+			AnnotationKeys.CENTREY.set(shape, getCentre().y);
+			AnnotationKeys.STARTPOINTX.set(shape, getPt(0).x);
+			AnnotationKeys.STARTPOINTX.set(shape, getPt(0).y);
+			AnnotationKeys.ENDPOINTX.set(shape, getPt(path.size()-1).x);
+			AnnotationKeys.ENDPOINTY.set(shape, getPt(path.size()-1).y);
 		}
 	}
 	
@@ -717,17 +655,6 @@ public class MeasureBezierFigure
 		return FigureUtil.SCRIBBLE_TYPE;
 	}
 
-	/**
-	 * Implemented as specified by the {@link ROIFigure} interface.
-	 * @see ROIFigure#setMeasurementUnits(MeasurementUnits)
-	 */
-	public void setMeasurementUnits(MeasurementUnits units)
-	{
-		this.units = units;
-		refUnits = UIUtilities.transformSize(
-				units.getMicronsPixelX()).getUnits();
-	}
-	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getPoints()
@@ -1033,4 +960,51 @@ public class MeasureBezierFigure
 	 */
 	public boolean canInteract() { return interactable; }
 
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(double x) {
+		return transformX((int)x);
+	}
+	
+	/**
+	 * Transforms the given y pixel value into a unit object
+	 * @param y A pixel value in y direction
+	 */
+	private Length transformY(double y) {
+		return transformY((int)y);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformX(int x) {
+		if(units.getPixelSizeX()!=null) 
+			return new LengthI(x*units.getPixelSizeX().getValue(), units.getPixelSizeX().getUnit());
+		else
+			return new LengthI(x, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Transforms the given x pixel value into a unit object
+	 * @param x A pixel value in x direction
+	 */
+	private Length transformY(int y) {
+		if(units.getPixelSizeY()!=null) 
+			return new LengthI(y*units.getPixelSizeY().getValue(), units.getPixelSizeY().getUnit());
+		else
+			return new LengthI(y, UnitsLength.PIXEL);
+	}
+	
+	/**
+	 * Get the unit which is used for the pixel sizes
+	 */
+	private UnitsLength getUnit() {
+		if(units.getPixelSizeX()!=null)
+			return units.getPixelSizeX().getUnit();
+		else
+			return UnitsLength.PIXEL;
+	}
 }

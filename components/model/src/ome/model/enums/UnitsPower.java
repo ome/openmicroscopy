@@ -25,27 +25,27 @@ import java.util.Map;
 
 public enum UnitsPower {
 
-    YOTTAW("YW"),
-    ZETTAW("ZW"),
-    EXAW("EW"),
-    PETAW("PW"),
-    TERAW("TW"),
-    GIGAW("GW"),
-    MEGAW("MW"),
-    KW("kW"),
-    HW("hW"),
-    DAW("daW"),
-    W("W"),
-    DW("dW"),
-    CW("cW"),
-    MW("mW"),
-    MICROW("µW"),
-    NW("nW"),
-    PW("pW"),
-    FW("fW"),
-    AW("aW"),
-    ZW("zW"),
-    YW("yW");
+    YOTTAWATT("YW"),
+    ZETTAWATT("ZW"),
+    EXAWATT("EW"),
+    PETAWATT("PW"),
+    TERAWATT("TW"),
+    GIGAWATT("GW"),
+    MEGAWATT("MW"),
+    KILOWATT("kW"),
+    HECTOWATT("hW"),
+    DECAWATT("daW"),
+    WATT("W"),
+    DECIWATT("dW"),
+    CENTIWATT("cW"),
+    MILLIWATT("mW"),
+    MICROWATT("µW"),
+    NANOWATT("nW"),
+    PICOWATT("pW"),
+    FEMTOWATT("fW"),
+    ATTOWATT("aW"),
+    ZEPTOWATT("zW"),
+    YOCTOWATT("yW");
 
     private static final Map<String, UnitsPower> bySymbol
         = new HashMap<String, UnitsPower>();

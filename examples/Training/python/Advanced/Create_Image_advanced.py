@@ -52,9 +52,11 @@ def planeGen():
                     yield pixels.getPlane(z, c, t)
 
 
-desc = "Image created from Image ID: %s, replacing Channel %s from Image ID: %s" % (imageId, replaceChannel, imageId2)
-newImg = conn.createImageFromNumpySeq(planeGen(), "ImageFromTwo", \
-        sizeZ, sizeC, sizeT, description=desc, dataset=dataset)
+desc = ("Image created from Image ID: %s, replacing Channel %s from Image ID:"
+        " %s" % (imageId, replaceChannel, imageId2))
+newImg = conn.createImageFromNumpySeq(
+    planeGen(), "ImageFromTwo", sizeZ, sizeC, sizeT, description=desc,
+    dataset=dataset)
 
 
 # Get original channel names and colors to apply to new image
@@ -64,7 +66,6 @@ colors = []
 for ch in image.getChannels():
     cNames.append(ch.getLabel())
     colors.append(ch.getColor().getRGB())
-
 
 # Save channel names and colors
 # =================================================================

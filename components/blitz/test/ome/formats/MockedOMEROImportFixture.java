@@ -63,6 +63,7 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
                 "classpath:ome/services/messaging.xml", // To share events
                 "classpath:ome/formats/fixture.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml",
+                "classpath:ome/services/blitz-graph-rules.xml",
                 "classpath:ome/services/throttling/throttling.xml",
                 "classpath:ome/config.xml" }, false);
         outer.setParent(inner);

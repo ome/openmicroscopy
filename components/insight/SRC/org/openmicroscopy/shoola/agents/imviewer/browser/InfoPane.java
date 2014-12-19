@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.InfoPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -35,8 +35,8 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.UnitsObject;
-
+import omero.model.LengthI;
+import omero.model.enums.UnitsLength;
 
 
 /** 
@@ -57,8 +57,8 @@ class InfoPane
 {
 	
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in " + UnitsObject.MICRONS + ")";
-    
+    private static final String MICRONS = "(in " + LengthI.lookupSymbol(UnitsLength.MICROMETER) + ")";
+
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";
     
