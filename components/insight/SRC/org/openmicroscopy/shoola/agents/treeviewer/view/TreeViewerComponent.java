@@ -3439,8 +3439,8 @@ class TreeViewerComponent
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				model.browseTag(node);
 		} else if (uo instanceof ImageData) {
-			if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
-				actionCmd = new ViewInPluginCmd(this, TreeViewer.IMAGE_J);
+			if (TreeViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {
+				actionCmd = new ViewInPluginCmd(this, LookupNames.IMAGE_J);
 			} else {
 				actionCmd = new ViewCmd(this, true);
 			}

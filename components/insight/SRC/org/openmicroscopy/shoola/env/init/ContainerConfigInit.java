@@ -101,7 +101,9 @@ public final class ContainerConfigInit
 			}
 
 		} catch (Exception e) {
-			if (info.getId() == LookupNames.IMAGE_J && IJ.debugMode) {
+			if ((info.getId() == LookupNames.IMAGE_J ||
+			        info.getId() == LookupNames.IMAGE_J_IMPORT)
+			        && IJ.debugMode) {
 				String msg = "An error occurred while checking if " +
 						"the dependencies are installed."+e.toString();
 				IJ.log(msg);
@@ -168,6 +170,7 @@ public final class ContainerConfigInit
     		PluginInfo info;
     		switch (v.intValue()) {
     			case LookupNames.IMAGE_J:
+    			case LookupNames.IMAGE_J_IMPORT:
     				String title = IJ.getInstance().getTitle();
     				title = title.toLowerCase();
     				if (title != null) {

@@ -28,6 +28,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -35,6 +36,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.border.BevelBorder;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +48,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.ActivatedUserAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.MoveToAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.LookupNames;
 
 import pojos.ExperimenterData;
 
@@ -233,14 +236,15 @@ class PopupMenu
             JMenu menu;
             String text = "View";
             switch (DataBrowserAgent.runAsPlugin()) {
-            case DataBrowser.IMAGE_J:
+            case LookupNames.IMAGE_J:
+            case LookupNames.IMAGE_J_IMPORT:
                 menu = new JMenu(text);
                 menu.setIcon(view.getIcon());
                 menu.add(view);
                 menu.add(controller.getAction(DataBrowserControl.VIEW_IN_IJ));
                 add(menu);
                 break;
-            case DataBrowser.KNIME:
+            case LookupNames.KNIME:
                 menu = new JMenu(text);
                 menu.setIcon(view.getIcon());
                 menu.add(view);
