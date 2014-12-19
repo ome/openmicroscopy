@@ -202,6 +202,14 @@ class TestTables(lib.ITest):
             table.setAllMetadata({})
             assert {} == clean(table.getAllMetadata())
 
+            table.setMetadata("z", rint(1))
+            with pytest.raises(omero.ApiUsageException):
+                table.setMetadata("__z", rint(2))
+            assert {"z": 1} == clean(table.getAllMetadata())
+
+            with pytest.raises(omero.ValidationException):
+                table.setMetadata("z", rint(None))
+
         finally:
             table.close()
 
