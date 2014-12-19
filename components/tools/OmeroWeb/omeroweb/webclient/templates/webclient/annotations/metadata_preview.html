@@ -161,6 +161,13 @@
               if ($.inArray(OME.preview_viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
                 $("#rdef-fullrange-btn").attr("disabled", "disabled");
               }
+
+              // viewport.load() is called after pasting rdef or loading. Cache busting rdef thumbnails...
+              $("img.rdef").each(function(){
+                  var $this = $(this),
+                      base_src = $this.attr('src').split('&_=')[0];
+                  $this.attr('src', base_src + "&_=random"+Math.random());
+              });
             });
 
             // handle 'Color' checkbox
@@ -273,12 +280,6 @@
                   })
               }
             };
-            // when we load page, force refresh of rdef thumbs (in case they are cached)
-            $("img.rdef").each(function(){
-              var $thumb = $(this),
-                src = $thumb.attr('src');
-                $thumb.attr('src', src + '&_=' + Math.random());
-            });
 
 
             {% if manager.image.canAnnotate %}
