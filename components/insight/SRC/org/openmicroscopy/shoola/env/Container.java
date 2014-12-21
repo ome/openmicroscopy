@@ -396,12 +396,6 @@ public final class Container
 		if (value <= 0) {
 			System.exit(0);
 		} else {
-		    try {
-		        DataServicesFactory.getInstance(this).shutdown(null);
-            } catch (Exception e) {
-                Logger logger = getRegistry().getLogger();
-                if (logger != null) logger.error(this, e.toString());
-            }
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
 			singleton = null;
 		}
