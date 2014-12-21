@@ -229,7 +229,6 @@ public class ImporterAgent
         if (evt == null) return;
 
         ImporterFactory.onReconnected();
-
         if (isMaster)
         {
             Importer importer = ImporterFactory.getImporter(
@@ -395,7 +394,7 @@ public class ImporterAgent
     {
         Environment env = (Environment) registry.lookup(LookupNames.ENV);
         if (env.isRunAsPlugin())
-            ImporterFactory.onGroupSwitched(true);
+            ImporterFactory.terminate();
     }
 
     /** 

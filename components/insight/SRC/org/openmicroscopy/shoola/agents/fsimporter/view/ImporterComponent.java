@@ -251,6 +251,14 @@ class ImporterComponent
 				model.getGroupId());
 	}
 
+	/** Shuts down the component.*/
+    void shutDown()
+    {
+        view.setVisible(false);
+        discard();
+        model.setState(NEW);
+    }
+    
 	/**
 	 * Sets the display mode.
 	 * 

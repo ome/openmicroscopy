@@ -25,11 +25,14 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import ij.IJ;
+
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -122,7 +125,15 @@ public class ImporterFactory
 		}
 		singleton.clear();
 	}
-	
+
+	   /** Close all the instances.*/
+    public static void terminate()
+    {
+        if (singleton.importer != null) {
+            ((ImporterComponent) singleton.importer).shutDown();
+        }
+    }
+    
 	/** Invokes when a new user has reconnected.*/
 	public static void onReconnected()
 	{
