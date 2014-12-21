@@ -960,6 +960,7 @@ class TreeViewerComponent
 		if (mv != null) mv.onRndSettingsCopied(imageIds);
 	}
 	
+	/** Shuts down the component.*/
 	void shutDown()
 	{
 		view.setVisible(false);

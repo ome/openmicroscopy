@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import ij.IJ;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
