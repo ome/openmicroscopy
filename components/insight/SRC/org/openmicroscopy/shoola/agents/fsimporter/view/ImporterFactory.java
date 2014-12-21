@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import ij.IJ;
-
 import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
