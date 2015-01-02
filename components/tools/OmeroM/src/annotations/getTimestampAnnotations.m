@@ -1,19 +1,19 @@
-function fas = getFileAnnotations(session, ids)
-% GETFILEANNOTATIONS Retrieve file annotations from the OMERO server
+function tas = getTimestampAnnotations(session, ids)
+% GETTIMESTAMPANNOTATIONS Retrieve timestamp annotations from the OMERO server
 %
-%   fas = getFileAnnotations(session, ids) returns all the file
-%   annotations identified by the input ids in the context of the session
+%   tas = getTimestampAnnotations(session, ids) returns all the timestamp 
+%   annotations identified by the input ids in the context of the session 
 %   group.
 %
 %   Examples:
 %
-%      fas = getFileAnnotations(session, ids);
+%      tas = getTimestampAnnotations(session, ids);
 %
 % See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETCOMMENTANNOTATIONS
-% GETDOUBLEANNOTATIONS, GETTAGANNOTATIONS, GETTIMESTAMPANNOTATIONS,
+% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETTAGANNOTATIONS,
 % GETXMLANNOTATIONS
 
-% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -35,5 +35,5 @@ ip = inputParser;
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
-% Return file annotations
-fas = getAnnotations(session, ids, 'file');
+% Return tag annotations
+tas = getAnnotations(session, ids, 'timestamp');

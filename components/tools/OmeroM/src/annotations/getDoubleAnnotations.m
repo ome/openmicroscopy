@@ -1,19 +1,19 @@
-function fas = getFileAnnotations(session, ids)
-% GETFILEANNOTATIONS Retrieve file annotations from the OMERO server
+function das = getDoubleAnnotations(session, ids)
+% GETDOUBLEANNOTATIONS Retrieve double annotations from the OMERO server
 %
-%   fas = getFileAnnotations(session, ids) returns all the file
+%   das = getDoubleAnnotations(session, ids) returns all the double
 %   annotations identified by the input ids in the context of the session
 %   group.
 %
 %   Examples:
 %
-%      fas = getFileAnnotations(session, ids);
+%      das = getDoubleAnnotations(session, ids);
 %
 % See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETCOMMENTANNOTATIONS
-% GETDOUBLEANNOTATIONS, GETTAGANNOTATIONS, GETTIMESTAMPANNOTATIONS,
+% GETFILEANNOTATIONS, GETTAGANNOTATIONS, GETTIMESTAMPANNOTATIONS,
 % GETXMLANNOTATIONS
 
-% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -35,5 +35,5 @@ ip = inputParser;
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
-% Return file annotations
-fas = getAnnotations(session, ids, 'file');
+% Return double annotations
+das = getAnnotations(session, ids, 'double');
