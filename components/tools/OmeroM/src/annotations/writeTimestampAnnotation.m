@@ -62,4 +62,4 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Upload and return the annotation
-ta = session.getUptateService().saveAndReturnObject(ta);
+ta = session.getUpdateService().saveAndReturnObject(ta);
