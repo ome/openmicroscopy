@@ -48,4 +48,4 @@ function tas = getProjectTimestampAnnotations(session, ids, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-tas = getObjectAnnotations(session, 'timestamp', 'image', ids, varargin{:});
+tas = getObjectAnnotations(session, 'timestamp', 'project', ids, varargin{:});
