@@ -552,6 +552,7 @@ class ITest(object):
         elapsed = stop - start
         return elapsed, rv
 
+    @classmethod
     def group_and_name(self, group):
         group = unwrap(group)
         admin = self.root.sf.getAdminService()
