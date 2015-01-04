@@ -43,7 +43,6 @@ from omero.util.temp_files import create_path
 class TestReimportArchivedFiles(lib.ITest):
 
     def setup_method(self, method):
-        super(TestReimportArchivedFiles, self).setup_method(method)
         self.pixels = self.client.sf.getPixelsService()
         self.query = self.client.sf.getQueryService()
         self.update = self.client.sf.getUpdateService()

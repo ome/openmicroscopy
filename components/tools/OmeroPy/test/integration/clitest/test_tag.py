@@ -39,7 +39,6 @@ class TestTag(CLITest):
 
     def teardown_method(self, method):
         self.teardown_mock()
-        super(TestTag, self).teardown_method(method)
 
     def create_tags(self, ntags, name):
         tag_ids = []

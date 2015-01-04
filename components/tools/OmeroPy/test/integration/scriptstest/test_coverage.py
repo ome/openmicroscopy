@@ -37,7 +37,6 @@ class TestCoverage(lib.ITest):
         getScripts returns official scripts,
         several of which are shipped with OMERO.
         """
-        lib.ITest.setup_method(self, method)
         self.rs = self.root.sf.getScriptService()
         self.us = self.client.sf.getScriptService()
         assert len(self.rs.getScripts()) > 0
