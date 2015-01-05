@@ -43,7 +43,13 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 	private JComponent component = null;
 
+	private boolean doubleClickEdit = false;
+
 	public MapTableCellEditor() {
+	}
+
+	public void setDoubleClickEdit(boolean doubleClickEdit) {
+		this.doubleClickEdit = doubleClickEdit;
 	}
 
 	@Override
@@ -52,8 +58,10 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 	}
 
 	@Override
-	public Component getTableCellEditorComponent(JTable table, Object value,
-			boolean isSelected, final int row, final int column) {
+	public Component getTableCellEditorComponent(final JTable table,
+			final Object value, final boolean isSelected, final int row,
+			final int column) {
+
 		String text = (String) value;
 		if (text.equals(MapTableModel.KEY_DUMMY)
 				|| text.equals(MapTableModel.VALUE_DUMMY))
@@ -65,7 +73,7 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 	@Override
 	public boolean isCellEditable(EventObject e) {
-		if (e instanceof MouseEvent) {
+		if (e instanceof MouseEvent && doubleClickEdit) {
 			return ((MouseEvent) e).getClickCount() > 1;
 		}
 		return super.isCellEditable(e);

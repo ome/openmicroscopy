@@ -24,12 +24,14 @@ package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import omero.model.NamedValue;
 
 import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.table.Reorderable;
 
 import pojos.MapAnnotationData;
@@ -55,6 +57,9 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	private String newKey = KEY_DUMMY;
 	private String newValue = VALUE_DUMMY;
 
+	private Icon deleteIcon = IconManager.getInstance().getIcon(
+			IconManager.DELETE_12);
+
 	public MapTableModel(MapTable table) {
 		this(table, false);
 	}
@@ -78,7 +83,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 	@Override
 	public int getColumnCount() {
-		return 2;
+		return 3;
 	}
 
 	@Override
@@ -88,8 +93,15 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 			return "Key";
 		case 1:
 			return "Value";
+		case 2:
+			return "";
 		}
 		return null;
+	}
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		return getValueAt(0, columnIndex).getClass();
 	}
 
 	@Override
@@ -101,6 +113,8 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 				return d.name;
 			case 1:
 				return d.value;
+			case 2:
+				return deleteIcon;
 			}
 		} else {
 			switch (column) {
@@ -108,6 +122,8 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 				return newKey;
 			case 1:
 				return newValue;
+			case 2:
+				return null;
 			}
 		}
 		return null;
@@ -188,8 +204,19 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		return map;
 	}
 
+	public void deleteEntry(int index) {
+		if (index >= 0 && index < data.size()) {
+			data.remove(index);
+			map.setContent(data);
+			table.revalidate();
+			fireTableDataChanged();
+		}
+	}
+
 	@Override
 	public boolean isCellEditable(int row, int column) {
+		if (column == 2)
+			return false;
 		return editable;
 	}
 

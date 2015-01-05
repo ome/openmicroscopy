@@ -21,11 +21,11 @@
 
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.DropMode;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import omero.model.MapAnnotation;
@@ -43,6 +43,10 @@ import pojos.MapAnnotationData;
 @SuppressWarnings("serial")
 public class MapTable extends JTable {
 
+	private MapTableCellEditor cellEditor;
+	
+	private MapTableCellRenderer cellRenderer;
+
 	public MapTable() {
 		this(false);
 	}
@@ -53,17 +57,23 @@ public class MapTable extends JTable {
 	}
 
 	private void init(boolean editable) {
-		TableCellEditor ce = new MapTableCellEditor();
-		TableCellRenderer cr = new MapTableCellRenderer();
-
+		cellEditor = new MapTableCellEditor();
+		cellRenderer = new MapTableCellRenderer();
+		
 		TableColumn nameColumn = getColumnModel().getColumn(0);
 		TableColumn valueColumn = getColumnModel().getColumn(1);
+		TableColumn deleteColumn = getColumnModel().getColumn(2);
 
-		nameColumn.setCellEditor(ce);
-		valueColumn.setCellEditor(ce);
+		nameColumn.setCellEditor(cellEditor);
+		valueColumn.setCellEditor(cellEditor);
+		deleteColumn.setCellEditor(cellEditor);
 
-		nameColumn.setCellRenderer(cr);
-		valueColumn.setCellRenderer(cr);
+		nameColumn.setCellRenderer(cellRenderer);
+		valueColumn.setCellRenderer(cellRenderer);
+		deleteColumn.setCellRenderer(cellRenderer);
+		
+		deleteColumn.setPreferredWidth(16);
+		deleteColumn.setMaxWidth(16);
 
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -72,10 +82,30 @@ public class MapTable extends JTable {
 			setDropMode(DropMode.INSERT_ROWS);
 			setTransferHandler(new TableRowTransferHandler(this));
 		}
+
+		// handle click on delete icons
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int column = MapTable.this.getSelectedColumn();
+				int row = MapTable.this.getSelectedRow();
+				if (column == 2) {
+					((MapTableModel) MapTable.this.getModel()).deleteEntry(row);
+				}
+			}
+		});
+		
+		// increase default row height by 3px (otherwise JTextAreas are cut off)
+		setRowHeight(getRowHeight()+3);
 	}
 
 	public void setData(MapAnnotationData data) {
 		((MapTableModel) getModel()).setData(data);
 		revalidate();
 	}
+
+	public void setDoubleClickEdit(boolean doubleClickEdit) {
+		cellEditor.setDoubleClickEdit(doubleClickEdit);
+	}
+
 }

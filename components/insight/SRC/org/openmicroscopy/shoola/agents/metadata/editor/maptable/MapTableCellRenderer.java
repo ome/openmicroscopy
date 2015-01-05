@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import java.awt.Component;
 
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -40,14 +41,23 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class MapTableCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
-	public Component getTableCellRendererComponent(JTable table, Object value,
-			boolean isSelected, boolean hasFocus, int row, int column) {
-		JLabel l = new JLabel((String) value);
+	public Component getTableCellRendererComponent(final JTable table,
+			final Object value, final boolean isSelected,
+			final boolean hasFocus, final int row, final int column) {
+		JLabel l;
+		if (value instanceof Icon) {
+			l = new JLabel((Icon) value);
+			l.setToolTipText("Delete Entry");
+		}
+		else
+			l = new JLabel((String) value);
+
 		l.setOpaque(true);
 		if (isSelected)
 			l.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
 		else
 			l.setBackground(UIUtilities.BACKGROUND_COLOR);
+
 		return l;
 	}
 
