@@ -50,7 +50,7 @@ public class FullTextThread extends ExecutionThread {
 
     private static final Executor.Work<?> PREPARE_INDEXING = new Executor.SimpleWork("FullTextIndexer", "prepare") {
         /**
-         * Since these instances are used repeatedly, we need to check for
+         * Since this instance is used repeatedly, we need to check for
          * already set SqlAction
          */
         @Override
