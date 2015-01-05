@@ -129,7 +129,7 @@ class TestScripts(lib.ITest):
 
     def testUploadOfficialScript(self):
         scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
 
         scriptLines = [
             "import omero",
@@ -166,7 +166,7 @@ class TestScripts(lib.ITest):
         # Trying to run script as described:
         # http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
         scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         client = self.root
 
         scriptLines = [
@@ -243,7 +243,7 @@ class TestScripts(lib.ITest):
 
     def testEditScript(self):
         scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
 
         scriptLines = [
             "import omero",
@@ -295,10 +295,7 @@ client.closeSession()
 
     def testScriptValidation(self):
         scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-
-        scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
 
         invalidScript = "This text is not valid as a script"
 

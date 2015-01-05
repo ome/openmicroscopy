@@ -157,7 +157,7 @@ class TestPermissions(lib.ITest):
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
@@ -188,7 +188,7 @@ class TestPermissions(lib.ITest):
     def testCreatAndUpdatePublicGroupReadOnly(self):
         # this is the test of creating public group read-only and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
@@ -218,7 +218,7 @@ class TestPermissions(lib.ITest):
 
     def testCreatAndUpdatePublicGroupReadAnnotate(self):
         # this is the test of creating public group and updating it
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
@@ -249,7 +249,7 @@ class TestPermissions(lib.ITest):
     def testCreatAndUpdatePublicGroup(self):
         # this is the test of creating public group and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
@@ -279,7 +279,7 @@ class TestPermissions(lib.ITest):
     def testCreatGroupAndchangePermissions(self):
         # this is the test of updating group permissions
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
@@ -345,7 +345,7 @@ class TestPermissions(lib.ITest):
     def testGroupOwners(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        uuid = self.uuid()
         admin = self.root.sf.getAdminService()
 
         # create group1
