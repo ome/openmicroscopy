@@ -17,8 +17,8 @@ function ta = writeTagAnnotation(session, tag, varargin)
 %        ta = writeTagAnnotation(session, tag, 'namespace', namespace)
 %
 % See also: WRITECOMMENTANNOTATION, WRITEDOUBLEANNOTATION,
-% WRITEFILEANNOTATION, WRITETEXTANNOTATION, WRITETIMESTAMPANNOTATION,
-% WRITEXMLANNOTATION
+% WRITEFILEANNOTATION, WRITELONGANNOTATION, WRITETEXTANNOTATION,
+% WRITETIMESTAMPANNOTATION, WRITEXMLANNOTATION
 
 % Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

@@ -17,8 +17,8 @@ function xa = writeXmlAnnotation(session, xml, varargin)
 %        xa = writeXmlAnnotation(session, xml, 'namespace', namespace)
 %
 % See also: WRITECOMMENTANNOTATION, WRITEDOUBLEANNOTATION,
-% WRITEFILEANNOTATION, WRITETAGANNOTATION, WRITETEXTANNOTATION,
-% WRITETIMESTAMPANNOTATION
+% WRITEFILEANNOTATION, WRITELONGANNOTATION, WRITETAGANNOTATION,
+% WRITETEXTANNOTATION, WRITETIMESTAMPANNOTATION
 
 % Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

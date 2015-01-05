@@ -27,7 +27,7 @@ function das = getPlateDoubleAnnotations(session, ids, varargin)
 %        das = getPlateDoubleAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETPLATECOMMENTANNOTATIONS,
-% GETPLATEFILEANNOTATIONS, GETPLATETAGANNOTATIONS,
+% GETPLATEFILEANNOTATIONS, GETPLATELONGANNOTATIONS, GETPLATETAGANNOTATIONS,
 % GETPLATETIMESTAMPANNOTATIONS, GETPLATEXMLANNOTATIONS
 
 % Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.

@@ -1,17 +1,16 @@
-function tas = getTimestampAnnotations(session, ids)
-% GETTIMESTAMPANNOTATIONS Retrieve timestamp annotations from the OMERO server
+function las = getLongAnnotations(session, ids)
+% GETTAGANNOTATIONS Retrieve long annotations from the OMERO server
 %
-%   tas = getTimestampAnnotations(session, ids) returns all the timestamp 
-%   annotations identified by the input ids in the context of the session 
-%   group.
+%   las = getLongAnnotations(session, ids) returns all the long annotations
+%   identified by the input ids in the context of the session group.
 %
 %   Examples:
 %
-%      tas = getTimestampAnnotations(session, ids);
+%      las = getLongAnnotations(session, ids);
 %
 % See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETCOMMENTANNOTATIONS
-% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETLONGANNOTATIONS,
-% GETTAGANNOTATIONS, GETXMLANNOTATIONS
+% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETTAGANNOTATIONS,
+% GETTIMESTAMPANNOTATIONS, GETXMLANNOTATIONS
 
 % Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -35,5 +34,5 @@ ip = inputParser;
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
-% Return tag annotations
-tas = getAnnotations(session, ids, 'timestamp');
+% Return long annotations
+las = getAnnotations(session, ids, 'long');

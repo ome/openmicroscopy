@@ -27,7 +27,7 @@ function xas = getImageXmlAnnotations(session, ids, varargin)
 %        xas = getImageXmlAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETIMAGECOMMENTANNOTATIONS, GETIMAGEDOUBLEANNOTATIONS,
-% GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS, 
+% GETIMAGEFILEANNOTATIONS, GETIMAGELONGANNOTATIONS, GETIMAGETAGANNOTATIONS, 
 % GETIMAGETIMESTAMPANNOTATIONS, GETOBJECTANNOTATIONS, 
 
 % Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
