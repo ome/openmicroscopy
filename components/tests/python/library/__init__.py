@@ -98,34 +98,6 @@ class ITest(object):
         cls.update = cls.sf.getUpdateService()
         cls.query = cls.sf.getQueryService()
 
-    # def setup_method(self, method):
-    #
-    #     self.OmeroPy = self.omeropydir()
-    #
-    #     self.__clients = Clients()
-    #
-    #     p = Ice.createProperties(sys.argv)
-    #     rootpass = p.getProperty("omero.rootpass")
-    #
-    #     name = None
-    #     if rootpass:
-    #         self.root = omero.client()  # ok because adds self
-    #         self.__clients.add(self.root)
-    #         self.root.setAgent("OMERO.py.root_test")
-    #         self.root.createSession("root", rootpass)
-    #         newuser = self.new_user()
-    #         name = newuser.omeName.val
-    #     else:
-    #         self.root = None
-    #
-    #     self.client = omero.client()  # ok because adds self
-    #     self.__clients.add(self.client)
-    #     self.client.setAgent("OMERO.py.test")
-    #     self.sf = self.client.createSession(name, name)
-    #
-    #     self.update = self.sf.getUpdateService()
-    #     self.query = self.sf.getQueryService()
-
     @classmethod
     def omeropydir(self):
         count = 10
@@ -154,11 +126,12 @@ class ITest(object):
         return str(_uuid.uuid4())
 
     @classmethod
-    def login_args(self):
+    def login_args(self, key=None):
         p = self.client.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
-        key = self.sf.ice_getIdentity().name
+        if not key:
+            key = self.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
     @classmethod
