@@ -40,8 +40,12 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         ExperimenterModelMultipleChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
 
+from decimal import Decimal, getcontext
 
 logger = logging.getLogger(__name__)
+
+# Set precision for decimal display
+getcontext().prec = 2
              
 ##################################################################
 # Static values
@@ -364,7 +368,7 @@ class MetadataChannelForm(forms.Form):
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=logicalCh.ndFilter,
+                    initial=Decimal(logicalCh.ndFilter * 100)/1,
                     label="ND filter (%)",
                     required=False)
             else:
