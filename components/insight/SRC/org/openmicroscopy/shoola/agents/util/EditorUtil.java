@@ -1206,7 +1206,7 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Length wl = data.getEmissionWavelength(UnitsLength.NANOMETER);
+        Length wl = data.getEmissionWavelength(null);
         if (wl == null) {
         	notSet.add(EMISSION);
         } else {
@@ -1223,7 +1223,7 @@ public class EditorUtil
             }
         }
 
-        wl = data.getExcitationWavelength(UnitsLength.NANOMETER);
+        wl = data.getExcitationWavelength(null);
         if (wl == null) {
         	notSet.add(EXCITATION);
         } else {
@@ -1246,7 +1246,7 @@ public class EditorUtil
         else
         	details.put(ND_FILTER, f*100);
 
-        Length ph = data.getPinholeSize(UnitsLength.MICROMETER);
+        Length ph = data.getPinholeSize(null);
         if (ph == null) {
             notSet.add(PIN_HOLE_SIZE);
         }
@@ -1824,7 +1824,7 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Length wl = data.getLightSettingsWavelength(UnitsLength.NANOMETER);
+        Length wl = data.getLightSettingsWavelength(null);
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
                 details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
@@ -1930,7 +1930,7 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Length wl = data.getLaserWavelength(UnitsLength.NANOMETER);
+            Length wl = data.getLaserWavelength(null);
             double wave = 0;
             if (wl == null) {
                 notSet.add(WAVELENGTH);
