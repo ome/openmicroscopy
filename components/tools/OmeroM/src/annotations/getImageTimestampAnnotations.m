@@ -28,7 +28,7 @@ function tas = getImageTimestampAnnotations(session, ids, varargin)
 %        tas = getImageTimestampAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETIMAGECOMMENTANNOTATIONS, GETIMAGEDOUBLEANNOTATIONS,
-% GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
+% GETIMAGEFILEANNOTATIONS, GETIMAGELONGANNOTATIONS, GETIMAGETAGANNOTATIONS,
 % GETIMAGEXMLANNOTATIONS, GETOBJECTANNOTATIONS
 
 % Copyright (C) 2015 University of Dundee & Open Microscopy Environment.

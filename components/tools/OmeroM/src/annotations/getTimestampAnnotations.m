@@ -10,8 +10,8 @@ function tas = getTimestampAnnotations(session, ids)
 %      tas = getTimestampAnnotations(session, ids);
 %
 % See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETCOMMENTANNOTATIONS
-% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETTAGANNOTATIONS,
-% GETXMLANNOTATIONS
+% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETLONGANNOTATIONS,
+% GETTAGANNOTATIONS, GETXMLANNOTATIONS
 
 % Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

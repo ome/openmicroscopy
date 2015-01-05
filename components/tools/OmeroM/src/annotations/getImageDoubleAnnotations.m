@@ -27,7 +27,7 @@ function das = getImageDoubleAnnotations(session, ids, varargin)
 %        das = getImageDoubleAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
-% GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
+% GETIMAGEFILEANNOTATIONS, GETIMAGELONGANNOTATIONS, GETIMAGETAGANNOTATIONS,
 % GETIMAGETIMESTAMPANNOTATIONS, GETIMAGEXMLANNOTATIONS
 
 % Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.

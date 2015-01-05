@@ -16,8 +16,9 @@ function ca = writeCommentAnnotation(session, comment, varargin)
 %        ca = writeCommentAnnotation(session, comment, 'description', description)
 %        ca = writeCommentAnnotation(session, comment, 'namespace', namespace)
 %
-% See also: WRITEDOUBLEANNOTATION, WRITEFILEANNOTATION, WRITETAGANNOTATION,
-% WRITETEXTANNOTATION, WRITETIMESTAMPANNOTATION, WRITEXMLANNOTATION
+% See also: WRITEDOUBLEANNOTATION, WRITEFILEANNOTATION,
+% WRITELONGANNOTATION, WRITETAGANNOTATION, WRITETEXTANNOTATION,
+% WRITETIMESTAMPANNOTATION, WRITEXMLANNOTATION
 
 % Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

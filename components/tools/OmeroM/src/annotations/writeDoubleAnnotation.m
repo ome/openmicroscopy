@@ -18,8 +18,8 @@ function da = writeDoubleAnnotation(session, value, varargin)
 %        da = writeDoubleAnnotation(session, value, 'namespace', namespace)
 %
 % See also: WRITECOMMENTANNOTATION, WRITEFILEANNOTATION,
-% WRITETAGANNOTATION, WRITETEXTANNOTATION, WRITETIMESTAMPANNOTATION,
-% WRITEXMLANNOTATION
+% WRITELONGANNOTATION, WRITETAGANNOTATION, WRITETEXTANNOTATION,
+% WRITETIMESTAMPANNOTATION, WRITEXMLANNOTATION
 
 % Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

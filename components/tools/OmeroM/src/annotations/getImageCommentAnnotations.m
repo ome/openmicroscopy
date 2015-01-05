@@ -27,7 +27,7 @@ function cas = getImageCommentAnnotations(session, ids, varargin)
 %        cas = getImageCommentAnnotations(session, ids, 'owner', -1)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGEDOUBLEANNOTATIONS,
-% GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
+% GETIMAGEFILEANNOTATIONS, GETIMAGELONGANNOTATIONS, GETIMAGETAGANNOTATIONS,
 % GETIMAGETIMESTAMPANNOTATIONS, GETIMAGEXMLANNOTATIONS
 
 % Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.

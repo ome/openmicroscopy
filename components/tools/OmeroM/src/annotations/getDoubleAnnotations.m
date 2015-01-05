@@ -10,8 +10,8 @@ function das = getDoubleAnnotations(session, ids)
 %      das = getDoubleAnnotations(session, ids);
 %
 % See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETCOMMENTANNOTATIONS
-% GETFILEANNOTATIONS, GETTAGANNOTATIONS, GETTIMESTAMPANNOTATIONS,
-% GETXMLANNOTATIONS
+% GETFILEANNOTATIONS, GETLONGANNOTATIONS, GETTAGANNOTATIONS,
+% GETTIMESTAMPANNOTATIONS, GETXMLANNOTATIONS
 
 % Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

@@ -1,18 +1,18 @@
-function tas = getTagAnnotations(session, ids)
-% GETTAGANNOTATIONS Retrieve tag annotations from the OMERO server
+function las = getLongAnnotations(session, ids)
+% GETTAGANNOTATIONS Retrieve long annotations from the OMERO server
 %
-%   tas = getTagAnnotations(session, ids) returns all the tag annotations
+%   las = getLongAnnotations(session, ids) returns all the long annotations
 %   identified by the input ids in the context of the session group.
 %
 %   Examples:
 %
-%      tas = getTagAnnotations(session, ids);
+%      las = getLongAnnotations(session, ids);
 %
 % See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETCOMMENTANNOTATIONS
-% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETLONGANNOTATIONS,
+% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETTAGANNOTATIONS,
 % GETTIMESTAMPANNOTATIONS, GETXMLANNOTATIONS
 
-% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -34,5 +34,5 @@ ip = inputParser;
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(ids);
 
-% Return tag annotations
-tas = getAnnotations(session, ids, 'tag');
+% Return long annotations
+las = getAnnotations(session, ids, 'long');
