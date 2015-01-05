@@ -578,7 +578,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (this.isGreyModel() && this.getProjection() != 'split') {
       /* Only allow activation of channels, and disable all other */
       if (act) {
-	for (var i in _this.loadedImg.channels) {
+	for (var i=0; i < _this.loadedImg.channels.length; i++) {
           act = i == idx;
           if (act != _this.loadedImg.channels[i].active) {
 	    _this.loadedImg.channels[i].active = act;
