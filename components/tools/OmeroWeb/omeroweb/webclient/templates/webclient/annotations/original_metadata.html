@@ -18,6 +18,10 @@
 -->
 {% endcomment %}
 
+	{% if error %}
+		<div class="error">{{ error }}</div>
+	{% endif %}
+
 	{% if global_metadata or series_metadata %}
     <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
         onClick="document.location.href='{% url 'download_orig_metadata' imageId %}';"/>

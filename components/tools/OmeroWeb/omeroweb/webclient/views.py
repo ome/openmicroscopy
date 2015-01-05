@@ -1133,12 +1133,15 @@ def load_original_metadata(request, imageId, conn=None, **kwargs):
 
     context = {'template': 'webclient/annotations/original_metadata.html',
                 'imageId': image.getId()}
-    om = image.loadOriginalMetadata()
-    if om is not None:
-        context['original_metadata'] = om[0]
-        context['global_metadata'] = om[1]
-        context['series_metadata'] = om[2]
-
+    try:
+        om = image.loadOriginalMetadata()
+        if om is not None:
+            context['original_metadata'] = om[0]
+            context['global_metadata'] = om[1]
+            context['series_metadata'] = om[2]
+    except omero.LockTimeout, ex:
+        # 408 is Request Timeout
+        return HttpResponse(content='LockTimeout', status=408)
     return context
 
 ###########################################################################
