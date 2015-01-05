@@ -1461,7 +1461,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        Length wd = data.getWorkingDistance(UnitsLength.MICROMETER);
+        Length wd = data.getWorkingDistance(null);
         if (wd==null) {
             notSet.add(WORKING_DISTANCE);
         }
