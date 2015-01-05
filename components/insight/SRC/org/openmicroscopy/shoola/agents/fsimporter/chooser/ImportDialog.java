@@ -23,6 +23,9 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
+import ij.IJ;
+import ij.ImagePlus;
+import ij.io.FileInfo;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
@@ -379,6 +382,25 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
+	/** 
+	 * Adds the images from imageJ to the queue.
+	 */
+	private void addImageJFiles()
+	{
+        if (ImporterAgent.runAsPlugin() != LookupNames.IMAGE_J_IMPORT) return;
+        //to be reviewed.
+        List<File> list = new ArrayList<File>();
+        File f;
+        FileInfo info;
+        ImagePlus img = IJ.getImage();
+        info = img.getOriginalFileInfo();
+        f = new File(info.directory, info.fileName);
+        list.add(f);
+        ImportLocationSettings settings = locationDialog.getImportSettings();
+        table.addFiles(list, settings);
+        importButton.setEnabled(table.hasFilesToImport());
+   }
+
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
@@ -447,7 +469,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private void handleEnterKeyPressed(Object source) {
 		if (source instanceof JList || source instanceof JTable) {
 			JComponent c = (JComponent) source;
-			if (c.isFocusOwner()) // addFiles();
+			if (c.isFocusOwner())
 				showLocationDialog();
 		}
 	}
@@ -1006,9 +1028,15 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		JPanel tablePanel = new JPanel(new TableLayout(tablePanelDesign));
 		tablePanel.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		tablePanel.add(tabbedPane, "2, 1, 3, 1");
-		
-		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chooser, tablePanel);
+		int plugin = ImporterAgent.runAsPlugin();
+		JSplitPane pane;
+		if (plugin == LookupNames.IMAGE_J_IMPORT) {
+		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+		            locationDialog.getContentPane(), tablePanel);
+		} else {
+		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+	                chooser, tablePanel);
+		}
 		
 		JPanel mainPanel = new JPanel();
 		double[][] mainPanelDesign = { { TableLayout.FILL },
@@ -1548,8 +1576,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				|| ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)
 				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
+		} else if (LocationDialog.ADD_TO_QUEUE_PROPERTY.equals(name)) {
+		    addImageJFiles();
 		}
-		
 	}
 
 	/**

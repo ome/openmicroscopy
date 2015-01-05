@@ -104,6 +104,9 @@ import pojos.ScreenData;
 class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
 
+    /**Bound property indicating to add the files to the queue.*/
+    static final String ADD_TO_QUEUE_PROPERTY = "addToQueue";
+
 	/** Default GAP value for UI components */
 	private static final int UI_GAP = 5;
 	
@@ -528,8 +531,11 @@ class LocationDialog extends JDialog implements ActionListener,
 		TableLayout buttonLayout =
 				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
 		JPanel buttonPanel = new JPanel(buttonLayout);
-		buttonPanel.add(closeButton, "0, 0, l, c");
-		buttonPanel.add(refreshButton, "1, 0, l, c");
+		int plugin = ImporterAgent.runAsPlugin();
+		if (plugin != LookupNames.IMAGE_J_IMPORT) {
+	        buttonPanel.add(closeButton, "0, 0, l, c");
+	        buttonPanel.add(refreshButton, "1, 0, l, c");
+		}
 		buttonPanel.add(addButton, "2, 0, r, c");
 		JPanel buttonWrapper = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
 		Border border =
@@ -885,6 +891,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				case CMD_ADD:
 				case CMD_CLOSE:
 					userSelectedActionCommandId = commandId;
+					firePropertyChange(ADD_TO_QUEUE_PROPERTY, null, commandId);
 					close();
 					break;
 				case CMD_REFRESH_DISPLAY:

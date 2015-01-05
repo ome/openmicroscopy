@@ -48,8 +48,10 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
@@ -436,8 +438,10 @@ class FileSelectionTable
 	{
 	    JPanel p = new JPanel();
 	    p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-	    p.add(addButton);
-	    p.add(Box.createVerticalStrut(5));
+	    if (ImporterAgent.runAsPlugin() != LookupNames.IMAGE_J_IMPORT) {
+	        p.add(addButton);
+	        p.add(Box.createVerticalStrut(5));
+	    }
 	    p.add(removeButton);
 	    p.add(Box.createVerticalStrut(5));
 	    p.add(removeAllButton);
