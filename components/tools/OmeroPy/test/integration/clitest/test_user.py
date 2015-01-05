@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from omero.cli import NonZeroReturnCode
+from omero.rtypes import rstring
 from omero.plugins.user import UserControl
 from test.integration.clitest.cli import CLITest, RootCLITest
 from Glacier2 import PermissionDeniedException
@@ -141,24 +142,29 @@ class TestUser(CLITest):
         getpass.getpass(i3).AndReturn(password)
         self.mox.ReplayAll()
 
-        self.cli.invoke(self.args, strict=True)
-        self.teardown_mock()
+        try:
+            self.cli.invoke(self.args, strict=True)
+            self.teardown_mock()
 
-        # Check session creation using new password
-        self.new_client(user=login, password=password)
+            # Check session creation using new password
+            self.new_client(user=login, password=password)
 
-        # Check session creation fails with a random password
-        with pytest.raises(PermissionDeniedException):
-            self.new_client(user=login, password=self.uuid)
-
-        if is_unicode:
-            # Check session creation fails with a combination of unicode
-            # characters
+            # Check session creation fails with a random password
             with pytest.raises(PermissionDeniedException):
-                self.new_client(user=login, password="żąćę")
-            # Check session creation fails with question marks
-            with pytest.raises(PermissionDeniedException):
-                self.new_client(user=login, password="????")
+                self.new_client(user=login, password=self.uuid)
+
+            if is_unicode:
+                # Check session creation fails with a combination of unicode
+                # characters
+                with pytest.raises(PermissionDeniedException):
+                    self.new_client(user=login, password="żąćę")
+                # Check session creation fails with question marks
+                with pytest.raises(PermissionDeniedException):
+                    self.new_client(user=login, password="????")
+        finally:
+            # Restore default password
+            self.sf.getAdminService().changePasswordWithOldPassword(
+                rstring(password), rstring(login))
 
     def testAddAdminOnly(self, capsys):
         group = self.new_group()
