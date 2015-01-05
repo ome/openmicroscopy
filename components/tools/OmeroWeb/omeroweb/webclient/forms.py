@@ -1883,7 +1883,7 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
                 widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
-                initial=lightSourceSettings.attenuation,
+                initial=lightSourceSettings.attenuation * 100,
                 label="Attenuation (%)",
                 required=False)
         else:
