@@ -510,15 +510,21 @@ class ChannelAcquisitionComponent
 			names[i] = "t="+(i-1);
 			i++;
 		}
-		JTable table = new JTable(values, names);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.setShowGrid(true);
-		table.setGridColor(Color.LIGHT_GRAY);
-		JScrollPane pane = new JScrollPane(table);
-		Dimension d = table.getPreferredSize();
-		Dimension de = exposureTask.getPreferredSize();
-		pane.setPreferredSize(new Dimension(de.width-10, 4*d.height));
-		exposureTask.add(pane);
+		if (i > 1) {
+			JTable table = new JTable(values, names);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			table.setShowGrid(true);
+			table.setGridColor(Color.LIGHT_GRAY);
+			JScrollPane pane = new JScrollPane(table);
+			Dimension d = table.getPreferredSize();
+			Dimension de = exposureTask.getPreferredSize();
+			pane.setPreferredSize(new Dimension(de.width-10, 4*d.height));
+			exposureTask.add(pane);
+			exposureTask.setVisible(true);
+		}
+		else {
+			exposureTask.setVisible(false);
+		}
 	}
 	
 	/**
