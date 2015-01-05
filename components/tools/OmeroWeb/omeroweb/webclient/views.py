@@ -989,7 +989,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
         if c_type == "well":
             manager.image = manager.well.getImage(index)
         if share_id is None:
-            manager.originalMetadata()
+            manager.companionFiles()
         manager.channelMetadata()
         for theC, ch in enumerate(manager.channel_metadata):
             logicalChannel = ch.getLogicalChannel()
@@ -1122,6 +1122,24 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     context['template'] = template
     return context
 
+
+@login_required()
+@render_response()
+def load_original_metadata(request, imageId, conn=None, **kwargs):
+
+    image = conn.getObject("Image", imageId)
+    if image is None:
+        raise Http404("No Image found with ID %s" % imageId)
+
+    context = {'template': 'webclient/annotations/original_metadata.html',
+                'imageId': image.getId()}
+    om = image.loadOriginalMetadata()
+    if om is not None:
+        context['original_metadata'] = om[0]
+        context['global_metadata'] = om[1]
+        context['series_metadata'] = om[2]
+
+    return context
 
 ###########################################################################
 # ACTIONS

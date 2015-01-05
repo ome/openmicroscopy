@@ -246,21 +246,10 @@ class BaseContainer(BaseController):
         if len(l) < 1:
             return None
         return l.split("=")
-        
-    def originalMetadata(self):
-        # TODO: hardcoded values.
-        self.global_metadata = list()
-        self.series_metadata = list()
-        self.companion_files =  list()
-        if self.image is not None:
-            om = self.image.loadOriginalMetadata()
-        elif self.well.getWellSample().image is not None:
-            om = self.well.getWellSample().image().loadOriginalMetadata()
-        if om is not None:
-            self.original_metadata = om[0]
-            self.global_metadata = om[1]
-            self.series_metadata = om[2]
+
+    def companionFiles(self):
         # Look for companion files on the Image
+        self.companion_files =  list()
         if self.image is not None:
             comp_obj = self.image
             p = self.image.getPlate()

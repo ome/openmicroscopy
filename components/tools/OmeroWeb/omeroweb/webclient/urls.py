@@ -121,6 +121,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^annotate_comment/$', views.annotate_comment, name="annotate_comment" ),
     url( r'^annotate_file/$', views.annotate_file, name="annotate_file" ),
     url( r'^annotation/(?P<annId>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
+    url( r'^load_original_metadata/(?P<imageId>[0-9]+)/$', views.load_original_metadata, name="load_original_metadata" ),
     url( r'^download_orig_metadata/(?P<imageId>[0-9]+)/$', views.download_orig_metadata, name="download_orig_metadata" ),
     
     url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
