@@ -1745,7 +1745,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Length wl = data.getCutIn(UnitsLength.NANOMETER);
+        Length wl = data.getCutIn(null);
         int i = 0;
         if (wl == null)
         	notSet.add(CUT_IN);
@@ -1754,7 +1754,7 @@ public class EditorUtil
         	 details.put(CUT_IN, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutOut(UnitsLength.NANOMETER);
+        wl = data.getCutOut(null);
         if (wl == null) {
             notSet.add(CUT_OUT);
         }
@@ -1763,7 +1763,7 @@ public class EditorUtil
         	details.put(CUT_OUT, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutInTolerance(UnitsLength.NANOMETER);
+        wl = data.getCutInTolerance(null);
         if (wl == null) {
             notSet.add(CUT_IN_TOLERANCE);
         }
@@ -1772,7 +1772,7 @@ public class EditorUtil
         	details.put(CUT_IN_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutOutTolerance(UnitsLength.NANOMETER);
+        wl = data.getCutOutTolerance(null);
         if (wl == null) {
             notSet.add(CUT_OUT_TOLERANCE);
         }
