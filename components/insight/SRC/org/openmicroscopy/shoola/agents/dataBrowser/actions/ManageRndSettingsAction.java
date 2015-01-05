@@ -233,7 +233,7 @@ public class ManageRndSettingsAction
         case SET_MIN_MAX:
             if (!(ho instanceof ImageData || ho instanceof DatasetData ||
                     ho instanceof PlateData ||
-                    ho instanceof PlateAcquisitionData))
+                    ho instanceof PlateAcquisitionData || ho instanceof WellSampleData))
                 setEnabled(false);
             else {
                 i = selected.iterator();
@@ -247,7 +247,7 @@ public class ManageRndSettingsAction
         case SET_OWNER:
             if (!(ho instanceof ImageData || ho instanceof DatasetData ||
                     ho instanceof PlateData ||
-                    ho instanceof PlateAcquisitionData))
+                    ho instanceof PlateAcquisitionData || ho instanceof WellSampleData))
                 setEnabled(false);
             else {
                 i = selected.iterator();
