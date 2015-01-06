@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import ij.IJ;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -36,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
+
 
 
 
@@ -353,7 +356,7 @@ public class ImporterAgent
     {
         this.isMaster = master;
         if (runAsPlugin() == LookupNames.IMAGE_J_IMPORT || master) {
-            this.isMaster = true;
+            this.isMaster = master;
             ExperimenterData exp = (ExperimenterData) registry.lookup(
                     LookupNames.CURRENT_USER_DETAILS);
             if (exp == null) return;

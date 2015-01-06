@@ -488,8 +488,6 @@ public class TreeViewerAgent
     public void activate(boolean master)
     {
     	if (!master) return;
-    	if (runAsPlugin() == LookupNames.IMAGE_J_IMPORT)
-    	    return;
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (env == null) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(

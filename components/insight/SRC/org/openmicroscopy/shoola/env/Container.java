@@ -322,8 +322,9 @@ public final class Container
 				LookupNames.ENTRY_POINT);
 		int value = LookupNames.INSIGHT_ENTRY;
 		Integer plugin = (Integer) singleton.registry.lookup(LookupNames.PLUGIN);
+		int p = -1;
         if (plugin != null && plugin.intValue() == LookupNames.IMAGE_J_IMPORT) {
-            v = LookupNames.IMPORTER_ENTRY;
+            p = LookupNames.IMPORTER_ENTRY;
         }
 		if (v != null) {
 			switch (v.intValue()) {
@@ -337,12 +338,13 @@ public final class Container
 		Iterator<AgentInfo> i = agents.iterator();
 		AgentInfo agentInfo;
 		Agent a;
+		int n;
 		while (i.hasNext()) {
 			agentInfo = i.next();
-			if (agentInfo.isActive() && agentInfo.getNumber() == value) {
+			n = agentInfo.getNumber();
+			if (agentInfo.isActive() && (n == value || n == p)) {
 				a = agentInfo.getAgent();
 				a.activate(true);
-				break;
 			}
 		}
 	}
@@ -395,7 +397,7 @@ public final class Container
 			System.exit(0);
 		} else {
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
-			singleton = null;
+			//singleton = null;
 		}
 	}
 	
@@ -456,6 +458,7 @@ public final class Container
     {
         if (Container.getInstance() != null) {
         	//reconnect.
+            singleton.registry.bind(LookupNames.PLUGIN, plugin);
         	LoginService loginSvc = (LoginService) singleton.registry.lookup(
         			LookupNames.LOGIN);
         	int v = loginSvc.login((UserCredentials) singleton.registry.lookup(
