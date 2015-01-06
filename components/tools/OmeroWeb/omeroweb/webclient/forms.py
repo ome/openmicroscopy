@@ -364,11 +364,15 @@ class MetadataChannelForm(forms.Form):
         
         # ndFilter
         try:
-            if logicalCh is not None:
+            if logicalCh is not None and logicalCh.ndFilter is not None:
+                ndValue = logicalCh.ndFilter * 100
+                if ndValue != 100:
+                    # doing division uses the precision set with getcontext() above
+                    ndValue = Decimal(ndValue)/1
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=Decimal(logicalCh.ndFilter * 100)/1,
+                    initial=ndValue,
                     label="ND filter (%)",
                     required=False)
             else:
