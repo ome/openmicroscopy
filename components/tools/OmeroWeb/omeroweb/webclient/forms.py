@@ -1747,6 +1747,27 @@ class MetadataLightSourceForm(forms.Form):
                 required=False)
             self.fields['lstype'].widget.attrs['disabled'] = True 
             self.fields['lstype'].widget.attrs['class'] = 'disabled-metadata'
+
+        # Pump (laser only)
+        try:
+            pump = lightSource.getPump()    # Will throw exception for non-Laser lightsources.
+            pumpType = pump.OMERO_CLASS     # E.g. 'Arc'
+            pumpModel = pump.getModel()
+            pumpValue = "%s: %s" % (pumpType, pumpModel)
+            self.fields['pump'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial=pumpValue,
+                required=False)
+        except:
+            # Not a Laser - don't show Pump
+            self.fields['pump'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
+        self.fields['pump'].widget.attrs['disabled'] = True
+        self.fields['pump'].widget.attrs['class'] = 'disabled-metadata'
         
         # Medium
         try:
@@ -1957,7 +1978,7 @@ class MetadataLightSourceForm(forms.Form):
             self.fields['attenuation'].widget.attrs['disabled'] = True
             self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
 
-        self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell', 'attenuation']
+        self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'pump', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell', 'attenuation']
     
 
 class MetadataEnvironmentForm(forms.Form):
