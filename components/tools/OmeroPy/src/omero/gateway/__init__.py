@@ -9198,6 +9198,17 @@ class _LaserWrapper (_LightSourceWrapper):
                 self.laserMedium = rv._obj
             return rv
 
+    def getPump(self):
+        """
+        Gets the pump (Light Source) for this Laser
+
+        :return:    Pump (Light Source)
+        :rtype:     :class:`LightSourceWrapper`
+        """
+        rv = self.pump
+        if rv is not None:
+            return LightSourceWrapper(self._conn, rv)
+
 LaserWrapper = _LaserWrapper
 _LightSourceClasses[omero.model.LaserI] = 'LaserWrapper'
 
