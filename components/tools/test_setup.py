@@ -23,12 +23,12 @@ sys.path.insert(0, LIB)
 class PyTest(TestCommand):
 
     user_options = [
+        ('test-path=', 't', "base dir for test collection"),
         ('test-pythonpath=', 'p', "prepend 'pythonpath' to PYTHONPATH"),
         ('test-ice-config=', 'i',
          "use specified 'ice config' file instead of default"),
         ('test-string=', 'k', "only run tests including 'string'"),
         ('test-marker=', 'm', "only run tests including 'marker'"),
-        ('test-path=', 's', "base dir for test collection"),
         ('test-failfast', 'x', "Exit on first error"),
         ('test-verbose', 'v', "more verbose output"),
         ('test-quiet', 'q', "less verbose output"),
