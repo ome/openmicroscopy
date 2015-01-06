@@ -76,25 +76,25 @@ cd /usr/local
 ###################################################################
 
 # Install Bio-Formats
-bin/brew install bioformats
-VERBOSE=1 bin/brew test bioformats
+bin/brew install bioformats51
+VERBOSE=1 bin/brew test bioformats51
 
 ###################################################################
 # OMERO installation
 ###################################################################
 
 # Install PostgreSQL and OMERO
-OMERO_PYTHONPATH=$(bin/brew --prefix omero)/lib/python
+OMERO_PYTHONPATH=$(bin/brew --prefix omero51)/lib/python
 if [ "$ICE" == "3.4" ]; then
-    bin/brew install omero --with-ice34 --with-nginx
+    bin/brew install omero51 --with-ice34 --with-nginx
     ICE_HOME=$(bin/brew --prefix zeroc-ice34)
     export PYTHONPATH=$OMERO_PYTHONPATH:$ICE_HOME/python
     export DYLD_LIBRARY_PATH=$ICE_HOME/lib
 else
-    bin/brew install omero --with-nginx
+    bin/brew install omero51 --with-nginx
     export PYTHONPATH=$OMERO_PYTHONPATH
 fi
-VERBOSE=1 bin/brew test omero
+VERBOSE=1 bin/brew test omero51
 
 # Install PostgreSQL
 bin/brew install postgres
@@ -103,7 +103,7 @@ bin/brew install postgres
 bash bin/omero_python_deps
 
 # Set additional environment variables
-export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
+export ICE_CONFIG=$(bin/brew --prefix omero51)/etc/ice.config
 
 # Note: If postgres startup fails it's probably because there was an old
 # process still running.
@@ -145,8 +145,8 @@ bin/omero logout
 # Start OMERO.web
 bin/omero config set omero.web.application_server "fastcgi-tcp"
 bin/omero config set omero.web.debug True
-bin/omero web config nginx --http $HTTPPORT > $(bin/brew --prefix omero)/etc/nginx.conf
-nginx -c $(bin/brew --prefix omero)/etc/nginx.conf
+bin/omero web config nginx --http $HTTPPORT > $(bin/brew --prefix omero51)/etc/nginx.conf
+nginx -c $(bin/brew --prefix omero51)/etc/nginx.conf
 bin/omero web start
 
 # Test simple Web connection
@@ -159,7 +159,7 @@ echo "$resp"
 
 # Stop OMERO.web
 bin/omero web stop
-nginx -c $(bin/brew --prefix omero)/etc/nginx.conf -s stop
+nginx -c $(bin/brew --prefix omero51)/etc/nginx.conf -s stop
 
 # Stop the server
 bin/omero admin stop
