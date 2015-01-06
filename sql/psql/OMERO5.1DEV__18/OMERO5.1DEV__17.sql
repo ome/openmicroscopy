@@ -352,6 +352,14 @@ CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+-- now delete duplicates from eventlog
+
+DELETE FROM eventlog WHERE id IN
+    (SELECT id_row.id
+         FROM (SELECT id, row_number() OVER (PARTITION BY entityid, entitytype, event, permissions ORDER BY id) AS row_n
+                   FROM eventlog WHERE action = 'REINDEX' AND external_id IS NULL) AS id_row
+         WHERE id_row.row_n > 1);
+
 --
 -- FINISHED
 --
