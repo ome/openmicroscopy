@@ -25,7 +25,6 @@
 """
 
 import time
-import pytest
 import test.integration.library as lib
 import omero
 
