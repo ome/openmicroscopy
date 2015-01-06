@@ -633,26 +633,53 @@ class MetadataMicroscopeForm(forms.Form):
         # Serial number
         try:
             if kwargs['initial']['microscope'].serialNumber is not None:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['microscope'].serialNumber, label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}),
+                    initial=kwargs['initial']['microscope'].serialNumber,
+                    label="Serial number",
+                    required=False)
             else:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}), label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}),
+                    label="Serial number",
+                    required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
+            self.fields['serialNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Serial number",
+                required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
             
         # Lot number
         try:
             if kwargs['initial']['microscope'].lotNumber is not None:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['microscope'].lotNumber, label="Serial number", required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}),
+                    initial=kwargs['initial']['microscope'].lotNumber,
+                    label="Lot number",
+                    required=False)
             else:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}), label="Serial number", required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['microscope'].id)+', \'lotNumber\', this.value);'}),
+                    label="Serial number",
+                    required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
+            self.fields['lotNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Serial number",
+                required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         
@@ -682,11 +709,18 @@ class MetadataObjectiveForm(forms.Form):
             if kwargs['initial']['objective'].model is not None:
                 self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'model\', this.value);'}), initial=kwargs['initial']['objective'].model, required=False)
             else:
-                self.fields['model'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'model\', this.value);'}), required=False)
+                self.fields['model'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'model\', this.value);'}),
+                    required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['model'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['model'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                required=False)
             self.fields['model'].widget.attrs['disabled'] = True 
             self.fields['model'].widget.attrs['class'] = 'disabled-metadata'
 
@@ -706,26 +740,54 @@ class MetadataObjectiveForm(forms.Form):
         # Serial Number
         try:
             if kwargs['initial']['objective'].serialNumber is not None:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'serialNumber\', this.value);'}), initial=kwargs['initial']['objective'].serialNumber, label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'serialNumber\', this.value);'}),
+                    initial=kwargs['initial']['objective'].serialNumber,
+                    label="Serial number",
+                    required=False)
             else:
-                self.fields['serialNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'serialNumber\', this.value);'}), label="Serial number", required=False)
+                self.fields['serialNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].id)+', \'serialNumber\', this.value);'}),
+                    label="Serial number",
+                    required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['serialNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
+            self.fields['serialNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Serial number",
+                required=False)
             self.fields['serialNumber'].widget.attrs['disabled'] = True 
             self.fields['serialNumber'].widget.attrs['class'] = 'disabled-metadata'
         
         # Lot number
         try:
             if kwargs['initial']['objective'].lotNumber is not None:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].getObjective().lotNumber)+', \'lotNumber\', this.value);'}), initial=kwargs['initial']['logicalchannel'].getObjective().lotNumber, label="Serial number", required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objective'].lotNumber)+', \'lotNumber\', this.value);'}),
+                    initial=kwargs['initial']['objective'].lotNumber,
+                    label="Lot number",
+                    required=False)
             else:
-                self.fields['lotNumber'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].getObjective().lotNumber)+', \'lotNumber\', this.value);'}), label="Serial number", required=False)
+                self.fields['lotNumber'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalchannel'].getObjective().lotNumber)+', \'lotNumber\', this.value);'}),
+                    label="Lot number",
+                    required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
         except:
-            self.fields['lotNumber'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Serial number", required=False)
+            self.fields['lotNumber'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size':25}),
+                initial="N/A",
+                label="Lot number",
+                required=False)
             self.fields['lotNumber'].widget.attrs['disabled'] = True 
             self.fields['lotNumber'].widget.attrs['class'] = 'disabled-metadata'
             
