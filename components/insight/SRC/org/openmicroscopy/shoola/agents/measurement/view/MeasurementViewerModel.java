@@ -502,11 +502,8 @@ class MeasurementViewerModel
 		int sizeX = getSizeX();
 		int sizeY = getSizeY();
 		this.magnification = magnification;
-		if (state != MeasurementViewer.NEW)
-			getDrawingView().setScaleFactor(magnification,
-					new Dimension(sizeX, sizeY));
-		else 
-			getDrawingView().setScaleFactor(magnification);
+		getDrawingView().setScaleFactor(magnification,
+                new Dimension(sizeX, sizeY));
 	}
 
 	/**

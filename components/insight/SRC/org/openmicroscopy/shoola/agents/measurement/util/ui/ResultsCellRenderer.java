@@ -43,12 +43,20 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-//Third-party libraries
 
+
+
+//Third-party libraries
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
+import org.openmicroscopy.shoola.agents.measurement.view.MeasurementTableModel;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.util.FigureType;
+import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /** 
@@ -108,7 +116,8 @@ public class ResultsCellRenderer
 		TEXT = icons.getIcon(IconManager.TEXT_16);
 		MASK = icons.getIcon(IconManager.MASK);
 	}
-	
+
+
 	/**
 	 * Adds the appropriate shape icon to the label.
 	 * 
@@ -202,14 +211,15 @@ public class ResultsCellRenderer
 		list.setModel(model);
 		return list;
 	}
-	
+
+    
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
 	 */
 	public ResultsCellRenderer()
 	{
-		setOpaque(true);
+	    setOpaque(true);
 	}
 	
 	/**
@@ -222,15 +232,43 @@ public class ResultsCellRenderer
 		Component thisComponent = new JLabel();
 		JLabel label = new JLabel();
 		label.setOpaque(true);
-		if (value instanceof Integer || value instanceof Long ||
-				value instanceof Double ||
-				value instanceof Float)
+		
+		if (value instanceof Number)
 		{
-			if (value instanceof Double)
-				label.setText(twoDecimalPlaces((Double) value));
-			else if (value instanceof Float)
-				label.setText(twoDecimalPlaces((Float) value));
-			else label.setText(value+"");
+		    MeasurementTableModel tm = (MeasurementTableModel) table.getModel();
+	        KeyDescription key = tm.getColumnNames().get(column);
+	        String k = key.getKey();
+	        MeasurementUnits units = tm.getUnitsType();
+		    Number n = (Number) value;
+		    String s;
+		    if (units.isInMicrons()) {
+		        UnitsObject object;
+	            StringBuffer buffer = new StringBuffer();
+	            object = UIUtilities.transformSize(n.doubleValue());
+	            s = twoDecimalPlaces(object.getValue());
+	            if (StringUtils.isNotBlank(s)) {
+	                buffer.append(s);
+	                if (!(AnnotationKeys.ANGLE.getKey().equals(k) ||
+	                        AnnotationDescription.ZSECTION_STRING.equals(k) ||
+	                        AnnotationDescription.ROIID_STRING.equals(k) ||
+	                        AnnotationDescription.TIME_STRING.equals(k))) {
+	                    buffer.append(object.getUnits());
+	                }
+	                if (AnnotationKeys.AREA.getKey().equals(k)) {
+	                    buffer = new StringBuffer();
+	                    object = UIUtilities.transformSquareSize(n.doubleValue());
+	                    s = twoDecimalPlaces(object.getValue());
+	                    buffer.append(s);
+	                    buffer.append(object.getUnits());
+	                }
+	                label.setText(buffer.toString());
+	            }
+		    } else {
+		        s = UIUtilities.twoDecimalPlaces(n.doubleValue());
+                if (StringUtils.isNotBlank(s)) {
+                    label.setText(s);
+                }
+		    }
     		thisComponent = label;
 		} else if (value instanceof FigureType || value instanceof String) {
 			thisComponent = makeShapeIcon(label, ""+value);

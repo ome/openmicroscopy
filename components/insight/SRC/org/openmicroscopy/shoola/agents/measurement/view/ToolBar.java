@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -46,6 +48,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -140,7 +143,10 @@ class ToolBar
 	
 	/** Size of the horizontal box. */
     private static final Dimension 		HGLUE = new Dimension(5, 5);
-    
+
+    /** The max plane size.*/
+    private static final int MAX_SIZE = 1024;
+
     /** The properties figure for a line connection object. */
 	private FigureProperties 			lineConnectionProperties;
 	
@@ -172,7 +178,7 @@ class ToolBar
     private DrawingObjectCreationTool	textTool;
 
     /** The point creation tool. */
-    private DrawingPointCreationTool	pointTool;
+    private DrawingObjectCreationTool	pointTool;
     
     /** The polygon creation tool. */
     private DrawingBezierTool 			polygonTool;
@@ -210,7 +216,41 @@ class ToolBar
     	button.setAction(new DrawingAction(measurementcomponent, button));	
 		button.addMouseListener(this);
     }
-    
+
+    /**
+     * Determines the font size according to the image size.
+     *
+     * @return See above.
+     */
+    private double getDefaultFontSize()
+    {
+        Dimension d = model.getDrawingView().getSize();
+        int sizeX = d.width;
+        double r1 = 1;
+        if (sizeX == 0) {
+            sizeX = model.getSizeX();
+        }
+        r1 = model.getSizeX()/sizeX;
+        int sizeY = d.height;
+        if (sizeY == 0) {
+            sizeY = model.getSizeY();
+        }
+        double r2 = 1;
+        r2 = model.getSizeX()/sizeX;
+        double f = ShapeSettingsData.DEFAULT_FONT_SIZE;
+        double sx = model.getSizeX();
+        double sy = model.getSizeY();
+        if (sx > MAX_SIZE || sy  > MAX_SIZE){
+            f = 2*f;
+        }
+        double rx = f*r1;
+        double ry = f*r2;
+        f = Math.floor(Math.max(ry, rx));
+        if (f < ShapeSettingsData.DEFAULT_FONT_SIZE)
+            return ShapeSettingsData.DEFAULT_FONT_SIZE;
+        return f;
+    }
+
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
@@ -218,23 +258,30 @@ class ToolBar
 		
 		lineConnectionProperties = new FigureProperties(
 				defaultConnectionAttributes);
-		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure(
-				false, true, true, true, true));
-		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure(
-				false, true, true, true, true));
+		Map<AttributeKey, Object> p = new HashMap<AttributeKey, Object>();
+		double value = getDefaultFontSize();
+		Font font = ROIFigure.DEFAULT_FONT;
+		font = font.deriveFont((float) value);
+		p.put(MeasurementAttributes.FONT_SIZE, value);
+		p.put(MeasurementAttributes.FONT_FACE, font);
+		ellipseTool = new DrawingObjectCreationTool(
+		        new MeasureEllipseFigure(false, true, true, true, true), p);
+		rectTool = new DrawingObjectCreationTool(
+		        new MeasureRectangleFigure(false, true, true, true, true), p);
 		textTool = new DrawingObjectCreationTool(
-				new MeasureTextFigure(false, true));
+				new MeasureTextFigure(false, true), p);
 		lineTool = new DrawingObjectCreationTool(
-				new MeasureLineFigure(false, true, true, true, true));
+				new MeasureLineFigure(false, true, true, true, true), p);
+		Map<AttributeKey, Object> m = lineConnectionProperties.getProperties();
+		m.put(MeasurementAttributes.FONT_SIZE, value);
 		connectionTool = new DrawingConnectionTool(
-						new MeasureLineConnectionFigure(), 
-						lineConnectionProperties.getProperties());
-		pointTool = new DrawingPointCreationTool(
-				new MeasurePointFigure(false, true, true, true, true));
+						new MeasureLineConnectionFigure(), m);
+		pointTool = new DrawingObjectCreationTool(
+				new MeasurePointFigure(false, true, true, true, true), p);
 	    polygonTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(true, false, true, true, true, true));
+	    		new MeasureBezierFigure(true, false, true, true, true, true), p);
 	    polylineTool = new DrawingBezierTool(
-	    		new MeasureBezierFigure(false, false, true, true, true, true));
+	    		new MeasureBezierFigure(false, false, true, true, true, true), p);
 	    
 	    Component component;
 	    
@@ -525,7 +572,30 @@ class ToolBar
 	{
 		assistantButton.setEnabled(!analyse);
 	}
-	
+
+	/** Modifies the creation tools when changing the magnification.*/
+	void onMagnificationChanged()
+	{
+	    if (!model.isBigImage()) return;
+	    Map<AttributeKey, Object> p = new HashMap<AttributeKey, Object>();
+        double value = getDefaultFontSize();
+        Font font = ROIFigure.DEFAULT_FONT;
+        font = font.deriveFont((float) value);
+        p.put(MeasurementAttributes.FONT_SIZE, value);
+        p.put(MeasurementAttributes.FONT_FACE, font);
+        rectTool.setAttributes(p);
+        ellipseTool.setAttributes(p);
+        pointTool.setAttributes(p);
+        lineTool.setAttributes(p);
+        textTool.setAttributes(p);
+        polygonTool.setAttributes(p);
+        polylineTool.setAttributes(p);
+        Map<AttributeKey, Object> m = lineConnectionProperties.getProperties();
+        m.put(MeasurementAttributes.FONT_SIZE, value);
+        connectionTool = new DrawingConnectionTool(
+                        new MeasureLineConnectionFigure(), m);
+	}
+
 	/**
 	 * Sets the selected flag of the source of the event to 
 	 * <code>true</code> when a right click event occurs.
