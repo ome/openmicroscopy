@@ -310,8 +310,8 @@ class MetadataChannelForm(forms.Form):
                 self.fields['excitationWave'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=kwargs['initial']['excitationWave'],
-                    label="Excitation",
+                    initial=kwargs['initial']['exWave'].getValue(),
+                    label="Excitation (%s)" % kwargs['initial']['exWave'].getSymbol(),
                     required=False)
             else:
                 self.fields['excitationWave'] = forms.CharField(
@@ -337,8 +337,8 @@ class MetadataChannelForm(forms.Form):
                 self.fields['emissionWave'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=kwargs['initial']['emissionWave'],
-                    label="Emission",
+                    initial=kwargs['initial']['emWave'].getValue(),
+                    label="Emission (%s)" % kwargs['initial']['emWave'].getSymbol(),
                     required=False)
             else:
                 self.fields['emissionWave'] = forms.CharField(

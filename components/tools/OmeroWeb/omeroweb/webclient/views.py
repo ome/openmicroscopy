@@ -996,7 +996,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             if logicalChannel is not None:
                 channel = dict()
                 channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
-                                        'excitationWave': ch.getExcitationWave(), 'emissionWave': ch.getEmissionWave(),
+                                        'exWave': ch.getExcitationWave(units=True),
+                                        'emWave': ch.getEmissionWave(units=True),
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")),
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")),
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
