@@ -1888,10 +1888,14 @@ class MetadataLightSourceForm(forms.Form):
         
         # Attenuation
         if lightSourceSettings is not None and lightSourceSettings.attenuation is not None:
+            lsAttn = lightSourceSettings.attenuation * 100
+            if lsAttn != 100:
+                # doing division uses the precision set with getcontext() above
+                lsAttn = Decimal(lsAttn)/1
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
                 widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
-                initial=lightSourceSettings.attenuation * 100,
+                initial=lsAttn,
                 label="Attenuation (%)",
                 required=False)
         else:
