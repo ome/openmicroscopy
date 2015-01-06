@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
-import ij.IJ;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
