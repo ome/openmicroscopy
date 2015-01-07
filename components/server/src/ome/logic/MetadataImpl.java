@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -36,6 +36,7 @@ import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.MapAnnotation;
 import ome.model.annotations.PlateAnnotationLink;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.ScreenAnnotationLink;
@@ -53,7 +54,6 @@ import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
-import ome.model.core.Pixels;
 import ome.model.fs.Fileset;
 import ome.model.screen.Plate;
 import ome.model.screen.PlateAcquisition;
@@ -95,12 +95,19 @@ public class MetadataImpl
             "SELECT fjl.parent.id, o FROM UploadJob u, FilesetJobLink fjl, JobOriginalFileLink jol, OriginalFile o " +
                     "WHERE fjl.parent.id IN (:ids) AND fjl.child = jol.parent AND jol.child.id = o.id AND fjl.child = u AND " +
                     "o.mimetype = '" + "application/omero-log-file" /*PublicRepositoryI.IMPORT_LOG_MIMETYPE*/ + "'";
+    
+    /* HQL to load a MapAnnotation */
+    private static final String LOAD_MAPANNOTATION = "SELECT a FROM MapAnnotation a LEFT OUTER JOIN FETCH a.mapValue "
+    		+ "WHERE a.id = :id";
 
 	/** Identifies the file annotation class. */
 	private final String FILE_TYPE = "ome.model.annotations.FileAnnotation";
 	
 	/** Identifies the tag annotation class. */
 	private final String TAG_TYPE = "ome.model.annotations.TagAnnotation";
+	
+	/** Identifies the map annotation class. */
+	private final String MAP_TYPE = "ome.model.annotations.MapAnnotation";
 	
 	/** Reference to the {@link IContainer} service. */
 	private IContainer iContainer;
@@ -622,6 +629,7 @@ public class MetadataImpl
          Iterator<A> ann;
          OriginalFile of;
          FileAnnotation fa;
+         MapAnnotation ma;
          while (i.hasNext()) {
              annotated = i.next();
              id = annotated.getId();
@@ -648,6 +656,7 @@ public class MetadataImpl
             	 }
              } else supported.addAll(list);
              ann = supported.iterator();
+             List<MapAnnotation> masReloaded = new ArrayList<MapAnnotation>();
              while (ann.hasNext()) {
             	 object = ann.next();
             	 //load original file.
@@ -659,7 +668,16 @@ public class MetadataImpl
 				 fa.setFile(of);
             		 }
             	 }
+            	 if(object instanceof MapAnnotation) {
+            		 ma = (MapAnnotation) object;
+            		 MapAnnotation ma2 = iQuery.findByQuery(LOAD_MAPANNOTATION, 
+            				 new Parameters().addId(ma.getId()));
+            		 ann.remove();
+            		 masReloaded.add(ma2);
+            	 }
              }
+             for (MapAnnotation mar : masReloaded)
+            	 supported.add((A) mar);
              //Archived if no updated script.
             set.addAll(supported);
          }
@@ -693,6 +711,20 @@ public class MetadataImpl
 			}
     		if (toRemove.size() > 0) list.removeAll(toRemove);
     	}
+    	if (MAP_TYPE.equals(type.getName()) && list != null) {
+    		i = list.iterator();
+    		List<MapAnnotation> masReloaded = new ArrayList<MapAnnotation>();
+    		while (i.hasNext()) {
+    			MapAnnotation ma = (MapAnnotation) i.next();
+    			MapAnnotation ma2 = iQuery.findByQuery(
+    					LOAD_MAPANNOTATION,
+    					new Parameters().addId(ma.getId()));
+    			i.remove();
+    			masReloaded.add(ma2);
+    		}
+			for (MapAnnotation mar : masReloaded)
+				list.add(mar);
+		}
     	if (list == null) return new HashSet<A>();
     	Set<A> set = new HashSet<A>(list.size());
     	i = list.iterator();
@@ -739,6 +771,7 @@ public class MetadataImpl
     	A object;
     	FileAnnotation fa;
     	Object of;
+    	List<MapAnnotation> masReloaded = new ArrayList<MapAnnotation>();
     	while (i.hasNext()) {
 			object =  i.next();
 			if (object instanceof FileAnnotation) {
@@ -749,7 +782,17 @@ public class MetadataImpl
 					fa.setFile((OriginalFile) of);
 				}
 			}
+			if (object instanceof MapAnnotation) {
+				MapAnnotation ma = (MapAnnotation) object;
+				MapAnnotation ma2 = iQuery.findByQuery(
+						LOAD_MAPANNOTATION,
+						new Parameters().addId(ma.getId()));
+				i.remove();
+				masReloaded.add(ma2);
+			}
 		}
+    	for (MapAnnotation mar : masReloaded)
+    		list.add((A) mar);
     	return new HashSet<A>(list);
     }
     
@@ -1044,6 +1087,13 @@ public class MetadataImpl
 							new Parameters().addId(fa.getFile().getId()));
 					fa.setFile(of);
 				}
+			}
+			if (MAP_TYPE.equals(type.getName()) && list != null) {
+	    			MapAnnotation ma = (MapAnnotation) ann;
+	    			MapAnnotation ma2 = iQuery.findByQuery(
+	    					LOAD_MAPANNOTATION,
+	    					new Parameters().addId(ma.getId()));
+	    			ann = (A) ma2;
 			}
 			set.add(ann);
 		}
