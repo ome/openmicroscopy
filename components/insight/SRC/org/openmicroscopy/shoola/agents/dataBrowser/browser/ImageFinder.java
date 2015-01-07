@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -120,6 +120,7 @@ public class ImageFinder
     public void visit(ImageNode node)
     {
         imageNodes.add(node);
+        visibleImageNodes.add(node);
         Object ho = node.getHierarchyObject();
         if (ho instanceof WellSampleData) {
         	WellSampleData wsd = (WellSampleData) ho;
