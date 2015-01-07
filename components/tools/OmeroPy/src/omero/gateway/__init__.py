@@ -4418,6 +4418,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 kwargs['link'] = BlitzObjectWrapper(conn, link)
             return klass.registry[obj.__class__](conn, obj, **kwargs)
         else:  # pragma: no cover
+            logger.error("Failed to _wrap() annotation: %s" % obj.__class__)
             return None
 
     @classmethod
