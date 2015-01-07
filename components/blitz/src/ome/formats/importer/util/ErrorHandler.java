@@ -245,25 +245,18 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      */
     public final void update(IObservable observable, ImportEvent event) {
 
-
         if (event instanceof MISSING_LIBRARY) {
             MISSING_LIBRARY ev = (MISSING_LIBRARY) event;
             log.warn(ev.toLog(), ev.exception);
-        }
-
-        else if (event instanceof FILE_EXCEPTION) {
+        } else if (event instanceof FILE_EXCEPTION) {
             FILE_EXCEPTION ev = (FILE_EXCEPTION) event;
             log.error(ev.toLog(), ev.exception);
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
-        }
-
-        else if (event instanceof INTERNAL_EXCEPTION) {
+        } else if (event instanceof INTERNAL_EXCEPTION) {
             INTERNAL_EXCEPTION ev = (INTERNAL_EXCEPTION) event;
             log.error(event.toLog(), ev.exception);
             addError(ev.exception, new File(ev.filename), ev.usedFiles, ev.reader);
-        }
-
-        else if (event instanceof UNKNOWN_FORMAT) {
+        } else if (event instanceof UNKNOWN_FORMAT) {
             UNKNOWN_FORMAT ev = (UNKNOWN_FORMAT) event;
             String[] usedFiles = {ev.filename};
             // Here it is important to not report errors which
@@ -274,9 +267,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             if (!(ev.source instanceof ImportCandidates))
                 addError(ev.exception, new File(ev.filename), usedFiles, "");
             log.debug(event.toLog());
-        }
-
-        else if (event instanceof EXCEPTION_EVENT) {
+        } else if (event instanceof EXCEPTION_EVENT) {
             EXCEPTION_EVENT ev = (EXCEPTION_EVENT) event;
             log.error(ev.toLog(), ev.exception);
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
@@ -284,7 +275,6 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                     (ImportEvent.METADATA_IMPORTED) event;
             logFiles.put(e.filename, e.logFileId);
         }
-
         onUpdate(observable, event);
 
     }
@@ -433,8 +423,6 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                     }
 
                     if (sendLogs || sendFiles) {
-                        //To be reviewed.
-                        //need to log the log
                         File f = errorContainer.getSelectedFile();
                         if (f != null) {
                             Long id = logFiles.get(f.getAbsolutePath());
@@ -448,14 +436,15 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                             
                             if (logFile != null) {
                                 errorContainer.addFile(logFile.getAbsolutePath());
-                            }
-                        }
+                            } else sendLogs = false;
+                        } else sendLogs = false;
                     }
                 }
                 messenger = new HtmlMessenger(sendUrl, postList);
                 serverReply = messenger.executePost();
                 if (sendFiles || sendLogs) {
                     onSending(i);
+                    log.info(errorContainer.getSelectedFile().getAbsolutePath());
                     errorContainer.setToken(serverReply);
                     fileUploader = new FileUploader(
                             messenger.getCommunicationLink(
