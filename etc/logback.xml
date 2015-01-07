@@ -87,6 +87,7 @@
   <logger name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean" level="WARN"/>
   <!-- Often useful to change to DEBUG -->
   <logger name="omero.cmd" level="INFO"/>
+  <logger name="omero.cmd.graphs" level="INFO"/>
   <logger name="ome.services.graphs" level="INFO"/>
   <logger name="ome.services.chgrp" level="INFO"/>
   <logger name="ome.services.chmod" level="INFO"/>
