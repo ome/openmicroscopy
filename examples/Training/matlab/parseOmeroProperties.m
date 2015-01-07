@@ -26,3 +26,4 @@ props.imageid = str2double(omeroProperties.get('omero.imageid'));
 props.datasetid = str2double(omeroProperties.get('omero.datasetid'));
 props.plateid = str2double(omeroProperties.get('omero.plateid'));
 props.projectid = str2double(omeroProperties.get('omero.projectid'));
+props.screenid = str2double(omeroProperties.get('omero.screenid'));
