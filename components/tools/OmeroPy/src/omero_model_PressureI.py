@@ -86,14 +86,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("ATMOSPHERE", "MMHG")
     CONVERSIONS["ATMOSPHERE:NANOPASCAL"] = \
         lambda: noconversion("ATMOSPHERE", "NANOPASCAL")
-    CONVERSIONS["ATMOSPHERE:PASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "PASCAL")
     CONVERSIONS["ATMOSPHERE:PETAPASCAL"] = \
         lambda: noconversion("ATMOSPHERE", "PETAPASCAL")
     CONVERSIONS["ATMOSPHERE:PICOPASCAL"] = \
         lambda: noconversion("ATMOSPHERE", "PICOPASCAL")
     CONVERSIONS["ATMOSPHERE:PSI"] = \
         lambda: noconversion("ATMOSPHERE", "PSI")
+    CONVERSIONS["ATMOSPHERE:Pascal"] = \
+        lambda: noconversion("ATMOSPHERE", "Pascal")
     CONVERSIONS["ATMOSPHERE:TERAPASCAL"] = \
         lambda: noconversion("ATMOSPHERE", "TERAPASCAL")
     CONVERSIONS["ATMOSPHERE:TORR"] = \
@@ -148,14 +148,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("ATTOPASCAL", "MMHG")
     CONVERSIONS["ATTOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** -9) * value
-    CONVERSIONS["ATTOPASCAL:PASCAL"] = \
-        lambda value: (10 ** -18) * value
     CONVERSIONS["ATTOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -33) * value
     CONVERSIONS["ATTOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["ATTOPASCAL:PSI"] = \
         lambda: noconversion("ATTOPASCAL", "PSI")
+    CONVERSIONS["ATTOPASCAL:Pascal"] = \
+        lambda value: (10 ** -18) * value
     CONVERSIONS["ATTOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -30) * value
     CONVERSIONS["ATTOPASCAL:TORR"] = \
@@ -210,14 +210,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("BAR", "MMHG")
     CONVERSIONS["BAR:NANOPASCAL"] = \
         lambda: noconversion("BAR", "NANOPASCAL")
-    CONVERSIONS["BAR:PASCAL"] = \
-        lambda: noconversion("BAR", "PASCAL")
     CONVERSIONS["BAR:PETAPASCAL"] = \
         lambda: noconversion("BAR", "PETAPASCAL")
     CONVERSIONS["BAR:PICOPASCAL"] = \
         lambda: noconversion("BAR", "PICOPASCAL")
     CONVERSIONS["BAR:PSI"] = \
         lambda: noconversion("BAR", "PSI")
+    CONVERSIONS["BAR:Pascal"] = \
+        lambda: noconversion("BAR", "Pascal")
     CONVERSIONS["BAR:TERAPASCAL"] = \
         lambda: noconversion("BAR", "TERAPASCAL")
     CONVERSIONS["BAR:TORR"] = \
@@ -272,14 +272,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("CENTIBAR", "MMHG")
     CONVERSIONS["CENTIBAR:NANOPASCAL"] = \
         lambda: noconversion("CENTIBAR", "NANOPASCAL")
-    CONVERSIONS["CENTIBAR:PASCAL"] = \
-        lambda: noconversion("CENTIBAR", "PASCAL")
     CONVERSIONS["CENTIBAR:PETAPASCAL"] = \
         lambda: noconversion("CENTIBAR", "PETAPASCAL")
     CONVERSIONS["CENTIBAR:PICOPASCAL"] = \
         lambda: noconversion("CENTIBAR", "PICOPASCAL")
     CONVERSIONS["CENTIBAR:PSI"] = \
         lambda: noconversion("CENTIBAR", "PSI")
+    CONVERSIONS["CENTIBAR:Pascal"] = \
+        lambda: noconversion("CENTIBAR", "Pascal")
     CONVERSIONS["CENTIBAR:TERAPASCAL"] = \
         lambda: noconversion("CENTIBAR", "TERAPASCAL")
     CONVERSIONS["CENTIBAR:TORR"] = \
@@ -334,14 +334,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("CENTIPASCAL", "MMHG")
     CONVERSIONS["CENTIPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 7) * value
-    CONVERSIONS["CENTIPASCAL:PASCAL"] = \
-        lambda value: (10 ** -2) * value
     CONVERSIONS["CENTIPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -17) * value
     CONVERSIONS["CENTIPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 10) * value
     CONVERSIONS["CENTIPASCAL:PSI"] = \
         lambda: noconversion("CENTIPASCAL", "PSI")
+    CONVERSIONS["CENTIPASCAL:Pascal"] = \
+        lambda value: (10 ** -2) * value
     CONVERSIONS["CENTIPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -14) * value
     CONVERSIONS["CENTIPASCAL:TORR"] = \
@@ -396,14 +396,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("DECAPASCAL", "MMHG")
     CONVERSIONS["DECAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 10) * value
-    CONVERSIONS["DECAPASCAL:PASCAL"] = \
-        lambda value: 10 * value
     CONVERSIONS["DECAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -14) * value
     CONVERSIONS["DECAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 13) * value
     CONVERSIONS["DECAPASCAL:PSI"] = \
         lambda: noconversion("DECAPASCAL", "PSI")
+    CONVERSIONS["DECAPASCAL:Pascal"] = \
+        lambda value: 10 * value
     CONVERSIONS["DECAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -11) * value
     CONVERSIONS["DECAPASCAL:TORR"] = \
@@ -458,14 +458,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("DECIBAR", "MMHG")
     CONVERSIONS["DECIBAR:NANOPASCAL"] = \
         lambda: noconversion("DECIBAR", "NANOPASCAL")
-    CONVERSIONS["DECIBAR:PASCAL"] = \
-        lambda: noconversion("DECIBAR", "PASCAL")
     CONVERSIONS["DECIBAR:PETAPASCAL"] = \
         lambda: noconversion("DECIBAR", "PETAPASCAL")
     CONVERSIONS["DECIBAR:PICOPASCAL"] = \
         lambda: noconversion("DECIBAR", "PICOPASCAL")
     CONVERSIONS["DECIBAR:PSI"] = \
         lambda: noconversion("DECIBAR", "PSI")
+    CONVERSIONS["DECIBAR:Pascal"] = \
+        lambda: noconversion("DECIBAR", "Pascal")
     CONVERSIONS["DECIBAR:TERAPASCAL"] = \
         lambda: noconversion("DECIBAR", "TERAPASCAL")
     CONVERSIONS["DECIBAR:TORR"] = \
@@ -520,14 +520,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("DECIPASCAL", "MMHG")
     CONVERSIONS["DECIPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 8) * value
-    CONVERSIONS["DECIPASCAL:PASCAL"] = \
-        lambda value: (10 ** -1) * value
     CONVERSIONS["DECIPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -16) * value
     CONVERSIONS["DECIPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 11) * value
     CONVERSIONS["DECIPASCAL:PSI"] = \
         lambda: noconversion("DECIPASCAL", "PSI")
+    CONVERSIONS["DECIPASCAL:Pascal"] = \
+        lambda value: (10 ** -1) * value
     CONVERSIONS["DECIPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -13) * value
     CONVERSIONS["DECIPASCAL:TORR"] = \
@@ -582,14 +582,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("EXAPASCAL", "MMHG")
     CONVERSIONS["EXAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 27) * value
-    CONVERSIONS["EXAPASCAL:PASCAL"] = \
-        lambda value: (10 ** 18) * value
     CONVERSIONS["EXAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["EXAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 30) * value
     CONVERSIONS["EXAPASCAL:PSI"] = \
         lambda: noconversion("EXAPASCAL", "PSI")
+    CONVERSIONS["EXAPASCAL:Pascal"] = \
+        lambda value: (10 ** 18) * value
     CONVERSIONS["EXAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["EXAPASCAL:TORR"] = \
@@ -644,14 +644,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("FEMTOPASCAL", "MMHG")
     CONVERSIONS["FEMTOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** -6) * value
-    CONVERSIONS["FEMTOPASCAL:PASCAL"] = \
-        lambda value: (10 ** -15) * value
     CONVERSIONS["FEMTOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -30) * value
     CONVERSIONS["FEMTOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["FEMTOPASCAL:PSI"] = \
         lambda: noconversion("FEMTOPASCAL", "PSI")
+    CONVERSIONS["FEMTOPASCAL:Pascal"] = \
+        lambda value: (10 ** -15) * value
     CONVERSIONS["FEMTOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -27) * value
     CONVERSIONS["FEMTOPASCAL:TORR"] = \
@@ -706,14 +706,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("GIGAPASCAL", "MMHG")
     CONVERSIONS["GIGAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 18) * value
-    CONVERSIONS["GIGAPASCAL:PASCAL"] = \
-        lambda value: (10 ** 9) * value
     CONVERSIONS["GIGAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["GIGAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 21) * value
     CONVERSIONS["GIGAPASCAL:PSI"] = \
         lambda: noconversion("GIGAPASCAL", "PSI")
+    CONVERSIONS["GIGAPASCAL:Pascal"] = \
+        lambda value: (10 ** 9) * value
     CONVERSIONS["GIGAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["GIGAPASCAL:TORR"] = \
@@ -768,14 +768,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("HECTOPASCAL", "MMHG")
     CONVERSIONS["HECTOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 11) * value
-    CONVERSIONS["HECTOPASCAL:PASCAL"] = \
-        lambda value: (10 ** 2) * value
     CONVERSIONS["HECTOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -13) * value
     CONVERSIONS["HECTOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 14) * value
     CONVERSIONS["HECTOPASCAL:PSI"] = \
         lambda: noconversion("HECTOPASCAL", "PSI")
+    CONVERSIONS["HECTOPASCAL:Pascal"] = \
+        lambda value: (10 ** 2) * value
     CONVERSIONS["HECTOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -10) * value
     CONVERSIONS["HECTOPASCAL:TORR"] = \
@@ -830,14 +830,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("KILOBAR", "MMHG")
     CONVERSIONS["KILOBAR:NANOPASCAL"] = \
         lambda: noconversion("KILOBAR", "NANOPASCAL")
-    CONVERSIONS["KILOBAR:PASCAL"] = \
-        lambda: noconversion("KILOBAR", "PASCAL")
     CONVERSIONS["KILOBAR:PETAPASCAL"] = \
         lambda: noconversion("KILOBAR", "PETAPASCAL")
     CONVERSIONS["KILOBAR:PICOPASCAL"] = \
         lambda: noconversion("KILOBAR", "PICOPASCAL")
     CONVERSIONS["KILOBAR:PSI"] = \
         lambda: noconversion("KILOBAR", "PSI")
+    CONVERSIONS["KILOBAR:Pascal"] = \
+        lambda: noconversion("KILOBAR", "Pascal")
     CONVERSIONS["KILOBAR:TERAPASCAL"] = \
         lambda: noconversion("KILOBAR", "TERAPASCAL")
     CONVERSIONS["KILOBAR:TORR"] = \
@@ -892,14 +892,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("KILOPASCAL", "MMHG")
     CONVERSIONS["KILOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 12) * value
-    CONVERSIONS["KILOPASCAL:PASCAL"] = \
-        lambda value: (10 ** 3) * value
     CONVERSIONS["KILOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["KILOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 15) * value
     CONVERSIONS["KILOPASCAL:PSI"] = \
         lambda: noconversion("KILOPASCAL", "PSI")
+    CONVERSIONS["KILOPASCAL:Pascal"] = \
+        lambda value: (10 ** 3) * value
     CONVERSIONS["KILOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["KILOPASCAL:TORR"] = \
@@ -954,14 +954,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("MEGABAR", "MMHG")
     CONVERSIONS["MEGABAR:NANOPASCAL"] = \
         lambda: noconversion("MEGABAR", "NANOPASCAL")
-    CONVERSIONS["MEGABAR:PASCAL"] = \
-        lambda: noconversion("MEGABAR", "PASCAL")
     CONVERSIONS["MEGABAR:PETAPASCAL"] = \
         lambda: noconversion("MEGABAR", "PETAPASCAL")
     CONVERSIONS["MEGABAR:PICOPASCAL"] = \
         lambda: noconversion("MEGABAR", "PICOPASCAL")
     CONVERSIONS["MEGABAR:PSI"] = \
         lambda: noconversion("MEGABAR", "PSI")
+    CONVERSIONS["MEGABAR:Pascal"] = \
+        lambda: noconversion("MEGABAR", "Pascal")
     CONVERSIONS["MEGABAR:TERAPASCAL"] = \
         lambda: noconversion("MEGABAR", "TERAPASCAL")
     CONVERSIONS["MEGABAR:TORR"] = \
@@ -1016,14 +1016,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("MEGAPASCAL", "MMHG")
     CONVERSIONS["MEGAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 15) * value
-    CONVERSIONS["MEGAPASCAL:PASCAL"] = \
-        lambda value: (10 ** 6) * value
     CONVERSIONS["MEGAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["MEGAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 18) * value
     CONVERSIONS["MEGAPASCAL:PSI"] = \
         lambda: noconversion("MEGAPASCAL", "PSI")
+    CONVERSIONS["MEGAPASCAL:Pascal"] = \
+        lambda value: (10 ** 6) * value
     CONVERSIONS["MEGAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -6) * value
     CONVERSIONS["MEGAPASCAL:TORR"] = \
@@ -1078,14 +1078,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("MICROPASCAL", "MMHG")
     CONVERSIONS["MICROPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 3) * value
-    CONVERSIONS["MICROPASCAL:PASCAL"] = \
-        lambda value: (10 ** -6) * value
     CONVERSIONS["MICROPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -21) * value
     CONVERSIONS["MICROPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["MICROPASCAL:PSI"] = \
         lambda: noconversion("MICROPASCAL", "PSI")
+    CONVERSIONS["MICROPASCAL:Pascal"] = \
+        lambda value: (10 ** -6) * value
     CONVERSIONS["MICROPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -18) * value
     CONVERSIONS["MICROPASCAL:TORR"] = \
@@ -1140,14 +1140,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("MILLIBAR", "MMHG")
     CONVERSIONS["MILLIBAR:NANOPASCAL"] = \
         lambda: noconversion("MILLIBAR", "NANOPASCAL")
-    CONVERSIONS["MILLIBAR:PASCAL"] = \
-        lambda: noconversion("MILLIBAR", "PASCAL")
     CONVERSIONS["MILLIBAR:PETAPASCAL"] = \
         lambda: noconversion("MILLIBAR", "PETAPASCAL")
     CONVERSIONS["MILLIBAR:PICOPASCAL"] = \
         lambda: noconversion("MILLIBAR", "PICOPASCAL")
     CONVERSIONS["MILLIBAR:PSI"] = \
         lambda: noconversion("MILLIBAR", "PSI")
+    CONVERSIONS["MILLIBAR:Pascal"] = \
+        lambda: noconversion("MILLIBAR", "Pascal")
     CONVERSIONS["MILLIBAR:TERAPASCAL"] = \
         lambda: noconversion("MILLIBAR", "TERAPASCAL")
     CONVERSIONS["MILLIBAR:TORR"] = \
@@ -1202,14 +1202,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("MILLIPASCAL", "MMHG")
     CONVERSIONS["MILLIPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 6) * value
-    CONVERSIONS["MILLIPASCAL:PASCAL"] = \
-        lambda value: (10 ** -3) * value
     CONVERSIONS["MILLIPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -18) * value
     CONVERSIONS["MILLIPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 9) * value
     CONVERSIONS["MILLIPASCAL:PSI"] = \
         lambda: noconversion("MILLIPASCAL", "PSI")
+    CONVERSIONS["MILLIPASCAL:Pascal"] = \
+        lambda value: (10 ** -3) * value
     CONVERSIONS["MILLIPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -15) * value
     CONVERSIONS["MILLIPASCAL:TORR"] = \
@@ -1264,14 +1264,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("MILLITORR", "MMHG")
     CONVERSIONS["MILLITORR:NANOPASCAL"] = \
         lambda: noconversion("MILLITORR", "NANOPASCAL")
-    CONVERSIONS["MILLITORR:PASCAL"] = \
-        lambda: noconversion("MILLITORR", "PASCAL")
     CONVERSIONS["MILLITORR:PETAPASCAL"] = \
         lambda: noconversion("MILLITORR", "PETAPASCAL")
     CONVERSIONS["MILLITORR:PICOPASCAL"] = \
         lambda: noconversion("MILLITORR", "PICOPASCAL")
     CONVERSIONS["MILLITORR:PSI"] = \
         lambda: noconversion("MILLITORR", "PSI")
+    CONVERSIONS["MILLITORR:Pascal"] = \
+        lambda: noconversion("MILLITORR", "Pascal")
     CONVERSIONS["MILLITORR:TERAPASCAL"] = \
         lambda: noconversion("MILLITORR", "TERAPASCAL")
     CONVERSIONS["MILLITORR:TORR"] = \
@@ -1326,14 +1326,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("MMHG", "MILLITORR")
     CONVERSIONS["MMHG:NANOPASCAL"] = \
         lambda: noconversion("MMHG", "NANOPASCAL")
-    CONVERSIONS["MMHG:PASCAL"] = \
-        lambda: noconversion("MMHG", "PASCAL")
     CONVERSIONS["MMHG:PETAPASCAL"] = \
         lambda: noconversion("MMHG", "PETAPASCAL")
     CONVERSIONS["MMHG:PICOPASCAL"] = \
         lambda: noconversion("MMHG", "PICOPASCAL")
     CONVERSIONS["MMHG:PSI"] = \
         lambda: noconversion("MMHG", "PSI")
+    CONVERSIONS["MMHG:Pascal"] = \
+        lambda: noconversion("MMHG", "Pascal")
     CONVERSIONS["MMHG:TERAPASCAL"] = \
         lambda: noconversion("MMHG", "TERAPASCAL")
     CONVERSIONS["MMHG:TORR"] = \
@@ -1388,14 +1388,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("NANOPASCAL", "MILLITORR")
     CONVERSIONS["NANOPASCAL:MMHG"] = \
         lambda: noconversion("NANOPASCAL", "MMHG")
-    CONVERSIONS["NANOPASCAL:PASCAL"] = \
-        lambda value: (10 ** -9) * value
     CONVERSIONS["NANOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -24) * value
     CONVERSIONS["NANOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["NANOPASCAL:PSI"] = \
         lambda: noconversion("NANOPASCAL", "PSI")
+    CONVERSIONS["NANOPASCAL:Pascal"] = \
+        lambda value: (10 ** -9) * value
     CONVERSIONS["NANOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -21) * value
     CONVERSIONS["NANOPASCAL:TORR"] = \
@@ -1408,68 +1408,6 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda value: (10 ** 12) * value
     CONVERSIONS["NANOPASCAL:ZETTAPASCAL"] = \
         lambda value: (10 ** -30) * value
-    CONVERSIONS["PASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("PASCAL", "ATMOSPHERE")
-    CONVERSIONS["PASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["PASCAL:BAR"] = \
-        lambda: noconversion("PASCAL", "BAR")
-    CONVERSIONS["PASCAL:CENTIBAR"] = \
-        lambda: noconversion("PASCAL", "CENTIBAR")
-    CONVERSIONS["PASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["PASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["PASCAL:DECIBAR"] = \
-        lambda: noconversion("PASCAL", "DECIBAR")
-    CONVERSIONS["PASCAL:DECIPASCAL"] = \
-        lambda value: 10 * value
-    CONVERSIONS["PASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["PASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["PASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["PASCAL:KILOBAR"] = \
-        lambda: noconversion("PASCAL", "KILOBAR")
-    CONVERSIONS["PASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PASCAL:MEGABAR"] = \
-        lambda: noconversion("PASCAL", "MEGABAR")
-    CONVERSIONS["PASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PASCAL:MILLIBAR"] = \
-        lambda: noconversion("PASCAL", "MILLIBAR")
-    CONVERSIONS["PASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PASCAL:MILLITORR"] = \
-        lambda: noconversion("PASCAL", "MILLITORR")
-    CONVERSIONS["PASCAL:MMHG"] = \
-        lambda: noconversion("PASCAL", "MMHG")
-    CONVERSIONS["PASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["PASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["PASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PASCAL:PSI"] = \
-        lambda: noconversion("PASCAL", "PSI")
-    CONVERSIONS["PASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["PASCAL:TORR"] = \
-        lambda: noconversion("PASCAL", "TORR")
-    CONVERSIONS["PASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["PASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["PASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["PASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -21) * value
     CONVERSIONS["PETAPASCAL:ATMOSPHERE"] = \
         lambda: noconversion("PETAPASCAL", "ATMOSPHERE")
     CONVERSIONS["PETAPASCAL:ATTOPASCAL"] = \
@@ -1514,12 +1452,12 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("PETAPASCAL", "MMHG")
     CONVERSIONS["PETAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 24) * value
-    CONVERSIONS["PETAPASCAL:PASCAL"] = \
-        lambda value: (10 ** 15) * value
     CONVERSIONS["PETAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 27) * value
     CONVERSIONS["PETAPASCAL:PSI"] = \
         lambda: noconversion("PETAPASCAL", "PSI")
+    CONVERSIONS["PETAPASCAL:Pascal"] = \
+        lambda value: (10 ** 15) * value
     CONVERSIONS["PETAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** 3) * value
     CONVERSIONS["PETAPASCAL:TORR"] = \
@@ -1576,12 +1514,12 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("PICOPASCAL", "MMHG")
     CONVERSIONS["PICOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** -3) * value
-    CONVERSIONS["PICOPASCAL:PASCAL"] = \
-        lambda value: (10 ** -12) * value
     CONVERSIONS["PICOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -27) * value
     CONVERSIONS["PICOPASCAL:PSI"] = \
         lambda: noconversion("PICOPASCAL", "PSI")
+    CONVERSIONS["PICOPASCAL:Pascal"] = \
+        lambda value: (10 ** -12) * value
     CONVERSIONS["PICOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -24) * value
     CONVERSIONS["PICOPASCAL:TORR"] = \
@@ -1638,12 +1576,12 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("PSI", "MMHG")
     CONVERSIONS["PSI:NANOPASCAL"] = \
         lambda: noconversion("PSI", "NANOPASCAL")
-    CONVERSIONS["PSI:PASCAL"] = \
-        lambda: noconversion("PSI", "PASCAL")
     CONVERSIONS["PSI:PETAPASCAL"] = \
         lambda: noconversion("PSI", "PETAPASCAL")
     CONVERSIONS["PSI:PICOPASCAL"] = \
         lambda: noconversion("PSI", "PICOPASCAL")
+    CONVERSIONS["PSI:Pascal"] = \
+        lambda: noconversion("PSI", "Pascal")
     CONVERSIONS["PSI:TERAPASCAL"] = \
         lambda: noconversion("PSI", "TERAPASCAL")
     CONVERSIONS["PSI:TORR"] = \
@@ -1656,6 +1594,68 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("PSI", "ZEPTOPASCAL")
     CONVERSIONS["PSI:ZETTAPASCAL"] = \
         lambda: noconversion("PSI", "ZETTAPASCAL")
+    CONVERSIONS["Pascal:ATMOSPHERE"] = \
+        lambda: noconversion("Pascal", "ATMOSPHERE")
+    CONVERSIONS["Pascal:ATTOPASCAL"] = \
+        lambda value: (10 ** 18) * value
+    CONVERSIONS["Pascal:BAR"] = \
+        lambda: noconversion("Pascal", "BAR")
+    CONVERSIONS["Pascal:CENTIBAR"] = \
+        lambda: noconversion("Pascal", "CENTIBAR")
+    CONVERSIONS["Pascal:CENTIPASCAL"] = \
+        lambda value: (10 ** 2) * value
+    CONVERSIONS["Pascal:DECAPASCAL"] = \
+        lambda value: (10 ** -1) * value
+    CONVERSIONS["Pascal:DECIBAR"] = \
+        lambda: noconversion("Pascal", "DECIBAR")
+    CONVERSIONS["Pascal:DECIPASCAL"] = \
+        lambda value: 10 * value
+    CONVERSIONS["Pascal:EXAPASCAL"] = \
+        lambda value: (10 ** -18) * value
+    CONVERSIONS["Pascal:FEMTOPASCAL"] = \
+        lambda value: (10 ** 15) * value
+    CONVERSIONS["Pascal:GIGAPASCAL"] = \
+        lambda value: (10 ** -9) * value
+    CONVERSIONS["Pascal:HECTOPASCAL"] = \
+        lambda value: (10 ** -2) * value
+    CONVERSIONS["Pascal:KILOBAR"] = \
+        lambda: noconversion("Pascal", "KILOBAR")
+    CONVERSIONS["Pascal:KILOPASCAL"] = \
+        lambda value: (10 ** -3) * value
+    CONVERSIONS["Pascal:MEGABAR"] = \
+        lambda: noconversion("Pascal", "MEGABAR")
+    CONVERSIONS["Pascal:MEGAPASCAL"] = \
+        lambda value: (10 ** -6) * value
+    CONVERSIONS["Pascal:MICROPASCAL"] = \
+        lambda value: (10 ** 6) * value
+    CONVERSIONS["Pascal:MILLIBAR"] = \
+        lambda: noconversion("Pascal", "MILLIBAR")
+    CONVERSIONS["Pascal:MILLIPASCAL"] = \
+        lambda value: (10 ** 3) * value
+    CONVERSIONS["Pascal:MILLITORR"] = \
+        lambda: noconversion("Pascal", "MILLITORR")
+    CONVERSIONS["Pascal:MMHG"] = \
+        lambda: noconversion("Pascal", "MMHG")
+    CONVERSIONS["Pascal:NANOPASCAL"] = \
+        lambda value: (10 ** 9) * value
+    CONVERSIONS["Pascal:PETAPASCAL"] = \
+        lambda value: (10 ** -15) * value
+    CONVERSIONS["Pascal:PICOPASCAL"] = \
+        lambda value: (10 ** 12) * value
+    CONVERSIONS["Pascal:PSI"] = \
+        lambda: noconversion("Pascal", "PSI")
+    CONVERSIONS["Pascal:TERAPASCAL"] = \
+        lambda value: (10 ** -12) * value
+    CONVERSIONS["Pascal:TORR"] = \
+        lambda: noconversion("Pascal", "TORR")
+    CONVERSIONS["Pascal:YOCTOPASCAL"] = \
+        lambda value: (10 ** 24) * value
+    CONVERSIONS["Pascal:YOTTAPASCAL"] = \
+        lambda value: (10 ** -24) * value
+    CONVERSIONS["Pascal:ZEPTOPASCAL"] = \
+        lambda value: (10 ** 21) * value
+    CONVERSIONS["Pascal:ZETTAPASCAL"] = \
+        lambda value: (10 ** -21) * value
     CONVERSIONS["TERAPASCAL:ATMOSPHERE"] = \
         lambda: noconversion("TERAPASCAL", "ATMOSPHERE")
     CONVERSIONS["TERAPASCAL:ATTOPASCAL"] = \
@@ -1700,14 +1700,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("TERAPASCAL", "MMHG")
     CONVERSIONS["TERAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 21) * value
-    CONVERSIONS["TERAPASCAL:PASCAL"] = \
-        lambda value: (10 ** 12) * value
     CONVERSIONS["TERAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -3) * value
     CONVERSIONS["TERAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 24) * value
     CONVERSIONS["TERAPASCAL:PSI"] = \
         lambda: noconversion("TERAPASCAL", "PSI")
+    CONVERSIONS["TERAPASCAL:Pascal"] = \
+        lambda value: (10 ** 12) * value
     CONVERSIONS["TERAPASCAL:TORR"] = \
         lambda: noconversion("TERAPASCAL", "TORR")
     CONVERSIONS["TERAPASCAL:YOCTOPASCAL"] = \
@@ -1762,14 +1762,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("TORR", "MMHG")
     CONVERSIONS["TORR:NANOPASCAL"] = \
         lambda: noconversion("TORR", "NANOPASCAL")
-    CONVERSIONS["TORR:PASCAL"] = \
-        lambda: noconversion("TORR", "PASCAL")
     CONVERSIONS["TORR:PETAPASCAL"] = \
         lambda: noconversion("TORR", "PETAPASCAL")
     CONVERSIONS["TORR:PICOPASCAL"] = \
         lambda: noconversion("TORR", "PICOPASCAL")
     CONVERSIONS["TORR:PSI"] = \
         lambda: noconversion("TORR", "PSI")
+    CONVERSIONS["TORR:Pascal"] = \
+        lambda: noconversion("TORR", "Pascal")
     CONVERSIONS["TORR:TERAPASCAL"] = \
         lambda: noconversion("TORR", "TERAPASCAL")
     CONVERSIONS["TORR:YOCTOPASCAL"] = \
@@ -1824,14 +1824,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("YOCTOPASCAL", "MMHG")
     CONVERSIONS["YOCTOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** -15) * value
-    CONVERSIONS["YOCTOPASCAL:PASCAL"] = \
-        lambda value: (10 ** -24) * value
     CONVERSIONS["YOCTOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -39) * value
     CONVERSIONS["YOCTOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** -12) * value
     CONVERSIONS["YOCTOPASCAL:PSI"] = \
         lambda: noconversion("YOCTOPASCAL", "PSI")
+    CONVERSIONS["YOCTOPASCAL:Pascal"] = \
+        lambda value: (10 ** -24) * value
     CONVERSIONS["YOCTOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -36) * value
     CONVERSIONS["YOCTOPASCAL:TORR"] = \
@@ -1886,14 +1886,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("YOTTAPASCAL", "MMHG")
     CONVERSIONS["YOTTAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 33) * value
-    CONVERSIONS["YOTTAPASCAL:PASCAL"] = \
-        lambda value: (10 ** 24) * value
     CONVERSIONS["YOTTAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** 9) * value
     CONVERSIONS["YOTTAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 36) * value
     CONVERSIONS["YOTTAPASCAL:PSI"] = \
         lambda: noconversion("YOTTAPASCAL", "PSI")
+    CONVERSIONS["YOTTAPASCAL:Pascal"] = \
+        lambda value: (10 ** 24) * value
     CONVERSIONS["YOTTAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** 12) * value
     CONVERSIONS["YOTTAPASCAL:TORR"] = \
@@ -1948,14 +1948,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("ZEPTOPASCAL", "MMHG")
     CONVERSIONS["ZEPTOPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** -12) * value
-    CONVERSIONS["ZEPTOPASCAL:PASCAL"] = \
-        lambda value: (10 ** -21) * value
     CONVERSIONS["ZEPTOPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** -36) * value
     CONVERSIONS["ZEPTOPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** -9) * value
     CONVERSIONS["ZEPTOPASCAL:PSI"] = \
         lambda: noconversion("ZEPTOPASCAL", "PSI")
+    CONVERSIONS["ZEPTOPASCAL:Pascal"] = \
+        lambda value: (10 ** -21) * value
     CONVERSIONS["ZEPTOPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** -33) * value
     CONVERSIONS["ZEPTOPASCAL:TORR"] = \
@@ -2010,14 +2010,14 @@ class PressureI(_omero_model.Pressure, UnitBase):
         lambda: noconversion("ZETTAPASCAL", "MMHG")
     CONVERSIONS["ZETTAPASCAL:NANOPASCAL"] = \
         lambda value: (10 ** 30) * value
-    CONVERSIONS["ZETTAPASCAL:PASCAL"] = \
-        lambda value: (10 ** 21) * value
     CONVERSIONS["ZETTAPASCAL:PETAPASCAL"] = \
         lambda value: (10 ** 6) * value
     CONVERSIONS["ZETTAPASCAL:PICOPASCAL"] = \
         lambda value: (10 ** 33) * value
     CONVERSIONS["ZETTAPASCAL:PSI"] = \
         lambda: noconversion("ZETTAPASCAL", "PSI")
+    CONVERSIONS["ZETTAPASCAL:Pascal"] = \
+        lambda value: (10 ** 21) * value
     CONVERSIONS["ZETTAPASCAL:TERAPASCAL"] = \
         lambda value: (10 ** 9) * value
     CONVERSIONS["ZETTAPASCAL:TORR"] = \
@@ -2052,10 +2052,10 @@ class PressureI(_omero_model.Pressure, UnitBase):
     SYMBOLS["MILLITORR"] = "mTorr"
     SYMBOLS["MMHG"] = "mm Hg"
     SYMBOLS["NANOPASCAL"] = "nPa"
-    SYMBOLS["PASCAL"] = "Pa"
     SYMBOLS["PETAPASCAL"] = "PPa"
     SYMBOLS["PICOPASCAL"] = "pPa"
     SYMBOLS["PSI"] = "psi"
+    SYMBOLS["Pascal"] = "Pa"
     SYMBOLS["TERAPASCAL"] = "TPa"
     SYMBOLS["TORR"] = "Torr"
     SYMBOLS["YOCTOPASCAL"] = "yPa"
