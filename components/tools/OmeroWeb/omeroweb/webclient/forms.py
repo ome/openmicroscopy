@@ -368,7 +368,7 @@ class MetadataChannelForm(forms.Form):
                 ndValue = logicalCh.ndFilter * 100
                 if ndValue != 100:
                     # doing division uses the precision set with getcontext() above
-                    ndValue = Decimal(ndValue)/1
+                    ndValue = Decimal(str(ndValue))/1       # str() required for floats in python 2.6
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
@@ -1974,7 +1974,7 @@ class MetadataLightSourceForm(forms.Form):
             lsAttn = lightSourceSettings.attenuation * 100
             if lsAttn != 100:
                 # doing division uses the precision set with getcontext() above
-                lsAttn = Decimal(lsAttn)/1
+                lsAttn = Decimal(str(lsAttn))/1      # str() required for floats in python 2.6
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
                 widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
