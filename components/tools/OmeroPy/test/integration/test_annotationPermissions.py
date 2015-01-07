@@ -25,7 +25,7 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 from omero_model_ProjectI import ProjectI

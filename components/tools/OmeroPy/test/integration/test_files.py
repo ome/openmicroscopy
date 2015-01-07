@@ -25,7 +25,7 @@
 """
 
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from omero.util.temp_files import create_path
 

@@ -24,7 +24,7 @@
 """
 
 import omero
-import test.integration.library as lib
+import library as lib
 
 from omero.callbacks import CmdCallbackI
 

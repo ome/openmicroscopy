@@ -23,7 +23,7 @@
    Tests for the integration library.
 """
 
-import test.integration.library as lib
+import library as lib
 
 
 class TestLibrary(lib.ITest):

@@ -12,7 +12,7 @@
 import omero
 import omero.clients
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \

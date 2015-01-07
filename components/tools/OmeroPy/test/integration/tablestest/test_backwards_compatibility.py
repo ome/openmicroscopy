@@ -28,7 +28,7 @@ import tempfile
 import omero
 import omero.clients
 import omero.grid
-import test.integration.library as lib
+import library as lib
 
 from omero import columns
 

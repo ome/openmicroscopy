@@ -36,7 +36,7 @@ except that they should be able to delete users and data from their group."
 
 """
 
-import test.integration.library as lib
+import library as lib
 
 
 class TestColumbus(lib.ITest):

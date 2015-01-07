@@ -27,7 +27,7 @@
 import path
 import omero
 import omero.tables
-import test.integration.library as lib
+import library as lib
 import pytest
 
 from omero import columns

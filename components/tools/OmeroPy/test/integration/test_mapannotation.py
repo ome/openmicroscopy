@@ -24,7 +24,7 @@ Tests for the MapAnnotation and related base types
 introduced in 5.1.
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 

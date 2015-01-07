@@ -26,7 +26,7 @@
 
 import omero
 import omero.gateway
-import test.integration.library as lib
+import library as lib
 
 
 class TestPixelsService(lib.ITest):

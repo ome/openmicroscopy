@@ -22,7 +22,7 @@ Simple integration tests for the "tree" module.
 """
 
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from omero.gateway import BlitzGateway
 from omero.model import ProjectI, DatasetI, ScreenI, PlateI, \
