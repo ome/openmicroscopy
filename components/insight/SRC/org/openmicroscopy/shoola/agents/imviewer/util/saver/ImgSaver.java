@@ -571,7 +571,7 @@ public class ImgSaver
             	}
             }
 		} catch (Exception e) {
-			if (e.getCause() instanceof IOException)
+			if (e instanceof IOException || e.getCause() instanceof IOException)
 				un.notifyInfo(
 						"Save Image failure",
 						"Could not access file "
