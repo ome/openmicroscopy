@@ -811,33 +811,43 @@
                 <h2>{% trans "Rating" %}</h2>
                 <div style="clear:both"></div>
 
-                <!-- stars for adding a rating (only show if we have none) -->
-                <ul>
-                <li class="addRating" {% if manager.getMyRating %}style="display:none"{% endif %} >
-                    <a><img src="{% static "webclient/image/rating0.png" %}">
-                        <span class="ratingOwner">{{ ome.user.getNameWithInitial }}</span>
-                    </a>
-                    <a href="#" class="removeRating" title="Delete rating">X</a>
-                </li>
-                </ul>
 
                 <!-- NB: ul has to be :empty (no whitespace) if no li for css :empty {display:none} -->
-                <ul id="rating_annotations" class="lnfiles">{% for rating in manager.rating_annotations %}<li
-                        class="rating{% ifequal rating.getDetails.getOwner.id ome.user.id %} myRating{% endifequal %}" >
-                            <a><img
-                            {% ifequal rating.getValue 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
-                            {% ifequal rating.getValue 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                            {% ifequal rating.getValue 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                            {% ifequal rating.getValue 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                            {% ifequal rating.getValue 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                            {% ifequal rating.getValue 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-                            />
-                            <span class="ratingOwner">{{ rating.getDetails.getOwner.getNameWithInitial }}</span>
-                            </a>
-                            {% ifequal rating.getDetails.getOwner.id ome.user.id %}
-                            <a href="#" class="removeRating" title="Delete rating">X</a>
-                            {% endifequal %}
-                        </li>{% endfor %}</ul>
+                <ul id="rating_annotations" class="lnfiles">
+                    {% with ratings=manager.getGroupedRatings %}
+
+                    {% if ratings.myRating %}
+                    <li class="rating myRating" style="position: relative">
+                        <a><img
+                        {% ifequal ratings.myRating.getValue 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating.getValue 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating.getValue 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating.getValue 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating.getValue 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating.getValue 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                        />
+                        <span class="ratingOwner">{{ ratings.myRating.getDetails.getOwner.getNameWithInitial }}</span>
+                        </a>
+                        <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
+                    </li>
+                    {% endif %}
+
+                    {% for rating in ratings.otherRatings %}
+                    <li class="rating">
+                        <a title="{{ rating.owners }}"><img
+                        {% ifequal rating.value 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                        {% ifequal rating.value 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                        {% ifequal rating.value 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                        {% ifequal rating.value 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                        {% ifequal rating.value 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                        {% ifequal rating.value 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                        />
+                        <span class="ratingOwner">({{ rating.count }})</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                    {% endwith %}
+                </ul>
              </div>
             
             

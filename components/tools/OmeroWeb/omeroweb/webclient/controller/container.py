@@ -451,15 +451,36 @@ class BaseContainer(BaseController):
         self.tgannSize = len(self.tag_annotations)
 
 
-    def getMyRating(self):
+    def getGroupedRatings(self):
         """
-        Returns a rating annotation added by current user or None if none exists.
+        Groups ratings in preparation for display. Picks out the user's rating
+        and groups the remaining ones by value.
         NB: This should be called after annotationList() has loaded annotations.
         """
         userId = self.conn.getUserId()
-        for r in self.rating_annotations:
-            if r.getDetails().getOwner().id == userId:
-                return r
+        myRating = None
+        ratingsByValue = {}
+        for r in range(1, 6):
+            ratingsByValue[r] = []
+        for rating in self.rating_annotations:
+            if rating.getDetails().getOwner().id == userId:
+                myRating = rating
+            else:
+                rVal = rating.getValue()
+                if rVal in ratingsByValue:
+                    ratingsByValue[rVal].append(rating)
+
+        groupedRatings = []
+        for r in range(5,0, -1):
+            ratings = ratingsByValue[r]
+            if len(ratings) > 0:
+                groupedRatings.append({
+                    'value': r,
+                    'count': len(ratings),
+                    'owners': ",".join([str(r.getDetails().getOwner().getNameWithInitial()) for r in ratings])
+                    })
+
+        return {'myRating': myRating, 'otherRatings': groupedRatings}
 
 
     def canUseOthersAnns(self):
