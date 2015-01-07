@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -273,6 +273,12 @@ public class MetadataViewerFactory
 	                viewer.applyCopiedRndSettings();
 	            }
 	        }
+	        if (obj instanceof WellSampleData) {
+	            ImageData img = ((WellSampleData) obj).getImage();
+	            if(img.getId()==imageId) {
+	                viewer.applyCopiedRndSettings();
+	            }
+	        }
                
             }
 	}
@@ -292,6 +298,12 @@ public class MetadataViewerFactory
                 if(obj instanceof ImageData) {
                     ImageData img = (ImageData) obj;
                     if(img.getId()==imageId) {
+                        return viewer.hasRndSettingsCopied();
+                    }
+                }
+                else if (obj instanceof WellSampleData) {
+                	ImageData img = ((WellSampleData)obj).getImage();
+                	if(img.getId()==imageId) {
                         return viewer.hasRndSettingsCopied();
                     }
                 }
