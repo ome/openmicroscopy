@@ -26,7 +26,7 @@ import omero
 import omero.clients
 from omero.rtypes import rstring, rtime
 import pytest
-import test.integration.library as lib
+import library as lib
 
 import json
 

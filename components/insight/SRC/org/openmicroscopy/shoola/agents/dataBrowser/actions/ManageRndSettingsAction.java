@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -209,13 +209,13 @@ public class ManageRndSettingsAction
                 return;
             }
             if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-                    ho instanceof PlateData ||
-                    ho instanceof PlateAcquisitionData))
+                    ho instanceof PlateData || ho instanceof PlateAcquisitionData
+                    || ho instanceof WellSampleData))
                 setEnabled(false);
             else {
                 if (ho instanceof PlateData ||
                         ho instanceof ImageData || ho instanceof DatasetData ||
-                        ho instanceof PlateAcquisitionData) {
+                        ho instanceof PlateAcquisitionData || ho instanceof WellSampleData) {
                     i = selected.iterator();
                     DataObject data;
                     while (i.hasNext()) {
@@ -233,7 +233,7 @@ public class ManageRndSettingsAction
         case SET_MIN_MAX:
             if (!(ho instanceof ImageData || ho instanceof DatasetData ||
                     ho instanceof PlateData ||
-                    ho instanceof PlateAcquisitionData))
+                    ho instanceof PlateAcquisitionData || ho instanceof WellSampleData))
                 setEnabled(false);
             else {
                 i = selected.iterator();
@@ -247,7 +247,7 @@ public class ManageRndSettingsAction
         case SET_OWNER:
             if (!(ho instanceof ImageData || ho instanceof DatasetData ||
                     ho instanceof PlateData ||
-                    ho instanceof PlateAcquisitionData))
+                    ho instanceof PlateAcquisitionData || ho instanceof WellSampleData))
                 setEnabled(false);
             else {
                 i = selected.iterator();

@@ -26,7 +26,7 @@ import omero
 import omero.clients
 
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from urllib import urlencode
 from django.test import Client

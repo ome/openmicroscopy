@@ -1,5 +1,5 @@
 function fa = writeFileAnnotation(session, filePath, varargin)
-% WRITEFILEANNOTATION Upload a file and create a file annotation on the OMERO server
+% WRITEFILEANNOTATION Upload a file and create a file annotation onto OMERO
 %
 %    fa = writeFileAnnotation(session, filePath) uploads the file specified
 %    by filePath and creates a file annotation owned by the session user.
@@ -20,9 +20,11 @@ function fa = writeFileAnnotation(session, filePath, varargin)
 %        fa = writeFileAnnotation(session, filePath, 'description',
 %        description)
 %
-% See also: WRITETEXTANNOTATION, updateOriginalFile
+% See also: WRITECOMMENTANNOTATION, WRITEDOUBLEANNOTATION,
+% WRITELONGANNOTATION, WRITETAGANNOTATION, WRITETEXTANNOTATION,
+% WRITETIMESTAMPANNOTATION, WRITEXMLANNOTATION, UPDATEORIGINALFILE
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

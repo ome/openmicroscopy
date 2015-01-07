@@ -24,7 +24,7 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import omero
 from omero_model_ImageI import ImageI
 from omero_model_ExperimenterI import ExperimenterI

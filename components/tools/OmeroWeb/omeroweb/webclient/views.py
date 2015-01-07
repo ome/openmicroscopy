@@ -980,6 +980,10 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     form_channels = list()
     form_lasers = list()
 
+    lasertypes = list(conn.getEnumerationEntries("LaserType"))
+    arctypes = list(conn.getEnumerationEntries("ArcType"))
+    filamenttypes = list(conn.getEnumerationEntries("FilamentType"))
+
     # various enums we need for the forms (don't load unless needed)
     mediums =  None
     immersions = None
@@ -1023,10 +1027,16 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
 
                     lightSourceSettings = logicalChannel.getLightSourceSettings()
                     if lightSourceSettings is not None and lightSourceSettings._obj is not None:
-                        if lightSourceSettings.getLightSource() is not None:
-                            channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
+                        lightSrc = lightSourceSettings.getLightSource()
+                        if lightSrc is not None:
+                            lstypes = lasertypes
+                            if lightSrc.OMERO_CLASS == "Arc":
+                                lstypes = arctypes
+                            elif lightSrc.OMERO_CLASS == "Filament":
+                                lstypes = filamenttypes
+                            channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSrc,
                                             'lightSourceSettings': lightSourceSettings,
-                                            'lstypes': list(conn.getEnumerationEntries("LaserType")),
+                                            'lstypes': lstypes,
                                             'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                             'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
@@ -1106,8 +1116,13 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 lasers = list(instrument.getLightSources())
                 if len(lasers) > 0:
                     for l in lasers:
+                        lstypes = lasertypes
+                        if l.OMERO_CLASS == "Arc":
+                            lstypes = arctypes
+                        elif l.OMERO_CLASS == "Filament":
+                            lstypes = filamenttypes
                         form_laser = MetadataLightSourceForm(initial={'lightSource': l,
-                                        'lstypes':list(conn.getEnumerationEntries("LaserType")),
+                                        'lstypes': lstypes,
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
                         form_lasers.append(form_laser)

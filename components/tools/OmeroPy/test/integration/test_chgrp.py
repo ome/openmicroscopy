@@ -26,7 +26,7 @@
 
 import omero
 import omero.gateway
-import test.integration.library as lib
+import library as lib
 import pytest
 from omero.model import DatasetI, DatasetImageLinkI, ExperimenterGroupI, ImageI
 from omero.model import FileAnnotationI, ImageAnnotationLinkI, TagAnnotationI

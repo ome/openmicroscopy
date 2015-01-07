@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.EditorUtil
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1206,7 +1206,7 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Length wl = data.getEmissionWavelength(UnitsLength.NANOMETER);
+        Length wl = data.getEmissionWavelength(null);
         if (wl == null) {
         	notSet.add(EMISSION);
         } else {
@@ -1223,7 +1223,7 @@ public class EditorUtil
             }
         }
 
-        wl = data.getExcitationWavelength(UnitsLength.NANOMETER);
+        wl = data.getExcitationWavelength(null);
         if (wl == null) {
         	notSet.add(EXCITATION);
         } else {
@@ -1246,7 +1246,7 @@ public class EditorUtil
         else
         	details.put(ND_FILTER, f*100);
 
-        Length ph = data.getPinholeSize(UnitsLength.MICROMETER);
+        Length ph = data.getPinholeSize(null);
         if (ph == null) {
             notSet.add(PIN_HOLE_SIZE);
         }
@@ -1461,7 +1461,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        Length wd = data.getWorkingDistance(UnitsLength.MICROMETER);
+        Length wd = data.getWorkingDistance(null);
         if (wd==null) {
             notSet.add(WORKING_DISTANCE);
         }
@@ -1745,7 +1745,7 @@ public class EditorUtil
         if (StringUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Length wl = data.getCutIn(UnitsLength.NANOMETER);
+        Length wl = data.getCutIn(null);
         int i = 0;
         if (wl == null)
         	notSet.add(CUT_IN);
@@ -1754,7 +1754,7 @@ public class EditorUtil
         	 details.put(CUT_IN, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutOut(UnitsLength.NANOMETER);
+        wl = data.getCutOut(null);
         if (wl == null) {
             notSet.add(CUT_OUT);
         }
@@ -1763,7 +1763,7 @@ public class EditorUtil
         	details.put(CUT_OUT, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutInTolerance(UnitsLength.NANOMETER);
+        wl = data.getCutInTolerance(null);
         if (wl == null) {
             notSet.add(CUT_IN_TOLERANCE);
         }
@@ -1772,7 +1772,7 @@ public class EditorUtil
         	details.put(CUT_IN_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutOutTolerance(UnitsLength.NANOMETER);
+        wl = data.getCutOutTolerance(null);
         if (wl == null) {
             notSet.add(CUT_OUT_TOLERANCE);
         }
@@ -1824,7 +1824,7 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Length wl = data.getLightSettingsWavelength(UnitsLength.NANOMETER);
+        Length wl = data.getLightSettingsWavelength(null);
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
                 details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
@@ -1930,7 +1930,7 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Length wl = data.getLaserWavelength(UnitsLength.NANOMETER);
+            Length wl = data.getLaserWavelength(null);
             double wave = 0;
             if (wl == null) {
                 notSet.add(WAVELENGTH);
