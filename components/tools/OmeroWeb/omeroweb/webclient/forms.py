@@ -40,8 +40,12 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         ExperimenterModelMultipleChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
 
+from decimal import Decimal, getcontext
 
 logger = logging.getLogger(__name__)
+
+# Set precision for decimal display
+getcontext().prec = 2
              
 ##################################################################
 # Static values
@@ -360,11 +364,15 @@ class MetadataChannelForm(forms.Form):
         
         # ndFilter
         try:
-            if logicalCh is not None:
+            if logicalCh is not None and logicalCh.ndFilter is not None:
+                ndValue = logicalCh.ndFilter * 100
+                if ndValue != 100:
+                    # doing division uses the precision set with getcontext() above
+                    ndValue = Decimal(ndValue)/1
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=logicalCh.ndFilter,
+                    initial=ndValue,
                     label="ND filter (%)",
                     required=False)
             else:
@@ -1880,10 +1888,14 @@ class MetadataLightSourceForm(forms.Form):
         
         # Attenuation
         if lightSourceSettings is not None and lightSourceSettings.attenuation is not None:
+            lsAttn = lightSourceSettings.attenuation * 100
+            if lsAttn != 100:
+                # doing division uses the precision set with getcontext() above
+                lsAttn = Decimal(lsAttn)/1
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
                 widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
-                initial=lightSourceSettings.attenuation,
+                initial=lsAttn,
                 label="Attenuation (%)",
                 required=False)
         else:

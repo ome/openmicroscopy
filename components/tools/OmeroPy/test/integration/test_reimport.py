@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-import test.integration.library as lib
+import library as lib
 
 from omero.callbacks import CmdCallbackI
 from omero.cmd import Delete

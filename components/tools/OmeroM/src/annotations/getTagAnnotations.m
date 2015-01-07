@@ -8,10 +8,11 @@ function tas = getTagAnnotations(session, ids)
 %
 %      tas = getTagAnnotations(session, ids);
 %
-% See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETFILEANNOTATIONS,
-% GETCOMMENTANNOTATIONS, GETXMLANNOTATIONS
+% See also: GETANNOTATIONTYPES, GETANNOTATIONS, GETCOMMENTANNOTATIONS
+% GETDOUBLEANNOTATIONS, GETFILEANNOTATIONS, GETLONGANNOTATIONS,
+% GETTIMESTAMPANNOTATIONS, GETXMLANNOTATIONS
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

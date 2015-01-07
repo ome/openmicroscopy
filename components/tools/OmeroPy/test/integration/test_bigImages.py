@@ -26,7 +26,7 @@
 
 import omero
 import logging
-import test.integration.library as lib
+import library as lib
 
 try:
     from PIL import Image  # see ticket:2597

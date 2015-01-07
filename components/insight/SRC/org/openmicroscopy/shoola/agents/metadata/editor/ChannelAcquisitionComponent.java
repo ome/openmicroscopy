@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ChannelAcquisitionComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -497,28 +497,36 @@ class ChannelAcquisitionComponent
 		while (j.hasNext()) {
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
-			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
-			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
-			    values[0][i] = details.get(EditorUtil.DELTA_T)+
-			            EditorUtil.TIME_UNIT;
-				values[1][i] = details.get(EditorUtil.EXPOSURE_TIME)+
-				EditorUtil.TIME_UNIT;
-			} else {
-			    values[0][i] = "--";
-			    values[1][i] = "--";
-			}
+			notSet = (List<String>) details.get(EditorUtil.NOT_SET);	
+			if (!notSet.contains(EditorUtil.DELTA_T))
+				values[0][i] = details.get(EditorUtil.DELTA_T)
+						+ EditorUtil.TIME_UNIT;
+			else
+				values[0][i] = "--";
+
+			if (!notSet.contains(EditorUtil.EXPOSURE_TIME))
+				values[1][i] = details.get(EditorUtil.EXPOSURE_TIME)
+						+ EditorUtil.TIME_UNIT;
+			else
+				values[1][i] = "--";
 			names[i] = "t="+(i-1);
 			i++;
 		}
-		JTable table = new JTable(values, names);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.setShowGrid(true);
-		table.setGridColor(Color.LIGHT_GRAY);
-		JScrollPane pane = new JScrollPane(table);
-		Dimension d = table.getPreferredSize();
-		Dimension de = exposureTask.getPreferredSize();
-		pane.setPreferredSize(new Dimension(de.width-10, 4*d.height));
-		exposureTask.add(pane);
+		if (i > 1) {
+			JTable table = new JTable(values, names);
+			table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			table.setShowGrid(true);
+			table.setGridColor(Color.LIGHT_GRAY);
+			JScrollPane pane = new JScrollPane(table);
+			Dimension d = table.getPreferredSize();
+			Dimension de = exposureTask.getPreferredSize();
+			pane.setPreferredSize(new Dimension(de.width-10, 4*d.height));
+			exposureTask.add(pane);
+			exposureTask.setVisible(true);
+		}
+		else {
+			exposureTask.setVisible(false);
+		}
 	}
 	
 	/**

@@ -11,7 +11,7 @@
 """
 import time
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 
 from omero.rtypes import rint, rlong, rstring, rtime

@@ -23,7 +23,7 @@
 from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
 
-from test.integration.library import ITest
+from library import ITest
 from omero_ext.mox import Mox
 
 
