@@ -2,7 +2,7 @@ function las = getImageLongAnnotations(session, ids, varargin)
 % GETIMAGELONGANNOTATIONS Retrieve long annotations linked to images
 %
 %    las = getImageLongAnnotations(session, ids) returns all long annotations
-%    linked to the image specified by the input identifiers ids and owned 
+%    linked to the images specified by the input identifiers ids and owned 
 %    by the session user.
 %
 %    las = getImageLongAnnotations(session, images) returns all long
