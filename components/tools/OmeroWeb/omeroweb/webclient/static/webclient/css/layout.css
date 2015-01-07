@@ -566,7 +566,17 @@
     }
     
     /* Rating */
-
+    #rating_annotations {
+        border-color: transparent;
+    }
+    .rating {
+        float: left;
+        border: solid 1px hsl(210,20%,85%);
+        margin: 2px;
+        border-radius: 5px;
+        border-top: solid 1px hsl(210,20%,85%) !important;
+        border-bottom: solid 1px hsl(210,20%,85%) !important;
+    }
     .lnfiles:empty {
         display: none;
     }

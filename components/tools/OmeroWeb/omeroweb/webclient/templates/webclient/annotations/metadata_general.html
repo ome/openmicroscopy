@@ -823,7 +823,7 @@
 
                 <!-- NB: ul has to be :empty (no whitespace) if no li for css :empty {display:none} -->
                 <ul id="rating_annotations" class="lnfiles">{% for rating in manager.rating_annotations %}<li
-                        {% ifequal rating.getDetails.getOwner.id ome.user.id %}class="myRating"{% endifequal %} >
+                        class="rating{% ifequal rating.getDetails.getOwner.id ome.user.id %} myRating{% endifequal %}" >
                             <a><img
                             {% ifequal rating.getValue 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
                             {% ifequal rating.getValue 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
