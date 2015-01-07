@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package integration;
 
 import java.io.File;
@@ -68,7 +69,7 @@ public class DiskUsageTest extends AbstractServerTest {
 
     private EventContext ec;
     private Long imageId;
-    private Long pixelsId ;
+    private Long pixelsId;
     private Long fileSize;
 
     /**
