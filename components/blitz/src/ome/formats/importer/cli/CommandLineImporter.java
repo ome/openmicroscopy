@@ -300,9 +300,9 @@ public class CommandLineImporter {
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
 
             + "  --report\t\t\t\tReport errors to the OME team\n"
-            + "  --upload\t\t\t\tUpload broken files with report\n"
-            + "  --logs\t\t\t\tUpload log file with report\n"
-            + "  --email EMAIL\t\t\t\tEmail for reported errors\n"
+            + "  --upload\t\t\t\tUpload broken files and log file (if any) with report. Required --report\n"
+            + "  --logs\t\t\t\tUpload log file (if any) with report. Required --report\n"
+            + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
             + "  --annotation_ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
             + "  --annotation_text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
