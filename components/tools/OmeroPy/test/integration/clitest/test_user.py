@@ -90,7 +90,8 @@ class TestUser(CLITest):
         elif sort_key == 'last-name':
             sorted_list = sorted(self.users, key=lambda x: x.lastName.val)
         elif sort_key == 'email':
-            sorted_list = sorted(self.users, key=lambda x: (x.email and x.email.val or ""))
+            sorted_list = sorted(self.users, key=lambda x: (
+                x.email and x.email.val or ""))
         else:
             sorted_list = sorted(self.users, key=lambda x: x.id.val)
         assert ids == [user.id.val for user in sorted_list]

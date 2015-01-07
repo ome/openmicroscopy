@@ -101,8 +101,8 @@ class TestTickets3000(lib.ITest):
         p1.theFilter = f1
 
         # Nor was this
-        with pytest.raises(
-            (Ice.UnknownUserException, Ice.UnknownLocalException)):
+        with pytest.raises((Ice.UnknownUserException,
+                            Ice.UnknownLocalException)):
             q.findAllByQuery(sql, p1)
 
         # Only IQuery.projection can return non-IObject types
