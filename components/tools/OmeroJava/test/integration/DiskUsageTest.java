@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import ome.services.blitz.repo.PublicRepositoryI;
 import omero.RLong;
 import omero.RObject;
 import omero.RType;
@@ -313,7 +314,7 @@ public class DiskUsageTest extends AbstractServerTest {
         final String query = "SELECT o.size FROM " +
                 "Image i, Fileset f, FilesetJobLink fjl, UploadJob j, JobOriginalFileLink jol, OriginalFile o " +
                 "WHERE i.id = :id AND f = i.fileset AND fjl.parent = f AND fjl.child = j AND jol.parent = j AND jol.child = o " +
-                "AND o.mimetype = 'application/omero-log-file'";
+                "AND o.mimetype = '" + PublicRepositoryI.IMPORT_LOG_MIMETYPE + "'";
 
         final long importLogSize = queryForId(query, imageId);
 
