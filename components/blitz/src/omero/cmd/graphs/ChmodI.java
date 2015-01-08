@@ -64,6 +64,7 @@ public class ChmodI extends Chmod implements IGraphModifyRequest {
     //
 
     @Override
+    @Deprecated
     public IGraphModifyRequest copy() {
         ChmodI copy = (ChmodI) ic.findObjectFactory(ice_id()).create(ChmodI.ice_staticId());
         copy.type = type;
@@ -116,6 +117,7 @@ public class ChmodI extends Chmod implements IGraphModifyRequest {
     }
 
     @Override
+    @Deprecated
     public void finish() throws Cancel {
         // no-op
     }

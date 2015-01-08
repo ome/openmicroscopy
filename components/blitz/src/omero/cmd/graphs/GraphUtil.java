@@ -59,7 +59,9 @@ public class GraphUtil {
      * Count how many objects are listed in a {@code IdListMap}.
      * @param idListMap lists of object IDs indexed by type name
      * @return how many objects are listed in given {@code IdListMap}
+     * @deprecated because facade classes are deprecated
      */
+    @Deprecated
     static int getIdListMapSize(Map<?, long[]> idListMap) {
         int size = 0;
         for (final long[] ids : idListMap.values()) {
@@ -107,7 +109,9 @@ public class GraphUtil {
      * @param request the request whose options should be updated
      * @param isAdmin if the current user is a system administrator
      * @throws GraphException if a non-administrator attempted to use {@link Op#FORCE}
+     * @deprecated because facade classes are deprecated
      */
+    @Deprecated
     static void translateOptions(GraphRequestFactory graphRequestFactory, Map<String, String> options,
             GraphModify2 request, boolean isAdmin) throws GraphException {
         if (options == null) {
@@ -171,7 +175,9 @@ public class GraphUtil {
      * Find the first class-name in a {@code /}-separated string.
      * @param type a type path in the style of the original graph traversal code
      * @return the first type found in the path
+     * @deprecated because facade classes are deprecated
      */
+    @Deprecated
     static String getFirstClassName(String type) {
         while (type.charAt(0) == '/') {
             type = type.substring(1);
@@ -189,7 +195,9 @@ public class GraphUtil {
      * should they wish those objects to be processed together.
      * Call this method before calling {@link omero.cmd.IRequest#init(omero.cmd.Helper)} on the requests.
      * @param requests the list of requests to adjust
+     * @deprecated because facade classes are deprecated
      */
+    @Deprecated
     public static void combineFacadeRequests(List<Request> requests) {
         if (requests == null) {
             return;
