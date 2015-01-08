@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -585,7 +585,19 @@ class OmeroMetadataServiceImpl
 					exist = true;
 				}
 			}
-		} else if (annotation instanceof RatingAnnotationData) {
+		}
+		else if (annotation instanceof MapAnnotationData) {
+			MapAnnotationData map = (MapAnnotationData) annotation;
+			link = gateway.findAnnotationLink(ctx, ho.getClass(),
+					ho.getId().getValue(), map.getId(), exp.getId());
+			if (link == null)
+				link = ModelMapper.linkAnnotation(ho, an);
+			else {
+				updateAnnotationData(ctx, map);
+				exist = true;
+			}
+		}
+		else if (annotation instanceof RatingAnnotationData) {
 			clearAnnotation(ctx, data.getClass(), data.getId(),
 					RatingAnnotationData.class);
 			link = ModelMapper.linkAnnotation(ho, an);
