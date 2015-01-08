@@ -49,7 +49,6 @@ import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-import omero.model.NamedValue;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -1923,67 +1922,46 @@ class EditorModel
 		return l;
 	}
 	
-	public MapAnnotationData fakeMap;
-	
 	/**
 	 * Returns the collection of map annotations
 	 * 
 	 * @return See above.
 	 */
 	List<MapAnnotationData> getMapAnnotations() {
-		if(fakeMap==null)
-			fakeMap = getFakeMapAnnotation();
-		
-		List<MapAnnotationData> l = new ArrayList<MapAnnotationData>();
-		l.add(fakeMap);
-		return l;
-		
-//		StructuredDataResults data = parent.getStructuredData();
-//		if (data == null)
-//			return Collections.emptyList();
-//
-//		MapAnnotationData myMap = null;
-//		List<MapAnnotationData> otherMaps = new ArrayList<MapAnnotationData>();
-//		List<MapAnnotationData> nonUserMaps = new ArrayList<MapAnnotationData>();
-//
-//		Collection<MapAnnotationData> maps = data.getMapAnnotations();
-//		if (!CollectionUtils.isEmpty(maps)) {
-//			for (MapAnnotationData d : maps) {
-//				if (MapAnnotationData.NS_CLIENT_CREATED
-//						.equals(d.getNameSpace())) {
-//					if (MetadataViewerAgent.getUserDetails().getId() == d
-//							.getOwner().getId())
-//						myMap = d;
-//					else
-//						otherMaps.add(d);
-//				} else {
-//					nonUserMaps.add(d);
-//				}
-//			}
-//		}
-//
-//		if (myMap == null) {
-//			myMap = new MapAnnotationData();
-//			myMap.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
-//		}
-//
-//		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
-//		result.add(myMap);
-//		result.addAll(otherMaps);
-//		result.addAll(nonUserMaps);
-//		return result;
-	}
-	
-	private MapAnnotationData getFakeMapAnnotation() {
-		MapAnnotationData m = new MapAnnotationData();
-		m.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null)
+			return Collections.emptyList();
 
-		List<NamedValue> l = new ArrayList<NamedValue>();
-		for (int j = 0; j < 3; j++) {
-			l.add(new NamedValue("name" + j, "value" + j));
+		MapAnnotationData myMap = null;
+		List<MapAnnotationData> otherMaps = new ArrayList<MapAnnotationData>();
+		List<MapAnnotationData> nonUserMaps = new ArrayList<MapAnnotationData>();
+
+		Collection<MapAnnotationData> maps = data.getMapAnnotations();
+		if (!CollectionUtils.isEmpty(maps)) {
+			for (MapAnnotationData d : maps) {
+				if (MapAnnotationData.NS_CLIENT_CREATED
+						.equals(d.getNameSpace())) {
+					if (MetadataViewerAgent.getUserDetails().getId() == d
+							.getOwner().getId())
+						myMap = d;
+					else
+						otherMaps.add(d);
+				} else {
+					nonUserMaps.add(d);
+				}
+			}
 		}
-		m.setContent(l);
-		return m;
+
+		if (myMap == null) {
+			myMap = new MapAnnotationData();
+			myMap.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
+		}
+
+		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
+		result.add(myMap);
+		result.addAll(otherMaps);
+		result.addAll(nonUserMaps);
+		return result;
 	}
 	
 	/**

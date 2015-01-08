@@ -1799,9 +1799,7 @@ class AnnotationDataUI
 		for(MapTable t : mapTables) {
 			MapTableModel model = (MapTableModel)t.getModel();
 			if(model.isDirty()) {
-				// TODO: Don't save for now
-				//l.add(model.getMap());
-				((EditorModel)this.model).fakeMap = model.getMap();
+				l.add(model.getMap());
 			}
 		}
 		
