@@ -108,8 +108,8 @@ public class EllipseTextFigure
     	setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
     	setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
 		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
-		setAttribute(MeasurementAttributes.WIDTH, w);
-		setAttribute(MeasurementAttributes.HEIGHT, h);
+		super.setAttribute(MeasurementAttributes.WIDTH, w);
+		super.setAttribute(MeasurementAttributes.HEIGHT, h);
   		setText(t);
 		textBounds = null;
 		editable = true;
@@ -123,21 +123,19 @@ public class EllipseTextFigure
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
 		super.setAttribute(key, newValue);
-		/* TODO: To fix
 		if (!fromTransformUpdate)
 		{
-			if (key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+			if (MeasurementAttributes.HEIGHT.getKey().equals(key.getKey()))
 			{
 				double newHeight = MeasurementAttributes.HEIGHT.get(this);
-				this.setHeight(newHeight);	
+				this.setHeight(newHeight);
 			}
-			if (key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+			if (MeasurementAttributes.WIDTH.getKey().equals(key.getKey()))
 			{
 				double newWidth = MeasurementAttributes.WIDTH.get(this);
-				this.setWidth(newWidth);	
+				this.setWidth(newWidth);
 			}
 		}
-		*/
 	}
 	
 	/**
