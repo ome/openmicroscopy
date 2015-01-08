@@ -60,27 +60,14 @@ server-permissions.html
 
         list = parser.add(sub, self.list, "List current groups")
         list.add_style_argument()
+        list.add_user_print_arguments()
+        list.add_group_sorting_arguments()
 
         members = parser.add(
             sub, self.members, "List members of the current group")
         members.add_style_argument()
         members.add_group_print_arguments()
         members.add_user_sorting_arguments()
-
-        printgroup = list.add_mutually_exclusive_group()
-        printgroup.add_argument(
-            "--count", action="store_true", default=True,
-            help="Print count of all users and owners (default)")
-        printgroup.add_argument(
-            "--long", action="store_true", default=False,
-            help="Print comma-separated list of all users and owners")
-        sortgroup = list.add_mutually_exclusive_group()
-        sortgroup.add_argument(
-            "--sort-by-id", action="store_true", default=True,
-            help="Sort groups by ID (default)")
-        sortgroup.add_argument(
-            "--sort-by-name", action="store_true", default=False,
-            help="Sort groups by name")
 
         copyusers = parser.add(sub, self.copyusers, "Copy the users of one"
                                " group to another group")
@@ -214,43 +201,13 @@ server-permissions.html
     def list(self, args):
         c = self.ctx.conn(args)
         groups = c.sf.getAdminService().lookupGroups()
-        from omero.util.text import TableBuilder
-
-        # Sort groups
-        if args.sort_by_name:
-            groups.sort(key=lambda x: x.name.val)
-        elif args.sort_by_id:
-            groups.sort(key=lambda x: x.id.val)
-
-        if args.long:
-            tb = TableBuilder("id", "name", "perms", "ldap", "owner ids",
-                              "member ids")
-        else:
-            tb = TableBuilder("id", "name", "perms", "ldap", "# of owners",
-                              "# of members")
-        if args.style:
-            tb.set_style(args.style)
-
-        for group in groups:
-            row = [group.id.val, group.name.val,
-                   str(group.details.permissions), group.ldap.val]
-            ownerids = self.getownerids(group)
-            memberids = self.getmemberids(group)
-            if args.long:
-                row.append(",".join(sorted([str(x) for x in ownerids])))
-                row.append(",".join(sorted([str(x) for x in memberids])))
-            else:
-                row.append(len(ownerids))
-                row.append(len(memberids))
-            tb.row(*tuple(row))
-        self.ctx.out(str(tb.build()))
+        self.output_groups_list(groups, args)
 
     def members(self, args):
         c = self.ctx.conn(args)
         admin = c.sf.getAdminService()
         ec = self.ctx.get_event_context()
-        [gid, g] = self.find_group_by_id(admin, ec.groupId, fatal=True)
-        users = admin.containedExperimenters(gid)
+        users = admin.containedExperimenters(ec.groupId)
         self.output_users_list(admin, users, args)
 
     def parse_groupid(self, a, args):

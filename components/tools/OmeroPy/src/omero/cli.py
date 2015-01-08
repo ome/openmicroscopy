@@ -222,6 +222,15 @@ Optional session arguments:
             "--count", action="store_true", default=False,
             help="Print count of all groups")
 
+    def add_user_print_arguments(self):
+        printgroup = self.add_mutually_exclusive_group()
+        printgroup.add_argument(
+            "--count", action="store_true", default=True,
+            help="Print count of all users and owners (default)")
+        printgroup.add_argument(
+            "--long", action="store_true", default=False,
+            help="Print comma-separated list of all users and owners")
+
     def add_user_sorting_arguments(self):
         sortgroup = self.add_mutually_exclusive_group()
         sortgroup.add_argument(
@@ -239,6 +248,15 @@ Optional session arguments:
         sortgroup.add_argument(
             "--sort-by-email", action="store_true", default=False,
             help="Sort users by email")
+
+    def add_group_sorting_arguments(self):
+        sortgroup = self.add_mutually_exclusive_group()
+        sortgroup.add_argument(
+            "--sort-by-id", action="store_true", default=True,
+            help="Sort groups by ID (default)")
+        sortgroup.add_argument(
+            "--sort-by-name", action="store_true", default=False,
+            help="Sort groups by name")
 
     def set_args_unsorted(self):
         self._sort_args = False
@@ -1989,5 +2007,37 @@ class UserGroupControl(BaseControl):
             else:
                 row.append("")
 
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
+
+    def output_groups_list(self, groups, args):
+        from omero.util.text import TableBuilder
+
+        # Sort groups
+        if args.sort_by_name:
+            groups.sort(key=lambda x: x.name.val)
+        elif args.sort_by_id:
+            groups.sort(key=lambda x: x.id.val)
+
+        if args.long:
+            tb = TableBuilder("id", "name", "perms", "ldap", "owner ids",
+                              "member ids")
+        else:
+            tb = TableBuilder("id", "name", "perms", "ldap", "# of owners",
+                              "# of members")
+        if args.style:
+            tb.set_style(args.style)
+
+        for group in groups:
+            row = [group.id.val, group.name.val,
+                   str(group.details.permissions), group.ldap.val]
+            ownerids = self.getownerids(group)
+            memberids = self.getmemberids(group)
+            if args.long:
+                row.append(",".join(sorted([str(x) for x in ownerids])))
+                row.append(",".join(sorted([str(x) for x in memberids])))
+            else:
+                row.append(len(ownerids))
+                row.append(len(memberids))
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))

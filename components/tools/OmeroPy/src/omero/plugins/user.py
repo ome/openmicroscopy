@@ -54,6 +54,12 @@ class UserControl(UserGroupControl):
         list.add_group_print_arguments()
         list.add_user_sorting_arguments()
 
+        info = parser.add(
+            sub, self.members, "List groups of the current user")
+        info.add_style_argument()
+        info.add_user_print_arguments()
+        info.add_group_sorting_arguments()
+
         password = parser.add(
             sub, self.password, help="Set user's password")
         password.add_argument(
@@ -200,6 +206,13 @@ class UserControl(UserGroupControl):
         a = c.sf.getAdminService()
         users = a.lookupExperimenters()
         self.output_users_list(a, users, args)
+
+    def info(self, args):
+        c = self.ctx.conn(args)
+        admin = c.sf.getAdminService()
+        ec = self.ctx.get_event_context()
+        groups = admin.containedGroups(ec.userId)
+        self.output_groups_list(groups, args)
 
     @admin_only
     def add(self, args):
