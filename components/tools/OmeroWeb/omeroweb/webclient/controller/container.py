@@ -477,7 +477,7 @@ class BaseContainer(BaseController):
                 groupedRatings.append({
                     'value': r,
                     'count': len(ratings),
-                    'owners': ",".join([str(r.getDetails().getOwner().getNameWithInitial()) for r in ratings])
+                    'owners': ", ".join([str(r.getDetails().getOwner().getNameWithInitial()) for r in ratings])
                     })
 
         return {'myRating': myRating, 'otherRatings': groupedRatings}
