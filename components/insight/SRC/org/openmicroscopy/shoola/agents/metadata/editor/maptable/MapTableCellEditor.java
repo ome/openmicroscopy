@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,14 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 	private boolean doubleClickEdit = false;
 
+	private boolean editable = true;
+
 	public MapTableCellEditor() {
+		this(true);
+	}
+
+	public MapTableCellEditor(boolean editable) {
+		this.editable = editable;
 	}
 
 	public void setDoubleClickEdit(boolean doubleClickEdit) {
@@ -73,6 +80,9 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 	@Override
 	public boolean isCellEditable(EventObject e) {
+		if (!editable)
+			return false;
+		
 		if (e instanceof MouseEvent && doubleClickEdit) {
 			return ((MouseEvent) e).getClickCount() > 1;
 		}

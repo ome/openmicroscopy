@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -40,6 +40,16 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 @SuppressWarnings("serial")
 public class MapTableCellRenderer extends DefaultTableCellRenderer {
 
+	private boolean editable = true;
+
+	public MapTableCellRenderer() {
+		this(true);
+	}
+
+	public MapTableCellRenderer(boolean editable) {
+		this.editable = editable;
+	}
+
 	@Override
 	public Component getTableCellRendererComponent(final JTable table,
 			final Object value, final boolean isSelected,
@@ -48,8 +58,8 @@ public class MapTableCellRenderer extends DefaultTableCellRenderer {
 		if (value instanceof Icon) {
 			l = new JLabel((Icon) value);
 			l.setToolTipText("Delete Entry");
-		}
-		else
+			l.setEnabled(editable);
+		} else 
 			l = new JLabel((String) value);
 
 		l.setOpaque(true);

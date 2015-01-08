@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -57,8 +57,8 @@ public class MapTable extends JTable {
 	}
 
 	private void init(boolean editable) {
-		cellEditor = new MapTableCellEditor();
-		cellRenderer = new MapTableCellRenderer();
+		cellEditor = new MapTableCellEditor(editable);
+		cellRenderer = new MapTableCellRenderer(editable);
 		
 		TableColumn nameColumn = getColumnModel().getColumn(0);
 		TableColumn valueColumn = getColumnModel().getColumn(1);
@@ -81,19 +81,19 @@ public class MapTable extends JTable {
 			setDragEnabled(true);
 			setDropMode(DropMode.INSERT_ROWS);
 			setTransferHandler(new TableRowTransferHandler(this));
-		}
 
-		// handle click on delete icons
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int column = MapTable.this.getSelectedColumn();
-				int row = MapTable.this.getSelectedRow();
-				if (column == 2) {
-					((MapTableModel) MapTable.this.getModel()).deleteEntry(row);
+			// handle click on delete icons
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					int column = MapTable.this.getSelectedColumn();
+					int row = MapTable.this.getSelectedRow();
+					if (column == 2) {
+						((MapTableModel) MapTable.this.getModel()).deleteEntry(row);
+					}
 				}
-			}
-		});
+			});
+		}
 		
 		// increase default row height by 3px (otherwise JTextAreas are cut off)
 		setRowHeight(getRowHeight()+3);

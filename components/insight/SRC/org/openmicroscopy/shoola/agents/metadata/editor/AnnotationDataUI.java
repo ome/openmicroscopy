@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.AnnotationDataUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -71,6 +71,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTable;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
@@ -88,6 +89,7 @@ import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.XMLAnnotationData;
+import omero.model.NamedValue;
 
 /** 
  * Components displaying the various annotations linked to the related 
@@ -810,18 +812,38 @@ class AnnotationDataUI
 			JPanel p = new JPanel();
 			p.setLayout(new BorderLayout());
 			MapTable t = createMapTable(m);
-			p.add(t.getTableHeader(), BorderLayout.NORTH);
-			p.add(t, BorderLayout.CENTER);
-			mapsPane.add(p, c);
-			c.gridy++;
+			if (t != null) {
+				p.add(t.getTableHeader(), BorderLayout.NORTH);
+				p.add(t, BorderLayout.CENTER);
+				mapsPane.add(p, c);
+				c.gridy++;
+			}
 		}
 		
 		mapsPane.revalidate();
 		mapsPane.repaint();
 	}
 	
+	/**
+	 * Creates a MapTable and adds it to the list of mapTables;
+	 * Returns <code>null</code> if the MapAnnotationData is empty
+	 * and not editable!
+	 * @param m The data to show
+	 * @return See above
+	 */
+	@SuppressWarnings("unchecked")
 	private MapTable createMapTable(MapAnnotationData m) {
-		boolean editable = MapAnnotationData.NS_CLIENT_CREATED.equals(m.getNameSpace()) && model.canEdit();
+		boolean editable = MapAnnotationData.NS_CLIENT_CREATED.equals(m
+				.getNameSpace())
+				&& model.canAnnotate()
+				&& m.getOwner().getId() == MetadataViewerAgent.getUserDetails()
+						.getId();
+		
+		if (!editable
+				&& (m.getContent() == null || ((List<NamedValue>) m
+						.getContent()).isEmpty()))
+			return null;
+		
 		final MapTable t = new MapTable(editable);
 		t.setData(m);
 		t.getModel().addTableModelListener(new TableModelListener() {
