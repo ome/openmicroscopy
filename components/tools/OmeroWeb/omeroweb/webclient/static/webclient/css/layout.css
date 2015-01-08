@@ -583,7 +583,7 @@
     .myRating img, .addRating img{
         cursor: pointer;
     }
-    .addRating .removeRating, .addRating .ratingOwner {
+    .addRating .removeRating {
         display: none;
     }
     #rating_annotations a {
