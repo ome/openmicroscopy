@@ -23,7 +23,7 @@ function sanitizeHexColor (color, def) {
   if (color === def || color === null) {
     return color;
   }
-  return '#' + rgbToHex(color);
+  return '#' + OME.rgbToHex(color);
 }
 
 /**
@@ -53,28 +53,6 @@ function toRGB (color, def) {
     return def != undefined ? def : null;
   }
   return 'rgb('+r+','+g+','+b+')';
-}
-
-/**
- * converts a color in rgb(r,g,b) notation to hexadecimal.
- */
-function rgbToHex(rgb) {
-  if (rgb.substring(0,1) == '#') {
-    return rgb.substring(1);
-  }
-  var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(rgb);
-  if (!rgbvals) return rgb;
-  var rval = parseInt(rgbvals[1]).toString(16);
-  var gval = parseInt(rgbvals[2]).toString(16);
-  var bval = parseInt(rgbvals[3]).toString(16);
-  if (rval.length == 1) rval = '0' + rval;
-  if (gval.length == 1) gval = '0' + gval;
-  if (bval.length == 1) bval = '0' + bval;
-  return (
-    rval +
-    gval +
-    bval
-  ).toUpperCase(); 
 }
 
 /**

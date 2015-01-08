@@ -98,7 +98,7 @@
         top: 12px;
         left: 100px;
     }
-    #zRangeSlider, #img_size_slider {
+    .ui-slider {
         border: 1px solid #aaa;
         height: 6px;
         width: 150px;
@@ -107,6 +107,8 @@
         border: 1px solid #aaa;
         background: #727C86;
         border-radius: 3px;
+        top: -.4em !important;
+        transition: left 0s;
     }
     #middle_header {
         height: 35px;
@@ -194,7 +196,7 @@
     <div class="footer">
         <div style="float:right">
             <a href="#" onClick="self.close()">Cancel</a>
-            <input id="submit" type="submit" value="Create Figure" />
+            <input id="submit" type="submit" value="{% block submit_text %}Create Figure{% endblock %}" />
         </div>
         <a href="#" onClick="return OME.openPopup('{% url 'get_original_file' scriptId %}');">View Script</a>
 
@@ -206,6 +208,7 @@
 
 <!---------------------------- FIGURE PREVIEW ---------------------->
 
+{% block figure_preview_container %}
 <table id="figure_table">
     <tr><td>
         <div style="padding:10px">
@@ -216,6 +219,8 @@
         </div>
     </td></tr>
 </table>
+{% endblock %}
+
 
 </div>
 {% endblock %}

@@ -16,7 +16,7 @@
  */
  
  /*jshint bitwise:false */
- /*global parseQuery:true rgbToHex:true toRGB:true */
+ /*global parseQuery:true toRGB:true */
 
 /* Public constructors */
 
@@ -69,7 +69,7 @@ var Metadata = function () {
     if (this.rdefs.model === other.rdefs.model) {
       for (var i in this.channels) {
         if (this.channels[i].active != other.channels[i].active ||
-            rgbToHex(this.channels[i].color) != rgbToHex(other.channels[i].color) ||
+            OME.rgbToHex(this.channels[i].color) != OME.rgbToHex(other.channels[i].color) ||
             this.channels[i].emissionWave != other.channels[i].emissionWave ||
             this.channels[i].metalabel != other.channels[i].metalabel ||
             this.channels[i].window.end != other.channels[i].window.end ||
@@ -886,7 +886,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     for (var i=0; i<e1.channels.length; i++) {
       if (!(e1.channels[i].active == e2.channels[i].active &&
-            rgbToHex(e1.channels[i].color) == rgbToHex(e2.channels[i].color) &&
+            OME.rgbToHex(e1.channels[i].color) == OME.rgbToHex(e2.channels[i].color) &&
             e1.channels[i].windowStart == e2.channels[i].windowStart &&
             e1.channels[i].windowEnd == e2.channels[i].windowEnd &&
             e1.channels[i].metalabel == e2.channels[i].metalabel)) {
@@ -1000,7 +1000,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       var ch = channels[i].active ? '' : '-';
       ch += parseInt(i, 10)+1;
       ch += '|' + channels[i].window.start + ':' + channels[i].window.end;
-      ch += '$' + rgbToHex(channels[i].color);
+      ch += '$' + OME.rgbToHex(channels[i].color);
       chs.push(ch);
     }
     query.push('c=' + chs.join(','));
