@@ -32,16 +32,18 @@ import omero
 
 class TestCoverage(lib.ITest):
 
-    def setup_method(self, method):
+    @classmethod
+    def setup_class(cls):
         """
         getScripts returns official scripts,
         several of which are shipped with OMERO.
         """
-        self.rs = self.root.sf.getScriptService()
-        self.us = self.client.sf.getScriptService()
-        assert len(self.rs.getScripts()) > 0
-        assert len(self.us.getScripts()) > 0
-        assert len(self.us.getUserScripts([])) == 0  # New user. No scripts
+        super(TestCoverage, cls).setup_class()
+        cls.rs = cls.root.sf.getScriptService()
+        cls.us = cls.client.sf.getScriptService()
+        assert len(cls.rs.getScripts()) > 0
+        assert len(cls.us.getScripts()) > 0
+        assert len(cls.us.getUserScripts([])) == 0  # New user. No scripts
 
     def testGetScriptWithDetails(self):
         scriptList = self.us.getScripts()
