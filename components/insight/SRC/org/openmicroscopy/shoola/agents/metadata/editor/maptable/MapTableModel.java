@@ -201,6 +201,9 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	}
 
 	public MapAnnotationData getMap() {
+		if (isDirty()) {
+			map.setContent(data);
+		}
 		return map;
 	}
 
