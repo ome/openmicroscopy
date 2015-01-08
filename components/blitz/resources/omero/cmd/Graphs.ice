@@ -40,8 +40,8 @@ module omero {
 
         };
 
-        ["deprecated:omero::cmd::GraphModify is deprecated"]
-        ["java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
+        ["deprecated:omero::cmd::GraphModify is deprecated",
+         "java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
         sequence<GraphModify> GraphModifyList;
 
         /**
