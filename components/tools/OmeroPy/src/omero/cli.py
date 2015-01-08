@@ -213,6 +213,33 @@ Optional session arguments:
             help="Quiet mode. Causes most warning and diagnostic messages to "
             "be suppressed.")
 
+    def add_group_print_arguments(self):
+        printgroup = self.add_mutually_exclusive_group()
+        printgroup.add_argument(
+            "--long", action="store_true", default=True,
+            help="Print comma-separated list of all groups (default)")
+        printgroup.add_argument(
+            "--count", action="store_true", default=False,
+            help="Print count of all groups")
+
+    def add_user_sorting_arguments(self):
+        sortgroup = self.add_mutually_exclusive_group()
+        sortgroup.add_argument(
+            "--sort-by-id", action="store_true", default=True,
+            help="Sort users by ID (default)")
+        sortgroup.add_argument(
+            "--sort-by-login", action="store_true", default=False,
+            help="Sort users by login")
+        sortgroup.add_argument(
+            "--sort-by-first-name", action="store_true", default=False,
+            help="Sort users by first name")
+        sortgroup.add_argument(
+            "--sort-by-last-name", action="store_true", default=False,
+            help="Sort users by last name")
+        sortgroup.add_argument(
+            "--sort-by-email", action="store_true", default=False,
+            help="Sort users by email")
+
     def set_args_unsorted(self):
         self._sort_args = False
 
@@ -1891,3 +1918,76 @@ class UserGroupControl(BaseControl):
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()
                if x.owner.val]
         return ids
+
+    def output_users_list(self, admin, users, args):
+        roles = admin.getSecurityRoles()
+        user_group = roles.userGroupId
+        sys_group = roles.systemGroupId
+
+        from omero.util.text import TableBuilder
+        if args.count:
+            tb = TableBuilder("id", "login", "first name", "last name",
+                              "email", "active", "ldap", "admin",
+                              "# group memberships", "# group ownerships")
+        else:
+            tb = TableBuilder("id", "login", "first name", "last name",
+                              "email", "active", "ldap", "admin", "member of",
+                              "owner of")
+        if args.style:
+            tb.set_style(args.style)
+
+        # Sort users
+        if args.sort_by_login:
+            users.sort(key=lambda x: x.omeName.val)
+        elif args.sort_by_first_name:
+            users.sort(key=lambda x: x.firstName.val)
+        elif args.sort_by_last_name:
+            users.sort(key=lambda x: x.lastName.val)
+        elif args.sort_by_email:
+            users.sort(key=lambda x: (x.email and x.email.val or ""))
+        elif args.sort_by_id:
+            users.sort(key=lambda x: x.id.val)
+
+        for user in users:
+            row = [user.id.val, user.omeName.val, user.firstName.val,
+                   user.lastName.val]
+            row.append(user.email and user.email.val or "")
+            active = ""
+            admin = ""
+            ldap = user.ldap.val
+            member_of = []
+            leader_of = []
+            for x in user.copyGroupExperimenterMap():
+                if not x:
+                    continue
+                gid = x.parent.id.val
+                if user_group == gid:
+                    active = "Yes"
+                elif sys_group == gid:
+                    admin = "Yes"
+                elif x.owner.val:
+                    leader_of.append(str(gid))
+                else:
+                    member_of.append(str(gid))
+
+            row.append(active)
+            row.append(ldap)
+            row.append(admin)
+
+            if member_of:
+                if args.count:
+                    row.append(len(member_of))
+                else:
+                    row.append(",".join(member_of))
+            else:
+                row.append("")
+            if leader_of:
+                if args.count:
+                    row.append(len(leader_of))
+                else:
+                    row.append(",".join(leader_of))
+            else:
+                row.append("")
+
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))

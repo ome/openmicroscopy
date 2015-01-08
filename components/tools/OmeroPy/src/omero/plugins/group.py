@@ -61,6 +61,12 @@ server-permissions.html
         list = parser.add(sub, self.list, "List current groups")
         list.add_style_argument()
 
+        members = parser.add(
+            sub, self.members, "List members of the current group")
+        members.add_style_argument()
+        members.add_group_print_arguments()
+        members.add_user_sorting_arguments()
+
         printgroup = list.add_mutually_exclusive_group()
         printgroup.add_argument(
             "--count", action="store_true", default=True,
@@ -238,6 +244,14 @@ server-permissions.html
                 row.append(len(memberids))
             tb.row(*tuple(row))
         self.ctx.out(str(tb.build()))
+
+    def members(self, args):
+        c = self.ctx.conn(args)
+        admin = c.sf.getAdminService()
+        ec = self.ctx.get_event_context()
+        [gid, g] = self.find_group_by_id(admin, ec.groupId, fatal=True)
+        users = admin.containedExperimenters(gid)
+        self.output_users_list(admin, users, args)
 
     def parse_groupid(self, a, args):
         if args.id:
