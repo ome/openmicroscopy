@@ -316,11 +316,10 @@ class EditorUI
     {
         ImageData img = model.getImage();
         if (img == null) return;
-        tabPane.setEnabledAt(ACQUISITION_INDEX, img.getId() > 0);
         boolean multi = model.isMultiSelection();
         boolean preview = model.isPreviewAvailable();
         tabPane.setEnabledAt(RND_INDEX, preview && !multi);
-        tabPane.setEnabledAt(ACQUISITION_INDEX, !multi);
+        tabPane.setEnabledAt(ACQUISITION_INDEX, !multi && img.getId() > 0);
         if (!preview) {
             tabPane.setToolTipTextAt(RND_INDEX, 
                     "Only available for non big images.");
