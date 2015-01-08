@@ -35,15 +35,27 @@ import omero.api.LongPair;
 import omero.cmd.Delete2;
 import omero.cmd.DiskUsage;
 import omero.cmd.DiskUsageResponse;
+import omero.cmd.ManageImageBinaries;
+import omero.cmd.ManageImageBinariesResponse;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Annotation;
 import omero.model.Channel;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.Instrument;
 import omero.model.Objective;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -71,6 +83,7 @@ public class DiskUsageTest extends AbstractServerTest {
     private Long imageId;
     private Long pixelsId;
     private Long fileSize;
+    private Long thumbnailSize;
 
     /**
      * Convert a Collection<Long> to a long[].
@@ -192,10 +205,16 @@ public class DiskUsageTest extends AbstractServerTest {
         pixelsId = pixels.getId().getValue();
         imageId = pixels.getImage().getId().getValue();
 
+        final ManageImageBinaries mibRequest = new ManageImageBinaries();
+        mibRequest.imageId = imageId;
+        final ManageImageBinariesResponse mibResponse = (ManageImageBinariesResponse) doChange(mibRequest);
+        thumbnailSize = mibResponse.thumbnailSize;
+
         Assert.assertNotNull(ec);
         Assert.assertNotNull(imageId);
         Assert.assertNotNull(pixelsId);
         Assert.assertNotNull(fileSize);
+        Assert.assertNotNull(thumbnailSize);
     }
 
     /**
@@ -244,6 +263,48 @@ public class DiskUsageTest extends AbstractServerTest {
     }
 
     /**
+     * Test that the file size of the actual image file is correctly computed even when containers must be opened.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testFileSizeInContainers() throws Exception {
+        final Project project = new ProjectI();
+        project.setName(omero.rtypes.rstring("test project"));
+        final Dataset dataset = new DatasetI();
+        dataset.setName(omero.rtypes.rstring("test dataset"));
+
+        final long projectId = iUpdate.saveAndReturnObject(project).getId().getValue();
+        final long datasetId = iUpdate.saveAndReturnObject(dataset).getId().getValue();
+
+        final ProjectDatasetLink pdl = new ProjectDatasetLinkI();
+        pdl.setParent(new ProjectI(projectId, false));
+        pdl.setChild(new DatasetI(datasetId, false));
+        iUpdate.saveObject(pdl);
+
+        final DatasetImageLink dil = new DatasetImageLinkI();
+        dil.setParent(new DatasetI(datasetId, false));
+        dil.setChild(new ImageI(imageId, false));
+        iUpdate.saveObject(dil);
+
+        try {
+            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Project", Collections.singleton(projectId)));
+            Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
+            for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
+                Assert.assertEquals(byReferer.get("FilesetEntry"), fileSize);
+            }
+        } finally {
+            final Delete2 request = new Delete2();
+            request.targetObjects = ImmutableMap.of("Project", new long[] {projectId});
+
+            final ChildOption option = new ChildOption();
+            option.excludeType = Collections.singletonList("Image");
+            request.childOptions = new ChildOption[] {option};
+
+            doChange(request);
+        }
+    }
+
+    /**
      * Test that the import log size for the image is correctly computed.
      * @throws Exception unexpected
      */
@@ -264,6 +325,19 @@ public class DiskUsageTest extends AbstractServerTest {
     }
 
     /**
+     * Test that the size of the thumbnail is correctly computed.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testThumbnailSize() throws Exception {
+        final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+        Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
+        for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
+            Assert.assertEquals(byReferer.get("Thumbnail"), thumbnailSize);
+        }
+    }
+
+    /**
      * Test that the size of the file annotations is correctly computed.
      * @throws Exception unexpected
      */
@@ -273,7 +347,7 @@ public class DiskUsageTest extends AbstractServerTest {
         long totalAnnotationSize = 0;
         final long[] annotationIds = new long[5];
         for (int i = 0; i < annotationIds.length; i++) {
-            final long size = rng.nextInt(Integer.MAX_VALUE);  // non-negative
+            final long size = rng.nextInt(Integer.MAX_VALUE) + 1L;  // positive
             totalAnnotationSize += size;
             annotationIds[i] = createFileAnnotation(size);
         }
@@ -311,7 +385,7 @@ public class DiskUsageTest extends AbstractServerTest {
         long totalAnnotationSize = 0;
         final long[] annotationIds = new long[3];
         for (int i = 0; i < annotationIds.length; i++) {
-            final long size = rng.nextInt(Integer.MAX_VALUE);  // non-negative
+            final long size = rng.nextInt(Integer.MAX_VALUE) + 1L;  // positive
             totalAnnotationSize += size;
             annotationIds[i] = createFileAnnotation(size);
         }
@@ -326,6 +400,39 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Objective.class, objectiveId, annotationIds[0]);
         addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
         addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
+
+        try {
+            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            Assert.assertEquals(response.bytesUsedByReferer.size(), 1);
+            for (final Map<String, Long> byReferer : response.bytesUsedByReferer.values()) {
+                Assert.assertEquals(byReferer.get("Annotation"), (Long) totalAnnotationSize);
+            }
+        } finally {
+            final Delete2 request = new Delete2();
+            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            doChange(request);
+        }
+    }
+
+    /**
+     * Test that the size of the file annotations is correctly computed even if the annotations are attached in a cycle.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testCyclicFileAnnotationSize() throws Exception {
+        final Random rng = new Random(123456);  // fixed seed for deterministic testing
+        long totalAnnotationSize = 0;
+        final long[] annotationIds = new long[3];
+        for (int i = 0; i < annotationIds.length; i++) {
+            final long size = rng.nextInt(Integer.MAX_VALUE) + 1L;  // positive
+            totalAnnotationSize += size;
+            annotationIds[i] = createFileAnnotation(size);
+        }
+
+        addAnnotation(Image.class, imageId, annotationIds[0]);
+        addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
+        addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
+        addAnnotation(Annotation.class, annotationIds[2], annotationIds[0]);
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
@@ -411,6 +518,35 @@ public class DiskUsageTest extends AbstractServerTest {
         addAnnotation(Objective.class, objectiveId, annotationIds[0]);
         addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
         addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
+
+        try {
+            final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
+            Assert.assertEquals(response.fileCountByReferer.size(), 1);
+            for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
+                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.length);
+            }
+        } finally {
+            final Delete2 request = new Delete2();
+            request.targetObjects = ImmutableMap.of("Annotation", annotationIds);
+            doChange(request);
+        }
+    }
+
+    /**
+     * Test that the number of file annotations is correctly computed even if some are attached to multiple objects.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testCountWithCyclicFileAnnotations() throws Exception {
+        final long[] annotationIds = new long[3];
+        for (int i = 0; i < annotationIds.length; i++) {
+            annotationIds[i] = createFileAnnotation(1);
+        }
+
+        addAnnotation(Image.class, imageId, annotationIds[0]);
+        addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
+        addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
+        addAnnotation(Annotation.class, annotationIds[2], annotationIds[0]);
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
