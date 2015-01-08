@@ -113,13 +113,16 @@ class ImportControl(BaseControl):
             help="Report errors to the OME team (**)")
         feedback_group.add_argument(
             "--upload", action="store_true", dest="java_upload",
-            help="Upload broken files with report (**)")
+            help=("Upload broken files and log file (if any) with report."
+                  " Required --report (**)"))
         feedback_group.add_argument(
             "--logs", action="store_true", dest="java_logs",
-            help="Upload log file with report (**)")
+            help=("Upload log file (if any) with report."
+                  " Required --report (**)"))
         feedback_group.add_argument(
             "--email", dest="java_email",
-            help="Email for reported errors (**)", metavar="EMAIL")
+            help="Email for reported errors. Required --report (**)",
+            metavar="EMAIL")
         feedback_group.add_argument(
             "--qa_baseurl", dest="java_qa_baseurl",
             help=SUPPRESS)
