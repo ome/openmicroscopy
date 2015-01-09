@@ -44,7 +44,6 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
-import loci.plugins.util.ROIHandler;
 import ome.xml.model.primitives.Timestamp;
 import omero.RString;
 import omero.RTime;
@@ -56,14 +55,20 @@ import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Channel;
+import omero.model.EllipseI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Length;
+import omero.model.LineI;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
+import omero.model.PointI;
+import omero.model.PolygonI;
+import omero.model.PolylineI;
+import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.Time;
 import omero.sys.EventContext;
@@ -81,415 +86,542 @@ import Glacier2.PermissionDeniedException;
  */
 public class OmeroReader extends FormatReader {
 
-  // -- Constants --
+    // -- Constants --
 
-  public static final int DEFAULT_PORT = 4064;
+    public static final int DEFAULT_PORT = 4064;
 
-  // -- Fields --
+    // -- Fields --
 
-  private String server;
-  private String username;
-  private String password;
-  private int thePort = DEFAULT_PORT;
-  private String sessionID;
-  private String group;
-  private Long groupID = null;
-  private boolean encrypted = true;
+    private String server;
+    private String username;
+    private String password;
+    private int thePort = DEFAULT_PORT;
+    private String sessionID;
+    private String group;
+    private Long groupID = null;
+    private boolean encrypted = true;
 
-  private omero.client client;
-  private RawPixelsStorePrx store;
-  private Image img;
-  private Pixels pix;
+    private omero.client client;
+    private RawPixelsStorePrx store;
+    private Image img;
+    private Pixels pix;
 
-  // -- Constructors --
+    // -- Constructors --
 
-  public OmeroReader() {
-    super("OMERO", "*");
-  }
-
-  // -- OmeroReader methods --
-
-  public void setServer(String server) {
-    this.server = server;
-  }
-
-  public void setPort(int port) {
-    thePort = port;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public void setSessionID(String sessionID) {
-    this.sessionID = sessionID;
-  }
-
-  public void setEncrypted(boolean encrypted) {
-    this.encrypted = encrypted;
-  }
-
-  public void setGroupName(String group) {
-    this.group = group;
-  }
-
-  public void setGroupID(Long groupID) {
-    this.groupID = groupID;
-  }
-
-  // -- IFormatReader methods --
-
-  @Override
-  public boolean isThisType(String name, boolean open) {
-    return name.startsWith("omero:");
-  }
-
-  @Override
-  public byte[] openBytes(int no, byte[] buf, int x, int y, int w, int h)
-    throws FormatException, IOException
-  {
-    FormatTools.assertId(currentId, true, 1);
-    FormatTools.checkPlaneNumber(this, no);
-    FormatTools.checkBufferSize(this, buf.length, w, h);
-
-    final int[] zct = FormatTools.getZCTCoords(this, no);
-
-    final byte[] plane;
-    try {
-      plane = store.getPlane(zct[0], zct[1], zct[2]);
-    }
-    catch (ServerError e) {
-      throw new FormatException(e);
+    public OmeroReader() {
+        super("OMERO", "*");
     }
 
-    RandomAccessInputStream s = new RandomAccessInputStream(plane);
-    readPlane(s, x, y, w, h, buf);
-    s.close();
+    // -- OmeroReader methods --
 
-    return buf;
-  }
-
-  @Override
-  public void close(boolean fileOnly) throws IOException {
-    super.close(fileOnly);
-    if (!fileOnly && client != null) {
-      client.closeSession();
-    }
-  }
-
-  @Override
-  protected void initFile(String id) throws FormatException, IOException {
-    LOGGER.debug("OmeroReader.initFile({})", id);
-
-    super.initFile(id);
-
-    if (!id.startsWith("omero:")) {
-      throw new IllegalArgumentException("Not an OMERO id: " + id);
+    public void setServer(String server) {
+        this.server = server;
     }
 
-    // parse credentials from id string
+    public void setPort(int port) {
+        thePort = port;
+    }
 
-    LOGGER.info("Parsing credentials");
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    String address = server, user = username, pass = password;
-    int port = thePort;
-    long iid = -1;
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    final String[] tokens = id.substring(6).split("\n");
-    for (String token : tokens) {
-      final int equals = token.indexOf("=");
-      if (equals < 0) continue;
-      final String key = token.substring(0, equals);
-      final String val = token.substring(equals + 1);
-      if (key.equals("server")) address = val;
-      else if (key.equals("user")) user = val;
-      else if (key.equals("pass")) pass = val;
-      else if (key.equals("port")) {
+    public void setSessionID(String sessionID) {
+        this.sessionID = sessionID;
+    }
+
+    public void setEncrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+    }
+
+    public void setGroupName(String group) {
+        this.group = group;
+    }
+
+    public void setGroupID(Long groupID) {
+        this.groupID = groupID;
+    }
+
+    // -- IFormatReader methods --
+
+    @Override
+    public boolean isThisType(String name, boolean open) {
+        return name.startsWith("omero:");
+    }
+
+    @Override
+    public byte[] openBytes(int no, byte[] buf, int x, int y, int w, int h)
+            throws FormatException, IOException
+    {
+        FormatTools.assertId(currentId, true, 1);
+        FormatTools.checkPlaneNumber(this, no);
+        FormatTools.checkBufferSize(this, buf.length, w, h);
+
+        final int[] zct = FormatTools.getZCTCoords(this, no);
+
+        final byte[] plane;
         try {
-          port = Integer.parseInt(val);
+            plane = store.getPlane(zct[0], zct[1], zct[2]);
         }
-        catch (NumberFormatException exc) { }
-      }
-      else if (key.equals("session")) {
-        sessionID = val;
-      }
-      else if (key.equals("groupName")) {
-        group = val;
-      }
-      else if (key.equals("groupID")) {
-        groupID = new Long(val);
-      }
-      else if (key.equals("iid")) {
-        try {
-          iid = Long.parseLong(val);
+        catch (ServerError e) {
+            throw new FormatException(e);
         }
-        catch (NumberFormatException exc) { }
-      }
+
+        RandomAccessInputStream s = new RandomAccessInputStream(plane);
+        readPlane(s, x, y, w, h, buf);
+        s.close();
+
+        return buf;
     }
 
-    if (address == null) {
-      throw new FormatException("Invalid server address");
-    }
-    if (user == null && sessionID == null) {
-      throw new FormatException("Invalid username");
-    }
-    if (pass == null && sessionID == null) {
-      throw new FormatException("Invalid password");
-    }
-    if (iid < 0) {
-      throw new FormatException("Invalid image ID");
+    @Override
+    public void close(boolean fileOnly) throws IOException {
+        super.close(fileOnly);
+        if (!fileOnly && client != null) {
+            client.closeSession();
+        }
     }
 
-    try {
-      // authenticate with OMERO server
+    @Override
+    protected void initFile(String id) throws FormatException, IOException {
+        LOGGER.debug("OmeroReader.initFile({})", id);
 
-      LOGGER.info("Logging in");
+        super.initFile(id);
 
-      client = new omero.client(address, port);
-      ServiceFactoryPrx serviceFactory = null;
-      if (user != null && pass != null) {
-        serviceFactory = client.createSession(user, pass);
-      }
-      else {
-        serviceFactory = client.createSession(sessionID, sessionID);
-      }
+        if (!id.startsWith("omero:")) {
+            throw new IllegalArgumentException("Not an OMERO id: " + id);
+        }
 
-      if (!encrypted) {
-        client = client.createClient(false);
-        serviceFactory = client.getSession();
-      }
+        // parse credentials from id string
 
-      if (group != null || groupID != null) {
-        IAdminPrx iAdmin = serviceFactory.getAdminService();
-        IQueryPrx iQuery = serviceFactory.getQueryService();
-        EventContext eventContext = iAdmin.getEventContext();
-        ExperimenterGroup defaultGroup =
-          iAdmin.getDefaultGroup(eventContext.userId);
-        if (!defaultGroup.getName().getValue().equals(group) &&
-          !new Long(defaultGroup.getId().getValue()).equals(groupID))
-        {
-          Experimenter exp = iAdmin.getExperimenter(eventContext.userId);
+        LOGGER.info("Parsing credentials");
 
-          ParametersI p = new ParametersI();
-          p.addId(eventContext.userId);
-          List<IObject> groupList = iQuery.findAllByQuery(
-            "select distinct g from ExperimenterGroup as g " +
-            "join fetch g.groupExperimenterMap as map " +
-            "join fetch map.parent e " +
-            "left outer join fetch map.child u " +
-            "left outer join fetch u.groupExperimenterMap m2 " +
-            "left outer join fetch m2.parent p " +
-            "where g.id in " +
-            "  (select m.parent from GroupExperimenterMap m " +
-            "  where m.child.id = :id )", p);
+        String address = server, user = username, pass = password;
+        int port = thePort;
+        long iid = -1;
 
-          Iterator<IObject> i = groupList.iterator();
-
-          ExperimenterGroup g = null;
-
-          boolean in = false;
-          while (i.hasNext()) {
-            g = (ExperimenterGroup) i.next();
-            if (g.getName().getValue().equals(group) ||
-              new Long(g.getId().getValue()).equals(groupID))
-            {
-              in = true;
-              groupID = g.getId().getValue();
-              break;
+        final String[] tokens = id.substring(6).split("\n");
+        for (String token : tokens) {
+            final int equals = token.indexOf("=");
+            if (equals < 0) continue;
+            final String key = token.substring(0, equals);
+            final String val = token.substring(equals + 1);
+            if (key.equals("server")) address = val;
+            else if (key.equals("user")) user = val;
+            else if (key.equals("pass")) pass = val;
+            else if (key.equals("port")) {
+                try {
+                    port = Integer.parseInt(val);
+                }
+                catch (NumberFormatException exc) { }
             }
-          }
-          if (in) {
-            iAdmin.setDefaultGroup(exp, iAdmin.getGroup(groupID));
-            serviceFactory.setSecurityContext(
-              new ExperimenterGroupI(groupID, false));
-          }
+            else if (key.equals("session")) {
+                sessionID = val;
+            }
+            else if (key.equals("groupName")) {
+                group = val;
+            }
+            else if (key.equals("groupID")) {
+                groupID = new Long(val);
+            }
+            else if (key.equals("iid")) {
+                try {
+                    iid = Long.parseLong(val);
+                }
+                catch (NumberFormatException exc) { }
+            }
         }
-      }
 
-      // get raw pixels store and pixels
-
-      store = serviceFactory.createRawPixelsStore();
-
-      img = (Image) serviceFactory.getContainerService()
-        .getImages("Image", Arrays.asList(iid), null).get(0);
-
-      if (img == null) {
-        throw new FormatException("Could not find Image with ID=" + iid +
-          " in group '" + group + "'.");
-      }
-
-      long pixelsId = img.getPixels(0).getId().getValue();
-
-      pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
-      store.setPixelsId(pixelsId, false);
-
-      final int sizeX = pix.getSizeX().getValue();
-      final int sizeY = pix.getSizeY().getValue();
-      final int sizeZ = pix.getSizeZ().getValue();
-      final int sizeC = pix.getSizeC().getValue();
-      final int sizeT = pix.getSizeT().getValue();
-      final String pixelType = pix.getPixelsType().getValue().getValue();
-
-      // populate metadata
-
-      LOGGER.info("Populating metadata");
-
-      CoreMetadata m = core.get(0);
-      m.sizeX = sizeX;
-      m.sizeY = sizeY;
-      m.sizeZ = sizeZ;
-      m.sizeC = sizeC;
-      m.sizeT = sizeT;
-      m.rgb = false;
-      m.littleEndian = false;
-      m.dimensionOrder = "XYZCT";
-      m.imageCount = sizeZ * sizeC * sizeT;
-      m.pixelType = FormatTools.pixelTypeFromString(pixelType);
-
-      Length x = pix.getPhysicalSizeX();
-      Length y = pix.getPhysicalSizeY();
-      Length z = pix.getPhysicalSizeZ();
-      Time t = pix.getTimeIncrement();
-
-      ome.units.quantity.Time t2 = convertTime(t);
-      ome.units.quantity.Length px = convertLength(x);
-      ome.units.quantity.Length py = convertLength(y);
-      ome.units.quantity.Length pz = convertLength(z);
-
-      RString imageName = img.getName();
-      String name = imageName == null ? null : imageName.getValue();
-
-      if (name != null) {
-        currentId = name;
-      }
-      else {
-        currentId = "Image ID " + iid;
-      }
-
-      RString imgDescription = img.getDescription();
-      String description =
-        imgDescription == null ? null : imgDescription.getValue();
-      RTime date = img.getAcquisitionDate();
-
-      MetadataStore store = getMetadataStore();
-      //Load ROIs to the img -->
-      RoiResult r = gateway.getRoiService().findByImage(iid, new RoiOptions());
-      if (r == null) return;
-      List<Roi> rois = r.rois;
-
-      int n = rois.size();
-      if (n>0){
-        ROIHandler.saveOmeroRoiToMetadataStore(rois,store);
-      }
-
-      MetadataTools.populatePixels(store, this);
-      store.setImageName(name, 0);
-      store.setImageDescription(description, 0);
-      if (date != null) {
-        store.setImageAcquisitionDate(new Timestamp(
-          DateTools.convertDate(date.getValue(), (int) DateTools.UNIX_EPOCH)),
-          0);
-      }
-
-      if (px != null && px.value().doubleValue() > 0) {
-        store.setPixelsPhysicalSizeX(px, 0);
-      }
-      if (py != null && py.value().doubleValue() > 0) {
-        store.setPixelsPhysicalSizeY(py, 0);
-      }
-      if (pz != null && pz.value().doubleValue() > 0) {
-        store.setPixelsPhysicalSizeZ(pz, 0);
-      }
-      if (t2 != null) {
-        store.setPixelsTimeIncrement(t2, 0);
-      }
-
-      List<Channel> channels = pix.copyChannels();
-      for (int c=0; c<channels.size(); c++) {
-        LogicalChannel channel = channels.get(c).getLogicalChannel();
-
-        Length emWave = channel.getEmissionWave();
-        Length exWave = channel.getExcitationWave();
-        Length pinholeSize = channel.getPinHoleSize();
-        RString cname = channel.getName();
-
-        ome.units.quantity.Length emission = convertLength(emWave);
-        ome.units.quantity.Length excitation = convertLength(exWave);
-        String channelName = cname == null ? null : cname.getValue();
-        ome.units.quantity.Length pinhole = convertLength(pinholeSize);
-
-        if (channelName != null) {
-          store.setChannelName(channelName, 0, c);
+        if (address == null) {
+            throw new FormatException("Invalid server address");
         }
-        if (pinholeSize != null) {
-          store.setChannelPinholeSize(pinhole, 0, c);
+        if (user == null && sessionID == null) {
+            throw new FormatException("Invalid username");
         }
-        if (emission != null && emission.value().doubleValue() > 0) {
-          store.setChannelEmissionWavelength( emission, 0, c);
+        if (pass == null && sessionID == null) {
+            throw new FormatException("Invalid password");
         }
-        if (excitation != null && excitation.value().doubleValue() > 0) {
-          store.setChannelExcitationWavelength(excitation, 0, c);
+        if (iid < 0) {
+            throw new FormatException("Invalid image ID");
         }
-      }
+
+        try {
+            // authenticate with OMERO server
+
+            LOGGER.info("Logging in");
+
+            client = new omero.client(address, port);
+            ServiceFactoryPrx serviceFactory = null;
+            if (user != null && pass != null) {
+                serviceFactory = client.createSession(user, pass);
+            }
+            else {
+                serviceFactory = client.createSession(sessionID, sessionID);
+            }
+
+            if (!encrypted) {
+                client = client.createClient(false);
+                serviceFactory = client.getSession();
+            }
+
+            if (group != null || groupID != null) {
+                IAdminPrx iAdmin = serviceFactory.getAdminService();
+                IQueryPrx iQuery = serviceFactory.getQueryService();
+                EventContext eventContext = iAdmin.getEventContext();
+                ExperimenterGroup defaultGroup =
+                        iAdmin.getDefaultGroup(eventContext.userId);
+                if (!defaultGroup.getName().getValue().equals(group) &&
+                        !new Long(defaultGroup.getId().getValue()).equals(groupID))
+                {
+                    Experimenter exp = iAdmin.getExperimenter(eventContext.userId);
+
+                    ParametersI p = new ParametersI();
+                    p.addId(eventContext.userId);
+                    List<IObject> groupList = iQuery.findAllByQuery(
+                            "select distinct g from ExperimenterGroup as g " +
+                                    "join fetch g.groupExperimenterMap as map " +
+                                    "join fetch map.parent e " +
+                                    "left outer join fetch map.child u " +
+                                    "left outer join fetch u.groupExperimenterMap m2 " +
+                                    "left outer join fetch m2.parent p " +
+                                    "where g.id in " +
+                                    "  (select m.parent from GroupExperimenterMap m " +
+                                    "  where m.child.id = :id )", p);
+
+                    Iterator<IObject> i = groupList.iterator();
+
+                    ExperimenterGroup g = null;
+
+                    boolean in = false;
+                    while (i.hasNext()) {
+                        g = (ExperimenterGroup) i.next();
+                        if (g.getName().getValue().equals(group) ||
+                                new Long(g.getId().getValue()).equals(groupID))
+                        {
+                            in = true;
+                            groupID = g.getId().getValue();
+                            break;
+                        }
+                    }
+                    if (in) {
+                        iAdmin.setDefaultGroup(exp, iAdmin.getGroup(groupID));
+                        serviceFactory.setSecurityContext(
+                                new ExperimenterGroupI(groupID, false));
+                    }
+                }
+            }
+
+            // get raw pixels store and pixels
+
+            store = serviceFactory.createRawPixelsStore();
+
+            img = (Image) serviceFactory.getContainerService()
+                    .getImages("Image", Arrays.asList(iid), null).get(0);
+
+            if (img == null) {
+                throw new FormatException("Could not find Image with ID=" + iid +
+                        " in group '" + group + "'.");
+            }
+
+            long pixelsId = img.getPixels(0).getId().getValue();
+
+            pix = serviceFactory.getPixelsService().retrievePixDescription(pixelsId);
+            store.setPixelsId(pixelsId, false);
+
+            final int sizeX = pix.getSizeX().getValue();
+            final int sizeY = pix.getSizeY().getValue();
+            final int sizeZ = pix.getSizeZ().getValue();
+            final int sizeC = pix.getSizeC().getValue();
+            final int sizeT = pix.getSizeT().getValue();
+            final String pixelType = pix.getPixelsType().getValue().getValue();
+
+            // populate metadata
+
+            LOGGER.info("Populating metadata");
+
+            CoreMetadata m = core.get(0);
+            m.sizeX = sizeX;
+            m.sizeY = sizeY;
+            m.sizeZ = sizeZ;
+            m.sizeC = sizeC;
+            m.sizeT = sizeT;
+            m.rgb = false;
+            m.littleEndian = false;
+            m.dimensionOrder = "XYZCT";
+            m.imageCount = sizeZ * sizeC * sizeT;
+            m.pixelType = FormatTools.pixelTypeFromString(pixelType);
+
+            Length x = pix.getPhysicalSizeX();
+            Length y = pix.getPhysicalSizeY();
+            Length z = pix.getPhysicalSizeZ();
+            Time t = pix.getTimeIncrement();
+
+            ome.units.quantity.Time t2 = convertTime(t);
+            ome.units.quantity.Length px = convertLength(x);
+            ome.units.quantity.Length py = convertLength(y);
+            ome.units.quantity.Length pz = convertLength(z);
+
+            RString imageName = img.getName();
+            String name = imageName == null ? null : imageName.getValue();
+
+            if (name != null) {
+                currentId = name;
+            }
+            else {
+                currentId = "Image ID " + iid;
+            }
+
+            RString imgDescription = img.getDescription();
+            String description =
+                    imgDescription == null ? null : imgDescription.getValue();
+            RTime date = img.getAcquisitionDate();
+
+            MetadataStore store = getMetadataStore();
+            //Load ROIs to the img -->
+            RoiResult r = gateway.getRoiService().findByImage(iid, new RoiOptions());
+            if (r == null) return;
+            List<Roi> rois = r.rois;
+
+            int n = rois.size();
+            if (n>0){
+                saveOmeroRoiToMetadataStore(rois,store);
+            }
+
+            MetadataTools.populatePixels(store, this);
+            store.setImageName(name, 0);
+            store.setImageDescription(description, 0);
+            if (date != null) {
+                store.setImageAcquisitionDate(new Timestamp(
+                        DateTools.convertDate(date.getValue(), (int) DateTools.UNIX_EPOCH)),
+                        0);
+            }
+
+            if (px != null && px.value().doubleValue() > 0) {
+                store.setPixelsPhysicalSizeX(px, 0);
+            }
+            if (py != null && py.value().doubleValue() > 0) {
+                store.setPixelsPhysicalSizeY(py, 0);
+            }
+            if (pz != null && pz.value().doubleValue() > 0) {
+                store.setPixelsPhysicalSizeZ(pz, 0);
+            }
+            if (t2 != null) {
+                store.setPixelsTimeIncrement(t2, 0);
+            }
+
+            List<Channel> channels = pix.copyChannels();
+            for (int c=0; c<channels.size(); c++) {
+                LogicalChannel channel = channels.get(c).getLogicalChannel();
+
+                Length emWave = channel.getEmissionWave();
+                Length exWave = channel.getExcitationWave();
+                Length pinholeSize = channel.getPinHoleSize();
+                RString cname = channel.getName();
+
+                ome.units.quantity.Length emission = convertLength(emWave);
+                ome.units.quantity.Length excitation = convertLength(exWave);
+                String channelName = cname == null ? null : cname.getValue();
+                ome.units.quantity.Length pinhole = convertLength(pinholeSize);
+
+                if (channelName != null) {
+                    store.setChannelName(channelName, 0, c);
+                }
+                if (pinholeSize != null) {
+                    store.setChannelPinholeSize(pinhole, 0, c);
+                }
+                if (emission != null && emission.value().doubleValue() > 0) {
+                    store.setChannelEmissionWavelength( emission, 0, c);
+                }
+                if (excitation != null && excitation.value().doubleValue() > 0) {
+                    store.setChannelExcitationWavelength(excitation, 0, c);
+                }
+            }
+        }
+        catch (CannotCreateSessionException e) {
+            throw new FormatException(e);
+        }
+        catch (PermissionDeniedException e) {
+            throw new FormatException(e);
+        }
+        catch (ServerError e) {
+            throw new FormatException(e);
+        }
     }
-    catch (CannotCreateSessionException e) {
-      throw new FormatException(e);
+
+    /** A simple command line tool for downloading images from OMERO. */
+    public static void main(String[] args) throws Exception {
+        // parse OMERO credentials
+        BufferedReader con = new BufferedReader(
+                new InputStreamReader(System.in, Constants.ENCODING));
+
+        System.out.print("Server? ");
+        final String server = con.readLine();
+
+        System.out.printf("Port [%d]? ", DEFAULT_PORT);
+        final String portString = con.readLine();
+        final int port = portString.equals("") ? DEFAULT_PORT :
+            Integer.parseInt(portString);
+
+        System.out.print("Username? ");
+        final String user = con.readLine();
+
+        System.out.print("Password? ");
+        final String pass = new String(con.readLine());
+
+        System.out.print("Group? ");
+        final String group = con.readLine();
+
+        System.out.print("Image ID? ");
+        final int imageId = Integer.parseInt(con.readLine());
+        System.out.print("\n\n");
+
+        // construct the OMERO reader
+        final OmeroReader omeroReader = new OmeroReader();
+        omeroReader.setUsername(user);
+        omeroReader.setPassword(pass);
+        omeroReader.setServer(server);
+        omeroReader.setPort(port);
+        omeroReader.setGroupName(group);
+        final String id = "omero:iid=" + imageId;
+        try {
+            omeroReader.setId(id);
+        }
+        catch (Exception e) {
+            omeroReader.close();
+            throw e;
+        }
+        omeroReader.close();
     }
-    catch (PermissionDeniedException e) {
-      throw new FormatException(e);
+
+    public static void saveOmeroRoiToMetadataStore(List<omero.model.Roi> rois,
+            MetadataStore store) {
+        // TODO Auto-generated method stub
+        int n = rois.size();
+
+        for (int thisROI=0  ; thisROI<n ; thisROI++){
+            omero.model.Roi roi = rois.get(thisROI-1);
+            int numShapes = roi.sizeOfShapes();
+            int roiNum = thisROI;
+            for(int ns=0 ; ns<numShapes ; ns++){
+                omero.model.Shape shape = roi.getShape(ns-1);
+
+                int shapeNum= ns;
+                if(shape instanceof PolygonI || shape instanceof PolylineI) {
+                    storeOmeroPolygon(shape,store, roiNum, shapeNum);
+                }
+                if(shape instanceof LineI){
+                    storeOmeroLine(shape,store, roiNum, shapeNum);
+                }
+                if(shape instanceof PointI){
+                    storeOmeroPoint(shape,store, roiNum, shapeNum);
+                }
+                if(shape instanceof EllipseI){
+                    storeOmeroEllipse(shape,store, roiNum, shapeNum);
+                }
+                if(shape instanceof RectI){
+                    storeOmeroRect(shape,store, roiNum, shapeNum);
+                }
+            }
+        }
+
     }
-    catch (ServerError e) {
-      throw new FormatException(e);
+
+
+    private static void storeOmeroRect(omero.model.Shape shape,
+            MetadataStore store, int roiNum, int shapeNum) {
+        // TODO Auto-generated method stub
+        RectI shape1 = (RectI) shape;
+
+        double x1 = shape1.getX().getValue();
+        double y1 = shape1.getY().getValue();
+        double width = shape1.getWidth().getValue();
+        double height = shape1.getHeight().getValue();
+
+        String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+        store.setRectangleID(polylineID, roiNum, shapeNum);
+        store.setRectangleX(x1, roiNum, shapeNum);
+        store.setRectangleY(y1, roiNum, shapeNum);
+        store.setRectangleWidth(width, roiNum, shapeNum);
+        store.setRectangleHeight(height, roiNum, shapeNum);
+
     }
-  }
 
-  /** A simple command line tool for downloading images from OMERO. */
-  public static void main(String[] args) throws Exception {
-    // parse OMERO credentials
-    BufferedReader con = new BufferedReader(
-      new InputStreamReader(System.in, Constants.ENCODING));
+    private static void storeOmeroEllipse(omero.model.Shape shape,
+            MetadataStore store, int roiNum, int shapeNum) {
+        // TODO Auto-generated method stub
+        EllipseI shape1 = (EllipseI) shape;
 
-    System.out.print("Server? ");
-    final String server = con.readLine();
+        double x1 = shape1.getCx().getValue();
+        double y1 = shape1.getCy().getValue();
+        double width = shape1.getRx().getValue();
+        double height = shape1.getRy().getValue();
 
-    System.out.printf("Port [%d]? ", DEFAULT_PORT);
-    final String portString = con.readLine();
-    final int port = portString.equals("") ? DEFAULT_PORT :
-      Integer.parseInt(portString);
+        String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+        store.setEllipseID(polylineID, roiNum, shapeNum);
+        store.setEllipseX(x1, roiNum, shapeNum);
+        store.setEllipseY(y1, roiNum, shapeNum);
+        store.setEllipseRadiusX(width, roiNum, shapeNum);
+        store.setEllipseRadiusY(height, roiNum, shapeNum);
 
-    System.out.print("Username? ");
-    final String user = con.readLine();
-
-    System.out.print("Password? ");
-    final String pass = new String(con.readLine());
-
-    System.out.print("Group? ");
-    final String group = con.readLine();
-
-    System.out.print("Image ID? ");
-    final int imageId = Integer.parseInt(con.readLine());
-    System.out.print("\n\n");
-
-    // construct the OMERO reader
-    final OmeroReader omeroReader = new OmeroReader();
-    omeroReader.setUsername(user);
-    omeroReader.setPassword(pass);
-    omeroReader.setServer(server);
-    omeroReader.setPort(port);
-    omeroReader.setGroupName(group);
-    final String id = "omero:iid=" + imageId;
-    try {
-      omeroReader.setId(id);
     }
-    catch (Exception e) {
-      omeroReader.close();
-      throw e;
+
+    private static void storeOmeroPoint(omero.model.Shape shape,
+            MetadataStore store, int roiNum, int shapeNum) {
+        // TODO Auto-generated method stub
+        PointI shape1 = (PointI) shape;
+        double ox1 = shape1.getCx().getValue();
+        double oy1 = shape1.getCy().getValue();
+
+        String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+        store.setPointID(polylineID, roiNum, shapeNum);
+        store.setPointX(ox1, roiNum, shapeNum);
+        store.setPointY(oy1, roiNum, shapeNum);
+
     }
-    omeroReader.close();
-  }
+
+    private static void storeOmeroLine(omero.model.Shape shape,
+            MetadataStore store, int roiNum, int shapeNum) {
+        // TODO Auto-generated method stub
+        LineI shape1 = (LineI) shape;
+        double x1 = shape1.getX1().getValue();
+        double y1 = shape1.getY1().getValue();
+        double x2 = shape1.getX2().getValue();
+        double y2 = shape1.getY2().getValue();
+
+        String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+        store.setLineID(polylineID, roiNum, shapeNum);
+
+        store.setLineX1(new Double(x1), roiNum, shapeNum);
+        store.setLineX2(new Double(x2), roiNum, shapeNum);
+        store.setLineY1(new Double(y1), roiNum, shapeNum);
+        store.setLineY2(new Double(y2), roiNum, shapeNum);
+
+    }
+
+    private static void storeOmeroPolygon(omero.model.Shape shape, MetadataStore store,
+            int roiNum, int shapeNum){
+
+        String points=null;
+        String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+
+        if(shape instanceof PolygonI){
+            PolygonI shape1 = (PolygonI) shape;
+            points = shape1.getPoints().getValue();
+
+            store.setPolygonID(polylineID, roiNum, shapeNum);
+            store.setPolygonPoints(points.toString(), roiNum, shapeNum);
+        }else{
+            PolylineI shape1 = (PolylineI) shape;
+            points = shape1.getPoints().getValue();
+
+            store.setPolylineID(polylineID, roiNum, shapeNum);
+            store.setPolylinePoints(points.toString(), roiNum, shapeNum);
+        }
+
+    }
 
 }
