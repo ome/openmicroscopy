@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public class GraphState implements GraphStep.Callback {
 
     private final static Logger log = LoggerFactory.getLogger(GraphState.class);

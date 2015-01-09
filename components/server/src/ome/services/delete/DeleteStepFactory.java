@@ -28,6 +28,7 @@ import ome.tools.hibernate.ExtendedMetadata;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public class DeleteStepFactory extends AbstractStepFactory {
 
     private final OmeroContext ctx;

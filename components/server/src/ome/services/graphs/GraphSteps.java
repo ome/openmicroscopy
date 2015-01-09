@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public class GraphSteps extends AbstractList<GraphStep> implements RandomAccess {
 
     /**

@@ -29,6 +29,7 @@ import java.util.List;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public abstract class AbstractStepFactory implements GraphStepFactory {
 
     protected int originalSize;
