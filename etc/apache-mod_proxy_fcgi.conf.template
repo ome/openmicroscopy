@@ -3,8 +3,6 @@
 # this file should be loaded *after* ssl.conf
 #
 # -D options to control configurations
-#  OmeroWebClientRedirect - redirect / to /omero/webclient
-#  OmeroWebAdminRedirect  - redirect / to /omero/webadmin
 #  OmeroForceSSL - redirect all http requests to https
 
 ###
