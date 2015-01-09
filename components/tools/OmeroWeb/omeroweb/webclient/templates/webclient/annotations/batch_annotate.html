@@ -256,6 +256,10 @@
 
                 // Rating
                 // NB: similar functionality on metadata_general.html
+                $("#add_rating").click(function(){
+                    $(".myRating").toggle();
+                });
+
                 $("#rating_annotations").on("click", ".myRating img", function(event){
                     var $rating = $(this),
                         clickX = event.pageX - $rating.offset().left;
@@ -263,24 +267,24 @@
                     r = parseInt(Math.ceil(r));
                     setRating(r, $rating);
                 });
-                $(".addRating img").click(function(event){
-                    var $rating = $(this),
-                        $ratingli = $rating.parent().parent(),
-                        clickX = event.pageX - $rating.offset().left;
-                    var r = (clickX/ $rating.width()) * 5;
-                    r = parseInt(Math.ceil(r));
-                    var $newR = $ratingli.clone().prependTo("#rating_annotations");
-                    $newR.removeClass('addRating').addClass('myRating');
-                    $ratingli.hide();
+                // $(".addRating img").click(function(event){
+                //     var $rating = $(this),
+                //         $ratingli = $rating.parent().parent(),
+                //         clickX = event.pageX - $rating.offset().left;
+                //     var r = (clickX/ $rating.width()) * 5;
+                //     r = parseInt(Math.ceil(r));
+                //     var $newR = $ratingli.clone().prependTo("#rating_annotations");
+                //     $newR.removeClass('addRating').addClass('myRating');
+                //     $ratingli.hide();
 
-                    setRating(r, $newR.find('img'));
-                });
+                //     setRating(r, $newR.find('img'));
+                // });
                 $("#rating_annotations").on("click", ".removeRating", function(event){
                     event.preventDefault();
-                    var $ratingli = $(this).parent();
-                    setRating(0);
-                    $ratingli.remove();
-                    $(".addRating").show();
+                    var $liMyRating = $(this).parent(),
+                        $ratingimg = $liMyRating.find('img');
+                    $liMyRating.hide();
+                    setRating(0, $ratingimg);
                 });
 
                 var setRating = function(rating, $rating) {
@@ -290,7 +294,12 @@
                         $rating.attr('src', rating_src);
                     }
                     $(".ratingCount").text("{{ obj_labels|length }}");
-
+                    // hide the [+] button if we have set a rating
+                    if (rating > 0) {
+                        $("#add_rating").hide()
+                    } else {
+                        $("#add_rating").show()
+                    }
                     // update rating annotation
                     var rating_url = "{% url 'annotate_rating' %}?{{ obj_string }}&index={{ index }}"
                     rating_url += "&rating=" + rating;
@@ -372,52 +381,47 @@
 
         <h2>{% trans "Rating" %}</h2>
 
-        <ul style="clear:both">
-            <li {% if not annotationBlocked %}class="addRating"{% endif %}
-                    {% if userRatingAvg %}style="display:none"{% endif %} >
-                <a><img src="{% static "webclient/image/rating0.png" %}">
-                    <span class="ratingOwner">My ratings
-                        (average of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
-                    </span>
-                </a>
-                {% if not annotationBlocked %}
-                <a href="#" class="removeRating" title="Delete ratings">X</a>
-                {% endif %}
-            </li>
-        </ul>
+        {% if not annotationBlocked %}
+        <a id="add_rating"
+            {% if userRatingAvg > 0 %}style="display:none"{% endif %} class="btn silver btn_add"><span></span></a>
+        {% endif %}
 
-        <ul id="rating_annotations" class="lnfiles">{% if userRatingAvg %}<li
-            {% if not annotationBlocked %}class="myRating"{% endif %}>
+
+        <ul id="rating_annotations" class="lnfiles">
+
+            <li class="rating {% if not annotationBlocked %}myRating{% endif %}" style="position: relative {% ifequal userRatingAvg 0 %}; display:none{% endifequal %}">
                 <a><img
-                    {% ifequal userRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
-                    {% ifequal userRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                    {% ifequal userRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                    {% ifequal userRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                    {% ifequal userRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                    {% ifequal userRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-                    />
-                <span class="ratingOwner">My ratings
+                {% ifequal userRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                />
+                <span class="ratingOwner">{{ ome.user.getNameWithInitial }}
                     (average of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
                 </span>
                 </a>
                 {% if not annotationBlocked %}
-                <a href="#" class="removeRating" title="Delete ratings">X</a>
+                <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
                 {% endif %}
-            </li>{% endif %}{% if otherRatingAvg %}
-            <li>
-                <a><img
-                    {% ifequal otherRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
-                    {% ifequal otherRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                    {% ifequal otherRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                    {% ifequal otherRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                    {% ifequal otherRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                    {% ifequal otherRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-                    />
-                <span class="ratingOwner">Other users (average of {{ batchAnns.OtherRatings|length }})
-                </span>
+            </li>
+
+        {% for rating in otherRatings %}
+            <li class="rating">
+                <a title="{{ rating.owners }}"><img
+                {% ifequal rating.value 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                {% ifequal rating.value 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                {% ifequal rating.value 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                {% ifequal rating.value 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                {% ifequal rating.value 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                {% ifequal rating.value 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                />
+                <span class="ratingOwner">({{ rating.count }})</span>
                 </a>
             </li>
-        {% endif %}</ul>
+        {% endfor %}
+        </ul>
     </div>
 
     <hr/>

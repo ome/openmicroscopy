@@ -1202,8 +1202,9 @@ def batch_annotate(request, conn=None, **kwargs):
     # get average values for User ratings and Other ratings.
     r = [r['ann'].getLongValue() for r in batchAnns['UserRatings']]
     userRatingAvg = r and sum(r) / len(r) or 0
-    r = [r['ann'].getLongValue() for r in batchAnns['OtherRatings']]
-    otherRatingAvg = r and sum(r) / len(r) or 0
+    # get 'OtherRatings' and group them by rating value
+    groupedRatings = manager.getGroupedRatings([a['ann'] for a in batchAnns['OtherRatings']])
+    otherRatings = groupedRatings['otherRatings']
 
     figScripts = manager.listFigureScripts(objs)
     filesetInfo = None
@@ -1235,7 +1236,7 @@ def batch_annotate(request, conn=None, **kwargs):
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
             'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked,
-            'userRatingAvg': userRatingAvg, 'otherRatingAvg': otherRatingAvg, 'differentGroups':False}
+            'userRatingAvg': userRatingAvg, 'otherRatings': otherRatings, 'differentGroups':False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
         context['differentGroups'] = True       # E.g. don't run scripts etc

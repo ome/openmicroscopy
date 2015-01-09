@@ -451,18 +451,20 @@ class BaseContainer(BaseController):
         self.tgannSize = len(self.tag_annotations)
 
 
-    def getGroupedRatings(self):
+    def getGroupedRatings(self, rating_annotations=None):
         """
         Groups ratings in preparation for display. Picks out the user's rating
         and groups the remaining ones by value.
         NB: This should be called after annotationList() has loaded annotations.
         """
+        if rating_annotations is None:
+            rating_annotations = self.rating_annotations
         userId = self.conn.getUserId()
         myRating = None
         ratingsByValue = {}
         for r in range(1, 6):
             ratingsByValue[r] = []
-        for rating in self.rating_annotations:
+        for rating in rating_annotations:
             if rating.getDetails().getOwner().id == userId:
                 myRating = rating
             else:
