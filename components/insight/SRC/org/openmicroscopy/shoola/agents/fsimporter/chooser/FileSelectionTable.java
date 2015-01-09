@@ -576,14 +576,14 @@ class FileSelectionTable
 	            if (f.getFile() instanceof File) {
 	                ff = (File) f.getFile();
 	            }
-	            if (ff.isDirectory()) {
+	            if (f.isDirectory()) {
 	                value = ff.getName();
 	                v = fad;
 	                if (model.getType() == Importer.SCREEN_TYPE) {
 	                    value = null;
 	                }
 	            } else {
-	                if (fad) {
+	                if (fad && ff != null) {
 	                    value = ff.getParentFile().getName();
 	                    v = true;
 	                    element.setToggleContainer(v);

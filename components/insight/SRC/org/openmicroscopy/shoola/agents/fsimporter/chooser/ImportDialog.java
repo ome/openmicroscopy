@@ -391,10 +391,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
         if (ImporterAgent.runAsPlugin() != LookupNames.IMAGE_J_IMPORT) return;
         //to be reviewed.
         List<FileObject> list = new ArrayList<FileObject>();
-        FileInfo info;
         ImagePlus img = IJ.getImage();
-        info = img.getOriginalFileInfo();
-        IJ.log(info.fileName+" "+info.directory);
         list.add(new FileObject(img));
         ImportLocationSettings settings = locationDialog.getImportSettings();
         table.addFiles(list, settings);
