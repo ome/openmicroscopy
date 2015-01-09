@@ -48,7 +48,7 @@
   The compilation, testing, launch, and delivery of the application are
   automated by means of an Ant (http://ant.apache.org/) build file, located
   under the build directory. In order to perform a build, all you need is
-  a JDK -- version 1.6 or later. Move to the build directory and, from the 
+  a JDK -- version 1.7 or later. Move to the build directory and, from the
   command line, enter:
   
       java build

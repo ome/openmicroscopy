@@ -451,7 +451,7 @@
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
 
     <property name="dist.zip.prefix.osx.107"
-              value="${dist.zip.prefix.osx}_Java7+"/>
+              value="${dist.zip.prefix.osx}"/>
     <zip destfile="${dist.dir}/${dist.zip.prefix.osx.107}.zip">
       <zipfileset prefix="${dist.zip.prefix.osx.107}" dir="${dist.dir}"
                includes="OMERO.insight.app/**"
@@ -473,7 +473,7 @@
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}"
-               	jvmversion="1.6+"
+               	jvmversion="1.7+"
                 vmoptions="${app.vmparameters}"
                 workingdirectory="$APP_PACKAGE/Contents/Resources">
       <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
@@ -481,21 +481,6 @@
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
       <resourcefileset dir="${app.dir}" includes="config/*.xml"/>
     </jarbundler>
-
-    <property name="dist.zip.prefix.osx.106"
-              value="${dist.zip.prefix.osx}_Java6"/>
-    <zip destfile="${dist.dir}/${dist.zip.prefix.osx.106}.zip">
-      <zipfileset prefix="${dist.zip.prefix.osx.106}" dir="${dist.dir}"
-               includes="OMERO.insight.app/**"
-               excludes="**/${dist.osx.stub.name}"/>
-      <zipfileset file="${dist.osx.stub}"
-                  fullpath="${dist.zip.prefix.osx.106}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
-                  filemode="775"/>
-      <zipfileset prefix="${dist.zip.prefix.osx.106}"
-                  file="${dist.osx.installfile}"/>
-      <zipfileset file="${base.licensefile}"
-                  fullpath="${dist.zip.prefix.osx.106}/LICENSE"/>
-    </zip>
   </target>
 
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -550,7 +535,7 @@
 	            value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
 	
 	  <property name="dist.zip.prefix.importer.osx.107"
-		        value="${dist.zip.prefix.importer.osx}_Java7+"/>
+		        value="${dist.zip.prefix.importer.osx}"/>
 	   <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx.107}.zip">
 	      <zipfileset prefix="${dist.zip.prefix.importer.osx.107}" dir="${dist.dir}"
 	                includes="OMERO.importer.app/**"
@@ -572,7 +557,7 @@
 	        infostring="${distImporter.name} Java Client, ${dist.bundle.version}"
 	        icon="${distImporter.osx.icon}"
 	        stubfile="${dist.osx.stub}"
-	        jvmversion="1.6+"
+	        jvmversion="1.7+"
 	  	    vmoptions="${app.vmparameters}"
 	        arguments="containerImporter.xml"
 	        workingdirectory="$APP_PACKAGE/Contents/Resources">
@@ -581,21 +566,6 @@
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
 	  <resourcefileset dir="${app.dir}" includes="config/*.xml"/>
 	  </jarbundler>
-
-	  <property name="dist.zip.prefix.importer.osx.106"
-		        value="${dist.zip.prefix.importer.osx}_Java6"/>
-      <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx.106}.zip">
-         <zipfileset prefix="${dist.zip.prefix.importer.osx.106}" dir="${dist.dir}"
-                   includes="OMERO.importer.app/**"
-                   excludes="**/${dist.osx.stub.name}"/>
-         <zipfileset file="${dist.osx.stub}"
-                     fullpath="${dist.zip.prefix.importer.osx.106}/OMERO.importer.app/Contents/MacOS/${dist.osx.stub.name}"
-                     filemode="775"/>
-         <zipfileset prefix="${dist.zip.prefix.importer.osx.106}"
-                     file="${dist.osx.installfile}"/>
-         <zipfileset file="${base.licensefile}"
-                     fullpath="${dist.zip.prefix.importer.osx.106}/LICENSE"/>
-      </zip>
   </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
