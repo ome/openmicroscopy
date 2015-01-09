@@ -59,6 +59,7 @@ import omero.cmd.Request;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public class Preprocessor {
 
     private final static Logger log = LoggerFactory.getLogger(Preprocessor.class);

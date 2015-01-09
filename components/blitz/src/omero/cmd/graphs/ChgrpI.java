@@ -44,6 +44,7 @@ import org.springframework.context.ApplicationContext;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public class ChgrpI extends Chgrp implements IGraphModifyRequest {
 
     private static final long serialVersionUID = -3653081139095111039L;

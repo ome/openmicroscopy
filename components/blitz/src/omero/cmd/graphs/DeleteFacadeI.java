@@ -46,6 +46,7 @@ import omero.cmd.HandleI.Cancel;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public class DeleteFacadeI extends Delete implements IRequest {
 
     private final GraphRequestFactory graphRequestFactory;

@@ -33,6 +33,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
 @Deprecated
+@SuppressWarnings("deprecation")
 public class GraphSpecListI extends GraphSpecList implements IRequest {
 
     private static final long serialVersionUID = -363984593874598374L;
