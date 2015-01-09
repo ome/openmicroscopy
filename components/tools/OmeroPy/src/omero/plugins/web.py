@@ -83,8 +83,9 @@ class WebControl(BaseControl):
         config = parser.add(
             sub, self.config,
             "Output a config template for server"
-            " ('nginx' or 'apache' for the moment)")
-        config.add_argument("type", choices=("nginx", "apache"))
+            " ('nginx', 'apache', 'apache-fcgi')")
+        config.add_argument("type", choices=(
+            "nginx", "apache", "apache-fcgi"))
         config.add_argument(
             "--http", type=int,
             help="HTTP port for web server (not fastcgi)")
@@ -138,7 +139,8 @@ class WebControl(BaseControl):
     def config(self, args):
         if not args.type:
             self.ctx.out(
-                "Available configuration helpers:\n - nginx, apache\n")
+                "Available configuration helpers:\n"
+                " - nginx, apache, apache-fcgi\n")
         else:
             server = args.type
             port = 8080
@@ -210,6 +212,28 @@ class WebControl(BaseControl):
                         % settings.FORCE_SCRIPT_NAME.rstrip("/")
                 except:
                     d["REWRITERULE"] = ""
+                d["NOW"] = str(datetime.now())
+
+            if server == "apache-fcgi":
+                c = file(self.ctx.dir / "etc" /
+                         "apache-mod_proxy_fcgi.conf.template").read()
+
+                if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+                    self.ctx.die(
+                        679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
+                fastcgi_external = '%s:%s' % (
+                    settings.APPLICATION_SERVER_HOST,
+                    settings.APPLICATION_SERVER_PORT)
+                d["FASTCGI_EXTERNAL"] = fastcgi_external
+
+                # Forcing a prefix for the entire server makes it easier to
+                # setup the proxy redirects
+                if d["FORCE_SCRIPT_NAME"] == '/':
+                    d["FORCE_SCRIPT_NAME"] = '/omero'
+
+                d["REWRITERULE"] = \
+                    "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
+                    % d["FORCE_SCRIPT_NAME"]
                 d["NOW"] = str(datetime.now())
 
             self.ctx.out(c % d)
