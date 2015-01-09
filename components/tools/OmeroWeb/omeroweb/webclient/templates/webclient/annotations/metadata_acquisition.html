@@ -64,7 +64,6 @@
                 // Load Original Metadata...
                 var origMetadataLoaded = false;
                 function loadOriginalMetadata () {
-                    console.log('loadOriginalMetadata');
                     if (!origMetadataLoaded) {
                         origMetadataLoaded = true;
                         var loadingHtml = '<img alt="Loading" src="{% static "webgateway/img/spinner.gif" %}">'
@@ -73,21 +72,27 @@
                         $("#orig_metadata")
                             .html(loadingHtml)
                             .load(url, function( response, status, xhr ) {
-                                console.log(arguments);
-                                console.log(xhr.status == 408, xhr.status);
                                 if (xhr.status == 408) {
                                     origMetadataLoaded = false;
                                     $("#orig_metadata").html("Timeout. <a href='#' class='load_original_metadata'>Try again</a>");
                                 } else {
-                                    // setup quick search fields...
-                                    $('input#search_global').quicksearch('table#global_metadata tbody tr', {
-                                        'delay': 300,
-                                        'loader': 'span.loading_global'
-                                    });
-                                    $('input#search_series').quicksearch('table#series_metadata tbody tr', {
-                                        'delay': 300,
-                                        'loader': 'span.loading_series'
-                                    });
+                                    // setup quick search fields (but not if MANY rows, since it crashes!)
+                                    if ($("#global_metadata tr").length < 100000) {
+                                        $('input#search_global').quicksearch('table#global_metadata tbody tr', {
+                                            'delay': 300,
+                                            'loader': 'span.loading_global'
+                                        });
+                                    } else {
+                                        $("#quicksearch_global").hide();
+                                    }
+                                    if ($("#series_metadata tr").length < 100000) {
+                                        $('input#search_series').quicksearch('table#series_metadata tbody tr', {
+                                            'delay': 300,
+                                            'loader': 'span.loading_series'
+                                        });
+                                    } else {
+                                        $("#quicksearch_series").hide();
+                                    }
                                 }
                             });
                     }

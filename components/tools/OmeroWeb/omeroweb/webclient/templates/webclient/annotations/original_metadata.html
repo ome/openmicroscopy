@@ -32,7 +32,9 @@
     {% if global_metadata %}
     <h1>Global Metadata</h1>
     <div style="height:250px; overflow:auto">
-        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global"> <span class="loading_global"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global">
+          <span class="loading_global" style="display: none">
+          <img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
         <table id="global_metadata"
             style="word-wrap: break-word;"><tbody>
             {% for gm in global_metadata %}
@@ -47,7 +49,9 @@
     <hr />
     <h1>Series Metadata</h1>
     <div style="height:250px; overflow:auto">
-        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series"> <span class="loading_series"><img class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
+        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series">
+          <span class="loading_series" style="display: none">
+          <img style="display: none" class="loader" alt="Loading" src="{% static "webgateway/img/spinner.gif" %}"></span></form>
         <table id="series_metadata" class="metadata_details"
             style="word-wrap: break-word;"><tbody>
             {% for sm in series_metadata %}
