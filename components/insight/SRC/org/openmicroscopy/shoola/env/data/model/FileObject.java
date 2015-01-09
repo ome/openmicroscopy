@@ -21,22 +21,13 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
+//Java imports
 import ij.IJ;
 import ij.ImagePlus;
-import ij.WindowManager;
 import ij.io.FileInfo;
-
 import java.io.File;
-
+import loci.formats.codec.CompressionType;
 import org.apache.commons.io.FileUtils;
-
-
-
-
-
-
-//Java imports
-import omero.IllegalArgumentException;
 
 /**
  * Object hosting the information about the "file" to import.
@@ -128,12 +119,13 @@ public class FileObject
                 return null;
             }
             StringBuffer buffer = new StringBuffer();
-            buffer.append("windowless=true ");
-            buffer.append("outfile="+f.getAbsolutePath());
+            buffer.append("windowless=true");
+            buffer.append(" outfile="+f.getAbsolutePath());
             buffer.append(" splitZ=false");
             buffer.append(" splitT=false");
             buffer.append(" splitC=false");
             buffer.append(" saveRoi=true");
+            buffer.append(" compression="+CompressionType.UNCOMPRESSED.getCompression());
             IJ.runPlugIn("loci.plugins.LociExporter", buffer.toString());
             return f;
         }
