@@ -128,7 +128,8 @@ class TestScripts(lib.ITest):
             impl.cleanup()
 
     def testUploadOfficialScript(self):
-        scriptService = self.root.sf.getScriptService()
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
         uuid = self.uuid()
 
         scriptLines = [
@@ -145,7 +146,7 @@ class TestScripts(lib.ITest):
 
         id = scriptService.uploadOfficialScript(
             "/testUploadOfficialScript%s.py" % uuid, script)
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             # force the server to parse the file enough to get params (checks
             # syntax etc)
@@ -165,9 +166,9 @@ class TestScripts(lib.ITest):
     def testRunScript(self):
         # Trying to run script as described:
         # http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
-        scriptService = self.root.sf.getScriptService()
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
         uuid = self.uuid()
-        client = self.root
 
         scriptLines = [
             "import omero",
@@ -189,11 +190,11 @@ class TestScripts(lib.ITest):
             "offical/test/script%s.py" % uuid, script)
         assert scriptService.canRunScript(officialScriptId)  # ticket:2341
 
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             proc = scriptService.runScript(officialScriptId, map, None)
             try:
-                cb = omero.scripts.ProcessCallbackI(client, proc)
+                cb = omero.scripts.ProcessCallbackI(root_client, proc)
                 while not cb.block(1000):  # ms.
                     pass
                 cb.close()
@@ -221,7 +222,7 @@ class TestScripts(lib.ITest):
         try:
             proc = scriptService.runScript(userScriptId, map, None)
             try:
-                cb = omero.scripts.ProcessCallbackI(client, proc)
+                cb = omero.scripts.ProcessCallbackI(root_client, proc)
                 while not cb.block(1000):  # ms.
                     pass
                 cb.close()
@@ -235,14 +236,15 @@ class TestScripts(lib.ITest):
         assert "returnMessage" not in results, \
             "Script should not have run. No user processor!"
 
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             assert scriptService.canRunScript(userScriptId)  # ticket:2341
         finally:
             impl.cleanup()
 
     def testEditScript(self):
-        scriptService = self.root.sf.getScriptService()
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
         uuid = self.uuid()
 
         scriptLines = [
@@ -294,7 +296,8 @@ client.closeSession()
             assert x in paramsAfter.outputs
 
     def testScriptValidation(self):
-        scriptService = self.root.sf.getScriptService()
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
         uuid = self.uuid()
 
         invalidScript = "This text is not valid as a script"
