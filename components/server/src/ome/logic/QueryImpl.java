@@ -22,6 +22,7 @@ import ome.api.local.LocalQuery;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
+import ome.model.annotations.MapAnnotation;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 import ome.services.SearchBean;
@@ -194,7 +195,12 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                             throws HibernateException {
 
                         IObject o = (IObject) session.get(klass, id);
-                        Hibernate.initialize(o);
+						Hibernate.initialize(o);
+						// Workaround for MapAnnotation's NamedValue list not loaded
+						// TODO: Remove if switched to eager loading
+						if (o instanceof MapAnnotation) {
+							((MapAnnotation) o).getMapValue().size();
+						}
                         return o;
 
                     }
