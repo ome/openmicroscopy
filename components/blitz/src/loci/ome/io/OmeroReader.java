@@ -44,6 +44,7 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
+import loci.plugins.util.ROIHandler;
 import ome.xml.model.primitives.Timestamp;
 import omero.RString;
 import omero.RTime;
@@ -51,6 +52,8 @@ import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.RawPixelsStorePrx;
+import omero.api.RoiOptions;
+import omero.api.RoiResult;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Channel;
 import omero.model.Experimenter;
@@ -61,6 +64,7 @@ import omero.model.Image;
 import omero.model.Length;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
+import omero.model.Roi;
 import omero.model.Time;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
@@ -372,6 +376,16 @@ public class OmeroReader extends FormatReader {
       RTime date = img.getAcquisitionDate();
 
       MetadataStore store = getMetadataStore();
+      //Load ROIs to the img -->
+      RoiResult r = gateway.getRoiService().findByImage(iid, new RoiOptions());
+      if (r == null) return;
+      List<Roi> rois = r.rois;
+
+      int n = rois.size();
+      if (n>0){
+        ROIHandler.saveOmeroRoiToMetadataStore(rois,store);
+      }
+
       MetadataTools.populatePixels(store, this);
       store.setImageName(name, 0);
       store.setImageDescription(description, 0);
