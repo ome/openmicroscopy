@@ -110,6 +110,7 @@ public class FileObject
         if (file instanceof File) {
             return (File) file;
         } else if (file instanceof ImagePlus) {
+            //to be modified.
             ImagePlus img = (ImagePlus) file;
             FileInfo info = img.getOriginalFileInfo();
             return new File(info.directory, info.fileName);
@@ -132,6 +133,12 @@ public class FileObject
         return 0;
     }
 
+    /**
+     * Returns <code>true</code> if it is a directory, <code>false</code>
+     * otherwise.
+     *
+     * @return See above.
+     */
     public boolean isDirectory()
     {
         if (file instanceof File) {
@@ -141,6 +148,12 @@ public class FileObject
         return false;
     }
 
+    /**
+     * Returns <code>true</code> if it is a file, <code>false</code>
+     * otherwise.
+     *
+     * @return See above.
+     */
     public boolean isFile()
     {
         if (file instanceof File) {
