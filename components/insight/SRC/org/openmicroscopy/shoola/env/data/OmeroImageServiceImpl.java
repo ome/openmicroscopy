@@ -1033,7 +1033,7 @@ class OmeroImageServiceImpl
 		//prepare the container.
 		List<String> candidates;
 		ImportCandidates ic = null;
-		File file = importable.getFile().getTrueFile();
+		File file = importable.getFile().getFileToImport();
 		DatasetData dataset = importable.getDataset();
 		DataObject container = importable.getParent();
 		IObject ioContainer = null;

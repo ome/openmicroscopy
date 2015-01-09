@@ -21,12 +21,17 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
+import ij.IJ;
 import ij.ImagePlus;
+import ij.WindowManager;
 import ij.io.FileInfo;
 
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
+
+
+
 
 
 
@@ -47,6 +52,11 @@ public class FileObject
      * This could be a file on disk or an ImageJ object for example.
      */
     private Object file;
+
+    /**
+     * Flag indicating if the file is generated or not.
+     */
+    private boolean generated;
 
     /**
      * Creates a new instance.
@@ -78,8 +88,7 @@ public class FileObject
             return ((File) file).getName();
         } else if (file instanceof ImagePlus) {
             ImagePlus img = (ImagePlus) file;
-            FileInfo info = img.getOriginalFileInfo();
-            if (info != null) return info.fileName;
+            return img.getTitle();
         }
         return null;
     }
@@ -92,13 +101,52 @@ public class FileObject
     public String getAbsolutePath()
     {
         if (file instanceof File) {
-            return ((File) file).getName();
+            return ((File) file).getAbsolutePath();
         } else if (file instanceof ImagePlus) {
-            ImagePlus img = (ImagePlus) file;
-            
+            File f = getTrueFile();
+            if (f != null) return f.getAbsolutePath();
         }
         return "";
     }
+
+    /**
+     * Returns the file to import.
+     * @return See above.
+     */
+    public File getFileToImport()
+    {
+        File f = getTrueFile();
+        if (f != null) return f;
+        if (file instanceof ImagePlus) {
+            //prepare command
+            ImagePlus img = (ImagePlus) file;
+            generated = true;
+            try {
+                f = File.createTempFile(img.getTitle(), ".ome.tiff");
+                f.deleteOnExit();
+            } catch (Exception e) {
+                return null;
+            }
+            StringBuffer buffer = new StringBuffer();
+            buffer.append("windowless=true ");
+            buffer.append("outfile="+f.getAbsolutePath());
+            buffer.append(" splitZ=false");
+            buffer.append(" splitT=false");
+            buffer.append(" splitC=false");
+            buffer.append(" saveRoi=true");
+            IJ.runPlugIn("loci.plugins.LociExporter", buffer.toString());
+            return f;
+        }
+        return null;
+    }
+
+    /**
+     * Returns <code>true</code> if the file has been generated,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isGenerated() { return generated; }
 
     /**
      * Returns the file to import.
@@ -112,8 +160,11 @@ public class FileObject
         } else if (file instanceof ImagePlus) {
             //to be modified.
             ImagePlus img = (ImagePlus) file;
-            FileInfo info = img.getOriginalFileInfo();
-            return new File(info.directory, info.fileName);
+            if (!img.changes) {
+                FileInfo info = img.getOriginalFileInfo();
+                if (info.directory != null && info.fileName != null)
+                    return new File(info.directory, info.fileName);
+            }
         }
         return null;
     }
@@ -125,10 +176,14 @@ public class FileObject
      */
     public long getLength()
     {
+        File f;
         if (file instanceof File) {
-            File f = (File) file;
+            f = (File) file;
             if (f.isFile()) return f.length();
             return FileUtils.sizeOfDirectory(f);
+        } else if (file instanceof ImagePlus) {
+            f = getTrueFile();
+            if (f != null) return f.length();
         }
         return 0;
     }
