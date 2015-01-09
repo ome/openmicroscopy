@@ -382,15 +382,17 @@ public class OmeroReader extends FormatReader {
 
             MetadataStore store = getMetadataStore();
             //Load ROIs to the img -->
-            RoiResult r = gateway.getRoiService().findByImage(iid, new RoiOptions());
-            if (r == null) return;
-            List<Roi> rois = r.rois;
+            RoiOptions options = new RoiOptions();
+            options.userId = omero.rtypes.rlong(serviceFactory.getAdminService().getEventContext().userId);
+            RoiResult r = serviceFactory.getRoiService().findByImage(img.getId().getValue(), new RoiOptions());
+            if (r != null){
+                List<Roi> rois = r.rois;
 
-            int n = rois.size();
-            if (n>0){
-                saveOmeroRoiToMetadataStore(rois,store);
+                int n = rois.size();
+                if (n != 0){
+                    saveOmeroRoiToMetadataStore(rois,store);
+                }
             }
-
             MetadataTools.populatePixels(store, this);
             store.setImageName(name, 0);
             store.setImageDescription(description, 0);
