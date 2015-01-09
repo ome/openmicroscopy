@@ -55,19 +55,25 @@
 ###
 ### Stanza for OMERO.web created %(NOW)s
 ###
-FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s -idle-timeout 60
 
 <Directory "%(ROOT)s/var">
-    Options -Indexes FollowSymLinks
-    Order allow,deny
-    Allow from all
+    Options -Indexes +FollowSymLinks
+    Require all granted
 </Directory>
 
 <Directory "%(OMEROWEBROOT)s/static">
-    Options -Indexes FollowSymLinks
-    Order allow,deny
-    Allow from all
+    Options -Indexes +FollowSymLinks
+    Require all granted
 </Directory>
 
+<Location fcgi://%(FASTCGI_EXTERNAL)s/>
+    Require all granted
+</Location>
+
 Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
-Alias %(FORCE_SCRIPT_NAME)s "%(ROOT)s/var/omero.fcgi/"
+
+# OMERO.web requires the fastcgi PATH_INFO variable, which mod_proxy_fcgi
+# obtains by taking everything after the last path component containing a dot.
+RewriteRule ^%(FORCE_SCRIPT_NAME)s/(.*) %(FORCE_SCRIPT_NAME)s.fcgi/$1 [PT]
+SetEnvIf Request_URI . proxy-fcgi-pathinfo=1
+ProxyPass %(FORCE_SCRIPT_NAME)s.fcgi/ fcgi://%(FASTCGI_EXTERNAL)s/
