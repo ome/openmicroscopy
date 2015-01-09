@@ -54,7 +54,7 @@ public class ImportableFile
 	private GroupData group;
 	
 	/** The file or folder to import. */
-	private File file;
+	private FileObject file;
 	
 	/** Indicates to use the folder as a container if <code>true</code>.*/
 	private boolean folderAsContainer;
@@ -82,7 +82,7 @@ public class ImportableFile
 	 * 							container e.g. a dataset, <code>false</code>
 	 * 							otherwise.
 	 */
-	public ImportableFile(File file, boolean folderAsContainer)
+	public ImportableFile(FileObject file, boolean folderAsContainer)
 	{
 		this.file = file;
 		this.folderAsContainer = folderAsContainer;
@@ -131,7 +131,7 @@ public class ImportableFile
 	 * 
 	 * @return See above.
 	 */
-	public File getFile() { return file; }
+	public FileObject getFile() { return file; }
 	
 	/**
 	 * Returns <code>true</code> to make the folder a container e.g. a dataset, 
@@ -174,7 +174,7 @@ public class ImportableFile
 	 * 
 	 * @param file The value to set.
 	 */
-	public void setFile(File file) { this.file = file; }
+	public void setFile(File file) { this.file = new FileObject(file); }
 	
 	/**
 	 * Sets the group.

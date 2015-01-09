@@ -89,6 +89,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -370,7 +371,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (files == null || files.length == 0)
 			return;
 		
-		List<File> fileList = new ArrayList<File>();
+		List<FileObject> fileList = new ArrayList<FileObject>();
 		
 		for (int i = 0; i < files.length; i++) {
 			checkFile(files[i], fileList);
@@ -389,13 +390,12 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	{
         if (ImporterAgent.runAsPlugin() != LookupNames.IMAGE_J_IMPORT) return;
         //to be reviewed.
-        List<File> list = new ArrayList<File>();
-        File f;
+        List<FileObject> list = new ArrayList<FileObject>();
         FileInfo info;
         ImagePlus img = IJ.getImage();
         info = img.getOriginalFileInfo();
-        f = new File(info.directory, info.fileName);
-        list.add(f);
+        IJ.log(info.fileName+" "+info.directory);
+        list.add(new FileObject(img));
         ImportLocationSettings settings = locationDialog.getImportSettings();
         table.addFiles(list, settings);
         importButton.setEnabled(table.hasFilesToImport());
@@ -1190,16 +1190,17 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @param f
 	 *            The file to handle.
 	 */
-	private boolean checkFile(File f, List<File> l) {
+	private boolean checkFile(File f, List<FileObject> l)
+	{
 		if (f == null || f.isHidden())
 			return false;
 		if (f.isFile()) {
 			if (isFileImportable(f))
-				l.add(f);
+				l.add(new FileObject(f));
 		} else if (f.isDirectory()) {
 			File[] list = f.listFiles();
 			if (list != null && list.length > 0) {
-				l.add(f);
+				l.add(new FileObject(f));
 				return true;
 			}
 		}

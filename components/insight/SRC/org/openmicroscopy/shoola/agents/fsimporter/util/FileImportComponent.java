@@ -60,7 +60,6 @@ import javax.swing.JPopupMenu;
 
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
-
 import omero.cmd.CmdCallback;
 import omero.cmd.CmdCallbackI;
 
@@ -78,6 +77,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ThumbnailLabel;
 import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -803,7 +804,7 @@ public class FileImportComponent
 	 * 
 	 * @return See above.
 	 */
-	public File getFile() { return importable.getFile(); }
+	public FileObject getFile() { return importable.getFile(); }
 	
 	/**
 	 * Sets the location where to import the files.
@@ -1014,8 +1015,8 @@ public class FileImportComponent
 		if (r instanceof Exception) e = (Exception) r;
 		else if (image instanceof Exception) e = (Exception) image;
 		if (e == null) return null;
-		ImportErrorObject object = new ImportErrorObject(getFile(), e,
-				getGroupID());
+		ImportErrorObject object = new ImportErrorObject(
+		        getFile().getTrueFile(), e, getGroupID());
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
 		long id = statusLabel.getLogFileID();
@@ -1355,7 +1356,7 @@ public class FileImportComponent
 	public boolean isHCSFile()
 	{
 		if (isFolderAsContainer()) return false;
-		return ImportableObject.isHCSFile(getFile());
+		return ImportableObject.isHCSFile(importable.getFile());
 	}
 
 	/**
