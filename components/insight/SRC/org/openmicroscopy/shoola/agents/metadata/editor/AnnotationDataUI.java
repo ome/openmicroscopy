@@ -794,7 +794,7 @@ class AnnotationDataUI
 		tagsPane.repaint();
 	}
 	
-	private void layoutMaps(Collection<MapAnnotationData> list)
+	private void layoutMaps(List<MapAnnotationData> list)
 	{
 		mapsPane.removeAll();
 		mapTables.clear();
@@ -808,12 +808,14 @@ class AnnotationDataUI
 		c.weighty = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;	
 		
-		for(MapAnnotationData m : list) {
+		for(int i=0; i<list.size(); i++) {
+			MapAnnotationData m = list.get(i);
 			JPanel p = new JPanel();
 			p.setLayout(new BorderLayout());
 			MapTable t = createMapTable(m);
 			if (t != null) {
-				p.add(t.getTableHeader(), BorderLayout.NORTH);
+				if (i == 0)
+					p.add(t.getTableHeader(), BorderLayout.NORTH);
 				p.add(t, BorderLayout.CENTER);
 				mapsPane.add(p, c);
 				c.gridy++;
@@ -836,15 +838,26 @@ class AnnotationDataUI
 		boolean editable = MapAnnotationData.NS_CLIENT_CREATED.equals(m
 				.getNameSpace())
 				&& model.canAnnotate()
-				&& m.getOwner().getId() == MetadataViewerAgent.getUserDetails()
-						.getId();
+				&& (m.getId() <= 0 || m.getOwner().getId() == MetadataViewerAgent
+						.getUserDetails().getId());
+		
+		boolean deletable = MetadataViewerAgent.isAdministrator();
 		
 		if (!editable
 				&& (m.getContent() == null || ((List<NamedValue>) m
 						.getContent()).isEmpty()))
 			return null;
 		
-		final MapTable t = new MapTable(editable);
+		int permissions;
+		if (editable)
+			permissions = MapTable.PERMISSION_DELETE | MapTable.PERMISSION_MOVE
+					| MapTable.PERMISSION_EDIT;
+		else if (deletable)
+			permissions = MapTable.PERMISSION_DELETE;
+		else
+			permissions = MapTable.PERMISSION_NONE;
+		
+		final MapTable t = new MapTable(permissions);
 		t.setData(m);
 		t.getModel().addTableModelListener(new TableModelListener() {
 			@Override

@@ -43,23 +43,34 @@ import pojos.MapAnnotationData;
 @SuppressWarnings("serial")
 public class MapTable extends JTable {
 
+	public static int PERMISSION_NONE = 0;
+	public static int PERMISSION_EDIT = 1;
+	public static int PERMISSION_MOVE = 2;
+	public static int PERMISSION_DELETE = 4;
+
 	private MapTableCellEditor cellEditor;
-	
+
 	private MapTableCellRenderer cellRenderer;
 
+	private int permissions = PERMISSION_NONE;
+
 	public MapTable() {
-		this(false);
+		this(PERMISSION_NONE);
 	}
 
-	public MapTable(boolean editable) {
-		setModel(new MapTableModel(this, editable));
-		init(editable);
-	}
-
-	private void init(boolean editable) {
-		cellEditor = new MapTableCellEditor(editable);
-		cellRenderer = new MapTableCellRenderer(editable);
+	public MapTable(int permissions) {
+		this.permissions = permissions;
+		setModel(new MapTableModel(this));
+		init();
 		
+		if(!canEdit())
+			setRowSelectionAllowed(false);
+	}
+
+	private void init() {
+		cellEditor = new MapTableCellEditor();
+		cellRenderer = new MapTableCellRenderer();
+
 		TableColumn nameColumn = getColumnModel().getColumn(0);
 		TableColumn valueColumn = getColumnModel().getColumn(1);
 		TableColumn deleteColumn = getColumnModel().getColumn(2);
@@ -71,17 +82,19 @@ public class MapTable extends JTable {
 		nameColumn.setCellRenderer(cellRenderer);
 		valueColumn.setCellRenderer(cellRenderer);
 		deleteColumn.setCellRenderer(cellRenderer);
-		
+
 		deleteColumn.setPreferredWidth(16);
 		deleteColumn.setMaxWidth(16);
 
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		if (editable) {
+		if (canMove()) {
 			setDragEnabled(true);
 			setDropMode(DropMode.INSERT_ROWS);
 			setTransferHandler(new TableRowTransferHandler(this));
-
+		}
+		
+		if(canDelete()) {
 			// handle click on delete icons
 			addMouseListener(new MouseAdapter() {
 				@Override
@@ -89,14 +102,15 @@ public class MapTable extends JTable {
 					int column = MapTable.this.getSelectedColumn();
 					int row = MapTable.this.getSelectedRow();
 					if (column == 2) {
-						((MapTableModel) MapTable.this.getModel()).deleteEntry(row);
+						((MapTableModel) MapTable.this.getModel())
+								.deleteEntry(row);
 					}
 				}
 			});
 		}
-		
+
 		// increase default row height by 3px (otherwise JTextAreas are cut off)
-		setRowHeight(getRowHeight()+3);
+		setRowHeight(getRowHeight() + 3);
 	}
 
 	public void setData(MapAnnotationData data) {
@@ -108,4 +122,15 @@ public class MapTable extends JTable {
 		cellEditor.setDoubleClickEdit(doubleClickEdit);
 	}
 
+	public boolean canEdit() {
+		return (permissions & PERMISSION_EDIT) == PERMISSION_EDIT;
+	}
+
+	public boolean canMove() {
+		return (permissions & PERMISSION_MOVE) == PERMISSION_MOVE;
+	}
+
+	public boolean canDelete() {
+		return (permissions & PERMISSION_DELETE) == PERMISSION_DELETE;
+	}
 }

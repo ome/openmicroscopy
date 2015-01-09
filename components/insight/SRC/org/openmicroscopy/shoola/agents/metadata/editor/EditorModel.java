@@ -1923,7 +1923,10 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the collection of map annotations
+	 * Returns the collection of map annotations in the following order:
+	 * [0] : The user's own MapAnnotation (if it doesn't exist, it's created)
+	 * [1..x] : Other users' MapAnnotations
+	 * [(x+1)..] : Non-user MapAnnotations
 	 * 
 	 * @return See above.
 	 */
@@ -1956,7 +1959,20 @@ class EditorModel
 			myMap = new MapAnnotationData();
 			myMap.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
 		}
-
+		
+		// Just to make sure, to always get the same order
+		Comparator<MapAnnotationData> comp = new Comparator<MapAnnotationData>() {
+			@Override
+			public int compare(MapAnnotationData o1, MapAnnotationData o2) {
+				if(o1.getId()<o2.getId())
+					return -1;
+				else
+					return 1;
+			}
+		};
+		Collections.sort(otherMaps, comp);
+		Collections.sort(nonUserMaps, comp);
+		
 		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
 		result.add(myMap);
 		result.addAll(otherMaps);

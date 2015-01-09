@@ -40,14 +40,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 @SuppressWarnings("serial")
 public class MapTableCellRenderer extends DefaultTableCellRenderer {
 
-	private boolean editable = true;
-
 	public MapTableCellRenderer() {
-		this(true);
-	}
-
-	public MapTableCellRenderer(boolean editable) {
-		this.editable = editable;
 	}
 
 	@Override
@@ -58,15 +51,16 @@ public class MapTableCellRenderer extends DefaultTableCellRenderer {
 		if (value instanceof Icon) {
 			l = new JLabel((Icon) value);
 			l.setToolTipText("Delete Entry");
-			l.setEnabled(editable);
-		} else 
+		} else
 			l = new JLabel((String) value);
 
 		l.setOpaque(true);
+		
 		if (isSelected)
 			l.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
 		else
-			l.setBackground(UIUtilities.BACKGROUND_COLOR);
+			l.setBackground(row % 2 == 0 ? UIUtilities.BACKGROUND_COLOUR_EVEN
+                    : UIUtilities.BACKGROUND_COLOUR_ODD);
 
 		return l;
 	}

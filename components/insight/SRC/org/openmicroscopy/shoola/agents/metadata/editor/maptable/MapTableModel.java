@@ -49,33 +49,29 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	private MapAnnotationData map;
 	private List<NamedValue> data;
 	private List<NamedValue> originalData;
-	private boolean editable;
 
-	public static final String KEY_DUMMY = "Add Key";
-	public static final String VALUE_DUMMY = "Add Value";
+	public static final String DUMMY_KEY = "Add Key";
+	public static final String DUMMY_VALUE = "Add Value";
 
-	private String newKey = KEY_DUMMY;
-	private String newValue = VALUE_DUMMY;
+	private String newKey = DUMMY_KEY;
+	private String newValue = DUMMY_VALUE;
 
 	private Icon deleteIcon = IconManager.getInstance().getIcon(
 			IconManager.DELETE_12);
 
 	public MapTableModel(MapTable table) {
-		this(table, false);
-	}
-
-	public MapTableModel(MapTable table, boolean editable) {
 		this.table = table;
-		this.editable = editable;
-		setData(new MapAnnotationData());
 	}
 
 	@Override
 	public int getRowCount() {
+		if (table == null)
+			return 0;
+
 		int rows = data == null ? 0 : data.size();
 
 		// +1 for the "Add Key"|"Add Value" column
-		if (editable)
+		if (table.canEdit())
 			rows += 1;
 
 		return rows;
@@ -114,7 +110,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 			case 1:
 				return d.value;
 			case 2:
-				return deleteIcon;
+				return table.canDelete() ? deleteIcon : null;
 			}
 		} else {
 			switch (column) {
@@ -155,7 +151,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 				newValue = value;
 			}
 
-			if (!newKey.equals(KEY_DUMMY) && !newValue.equals(VALUE_DUMMY)) {
+			if (!newKey.equals(DUMMY_KEY) && !newValue.equals(DUMMY_VALUE)) {
 				addEntry(newKey, newValue);
 			}
 		}
@@ -166,8 +162,8 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		data.add(d);
 		map.setContent(data);
 		table.revalidate();
-		newKey = KEY_DUMMY;
-		newValue = VALUE_DUMMY;
+		newKey = DUMMY_KEY;
+		newValue = DUMMY_VALUE;
 		fireTableDataChanged();
 	}
 
@@ -220,7 +216,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	public boolean isCellEditable(int row, int column) {
 		if (column == 2)
 			return false;
-		return editable;
+		return table.canEdit();
 	}
 
 	@Override

@@ -686,6 +686,8 @@ class OmeroMetadataServiceImpl
 			id = map.getId();
 			ioType = gateway.convertPojos(MapAnnotationData.class).getName();
 			
+			// TODO: The following does not work for other user's MapAnnotations!
+			//       NamedValue list is always empty!
 			MapAnnotation m = (MapAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			m.setMapValue((List<NamedValue>) map.getContent());

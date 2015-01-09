@@ -45,14 +45,7 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 	private boolean doubleClickEdit = false;
 
-	private boolean editable = true;
-
 	public MapTableCellEditor() {
-		this(true);
-	}
-
-	public MapTableCellEditor(boolean editable) {
-		this.editable = editable;
 	}
 
 	public void setDoubleClickEdit(boolean doubleClickEdit) {
@@ -70,8 +63,8 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 			final int column) {
 
 		String text = (String) value;
-		if (text.equals(MapTableModel.KEY_DUMMY)
-				|| text.equals(MapTableModel.VALUE_DUMMY))
+		if (text.equals(MapTableModel.DUMMY_KEY)
+				|| text.equals(MapTableModel.DUMMY_VALUE))
 			text = "";
 
 		component = new JTextField(text);
@@ -80,9 +73,6 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 	@Override
 	public boolean isCellEditable(EventObject e) {
-		if (!editable)
-			return false;
-		
 		if (e instanceof MouseEvent && doubleClickEdit) {
 			return ((MouseEvent) e).getClickCount() > 1;
 		}
