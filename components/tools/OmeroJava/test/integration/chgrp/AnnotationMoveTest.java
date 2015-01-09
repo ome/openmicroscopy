@@ -318,7 +318,6 @@ public class AnnotationMoveTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
     public void testMoveImageAnnotatedByUsersInDestinationGroupRWRWtoRW()
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rw----", true);
@@ -418,7 +417,6 @@ public class AnnotationMoveTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
     public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRWtoRW()
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rw----", false);
