@@ -119,12 +119,12 @@ public class FileObject
                 return null;
             }
             StringBuffer buffer = new StringBuffer();
-            buffer.append("windowless=true");
-            buffer.append(" outfile="+f.getAbsolutePath());
-            buffer.append(" splitZ=false");
-            buffer.append(" splitT=false");
-            buffer.append(" splitC=false");
-            buffer.append(" saveRoi=true");
+            //buffer.append("windowless=true");
+            buffer.append("outfile="+f.getAbsolutePath());
+            buffer.append(" splitz=false");
+            buffer.append(" splitc=false");
+            buffer.append(" splitt=false");
+            buffer.append(" saveroi=true");
             buffer.append(" compression="+CompressionType.UNCOMPRESSED.getCompression());
             IJ.runPlugIn("loci.plugins.LociExporter", buffer.toString());
             return f;
