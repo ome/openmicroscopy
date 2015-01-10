@@ -119,7 +119,6 @@ public class FileObject
                 return null;
             }
             StringBuffer buffer = new StringBuffer();
-            //buffer.append("windowless=true");
             buffer.append("outfile="+f.getAbsolutePath());
             buffer.append(" splitz=false");
             buffer.append(" splitc=false");
