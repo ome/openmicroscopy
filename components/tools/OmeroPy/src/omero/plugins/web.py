@@ -13,6 +13,8 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
+from path import path
+from omero_ext.argparse import SUPPRESS
 
 try:
     from omeroweb import settings
@@ -92,6 +94,8 @@ class WebControl(BaseControl):
         config.add_argument(
             "--system", action="store_true",
             help="System appropriate configuration file")
+        config.add_argument(
+            "--etcdir", type=str, help=SUPPRESS)
 
         parser.add(
             sub, self.syncmedia,
@@ -164,7 +168,10 @@ class WebControl(BaseControl):
             except:
                 d["FORCE_SCRIPT_NAME"] = "/"
 
-            etc_dir = self.ctx.dir / "etc"
+            if args.etcdir:
+                etc_dir = path(args.etcdir)
+            else:
+                etc_dir = self.ctx.dir / "etc"
             if server == "nginx":
                 if args.system:
                     template_file = "nginx.conf.system.template"
