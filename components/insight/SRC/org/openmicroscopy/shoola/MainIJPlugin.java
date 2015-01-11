@@ -182,7 +182,7 @@ implements PlugIn
                 onImageJClosing();
             }
         });
-        if (view.getMenuBar().getMenuCount() > 0) {
+        if (view.getMenuBar() != null && view.getMenuBar().getMenuCount() > 0) {
             Menu menu = view.getMenuBar().getMenu(0);
             int count  = menu.getItemCount();
             if (count > 0) {
