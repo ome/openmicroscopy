@@ -25,9 +25,13 @@ package org.openmicroscopy.shoola.env.data.model;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileInfo;
+
 import java.io.File;
+
 import loci.formats.codec.CompressionType;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Object hosting the information about the "file" to import.
@@ -113,7 +117,23 @@ public class FileObject
             ImagePlus img = (ImagePlus) file;
             generated = true;
             try {
-                f = File.createTempFile(img.getTitle(), ".ome.tiff");
+                //name w/o extension
+                String baseName = FilenameUtils.getBaseName(
+                        FilenameUtils.removeExtension(img.getTitle()));
+                String n = baseName+"ome.tif";
+                f = File.createTempFile(img.getTitle(), ".ome.tif");
+                File p = f.getParentFile();
+                File[] list = p.listFiles();
+                if (list != null) {
+                    for (int i = 0; i < list.length; i++) {
+                        if (list[i].getName().equals(n)) {
+                            list[i].delete();
+                            break;
+                        }
+                    }
+                }
+                f.delete();
+                f = new File(p, n);
                 f.deleteOnExit();
             } catch (Exception e) {
                 return null;
