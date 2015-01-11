@@ -164,13 +164,12 @@ class WebControl(BaseControl):
             except:
                 d["FORCE_SCRIPT_NAME"] = "/"
 
+            etc_dir = self.ctx.dir / "etc"
             if server == "nginx":
                 if args.system:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.system.template").read()
+                    template_file = "nginx.conf.system.template"
                 else:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.template").read()
+                    template_file = "nginx.conf.template"
 
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_pass = "%s:%s" \
@@ -195,8 +194,7 @@ class WebControl(BaseControl):
                                                     "$fastcgi_script_name;\n"
 
             if server == "apache":
-                c = file(self.ctx.dir / "etc" /
-                         "apache.conf.template").read()
+                template_file = "apache.conf.template"
 
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_external = '-host %s:%s' % \
@@ -215,9 +213,8 @@ class WebControl(BaseControl):
                 d["NOW"] = str(datetime.now())
 
             if server == "apache-fcgi":
-                c = file(self.ctx.dir / "etc" /
-                         "apache-mod_proxy_fcgi.conf.template").read()
 
+                template_file = "apache-mod_proxy_fcgi.conf.template"
                 if settings.APPLICATION_SERVER != settings.FASTCGITCP:
                     self.ctx.die(
                         679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
@@ -236,6 +233,7 @@ class WebControl(BaseControl):
                     % d["FORCE_SCRIPT_NAME"]
                 d["NOW"] = str(datetime.now())
 
+            c = file(etc_dir / template_file).read()
             self.ctx.out(c % d)
 
     def syncmedia(self, args):
