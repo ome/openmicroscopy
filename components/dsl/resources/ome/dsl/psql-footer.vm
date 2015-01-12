@@ -565,6 +565,7 @@ alter  table originalfile alter column mimetype set default 'application/octet-s
 alter  table originalfile add column repo varchar(36);
 alter  table originalfile add column params text[2][];
 create index originalfile_mime_index on originalfile (mimetype);
+create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
 create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
 
@@ -598,20 +599,17 @@ insert into password values (1,'');
 -- Prevent the deletion of mimetype = "Directory" objects
 create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
     begin
-        if OLD.repo is not null then
-            if OLD.mimetype = 'Directory' then
-                --
-                -- If any children are found, prevent deletion
-                --
-                if exists(select id from originalfile
-                           where path = OLD.path || OLD.name || '/'
-                           limit 1) then
+        --
+        -- If any children are found, prevent deletion
+        --
+        if OLD.mimetype = 'Directory' and exists(
+            select id from originalfile
+            where repo = OLD.repo and path = OLD.path || OLD.name || '/'
+            limit 1) then
 
-                    -- CANCEL DELETE
-                    RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+                -- CANCEL DELETE
+                RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
 
-                end if;
-            end if;
         end if;
         return OLD; -- proceed
     end;
