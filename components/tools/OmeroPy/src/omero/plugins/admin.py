@@ -31,7 +31,7 @@ from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
 
-from omero.plugins.prefs import with_config
+from omero.plugins.prefs import with_config, with_rw_config
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
@@ -59,6 +59,7 @@ Configuration properties:
  omero.windows.user
  omero.windows.pass
  omero.windows.servicename
+ omero.web.application_server.port
 
 """ + "\n" + "="*50 + "\n"
 
@@ -294,6 +295,9 @@ Examples:
         ports.add_argument(
             "--ssl", default="4064",
             help="The ssl port to be used by Glacier2 (default: %(default)s)")
+        ports.add_argument(
+            "--webserver", default="4080",
+            help="The web application server port (default: %(default)s)")
         ports.add_argument(
             "--revert", action="store_true",
             help="Used to rollback from the given settings to the defaults")
@@ -1371,6 +1375,10 @@ OMERO Diagnostics %s
 
         return config
 
+    def die_on_ro(self, config):
+        if not config.save_on_close:
+            self.ctx.die(333, "Cannot modify %s" % config.filename)
+
     @with_config
     def reindex(self, args, config):
 
@@ -1495,9 +1503,13 @@ OMERO Diagnostics %s
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
-    def ports(self, args):
+    @with_rw_config
+    def ports(self, args, config):
         self.check_access()
         from omero.install.change_ports import change_ports
+        webserverkey = 'omero.web.application_server.port'
+        webserver_default_port = 4080
+
         if not args.skipcheck:
             if 0 == self.status(args, node_only=True):
                 self.ctx.die(
@@ -1507,10 +1519,31 @@ OMERO Diagnostics %s
             self.ctx.rv = 0
 
         if args.prefix:
-            for x in ("registry", "tcp", "ssl"):
+            for x in ("registry", "tcp", "ssl", "webserver"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
         change_ports(
             args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
+
+        # Use the same conditions as change_ports when modifying ports
+        if args.revert:
+            webserver_from = args.webserver
+            webserver_to = str(webserver_default_port)
+        else:
+            webserver_from = str(webserver_default_port)
+            webserver_to = args.webserver
+        try:
+            waport = config[webserverkey]
+        except KeyError:
+            waport = ''
+            webserver_from = ''
+
+        if waport != webserver_from:
+            self.ctx.out('No match found for %s=%s in %s' % (
+                webserverkey, webserver_from, config.filename))
+        else:
+            config[webserverkey] = webserver_to
+            self.ctx.out('Converted: %s => %s %s in %s' % (
+                webserver_from, webserver_to, webserverkey, config.filename))
 
     def cleanse(self, args):
         self.check_access()
