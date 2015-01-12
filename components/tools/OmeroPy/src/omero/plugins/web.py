@@ -235,13 +235,9 @@ class WebControl(BaseControl):
 
                 if d["FORCE_SCRIPT_NAME"] == '/':
                     d["WEB_PREFIX"] = ''
-                    d["REWRITECGICOND"] = (
-                        'RewriteCond %%{REQUEST_URI} !^(%s|/\.fcgi)' %
-                        d["STATIC_URL"])
                     d["CGI_PREFIX"] = "/.fcgi"
                 else:
                     d["WEB_PREFIX"] = d["FORCE_SCRIPT_NAME"]
-                    d["REWRITECGICOND"] = ""
 
                 d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 

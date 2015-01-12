@@ -118,17 +118,17 @@ class TestWeb(object):
         print '\n'.join(lines)
 
         if prefix:
-            assert lines[-4].startswith('Alias /test-static')
-            assert lines[-4].endswith('lib/python/omeroweb/static')
+            assert lines[-5].startswith('Alias /test-static')
+            assert lines[-5].endswith('lib/python/omeroweb/static')
+            assert lines[-4] == \
+                'RewriteCond %{REQUEST_URI} !^(/test-static|/\.fcgi)'
             assert lines[-3] == \
                 'RewriteRule ^/test(/|$)(.*) /test.fcgi/$2 [PT]'
-            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
-            assert lines[-1] == 'ProxyPass /test.fcgi/ fcgi://0.0.0.0:4080/'
         else:
             assert lines[-5].startswith('Alias /static')
             assert lines[-5].endswith('lib/python/omeroweb/static')
             assert lines[-4] == \
                 'RewriteCond %{REQUEST_URI} !^(/static|/\.fcgi)'
             assert lines[-3] == 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]'
-            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
-            assert lines[-1] == 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/'
+        assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
+        assert lines[-1] == 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/'

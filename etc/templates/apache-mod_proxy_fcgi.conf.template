@@ -70,7 +70,7 @@ RewriteEngine on
 
 Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
 
-%(REWRITECGICOND)s
+RewriteCond %{REQUEST_URI} !^(%(STATIC_URL)s|/\.fcgi)' %
 RewriteRule ^%(WEB_PREFIX)s(/|$)(.*) %(CGI_PREFIX)s/$2 [PT]
 SetEnvIf Request_URI . proxy-fcgi-pathinfo=1
 ProxyPass %(CGI_PREFIX)s/ fcgi://%(FASTCGI_EXTERNAL)s/
