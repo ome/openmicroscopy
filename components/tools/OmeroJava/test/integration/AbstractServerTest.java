@@ -1710,20 +1710,10 @@ public class AbstractServerTest extends AbstractTest {
             b.setNs(omero.rtypes.rstring(ns));
 
         b = (BooleanAnnotation) iUpdate.saveAndReturnObject(b);
-
-		MapAnnotation ma = new MapAnnotationI();
-		List<NamedValue> values = new ArrayList<NamedValue>();
-		for (int i = 0; i < 3; i++)
-			values.add(new NamedValue("name " + i, "value " + i));
-		ma.setMapValue(values);
-		if (ns != null)
-			ma.setNs(omero.rtypes.rstring(ns));
-		ma = (MapAnnotation) iUpdate.saveAndReturnObject(ma);
         
         ids.add(c.getId().getValue());
         ids.add(l.getId().getValue());
         ids.add(b.getId().getValue());
-        ids.add(ma.getId().getValue());
         
         List<IObject> links = new ArrayList<IObject>();
         if (parent instanceof Image) {
@@ -1739,10 +1729,6 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((Image) parent);
             links.add(link);
-            link = new ImageAnnotationLinkI();
-            link.setChild(ma);
-            link.setParent((Image) parent);
-            links.add(link);
         } else if (parent instanceof Project) {
             ProjectAnnotationLink link = new ProjectAnnotationLinkI();
             link.setChild(c);
@@ -1754,10 +1740,6 @@ public class AbstractServerTest extends AbstractTest {
             links.add(link);
             link = new ProjectAnnotationLinkI();
             link.setChild(b);
-            link.setParent((Project) parent);
-            links.add(link);
-            link = new ProjectAnnotationLinkI();
-            link.setChild(ma);
             link.setParent((Project) parent);
             links.add(link);
         } else if (parent instanceof Dataset) {
@@ -1773,10 +1755,6 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((Dataset) parent);
             links.add(link);
-            link = new DatasetAnnotationLinkI();
-            link.setChild(ma);
-            link.setParent((Dataset) parent);
-            links.add(link);
         } else if (parent instanceof Plate) {
             PlateAnnotationLink link = new PlateAnnotationLinkI();
             link.setChild(c);
@@ -1788,10 +1766,6 @@ public class AbstractServerTest extends AbstractTest {
             links.add(link);
             link = new PlateAnnotationLinkI();
             link.setChild(b);
-            link.setParent((Plate) parent);
-            links.add(link);
-            link = new PlateAnnotationLinkI();
-            link.setChild(ma);
             link.setParent((Plate) parent);
             links.add(link);
         } else if (parent instanceof Screen) {
@@ -1807,10 +1781,6 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((Screen) parent);
             links.add(link);
-            link = new ScreenAnnotationLinkI();
-            link.setChild(ma);
-            link.setParent((Screen) parent);
-            links.add(link);
         } else if (parent instanceof Well) {
             WellAnnotationLink link = new WellAnnotationLinkI();
             link.setChild(c);
@@ -1822,10 +1792,6 @@ public class AbstractServerTest extends AbstractTest {
             links.add(link);
             link = new WellAnnotationLinkI();
             link.setChild(b);
-            link.setParent((Well) parent);
-            links.add(link);
-            link = new WellAnnotationLinkI();
-            link.setChild(ma);
             link.setParent((Well) parent);
             links.add(link);
         } else if (parent instanceof PlateAcquisition) {
@@ -1841,10 +1807,6 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((PlateAcquisition) parent);
             links.add(link);
-            link = new PlateAcquisitionAnnotationLinkI();
-            link.setChild(ma);
-            link.setParent((PlateAcquisition) parent);
-            links.add(link);
         } else if (parent instanceof Detector) {
             DetectorAnnotationLink link = new DetectorAnnotationLinkI();
             link.setChild(c);
@@ -1856,10 +1818,6 @@ public class AbstractServerTest extends AbstractTest {
             links.add(link);
             link = new DetectorAnnotationLinkI();
             link.setChild(b);
-            link.setParent((Detector) parent);
-            links.add(link);
-            link = new DetectorAnnotationLinkI();
-            link.setChild(ma);
             link.setParent((Detector) parent);
             links.add(link);
         } else if (parent instanceof Instrument) {
@@ -1875,10 +1833,6 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(b);
             link.setParent((Instrument) parent);
             links.add(link);
-            link = new InstrumentAnnotationLinkI();
-            link.setChild(ma);
-            link.setParent((Instrument) parent);
-            links.add(link);
         } else if (parent instanceof LightSource) {
             LightSourceAnnotationLink link = new LightSourceAnnotationLinkI();
             link.setChild(c);
@@ -1890,10 +1844,6 @@ public class AbstractServerTest extends AbstractTest {
             links.add(link);
             link = new LightSourceAnnotationLinkI();
             link.setChild(b);
-            link.setParent((LightSource) parent);
-            links.add(link);
-            link = new LightSourceAnnotationLinkI();
-            link.setChild(ma);
             link.setParent((LightSource) parent);
             links.add(link);
         } else {
