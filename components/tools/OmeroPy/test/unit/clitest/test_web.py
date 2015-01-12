@@ -44,6 +44,11 @@ class TestWeb(object):
         templates_dir = dist_dir / "etc" / "templates"
         self.args += ["--templates_dir", templates_dir]
 
+    def clean_generated_file(self, txt):
+        lines = [line.strip() for line in txt.split('\n')]
+        lines = [line for line in lines if line and not line.startswith('#')]
+        return lines
+
     def testHelp(self):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
@@ -94,10 +99,35 @@ class TestWeb(object):
 
         assert "%(" not in o
 
-    def testApacheFcgiConfig(self, capsys):
+    @pytest.mark.parametrize('prefix', [None, '/test'])
+    def testApacheFcgiConfig(self, prefix, capsys, monkeypatch):
+
+        if prefix:
+            monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', prefix,
+                                raising=False)
+            monkeypatch.setattr(settings, 'STATIC_URL',
+                                prefix + '-static/', raising=False)
+
         self.args += ["config", "apache-fcgi"]
         self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
         assert "%(" not in o
+        lines = self.clean_generated_file(o)
+        print '\n'.join(lines)
+
+        if prefix:
+            assert lines[-4].startswith('Alias /test-static')
+            assert lines[-4].endswith('lib/python/omeroweb/static')
+            assert lines[-3] == 'RewriteRule ^/test/?(.*|$) /test.fcgi/$1 [PT]'
+            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
+            assert lines[-1] == 'ProxyPass /test.fcgi/ fcgi://0.0.0.0:4080/'
+        else:
+            assert lines[-5].startswith('Alias /static')
+            assert lines[-5].endswith('lib/python/omeroweb/static')
+            assert lines[-4] == \
+                'RewriteCond %{REQUEST_URI} !^(/static|/\.fcgi)'
+            assert lines[-3] == 'RewriteRule ^/?(.*|$) /.fcgi/$1 [PT]'
+            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
+            assert lines[-1] == 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/'
