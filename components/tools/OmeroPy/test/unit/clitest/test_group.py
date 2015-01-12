@@ -23,7 +23,8 @@ import pytest
 from omero.plugins.group import GroupControl
 from omero.cli import CLI
 
-subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser']
+subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser',
+               'members']
 
 
 class TestGroup(object):
