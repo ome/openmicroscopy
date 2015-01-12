@@ -120,19 +120,20 @@ public class FileObject
                 //name w/o extension
                 String baseName = FilenameUtils.getBaseName(
                         FilenameUtils.removeExtension(img.getTitle()));
-                String n = baseName+"ome.tif";
+                String n = baseName+".ome.tif";
                 f = File.createTempFile(img.getTitle(), ".ome.tif");
                 File p = f.getParentFile();
                 File[] list = p.listFiles();
                 if (list != null) {
+                    File toDelete = null;
                     for (int i = 0; i < list.length; i++) {
                         if (list[i].getName().equals(n)) {
-                            list[i].delete();
+                            toDelete = list[i];
                             break;
                         }
                     }
+                    if (toDelete != null) toDelete.delete();
                 }
-                f.delete();
                 f = new File(p, n);
                 f.deleteOnExit();
             } catch (Exception e) {
