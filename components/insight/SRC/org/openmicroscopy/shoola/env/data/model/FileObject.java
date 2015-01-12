@@ -100,6 +100,7 @@ public class FileObject
         } else if (file instanceof ImagePlus) {
             File f = getTrueFile();
             if (f != null) return f.getAbsolutePath();
+            return ((ImagePlus) file).getTitle();
         }
         return "";
     }
@@ -120,7 +121,8 @@ public class FileObject
             try {
                 //name w/o extension
                 String v = FilenameUtils.separatorsToSystem(img.getTitle());
-                String baseName = FilenameUtils.getBaseName(v);
+                String baseName = FilenameUtils.getBaseName(
+                        FilenameUtils.removeExtension(v));
                 String n = baseName+".ome.tif";
                 f = File.createTempFile(img.getTitle(), ".ome.tif");
                 File p = f.getParentFile();
