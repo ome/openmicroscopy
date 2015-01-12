@@ -36,12 +36,12 @@ class TestWeb(object):
         self.cli.register("web", WebControl, "TEST")
         self.args = ["web"]
 
-    def add_etc_dir(self):
+    def add_templates_dir(self):
         dist_dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
             ".." / "dist"  # FIXME: should not be hard-coded
         dist_dir = dist_dir.abspath()
-        etc_dir = dist_dir / "etc"
-        self.args += ["--etcdir", etc_dir]
+        templates_dir = dist_dir / "etc" / "templates"
+        self.args += ["--templates_dir", templates_dir]
 
     def testHelp(self):
         self.args += ["-h"]
@@ -61,5 +61,5 @@ class TestWeb(object):
             self.args += ["--system"]
         if http:
             self.args += ["--http", str(http)]
-        self.add_etc_dir()
+        self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)

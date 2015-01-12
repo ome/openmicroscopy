@@ -95,7 +95,7 @@ class WebControl(BaseControl):
             "--system", action="store_true",
             help="System appropriate configuration file")
         config.add_argument(
-            "--etcdir", type=str, help=SUPPRESS)
+            "--templates_dir", type=str, help=SUPPRESS)
 
         parser.add(
             sub, self.syncmedia,
@@ -169,10 +169,10 @@ class WebControl(BaseControl):
             except:
                 d["FORCE_SCRIPT_NAME"] = "/"
 
-            if args.etcdir:
-                etc_dir = path(args.etcdir)
+            if args.templates_dir:
+                templates_dir = path(args.templates_dir)
             else:
-                etc_dir = self.ctx.dir / "etc"
+                templates_dir = self.ctx.dir / "etc" / "templates"
             if server == "nginx":
                 if args.system:
                     template_file = "nginx.conf.system.template"
@@ -239,7 +239,7 @@ class WebControl(BaseControl):
                     "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
                     % d["FORCE_SCRIPT_NAME"]
 
-            c = file(etc_dir / template_file).read()
+            c = file(templates_dir / template_file).read()
             self.ctx.out(c % d)
 
     def syncmedia(self, args):
