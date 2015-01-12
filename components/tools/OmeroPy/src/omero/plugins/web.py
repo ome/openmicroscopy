@@ -160,7 +160,8 @@ class WebControl(BaseControl):
                 "ROOT": self.ctx.dir,
                 "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
                 "omeroweb",
-                "STATIC_URL": settings.STATIC_URL.rstrip("/")
+                "STATIC_URL": settings.STATIC_URL.rstrip("/"),
+                "NOW": str(datetime.now())
             }
 
             try:
@@ -217,7 +218,6 @@ class WebControl(BaseControl):
                         % settings.FORCE_SCRIPT_NAME.rstrip("/")
                 except:
                     d["REWRITERULE"] = ""
-                d["NOW"] = str(datetime.now())
 
             if server == "apache-fcgi":
 
@@ -238,7 +238,6 @@ class WebControl(BaseControl):
                 d["REWRITERULE"] = \
                     "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
                     % d["FORCE_SCRIPT_NAME"]
-                d["NOW"] = str(datetime.now())
 
             c = file(etc_dir / template_file).read()
             self.ctx.out(c % d)
