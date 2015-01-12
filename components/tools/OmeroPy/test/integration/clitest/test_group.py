@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 #
 # Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
@@ -85,6 +84,31 @@ class TestGroup(CLITest):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
+
+    def testMembers(self, capsys):
+
+        import omero.model
+        adminService = self.sf.getAdminService()
+        gid = adminService.getEventContext().groupId
+        group = omero.model.ExperimenterGroupI(gid, False)
+        member = self.new_user(group=group)
+        owner = self.new_user(group=group, owner=True)
+        admin = self.new_user(group=group, system=True)
+        group_users = [x.id.val for x in [member, owner, admin]]
+        group_users.append(adminService.getEventContext().userId)
+
+        self.args += ["members"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+
+        lines = out.split('\n')
+        ids = []
+        for line in lines[2:]:
+            elements = line.split('|')
+            if len(elements) < 8:
+                continue
+            ids.append(int(elements[0].strip()))
+        assert set(ids) == set(group_users)
 
 
 class TestGroupRoot(RootCLITest):

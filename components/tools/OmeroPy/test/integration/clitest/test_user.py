@@ -181,6 +181,32 @@ class TestUser(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
+    def testInfo(self, capsys):
+
+        import omero.model
+        adminService = self.sf.getAdminService()
+        uid = adminService.getEventContext().userId
+        user = omero.model.ExperimenterI(uid, False)
+        group1 = self.new_group(experimenters=[user])
+        group2 = self.new_group(experimenters=[user])
+        user_groups = [x.id.val for x in [group1, group2]]
+        user_groups.append(adminService.getEventContext().groupId)
+        roles = adminService.getSecurityRoles()
+        user_groups.append(roles.userGroupId)
+
+        self.args += ["info"]
+        self.cli.invoke(self.args, strict=True)
+        out, err = capsys.readouterr()
+
+        lines = out.split('\n')
+        ids = []
+        for line in lines[2:]:
+            elements = line.split('|')
+            if len(elements) < 4:
+                continue
+            ids.append(int(elements[0].strip()))
+        assert set(ids) == set(user_groups)
+
 
 class TestUserRoot(RootCLITest):
 
