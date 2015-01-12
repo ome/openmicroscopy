@@ -1,0 +1,131 @@
+
+<!--
+  Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+
+<script>
+
+    $(function(){
+
+        // we are only ever editing a single cell at once:
+        var $input,
+            $lastRow = $("#keyValueTable tr:last").clone();
+
+        // stop editing the current $input
+        var saveEdit = function saveEdit() {
+
+            if ($input) {
+                var val = $input.val().trim();
+                val = val.escapeHTML();
+                $input.parent().html(val);
+
+                // TODO: save row/table to server
+            }
+        };
+
+        // start editing a td
+        var startEdit = function startEdit($td) {
+
+            var value = $td.text();
+            $input = $("<input value='" + value + "' />");
+            $td.empty().append($input);
+            $input.focus();
+            $input.get(0).select();
+        }
+
+
+        var addRow = function addRow() {
+
+            var $td = $lastRow
+                    .clone()
+                    .appendTo("#keyValueTable tbody")
+                    .find("td:first");
+            startEdit($td);
+        }
+
+        // Start editing when you click a td
+        $( "#keyValueTable tbody" ).on( "click", "td", function(event) {
+            var $td = $(event.target);
+            // ignore clicks on other elements, e.g. <input>
+            if ($td[0].tagName.toLowerCase() != "td") return;
+
+            // Saving any other current editing is handled by 'blur' below.
+
+            startEdit($td);
+        });
+
+        // Handle keys when editing
+        // Start editing when you click a td
+        $( "#keyValueTable tbody" ).on( "keydown", "input", function(event) {
+            // console.log(event.which);
+            var $td = $(event.target).parent();
+
+            switch (event.which) {
+                case 13:
+                    // Enter: save
+                case 9:
+                    // Tab: save
+                    saveEdit();
+                    // if we're on 'key', move to 'value'
+                    if ($td.next().length > 0) {
+                        startEdit($td.next());
+                    // if we have another row, move to 'key'
+                    } else if ($td.parent().next().length > 0) {
+                        startEdit($td.parent().next().find('td:first'));
+                    } else {
+                        addRow();
+                    }
+                    break;
+            }
+
+            // Ignore Tab
+            if (event.which == 9) return false
+        });
+
+        $( "#keyValueTable tbody" ).on( "blur", "input", function(event) {
+            saveEdit();
+        });
+    });
+
+</script>
+
+<style type="text/css">
+    .keyValueTable td {
+        width: 50%;
+    }
+    .keyValueTable input {
+        width: 100%;
+    }
+
+</style>
+
+
+<table id="keyValueTable" class="keyValueTable">
+    <thead>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+
+    <!-- Last row always has empty key & value fields -->
+    <tr>
+        <td>Add Key</td>
+        <td>Add Value</td>
+    </tr>
+</table>
