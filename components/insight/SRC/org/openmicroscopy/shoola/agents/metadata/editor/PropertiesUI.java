@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -43,6 +44,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Iterator;
@@ -50,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -71,6 +74,7 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.jdesktop.swingx.JXTaskPane;
+
 import com.google.common.base.CharMatcher;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -94,6 +98,7 @@ import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 import pojos.AnnotationData;
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileData;
@@ -134,6 +139,9 @@ public class PropertiesUI
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
+    
+    /** The text for the creation date. */
+    private static final String CREATIONDATE_TEXT = "Creation Date: ";
     
     /** The text for the owner. */
     private static final String OWNER_TEXT = "Owner: ";
@@ -243,7 +251,7 @@ public class PropertiesUI
 	
 	/** The label showing the ROI count */
 	private JLabel roiCountLabel;
-
+	
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
 	{
@@ -367,7 +375,7 @@ public class PropertiesUI
     	descriptionWiki.setAllowOneClick(true);
     	descriptionWiki.addFocusListener(this);
     	descriptionWiki.addPropertyChangeListener(this);
-    	
+       	
     	defaultBorder = namePane.getBorder();
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
@@ -1057,9 +1065,33 @@ public class PropertiesUI
         	add(Box.createVerticalStrut(5));
         	add(layoutScreenContent((ScreenData) refObject));
         }
-        if (data == null) return;
-        add(Box.createVerticalStrut(5));
-    	add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
+        
+		add(Box.createVerticalStrut(5));
+		
+		if (data != null) {
+			add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
+		} else if (refObject instanceof DatasetData
+				|| refObject instanceof ProjectData
+				|| refObject instanceof PlateData
+				|| refObject instanceof ScreenData) {
+
+			DataObject dob = (DataObject) refObject;
+			JLabel createDateLabel = new JLabel();
+			createDateLabel.setFont((new JLabel()).getFont().deriveFont(
+					Font.BOLD));
+
+			try {
+				Timestamp t = dob.getCreated();
+				createDateLabel.setText(CREATIONDATE_TEXT+UIUtilities.formatShortDateTime(t));
+			} catch (Exception e) {
+				e.printStackTrace();
+				createDateLabel.setText(CREATIONDATE_TEXT+"N/A");
+			}
+			JPanel p = UIUtilities.buildComponentPanel(createDateLabel, 0, 0);
+			p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			add(p);
+		}
     }
 
 	/**
@@ -1229,6 +1261,7 @@ public class PropertiesUI
         descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
         descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 
+        
         editNames();
         if (b) {
             namePane.getDocument().addDocumentListener(this);
