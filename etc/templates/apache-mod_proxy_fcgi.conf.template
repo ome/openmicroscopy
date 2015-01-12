@@ -48,7 +48,7 @@
 #
 #</VirtualHost>
 
-%(REWRITERULE)s
+RewriteEngine on
 
 ###
 ### Stanza for OMERO.web created %(NOW)s
@@ -70,8 +70,7 @@
 
 Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
 
-# OMERO.web requires the fastcgi PATH_INFO variable, which mod_proxy_fcgi
-# obtains by taking everything after the last path component containing a dot.
-RewriteRule ^%(FORCE_SCRIPT_NAME)s/(.*) %(FORCE_SCRIPT_NAME)s.fcgi/$1 [PT]
+%(REWRITECGICOND)s
+RewriteRule ^%(WEB_PREFIX)s/?(.*|$) %(CGI_PREFIX)s/$1 [PT]
 SetEnvIf Request_URI . proxy-fcgi-pathinfo=1
-ProxyPass %(FORCE_SCRIPT_NAME)s.fcgi/ fcgi://%(FASTCGI_EXTERNAL)s/
+ProxyPass %(CGI_PREFIX)s/ fcgi://%(FASTCGI_EXTERNAL)s/

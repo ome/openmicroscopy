@@ -220,6 +220,9 @@ class WebControl(BaseControl):
                     d["REWRITERULE"] = ""
 
             if server == "apache-fcgi":
+                # OMERO.web requires the fastcgi PATH_INFO variable, which
+                # mod_proxy_fcgi obtains by taking everything after the last
+                # path component containing a dot.
 
                 template_file = "apache-mod_proxy_fcgi.conf.template"
                 if settings.APPLICATION_SERVER != settings.FASTCGITCP:
@@ -230,14 +233,17 @@ class WebControl(BaseControl):
                     settings.APPLICATION_SERVER_PORT)
                 d["FASTCGI_EXTERNAL"] = fastcgi_external
 
-                # Forcing a prefix for the entire server makes it easier to
-                # setup the proxy redirects
                 if d["FORCE_SCRIPT_NAME"] == '/':
-                    d["FORCE_SCRIPT_NAME"] = '/omero'
+                    d["WEB_PREFIX"] = ''
+                    d["REWRITECGICOND"] = (
+                        'RewriteCond %%{REQUEST_URI} !^(%s|/\.fcgi)' %
+                        d["STATIC_URL"])
+                    d["CGI_PREFIX"] = "/.fcgi"
+                else:
+                    d["WEB_PREFIX"] = d["FORCE_SCRIPT_NAME"]
+                    d["REWRITECGICOND"] = ""
 
-                d["REWRITERULE"] = \
-                    "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
-                    % d["FORCE_SCRIPT_NAME"]
+                d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
             c = file(templates_dir / template_file).read()
             self.ctx.out(c % d)
