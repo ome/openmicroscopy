@@ -592,17 +592,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
          leave_none_unset_int,
          ("Configuration options for the viewer. -1: zoom in fully,"
           " 0: zoom out fully, unset: zoom to fit window")],
-    "omero.web.scripts_to_ignore":
-        ["SCRIPTS_TO_IGNORE",
-         ('["/omero/figure_scripts/Movie_Figure.py", '
-          '"/omero/figure_scripts/Split_View_Figure.py", '
-          '"/omero/figure_scripts/Thumbnail_Figure.py", '
-          '"/omero/figure_scripts/ROI_Split_Figure.py", '
-          ' "/omero/export_scripts/Make_Movie.py",'
-          '"/omero/setup_scripts/FLIM_initialise.py", '
-          '"/omero/import_scripts/Populate_ROI.py"]'),
-         parse_paths,
-         None],
 
 }
 

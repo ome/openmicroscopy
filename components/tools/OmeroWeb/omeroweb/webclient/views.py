@@ -2517,12 +2517,15 @@ def list_scripts (request, conn=None, **kwargs):
 
     # group scripts into 'folders' (path), named by parent folder name
     scriptMenu = {}
+    scripts_to_ignore = conn.getConfigService() \
+                        .getConfigValue("omero.client.scripts_to_ignore") \
+                        .split(",")
     for s in scripts:
         scriptId = s.id.val
         path = s.path.val
         name = s.name.val
         fullpath = os.path.join(path, name)
-        if fullpath in settings.SCRIPTS_TO_IGNORE:
+        if fullpath in scripts_to_ignore:
             logger.info('Ignoring script %r' % fullpath)
             continue
 

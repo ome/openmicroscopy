@@ -158,7 +158,13 @@
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>
     </bean>
-
+    <!--  CLIENT PROPERTIES -->
+    <bean class="ome.system.Preference" id="omero.client.scripts_to_ignore">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    
     <!-- End preference list -->
             </list>
         </property>
