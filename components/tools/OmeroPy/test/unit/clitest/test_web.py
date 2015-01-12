@@ -77,7 +77,6 @@ class TestWeb(object):
         self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
-        print o
 
         assert "%(" not in o
         if system:
@@ -115,7 +114,6 @@ class TestWeb(object):
 
         assert "%(" not in o
         lines = self.clean_generated_file(o)
-        print '\n'.join(lines)
 
         if prefix:
             assert lines[-5].startswith('Alias /test-static')
