@@ -116,10 +116,11 @@ public class FileObject
             //prepare command
             ImagePlus img = (ImagePlus) file;
             generated = true;
+            
             try {
                 //name w/o extension
-                String baseName = FilenameUtils.getBaseName(
-                        FilenameUtils.removeExtension(img.getTitle()));
+                String v = FilenameUtils.separatorsToSystem(img.getTitle());
+                String baseName = FilenameUtils.getBaseName(v);
                 String n = baseName+".ome.tif";
                 f = File.createTempFile(img.getTitle(), ".ome.tif");
                 File p = f.getParentFile();
@@ -132,11 +133,14 @@ public class FileObject
                             break;
                         }
                     }
-                    if (toDelete != null) toDelete.delete();
+                    if (toDelete != null) {
+                        toDelete.delete();
+                    }
                 }
                 f = new File(p, n);
                 f.deleteOnExit();
             } catch (Exception e) {
+                IJ.log(e.toString());
                 return null;
             }
             StringBuffer buffer = new StringBuffer();
