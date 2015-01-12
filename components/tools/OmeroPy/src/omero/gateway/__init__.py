@@ -5001,6 +5001,17 @@ class XmlAnnotationWrapper (CommentAnnotationWrapper):
 AnnotationWrapper._register(XmlAnnotationWrapper)
 
 
+from omero_model_MapAnnotationI import MapAnnotationI
+
+class MapAnnotationWrapper (CommentAnnotationWrapper):
+    """
+    omero_model_MapAnnotationI class wrapper.
+    """
+    OMERO_TYPE = MapAnnotationI
+
+AnnotationWrapper._register(MapAnnotationWrapper)
+
+
 class _EnumerationWrapper (BlitzObjectWrapper):
 
     def getType(self):
