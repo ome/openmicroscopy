@@ -353,7 +353,7 @@ public class ImporterAgent
     public void activate(boolean master)
     {
         this.isMaster = master;
-        if (runAsPlugin() == LookupNames.IMAGE_J_IMPORT || master) {
+        if (master) {
             this.isMaster = master;
             ExperimenterData exp = (ExperimenterData) registry.lookup(
                     LookupNames.CURRENT_USER_DETAILS);

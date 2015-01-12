@@ -322,10 +322,6 @@ public final class Container
 				LookupNames.ENTRY_POINT);
 		int value = LookupNames.INSIGHT_ENTRY;
 		Integer plugin = (Integer) singleton.registry.lookup(LookupNames.PLUGIN);
-		int p = -1;
-        if (plugin != null && plugin.intValue() == LookupNames.IMAGE_J_IMPORT) {
-            p = LookupNames.IMPORTER_ENTRY;
-        }
 		if (v != null) {
 			switch (v.intValue()) {
 				case LookupNames.IMPORTER_ENTRY:
@@ -342,7 +338,7 @@ public final class Container
 		while (i.hasNext()) {
 			agentInfo = i.next();
 			n = agentInfo.getNumber();
-			if (agentInfo.isActive() && (n == value || n == p)) {
+			if (agentInfo.isActive() && (n == value)) {
 				a = agentInfo.getAgent();
 				a.activate(true);
 			}

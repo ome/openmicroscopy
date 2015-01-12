@@ -1021,8 +1021,6 @@ class TreeViewerComponent
 			case NEW:
 				view.setVisible(true);
 				view.setOnScreen();
-				if (TreeViewerAgent.runAsPlugin() == LookupNames.IMAGE_J_IMPORT)
-				    view.toBack();
 				view.selectFirstPane();
 				model.getSelectedBrowser().activate();
 				model.setState(READY);
