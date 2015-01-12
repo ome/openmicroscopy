@@ -44,7 +44,19 @@ class TestWeb(object):
         templates_dir = dist_dir / "etc" / "templates"
         self.args += ["--templates_dir", templates_dir]
 
+    def add_prefix(self, prefix, monkeypatch):
+        if prefix:
+            monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', prefix,
+                                raising=False)
+            static_prefix = prefix + '-static/'
+            monkeypatch.setattr(settings, 'STATIC_URL', static_prefix,
+                                raising=False)
+        else:
+            static_prefix = settings.STATIC_URL
+        return static_prefix
+
     def clean_generated_file(self, txt):
+        assert "%(" not in txt   # Make sure all markers hae been replaced
         lines = [line.strip() for line in txt.split('\n')]
         lines = [line for line in lines if line and not line.startswith('#')]
         return lines
@@ -60,15 +72,10 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('system', [True, False])
     @pytest.mark.parametrize('http', [False, 8081])
-    @pytest.mark.parametrize('static_prefix', [None, '/test'])
-    def testNginxConfig(self, system, http, static_prefix, capsys,
-                        monkeypatch):
+    @pytest.mark.parametrize('prefix', [None, '/test'])
+    def testNginxConfig(self, system, http, prefix, capsys, monkeypatch):
 
-        if static_prefix:
-            monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', static_prefix,
-                                raising=False)
-            monkeypatch.setattr(settings, 'STATIC_URL',
-                                static_prefix + '/static/', raising=False)
+        static_prefix = self.add_prefix(prefix, monkeypatch)
         self.args += ["config", "nginx"]
         if system:
             self.args += ["--system"]
@@ -77,18 +84,18 @@ class TestWeb(object):
         self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
+        lines = self.clean_generated_file(o)
 
-        assert "%(" not in o
         if system:
-            assert "http {" not in o
+            assert lines[0] == "server {"
+            assert lines[1] == "listen       %s;" % (http or 8080)
+            assert lines[3] == "location %s {" % static_prefix[:-1]
+            assert lines[6] == "location %s {" % (prefix or "/")
         else:
-            assert "http {" in o
-        if static_prefix:
-            assert " location %s/static {" % static_prefix in o
-        else:
-            assert " location / {" in o
-        if http:
-            assert "listen       %s;" % http in o
+            assert lines[16] == "server {"
+            assert lines[17] == "listen       %s;" % (http or 8080)
+            assert lines[21] == "location %s {" % static_prefix[:-1]
+            assert lines[24] == "location %s {" % (prefix or "/")
 
     def testApacheConfig(self, capsys):
         self.args += ["config", "apache"]
@@ -101,22 +108,16 @@ class TestWeb(object):
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheFcgiConfig(self, prefix, capsys, monkeypatch):
 
-        if prefix:
-            monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', prefix,
-                                raising=False)
-            monkeypatch.setattr(settings, 'STATIC_URL',
-                                prefix + '-static/', raising=False)
-
+        static_prefix = self.add_prefix(prefix, monkeypatch)
         self.args += ["config", "apache-fcgi"]
         self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
-        assert "%(" not in o
         lines = self.clean_generated_file(o)
 
         if prefix:
-            assert lines[-5].startswith('Alias /test-static')
+            assert lines[-5].startswith('Alias %s' % static_prefix[:-1])
             assert lines[-5].endswith('lib/python/omeroweb/static')
             assert lines[-4] == \
                 'RewriteCond %{REQUEST_URI} !^(/test-static|/\.fcgi)'
