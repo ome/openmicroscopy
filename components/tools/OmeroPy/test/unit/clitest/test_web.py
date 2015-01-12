@@ -25,8 +25,8 @@ from omero.cli import CLI
 from omero.plugins.web import WebControl
 
 subcommands = [
-    "start", "stop", "restart", "status", "iis", "config"]
-TYPES = ("nginx", "apache", "apache-fcgi")
+    "start", "stop", "restart", "status", "iis", "config", "syncmedia",
+    "clearsessions"]
 
 
 class TestWeb(object):
@@ -52,14 +52,38 @@ class TestWeb(object):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('type', TYPES)
     @pytest.mark.parametrize('system', [True, False])
     @pytest.mark.parametrize('http', [False, 8081])
-    def testConfig(self, type, system, http):
-        self.args += ["config", type]
+    def testNginxConfig(self, system, http, capsys):
+        self.args += ["config", "nginx"]
         if system:
             self.args += ["--system"]
         if http:
             self.args += ["--http", str(http)]
         self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        assert "%(" not in o
+        if system:
+            assert "http {" not in o
+        else:
+            assert "http {" in o
+        if http:
+            assert "listen       %s;" % http in o
+
+    def testApacheConfig(self, capsys):
+        self.args += ["config", "apache"]
+        self.add_templates_dir()
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        assert "%(" not in o
+
+    def testApacheFcgiConfig(self, capsys):
+        self.args += ["config", "apache-fcgi"]
+        self.add_templates_dir()
+        self.cli.invoke(self.args, strict=True)
+        o, e = capsys.readouterr()
+
+        assert "%(" not in o
