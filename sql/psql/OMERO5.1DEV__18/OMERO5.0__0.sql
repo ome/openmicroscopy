@@ -2167,6 +2167,30 @@ DELETE FROM eventlog WHERE id IN
          WHERE id_row.row_n > 1);
 
 --
+-- have _fs_dir_delete trigger check only within repo
+--
+
+create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
+    begin
+        --
+        -- If any children are found, prevent deletion
+        --
+        if OLD.mimetype = 'Directory' and exists(
+            select id from originalfile
+            where repo = OLD.repo and path = OLD.path || OLD.name || '/'
+            limit 1) then
+
+                -- CANCEL DELETE
+                RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+
+        end if;
+        return OLD; -- proceed
+    end;
+$_fs_dir_delete$ LANGUAGE plpgsql;
+
+create index originalfile_path_index on originalfile (path);
+
+--
 -- FINISHED
 --
 
