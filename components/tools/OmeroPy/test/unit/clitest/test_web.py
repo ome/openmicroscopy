@@ -23,6 +23,7 @@ import pytest
 from path import path
 from omero.cli import CLI
 from omero.plugins.web import WebControl
+from omeroweb import settings
 
 subcommands = [
     "start", "stop", "restart", "status", "iis", "config", "syncmedia",
@@ -54,7 +55,15 @@ class TestWeb(object):
 
     @pytest.mark.parametrize('system', [True, False])
     @pytest.mark.parametrize('http', [False, 8081])
-    def testNginxConfig(self, system, http, capsys):
+    @pytest.mark.parametrize('static_prefix', [None, '/test'])
+    def testNginxConfig(self, system, http, static_prefix, capsys,
+                        monkeypatch):
+
+        if static_prefix:
+            monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', static_prefix,
+                                raising=False)
+            monkeypatch.setattr(settings, 'STATIC_URL',
+                                static_prefix + '/static/', raising=False)
         self.args += ["config", "nginx"]
         if system:
             self.args += ["--system"]
@@ -63,12 +72,17 @@ class TestWeb(object):
         self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
+        print o
 
         assert "%(" not in o
         if system:
             assert "http {" not in o
         else:
             assert "http {" in o
+        if static_prefix:
+            assert " location %s/static {" % static_prefix in o
+        else:
+            assert " location / {" in o
         if http:
             assert "listen       %s;" % http in o
 
