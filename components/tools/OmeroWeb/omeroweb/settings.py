@@ -240,8 +240,11 @@ CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":
         ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
-    "omero.upgrades.url":
-        ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str, None],
+    "omero.upgrade-check.enabled":
+        ["UPGRADE_CHECK",
+         "true",
+         parse_boolean,
+         "A boolean that turns on/off upgrade check performed by OMERO.web."],
 
     # Allowed hosts:
     # https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

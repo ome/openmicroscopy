@@ -3,6 +3,9 @@
 import logging
 
 from django.core.validators import validate_email
+from django.conf import settings
+
+from omero.util.upgrade_check import UpgradeCheck
 
 logger = logging.getLogger(__name__)
 
@@ -18,19 +21,20 @@ def upgradeCheck():
     # For more information, see
     # http://trac.openmicroscopy.org.uk/ome/wiki/UpgradeCheck
     #
-    try:
-        from omero.util.upgrade_check import UpgradeCheck
-        from django.conf import settings
-        check = UpgradeCheck("web", url=settings.UPGRADES_URL)
-        check.run()
-        if check.isUpgradeNeeded():
-            logger.error(
-                "Upgrade is available. Please visit"
-                " http://downloads.openmicroscopy.org/latest/omero/.\n")
-        else:
-            logger.debug("Up to date.\n")
-    except Exception, x:
-        logger.error("Upgrade check error: %s" % x)
+    if settings.UPGRADE_CHECK:
+        try:
+            check = UpgradeCheck("web")
+            check.run()
+            if check.isUpgradeNeeded():
+                logger.error(
+                    "Upgrade is available. Please visit"
+                    " http://downloads.openmicroscopy.org/latest/omero/.\n")
+            else:
+                logger.debug("Up to date.\n")
+        except Exception, x:
+            logger.error("Upgrade check error: %s" % x)
+    else:
+        logger.info("Upgrade check was manually disabled.\n")
 
 
 def toBoolean(val):
