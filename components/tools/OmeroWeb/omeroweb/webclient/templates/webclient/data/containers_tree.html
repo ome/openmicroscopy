@@ -110,7 +110,7 @@
             {% endfor %}
             
             {% if not share %}
-            <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{% setting UI_TREE_ORPHANED.NAME %}</a></li>
+            <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{{ ui.orphans_name }}</a></li>
             {% endif %}
 
 

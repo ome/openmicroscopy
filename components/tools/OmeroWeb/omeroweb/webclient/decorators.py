@@ -113,6 +113,9 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['group_id'] = request.session.get('group_id', None)
         context['ome']['active_group'] = request.session.get('active_group', conn.getEventContext().groupId)
         context['global_search_form'] = GlobalSearchForm()
+        # UI server preferences
+        context.setdefault('ui', {})   # don't overwrite existing ui
+        context['ui']['orphans_name'], context['ui']['orphans_desc'] = conn.getOrphandContainerSettings()
         
         if settings.WEBSTART and (not settings.WEBSTART_ADMINS_ONLY \
             or (conn.isAdmin() or (settings.WEBSTART_ADMINS_ONLY and len(list(conn.listOwnedGroups())) > 0))):

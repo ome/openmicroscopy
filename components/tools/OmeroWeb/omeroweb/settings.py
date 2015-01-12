@@ -606,14 +606,6 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
     # "DESCRIPTION":"This is a virtual container with orphaned images. These
     # images are not linked anywhere. Just drag them to the selected
     # container."}'
-    "omero.web.ui.tree.orphaned":
-        ["UI_TREE_ORPHANED",
-         ('{"NAME":"Orphaned images",'
-          ' "DESCRIPTION":"This is a virtual container with orphaned images.'
-          ' These images are not linked anywhere. Just drag them to the'
-          ' selected container."}'),
-         json.loads,
-         None],
     "omero.web.webstart_admins_only":
         ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
     "omero.web.webadmin.enable_email":

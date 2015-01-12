@@ -168,6 +168,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             logger.error(traceback.format_exc())
             return False
     
+    def getOrphandContainerSettings(self):
+        name = self.getConfigService().getConfigValue("omero.client.ui.tree.orphans.name") or "Orphaned image"
+        description = self.getConfigService().getConfigValue("omero.client.ui.tree.orphans.description") or "This is a virtual container with orphaned images."
+        return name, description
+
     ##############################################
     ##   IAdmin                                 ##
     
