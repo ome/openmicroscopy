@@ -554,12 +554,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\","
           " \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"}"
           " ]]'``")],
-    "omero.web.ui.menu.dropdown":
-        ["UI_MENU_DROPDOWN",
-         ('{"LEADERS": "Owners", "COLLEAGUES": "Members", '
-          '"ALL": "All members"}'),
-         json.loads,
-         "Shows/hides users in dropdown menu."],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'

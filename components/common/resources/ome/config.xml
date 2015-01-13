@@ -174,7 +174,36 @@
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>
     </bean>
-    
+    <bean class="ome.system.Preference" id="omero.client.ui.menu.dropdown.leaders">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.client.ui.menu.dropdown.leaders.enabled">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.client.ui.menu.dropdown.colleagues">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.client.ui.menu.dropdown.colleagues.enabled">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.client.ui.menu.dropdown.everyone">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
+    <bean class="ome.system.Preference" id="omero.client.ui.menu.dropdown.everyone.enabled">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
     <!-- End preference list -->
             </list>
         </property>
