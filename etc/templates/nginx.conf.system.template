@@ -33,7 +33,7 @@
         }
 
         location %(MAINTENANCE_PREFIX)s/maintenance.html {
-            root %(ROOT)s/var;
+            alias %(ROOT)s/var/maintenance.html;
         }
 
     }
