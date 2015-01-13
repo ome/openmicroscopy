@@ -40,12 +40,8 @@ from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         ExperimenterModelMultipleChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
 
-from decimal import Decimal, getcontext
-
 logger = logging.getLogger(__name__)
 
-# Set precision for decimal display
-getcontext().prec = 2
              
 ##################################################################
 # Static values
@@ -366,9 +362,11 @@ class MetadataChannelForm(forms.Form):
         try:
             if logicalCh is not None and logicalCh.ndFilter is not None:
                 ndValue = logicalCh.ndFilter * 100
-                if ndValue != 100:
-                    # doing division uses the precision set with getcontext() above
-                    ndValue = Decimal(str(ndValue))/1       # str() required for floats in python 2.6
+                # Format E.g. 50, 10, 0.5
+                if ndValue < 1:
+                    ndValue = "%.1f" % round(ndValue, 1)
+                else:
+                    ndValue = "%2d" % round(ndValue)
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
@@ -1972,9 +1970,11 @@ class MetadataLightSourceForm(forms.Form):
         # Attenuation
         if lightSourceSettings is not None and lightSourceSettings.attenuation is not None:
             lsAttn = lightSourceSettings.attenuation * 100
-            if lsAttn != 100:
-                # doing division uses the precision set with getcontext() above
-                lsAttn = Decimal(str(lsAttn))/1      # str() required for floats in python 2.6
+            # Format E.g. 50, 10, 0.5
+            if lsAttn < 1:
+                lsAttn = "%.1f" % round(lsAttn, 1)
+            else:
+                lsAttn = "%2d" % round(lsAttn)
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
                 widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
