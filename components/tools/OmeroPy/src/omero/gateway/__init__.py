@@ -5021,7 +5021,6 @@ class MapAnnotationWrapper (AnnotationWrapper):
 
         return [(kv.name, kv.value) for kv in self._obj.getMapValue()]
 
-
     def setValue(self, val):
         """
         Sets value of the Map Annotation where val is a list of
