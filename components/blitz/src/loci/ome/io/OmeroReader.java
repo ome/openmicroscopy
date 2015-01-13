@@ -28,12 +28,15 @@ package loci.ome.io;
 import static ome.formats.model.UnitsFactory.convertLength;
 import static ome.formats.model.UnitsFactory.convertTime;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import loci.common.Constants;
 import loci.common.DateTools;
@@ -61,6 +64,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Label;
 import omero.model.Length;
 import omero.model.LineI;
 import omero.model.LogicalChannel;
@@ -70,6 +74,7 @@ import omero.model.PolygonI;
 import omero.model.PolylineI;
 import omero.model.RectI;
 import omero.model.Roi;
+import omero.model.Shape;
 import omero.model.Time;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
@@ -381,18 +386,7 @@ public class OmeroReader extends FormatReader {
             RTime date = img.getAcquisitionDate();
 
             MetadataStore store = getMetadataStore();
-            //Load ROIs to the img -->
-            RoiOptions options = new RoiOptions();
-            options.userId = omero.rtypes.rlong(serviceFactory.getAdminService().getEventContext().userId);
-            RoiResult r = serviceFactory.getRoiService().findByImage(img.getId().getValue(), new RoiOptions());
-            if (r != null){
-                List<Roi> rois = r.rois;
 
-                int n = rois.size();
-                if (n != 0){
-                    saveOmeroRoiToMetadataStore(rois,store);
-                }
-            }
             MetadataTools.populatePixels(store, this);
             store.setImageName(name, 0);
             store.setImageDescription(description, 0);
@@ -440,6 +434,19 @@ public class OmeroReader extends FormatReader {
                 }
                 if (excitation != null && excitation.value().doubleValue() > 0) {
                     store.setChannelExcitationWavelength(excitation, 0, c);
+                }
+            }
+
+            //Load ROIs to the img -->
+            RoiOptions options = new RoiOptions();
+            options.userId = omero.rtypes.rlong(serviceFactory.getAdminService().getEventContext().userId);
+            RoiResult r = serviceFactory.getRoiService().findByImage(img.getId().getValue(), new RoiOptions());
+            if (r != null){
+                List<Roi> rois = r.rois;
+
+                int n = rois.size();
+                if (n != 0){
+                    saveOmeroRoiToMetadataStore(rois,store);
                 }
             }
         }
@@ -501,41 +508,65 @@ public class OmeroReader extends FormatReader {
 
     public static void saveOmeroRoiToMetadataStore(List<omero.model.Roi> rois,
             MetadataStore store) {
-        // TODO Auto-generated method stub
+        
         int n = rois.size();
 
         for (int thisROI=0  ; thisROI<n ; thisROI++){
-            omero.model.Roi roi = rois.get(thisROI-1);
+            omero.model.Roi roi = rois.get(thisROI);
             int numShapes = roi.sizeOfShapes();
             int roiNum = thisROI;
+            String roiID;
+            roiID = MetadataTools.createLSID("ROI", roiNum, 0);
             for(int ns=0 ; ns<numShapes ; ns++){
-                omero.model.Shape shape = roi.getShape(ns-1);
-
+                omero.model.Shape shape = roi.getShape(ns);
                 int shapeNum= ns;
-                if(shape instanceof PolygonI || shape instanceof PolylineI) {
-                    storeOmeroPolygon(shape,store, roiNum, shapeNum);
-                }
+
                 if(shape instanceof LineI){
                     storeOmeroLine(shape,store, roiNum, shapeNum);
                 }
-                if(shape instanceof PointI){
+                else if(shape instanceof PointI){
                     storeOmeroPoint(shape,store, roiNum, shapeNum);
                 }
-                if(shape instanceof EllipseI){
+                else if(shape instanceof EllipseI){
                     storeOmeroEllipse(shape,store, roiNum, shapeNum);
                 }
-                if(shape instanceof RectI){
+                else if(shape instanceof RectI){
                     storeOmeroRect(shape,store, roiNum, shapeNum);
                 }
+                else if(shape instanceof PolygonI || shape instanceof PolylineI) {
+                    storeOmeroPolygon(shape,store, roiNum, shapeNum);
+                }
+                else if (shape instanceof Label){
+                    //add support for TextROI's
+                    storeOmeroLabel(shape,store, roiNum, shapeNum);
+                }
+
+            }
+            if (roiID!=null){
+                store.setROIID(roiID, roiNum);
+                store. setImageROIRef(roiID, 0, roiNum);
             }
         }
 
     }
 
 
+    private static void storeOmeroLabel(Shape shape, MetadataStore store,
+            int roiNum, int shapeNum) {
+        
+        Label shape1 = (Label) shape;
+
+        String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
+        store.setLabelID(polylineID, roiNum, shapeNum);
+        store.setLabelText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        store.setLabelX(shape1.getX().getValue(), roiNum, shapeNum);
+        store.setLabelY(shape1.getY().getValue(), roiNum, shapeNum);
+
+    }
+
     private static void storeOmeroRect(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        // TODO Auto-generated method stub
+        
         RectI shape1 = (RectI) shape;
 
         double x1 = shape1.getX().getValue();
@@ -554,7 +585,7 @@ public class OmeroReader extends FormatReader {
 
     private static void storeOmeroEllipse(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        // TODO Auto-generated method stub
+        
         EllipseI shape1 = (EllipseI) shape;
 
         double x1 = shape1.getCx().getValue();
@@ -573,7 +604,7 @@ public class OmeroReader extends FormatReader {
 
     private static void storeOmeroPoint(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        // TODO Auto-generated method stub
+        
         PointI shape1 = (PointI) shape;
         double ox1 = shape1.getCx().getValue();
         double oy1 = shape1.getCy().getValue();
@@ -587,7 +618,7 @@ public class OmeroReader extends FormatReader {
 
     private static void storeOmeroLine(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        // TODO Auto-generated method stub
+        
         LineI shape1 = (LineI) shape;
         double x1 = shape1.getX1().getValue();
         double y1 = shape1.getY1().getValue();
@@ -613,17 +644,67 @@ public class OmeroReader extends FormatReader {
         if(shape instanceof PolygonI){
             PolygonI shape1 = (PolygonI) shape;
             points = shape1.getPoints().getValue();
+            String points2d = parsePoints(convertPoints(points, "points"));
 
             store.setPolygonID(polylineID, roiNum, shapeNum);
-            store.setPolygonPoints(points.toString(), roiNum, shapeNum);
+            store.setPolygonPoints(points2d, roiNum, shapeNum);
         }else{
             PolylineI shape1 = (PolylineI) shape;
             points = shape1.getPoints().getValue();
+            String points2d = parsePoints(convertPoints(points, "points"));
 
             store.setPolylineID(polylineID, roiNum, shapeNum);
-            store.setPolylinePoints(points.toString(), roiNum, shapeNum);
+            store.setPolylinePoints(points2d, roiNum, shapeNum);
         }
 
     }
+
+    protected static String parsePoints(String str)
+    {
+        String points = null;
+
+        if (str == null) return points;
+
+        List<Integer> x = new ArrayList<Integer>();
+        List<Integer> y = new ArrayList<Integer>();
+        StringTokenizer tt = new StringTokenizer(str, " ");
+        int numTokens = tt.countTokens();
+        StringTokenizer t;
+        int total;
+        for (int i = 0; i < numTokens; i++) {
+            t = new StringTokenizer(tt.nextToken(), ",");
+            total = t.countTokens()/2;
+            for (int j = 0; j < total; j++) {
+                x.add(new Integer(t.nextToken()));
+                y.add(new Integer(t.nextToken()));
+            }
+        }
+
+        for (int i=0 ; i<x.size() ; i++){
+
+            if(i==0){
+                points = (x.get(i) + "," + y.get(i));
+            }else{
+                points= (points + " " + x.get(i) + "," + y.get(i));
+            }
+        }
+
+        return points.toString();
+    }
+
+    private static String convertPoints(String pts, String type)
+    {
+        if (pts.length() == 0) return "";
+        if (!pts.contains(type)) {//data inserted following the schema
+            return pts;
+        }
+        String exp = type+'[';
+        int typeStr = pts.indexOf(exp, 0);
+        int start = pts.indexOf('[', typeStr);
+        int end = pts.indexOf(']', start);
+        return pts.substring(start+1,end);
+    }
+
+
 
 }
