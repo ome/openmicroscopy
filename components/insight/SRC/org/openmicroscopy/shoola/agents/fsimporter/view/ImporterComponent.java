@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import ij.ImagePlus;
+
 import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
@@ -834,6 +837,7 @@ class ImporterComponent
 			}
 			return;
 		}
+		
 		element.setImportResult(component, result);
 		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
@@ -848,14 +852,18 @@ class ImporterComponent
 		}
 		int index = 0;
 		PixelsData pxd;
+		List<Long> ids = new ArrayList<Long>();
 		while (i.hasNext()) {
 			if (index == n) break;
 			pxd = i.next();
+			ids.add(pxd.getImage().getId());
+			pxd.getImage().getId();
 			if (pxd.getSizeX()*pxd.getSizeY() < MAX_SIZE) {
 				l.add(pxd);
 				index++;
 			}
 		}
+		model.saveROI(component, ids);
 		if (l.size() > 0)
 			model.fireImportResultLoading(l, klass, component);
 	}

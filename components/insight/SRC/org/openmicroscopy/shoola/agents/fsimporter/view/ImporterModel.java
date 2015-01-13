@@ -23,9 +23,12 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import ij.IJ;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,6 +36,16 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
+
+
+
+
+
+
+
+
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
@@ -41,16 +54,22 @@ import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImportResultLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.ROISaver;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.ScreenData;
 
 /** 
@@ -543,5 +562,27 @@ class ImporterModel
     {
         return ImporterAgent.getAvailableUserGroups();
     }
+
+    /**
+     * Saves the roi if any associated to the image.
+     *
+     * @param c The component to handle.
+     * @param ids The images to handle.
+     */
+    void saveROI(FileImportComponent c, List<Long> ids)
+    {
+        FileObject object = c.getFile();
+        if (object.isImagePlus()) {
+            ROIReader reader = new ROIReader();
+            SecurityContext ctx = new SecurityContext(c.getGroupID());
+            List<ROIData> rois = reader.readImageJROI(ids);
+            if (CollectionUtils.isEmpty(rois)) return;
+            //add support for multiple images.
+            ROISaver saver = new ROISaver(component, ctx, rois,
+                    ids.get(0), c.getExperimenterID());
+            saver.load();
+        }
+    }
+
 
 }

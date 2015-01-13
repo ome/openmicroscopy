@@ -1002,6 +1002,13 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public long getGroupID() { return importable.getGroup().getId(); }
+
+	/**
+     * Returns the id of the experimenter.
+     * 
+     * @return See above.
+     */
+    public long getExperimenterID() { return importable.getUser().getId(); }
 	
 	/**
 	 * Returns the import error object.
