@@ -466,7 +466,7 @@ class AnnotationDataUI
 			}
 		});
 		
-		mapsPane = new MapAnnotationsComponent(model, view, controller);
+		mapsPane = new MapAnnotationsComponent(model, view);
 		
 		otherPane = new JPanel();
 		otherPane.setLayout(new GridBagLayout());
@@ -577,6 +577,7 @@ class AnnotationDataUI
 		content.add(docRef, c);
 		c.gridy++;
 
+		mapsPane.reload();
 		content.add(mapsPane, c);
 		c.gridy++;
 
@@ -1819,6 +1820,7 @@ class AnnotationDataUI
 		otherList.clear();
 		content.revalidate();
 		content.repaint();
+		mapsPane.clear();
 		revalidate();
 		repaint();
 	}

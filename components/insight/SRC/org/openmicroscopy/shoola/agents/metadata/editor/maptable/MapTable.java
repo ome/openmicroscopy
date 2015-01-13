@@ -21,14 +21,16 @@
 
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.DropMode;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 
 import omero.model.MapAnnotation;
+import omero.model.NamedValue;
 
 import org.openmicroscopy.shoola.util.ui.table.TableRowTransferHandler;
 
@@ -54,6 +56,8 @@ public class MapTable extends JTable {
 
 	private int permissions = PERMISSION_NONE;
 
+	private List<NamedValue> copiedValues = new ArrayList<NamedValue>();
+
 	public MapTable() {
 		this(PERMISSION_NONE);
 	}
@@ -66,9 +70,9 @@ public class MapTable extends JTable {
 
 	private void init() {
 		getTableHeader().setReorderingAllowed(false);
-        
+
 		setSelectionModel(new MapTableSelectionModel(this));
-        
+
 		cellEditor = new MapTableCellEditor();
 		cellRenderer = new MapTableCellRenderer();
 
@@ -97,9 +101,43 @@ public class MapTable extends JTable {
 		((MapTableModel) getModel()).setData(data);
 		revalidate();
 	}
-	
+
 	public MapAnnotationData getData() {
 		return ((MapTableModel) getModel()).getMap();
+	}
+
+	public List<NamedValue> getSelection() {
+		MapTableModel model = (MapTableModel) getModel();
+		List<NamedValue> result = new ArrayList<NamedValue>();
+		for (int row : getSelectedRows()) {
+			NamedValue nv = model.getRow(row);
+			if (nv != null)
+				result.add(model.getRow(row));
+		}
+		return result;
+	}
+
+	public void addEntry(String name, String value) {
+		addEntry(name, value, -1);
+	}
+
+	public void addEntry(String name, String value, int index) {
+		MapTableModel model = (MapTableModel) getModel();
+		model.addEntry(name, value, index);
+	}
+
+	public void deleteSelected() {
+		deleteEntries(getSelectedRows());
+	}
+
+	public void deleteEntry(int index) {
+		MapTableModel model = (MapTableModel) getModel();
+		model.deleteEntry(index);
+	}
+
+	public void deleteEntries(int[] indices) {
+		MapTableModel model = (MapTableModel) getModel();
+		model.deleteEntries(indices);
 	}
 
 	public void setDoubleClickEdit(boolean doubleClickEdit) {

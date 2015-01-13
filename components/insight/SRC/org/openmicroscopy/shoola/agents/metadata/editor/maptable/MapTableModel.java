@@ -60,6 +60,13 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		this.table = table;
 	}
 
+	public NamedValue getRow(int index) {
+		if (index >= 0 && index < data.size()) {
+			return data.get(index);
+		}
+		return null;
+	}
+	
 	@Override
 	public int getRowCount() {
 		if (table == null)
@@ -148,13 +155,30 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		}
 	}
 
-	private void addEntry(String key, String value) {
-		NamedValue d = new NamedValue(key, value);
-		data.add(d);
+	public void addEntry(String name, String value) {
+		addEntry(name, value, -1);
+	}
+	
+	public void addEntry(String name, String value, int index) {
+		if(index<0 || index>data.size())
+			index = data.size();
+		NamedValue d = new NamedValue(name, value);
+		data.add(index, d);
 		map.setContent(data);
 		table.revalidate();
 		newKey = DUMMY_KEY;
 		newValue = DUMMY_VALUE;
+		fireTableDataChanged();
+	}
+	
+	public void deleteEntries(int[] indices) {
+		List<NamedValue> toRemove = new ArrayList<NamedValue>();
+		for(int index : indices) 
+			toRemove.add(getRow(index));
+		data.removeAll(toRemove);
+		
+		map.setContent(data);
+		table.revalidate();
 		fireTableDataChanged();
 	}
 
@@ -232,4 +256,5 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		}
 	}
 
+	
 }
