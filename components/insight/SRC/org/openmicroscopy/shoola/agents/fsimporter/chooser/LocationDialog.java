@@ -1361,7 +1361,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			for (TreeImageDisplay treeNode : treeNodes) {
 				Object userObject = treeNode.getUserObject();
 				
-				if(userObject instanceof ProjectData)
+				if (userObject instanceof ProjectData)
 				{
 					DataNode project = new DataNode((ProjectData) userObject);
 					lp.add(project);
@@ -1379,15 +1379,11 @@ class LocationDialog extends JDialog implements ActionListener,
 					list.add(new DataNode(DataNode.createDefaultDataset()));
 					list.addAll(sort(projectDatasets));
 					datasets.put(project, list);
-				}
-				
-				if (userObject instanceof ScreenData)
+				} else if (userObject instanceof ScreenData)
 				{
 					DataNode screen = new DataNode((ScreenData) userObject);
 					ls.add(screen);
-				}
-				
-				if(userObject instanceof DatasetData)
+				} else if(userObject instanceof DatasetData)
 				{
 					DataNode dataset = new DataNode((DatasetData) userObject);
 					orphanDatasets.add(dataset);
@@ -1396,6 +1392,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		}
 		List<DataNode> l = new ArrayList<DataNode>();
 		l.add(new DataNode(DataNode.createDefaultDataset()));
+		l.add(new DataNode(DataNode.createNoDataset()));
 		l.addAll(sort(orphanDatasets));
 		datasets.put(defaultProject, l);
 		
@@ -1432,13 +1429,11 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (container != null)
 		{
 			Object hostObject = container.getUserObject();
-			if(hostObject instanceof ProjectData)
+			if (hostObject instanceof ProjectData)
 			{
 				selectedProject = findDataNode(projects,
 					hostObject, ProjectData.class);
-			}
-			
-			if(hostObject instanceof DatasetData)
+			} else if (hostObject instanceof DatasetData)
 			{
 				Object parentNode = getParentUserObject(container);
 				
@@ -1449,16 +1444,12 @@ class LocationDialog extends JDialog implements ActionListener,
 				long datasetId = datasetData.getId();
 				selectedDataset = findDataNodeById(
 						datasets.get(selectedProject), datasetId);
-			}
-			
-			if(hostObject instanceof ScreenData)
+			} else if (hostObject instanceof ScreenData)
 			{
 				selectedScreen = findDataNode(screens, hostObject,
 						ScreenData.class);
 			}
-		}
-		else
-		{
+		} else {
 			selectedProject = findDataNode(projects, currentProject);
 			selectedDataset = findDataNode(datasets.get(selectedProject),
 					currentDataset);
@@ -1499,8 +1490,14 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<DataNode> sorted = new ArrayList<DataNode>();
 		ListMultimap<Long, DataNode> map = ArrayListMultimap.create();
 		sorted.add(nodes.get(0)); //default node.
-		Iterator<DataNode> i = nodes.iterator();
 		DataNode node;
+		if (nodes.size() > 1) {
+		    node = nodes.get(1);
+		    if (node.isNoDataset()) {
+		        sorted.add(node);
+		    }
+		}
+		Iterator<DataNode> i = nodes.iterator();
 		while (i.hasNext()) {
 			node = i.next();
 			if (!node.isDefaultNode()) {
