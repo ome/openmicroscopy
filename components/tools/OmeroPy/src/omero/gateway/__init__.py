@@ -3,7 +3,7 @@
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
 #
-# Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2015 Glencoe Software, Inc. All rights reserved.
 #
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
