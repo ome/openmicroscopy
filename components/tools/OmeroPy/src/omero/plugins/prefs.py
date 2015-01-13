@@ -90,7 +90,20 @@ def with_rw_config(func):
     return wraps(func)(_make_open_and_close_config(func, False))
 
 
-class PrefsControl(BaseControl):
+class WriteableConfigControl(BaseControl):
+    """
+    Base class for controls which need write access to the OMERO configuration
+    using the @with_rw_config decorator
+
+    Note BaseControl should be used for read-only access using @with_config
+    """
+
+    def die_on_ro(self, config):
+        if not config.save_on_close:
+            self.ctx.die(333, "Cannot modify %s" % config.filename)
+
+
+class PrefsControl(WriteableConfigControl):
 
     def _configure(self, parser):
         parser.add_argument(
@@ -197,10 +210,6 @@ class PrefsControl(BaseControl):
         old = parser.add(sub, self.old, "Delegate to the old configuration"
                          " system using Java preferences")
         old.add_argument("target", nargs="*")
-
-    def die_on_ro(self, config):
-        if not config.save_on_close:
-            self.ctx.die(333, "Cannot modify %s" % config.filename)
 
     def open_config(self, args):
         if args.source:
