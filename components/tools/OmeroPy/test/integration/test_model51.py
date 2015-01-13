@@ -101,13 +101,12 @@ class TestModel51(lib.ITest):
         m = g.getConfigAsMap()
         assert m["foo"] == "bar"
 
-    def assertMapAnnotations(self, anns, length=2):
+    def assertMapAnnotation(self, anns, mid):
         m = None
-        assert length == len(anns)
-        for idx in range(length):
-            a = anns[idx]
+        for a in anns:
             if isinstance(a, omero.model.MapAnnotationI):
-                m = anns[idx]
+                if a.id.val == mid:
+                    m = a
         assert m
         assert "foo" == m.getMapValue()[0].name
         assert "bar" == m.getMapValue()[0].value
@@ -121,7 +120,7 @@ class TestModel51(lib.ITest):
         anns = self.query.findAllByQuery(
             "select m from MapAnnotation m ",
             None)
-        self.assertMapAnnotations(anns, 1)
+        self.assertMapAnnotation(anns, m.id.val)
 
         # Add a second annotation and query both
         c = omero.model.CommentAnnotationI()
@@ -129,7 +128,7 @@ class TestModel51(lib.ITest):
         anns = self.query.findAllByQuery(
             "select m from Annotation m ",
             None)
-        self.assertMapAnnotations(anns)
+        self.assertMapAnnotation(anns, m.id.val)
 
         # Now place both on an image and retry
         i = omero.model.ImageI()
@@ -137,11 +136,13 @@ class TestModel51(lib.ITest):
         i.linkAnnotation(m)
         i.linkAnnotation(c)
         i = self.update.saveAndReturnObject(i)
-        anns = self.query.findByQuery(
+        imgs = self.query.findByQuery(
             ("select i from Image i join fetch "
-             "i.annotationLinks l join fetch l.child"),
-            None).linkedAnnotationList()
-        self.assertMapAnnotations(anns)
+             "i.annotationLinks l join fetch l.child "
+             "where i.id = :id"),
+            omero.sys.ParametersI().addId(i.id.val))
+        anns = imgs.linkedAnnotationList()
+        self.assertMapAnnotation(anns, m.id.val)
 
         # And now load via IMetadata
         meta = self.client.sf.getMetadataService()
@@ -151,4 +152,4 @@ class TestModel51(lib.ITest):
             [],  # Supported Annotation types
             [],  # Annotator IDs
             None)
-        self.assertMapAnnotations(anns[i.id.val])
+        self.assertMapAnnotation(anns[i.id.val], m.id.val)
