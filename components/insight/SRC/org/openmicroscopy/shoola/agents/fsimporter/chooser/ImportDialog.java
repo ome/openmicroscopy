@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 import ij.IJ;
 import ij.ImagePlus;
-import ij.io.FileInfo;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
@@ -1028,8 +1027,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		int plugin = ImporterAgent.runAsPlugin();
 		JSplitPane pane;
 		if (plugin == LookupNames.IMAGE_J_IMPORT) {
+		    JPanel panel = new JPanel();
+		    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		    JLabel label = UIUtilities.setTextFont(
+		            "Select where to import the image from the curent window.");
+		    panel.add(UIUtilities.buildComponentPanel(label));
+		    panel.add(locationDialog.getContentPane());
 		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-		            locationDialog.getContentPane(), tablePanel);
+        panel, tablePanel);
 		} else {
 		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 	                chooser, tablePanel);
