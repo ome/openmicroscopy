@@ -74,6 +74,9 @@ public class ImportableFile
 	/** The user importing data for */
 	private ExperimenterData user;
 
+	/** The file object before possible changes.*/
+	private FileObject originalFile;
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -86,6 +89,7 @@ public class ImportableFile
 	{
 		this.file = file;
 		this.folderAsContainer = folderAsContainer;
+		originalFile = file;
 	}
 	
 	/**
@@ -229,7 +233,7 @@ public class ImportableFile
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer();
-		buf.append(getFile().getAbsolutePath());
+		buf.append(originalFile.getAbsolutePath());
 		if (group != null)
 			buf.append("_"+group.getId());
 		if (user != null)
