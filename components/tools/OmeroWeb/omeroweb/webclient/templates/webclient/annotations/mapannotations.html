@@ -60,6 +60,12 @@
             startEdit($td);
         }
 
+        var deleteSelectedRows = function deleteSelectedRows() {
+
+            $("#keyValueTable tbody tr.ui-selected").remove();
+
+            // TODO: save to server
+        }
 
         var selectRows = function selectRows($clickedRow, event) {
 
@@ -96,6 +102,47 @@
             }
         }
 
+        var copySelectedRows = function copySelectedRows() {
+
+            var data = [];
+            $("#keyValueTable tbody tr.ui-selected").each(function(){
+                var key = $("td:first", this).text(),
+                    val = $("td:last", this).text();
+                data.push([key, val]);
+            });
+            window.mapAnnotationClipboard = data;
+        };
+
+        // If we have data to paste, insert below selected row, or at bottom
+        var pasteSelectedRows = function copySelectedRows() {
+
+            var data = window.mapAnnotationClipboard,
+                row,
+                html = "";
+
+            for (var r=0; r<data.length; r++) {
+                row = data[r];
+                html += "<tr><td>" + row[0] + "</td><td>" + row[1] + "</td></tr>";
+            }
+            $(html).appendTo("#keyValueTable tbody");
+        }
+
+        // Toolbar buttons
+        $( ".mapAnnToolbar" ).on( "click", "input", function(event) {
+            var alt = $(event.target).prop('alt');
+            switch (alt) {
+                case "Delete rows":
+                    deleteSelectedRows();
+                    break;
+                case "Copy rows":
+                    copySelectedRows();
+                    break;
+                case "Paste rows":
+                    pasteSelectedRows();
+                    break;
+            }
+        });
+
         // Start editing when you click a td
         $( "#keyValueTable tbody" ).on( "click", "td", function(event) {
             var $td = $(event.target);
@@ -113,7 +160,6 @@
         // Handle keys when editing
         // Start editing when you click a td
         $( "#keyValueTable tbody" ).on( "keydown", "input", function(event) {
-            // console.log(event.which);
             var $td = $(event.target).parent();
 
             switch (event.which) {
@@ -147,6 +193,15 @@
 </script>
 
 <style type="text/css">
+    .mapAnnContainer {
+        position: relative;
+/*        top: -10px;*/
+    }
+    .keyValueTable {
+        position: relative;
+        top: 10px;
+        margin-bottom: 10px;
+    }
     .keyValueTable td {
         width: 50%;
         padding: 2px !important;
@@ -162,21 +217,39 @@
     .editableKeyValueTable tr.ui-selected {
         background-color: #ddf;
     }
-
+    .mapAnnToolbar {
+        position: absolute;
+        top: 0px;
+        right: 5px;
+        z-index: 100;
+    }
 </style>
 
 
-<table id="keyValueTable" class="keyValueTable editableKeyValueTable">
-    <thead>
-        <tr>
-            <th>Key</th>
-            <th>Value</th>
-        </tr>
-    </thead>
+<div class="mapAnnContainer">
 
-    <!-- Last row always has empty key & value fields -->
-    <tr>
-        <td>Add Key</td>
-        <td>Add Value</td>
-    </tr>
-</table>
+    <ul class="toolbar mapAnnToolbar">
+        <li><input class="button" type="image" src="{% static "webclient/image/icon_basic_delete.png" %}"
+            alt="Delete rows" title="Delete rows" /></li>        
+        <li><input class="button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
+            alt="Copy rows" title="Copy rows" /></li>
+        <li><input class="button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}"
+            alt="Paste rows" title="Paste rows" /></li>
+    </ul>
+
+
+    <table id="keyValueTable" class="keyValueTable editableKeyValueTable">
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+
+        <!-- Last row always has empty key & value fields -->
+        <tr>
+            <td>Add Key</td>
+            <td>Add Value</td>
+        </tr>
+    </table>
+</div>
