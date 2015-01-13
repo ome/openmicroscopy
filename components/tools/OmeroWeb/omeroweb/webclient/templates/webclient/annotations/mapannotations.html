@@ -225,7 +225,7 @@
     }
 </style>
 
-
+{% for ma in manager.map_annotations %}
 <div class="mapAnnContainer">
 
     <ul class="toolbar mapAnnToolbar">
@@ -247,9 +247,16 @@
         </thead>
 
         <!-- Last row always has empty key & value fields -->
+        {% for row in ma.getValue %}
+        <tr>
+            <td>{{ row.0 }}</td>
+            <td>{{ row.1 }}</td>
+        </tr>
+        {% endfor %}
         <tr>
             <td>Add Key</td>
             <td>Add Value</td>
         </tr>
     </table>
 </div>
+{% endfor %}

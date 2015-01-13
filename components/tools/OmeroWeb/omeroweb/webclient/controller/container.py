@@ -409,6 +409,7 @@ class BaseContainer(BaseController):
         self.long_annotations = list()
         self.term_annotations = list()
         self.time_annotations = list()
+        self.map_annotations = list()
         self.companion_files =  list()
         
         annTypes = {omero.model.CommentAnnotationI: self.text_annotations,
@@ -419,7 +420,8 @@ class BaseContainer(BaseController):
                     omero.model.BooleanAnnotationI: self.boolean_annotations,
                     omero.model.DoubleAnnotationI: self.double_annotations,
                     omero.model.TermAnnotationI: self.term_annotations,
-                    omero.model.TimestampAnnotationI: self.time_annotations}
+                    omero.model.TimestampAnnotationI: self.time_annotations,
+                    omero.model.MapAnnotationI: self.map_annotations}
         
         aList = list()
         if self.image is not None:
@@ -452,6 +454,7 @@ class BaseContainer(BaseController):
         self.file_annotations.sort(key=lambda x: x.creationEventDate())
         self.rating_annotations.sort(key=lambda x: x.creationEventDate())
         self.tag_annotations.sort(key=lambda x: x.textValue)
+        self.map_annotations.sort(key=lambda x: x.creationEventDate())
         
         self.txannSize = len(self.text_annotations)
         self.fileannSize = len(self.file_annotations)
