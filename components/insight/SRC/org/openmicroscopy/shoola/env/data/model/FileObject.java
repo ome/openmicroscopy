@@ -32,6 +32,7 @@ import loci.formats.codec.CompressionType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Object hosting the information about the "file" to import.
@@ -120,9 +121,9 @@ public class FileObject
             
             try {
                 //name w/o extension
-                String v = FilenameUtils.separatorsToSystem(img.getTitle());
                 String baseName = FilenameUtils.getBaseName(
-                        FilenameUtils.removeExtension(v));
+                        FilenameUtils.removeExtension(img.getTitle()));
+                baseName = StringUtils.deleteWhitespace(baseName);
                 String n = baseName+".ome.tif";
                 f = File.createTempFile(img.getTitle(), ".ome.tif");
                 File p = f.getParentFile();
