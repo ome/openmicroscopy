@@ -5004,11 +5004,35 @@ AnnotationWrapper._register(XmlAnnotationWrapper)
 from omero_model_MapAnnotationI import MapAnnotationI
 
 
-class MapAnnotationWrapper (CommentAnnotationWrapper):
+class MapAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_MapAnnotationI class wrapper.
     """
     OMERO_TYPE = MapAnnotationI
+
+    def getValue(self):
+        """
+        Gets the value of the Map Annotation as a list of
+        (key, value) tuples.
+
+        :return:    List of tuples
+        :type:      String
+        """
+
+        return [(kv.name, kv.value) for kv in self._obj.getMapValue()]
+
+
+    def setValue(self, val):
+        """
+        Sets value of the Map Annotation where val is a list of
+        (key, value) tuples or [key, value] lists.
+
+        :param val:     List of tuples
+        :type val:      String
+        """
+
+        data = [omero.model.NamedValue(d[0], d[1]) for d in val]
+        self._obj.setMapValue(data)
 
 AnnotationWrapper._register(MapAnnotationWrapper)
 
@@ -9411,6 +9435,7 @@ def refreshWrappers():
                            "doubleannotation": DoubleAnnotationWrapper,
                            "termannotation": TermAnnotationWrapper,
                            "timestampannotation": TimestampAnnotationWrapper,
+                           "mapannotation": MapAnnotationWrapper,
                            # allows for getObjects("Annotation", ids)
                            "annotation": AnnotationWrapper._wrap})
 
