@@ -26,12 +26,12 @@ import omero
 import omero.config
 
 from omero.cli import CLI
-from omero.cli import BaseControl
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
 
-from omero.plugins.prefs import with_config, with_rw_config
+from omero.plugins.prefs import \
+    WriteableConfigControl, with_config, with_rw_config
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
@@ -64,7 +64,7 @@ Configuration properties:
 """ + "\n" + "="*50 + "\n"
 
 
-class AdminControl(BaseControl):
+class AdminControl(WriteableConfigControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -77,7 +77,8 @@ class AdminControl(BaseControl):
             if i >= 0:
                 f = line[i+l:]
                 return self._complete_file(f)
-        return BaseControl._complete(self, text, line, begidx, endidx)
+        return WriteableConfigControl._complete(
+            self, text, line, begidx, endidx)
 
     def _configure(self, parser):
         sub = parser.sub()
@@ -1374,10 +1375,6 @@ OMERO Diagnostics %s
             self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
 
         return config
-
-    def die_on_ro(self, config):
-        if not config.save_on_close:
-            self.ctx.die(333, "Cannot modify %s" % config.filename)
 
     @with_config
     def reindex(self, args, config):
