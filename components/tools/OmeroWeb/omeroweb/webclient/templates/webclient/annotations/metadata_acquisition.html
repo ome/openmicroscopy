@@ -77,7 +77,7 @@
                                     $("#orig_metadata").html("Timeout. <a href='#' class='load_original_metadata'>Try again</a>");
                                 } else {
                                     // setup quick search fields (but not if MANY rows, since it crashes!)
-                                    if ($("#global_metadata tr").length < 100000) {
+                                    if ($("#global_metadata tr").length < 60000) {
                                         $('input#search_global').quicksearch('table#global_metadata tbody tr', {
                                             'delay': 300,
                                             'loader': 'span.loading_global'
@@ -85,7 +85,7 @@
                                     } else {
                                         $("#quicksearch_global").hide();
                                     }
-                                    if ($("#series_metadata tr").length < 100000) {
+                                    if ($("#series_metadata tr").length < 60000) {
                                         $('input#search_series').quicksearch('table#series_metadata tbody tr', {
                                             'delay': 300,
                                             'loader': 'span.loading_series'
