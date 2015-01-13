@@ -110,13 +110,13 @@ class TestWeb(object):
 
         if prefix:
             assert lines[0] == 'RewriteEngine on'
-            assert lines[1] == 'RewriteRule ^/?$ /test/ [R]'
+            assert lines[1] == 'RewriteRule ^/?$ %s/ [R]' % prefix
             assert lines[2].startswith('FastCGIExternalServer ')
             assert lines[2].endswith(
                 'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60')
-            assert lines[-2].startswith('Alias /test-static ')
+            assert lines[-2].startswith('Alias %s ' % static_prefix[:-1])
             assert lines[-2].endswith('lib/python/omeroweb/static')
-            assert lines[-1].startswith('Alias /test "')
+            assert lines[-1].startswith('Alias %s "' % prefix)
             assert lines[-1].endswith('var/omero.fcgi/"')
         else:
             assert lines[0].startswith('FastCGIExternalServer ')
@@ -141,12 +141,13 @@ class TestWeb(object):
         if prefix:
             assert lines[-5].startswith('Alias %s' % static_prefix[:-1])
             assert lines[-5].endswith('lib/python/omeroweb/static')
-            assert lines[-4] == \
-                'RewriteCond %{REQUEST_URI} !^(/test-static|/\\.fcgi)'
+            assert lines[-4] == 'RewriteCond %{REQUEST_URI} ' + \
+                '!^(%s|/\\.fcgi)' % static_prefix[:-1]
             assert lines[-3] == \
-                'RewriteRule ^/test(/|$)(.*) /test.fcgi/$2 [PT]'
+                'RewriteRule ^%s(/|$)(.*) %s.fcgi/$2 [PT]' % (prefix, prefix)
             assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
-            assert lines[-1] == 'ProxyPass /test.fcgi/ fcgi://0.0.0.0:4080/'
+            assert lines[-1] == 'ProxyPass %s.fcgi/ fcgi://0.0.0.0:4080/' \
+                % prefix
         else:
             assert lines[-5].startswith('Alias /static ')
             assert lines[-5].endswith('lib/python/omeroweb/static')
