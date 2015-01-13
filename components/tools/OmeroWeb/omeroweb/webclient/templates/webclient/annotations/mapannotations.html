@@ -24,7 +24,8 @@
 
         // we are only ever editing a single cell at once:
         var $input,
-            $lastRow = $("#keyValueTable tr:last").clone();
+            $lastRow = $("#keyValueTable tr:last").clone(),
+            multiSelectKey = OME.multi_key() + "Key";
 
         // stop editing the current $input
         var saveEdit = function saveEdit() {
@@ -51,11 +52,48 @@
 
         var addRow = function addRow() {
 
-            var $td = $lastRow
+            var $tr = $lastRow
                     .clone()
-                    .appendTo("#keyValueTable tbody")
-                    .find("td:first");
+                    .appendTo("#keyValueTable tbody"),
+                $td = $tr.find("td:first");
+            selectRows($tr);
             startEdit($td);
+        }
+
+
+        var selectRows = function selectRows($clickedRow, event) {
+
+            var $rows = $("#keyValueTable tbody tr");
+
+            // simplest case - no event OR key modifiers
+            if (!event || (!event.shiftKey && !event[multiSelectKey])) {
+                $rows.removeClass("ui-selected");
+                $clickedRow.addClass("ui-selected");
+                return;
+            }
+
+            // Use key modifiers to select range / toggle selection
+            var clickedIndex = $rows.index($clickedRow),
+                $selectedRow = $("#keyValueTable tbody tr.ui-selected:first"),
+                selIndex = -1;
+            if ($selectedRow.length > 0) {
+                selIndex = $rows.index($selectedRow);
+            }
+
+            if (event.shiftKey) {
+                // user tried to select a range, but we don't have a first selection yet...
+                if ( selIndex == -1 ) {
+                    $clickedRow.addClass("ui-selected");
+                    return;
+                }
+                // select range
+                var start = Math.min(clickedIndex,selIndex);
+                var end = Math.max(clickedIndex,selIndex);
+                $rows.slice(start, end+1).addClass("ui-selected");
+            } else if (event[multiSelectKey]) {
+                // user wants to add/remove a single image to selection
+                $clickedRow.toggleClass("ui-selected");
+            }
         }
 
         // Start editing when you click a td
@@ -65,6 +103,9 @@
             if ($td[0].tagName.toLowerCase() != "td") return;
 
             // Saving any other current editing is handled by 'blur' below.
+
+            // Select rows, depending on shift/command keys
+            selectRows($td.parent(), event);
 
             startEdit($td);
         });
@@ -86,6 +127,7 @@
                         startEdit($td.next());
                     // if we have another row, move to 'key'
                     } else if ($td.parent().next().length > 0) {
+                        selectRows($td.parent().next());
                         startEdit($td.parent().next().find('td:first'));
                     } else {
                         addRow();
@@ -111,11 +153,17 @@
     .keyValueTable input {
         width: 100%;
     }
+    .editableKeyValueTable tr:hover {
+        background-color: #ddd;
+    }
+    .editableKeyValueTable tr.ui-selected {
+        background-color: #ddf;
+    }
 
 </style>
 
 
-<table id="keyValueTable" class="keyValueTable">
+<table id="keyValueTable" class="keyValueTable editableKeyValueTable">
     <thead>
         <tr>
             <th>Key</th>
