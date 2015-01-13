@@ -59,6 +59,8 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
 import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -88,6 +90,7 @@ import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -195,11 +198,12 @@ public class PojoMapper
         	return new WellSampleData((WellSample) object);
         else if (object instanceof Roi)
         	return new ROIData((Roi) object);
-        else if (object instanceof Namespace) {
+        else if (object instanceof Namespace) 
         	return new WorkflowData((Namespace) object);
-        } else if (object instanceof Fileset) {
+        else if (object instanceof Fileset) 
         	return new FilesetData((Fileset) object);
-        }
+        else if (object instanceof MapAnnotation)
+        	return new MapAnnotationData((MapAnnotation)object);
         return null;
     }
     
@@ -419,6 +423,9 @@ public class PojoMapper
             else if (nodeType.equals(CommentAnnotation.class) ||
                             nodeType.equals(TextualAnnotationData.class))
                     return CommentAnnotationI.class.getName();
+            else if (nodeType.equals(MapAnnotation.class) ||
+                    nodeType.equals(MapAnnotationData.class))
+            return MapAnnotationI.class.getName();
             else if (nodeType.equals(TimestampAnnotation.class) ||
                             nodeType.equals(TimeAnnotationData.class))
                     return TimestampAnnotationI.class.getName();
