@@ -181,7 +181,8 @@ public class FileObject
             ImagePlus img = (ImagePlus) file;
             if (!img.changes) {
                 FileInfo info = img.getOriginalFileInfo();
-                if (info.directory != null && info.fileName != null)
+                if (info != null && info.directory != null &&
+                        info.fileName != null)
                     return new File(info.directory, info.fileName);
             }
         }
@@ -236,4 +237,13 @@ public class FileObject
         }
         return true;
     }
+
+    /**
+     * Returns <code>true</code> if it is an image from ImageJ,
+     * <code>false</code> otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isImagePlus() { return file instanceof ImagePlus;}
+
 }
