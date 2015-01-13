@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.editor.PropertiesUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1080,13 +1080,13 @@ public class PropertiesUI
 			createDateLabel.setFont((new JLabel()).getFont().deriveFont(
 					Font.BOLD));
 
-			try {
-				Timestamp t = dob.getCreated();
-				createDateLabel.setText(CREATIONDATE_TEXT+UIUtilities.formatShortDateTime(t));
-			} catch (Exception e) {
-				e.printStackTrace();
-				createDateLabel.setText(CREATIONDATE_TEXT+"N/A");
-			}
+			Timestamp t = dob.getCreated();
+			if (t != null)
+				createDateLabel.setText(CREATIONDATE_TEXT
+						+ UIUtilities.formatShortDateTime(t));
+			else
+				createDateLabel.setText(CREATIONDATE_TEXT + "N/A");
+			
 			JPanel p = UIUtilities.buildComponentPanel(createDateLabel, 0, 0);
 			p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
