@@ -235,7 +235,6 @@ class WebControl(BaseControl):
 
                 if d["FORCE_SCRIPT_NAME"] == '/':
                     d["WEB_PREFIX"] = ''
-                    d["CGI_PREFIX"] = "/.fcgi"
                 else:
                     d["WEB_PREFIX"] = d["FORCE_SCRIPT_NAME"]
 
