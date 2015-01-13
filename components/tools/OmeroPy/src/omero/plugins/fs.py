@@ -48,6 +48,8 @@ HELP = """Filesystem utilities"""
 # blitz/src/ome/formats/importer/transfers/AbstractFileTransfer.java
 #
 TRANSFERS = {
+    "ome.formats.importer.transfers.CopyFileTransfer": "cp",
+    "ome.formats.importer.transfers.CopyMoveFileTransfer": "cp_rm",
     "ome.formats.importer.transfers.HardlinkFileTransfer": "ln",
     "ome.formats.importer.transfers.MoveFileTransfer": "ln_rm",
     "ome.formats.importer.transfers.SymlinkFileTransfer": "ln_s",
