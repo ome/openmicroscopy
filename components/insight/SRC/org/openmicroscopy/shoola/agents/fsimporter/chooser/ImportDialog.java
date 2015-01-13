@@ -1030,7 +1030,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		    JPanel panel = new JPanel();
 		    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		    JLabel label = UIUtilities.setTextFont(
-		            "Select where to import the image from the curent window.");
+		            "Select where to import the image from the current window.");
 		    panel.add(UIUtilities.buildComponentPanel(label));
 		    panel.add(locationDialog.getContentPane());
 		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
