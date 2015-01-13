@@ -1123,5 +1123,17 @@ class EditorUI
 	void setLDAPDetails(String result) {
 	    userUI.setLDAPDetails(result);
 	}
+	
+	void copyMapAnnotationSelection() {
+		
+	}
+
+	void pasteMapAnnotationSelection() {
+
+	}
+
+	void deleteMapAnnotationSelection() {
+
+	}
 
 }

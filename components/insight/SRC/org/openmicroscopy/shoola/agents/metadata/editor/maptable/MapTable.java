@@ -62,29 +62,24 @@ public class MapTable extends JTable {
 		this.permissions = permissions;
 		setModel(new MapTableModel(this));
 		init();
-		
-		if(!canEdit())
-			setRowSelectionAllowed(false);
 	}
 
 	private void init() {
+		getTableHeader().setReorderingAllowed(false);
+        
+		setSelectionModel(new MapTableSelectionModel(this));
+        
 		cellEditor = new MapTableCellEditor();
 		cellRenderer = new MapTableCellRenderer();
 
 		TableColumn nameColumn = getColumnModel().getColumn(0);
 		TableColumn valueColumn = getColumnModel().getColumn(1);
-		TableColumn deleteColumn = getColumnModel().getColumn(2);
 
 		nameColumn.setCellEditor(cellEditor);
 		valueColumn.setCellEditor(cellEditor);
-		deleteColumn.setCellEditor(cellEditor);
 
 		nameColumn.setCellRenderer(cellRenderer);
 		valueColumn.setCellRenderer(cellRenderer);
-		deleteColumn.setCellRenderer(cellRenderer);
-
-		deleteColumn.setPreferredWidth(16);
-		deleteColumn.setMaxWidth(16);
 
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -92,21 +87,6 @@ public class MapTable extends JTable {
 			setDragEnabled(true);
 			setDropMode(DropMode.INSERT_ROWS);
 			setTransferHandler(new TableRowTransferHandler(this));
-		}
-		
-		if(canDelete()) {
-			// handle click on delete icons
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					int column = MapTable.this.getSelectedColumn();
-					int row = MapTable.this.getSelectedRow();
-					if (column == 2) {
-						((MapTableModel) MapTable.this.getModel())
-								.deleteEntry(row);
-					}
-				}
-			});
 		}
 
 		// increase default row height by 3px (otherwise JTextAreas are cut off)
@@ -116,6 +96,10 @@ public class MapTable extends JTable {
 	public void setData(MapAnnotationData data) {
 		((MapTableModel) getModel()).setData(data);
 		revalidate();
+	}
+	
+	public MapAnnotationData getData() {
+		return ((MapTableModel) getModel()).getMap();
 	}
 
 	public void setDoubleClickEdit(boolean doubleClickEdit) {

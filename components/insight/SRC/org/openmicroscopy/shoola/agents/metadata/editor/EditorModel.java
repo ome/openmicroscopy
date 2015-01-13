@@ -169,6 +169,10 @@ class EditorModel
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
+	public static enum MapAnnotationType {
+		USER, OTHER_USERS, OTHER
+	}
+	
 	/** The file namespaces to exclude.*/
 	private final static List<String> EXCLUDED_FILE_NS;
 	
@@ -1923,41 +1927,31 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the collection of map annotations in the following order:
-	 * [0] : The user's own MapAnnotation (if it doesn't exist, it's created)
-	 * [1..x] : Other users' MapAnnotations
-	 * [(x+1)..] : Non-user MapAnnotations
+	 * Returns the collection of map annotations.
 	 * 
 	 * @return See above.
 	 */
-	List<MapAnnotationData> getMapAnnotations() {
+	List<MapAnnotationData> getMapAnnotations(MapAnnotationType type) {
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null)
 			return Collections.emptyList();
 
-		MapAnnotationData myMap = null;
-		List<MapAnnotationData> otherMaps = new ArrayList<MapAnnotationData>();
-		List<MapAnnotationData> nonUserMaps = new ArrayList<MapAnnotationData>();
+		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
 
 		Collection<MapAnnotationData> maps = data.getMapAnnotations();
 		if (!CollectionUtils.isEmpty(maps)) {
 			for (MapAnnotationData d : maps) {
-				if (MapAnnotationData.NS_CLIENT_CREATED
-						.equals(d.getNameSpace())) {
-					if (MetadataViewerAgent.getUserDetails().getId() == d
+				if ((type == MapAnnotationType.USER || type == MapAnnotationType.OTHER_USERS ) && MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())) {
+					if (type == MapAnnotationType.USER && MetadataViewerAgent.getUserDetails().getId() == d
 							.getOwner().getId())
-						myMap = d;
-					else
-						otherMaps.add(d);
-				} else {
-					nonUserMaps.add(d);
+						result.add(d);
+					else if(type == MapAnnotationType.OTHER_USERS && MetadataViewerAgent.getUserDetails().getId() != d
+							.getOwner().getId())
+						result.add(d);
+				} else if (type == MapAnnotationType.OTHER && !MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())){
+					result.add(d);
 				}
 			}
-		}
-
-		if (myMap == null) {
-			myMap = new MapAnnotationData();
-			myMap.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
 		}
 		
 		// Just to make sure, to always get the same order
@@ -1970,13 +1964,7 @@ class EditorModel
 					return 1;
 			}
 		};
-		Collections.sort(otherMaps, comp);
-		Collections.sort(nonUserMaps, comp);
-		
-		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
-		result.add(myMap);
-		result.addAll(otherMaps);
-		result.addAll(nonUserMaps);
+		Collections.sort(result, comp);
 		return result;
 	}
 	

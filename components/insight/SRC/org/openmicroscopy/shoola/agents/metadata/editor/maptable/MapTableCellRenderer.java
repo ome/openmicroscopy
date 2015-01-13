@@ -47,13 +47,7 @@ public class MapTableCellRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(final JTable table,
 			final Object value, final boolean isSelected,
 			final boolean hasFocus, final int row, final int column) {
-		JLabel l;
-		if (value instanceof Icon) {
-			l = new JLabel((Icon) value);
-			l.setToolTipText("Delete Entry");
-		} else
-			l = new JLabel((String) value);
-
+		JLabel l = new JLabel((String) value);
 		l.setOpaque(true);
 		
 		if (isSelected)

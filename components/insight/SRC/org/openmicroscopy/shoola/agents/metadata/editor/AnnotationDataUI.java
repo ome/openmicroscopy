@@ -50,6 +50,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -66,17 +67,20 @@ import javax.swing.JToolBar;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.editor.EditorModel.MapAnnotationType;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTable;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -222,10 +226,6 @@ class AnnotationDataUI
 	/** Components hosting the other annotations. */
 	private JPanel otherPane;
 	
-	private JPanel mapsPane;
-	
-	private List<MapTable> mapTables = new ArrayList<MapTable>();
-	
 	/** Collection of other annotations objects. */
 	private List<DocComponent> otherList;
 	
@@ -234,6 +234,8 @@ class AnnotationDataUI
 	
 	/** Button to remove all other annotations. */
 	private JButton removeOtherAnnotationsButton;
+	
+	private MapAnnotationsComponent mapsPane;
 	
 	/**
 	 * Creates and displays the menu 
@@ -464,9 +466,7 @@ class AnnotationDataUI
 			}
 		});
 		
-		mapsPane = new JPanel();
-		mapsPane.setLayout(new GridBagLayout());
-		mapsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		mapsPane = new MapAnnotationsComponent(model, view, controller);
 		
 		otherPane = new JPanel();
 		otherPane.setLayout(new GridBagLayout());
@@ -794,84 +794,6 @@ class AnnotationDataUI
 		tagsPane.repaint();
 	}
 	
-	private void layoutMaps(List<MapAnnotationData> list)
-	{
-		mapsPane.removeAll();
-		mapTables.clear();
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(3, 2, 3, 2);
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;	
-		
-		for(int i=0; i<list.size(); i++) {
-			MapAnnotationData m = list.get(i);
-			JPanel p = new JPanel();
-			p.setLayout(new BorderLayout());
-			MapTable t = createMapTable(m);
-			if (t != null) {
-				if (i == 0)
-					p.add(t.getTableHeader(), BorderLayout.NORTH);
-				p.add(t, BorderLayout.CENTER);
-				mapsPane.add(p, c);
-				c.gridy++;
-			}
-		}
-		
-		mapsPane.revalidate();
-		mapsPane.repaint();
-	}
-	
-	/**
-	 * Creates a MapTable and adds it to the list of mapTables;
-	 * Returns <code>null</code> if the MapAnnotationData is empty
-	 * and not editable!
-	 * @param m The data to show
-	 * @return See above
-	 */
-	@SuppressWarnings("unchecked")
-	private MapTable createMapTable(MapAnnotationData m) {
-		boolean editable = MapAnnotationData.NS_CLIENT_CREATED.equals(m
-				.getNameSpace())
-				&& model.canAnnotate()
-				&& (m.getId() <= 0 || m.getOwner().getId() == MetadataViewerAgent
-						.getUserDetails().getId());
-		
-		boolean deletable = MetadataViewerAgent.isAdministrator();
-		
-		if (!editable
-				&& (m.getContent() == null || ((List<NamedValue>) m
-						.getContent()).isEmpty()))
-			return null;
-		
-		int permissions;
-		if (editable)
-			permissions = MapTable.PERMISSION_DELETE | MapTable.PERMISSION_MOVE
-					| MapTable.PERMISSION_EDIT;
-		else if (deletable)
-			permissions = MapTable.PERMISSION_DELETE;
-		else
-			permissions = MapTable.PERMISSION_NONE;
-		
-		final MapTable t = new MapTable(permissions);
-		t.setData(m);
-		t.getModel().addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				MapTableModel m = (MapTableModel) t.getModel();
-				if(m.isDirty()) {
-					view.saveData(true);
-				}
-			}
-		});
-		mapTables.add(t);
-		return t;
-	}
-	
 	/**
 	 * Lays out the other annotations.
 	 * 
@@ -1016,7 +938,7 @@ class AnnotationDataUI
 			otherRating.setVisible(true);
 		}
 
-		layoutMaps(model.getMapAnnotations());
+		mapsPane.buildUI();
 		
 		otherRating.setText(buffer.toString()); 
 		
@@ -1831,12 +1753,7 @@ class AnnotationDataUI
 			}
 		}
 		
-		for(MapTable t : mapTables) {
-			MapTableModel model = (MapTableModel)t.getModel();
-			if(model.isDirty()) {
-				l.add(model.getMap());
-			}
-		}
+		l.addAll(mapsPane.getMapAnnotations(true));
 		
 		return l;
 	}
@@ -1858,10 +1775,8 @@ class AnnotationDataUI
 			if (publishedBox.isSelected()) return true;
 		}
 		
-		for(MapTable m : mapTables) {
-			if(((MapTableModel)m.getModel()).isDirty())
-				return true;
-		}
+		if(!mapsPane.getMapAnnotations(true).isEmpty())
+			return true;
 		
 		return (selectedValue != initialValue);
 	}

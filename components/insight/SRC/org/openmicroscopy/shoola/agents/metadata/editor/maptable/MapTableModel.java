@@ -56,9 +56,6 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	private String newKey = DUMMY_KEY;
 	private String newValue = DUMMY_VALUE;
 
-	private Icon deleteIcon = IconManager.getInstance().getIcon(
-			IconManager.DELETE_12);
-
 	public MapTableModel(MapTable table) {
 		this.table = table;
 	}
@@ -79,7 +76,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 	@Override
 	public int getColumnCount() {
-		return 3;
+		return 2;
 	}
 
 	@Override
@@ -89,8 +86,6 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 			return "Key";
 		case 1:
 			return "Value";
-		case 2:
-			return "";
 		}
 		return null;
 	}
@@ -109,8 +104,6 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 				return d.name;
 			case 1:
 				return d.value;
-			case 2:
-				return table.canDelete() ? deleteIcon : null;
 			}
 		} else {
 			switch (column) {
@@ -118,8 +111,6 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 				return newKey;
 			case 1:
 				return newValue;
-			case 2:
-				return null;
 			}
 		}
 		return null;

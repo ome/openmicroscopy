@@ -215,10 +215,14 @@ class EditorControl
 	static final int REMOVE_OTHER_ANNOTATIONS = 25;
 
 	/** Action ID to load the file path triggered by click on inplace import icon.*/
-        static final int FILE_PATH_INPLACE_ICON = 27;
+    static final int FILE_PATH_INPLACE_ICON = 27;
         
-        /** Action ID to load the file path triggered by click on inplace import icon.*/
-        static final int SHOW_LOCATION = 28;
+    /** Action ID to load the file path triggered by click on inplace import icon.*/
+    static final int SHOW_LOCATION = 28;
+    
+    static final int COPY_NAMEDVALUES = 29;
+    static final int PASTE_NAMEDVALUES = 30;
+    static final int DELETE_NAMEDVALUES = 31;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -881,6 +885,13 @@ class EditorControl
 				break;
 			case REMOVE_OTHER_ANNOTATIONS:
 				view.removeOtherAnnotations(src, p);
+				break;
+			case COPY_NAMEDVALUES:
+				break;
+			case PASTE_NAMEDVALUES:
+				break;
+			case DELETE_NAMEDVALUES:
+				;
 		}
 	}
 	
