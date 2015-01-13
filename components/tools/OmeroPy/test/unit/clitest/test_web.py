@@ -56,7 +56,7 @@ class TestWeb(object):
         return static_prefix
 
     def clean_generated_file(self, txt):
-        assert "%(" not in txt   # Make sure all markers hae been replaced
+        assert "%(" not in txt   # Make sure all markers have been replaced
         lines = [line.strip() for line in txt.split('\n')]
         lines = [line for line in lines if line and not line.startswith('#')]
         return lines
@@ -120,14 +120,16 @@ class TestWeb(object):
             assert lines[-5].startswith('Alias %s' % static_prefix[:-1])
             assert lines[-5].endswith('lib/python/omeroweb/static')
             assert lines[-4] == \
-                'RewriteCond %{REQUEST_URI} !^(/test-static|/\.fcgi)'
+                'RewriteCond %{REQUEST_URI} !^(/test-static|/\\.fcgi)'
             assert lines[-3] == \
                 'RewriteRule ^/test(/|$)(.*) /test.fcgi/$2 [PT]'
+            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
+            assert lines[-1] == 'ProxyPass /test.fcgi/ fcgi://0.0.0.0:4080/'
         else:
             assert lines[-5].startswith('Alias /static')
             assert lines[-5].endswith('lib/python/omeroweb/static')
             assert lines[-4] == \
-                'RewriteCond %{REQUEST_URI} !^(/static|/\.fcgi)'
+                'RewriteCond %{REQUEST_URI} !^(/static|/\\.fcgi)'
             assert lines[-3] == 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]'
-        assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
-        assert lines[-1] == 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/'
+            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
+            assert lines[-1] == 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/'
