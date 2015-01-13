@@ -202,7 +202,7 @@ public class DeleteServiceTest extends AbstractServerTest {
     /** Identifies the File. */
     public static final String REF_FILE = "/FileAnnotation";
     
-    /** Identifies the File. */
+    /** Identifies the MapAnnotation. */
     public static final String REF_MAP = "/MapAnnotation";
     
     /** Indicates to force the deletion. */
