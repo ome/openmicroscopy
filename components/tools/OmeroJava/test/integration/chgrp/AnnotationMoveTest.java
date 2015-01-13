@@ -96,7 +96,9 @@ public class AnnotationMoveTest extends AbstractServerTest {
         assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(),
                 annotationIdsUser1.size());
         n = 0;
-        if (src.equals("rwrw--")) n = annotationIdsUser2.size();
+        if (src.equals("rwrw--") && !dest.equals("rw----")) {
+            n = annotationIdsUser2.size();
+        }
         param = new ParametersI();
         param.addIds(annotationIdsUser2);
         assertEquals("#9496? anns", iQuery.findAllByQuery(sb.toString(), param)
@@ -316,7 +318,6 @@ public class AnnotationMoveTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
     public void testMoveImageAnnotatedByUsersInDestinationGroupRWRWtoRW()
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rw----", true);
@@ -416,7 +417,6 @@ public class AnnotationMoveTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(groups = "broken")
     public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRWtoRW()
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rw----", false);

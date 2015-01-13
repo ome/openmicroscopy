@@ -99,7 +99,8 @@
                                        p:changes="OF:[I]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!DI].parent = [DI], L.child = C:!Job[E]/!d" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:[E]{o}/o" p:changes="C:[I]"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:[E]{o}/d" p:changes="C:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="!$to_private, L:ILink.parent = [I], L.child = C:[E]{o}/d" p:changes="C:[I]/n"/>
+        <bean parent="graphPolicyRule" p:matches="$to_private, L:ILink[E].parent = [I], L.child = [E]{o}/!o" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [I], L.child = C:Job[E]{o}" p:changes="C:[I]"/>
         <bean parent="graphPolicyRule" p:matches="[I] == X:[E]{o}" p:changes="X:[I]"/>
         <bean parent="graphPolicyRule" p:matches="[I] == X:[D]" p:changes="X:[I]"/>
@@ -177,6 +178,11 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [I], L.child = [E]{a}" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = [I]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E]{a}.parent = [I]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:BooleanAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:CommentAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:DoubleAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:LongAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:TimestampAnnotation[E]{o}" p:changes="C:[D]/n"/>
     </util:list>
 
     <util:list id="chownRules" value-type="ome.services.graphs.GraphPolicyRule">
