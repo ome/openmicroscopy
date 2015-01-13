@@ -60,6 +60,7 @@ Configuration properties:
  omero.windows.pass
  omero.windows.servicename
  omero.web.application_server.port
+ omero.web.server_list
 
 """ + "\n" + "="*50 + "\n"
 
@@ -1506,6 +1507,9 @@ OMERO Diagnostics %s
         from omero.install.change_ports import change_ports
         webserverkey = 'omero.web.application_server.port'
         webserver_default_port = 4080
+        weblistkey = 'omero.web.server_list'
+        weblist_default_port = 4064
+        weblist_template = '[["localhost", %s, "omero"]]'
 
         if not args.skipcheck:
             if 0 == self.status(args, node_only=True):
@@ -1525,14 +1529,23 @@ OMERO Diagnostics %s
         if args.revert:
             webserver_from = args.webserver
             webserver_to = str(webserver_default_port)
+            weblist_from = weblist_template % args.ssl
+            weblist_to = weblist_template % str(weblist_default_port)
         else:
             webserver_from = str(webserver_default_port)
             webserver_to = args.webserver
+            weblist_from = weblist_template % str(weblist_default_port)
+            weblist_to = weblist_template % args.ssl
         try:
             waport = config[webserverkey]
         except KeyError:
             waport = ''
             webserver_from = ''
+        try:
+            weblist = config[weblistkey]
+        except KeyError:
+            weblist = ''
+            weblist_from = ''
 
         if waport != webserver_from:
             self.ctx.out('No match found for %s=%s in %s' % (
@@ -1541,6 +1554,14 @@ OMERO Diagnostics %s
             config[webserverkey] = webserver_to
             self.ctx.out('Converted: %s => %s %s in %s' % (
                 webserver_from, webserver_to, webserverkey, config.filename))
+
+        if weblist != weblist_from:
+            self.ctx.out('No match found for %s=%s in %s' % (
+                weblistkey, weblist_from, config.filename))
+        else:
+            config[weblistkey] = weblist_to
+            self.ctx.out('Converted: %s => %s %s in %s' % (
+                weblist_from, weblist_to, weblistkey, config.filename))
 
     def cleanse(self, args):
         self.check_access()
