@@ -9,7 +9,7 @@
 
         location %(FORCE_SCRIPT_NAME)s {
             if (-f %(ROOT)s/var/maintenance.html) {
-               error_page 503 /maintenance.html;
+               error_page 503 %(MAINTENANCE_PREFIX)s/maintenance.html;
                return 503;
             }
 
@@ -32,7 +32,7 @@
             # fastcgi_param HTTPS $https;
         }
 
-        location /maintenance.html {
+        location %(MAINTENANCE_PREFIX)s/maintenance.html {
             root %(ROOT)s/var;
         }
 

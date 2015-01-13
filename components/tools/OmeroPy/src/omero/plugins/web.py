@@ -201,6 +201,11 @@ class WebControl(BaseControl):
                     d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
                                                     "$fastcgi_script_name;\n"
 
+                if d["FORCE_SCRIPT_NAME"] == "/":
+                    d["MAINTENANCE_PREFIX"] = ""
+                else:
+                    d["MAINTENANCE_PREFIX"] = d["FORCE_SCRIPT_NAME"]
+
             if server == "apache":
                 template_file = "apache.conf.template"
 
