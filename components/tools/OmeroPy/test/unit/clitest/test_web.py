@@ -97,13 +97,35 @@ class TestWeb(object):
             assert lines[21] == "location %s {" % static_prefix[:-1]
             assert lines[24] == "location %s {" % (prefix or "/")
 
-    def testApacheConfig(self, capsys):
+    @pytest.mark.parametrize('prefix', [None, '/test'])
+    def testApacheConfig(self, prefix, capsys, monkeypatch):
+
+        static_prefix = self.add_prefix(prefix, monkeypatch)
         self.args += ["config", "apache"]
         self.add_templates_dir()
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
-        assert "%(" not in o
+        lines = self.clean_generated_file(o)
+
+        if prefix:
+            assert lines[0] == 'RewriteEngine on'
+            assert lines[1] == 'RewriteRule ^/?$ /test/ [R]'
+            assert lines[2].startswith('FastCGIExternalServer ')
+            assert lines[2].endswith(
+                'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60')
+            assert lines[-2].startswith('Alias /test-static ')
+            assert lines[-2].endswith('lib/python/omeroweb/static')
+            assert lines[-1].startswith('Alias /test "')
+            assert lines[-1].endswith('var/omero.fcgi/"')
+        else:
+            assert lines[0].startswith('FastCGIExternalServer ')
+            assert lines[0].endswith(
+                'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60')
+            assert lines[-2].startswith('Alias /static ')
+            assert lines[-2].endswith('lib/python/omeroweb/static')
+            assert lines[-1].startswith('Alias / "')
+            assert lines[-1].endswith('var/omero.fcgi/"')
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheFcgiConfig(self, prefix, capsys, monkeypatch):
@@ -126,7 +148,7 @@ class TestWeb(object):
             assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
             assert lines[-1] == 'ProxyPass /test.fcgi/ fcgi://0.0.0.0:4080/'
         else:
-            assert lines[-5].startswith('Alias /static')
+            assert lines[-5].startswith('Alias /static ')
             assert lines[-5].endswith('lib/python/omeroweb/static')
             assert lines[-4] == \
                 'RewriteCond %{REQUEST_URI} !^(/static|/\\.fcgi)'
