@@ -25,7 +25,7 @@ from omero.plugins.fs import FsControl
 
 import pytest
 
-transfers = ['ln_s', 'ln', 'ln_rm']
+transfers = ['ln_s', 'ln', 'ln_rm', 'cp', 'cp_rm']
 repos = ['Managed', 'Public', 'Script']
 
 

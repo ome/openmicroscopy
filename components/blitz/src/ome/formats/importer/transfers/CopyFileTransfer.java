@@ -25,23 +25,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Local-only file transfer mechanism which makes use of hard-linking.
+ * Local-only file transfer mechanism which makes use of the plaform
+ * copy command.
  *
- * This is only useful where the commands "ln source target" (Unix) or
- * "mklink /H target source" (Windows) will work.
+ * This is only useful where the commands "cp source target" (Unix) or
+ * "copy source target" (Windows) will work.
  *
- * @since 5.0
+ * @since 5.0.7
  */
-public class HardlinkFileTransfer extends AbstractExecFileTransfer {
+public class CopyFileTransfer extends AbstractExecFileTransfer {
 
     /**
-     * Executes "ln file location" (Unix) or "mklink /H location file" (Windows)
+     * Executes "cp file location" (Unix) or "cp file location" (Windows)
      * and fails on non-0 return codes.
      *
-     * @param file File to be copied.
+     * @param file File to be copied
      * @param location Location to copy to.
      * @throws IOException
-     * @TODO Java7: replace ln once Java6 is dropped
      */
     protected ProcessBuilder createProcessBuilder(File file, File location) {
         ProcessBuilder pb = new ProcessBuilder();
@@ -49,12 +49,11 @@ public class HardlinkFileTransfer extends AbstractExecFileTransfer {
         if (isWindows()) {
             args.add("cmd");
             args.add("/c");
-            args.add("mklink");
-            args.add("/H");
-            args.add(location.getAbsolutePath());
+            args.add("cp");
             args.add(file.getAbsolutePath());
+            args.add(location.getAbsolutePath());
         } else {
-            args.add("ln");
+            args.add("cp");
             args.add(file.getAbsolutePath());
             args.add(location.getAbsolutePath());
         }
