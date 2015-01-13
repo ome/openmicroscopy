@@ -68,7 +68,7 @@ public class ImageFinder
     private Set<DataObject>		images;
     
     /** Set of <code>ImageNode</code>s */
-    private List<ImageNode>		visibleImageNodes;
+    private Set<ImageNode>		visibleImageNodes;
     
     /** Set of corresponding visible <code>DataObject</code>s */
     private Set<DataObject>		visibleImages;
@@ -79,7 +79,7 @@ public class ImageFinder
     	 images = new HashSet<DataObject>();
          imageNodes = new HashSet<ImageDisplay>();
          visibleImages = new HashSet<DataObject>();
-         visibleImageNodes = new ArrayList<ImageNode>();
+         visibleImageNodes = new HashSet<ImageNode>();
     }
    
     /** 
@@ -101,7 +101,7 @@ public class ImageFinder
      * 
      * @return See above.
      */
-    public List<ImageNode> getVisibleImageNodes()
+    public Set<ImageNode> getVisibleImageNodes()
     { 
     	return visibleImageNodes; 
     }

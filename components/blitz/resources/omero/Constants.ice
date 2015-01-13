@@ -158,6 +158,7 @@ module omero {
         const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
         const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
         const string NSMOVIE = "openmicroscopy.org/omero/movie";
+        const string NSCLIENTMAPANNOTATION = "openmicroscopy.org/omero/client/mapAnnotation";
     };
 
     /**
