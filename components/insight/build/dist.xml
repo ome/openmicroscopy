@@ -245,7 +245,7 @@
           depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win,
 	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win,
 	distEditor-linux, dist-ij, distImporter-osx, distImporter-win,
-	distImporter-linux"
+	distImporter-linux, dist-osx-appbundler"
           description="Build and package the app for distribution.">
 
     <!-- Main zip -->
@@ -482,6 +482,41 @@
                     fullpath="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
 	    </zip>
 	  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Creates the Mac OS X distribution bundle under ${dist.dir} using the
+   * Java Application Bundler infrastructure for Java 1.7+.
+   * This is a zip file whose name is set to
+   * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
+   * and whose contents are:
+   *   + A config dir, containing all the app.config files.  The dir name is
+   *     set to the name of the ${app.config.dir}.
+   *   + The OMERO.insight application.  That is, the .app dir embedding the app
+   *     jar file, all the the app.libs files, and Mac OS X specific config.
+   *   + The install instructions, ${dist.osx.installfile}.
+   *   + The license file, ${base.licensefile}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="dist-osx-appbundler"
+          depends="jar"
+          description="Build and package the app for OS X distribution using the Java Application Bundler.">
+    <delete dir="${dist.dir}/appbundler/OMERO.insight.app"/>
+    <mkdir dir="${dist.dir}/appbundler"/>
+    <appbundler
+      outputdirectory="${dist.dir}/appbundler"
+      name="${distInsight.name}"
+      displayname="${distInsight.name}"
+      executableName="${distInsight.name}"
+      identifier="org.openmicroscopy.insight"
+      shortversion="${dist.bundle.version}"
+      version="${dist.bundle.version}"
+      icon="${dist.osx.icon}"
+      mainclassname="${app.mainclass}">
+        <option value="-Dapple.laf.useScreenMenuBar=true"/>
+        <classpath refid="app.libs"/>
+        <classpath dir="${dist.dir}" includes="${dist.jar.file}"/>
+    </appbundler>
+  </target>
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the Mac OS X distribution bundle under ${dist.dir}.
    * This is a zip file whose name is set to
