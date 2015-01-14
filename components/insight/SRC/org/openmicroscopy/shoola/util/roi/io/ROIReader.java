@@ -22,7 +22,6 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
-import ij.IJ;
 import ij.gui.EllipseRoi;
 import ij.gui.Line;
 import ij.gui.OvalRoi;
@@ -40,7 +39,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ome.formats.model.UnitsFactory;
-import ome.model.enums.UnitsLength;
 import omero.model.ImageI;
 import omero.model.LengthI;
 import pojos.EllipseData;

@@ -224,7 +224,6 @@ implements PlugIn
      */
     public void run(String args)
     {
-        IJ.debugMode = true;
         if (IJ.versionLessThan(IJ_VERSION)) {
             IJ.showMessage(TITLE,
                     "This plugin requires ImageJ\n"+IJ_VERSION+
