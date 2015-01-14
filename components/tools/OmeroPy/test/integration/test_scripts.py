@@ -387,7 +387,8 @@ client.closeSession()
 
     @pytest.mark.broken(ticket="11539")
     def testParamLoadingPerformanceTicket2285(self):
-        svc = self.root.sf.getScriptService()
+        root_client = self.new_client(system=True)
+        svc = root_client.sf.getScriptService()
         SCRIPT = """if True:
         import omero.model as OM
         import omero.rtypes as OR
@@ -399,7 +400,7 @@ client.closeSession()
         """
         upload_time, scriptID = self.timeit(
             svc.uploadOfficialScript, "/test/perf%s.py" % self.uuid(), SCRIPT)
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             params_time, params = self.timeit(svc.getParams, scriptID)
             assert params_time < (upload_time / 10), \
@@ -411,7 +412,7 @@ client.closeSession()
                 svc.runScript, scriptID, wrap({"a": long(5)}).val, None)
 
             def wait():
-                cb = omero.scripts.ProcessCallbackI(self.root, process)
+                cb = omero.scripts.ProcessCallbackI(root_client, process)
                 while cb.block(500) is None:
                     # process.poll() # This seems to make things much faster
                     pass
