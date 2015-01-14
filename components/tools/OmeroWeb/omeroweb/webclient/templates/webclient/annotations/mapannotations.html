@@ -33,12 +33,45 @@
         var saveEdit = function saveEdit() {
 
             if ($input) {
-                var val = $input.val().trim();
+                var val = $input.val().trim(),
+                    $td = $input.parent(),
+                    $table = $td.parent().parent().parent();
+                $input = undefined;
                 val = val.escapeHTML();
-                $input.parent().html(val);
+                $td.html(val);
 
-                // TODO: save row/table to server
+                // save to server
+                saveMapAnnotation($table);
             }
+        };
+
+
+        var saveMapAnnotation = function saveMapAnnotation($table) {
+
+            var annId = $table.attr('data-annId'),
+                url = "{% url 'annotate_map' %}",
+                data = {"{{ manager.obj_type }}": {{ manager.obj_id }} },
+                tableData = [];
+
+            $table.find('tbody tr').each(function() {
+                var key = $("td:first", this).text(),
+                    val = $("td:last", this).text();
+                // Don't add placeholder rows!
+                if (!((key == "Add Key") && (val == "Add Value"))) {
+                    tableData.push([key, val]);
+                }
+            });
+            // If we are editing a saved map annotation...
+            if (annId) {
+                data.annId = annId;
+            }
+
+            data.mapAnnotation = JSON.stringify(tableData);
+
+            $.post( url, data)
+                .done(function( data ) {
+                    $table.attr('data-annId', data.annId);
+                });
         };
 
         // start editing a td
@@ -63,12 +96,13 @@
 
         var deleteSelectedRows = function deleteSelectedRows(event) {
 
-            var $selRows = $(event.target)
+            var $table = $(event.target)
                     .parent().parent().parent()
-                    .find('.keyValueTable tbody tr.ui-selected');
+                    .find('.keyValueTable'),
+                $selRows = $table.find('tbody tr.ui-selected');
             $selRows.remove();
 
-            // TODO: save to server
+            saveMapAnnotation($table);
         }
 
         var selectRows = function selectRows($clickedRow, event) {
@@ -138,6 +172,8 @@
             } else {
                 $(html).appendTo($tbody);
             }
+
+            saveMapAnnotation($tbody.parent());
         }
 
         // Toolbar buttons
@@ -240,14 +276,12 @@
     }
 </style>
 
-<h2>Mine</h2>
 {% with ma=manager.my_client_map_annotation canEdit=True %}
     {% include "webclient/annotations/mapannotation.html" %}
 {% endwith %}
 
 {% if manager.client_map_annotations %}
 <hr>
-<h2>Others</h2>
 {% for ma in manager.client_map_annotations %}
     <div style="clear:both">Owned by: {{ ma.getOwner.getFullName }}</div>
     {% with canEdit=ma.canEdit %}
@@ -258,9 +292,8 @@
 
 {% if manager.map_annotations %}
 <hr>
-<h2>Added by API</h2>
 {% for ma in manager.map_annotations %}
-    {% with canEdit=ma.canEdit %}
+    {% with canEdit=False %}
         {% include "webclient/annotations/mapannotation.html" %}
     {% endwith %}    
 {% endfor %}

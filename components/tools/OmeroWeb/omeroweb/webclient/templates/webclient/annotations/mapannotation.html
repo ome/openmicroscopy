@@ -33,7 +33,8 @@
     </ul>
 
 
-    <table class="keyValueTable{% if canEdit %} editableKeyValueTable{% endif %}">
+    <table {% if ma %}data-annId="{{ ma.id }}"{% endif %}
+            class="keyValueTable{% if canEdit %} editableKeyValueTable{% endif %}">
         <thead>
             <tr>
                 <th>Key</th>
