@@ -22,26 +22,18 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
-import ij.IJ;
-import ij.ImagePlus;
 import ij.gui.Line;
 import ij.gui.OvalRoi;
 import ij.gui.PointRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
-import ij.gui.TextRoi;
 import ij.plugin.frame.RoiManager;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
-import loci.formats.MetadataTools;
 import omero.model.ImageI;
-
-import org.apache.commons.collections.CollectionUtils;
 
 import pojos.EllipseData;
 import pojos.LineData;
