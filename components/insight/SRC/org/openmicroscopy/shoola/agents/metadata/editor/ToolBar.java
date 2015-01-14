@@ -259,14 +259,7 @@ class ToolBar
         }
         exportAsOmeTiffItem.setEnabled(b);
         saveAsMenu.add(exportAsOmeTiffItem);
-        JMenu menu = new JMenu();
-        menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
-        menu.setText("Save as...");
-        menu.setToolTipText("Save the images at full size as JPEG. PNG or" +
-                "TIFF.");
         ActionListener l = new ActionListener() {
-
-
             public void actionPerformed(ActionEvent e) {
                 int index = Integer.parseInt(e.getActionCommand());
                 controller.saveAs(index);
@@ -281,14 +274,14 @@ class ToolBar
                 ho instanceof WellSampleData || ho instanceof DatasetData);
         while (i.hasNext()) {
             e = i.next();
-            item = new JMenuItem();
-            item.setText(e.getValue());
+            item = new JMenuItem(icons.getIcon(
+                    IconManager.EXPORT_AS_OMETIFF));
+            item.setText("Export As "+e.getValue());
             item.addActionListener(l);
             item.setActionCommand(""+e.getKey());
             item.setEnabled(enabled);
-            menu.add(item);
+            saveAsMenu.add(item);
         }
-        saveAsMenu.add(menu);
         setRootObject();
     	return saveAsMenu;
     }
