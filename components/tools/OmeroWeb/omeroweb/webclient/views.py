@@ -39,6 +39,8 @@ from omero_version import omero_version
 import omero, omero.scripts
 from omero.rtypes import wrap, unwrap
 
+from omero.gateway.utils import toBoolean
+
 from django.conf import settings
 from django.template import loader as template_loader
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
@@ -69,7 +71,7 @@ from controller.search import BaseSearch
 from controller.share import BaseShare
 
 from omeroweb.webadmin.forms import LoginForm
-from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
+from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
 

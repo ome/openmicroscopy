@@ -62,7 +62,7 @@ from django.utils.encoding import smart_str
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 
-from omeroweb.webadmin.webadmin_utils import toBoolean
+from omero.gateway.utils import toBoolean
 
 try:
     import hashlib
