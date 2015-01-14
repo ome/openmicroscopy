@@ -26,7 +26,7 @@
 
         // we are only ever editing a single cell at once:
         var $input,
-            $lastRow = $("#keyValueTable tr:last").clone(),
+            $lastRow = $(".editableKeyValueTable tr:last").clone(),
             multiSelectKey = OME.multi_key() + "Key";
 
         // stop editing the current $input
@@ -52,26 +52,28 @@
         }
 
 
-        var addRow = function addRow() {
+        var addRow = function addRow($tr) {
 
-            var $tr = $lastRow
-                    .clone()
-                    .appendTo("#keyValueTable tbody"),
-                $td = $tr.find("td:first");
-            selectRows($tr);
-            startEdit($td);
+            var $newRow = $lastRow.clone();
+            $newRow.insertAfter($tr);
+
+            selectRows($newRow);
+            startEdit($newRow.find("td:first"));
         }
 
-        var deleteSelectedRows = function deleteSelectedRows() {
+        var deleteSelectedRows = function deleteSelectedRows(event) {
 
-            $("#keyValueTable tbody tr.ui-selected").remove();
+            var $selRows = $(event.target)
+                    .parent().parent().parent()
+                    .find('.keyValueTable tbody tr.ui-selected');
+            $selRows.remove();
 
             // TODO: save to server
         }
 
         var selectRows = function selectRows($clickedRow, event) {
 
-            var $rows = $("#keyValueTable tbody tr");
+            var $rows = $clickedRow.parent().children('tr');
 
             // simplest case - no event OR key modifiers
             if (!event || (!event.shiftKey && !event[multiSelectKey])) {
@@ -82,7 +84,7 @@
 
             // Use key modifiers to select range / toggle selection
             var clickedIndex = $rows.index($clickedRow),
-                $selectedRow = $("#keyValueTable tbody tr.ui-selected:first"),
+                $selectedRow = $rows.filter(".ui-selected:first"),
                 selIndex = -1;
             if ($selectedRow.length > 0) {
                 selIndex = $rows.index($selectedRow);
@@ -104,10 +106,12 @@
             }
         }
 
-        var copySelectedRows = function copySelectedRows() {
+        var copySelectedRows = function copySelectedRows(event) {
 
-            var data = [];
-            $("#keyValueTable tbody tr.ui-selected").each(function(){
+            var $tbody = $(event.target)
+                    .parent().parent().parent().find('.keyValueTable tbody'),
+                data = [];
+            $tbody.find("tr.ui-selected").each(function(){
                 var key = $("td:first", this).text(),
                     val = $("td:last", this).text();
                 data.push([key, val]);
@@ -116,9 +120,12 @@
         };
 
         // If we have data to paste, insert below selected row, or at bottom
-        var pasteSelectedRows = function copySelectedRows() {
+        var pasteSelectedRows = function pasteSelectedRows(event) {
 
-            var data = window.mapAnnotationClipboard,
+            var $tbody = $(event.target)
+                    .parent().parent().parent().find('.keyValueTable tbody'),
+                $selRow = $tbody.find('tr.ui-selected:last'),
+                data = window.mapAnnotationClipboard,
                 row,
                 html = "";
 
@@ -126,7 +133,11 @@
                 row = data[r];
                 html += "<tr><td>" + row[0] + "</td><td>" + row[1] + "</td></tr>";
             }
-            $(html).appendTo("#keyValueTable tbody");
+            if ($selRow.length > 0) {
+                $(html).insertAfter($selRow);
+            } else {
+                $(html).appendTo($tbody);
+            }
         }
 
         // Toolbar buttons
@@ -134,19 +145,19 @@
             var alt = $(event.target).prop('alt');
             switch (alt) {
                 case "Delete rows":
-                    deleteSelectedRows();
+                    deleteSelectedRows(event);
                     break;
                 case "Copy rows":
-                    copySelectedRows();
+                    copySelectedRows(event);
                     break;
                 case "Paste rows":
-                    pasteSelectedRows();
+                    pasteSelectedRows(event);
                     break;
             }
         });
 
-        // Start editing when you click a td
-        $( "#keyValueTable tbody" ).on( "click", "td", function(event) {
+        // Select (and Start editing?) when you click a td
+        $( ".keyValueTable tbody" ).on( "click", "td", function(event) {
             var $td = $(event.target);
             // ignore clicks on other elements, e.g. <input>
             if ($td[0].tagName.toLowerCase() != "td") return;
@@ -156,12 +167,14 @@
             // Select rows, depending on shift/command keys
             selectRows($td.parent(), event);
 
-            startEdit($td);
+            if ($td.parent().parent().parent().hasClass('editableKeyValueTable')) {
+                startEdit($td);
+            }
         });
 
         // Handle keys when editing
         // Start editing when you click a td
-        $( "#keyValueTable tbody" ).on( "keydown", "input", function(event) {
+        $( ".editableKeyValueTable tbody" ).on( "keydown", "input", function(event) {
             var $td = $(event.target).parent();
 
             switch (event.which) {
@@ -178,7 +191,7 @@
                         selectRows($td.parent().next());
                         startEdit($td.parent().next().find('td:first'));
                     } else {
-                        addRow();
+                        addRow($td.parent());
                     }
                     break;
             }
@@ -187,7 +200,7 @@
             if (event.which == 9) return false
         });
 
-        $( "#keyValueTable tbody" ).on( "blur", "input", function(event) {
+        $( ".keyValueTable tbody" ).on( "blur", "input", function(event) {
             saveEdit();
         });
     });
@@ -213,10 +226,10 @@
     .keyValueTable input {
         width: 96%;
     }
-    .editableKeyValueTable tr:hover {
+    .keyValueTable tr:hover {
         background-color: #eee;
     }
-    .editableKeyValueTable tr.ui-selected {
+    .keyValueTable tr.ui-selected {
         background-color: #ddf;
     }
     .mapAnnToolbar {
@@ -227,18 +240,28 @@
     }
 </style>
 
-{% if manager.my_client_map_annotation %}
-    {% with ma=manager.my_client_map_annotation %}
+<h2>Mine</h2>
+{% with ma=manager.my_client_map_annotation canEdit=True %}
+    {% include "webclient/annotations/mapannotation.html" %}
+{% endwith %}
+
+{% if manager.client_map_annotations %}
+<hr>
+<h2>Others</h2>
+{% for ma in manager.client_map_annotations %}
+    <div style="clear:both">Owned by: {{ ma.getOwner.getFullName }}</div>
+    {% with canEdit=ma.canEdit %}
         {% include "webclient/annotations/mapannotation.html" %}
     {% endwith %}
+{% endfor %}
 {% endif %}
 
-
-{% for ma in manager.client_map_annotations %}
-    {% include "webclient/annotations/mapannotation.html" %}
-{% endfor %}
-
-
+{% if manager.map_annotations %}
+<hr>
+<h2>Added by API</h2>
 {% for ma in manager.map_annotations %}
-    {% include "webclient/annotations/mapannotation.html" %}
+    {% with canEdit=ma.canEdit %}
+        {% include "webclient/annotations/mapannotation.html" %}
+    {% endwith %}    
 {% endfor %}
+{% endif %}

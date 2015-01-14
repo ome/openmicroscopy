@@ -22,18 +22,18 @@
 <div class="mapAnnContainer">
 
     <ul class="toolbar mapAnnToolbar">
-        <li><input class="button{% if not ma.canEdit %} button-disabled{% endif %}" type="image"
+        <li><input class="button{% if not canEdit %} button-disabled{% endif %}" type="image"
             src="{% static "webclient/image/icon_basic_delete.png" %}"
             alt="Delete rows" title="Delete rows" /></li>        
         <li><input class="button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
             alt="Copy rows" title="Copy rows" /></li>
-        <li><input class="button{% if not ma.canEdit %} button-disabled{% endif %}" type="image"
+        <li><input class="button{% if not canEdit %} button-disabled{% endif %}" type="image"
             src="{% static "webclient/image/icon_toolbar_paste.png" %}"
             alt="Paste rows" title="Paste rows" /></li>
     </ul>
 
 
-    <table class="keyValueTable{% if ma.canEdit %} editableKeyValueTable{% endif %}">
+    <table class="keyValueTable{% if canEdit %} editableKeyValueTable{% endif %}">
         <thead>
             <tr>
                 <th>Key</th>
@@ -42,14 +42,16 @@
         </thead>
 
         <!-- Last row always has empty key & value fields -->
+        {% if ma %}
         {% for row in ma.getValue %}
         <tr>
             <td>{{ row.0 }}</td>
             <td>{{ row.1 }}</td>
         </tr>
         {% endfor %}
+        {% endif %}
 
-        {% if ma.canEdit %}
+        {% if canEdit %}
         <tr>
             <td>Add Key</td>
             <td>Add Value</td>
