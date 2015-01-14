@@ -240,7 +240,7 @@ CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":
         ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
-    "omero.upgrade-check.enabled":
+    "omero.web.upgrade-check.enabled":
         ["UPGRADE_CHECK",
          "true",
          parse_boolean,
