@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import ij.ImagePlus;
-
 import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -841,31 +839,34 @@ class ImporterComponent
 		element.setImportResult(component, result);
 		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
+		
 		if (CollectionUtils.isEmpty(pixels)) return;
-		Collection<DataObject> l = new ArrayList<DataObject>();
+		List<DataObject> l = new ArrayList<DataObject>();
 		Iterator<PixelsData> i = pixels.iterator();
 		Class<?> klass = ThumbnailData.class;
-		int n = FileImportComponent.MAX_THUMBNAILS;
 		if (component.isHCS()) {
-			n = 1;
 			klass = PlateData.class;
 		}
-		int index = 0;
 		PixelsData pxd;
 		List<Long> ids = new ArrayList<Long>();
 		while (i.hasNext()) {
-			if (index == n) break;
 			pxd = i.next();
 			ids.add(pxd.getImage().getId());
 			pxd.getImage().getId();
 			if (pxd.getSizeX()*pxd.getSizeY() < MAX_SIZE) {
 				l.add(pxd);
-				index++;
 			}
 		}
 		model.saveROI(component, ids);
-		if (l.size() > 0)
-			model.fireImportResultLoading(l, klass, component);
+		if (l.size() > 0) {
+		    if (PlateData.class.equals(klass)) l = l.subList(0, 0);
+		    else {
+		        if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
+		            l = l.subList(0, FileImportComponent.MAX_THUMBNAILS); 
+		        }
+		    }
+		    model.fireImportResultLoading(l, klass, component);
+		}
 	}
 
 	/** 

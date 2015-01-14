@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
-import ij.IJ;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,19 +32,8 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
-
-
-
-
-
-
-
-
-
-
 import org.apache.commons.collections.CollectionUtils;
-//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
@@ -66,7 +53,6 @@ import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ROIData;
@@ -579,7 +565,7 @@ class ImporterModel
             long id;
             while (i.hasNext()) {
                 id = i.next();
-                List<ROIData> rois = reader.readImageJROI(i.next());
+                List<ROIData> rois = reader.readImageJROI(id);
                 if (CollectionUtils.isNotEmpty(rois)) {
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
                             c.getExperimenterID());

@@ -22,19 +22,27 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import ij.IJ;
+import ij.gui.EllipseRoi;
 import ij.gui.Line;
 import ij.gui.OvalRoi;
 import ij.gui.PointRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
+import ij.gui.TextRoi;
 import ij.plugin.frame.RoiManager;
 
 import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import omero.model.ImageI;
 
+import ome.formats.model.UnitsFactory;
+import ome.model.enums.UnitsLength;
+import omero.model.ImageI;
+import omero.model.LengthI;
 import pojos.EllipseData;
 import pojos.LineData;
 import pojos.PointData;
@@ -44,6 +52,7 @@ import pojos.ROIData;
 import pojos.RectangleData;
 import pojos.ShapeData;
 import pojos.ShapeSettingsData;
+import pojos.TextData;
 
 /**
  * Reads ROI from ImageJ.
@@ -133,29 +142,38 @@ public class ROIReader {
         int[] xc = shape.getPolygon().xpoints;
         int[] yc = shape.getPolygon().ypoints;
         String type = shape.getTypeAsString();
-        String points = "1";
+        List<Point2D.Double> points = new LinkedList<Point2D.Double>();
+        List<Integer> masks = new ArrayList<Integer>();
         for (int i = 0; i < xc.length; i++) {
-            if (i==0) {
-                points = (xc[i]+","+yc[i]);
-            } else {
-                points= (points+" "+xc[i]+","+yc[i]);
-            }
+            points.add(new Point2D.Double(xc[i], yc[i]));
         }
         ShapeData data;
         if (type.matches("Polyline") || type.matches("Freeline") ||
                 type.matches("Angle")) {
-            data = new PolylineData();
+            data = new PolylineData(points, points, points, masks);
             ((PolylineData) data).setText(shape.getName());
-            //data.setPoints(arg0, arg1, arg2, arg3);
         } else if (type.matches("Polygon") || type.matches("Freehand") ||
                 type.matches("Traced")){
-            data = new PolygonData();
+            data = new PolygonData(points, points, points, masks);
             ((PolygonData) data).setText(shape.getName());
         } else {
-            data = new PolygonData();
+            data = new PolygonData(points, points, points, masks);
             ((PolygonData) data).setText(shape.getName());
         }
         formatShape(shape, data);
+        return data;
+    }
+
+    /**
+     * Converts the text roi.
+     *
+     * @param shape The point to convert.
+     * @return See above.
+     */
+    private TextData convertText(TextRoi shape)
+    {
+        Rectangle b = shape.getPolygon().getBounds();
+        TextData data = new TextData(shape.getText(), b.getX(), b.getY());
         return data;
     }
 
@@ -167,10 +185,19 @@ public class ROIReader {
      */
     private void formatShape(Roi roi, ShapeData shape)
     {
+        /*
         ShapeSettingsData settings = shape.getShapeSettings();
-        if (roi.getInstanceColor() != null) {
-            settings.setStroke(roi.getInstanceColor());
+        if (roi.getStrokeWidth() > 0) {
+            settings.setStrokeWidth(new LengthI((double) roi.getStrokeWidth(),
+                    UnitsFactory.Shape_StrokeWidth));
         }
+        if (roi.getStrokeColor() != null) {
+            settings.setStroke(roi.getStrokeColor());
+        }
+        if (roi.getFillColor() != null) {
+            settings.setFill(roi.getFillColor());
+        }
+        */
     }
 
     /**
@@ -194,14 +221,19 @@ public class ROIReader {
             r = rois[i];
             roiData = new ROIData();
             type = r.getTypeAsString();
-            pojos.add(roiData);
             roiData.setImage(new ImageI(imageID, false));
-            if (r instanceof OvalRoi) {
+            pojos.add(roiData);
+            if (r.isDrawingTool()) {//Checks if the given roi is a Text box/Arrow/Rounded Rectangle
+                if (type.matches("Text")){
+                    roiData.addShapeData(convertText((TextRoi) r));
+                } else if (type.matches("Rectangle")){
+                    roiData.addShapeData(convertRectangle(r));
+                }
+            } else if (r instanceof OvalRoi) {
                 roiData.addShapeData(convertEllipse((OvalRoi) r));
             } else if (r instanceof Line) {
                 roiData.addShapeData(convertLine((Line) r));
-                roiData.addShapeData(convertLine((Line) r));
-            } else if (r instanceof PolygonRoi) { //EllipseRoi check version.
+            } else if (r instanceof PolygonRoi || r instanceof EllipseRoi) {
                 if (type.matches("Point")) {
                     convertPoint((PointRoi) r, roiData);
                 } else if (type.matches("Polyline") || type.matches("Freeline") ||
@@ -219,7 +251,7 @@ public class ROIReader {
                         roiData.addShapeData(convertLine((Line) shape));
                     } else if (shape instanceof OvalRoi) {
                         roiData.addShapeData(convertEllipse((OvalRoi) shape));
-                    } else if (shape instanceof PolygonRoi) {
+                    } else if (shape instanceof PolygonRoi || r instanceof EllipseRoi) {
                         if (type.matches("Point")) {
                             convertPoint((PointRoi) shape, roiData);
                         } else if (type.matches("Polyline") ||
@@ -229,7 +261,8 @@ public class ROIReader {
                                 type.matches("Freehand")
                                 || type.matches("Traced") ||
                                 type.matches("Oval")) {
-                            roiData.addShapeData(convertPolygon((PolygonRoi) shape));
+                            roiData.addShapeData(
+                                    convertPolygon((PolygonRoi) shape));
                         }
                     }
                 }
