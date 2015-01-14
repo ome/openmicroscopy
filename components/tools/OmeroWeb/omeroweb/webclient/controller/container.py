@@ -409,6 +409,8 @@ class BaseContainer(BaseController):
         self.long_annotations = list()
         self.term_annotations = list()
         self.time_annotations = list()
+        self.my_client_map_annotation = None
+        self.client_map_annotations = list()
         self.map_annotations = list()
         self.companion_files =  list()
         
@@ -447,6 +449,11 @@ class BaseContainer(BaseController):
                 elif ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
                     if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
                         self.companion_files.append(ann)
+                elif ann.ns == omero.constants.metadata.NSCLIENTMAPANNOTATION:
+                    if ann.getDetails().getOwner().id == self.conn.getUserId():
+                        self.my_client_map_annotation = ann
+                    else:
+                        self.client_map_annotations.append(ann)
                 else:
                     annTypes[annClass].append(ann)
 

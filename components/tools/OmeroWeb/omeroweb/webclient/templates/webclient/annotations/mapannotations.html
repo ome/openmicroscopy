@@ -1,4 +1,5 @@
 
+{% comment %}
 <!--
   Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
   All rights reserved.
@@ -16,6 +17,7 @@
   You should have received a copy of the GNU Affero General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
+{% endcomment %}
 
 
 <script>
@@ -225,38 +227,18 @@
     }
 </style>
 
+{% if manager.my_client_map_annotation %}
+    {% with ma=manager.my_client_map_annotation %}
+        {% include "webclient/annotations/mapannotation.html" %}
+    {% endwith %}
+{% endif %}
+
+
+{% for ma in manager.client_map_annotations %}
+    {% include "webclient/annotations/mapannotation.html" %}
+{% endfor %}
+
+
 {% for ma in manager.map_annotations %}
-<div class="mapAnnContainer">
-
-    <ul class="toolbar mapAnnToolbar">
-        <li><input class="button" type="image" src="{% static "webclient/image/icon_basic_delete.png" %}"
-            alt="Delete rows" title="Delete rows" /></li>        
-        <li><input class="button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
-            alt="Copy rows" title="Copy rows" /></li>
-        <li><input class="button" type="image" src="{% static "webclient/image/icon_toolbar_paste.png" %}"
-            alt="Paste rows" title="Paste rows" /></li>
-    </ul>
-
-
-    <table id="keyValueTable" class="keyValueTable editableKeyValueTable">
-        <thead>
-            <tr>
-                <th>Key</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-
-        <!-- Last row always has empty key & value fields -->
-        {% for row in ma.getValue %}
-        <tr>
-            <td>{{ row.0 }}</td>
-            <td>{{ row.1 }}</td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td>Add Key</td>
-            <td>Add Value</td>
-        </tr>
-    </table>
-</div>
+    {% include "webclient/annotations/mapannotation.html" %}
 {% endfor %}
