@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import loci.formats.MetadataTools;
 import omero.model.ImageI;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +47,7 @@ import pojos.EllipseData;
 import pojos.LineData;
 import pojos.PointData;
 import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ROIData;
 import pojos.RectangleData;
 import pojos.ShapeData;
@@ -68,7 +70,10 @@ public class ROIReader {
      */
     private LineData convertLine(Line shape)
     {
-        return null;
+        LineData r = new LineData(shape.x1d, shape.y1d, shape.x2d, shape.y2d);
+        r.setText(shape.getName());
+        formatShape(shape, r);
+        return r;
     }
 
     /**
@@ -79,7 +84,14 @@ public class ROIReader {
      */
     private EllipseData convertEllipse(OvalRoi shape)
     {
-        return null;
+        Rectangle bounds = shape.getBounds();
+        double rx = bounds.getWidth();
+        double ry = bounds.getHeight();
+        EllipseData r = new EllipseData(bounds.getX()+rx/2, bounds.getY()+ry/2,
+                rx/2, ry/2);
+        r.setText(shape.getName());
+        formatShape(shape, r);
+        return r;
     }
 
     /**
@@ -95,6 +107,7 @@ public class ROIReader {
                 bounds.getX(), bounds.getY(), bounds.getWidth(),
                 bounds.getHeight());
         r.setText(shape.getName());
+        formatShape(shape, r);
         return r;
     }
 
@@ -104,9 +117,17 @@ public class ROIReader {
      * @param shape The point to convert.
      * @return See above.
      */
-    private PointData convertPoint(PointRoi shape)
+    private void convertPoint(PointRoi shape, ROIData roi)
     {
-        return null;
+        int[] xc = shape.getPolygon().xpoints;
+        int[] yc = shape.getPolygon().ypoints;
+        PointData p;
+        for (int i = 0; i < xc.length; i++) {
+            p = new PointData((double) xc[i], (double) yc[i]);
+            p.setText(shape.getName());
+            formatShape(shape, p);
+            roi.addShapeData(p);
+        }
     }
 
     /**
@@ -115,9 +136,35 @@ public class ROIReader {
      * @param shape The point to convert.
      * @return See above.
      */
-    private PolygonData convertPolygon(PointRoi shape)
+    private ShapeData convertPolygon(PolygonRoi shape)
     {
-        return null;
+        int[] xc = shape.getPolygon().xpoints;
+        int[] yc = shape.getPolygon().ypoints;
+        String type = shape.getTypeAsString();
+        String points = "1";
+        for (int i = 0; i < xc.length; i++) {
+            if (i==0) {
+                points = (xc[i]+","+yc[i]);
+            } else {
+                points= (points+" "+xc[i]+","+yc[i]);
+            }
+        }
+        ShapeData data;
+        if (type.matches("Polyline") || type.matches("Freeline") ||
+                type.matches("Angle")) {
+            data = new PolylineData();
+            ((PolylineData) data).setText(shape.getName());
+            //data.setPoints(arg0, arg1, arg2, arg3);
+        } else if (type.matches("Polygon") || type.matches("Freehand") ||
+                type.matches("Traced")){
+            data = new PolygonData();
+            ((PolygonData) data).setText(shape.getName());
+        } else {
+            data = new PolygonData();
+            ((PolygonData) data).setText(shape.getName());
+        }
+        formatShape(shape, data);
+        return data;
     }
 
     /**
@@ -137,10 +184,10 @@ public class ROIReader {
     /**
      * Reads the roi linked to the imageJ object.
      *
-     * @param ids The identifiers of the images to the ROI to.
+     * @param imageID The identifier of the image to link the ROI to.
      * @return See above.
      */
-    public List<ROIData> readImageJROI(List<Long> ids)
+    public List<ROIData> readImageJROI(long imageID)
     {
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
@@ -154,23 +201,22 @@ public class ROIReader {
         for (int i = 0; i < rois.length; i++) {
             r = rois[i];
             roiData = new ROIData();
-            //r.get
             type = r.getTypeAsString();
             pojos.add(roiData);
-            IJ.log(type+" "+r);
+            roiData.setImage(new ImageI(imageID, false));
             if (r instanceof OvalRoi) {
                 roiData.addShapeData(convertEllipse((OvalRoi) r));
             } else if (r instanceof Line) {
                 roiData.addShapeData(convertLine((Line) r));
+                roiData.addShapeData(convertLine((Line) r));
             } else if (r instanceof PolygonRoi) { //EllipseRoi check version.
-                
-                if (type.matches("Polyline") || type.matches("Freeline") ||
-                        type.matches("Angle")) {
-                   
-                } else if (type.matches("Point")) {
-                } else if (type.matches("Polygon") || type.matches("Freehand")
+                if (type.matches("Point")) {
+                    convertPoint((PointRoi) r, roiData);
+                } else if (type.matches("Polyline") || type.matches("Freeline") ||
+                        type.matches("Angle") || type.matches("Polygon") ||
+                        type.matches("Freehand")
                         || type.matches("Traced") || type.matches("Oval")) {
-                    
+                    roiData.addShapeData(convertPolygon((PolygonRoi) r));
                 }
             } else if (r instanceof ShapeRoi) {
                 Roi[] subRois = ((ShapeRoi) r).getRois();
@@ -178,35 +224,25 @@ public class ROIReader {
                 for (int j = 0; j < subRois.length; j++) {
                     shape = subRois[j];
                     if (shape instanceof Line) {
-                        
+                        roiData.addShapeData(convertLine((Line) shape));
                     } else if (shape instanceof OvalRoi) {
-                        
+                        roiData.addShapeData(convertEllipse((OvalRoi) shape));
                     } else if (shape instanceof PolygonRoi) {
-                        type = shape.getTypeAsString();
-                        if (type.matches("Polyline") ||
-                           type.matches("Freeline") || type.matches("Angle")) {
-                           
-                        } else if (type.matches("Point")) {
-                        } else if (type.matches("Polygon") ||
-                                type.matches("Freehand") ||
-                                type.matches("Traced") ||
+                        if (type.matches("Point")) {
+                            convertPoint((PointRoi) shape, roiData);
+                        } else if (type.matches("Polyline") ||
+                                type.matches("Freeline") ||
+                                type.matches("Angle") ||
+                                type.matches("Polygon") ||
+                                type.matches("Freehand")
+                                || type.matches("Traced") ||
                                 type.matches("Oval")) {
+                            roiData.addShapeData(convertPolygon((PolygonRoi) shape));
                         }
                     }
                 }
             } else if (type.matches("Rectangle")) {
                 roiData.addShapeData(convertRectangle(r));
-            }
-        }
-        if (CollectionUtils.isNotEmpty(ids)) {
-            Iterator<ROIData> k = pojos.iterator();
-            Iterator<Long> i;
-            while (k.hasNext()) {
-                roiData = k.next();
-                i = ids.iterator();
-                while (i.hasNext()) {
-                    roiData.setImage(new ImageI(i.next(), false));
-                }
             }
         }
         return pojos;

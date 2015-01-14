@@ -572,15 +572,20 @@ class ImporterModel
     void saveROI(FileImportComponent c, List<Long> ids)
     {
         FileObject object = c.getFile();
-        if (object.isImagePlus()) {
+        if (object.isImagePlus() && CollectionUtils.isNotEmpty(ids)) {
             ROIReader reader = new ROIReader();
             SecurityContext ctx = new SecurityContext(c.getGroupID());
-            List<ROIData> rois = reader.readImageJROI(ids);
-            if (CollectionUtils.isEmpty(rois)) return;
-            //add support for multiple images.
-            ROISaver saver = new ROISaver(component, ctx, rois,
-                    ids.get(0), c.getExperimenterID());
-            saver.load();
+            Iterator<Long> i = ids.iterator();
+            long id;
+            while (i.hasNext()) {
+                id = i.next();
+                List<ROIData> rois = reader.readImageJROI(i.next());
+                if (CollectionUtils.isNotEmpty(rois)) {
+                    ROISaver saver = new ROISaver(component, ctx, rois, id,
+                            c.getExperimenterID());
+                    saver.load();
+                }
+            }
         }
     }
 
