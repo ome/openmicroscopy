@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.ToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -181,12 +181,6 @@ class ToolBar
 	private JPopupMenu linkMenu;
 	
 	/** 
-	 * Component used to download the original metadata associated to the
-	 * image.
-	 */
-	private JMenuItem downloadOriginalMetadataItem;
-	
-	/** 
 	 * Creates or recycles the link menu.
 	 * 
 	 * @return See above.
@@ -250,21 +244,6 @@ class ToolBar
         }
         downloadItem.setEnabled(b);
         saveAsMenu.add(downloadItem);
-
-        downloadOriginalMetadataItem = new JMenuItem(
-                icons.getIcon(IconManager.DOWNLOAD));
-        downloadOriginalMetadataItem.setToolTipText("Download the " +
-                "metadata read from the image files.");
-        downloadOriginalMetadataItem.setText(
-                "Download Original metadata...");
-        downloadOriginalMetadataItem.addActionListener(controller);
-        downloadOriginalMetadataItem.setActionCommand(
-                ""+EditorControl.DOWNLOAD_METADATA);
-        downloadOriginalMetadataItem.setBackground(
-                UIUtilities.BACKGROUND_COLOR);
-        downloadOriginalMetadataItem.setEnabled(
-                model.hasOriginalMetadata());
-        saveAsMenu.add(downloadOriginalMetadataItem);
 
         exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
                 IconManager.EXPORT_AS_OMETIFF));
@@ -759,16 +738,11 @@ class ToolBar
     	if (pathButton != null) pathButton.setEnabled(false);
 		if (exportAsOmeTiffButton != null)
 			exportAsOmeTiffButton.setEnabled(false);
-    	if (downloadOriginalMetadataItem != null)
-    		downloadOriginalMetadataItem.setEnabled(false);
     	if (model.isSingleMode() && model.getImage() != null) {
     		if (exportAsOmeTiffItem != null)
 				exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
 			viewButton.setEnabled(true);
 			if (pathButton != null) pathButton.setEnabled(true);
-			if (downloadOriginalMetadataItem != null)
-				downloadOriginalMetadataItem.setEnabled(
-					model.hasOriginalMetadata());
     	}
     	
 		publishingButton.setEnabled(true);
