@@ -344,7 +344,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "Available options \"fastcgi\" / \"fastcgi-tcp\"")],
     "omero.web.application_server.host":
         ["APPLICATION_SERVER_HOST",
-         "0.0.0.0",
+         "127.0.0.1",
          str,
          "Upstream application host"],
     "omero.web.application_server.port":
