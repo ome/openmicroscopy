@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -52,7 +51,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -74,7 +72,6 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.jdesktop.swingx.JXTaskPane;
-
 import com.google.common.base.CharMatcher;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -375,7 +372,7 @@ public class PropertiesUI
     	descriptionWiki.setAllowOneClick(true);
     	descriptionWiki.addFocusListener(this);
     	descriptionWiki.addPropertyChangeListener(this);
-       	
+    	
     	defaultBorder = namePane.getBorder();
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
@@ -1261,7 +1258,6 @@ public class PropertiesUI
         descriptionWiki.setBackground(UIUtilities.BACKGROUND_COLOR);
         descriptionWiki.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 
-        
         editNames();
         if (b) {
             namePane.getDocument().addDocumentListener(this);
