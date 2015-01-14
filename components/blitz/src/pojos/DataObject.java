@@ -286,7 +286,8 @@ public abstract class DataObject {
      */
     public ExperimenterData getOwner() {
         if (owner == null) {
-            owner = new ExperimenterData(asIObject().getDetails().getOwner());
+			Experimenter experimenter = asIObject().getDetails().getOwner();
+			owner = experimenter != null ? new ExperimenterData(experimenter) : null;
         }
         return owner;
     }

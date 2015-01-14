@@ -237,8 +237,8 @@ public class MapAnnotationsComponent extends JPanel implements
 	 */
 	private boolean isUsers(MapAnnotationData data) {
 		return MapAnnotationData.NS_CLIENT_CREATED.equals(data.getNameSpace())
-				&& MetadataViewerAgent.getUserDetails().getId() == data
-						.getOwner().getId();
+				&& (data.getOwner() == null || MetadataViewerAgent.getUserDetails().getId() == data
+						.getOwner().getId());
 	}
 
 	/**
