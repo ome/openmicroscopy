@@ -185,7 +185,6 @@ public class ROIReader {
      */
     private void formatShape(Roi roi, ShapeData shape)
     {
-        /*
         ShapeSettingsData settings = shape.getShapeSettings();
         if (roi.getStrokeWidth() > 0) {
             settings.setStrokeWidth(new LengthI((double) roi.getStrokeWidth(),
@@ -197,7 +196,6 @@ public class ROIReader {
         if (roi.getFillColor() != null) {
             settings.setFill(roi.getFillColor());
         }
-        */
     }
 
     /**
