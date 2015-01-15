@@ -242,7 +242,7 @@ class TestAdminPorts(object):
             assert client_endpoints in s
 
     @pytest.mark.parametrize('prefix', [None, 1, 2])
-    def testPrefix(self, prefix):
+    def testRevert(self, prefix):
         kwargs = {}
         if prefix:
             self.args += ['--prefix', '%s' % prefix]
@@ -264,12 +264,16 @@ class TestAdminPorts(object):
         self.check_config_xml()
         self.check_default_xml()
 
+    @pytest.mark.parametrize('prefix', [None, 1])
     @pytest.mark.parametrize('registry', [None, 111])
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
     @pytest.mark.parametrize('webserver', [None, 444])
-    def testSSL(self, registry, ssl, tcp, webserver):
+    def testSSL(self, registry, ssl, tcp, webserver, prefix):
         kwargs = {}
+        if prefix:
+            self.args += ['--prefix', '%s' % prefix]
+            kwargs['prefix'] = prefix
         if registry:
             self.args += ['--registry', '%s' % registry]
             kwargs["registry"] = registry
