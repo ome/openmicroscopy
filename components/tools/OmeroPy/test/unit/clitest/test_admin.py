@@ -225,13 +225,13 @@ class TestAdminPorts(object):
         assert serverlist_property in config_text
 
     def check_default_xml(self, prefix=''):
-        routerport = ('<variable name="ROUTERPORT"    value="%s4064"/>'
-                      % prefix)
+        routerport = (
+            '<variable name="ROUTERPORT"    value="%s4064"/>' % prefix)
         insecure_routerport = (
             '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
             '/router:tcp -p %s4063 -h @omero.host@"/>' % prefix)
-        client_endpoints = ('client-endpoints="ssl -p ${ROUTERPORT}:tcp'
-                            ' -p %s4063"' % prefix)
+        client_endpoints = (
+            'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s4063"' % prefix)
         for key in ['default.xml', 'windefault.xml']:
             s = self.cfg_files[key].text()
             assert routerport in s
