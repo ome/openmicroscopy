@@ -134,6 +134,9 @@
                     .find('.keyValueTable'),
                 $selRows = $table.find('tbody tr.ui-selected');
             $selRows.remove();
+            if ($table.find('tbody tr').length == 0) {
+                $lastRow.clone().appendTo($table);
+            }
 
             saveMapAnnotation($table);
         }
