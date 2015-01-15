@@ -173,12 +173,9 @@ class WebControl(BaseControl):
                 templates_dir = path(args.templates_dir)
             else:
                 templates_dir = self.ctx.dir / "etc" / "templates"
-            if server in ("nginx", "nginx-development"):
-                if server == "nginx":
-                    template_file = "nginx.conf.system.template"
-                else:
-                    template_file = "nginx.conf.template"
+            template_file = "%s.conf.template" % server
 
+            if server in ("nginx", "nginx-development"):
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_pass = "%s:%s" \
                         % (settings.APPLICATION_SERVER_HOST,
@@ -202,8 +199,6 @@ class WebControl(BaseControl):
                                                     "$fastcgi_script_name;\n"
 
             if server == "apache":
-                template_file = "apache.conf.template"
-
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_external = '-host %s:%s' % \
                         (settings.APPLICATION_SERVER_HOST,
@@ -224,7 +219,6 @@ class WebControl(BaseControl):
                 # mod_proxy_fcgi obtains by taking everything after the last
                 # path component containing a dot.
 
-                template_file = "apache-mod_proxy_fcgi.conf.template"
                 if settings.APPLICATION_SERVER != settings.FASTCGITCP:
                     self.ctx.die(
                         679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
