@@ -32,16 +32,18 @@ http {
         fastcgi_temp_path %(ROOT)s/var/nginx_tmp;
         proxy_temp_path %(ROOT)s/var/nginx_tmp;
 
+        error_page 502  /500.html;
+
+        location ~* ^/(50*\.html)$ {
+            root %(ROOT)s/etc/templates/error;
+        }
+
          # weblitz django apps serve static content from here
         location %(STATIC_URL)s {
             alias %(OMEROWEBROOT)s/static;
         }
 
         location %(FORCE_SCRIPT_NAME)s {
-            if (-f %(ROOT)s/var/maintenance.html) {
-               error_page 503 %(MAINTENANCE_PREFIX)s/maintenance.html;
-               return 503;
-            }
 
             fastcgi_pass %(FASTCGI_PASS)s;
 
@@ -60,10 +62,6 @@ http {
             # Uncomment if nginx SSL module is enabled or you are using nginx 1.1.11 or later
             # -- See: #10273, http://nginx.org/en/CHANGES
             # fastcgi_param HTTPS $https;
-        }
-
-        location %(MAINTENANCE_PREFIX)s/maintenance.html {
-            alias %(ROOT)s/var/maintenance.html;
         }
 
     }
