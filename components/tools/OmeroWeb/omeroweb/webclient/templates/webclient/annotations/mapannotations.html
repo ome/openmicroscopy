@@ -294,10 +294,11 @@
         position: relative;
         top: 10px;
         margin-bottom: 10px;
+        width: 98% !important;
     }
-    .keyValueTable td {
+    .keyValueTable td, .keyValueTable th {
         width: 50%;
-        padding: 2px !important;
+        padding: 2px 5px !important;
         height: 20px;
         vertical-align: middle;
     }
@@ -309,6 +310,14 @@
     }
     .keyValueTable tr.ui-selected {
         background-color: #ddf;
+    }
+    .editableKeyValueTable tr{
+        background-color: #fff;
+        border: solid #ddd 1px;
+    }
+    .editableKeyValueTable thead tr {
+        background-color: transparent;
+        border: solid transparent 1px;
     }
     .mapAnnToolbar {
         position: absolute;
