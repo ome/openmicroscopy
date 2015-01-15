@@ -50,8 +50,8 @@
         {% if ma %}
         {% for row in ma.getValue %}
         <tr>
-            <td>{{ row.0 }}</td>
-            <td>{{ row.1 }}</td>
+            <td>{{ row.0|escape }}</td>
+            <td>{{ row.1|escape }}</td>
         </tr>
         {% endfor %}
         {% endif %}
