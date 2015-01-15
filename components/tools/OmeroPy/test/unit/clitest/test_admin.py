@@ -239,4 +239,3 @@ class TestAdminPorts(object):
         assert "-p 4061" in self.master_cfg.text()
         assert "-p 4061" in self.internal_cfg.text()
         self.check_config_xml()
-
