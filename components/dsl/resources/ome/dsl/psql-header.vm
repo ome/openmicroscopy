@@ -31,11 +31,11 @@ BEGIN
     SELECT pg_encoding_to_char(encoding) INTO STRICT char_encoding FROM pg_database WHERE datname = current_database();
 
     IF version_num < version_prereq THEN
-        RAISE EXCEPTION 'database server version %% less than OMERO prerequisite %%', version_num, version_prereq;
+        RAISE EXCEPTION 'database server version %% is less than OMERO prerequisite %%', version_num, version_prereq;
     END IF;
 
     IF char_encoding != 'UTF8' THEN
-       RAISE EXCEPTION 'OMERO database character encoding must be UTF8';
+       RAISE EXCEPTION 'OMERO database character encoding must be UTF8, not %%', char_encoding;
     END IF;
 
 END;$$ LANGUAGE plpgsql;
