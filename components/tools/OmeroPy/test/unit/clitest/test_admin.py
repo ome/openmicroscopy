@@ -241,16 +241,19 @@ class TestAdminPorts(object):
             assert insecure_routerport in s
             assert client_endpoints in s
 
-    @pytest.mark.parametrize('prefix', [1, 2])
+    @pytest.mark.parametrize('prefix', [None, 1, 2])
     def testPrefix(self, prefix):
-        self.args += ['--prefix', '%s' % prefix]
+        kwargs = {}
+        if prefix:
+            self.args += ['--prefix', '%s' % prefix]
+            kwargs['prefix'] = prefix
         self.args += ['--skipcheck']
         self.cli.invoke(self.args, strict=True)
 
-        self.check_ice_config(prefix)
-        self.check_cfg(prefix)
-        self.check_config_xml(prefix)
-        self.check_default_xml(prefix)
+        self.check_ice_config(**kwargs)
+        self.check_cfg(**kwargs)
+        self.check_config_xml(**kwargs)
+        self.check_default_xml(**kwargs)
 
         # Check revert argument
         self.args += ['--revert']
