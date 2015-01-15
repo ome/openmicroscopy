@@ -621,9 +621,9 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
         rectW = int((w+xOffset) * factor)
         rectH = int((h+yOffset) * factor)
         draw.rectangle((rectX, rectY, rectW, rectH), outline=lineColour)
+        # hack to get line width of 2
         draw.rectangle((rectX-1, rectY-1, rectW+1, rectH+1),
                        outline=lineColour)
-        # hack to get line width of 2
     elif shape['type'] == 'Line':
         lineX1 = (shape['x1'] - newX + left_xs) * factor
         lineX2 = (shape['x2'] - newX + left_xs) * factor
@@ -655,8 +655,8 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
             return (int((x-newX + left_xs)*factor),
                     int((y-newY + top_xs)*factor))
         resizedXY = [resizeXY(xy) for xy in shape['xyList']]
-        # draw.polygon(resizedXY, outline=lineColour)
         # doesn't support 'width' of line
+        # draw.polygon(resizedXY, outline=lineColour)
         x2 = y2 = None
         for l in range(1, len(resizedXY)):
             x1, y1 = resizedXY[l-1]
@@ -1013,8 +1013,8 @@ def render_ome_tiff(request, ctx, cid, conn=None, **kwargs):
             if fpath is None:
                 zip_data = fobj.getvalue()
                 rsp = HttpResponse(zip_data, content_type='application/zip')
-                rsp['Content-Disposition'] = 'attachment; filename="%s.zip"' \
-                    % name
+                rsp['Content-Disposition'] = (
+                    'attachment; filename="%s.zip"' % name)
                 rsp['Content-Length'] = len(zip_data)
                 return rsp
         except:
