@@ -40,11 +40,11 @@ Configuration:
 
 %s
 
-Example Nginx usage:
+Example Nginx developer usage:
 
     omero config set omero.web.debug true
     omero config set omero.web.application_server fastcgi
-    omero web config nginx --http=8000 >> nginx.conf
+    omero web config nginx-development --http=8000 >> nginx.conf
     omero web start
     nginx -c `pwd`/nginx.conf
     omero web status

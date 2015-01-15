@@ -2,7 +2,7 @@
 # nginx userland template
 # this configuration is designed for running nginx as the omero user or similar
 # nginx -c etc/nginx.conf
-# for inclusion in a system-wide nginx configuration see omero web config nginx --system
+# for inclusion in a system-wide nginx configuration see omero web config nginx
 #
 pid %(ROOT)s/var/pid.nginx;
 error_log %(ROOT)s/var/log/nginx_error.log;
