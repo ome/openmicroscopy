@@ -100,3 +100,56 @@ class TestModel51(lib.ITest):
         )
         m = g.getConfigAsMap()
         assert m["foo"] == "bar"
+
+    def assertMapAnnotation(self, anns, mid):
+        m = None
+        for a in anns:
+            if isinstance(a, omero.model.MapAnnotationI):
+                if a.id.val == mid:
+                    m = a
+        assert m
+        assert "foo" == m.getMapValue()[0].name
+        assert "bar" == m.getMapValue()[0].value
+
+    def testMapEagerFetch(self):
+        m = omero.model.MapAnnotationI()
+        m.setMapValue(
+            [NV("foo", "bar")]
+        )
+        m = self.update.saveAndReturnObject(m)
+        anns = self.query.findAllByQuery(
+            "select m from MapAnnotation m ",
+            None)
+        self.assertMapAnnotation(anns, m.id.val)
+
+        # Add a second annotation and query both
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject(c)
+        anns = self.query.findAllByQuery(
+            "select m from Annotation m ",
+            None)
+        self.assertMapAnnotation(anns, m.id.val)
+
+        # Now place both on an image and retry
+        i = omero.model.ImageI()
+        i.setName(omero.rtypes.rstring("testMapEagerFetch"))
+        i.linkAnnotation(m)
+        i.linkAnnotation(c)
+        i = self.update.saveAndReturnObject(i)
+        imgs = self.query.findByQuery(
+            ("select i from Image i join fetch "
+             "i.annotationLinks l join fetch l.child "
+             "where i.id = :id"),
+            omero.sys.ParametersI().addId(i.id.val))
+        anns = imgs.linkedAnnotationList()
+        self.assertMapAnnotation(anns, m.id.val)
+
+        # And now load via IMetadata
+        meta = self.client.sf.getMetadataService()
+        anns = meta.loadAnnotations(
+            "omero.model.Image",
+            [i.id.val],
+            [],  # Supported Annotation types
+            [],  # Annotator IDs
+            None)
+        self.assertMapAnnotation(anns[i.id.val], m.id.val)
