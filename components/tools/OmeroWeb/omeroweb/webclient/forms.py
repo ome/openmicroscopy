@@ -1977,8 +1977,8 @@ class MetadataLightSourceForm(forms.Form):
                 widget=forms.TextInput(attrs={'size':25}),
                 initial="N/A",
                 required=False)
-            self.fields['attenuation'].widget.attrs['disabled'] = True
-            self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
+        self.fields['attenuation'].widget.attrs['disabled'] = True
+        self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
 
         self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'pump', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell', 'attenuation']
     
