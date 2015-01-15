@@ -189,7 +189,10 @@ class TestAdminPorts(object):
         self.ice_config.copy(self.tmp_ice_config)
         self.internal_cfg.copy(self.tmp_internal_cfg)
         self.master_cfg.copy(self.tmp_master_cfg)
-        self.config_xml.copy(self.tmp_config_xml)
+        if self.config_xml.exists():
+            self.config_xml.copy(self.tmp_config_xml)
+        else:
+            self.tmp_config_xml = None
 
         # Other setup
         self.cli = CLI()
@@ -202,7 +205,8 @@ class TestAdminPorts(object):
         self.tmp_ice_config.copy(self.ice_config)
         self.tmp_internal_cfg.copy(self.internal_cfg)
         self.tmp_master_cfg.copy(self.master_cfg)
-        self.tmp_config_xml.copy(self.config_xml)
+        if self.tmp_config_xml:
+            self.config_xml.remove()
 
     def check_config_xml(self, prefix=None):
         config_text = self.config_xml.text()
