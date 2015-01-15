@@ -547,8 +547,8 @@ class InputServerStrategy
 				data.canDelete(), data.canAnnotate());
 		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
-			fig.addNode(new Node(mask.get(i), points.get(i), 
-					points1.get(i), points2.get(i)));
+			fig.addNode(new Node(i, points.get(i), points.get(i),
+			        points.get(i)));
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		String text = data.getText();
