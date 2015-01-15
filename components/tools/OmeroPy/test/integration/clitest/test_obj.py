@@ -38,7 +38,6 @@ class TestObj(CLITest):
 
     def teardown_method(self, method):
         self.teardown_mock()
-        super(TestObj, self).teardown_method(method)
 
     def go(self):
         self.cli.invoke(self.args, strict=True)
