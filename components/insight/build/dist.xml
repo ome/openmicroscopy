@@ -499,11 +499,10 @@
   <target name="dist-osx-appbundler"
           depends="jar"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
-    <delete dir="${dist.dir}/appbundler/OMERO.insight.app"/>
-    <mkdir dir="${dist.dir}/appbundler"/>
+    <delete dir="${dist.dir}/OMERO.insight_Java7+.app"/>
     <appbundler
-      outputdirectory="${dist.dir}/appbundler"
-      name="${distInsight.name}"
+      outputdirectory="${dist.dir}"
+      name="${distInsight.name}_Java7+"
       displayname="${distInsight.name}"
       executableName="${distInsight.name}"
       identifier="org.openmicroscopy.insight"
@@ -532,9 +531,9 @@
   <target name="dist-osx"
           depends="jar,dist-osx-appbundler"
           description="Build and package the app for OS X distribution.">
-    <delete dir="${dist.dir}/OMERO.insight.app"/>
+    <delete dir="${dist.dir}/OMERO.insight_Java6.app"/>
     <jarbundler dir="${dist.dir}"
-                name="${distInsight.name}"
+                name="${distInsight.name}_Java6"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
@@ -553,10 +552,10 @@
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
-               includes="OMERO.insight.app/**"
+               includes="OMERO.insight*.app/**"
                excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}"
-                  fullpath="${dist.zip.prefix.osx}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
+                  fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
@@ -567,9 +566,9 @@
   <target name="dist-osx-openGL"
           depends="jar"
           description="Build and package the app for OS X distribution with OpenGL support.">
-    <delete dir="${dist.dir}/OMERO.insight.app"/>
+    <delete dir="${dist.dir}/OMERO.insight_Java6.app"/>
     <jarbundler dir="${dist.dir}"
-                name="${distInsight.name}"
+                name="${distInsight.name}_Java6"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
