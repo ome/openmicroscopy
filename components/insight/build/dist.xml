@@ -798,6 +798,7 @@ Distribution targets:
 ---------------------
   dist: Creates the distribution bundle under ${dist.dir}.
   dist-osx: Creates the Mac OS X distribution bundle under ${dist.dir}.
+  dist-osx-appbundler: Creates the Mac OS X distribution bundle under ${dist.dir} using the Java Application Bundler infrastructure for Java 1.7+.
   dist-win: Creates the Windows distribution bundle under ${dist.dir}.
   dist-osx-openGL: Creates the Mac OS X distribution bundle under ${dist.dir} with OpenGL support.
   dist-win-openGL: Creates the Windows distribution bundle under ${dist.dir} with OpenGL support.
