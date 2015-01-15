@@ -636,8 +636,8 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
         rectW = int((w+xOffset) * factor)
         rectH = int((h+yOffset) * factor)
         draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
-        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)
         # hack to get line width of 2
+        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)
     elif shape['type'] == 'Point':
         point_radius = 2
         rectX = (MAX_WIDTH/2) - point_radius
@@ -645,8 +645,8 @@ def get_shape_thumbnail(request, conn, image, s, compress_quality):
         rectW = rectX + (point_radius * 2)
         rectH = rectY + (point_radius * 2)
         draw.ellipse((rectX, rectY, rectW, rectH), outline=lineColour)
-        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)
         # hack to get line width of 2
+        draw.ellipse((rectX-1, rectY-1, rectW+1, rectH+1), outline=lineColour)
     elif 'xyList' in shape:
         # resizedXY = [(int(x*factor), int(y*factor))
         #              for (x,y) in shape['xyList']]
