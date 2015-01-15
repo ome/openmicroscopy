@@ -462,8 +462,8 @@ class InputServerStrategy
 		List<Integer> mask = data.getMaskPoints();
 		for (int i = 0; i < points.size(); i++)
 		{
-			fig.addNode(new Node(i, points.get(i), points1.get(i), 
-					points2.get(i)));
+			fig.addNode(new Node(i, points.get(i), points.get(i), 
+					points.get(i)));
 		}
 		
 		addShapeSettings(fig, data.getShapeSettings());
