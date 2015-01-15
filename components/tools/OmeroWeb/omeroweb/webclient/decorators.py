@@ -115,7 +115,7 @@ class render_response(omeroweb.decorators.render_response):
         context['global_search_form'] = GlobalSearchForm()
         # UI server preferences
         context.setdefault('ui', {})   # don't overwrite existing ui
-        context['ui']['orphans_name'], context['ui']['orphans_desc'] = conn.getOrphandContainerSettings()
+        context['ui']['orphans_name'], context['ui']['orphans_desc'] = conn.getOrphanedContainerSettings()
         context['ui']['dropdown_menu'] = conn.getDropdownMenuSettings()
         
         if settings.WEBSTART and (not settings.WEBSTART_ADMINS_ONLY \
