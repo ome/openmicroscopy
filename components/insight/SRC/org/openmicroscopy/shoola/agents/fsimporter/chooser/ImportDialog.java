@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 import ij.IJ;
 import ij.ImagePlus;
+import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
@@ -35,6 +36,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -382,16 +385,20 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
-	/** 
-	 * Adds the images from imageJ to the queue.
-	 */
+	/**  Adds the images from imageJ to the queue.*/
 	private void addImageJFiles()
 	{
         if (ImporterAgent.runAsPlugin() != LookupNames.IMAGE_J_IMPORT) return;
-        //to be reviewed.
+        boolean active = locationDialog.isActiveWindow();
         List<FileObject> list = new ArrayList<FileObject>();
-        ImagePlus img = IJ.getImage();
-        list.add(new FileObject(img));
+        if (active) {
+            list.add(new FileObject(WindowManager.getCurrentImage()));
+        } else {
+            int[] values = WindowManager.getIDList();
+            for (int i = 0; i < values.length; i++) {
+                list.add(new FileObject(WindowManager.getImage(values[i])));
+            }
+        }
         ImportLocationSettings settings = locationDialog.getImportSettings();
         table.addFiles(list, settings);
         importButton.setEnabled(table.hasFilesToImport());
@@ -1030,11 +1037,11 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		    JPanel panel = new JPanel();
 		    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		    JLabel label = UIUtilities.setTextFont(
-		            "Select where to import the image from the current window.");
+                    "Select where to import the image(s).");
 		    panel.add(UIUtilities.buildComponentPanel(label));
 		    panel.add(locationDialog.getContentPane());
 		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-        panel, tablePanel);
+		            panel, tablePanel);
 		} else {
 		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 	                chooser, tablePanel);

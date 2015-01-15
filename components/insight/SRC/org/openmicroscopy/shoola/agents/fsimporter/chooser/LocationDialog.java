@@ -45,6 +45,8 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -52,6 +54,8 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -343,6 +347,15 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** Reference to the model.*/
 	private Importer model;
 
+
+    /**
+     * Flag indicating to import the image from the current window if
+     * <code>true</code>, <code>false</code> to import the images from
+     * all windows.
+     */
+    private boolean activeWindow;
+
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -734,13 +747,42 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void layoutUI()
 	{
+	    int plugin = ImporterAgent.runAsPlugin();
+        JPanel pane;
+        if (plugin == LookupNames.IMAGE_J_IMPORT) {
+            activeWindow = true;
+            JPanel buttons = new JPanel();
+            buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
+            ButtonGroup group = new ButtonGroup();
+            JRadioButton b = new JRadioButton("Add Image from current window");
+            b.setSelected(activeWindow);
+            buttons.add(b);
+            group.add(b);
+            b.addItemListener(new ItemListener() {
+
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    activeWindow = (e.getStateChange() == ItemEvent.SELECTED);
+                }
+            });
+            b = new JRadioButton("Add Image from image windows");
+            buttons.add(b);
+            group.add(b);
+            pane = new JPanel();
+            pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+            pane.add(buildDataTypeTabbedPane());
+            pane.add(UIUtilities.buildComponentPanel(buttons));
+        } else {
+            pane = buildDataTypeTabbedPane();
+        }
+	    
 		BorderLayout layout = new BorderLayout();
 		layout.setHgap(UI_GAP);
 		layout.setVgap(UI_GAP);
 		
 		JPanel mainPanel = new JPanel(layout);
 		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH);
-		mainPanel.add(buildDataTypeTabbedPane(), BorderLayout.CENTER);
+		mainPanel.add(pane, BorderLayout.CENTER);
 		mainPanel.add(buildLowerButtonPanel(), BorderLayout.SOUTH);
 		
 		TableLayout containerLayout = createTableLayout(TABLE_GAP);
@@ -1713,4 +1755,10 @@ class LocationDialog extends JDialog implements ActionListener,
 		tabbedPane.setEnabled(isEnabled);
 		refreshButton.setEnabled(isEnabled);
 	}
+
+	/**
+     * Returns <code>true</code> to import the image from the current window
+     * <code>false</code> to import the images from all windows.
+     */
+    boolean isActiveWindow() { return activeWindow; }
 }
