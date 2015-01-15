@@ -26,6 +26,8 @@
 
         // we are only ever editing a single cell at once:
         var $input,
+            saveInProgress = false,
+            saveTimeout,
             $lastRow = $(".editableKeyValueTable tr:last").clone(),
             multiSelectKey = OME.multi_key() + "Key";
 
@@ -45,20 +47,47 @@
             }
         };
 
+        // Get the content of a $td (may contain <input>)
+        var getCellText = function getCellText($td) {
+            var $i = $td.children('input');
+            if ($i.length > 0) {
+                return $i.val().trim();
+            }
+            return $td.text().trim();
+        }
+        // Get the [key, value] data for a $tr
+        var getRowData = function getRowText($tr) {
+            var key = getCellText($tr.children('td:first')),
+                val = getCellText($tr.children('td:last'));
+            return [key, val]
+        }
 
+        // Save $table data to OMERO via $.post()
         var saveMapAnnotation = function saveMapAnnotation($table) {
+
+            // Don't want asynchronous saving. Wait for save to complete
+            if (saveInProgress) {
+                // Try again in a second
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                }
+                saveTimeout = setTimeout(function() {
+                    saveMapAnnotation($table);
+                }, 1000);
+                return;
+            };
 
             var annId = $table.attr('data-annId'),
                 url = "{% url 'annotate_map' %}",
                 data = {"{{ manager.obj_type }}": {{ manager.obj_id }} },
+                $mapAnnotationSpinner = $(".mapAnnotationSpinner", $table.parent()),
                 tableData = [];
 
             $table.find('tbody tr').each(function() {
-                var key = $("td:first", this).text(),
-                    val = $("td:last", this).text();
+                var rowData = getRowData($(this));
                 // Don't add placeholder rows!
-                if (!((key == "Add Key") && (val == "Add Value"))) {
-                    tableData.push([key, val]);
+                if (!((rowData[0] == "Add Key") && (rowData[1] == "Add Value"))) {
+                    tableData.push(rowData);
                 }
             });
             // If we are editing a saved map annotation...
@@ -68,8 +97,12 @@
 
             data.mapAnnotation = JSON.stringify(tableData);
 
+            saveInProgress = true;
+            $mapAnnotationSpinner.show();
             $.post( url, data)
                 .done(function( data ) {
+                    saveInProgress = false;
+                    $mapAnnotationSpinner.hide();
                     $table.attr('data-annId', data.annId);
                 });
         };
@@ -146,9 +179,8 @@
                     .parent().parent().parent().find('.keyValueTable tbody'),
                 data = [];
             $tbody.find("tr.ui-selected").each(function(){
-                var key = $("td:first", this).text(),
-                    val = $("td:last", this).text();
-                data.push([key, val]);
+                var rowData = getRowData($(this));
+                data.push(rowData);
             });
             window.mapAnnotationClipboard = data;
         };
@@ -163,14 +195,24 @@
                 row,
                 html = "";
 
+            if (!data || data.length == 0) return;
+
             for (var r=0; r<data.length; r++) {
                 row = data[r];
                 html += "<tr><td>" + row[0] + "</td><td>" + row[1] + "</td></tr>";
             }
+            // Either paste after last selected row, or at bottom of table
             if ($selRow.length > 0) {
                 $(html).insertAfter($selRow);
             } else {
-                $(html).appendTo($tbody);
+                // If the last row is placeholder 'Add Key', 'Add Value', paste before
+                var $lastRow = $('tr:last', $tbody),
+                    rowData = getRowData($lastRow);
+                if (rowData[0] == "Add Key" && rowData[1] == "Add Value") {
+                    $(html).insertBefore($lastRow);
+                } else {
+                    $(html).appendTo($tbody);
+                }
             }
 
             saveMapAnnotation($tbody.parent());
