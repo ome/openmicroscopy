@@ -553,9 +553,12 @@
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
                includes="OMERO.insight*.app/**"
-               excludes="**/${dist.osx.stub.name}"/>
+               excludes="**/${dist.osx.stub.name},**/${distInsight.name}"/>
       <zipfileset file="${dist.osx.stub}"
                   fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
+                  filemode="775"/>
+      <zipfileset file="${dist.dir}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
+                  fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
                   filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
