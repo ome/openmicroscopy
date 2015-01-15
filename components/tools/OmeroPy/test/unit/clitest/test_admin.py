@@ -207,7 +207,12 @@ class TestAdminPorts(object):
             else:
                 self.cfg_files[key].remove()
 
-    def check_config_xml(self, prefix=None):
+    def check_cfg(self, prefix=''):
+        for key in ['master.cfg', 'internal.cfg']:
+            s = self.cfg_files[key].text()
+            assert 'tcp -h 127.0.0.1 -p %s4061' % prefix in s
+
+    def check_config_xml(self, prefix=''):
         config_text = self.cfg_files["config.xml"].text()
         serverport_property = (
             '<property name="omero.web.application_server.port"'
@@ -216,12 +221,8 @@ class TestAdminPorts(object):
             '<property name="omero.web.server_list"'
             ' value="[[&quot;localhost&quot;, %s4064, &quot;omero&quot;]]"'
             ) % prefix
-        if prefix:
-            assert serverport_property in config_text
-            assert serverlist_property in config_text
-        else:
-            assert serverport_property not in config_text
-            assert serverlist_property not in config_text
+        assert serverport_property in config_text
+        assert serverlist_property in config_text
 
     def check_default_xml(self, prefix=''):
         routerport = ('<variable name="ROUTERPORT"    value="%s4064"/>'
@@ -245,8 +246,7 @@ class TestAdminPorts(object):
 
         assert self.cfg_files["ice.config"].text().endswith(
             "omero.port=%s4064\n" % prefix)
-        assert "-p %s4061" % prefix in self.cfg_files["master.cfg"].text()
-        assert "-p %s4061" % prefix in self.cfg_files["internal.cfg"].text()
+        self.check_cfg(prefix)
         self.check_config_xml(prefix)
         self.check_default_xml(prefix)
 
@@ -255,7 +255,6 @@ class TestAdminPorts(object):
         self.cli.invoke(self.args, strict=True)
         assert not self.cfg_files["ice.config"].text().endswith(
             "omero.port=%s4064\n" % prefix)
-        assert "-p 4061" in self.cfg_files["master.cfg"].text()
-        assert "-p 4061" in self.cfg_files["internal.cfg"].text()
+        self.check_cfg()
         self.check_config_xml()
         self.check_default_xml()
