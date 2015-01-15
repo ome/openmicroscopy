@@ -177,7 +177,7 @@ class TestAdminPorts(object):
         self.cfg_files = {}
         for f in ['internal.cfg', 'master.cfg', 'ice.config']:
             self.cfg_files[f] = etc_dir / f
-        for f in ['windefault.xml', 'windefault.xml', 'config.xml']:
+        for f in ['windefault.xml', 'default.xml', 'config.xml']:
             self.cfg_files[f] = etc_dir / 'grid' / f
 
         # Create temp files for backup
@@ -223,6 +223,20 @@ class TestAdminPorts(object):
             assert serverport_property not in config_text
             assert serverlist_property not in config_text
 
+    def check_default_xml(self, prefix=''):
+        routerport = ('<variable name="ROUTERPORT"    value="%s4064"/>'
+                      % prefix)
+        insecure_routerport = (
+            '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
+            '/router:tcp -p %s4063 -h @omero.host@"/>' % prefix)
+        client_endpoints = ('client-endpoints="ssl -p ${ROUTERPORT}:tcp'
+                            ' -p %s4063"' % prefix)
+        for key in ['default.xml', 'windefault.xml']:
+            s = self.cfg_files[key].text()
+            assert routerport in s
+            assert insecure_routerport in s
+            assert client_endpoints in s
+
     @pytest.mark.parametrize('prefix', [1, 2])
     def testPorts(self, prefix):
         self.args += ['--prefix', '%s' % prefix]
@@ -234,6 +248,7 @@ class TestAdminPorts(object):
         assert "-p %s4061" % prefix in self.cfg_files["master.cfg"].text()
         assert "-p %s4061" % prefix in self.cfg_files["internal.cfg"].text()
         self.check_config_xml(prefix)
+        self.check_default_xml(prefix)
 
         # Check revert argument
         self.args += ['--revert']
@@ -243,3 +258,4 @@ class TestAdminPorts(object):
         assert "-p 4061" in self.cfg_files["master.cfg"].text()
         assert "-p 4061" in self.cfg_files["internal.cfg"].text()
         self.check_config_xml()
+        self.check_default_xml()
