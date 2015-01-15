@@ -32,10 +32,10 @@ http {
         fastcgi_temp_path %(ROOT)s/var/nginx_tmp;
         proxy_temp_path %(ROOT)s/var/nginx_tmp;
 
-        error_page 502  /500.html;
-
-        location ~* ^/(50*\.html)$ {
+        # maintenance page serve from here
+        location @maintenance {
             root %(ROOT)s/etc/templates/error;
+            try_files $uri $uri/ /502.html =502;
         }
 
          # weblitz django apps serve static content from here
@@ -44,6 +44,8 @@ http {
         }
 
         location %(FORCE_SCRIPT_NAME)s {
+
+            error_page 502 @maintenance;
 
             fastcgi_pass %(FASTCGI_PASS)s;
 
