@@ -205,31 +205,36 @@ class TestAdminPorts(object):
             else:
                 self.cfg_files[key].remove()
 
-    def check_cfg(self, prefix=''):
+    def check_cfg(self, prefix='', registry=4061):
         for key in ['master.cfg', 'internal.cfg']:
             s = self.cfg_files[key].text()
-            assert 'tcp -h 127.0.0.1 -p %s4061' % prefix in s
+            assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
 
-    def check_config_xml(self, prefix=''):
+    def check_config_xml(self, prefix='', webserver=4080, ssl=4064):
         config_text = self.cfg_files["config.xml"].text()
         serverport_property = (
             '<property name="omero.web.application_server.port"'
-            ' value="%s4080"') % prefix
+            ' value="%s%s"') % (prefix, webserver)
         serverlist_property = (
             '<property name="omero.web.server_list"'
-            ' value="[[&quot;localhost&quot;, %s4064, &quot;omero&quot;]]"'
-            ) % prefix
+            ' value="[[&quot;localhost&quot;, %s%s, &quot;omero&quot;]]"'
+            ) % (prefix, ssl)
         assert serverport_property in config_text
         assert serverlist_property in config_text
 
-    def check_default_xml(self, prefix=''):
+    def check_ice_config(self, prefix='', webserver=4080, ssl=4064):
+        config_text = self.cfg_files["ice.config"].text()
+        assert config_text.endswith("\nomero.port=%s%s\n" % (prefix, ssl))
+
+    def check_default_xml(self, prefix='', tcp=4063, ssl=4064):
         routerport = (
-            '<variable name="ROUTERPORT"    value="%s4064"/>' % prefix)
+            '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
         insecure_routerport = (
             '<variable name="INSECUREROUTER" value="OMERO.Glacier2'
-            '/router:tcp -p %s4063 -h @omero.host@"/>' % prefix)
+            '/router:tcp -p %s%s -h @omero.host@"/>' % (prefix, tcp))
         client_endpoints = (
-            'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s4063"' % prefix)
+            'client-endpoints="ssl -p ${ROUTERPORT}:tcp -p %s%s"'
+            % (prefix, tcp))
         for key in ['default.xml', 'windefault.xml']:
             s = self.cfg_files[key].text()
             assert routerport in s
@@ -242,8 +247,7 @@ class TestAdminPorts(object):
         self.args += ['--skipcheck']
         self.cli.invoke(self.args, strict=True)
 
-        assert self.cfg_files["ice.config"].text().endswith(
-            "omero.port=%s4064\n" % prefix)
+        self.check_ice_config(prefix)
         self.check_cfg(prefix)
         self.check_config_xml(prefix)
         self.check_default_xml(prefix)
@@ -251,8 +255,8 @@ class TestAdminPorts(object):
         # Check revert argument
         self.args += ['--revert']
         self.cli.invoke(self.args, strict=True)
-        assert not self.cfg_files["ice.config"].text().endswith(
-            "omero.port=%s4064\n" % prefix)
+
+        self.check_ice_config()
         self.check_cfg()
         self.check_config_xml()
         self.check_default_xml()
