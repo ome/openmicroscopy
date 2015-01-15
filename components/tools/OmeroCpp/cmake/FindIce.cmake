@@ -94,6 +94,9 @@ function(_Ice_FIND)
   # Released versions of Ice, including generic short forms
   set(ice_versions
       3
+      3.6
+      3.6.0
+      3.6b
       3.5
       3.5.1
       3.5.0
