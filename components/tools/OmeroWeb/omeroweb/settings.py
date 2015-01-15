@@ -244,7 +244,7 @@ INTERNAL_SETTINGS_MAPPING = {
         ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str, None],
 
     # Allowed hosts:
-    # https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+    # https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
     "omero.web.allowed_hosts":
         ["ALLOWED_HOSTS", '["*"]', json.loads, None],
 
@@ -319,19 +319,18 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["SESSION_ENGINE",
          DEFAULT_SESSION_ENGINE,
          check_session_engine,
-         ("Controls where Django stores session data. See `Configuring the "
-          "session engine for more details "
-          " <https://docs.djangoproject.com/en/1.6/ref/settings/"
-          "#session-engine>`_.")],
+         ("Controls where Django stores session data. See :djangodoc:"
+          "`Configuring the session engine for more details <ref/settings"
+          "/#session-engine>`.")],
     "omero.web.session_expire_at_browser_close":
         ["SESSION_EXPIRE_AT_BROWSER_CLOSE",
          "true",
          parse_boolean,
          ("A boolean that determines whether to expire the session when the "
-          "user closes their browser. See `Django Browser-length sessions vs."
-          " persistent sessions documentation "
-          " <https://docs.djangoproject.com/en/1.6/topics/http/sessions/"
-          "#browser-length-vs-persistent-sessions>`_ for more details.")],
+          "user closes their browser. See :djangodoc:`Django Browser-length "
+          "sessions vs. persistent sessions documentation <topics/http/"
+          "sessions/#browser-length-vs-persistent-sessions>` for more "
+          "details.")],
 
     "omero.web.caches":
         ["CACHES",
@@ -339,10 +338,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
           ' "django.core.cache.backends.dummy.DummyCache"}}'),
          json.loads,
          ("OMERO.web offers alternative session backends to automatically"
-          " delete stale data using the cache session store backend, see"
-          " `Django cached session documentation"
-          " <https://docs.djangoproject.com/en/1.6/topics/http/sessions/"
-          "#using-cached-sessions>`_  for more details.")],
+          " delete stale data using the cache session store backend, see "
+          ":djangodoc:`Django cached session documentation <topics/http/"
+          "sessions/#using-cached-sessions>` for more details.")],
     "omero.web.session_cookie_age":
         ["SESSION_COOKIE_AGE",
          86400,
@@ -517,9 +515,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
          '{}',
          json.loads,
          ("Redirect to the givin location after loging in. It only support "
-          "arguments for `Django reverse function"
-          " <https://docs.djangoproject.com/en/1.6/ref/urlresolvers/"
-          "#django.core.urlresolvers.reverse>`_. "
+          "arguments for :djangodoc:`Django reverse function"
+          " <ref/urlresolvers/#django.core.urlresolvers.reverse>`. "
           "For example: ``'{\"redirect\": [\"webindex\"], \"viewname\":"
           " \"load_template\", \"args\":[\"userdata\"], \"query_string\":"
           " \"experimenter=-1\"}'``")],
@@ -721,7 +718,7 @@ SECRET_KEY = '@@k%g#7=%4b6ib7yr1tloma&g0s2nni6ljf!m0h&x9c712c7yj'
 USE_I18N = True
 
 # MIDDLEWARE_CLASSES: A tuple of middleware classes to use.
-# See https://docs.djangoproject.com/en/1.3/topics/http/middleware/.
+# See https://docs.djangoproject.com/en/1.6/topics/http/middleware/.
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
