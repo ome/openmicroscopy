@@ -84,16 +84,16 @@ class WebControl(BaseControl):
 
         config = parser.add(
             sub, self.config,
-            "Output a config template for server"
-            " ('nginx', 'apache', 'apache-fcgi')")
+            "Output a config template for web server\n"
+            "  nginx: Nginx system configuration for inclusion\n"
+            "  nginx-development: Standalone user-run Nginx server\n"
+            "  apache: Apache 2.2 with mod_fastcgi\n"
+            "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
         config.add_argument("type", choices=(
-            "nginx", "apache", "apache-fcgi"))
+            "nginx", "nginx-development", "apache", "apache-fcgi"))
         config.add_argument(
             "--http", type=int,
             help="HTTP port for web server (not fastcgi)")
-        config.add_argument(
-            "--system", action="store_true",
-            help="System appropriate configuration file")
         config.add_argument(
             "--templates_dir", type=str, help=SUPPRESS)
 
@@ -144,7 +144,7 @@ class WebControl(BaseControl):
         if not args.type:
             self.ctx.out(
                 "Available configuration helpers:\n"
-                " - nginx, apache, apache-fcgi\n")
+                " - nginx, nginx-development, apache, apache-fcgi\n")
         else:
             server = args.type
             port = 8080
@@ -173,8 +173,8 @@ class WebControl(BaseControl):
                 templates_dir = path(args.templates_dir)
             else:
                 templates_dir = self.ctx.dir / "etc" / "templates"
-            if server == "nginx":
-                if args.system:
+            if server in ("nginx", "nginx-development"):
+                if server == "nginx":
                     template_file = "nginx.conf.system.template"
                 else:
                     template_file = "nginx.conf.template"

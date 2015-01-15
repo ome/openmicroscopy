@@ -76,9 +76,11 @@ class TestWeb(object):
     def testNginxConfig(self, system, http, prefix, capsys, monkeypatch):
 
         static_prefix = self.add_prefix(prefix, monkeypatch)
-        self.args += ["config", "nginx"]
+        self.args += ["config"]
         if system:
-            self.args += ["--system"]
+            self.args += ["nginx"]
+        else:
+            self.args += ["nginx-development"]
         if http:
             self.args += ["--http", str(http)]
         self.add_templates_dir()
