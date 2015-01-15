@@ -56,7 +56,7 @@ import logging, os, traceback, time, zipfile, shutil
 
 from omeroweb.decorators import login_required, ConnCleaningHttpResponse
 from omeroweb.connector import Connector
-from omeroweb.webgateway.util import zip_archived_files
+from omeroweb.webgateway.util import zip_archived_files, getIntOrDefault
 
 logger = logging.getLogger(__name__)
 
@@ -284,9 +284,9 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
     if size == (96,):
         direct = False
     user_id = conn.getUserId()
-    rdefId = request.REQUEST.get('rdefId', None)
-    if rdefId is not None:
-        rdefId = int(rdefId)
+    z = getIntOrDefault(request, 'z', None)
+    t = getIntOrDefault(request, 't', None)
+    rdefId = getIntOrDefault(request, 'rdefId', None)
     # TODO - cache handles rdefId
     jpeg_data = webgateway_cache.getThumb(request, server_id, user_id, iid, size)
     if jpeg_data is None:
@@ -300,7 +300,7 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
             else:
                 raise Http404
         else:
-            jpeg_data = img.getThumbnail(size=size, direct=direct, rdefId=rdefId)
+            jpeg_data = img.getThumbnail(size=size, direct=direct, rdefId=rdefId, z=z, t=t)
             if jpeg_data is None:
                 logger.debug("(c)Image %s not found..." % (str(iid)))
                 if _defcb:
@@ -668,8 +668,8 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
     img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
     if saveDefs:
-        r.has_key('z') and img._re.setDefaultZ(long(r['z'])-1)
-        r.has_key('t') and img._re.setDefaultT(long(r['t'])-1)
+        r.has_key('z') and img.setDefaultZ(long(r['z'])-1)
+        r.has_key('t') and img.setDefaultT(long(r['t'])-1)
         img.saveDefaults()
     return (img, compress_quality)
 

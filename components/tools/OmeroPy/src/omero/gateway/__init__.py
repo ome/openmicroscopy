@@ -7221,7 +7221,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return None
             if isinstance(size, IntType):
                 size = (size,)
-            if z is not None and t is not None:
+            if z is not None or t is not None:
+                if z is None:
+                    z = self.getDefaultZ()
+                if t is None:
+                    t = self.getDefaultT()
                 pos = z, t
             else:
                 pos = None
@@ -8368,6 +8372,20 @@ class _ImageWrapper (BlitzObjectWrapper):
         Gets the default T index from the rendering engine
         """
         return self._re.getDefaultT()
+
+    @assert_re()
+    def setDefaultZ(self, z):
+        """
+        Sets the default Z index to the rendering engine
+        """
+        return self._re.setDefaultZ(z)
+
+    @assert_re()
+    def setDefaultT(self, t):
+        """
+        Sets the default T index to the rendering engine
+        """
+        return self._re.setDefaultT(t)
 
     @assert_pixels
     def getPixelsType(self):

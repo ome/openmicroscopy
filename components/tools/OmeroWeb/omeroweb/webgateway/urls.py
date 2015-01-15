@@ -97,7 +97,8 @@ Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
 render_thumbnail = url(r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width and max-height.
-See L{views.render_thumbnail}. Uses current rendering settings. 
+See L{views.render_thumbnail}. Uses current rendering settings.
+Query string can be used to specify Z or T section. E.g. ?z=10.
 Params in render_thumbnail/<iid>/<w>/<h> are:
     - iid:  Image ID
     - w:    Optional max width
