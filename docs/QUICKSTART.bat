@@ -61,7 +61,7 @@ createuser -S -D -R -U postgres omero
 if errorlevel 1 echo Already exists?
 
 echo Creating %OMERO_CONFIG% db
-createdb -O omero -U postgres %OMERO_CONFIG%
+createdb -E UTF8 -O omero -U postgres %OMERO_CONFIG%
 if errorlevel 1 goto ERROR
 
 echo Adding pgsql to db

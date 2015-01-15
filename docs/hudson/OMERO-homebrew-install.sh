@@ -116,7 +116,7 @@ bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log -w start
 
 # Create user and database
 bin/createuser -w -D -R -S db_user
-bin/createdb -O db_user omero_database
+bin/createdb -E UTF8 -O db_user omero_database
 bin/psql -h localhost -U db_user -l
 
 # Set database
