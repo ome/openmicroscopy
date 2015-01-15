@@ -3,7 +3,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008-2011 University of Dundee.
+# Copyright (c) 2008-2015 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -39,6 +39,7 @@ from custom_forms import MetadataModelChoiceField, \
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         ExperimenterModelMultipleChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
+from omeroweb.webclient.webclient_utils import formatPercentFraction
 
 logger = logging.getLogger(__name__)
 
@@ -361,16 +362,10 @@ class MetadataChannelForm(forms.Form):
         # ndFilter
         try:
             if logicalCh is not None and logicalCh.ndFilter is not None:
-                ndValue = logicalCh.ndFilter * 100
-                # Format E.g. 50, 10, 0.5
-                if ndValue < 1:
-                    ndValue = "%.1f" % round(ndValue, 1)
-                else:
-                    ndValue = "%2d" % round(ndValue)
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=ndValue,
+                    initial=formatPercentFraction(logicalCh.ndFilter),
                     label="ND filter (%)",
                     required=False)
             else:
@@ -1969,16 +1964,10 @@ class MetadataLightSourceForm(forms.Form):
         
         # Attenuation
         if lightSourceSettings is not None and lightSourceSettings.attenuation is not None:
-            lsAttn = lightSourceSettings.attenuation * 100
-            # Format E.g. 50, 10, 0.5
-            if lsAttn < 1:
-                lsAttn = "%.1f" % round(lsAttn, 1)
-            else:
-                lsAttn = "%2d" % round(lsAttn)
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
                 widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
-                initial=lsAttn,
+                initial=formatPercentFraction(lightSourceSettings.attenuation),
                 label="Attenuation (%)",
                 required=False)
         else:
