@@ -205,12 +205,12 @@ class TestAdminPorts(object):
             else:
                 self.cfg_files[key].remove()
 
-    def check_cfg(self, prefix='', registry=4061):
+    def check_cfg(self, prefix='', registry=4061, **kwargs):
         for key in ['master.cfg', 'internal.cfg']:
             s = self.cfg_files[key].text()
             assert 'tcp -h 127.0.0.1 -p %s%s' % (prefix, registry) in s
 
-    def check_config_xml(self, prefix='', webserver=4080, ssl=4064):
+    def check_config_xml(self, prefix='', webserver=4080, ssl=4064, **kwargs):
         config_text = self.cfg_files["config.xml"].text()
         serverport_property = (
             '<property name="omero.web.application_server.port"'
@@ -222,11 +222,11 @@ class TestAdminPorts(object):
         assert serverport_property in config_text
         assert serverlist_property in config_text
 
-    def check_ice_config(self, prefix='', webserver=4080, ssl=4064):
+    def check_ice_config(self, prefix='', webserver=4080, ssl=4064, **kwargs):
         config_text = self.cfg_files["ice.config"].text()
         assert config_text.endswith("\nomero.port=%s%s\n" % (prefix, ssl))
 
-    def check_default_xml(self, prefix='', tcp=4063, ssl=4064):
+    def check_default_xml(self, prefix='', tcp=4063, ssl=4064, **kwargs):
         routerport = (
             '<variable name="ROUTERPORT"    value="%s%s"/>' % (prefix, ssl))
         insecure_routerport = (
@@ -242,7 +242,7 @@ class TestAdminPorts(object):
             assert client_endpoints in s
 
     @pytest.mark.parametrize('prefix', [1, 2])
-    def testPorts(self, prefix):
+    def testPrefix(self, prefix):
         self.args += ['--prefix', '%s' % prefix]
         self.args += ['--skipcheck']
         self.cli.invoke(self.args, strict=True)
@@ -260,3 +260,22 @@ class TestAdminPorts(object):
         self.check_cfg()
         self.check_config_xml()
         self.check_default_xml()
+
+    @pytest.mark.parametrize('registry', [None, 111])
+    @pytest.mark.parametrize('tcp', [None, 222])
+    @pytest.mark.parametrize('ssl', [None, 333])
+    def testSSL(self, registry, ssl, tcp):
+        kwargs = {}
+        if registry:
+            self.args += ['--registry', '%s' % registry]
+            kwargs["registry"] = registry
+        if tcp:
+            self.args += ['--tcp', '%s' % tcp]
+            kwargs["tcp"] = tcp
+        if ssl:
+            self.args += ['--ssl', '%s' % ssl]
+            kwargs["ssl"] = ssl
+        self.args += ['--skipcheck']
+        self.cli.invoke(self.args, strict=True)
+
+        self.check_ice_config(**kwargs)
