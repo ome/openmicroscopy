@@ -899,7 +899,6 @@ public class client {
         __previous = new Ice.InitializationData();
         __previous.properties = oldIc.getProperties()._clone();
         __previous.logger = oldIc.getLogger();
-        __previous.stats = oldIc.getStats();
         // ThreadHook is not support since not available from ic
 
         // Shutdown keep alive
