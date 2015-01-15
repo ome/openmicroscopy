@@ -89,21 +89,13 @@ class TestWeb(object):
         if system:
             assert lines[0] == "server {"
             assert lines[1] == "listen       %s;" % (http or 8080)
-            assert lines[3] == "location %s {" % static_prefix[:-1]
-            assert lines[6] == "location %s {" % (prefix or "/")
-            assert lines[8] == "error_page 503 %s/maintenance.html;" % (
-                prefix or "")
-            assert lines[-4] == "location %s/maintenance.html {" % (
-                prefix or "")
+            assert lines[7] == "location %s {" % static_prefix[:-1]
+            assert lines[10] == "location %s {" % (prefix or "/")
         else:
             assert lines[16] == "server {"
             assert lines[17] == "listen       %s;" % (http or 8080)
-            assert lines[21] == "location %s {" % static_prefix[:-1]
-            assert lines[24] == "location %s {" % (prefix or "/")
-            assert lines[26] == "error_page 503 %s/maintenance.html;" % (
-                prefix or "")
-            assert lines[-5] == "location %s/maintenance.html {" % (
-                prefix or "")
+            assert lines[25] == "location %s {" % static_prefix[:-1]
+            assert lines[28] == "location %s {" % (prefix or "/")
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheConfig(self, prefix, capsys, monkeypatch):
