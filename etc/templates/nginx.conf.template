@@ -38,7 +38,7 @@ http {
             try_files $uri $uri/ /502.html =502;
         }
 
-         # weblitz django apps serve static content from here
+        # weblitz django apps serve static content from here
         location %(STATIC_URL)s {
             alias %(OMEROWEBROOT)s/static;
         }
