@@ -173,26 +173,25 @@ class TestAdminPorts(object):
         # # Non-temp directories
         ctxdir = path() / ".." / ".." / ".." / "dist"
         etc_dir = ctxdir / "etc"
-        self.ice_config = etc_dir / "ice.config"
-        self.internal_cfg = etc_dir / "internal.cfg"
-        self.master_cfg = etc_dir / "master.cfg"
-        self.config_xml = etc_dir / "grid" / "config.xml"
+
+        self.cfg_files = {}
+        for f in ['internal.cfg', 'master.cfg', 'ice.config']:
+            self.cfg_files[f] = etc_dir / f
+        for f in ['windefault.xml', 'windefault.xml', 'config.xml']:
+            self.cfg_files[f] = etc_dir / 'grid' / f
 
         # Create temp files for backup
         tmp_dir = create_path(folder=True)
-        self.tmp_ice_config = tmp_dir / "ice.config"
-        self.tmp_internal_cfg = tmp_dir / "internal.cfg"
-        self.tmp_master_cfg = tmp_dir / "master.cfg"
-        self.tmp_config_xml = tmp_dir / "config.xml"
+        self.tmp_cfg_files = {}
+        for key in self.cfg_files.keys():
+            self.tmp_cfg_files[key] = tmp_dir / key
 
         # Create backups
-        self.ice_config.copy(self.tmp_ice_config)
-        self.internal_cfg.copy(self.tmp_internal_cfg)
-        self.master_cfg.copy(self.tmp_master_cfg)
-        if self.config_xml.exists():
-            self.config_xml.copy(self.tmp_config_xml)
-        else:
-            self.tmp_config_xml = None
+        for key in self.cfg_files.keys():
+            if self.cfg_files[key].exists():
+                self.cfg_files[key].copy(self.tmp_cfg_files[key])
+            else:
+                self.tmp_cfg_files[key] = None
 
         # Other setup
         self.cli = CLI()
@@ -202,14 +201,14 @@ class TestAdminPorts(object):
 
     def teardown_method(self, tmpdir):
         # Restore backups
-        self.tmp_ice_config.copy(self.ice_config)
-        self.tmp_internal_cfg.copy(self.internal_cfg)
-        self.tmp_master_cfg.copy(self.master_cfg)
-        if self.tmp_config_xml:
-            self.config_xml.remove()
+        for key in self.cfg_files.keys():
+            if self.tmp_cfg_files[key] is not None:
+                self.tmp_cfg_files[key].copy(self.cfg_files[key])
+            else:
+                self.cfg_files[key].remove()
 
     def check_config_xml(self, prefix=None):
-        config_text = self.config_xml.text()
+        config_text = self.cfg_files["config.xml"].text()
         serverport_property = (
             '<property name="omero.web.application_server.port"'
             ' value="%s4080"') % prefix
@@ -230,16 +229,17 @@ class TestAdminPorts(object):
         self.args += ['--skipcheck']
         self.cli.invoke(self.args, strict=True)
 
-        assert self.ice_config.text().endswith("omero.port=%s4064\n" % prefix)
-        assert "-p %s4061" % prefix in self.master_cfg.text()
-        assert "-p %s4061" % prefix in self.internal_cfg.text()
+        assert self.cfg_files["ice.config"].text().endswith(
+            "omero.port=%s4064\n" % prefix)
+        assert "-p %s4061" % prefix in self.cfg_files["master.cfg"].text()
+        assert "-p %s4061" % prefix in self.cfg_files["internal.cfg"].text()
         self.check_config_xml(prefix)
 
         # Check revert argument
         self.args += ['--revert']
         self.cli.invoke(self.args, strict=True)
-        assert not self.ice_config.text().endswith(
+        assert not self.cfg_files["ice.config"].text().endswith(
             "omero.port=%s4064\n" % prefix)
-        assert "-p 4061" in self.master_cfg.text()
-        assert "-p 4061" in self.internal_cfg.text()
+        assert "-p 4061" in self.cfg_files["master.cfg"].text()
+        assert "-p 4061" in self.cfg_files["internal.cfg"].text()
         self.check_config_xml()
