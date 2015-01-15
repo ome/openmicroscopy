@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import ij.ImagePlus;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +35,6 @@ import java.util.Set;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
-
 import org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
@@ -563,9 +564,15 @@ class ImporterModel
             SecurityContext ctx = new SecurityContext(c.getGroupID());
             Iterator<Long> i = ids.iterator();
             long id;
+            List<ROIData> rois;
+            ImagePlus img = (ImagePlus) object.getFile();
             while (i.hasNext()) {
                 id = i.next();
-                List<ROIData> rois = reader.readImageJROI(id);
+                //First check overlay
+                rois = reader.readImageJROI(id, img);
+                if (CollectionUtils.isNotEmpty(rois)) {
+                    rois = reader.readImageJROI(id);
+                }
                 if (CollectionUtils.isNotEmpty(rois)) {
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
                             c.getExperimenterID());

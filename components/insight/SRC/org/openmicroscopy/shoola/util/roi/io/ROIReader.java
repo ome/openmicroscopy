@@ -22,9 +22,11 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import ij.ImagePlus;
 import ij.gui.EllipseRoi;
 import ij.gui.Line;
 import ij.gui.OvalRoi;
+import ij.gui.Overlay;
 import ij.gui.PointRoi;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
@@ -200,13 +202,11 @@ public class ROIReader {
      * Reads the roi linked to the imageJ object.
      *
      * @param imageID The identifier of the image to link the ROI to.
+     * @param rois The rois to convert.
      * @return See above.
      */
-    public List<ROIData> readImageJROI(long imageID)
+    private List<ROIData> read(long imageID, Roi[] rois)
     {
-        RoiManager manager = RoiManager.getInstance();
-        if (manager == null) return null;
-        Roi[] rois = manager.getRoisAsArray();
         if (rois == null || rois.length == 0) return null;
         Roi r;
         List<ROIData> pojos = new ArrayList<ROIData>();
@@ -267,6 +267,32 @@ public class ROIReader {
             }
         }
         return pojos;
+    }
+    /**
+     * Reads the roi linked to the imageJ object.
+     *
+     * @param imageID The identifier of the image to link the ROI to.
+     * @return See above.
+     */
+    public List<ROIData> readImageJROI(long imageID, ImagePlus image)
+    {
+        if (image == null) return null;
+        Overlay overlay = image.getOverlay();
+        if (overlay == null) return null;
+        return read(imageID, overlay.toArray());
+    }
+
+    /**
+     * Reads the roi linked to the imageJ object.
+     *
+     * @param imageID The identifier of the image to link the ROI to.
+     * @return See above.
+     */
+    public List<ROIData> readImageJROI(long imageID)
+    {
+        RoiManager manager = RoiManager.getInstance();
+        if (manager == null) return null;
+        return read(imageID, manager.getRoisAsArray());
     }
 
 }
