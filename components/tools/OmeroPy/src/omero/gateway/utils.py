@@ -177,13 +177,13 @@ def toBoolean(val):
 
         If the value is a boolean return the value.
         Otherwise check to see if the value is in
-        ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
-        and returns True if value is not in the list
+        ["true", "yes", "y", "t", "1"]
+        and returns True if value is in the list
     """
 
     if val is True or val is False:
         return val
 
-    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
+    trueItems = ["true", "yes", "y", "t", "1"]
 
-    return not str(val).strip().lower() in falseItems
+    return str(val).strip().lower() in trueItems
