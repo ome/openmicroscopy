@@ -1,0 +1,12 @@
+<ivy-module version="1.0">
+  <info
+    organisation="zeroc"
+    module="ice-grid"
+    status="integration"
+    revision="3.6.0"
+  />
+  <publications>
+    <artifact name="ice-grid" type="jar"/>
+  </publications>
+</ivy-module>
+
