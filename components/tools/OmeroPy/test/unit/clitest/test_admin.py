@@ -264,7 +264,8 @@ class TestAdminPorts(object):
     @pytest.mark.parametrize('registry', [None, 111])
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
-    def testSSL(self, registry, ssl, tcp):
+    @pytest.mark.parametrize('webserver', [None, 444])
+    def testSSL(self, registry, ssl, tcp, webserver):
         kwargs = {}
         if registry:
             self.args += ['--registry', '%s' % registry]
@@ -275,6 +276,9 @@ class TestAdminPorts(object):
         if ssl:
             self.args += ['--ssl', '%s' % ssl]
             kwargs["ssl"] = ssl
+        if webserver:
+            self.args += ['--webserver', '%s' % webserver]
+            kwargs["webserver"] = webserver
         self.args += ['--skipcheck']
         self.cli.invoke(self.args, strict=True)
 
