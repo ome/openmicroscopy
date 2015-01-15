@@ -1220,7 +1220,8 @@ class MetadataFilterForm(forms.Form):
                 self.fields['transmittance'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'transmittance\', this.value);'}),
-                    initial=kwargs['initial']['filter'].getTransmittanceRange().transmittance,
+                    initial=formatPercentFraction(kwargs['initial']['filter'].getTransmittanceRange().transmittance),
+                    label="Transmittance (%)",
                     required=False)
             else:
                 self.fields['transmittance'] = forms.CharField(
