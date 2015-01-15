@@ -222,7 +222,7 @@
    *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist"
-          depends="jar, jar-util, jar-ij, dist-osx, dist-win, dist-ij, distImporter-osx, distImporter-win, distImporter-linux, dist-osx-appbundler"
+          depends="jar, jar-util, jar-ij, dist-osx, dist-win, dist-ij, distImporter-osx, distImporter-win, distImporter-linux"
           description="Build and package the app for distribution.">
 
     <!-- Main zip -->
@@ -490,7 +490,7 @@
    *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-osx"
-          depends="jar"
+          depends="jar,dist-osx-appbundler"
           description="Build and package the app for OS X distribution.">
     <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
