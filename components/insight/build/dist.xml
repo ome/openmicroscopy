@@ -366,83 +366,6 @@
 	    </zip>
 	  </target>
 
-  <target name="dist-win-openGL" depends="jar,exe4j-init"
-          if="dist.exe4j.exists"
-          description="Build and package the app for Windows distribution with OpenGL support.">
-    <make-windows-executables type="Insight" do-64-bit="false"/>
-    <copy file="${app.config.dir}/imviewer.xml"
-      tofile="${dist.dir}/opengl-imviewer.xml"/>
-    <replace file="${dist.dir}/opengl-imviewer.xml"
-        token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
-        value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
-    </replace>
-    <property name="dist.zip.prefix.win.openGL"
-              value="${dist.bundle.name}-${dist.bundle.version}-win-openGL"/>
-    <zip destfile=
-           "${dist.dir}/${dist.zip.prefix.win.openGL}.zip">
-      <zipfileset prefix="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}"
-                  dir="${app.config.dir}"
-                  includes="**"
-                  excludes="imviewer.xml"/>
-      <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs" dir="${app.lib.dir}"
-                  includes="*"/>
-      <zipfileset prefix="${dist.zip.prefix.win.openGL}"
-                  file="${app.dir}/${distInsight.win.exename}.exe"/>
-      <zipfileset fullpath="${dist.zip.prefix.win.openGL}/LICENSE"
-                  file="${base.licensefile}"/>
-      <zipfileset prefix="${dist.zip.prefix.win.openGL}" dir="${dist.dir}"
-                  includes="${dist.jar.file}"/>
-      <zipfileset prefix="${dist.zip.prefix.win.openGL}/libs"
-                  dir="${native.lib.dir}/win-native" includes="*"/>
-      <zipfileset file="${dist.dir}/opengl-imviewer.xml"
-                  fullpath="${dist.zip.prefix.win.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
-    </zip>
-  </target>
-
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	* Creates the Windows distribution bundle under ${dist.dir}.
-	* This is a zip file whose name is set to
-	* ${dist.bundle.name}-${dist.bundle.version}-win.zip
-	* and whose contents are:
-	*   + A config dir, containing all the app.config files.  The dir name is
-	*     set to the name of the ${app.config.dir}.
-	*   + The OMERO.insight application.  That is, the .app dir embedding the app
-	*     jar file, all the the app.libs files, and Windows exe.
-	*   + The license file, ${base.licensefile}.
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-   <target name="dist-win64-openGL" depends="jar,exe4j-init"
-	          if="dist.exe4j.exists"
-	          description="Build and package the app for Windows 64 distribution with OpenGL support.">
-      <make-windows-executables type="Insight" do-32-bit="false"/>
-      <copy file="${app.config.dir}/imviewer.xml"
-        tofile="${dist.dir}/opengl-imviewer.xml"/>
-      <replace file="${dist.dir}/opengl-imviewer.xml"
-          token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
-          value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
-      </replace>
-	    <property name="dist.zip.prefix.win64.openGL"
-                value="${dist.bundle.name}-${dist.bundle.version}-win64-openGL"/>
-	    <zip destfile="${dist.dir}/${dist.zip.prefix.win64.openGL}.zip">
-	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}"
-                    dir="${app.config.dir}"
-                    includes="**"
-                    excludes="imviewer.xml"/>
-	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs" dir="${app.lib.dir}"
-	                  includes="*"/>
-	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}"
-	                  file="${app.dir}/${distInsight.win64.exename}.exe"/>
-	      <zipfileset file="${base.licensefile}"
-	                  fullpath="${dist.zip.prefix.win64.openGL}/LICENSE"/>
-	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}" dir="${dist.dir}"
-	                  includes="${dist.jar.file}"/>
-	      <zipfileset prefix="${dist.zip.prefix.win64.openGL}/libs"
-	                  dir="${native.lib.dir}/win64-native"
-	                  includes="*"/>
-        <zipfileset file="${dist.dir}/opengl-imviewer.xml"
-                    fullpath="${dist.zip.prefix.win64.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
-	    </zip>
-	  </target>
-
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Creates the Mac OS X distribution bundle under ${dist.dir} using the
    * Java Application Bundler infrastructure for Java 1.7+.
@@ -459,11 +382,10 @@
   <target name="dist-osx-appbundler"
           depends="jar"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
-    <delete dir="${dist.dir}/appbundler/OMERO.insight.app"/>
-    <mkdir dir="${dist.dir}/appbundler"/>
+    <delete dir="${dist.dir}/OMERO.insight_Java7+.app"/>
     <appbundler
-      outputdirectory="${dist.dir}/appbundler"
-      name="${distInsight.name}"
+      outputdirectory="${dist.dir}"
+      name="${distInsight.name}_Java7+"
       displayname="${distInsight.name}"
       executableName="${distInsight.name}"
       identifier="org.openmicroscopy.insight"
@@ -492,9 +414,9 @@
   <target name="dist-osx"
           depends="jar,dist-osx-appbundler"
           description="Build and package the app for OS X distribution.">
-    <delete dir="${dist.dir}/OMERO.insight.app"/>
+    <delete dir="${dist.dir}/OMERO.insight_Java6.app"/>
     <jarbundler dir="${dist.dir}"
-                name="${distInsight.name}"
+                name="${distInsight.name}_Java6"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
@@ -513,10 +435,10 @@
       <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
-               includes="OMERO.insight.app/**"
+               includes="OMERO.insight*.app/**"
                excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}"
-                  fullpath="${dist.zip.prefix.osx}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
+                  fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="775"/>
       <zipfileset prefix="${dist.zip.prefix.osx}" file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
