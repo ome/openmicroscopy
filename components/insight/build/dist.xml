@@ -245,7 +245,7 @@
           depends="jar, jar-util, jar-ij, dist-osx-openGL, dist-osx, dist-win,
 	dist-win-openGL,dist-win64-openGL,distEditor-osx, distEditor-win,
 	distEditor-linux, dist-ij, distImporter-osx, distImporter-win,
-	distImporter-linux, dist-osx-appbundler"
+	distImporter-linux"
           description="Build and package the app for distribution.">
 
     <!-- Main zip -->
@@ -530,7 +530,7 @@
    *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-osx"
-          depends="jar"
+          depends="jar,dist-osx-appbundler"
           description="Build and package the app for OS X distribution.">
     <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
