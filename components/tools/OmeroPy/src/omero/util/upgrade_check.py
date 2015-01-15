@@ -90,7 +90,7 @@ class UpgradeCheck(object):
     def getOSVersion(self):
         try:
             if len(platform.mac_ver()[0]) > 0:
-                version = "%s-%s" % (platform.platform(),
+                version = "%s;%s" % (platform.platform(),
                                      platform.mac_ver()[0])
             else:
                 version = platform.platform()
