@@ -174,6 +174,7 @@ class TestAdminPorts(object):
         ctxdir = path() / ".." / ".." / ".." / "dist"
         etc_dir = ctxdir / "etc"
 
+        # List configuration files to backup
         self.cfg_files = {}
         for f in ['internal.cfg', 'master.cfg', 'ice.config']:
             self.cfg_files[f] = etc_dir / f
@@ -184,11 +185,8 @@ class TestAdminPorts(object):
         tmp_dir = create_path(folder=True)
         self.tmp_cfg_files = {}
         for key in self.cfg_files.keys():
-            self.tmp_cfg_files[key] = tmp_dir / key
-
-        # Create backups
-        for key in self.cfg_files.keys():
             if self.cfg_files[key].exists():
+                self.tmp_cfg_files[key] = tmp_dir / key
                 self.cfg_files[key].copy(self.tmp_cfg_files[key])
             else:
                 self.tmp_cfg_files[key] = None
