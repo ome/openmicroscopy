@@ -96,9 +96,6 @@ public class SaveAsActivity
 		this.parameters = parameters;
 		initialize(DESCRIPTION_CREATION+parameters.getIndexAsString(),
 				parameters.getIcon());
-		File folder = parameters.getFolder();
-		messageLabel.setText("in "+folder.getName());
-		messageLabel.setToolTipText(folder.getAbsolutePath());
 	}
 
 	/**
