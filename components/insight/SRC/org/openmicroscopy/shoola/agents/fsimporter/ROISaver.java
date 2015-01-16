@@ -98,7 +98,6 @@ public class ROISaver
      */
     public void handleResult(Object result) 
     {
-        IJ.log("roi save");
     }
 
 }

@@ -143,7 +143,6 @@ public class FileObject
                 f = new File(p, n);
                 f.deleteOnExit();
             } catch (Exception e) {
-                IJ.log(e.toString());
                 return null;
             }
             StringBuffer buffer = new StringBuffer();
