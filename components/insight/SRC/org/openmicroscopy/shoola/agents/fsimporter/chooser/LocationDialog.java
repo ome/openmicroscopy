@@ -55,7 +55,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;

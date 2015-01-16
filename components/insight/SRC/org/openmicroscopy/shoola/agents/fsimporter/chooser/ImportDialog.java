@@ -388,7 +388,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**  Adds the images from imageJ to the queue.*/
 	private void addImageJFiles()
 	{
-        if (ImporterAgent.runAsPlugin() != LookupNames.IMAGE_J_IMPORT) return;
+	    int plugin = ImporterAgent.runAsPlugin();
+	    
+        if (!(plugin == LookupNames.IMAGE_J_IMPORT ||
+                plugin == LookupNames.IMAGE_J)) return;
         boolean active = locationDialog.isActiveWindow();
         List<FileObject> list = new ArrayList<FileObject>();
         if (active) {
@@ -1033,7 +1036,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		tablePanel.add(tabbedPane, "2, 1, 3, 1");
 		int plugin = ImporterAgent.runAsPlugin();
 		JSplitPane pane;
-		if (plugin == LookupNames.IMAGE_J_IMPORT) {
+		if (plugin == LookupNames.IMAGE_J_IMPORT ||
+		   plugin == LookupNames.IMAGE_J) {
 		    JPanel panel = new JPanel();
 		    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		    JLabel label = UIUtilities.setTextFont(
