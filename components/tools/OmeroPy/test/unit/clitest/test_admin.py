@@ -269,7 +269,7 @@ class TestAdminPorts(object):
     @pytest.mark.parametrize('tcp', [None, 222])
     @pytest.mark.parametrize('ssl', [None, 333])
     @pytest.mark.parametrize('webserver', [None, 444])
-    def testSSL(self, registry, ssl, tcp, webserver, prefix):
+    def testExplicitPorts(self, registry, ssl, tcp, webserver, prefix):
         kwargs = {}
         if prefix:
             self.args += ['--prefix', '%s' % prefix]
