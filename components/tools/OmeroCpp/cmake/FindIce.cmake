@@ -43,7 +43,7 @@
 #
 #   Ice_HOME - the root of the Ice installation
 #
-# The environment variable :envvar:`ICE_HOME` may also be used; the
+# The environment variable ``ICE_HOME`` may also be used; the
 # Ice_HOME variable takes precedence.
 #
 # The following cache variables may also be set::
@@ -94,6 +94,9 @@ function(_Ice_FIND)
   # Released versions of Ice, including generic short forms
   set(ice_versions
       3
+      3.6
+      3.6.0
+      3.6b
       3.5
       3.5.1
       3.5.0
@@ -282,21 +285,21 @@ function(_Ice_FIND)
       PATH_SUFFIXES ${ice_library_suffixes}
       DOC "Ice ${component} library")
     mark_as_advanced("${component_cache}")
-    if("${component_cache}")
+    if(${component_cache})
       set("${component_found}" ON)
       list(APPEND Ice_LIBRARY "${${component_cache}}")
     endif()
     mark_as_advanced("${component_found}")
     set("${component_cache}" "${${component_cache}}" PARENT_SCOPE)
     set("${component_found}" "${${component_found}}" PARENT_SCOPE)
-    if("${component_found}")
-      if ("Ice_FIND_REQUIRED_${component}")
+    if(${component_found})
+      if (Ice_FIND_REQUIRED_${component})
         list(APPEND Ice_LIBS_FOUND "${component} (required)")
       else()
         list(APPEND Ice_LIBS_FOUND "${component} (optional)")
       endif()
     else()
-      if ("Ice_FIND_REQUIRED_${component}")
+      if (Ice_FIND_REQUIRED_${component})
         set(Ice_REQUIRED_LIBS_FOUND OFF)
         list(APPEND Ice_LIBS_NOTFOUND "${component} (required)")
       else()
@@ -355,7 +358,7 @@ if(ICE_FOUND)
     set(_Ice_component_cache "Ice_${_Ice_component_upcase}_LIBRARY")
     set(_Ice_component_lib "Ice_${_Ice_component_upcase}_LIBRARIES")
     set(_Ice_component_found "${_Ice_component_upcase}_FOUND")
-    if("${_Ice_component_found}")
+    if(${_Ice_component_found})
       set("${_Ice_component_lib}" "${${_Ice_component_cache}}")
     endif()
     unset(_Ice_component_upcase)
