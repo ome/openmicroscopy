@@ -570,7 +570,7 @@ class ImporterModel
                 id = i.next();
                 //First check overlay
                 rois = reader.readImageJROI(id, img);
-                if (CollectionUtils.isNotEmpty(rois)) {
+                if (CollectionUtils.isEmpty(rois)) {
                     rois = reader.readImageJROI(id);
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {
