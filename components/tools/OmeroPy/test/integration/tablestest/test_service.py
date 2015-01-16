@@ -573,4 +573,44 @@ class TestTables(lib.ITest):
         assert table
         table.close()
 
+    @pytest.mark.parametrize('data', (
+        {"__version": omero.rtypes.rint(4)},
+        ("__version", omero.rtypes.rint(4)),
+    ))
+    def testCantWriteInternalMetadata(self, data):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/testInternalMetadata.h5")
+        table.initialize([columns.LongColumnI('lc')])
+        with pytest.raises(omero.ApiUsageException):
+            if isinstance(data, dict):
+                table.setAllMetadata(data)
+            else:
+                table.setMetadata(*data)
+
+    @pytest.mark.parametrize('data', (
+        {"version": omero.rtypes.rint(4)},
+        ("version", omero.rtypes.rint(4)),
+    ))
+    def testCanWriteAlmostInternalMetadata(self, data):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/testInternalMetadata.h5")
+        table.initialize([columns.LongColumnI('lc')])
+        if isinstance(data, dict):
+            table.setAllMetadata(data)
+        else:
+            table.setMetadata(*data)
+        assert 4 == table.getMetadata("version").val
+
+    def testCanReadInternalMetadata(self):
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/testInternalMetadata.h5")
+        table.initialize([columns.LongColumnI('lc')])
+        assert table.getMetadata("__version")
+
 # TODO: Add tests for error conditions
