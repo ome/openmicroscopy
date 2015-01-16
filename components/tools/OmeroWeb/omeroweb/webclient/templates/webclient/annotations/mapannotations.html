@@ -350,7 +350,20 @@
     }
 </style>
 
-{% with ma=manager.my_client_map_annotation canEdit=True %}
+{% if manager.my_client_map_annotations %}
+    {% for ma in manager.my_client_map_annotations %}
+        {% with canEdit=ma.canEdit %}
+            {% include "webclient/annotations/mapannotation.html" %}
+        {% endwith %}
+    {% endfor %}
+{% else %}
+    <!-- Add an empty placeholder -->
+    {% with canEdit=True %}
+        {% include "webclient/annotations/mapannotation.html" %}
+    {% endwith %}
+{% endif %}
+
+{% with ma=manager.my_client_map_annotations canEdit=True %}
     {% include "webclient/annotations/mapannotation.html" %}
 {% endwith %}
 
