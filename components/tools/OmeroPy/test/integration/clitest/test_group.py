@@ -35,12 +35,16 @@ perms_pairs.extend([('--type', v) for v in defaultperms.keys()])
 
 class TestGroup(CLITest):
 
-    def setup_method(self, method):
-        super(TestGroup, self).setup_method(method)
+    @classmethod
+    def setup_class(self):
+        super(TestGroup, self).setup_class()
         self.cli.register("group", GroupControl, "TEST")
-        self.args += ["group"]
         self.groups = self.sf.getAdminService().lookupGroups()
         self.group2 = self.new_group()
+
+    def setup_method(self, method):
+        super(TestGroup, self).setup_method(method)
+        self.args += ["group"]
 
     def get_group_ids(self, out, sort_key=None):
         lines = out.split('\n')
@@ -138,6 +142,12 @@ class TestGroup(CLITest):
         out, err = capsys.readouterr()
         ids = self.get_group_ids(out)
         assert ids == [self.group2.id.val]
+
+    def testInfoInvalidGroup(self, capsys):
+        self.args += ["info"]
+        self.args += ["-1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
 
 class TestGroupRoot(RootCLITest):

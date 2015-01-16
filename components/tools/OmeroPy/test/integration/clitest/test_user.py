@@ -125,6 +125,12 @@ class TestUser(CLITest):
         ids = self.get_user_ids(out)
         assert ids == [self.user2.id.val]
 
+    def testInfoInvalidUser(self, capsys):
+        self.args += ["info"]
+        self.args += ["-1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
     @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
     def testListWithStyles(self, capsys, style):
         self.args += ["list"]
