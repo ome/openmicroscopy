@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,17 +24,13 @@ package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.swing.Icon;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import omero.model.NamedValue;
-
 import org.apache.commons.lang.StringUtils;
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.util.ui.table.Reorderable;
 
+import omero.model.NamedValue;
+import org.openmicroscopy.shoola.util.ui.table.Reorderable;
 import pojos.MapAnnotationData;
 
 /**
@@ -43,24 +39,47 @@ import pojos.MapAnnotationData;
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-@SuppressWarnings("serial")
 public class MapTableModel extends DefaultTableModel implements Reorderable {
 
+	private static final long serialVersionUID = -3459565254623216860L;
+
+	/** Reference to the table */
 	private MapTable table;
+	
+	/** The underlying {@link MapAnnotationData} to represent */
 	private MapAnnotationData map;
+	
+	/** The current data displayed */
 	private List<NamedValue> data;
+	
+	/** A copy of the original data */
 	private List<NamedValue> originalData;
 
+	/** Text content of the 'Add entry' row*/
 	public static final String DUMMY_KEY = "Add Key";
+	
+	/** Text content of the 'Add entry' row*/
 	public static final String DUMMY_VALUE = "Add Value";
 
+	/** Holds the key text, which has been entered but not saved yet*/
 	private String newKey = DUMMY_KEY;
+	
+	/** Holds the value text, which has been entered but not saved yet*/
 	private String newValue = DUMMY_VALUE;
 
+	/**
+	 * Creates a new instance
+	 * @param table
+	 */
 	public MapTableModel(MapTable table) {
 		this.table = table;
 	}
 
+	/**
+	 * Get the entry of a certain row
+	 * @param index
+	 * @return
+	 */
 	public NamedValue getRow(int index) {
 		if (index >= 0 && index < data.size()) {
 			return data.get(index);
@@ -156,10 +175,20 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		}
 	}
 
+	/**
+	 * Adds a new entry to the end
+	 * @param name The name, see {@link NamedValue#name}
+	 * @param value The value, see {@link NamedValue#value}
+	 */
 	void addEntry(String name, String value) {
 		addEntries(Arrays.asList(new NamedValue(name, value)), -1);
 	}
 	
+	/**
+	 * Inserts a list of entries at a certain position
+	 * @param entries The entries to insert
+	 * @param index The position where to insert them
+	 */
 	public void addEntries(List<NamedValue> entries, int index) {
 		if(index<0 || index>data.size())
 			index = data.size();
@@ -171,6 +200,23 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		fireTableDataChanged();
 	}
 	
+	/**
+	 * Delete an entry at a certain position
+	 * @param index The position of the entry to delete
+	 */
+	public void deleteEntry(int index) {
+		if (index >= 0 && index < data.size()) {
+			data.remove(index);
+			map.setContent(data);
+			table.revalidate();
+			fireTableDataChanged();
+		}
+	}
+	
+	/**
+	 * Delete entries at certain positions
+	 * @param indices The positions of the entries to delete
+	 */
 	public void deleteEntries(int[] indices) {
 		List<NamedValue> toRemove = new ArrayList<NamedValue>();
 		for(int index : indices) 
@@ -182,6 +228,10 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		fireTableDataChanged();
 	}
 
+	/**
+	 * Set the {@link MapAnnotationData} to represent
+	 * @param map The {@link MapAnnotationData}
+	 */
 	@SuppressWarnings("unchecked")
 	public void setData(MapAnnotationData map) {
 		this.map = map;
@@ -197,6 +247,10 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		}
 	}
 
+	/**
+	 * Check if the {@link MapTableModel} has been modified
+	 * @return <code>true</code> if it has been modified, <code>false</code> otherwise
+	 */
 	public boolean isDirty() {
 		if (data.size() != originalData.size())
 			return true;
@@ -211,20 +265,16 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		return false;
 	}
 
+	/**
+	 * Get the {@link MapAnnotationData} represented by this
+	 * {@link MapTableModel}
+	 * @return
+	 */
 	public MapAnnotationData getMap() {
 		if (isDirty()) {
 			map.setContent(data);
 		}
 		return map;
-	}
-
-	public void deleteEntry(int index) {
-		if (index >= 0 && index < data.size()) {
-			data.remove(index);
-			map.setContent(data);
-			table.revalidate();
-			fireTableDataChanged();
-		}
 	}
 
 	@Override

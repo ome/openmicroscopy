@@ -617,7 +617,6 @@ class OmeroMetadataServiceImpl
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMEDS service.
 	 */
-	@SuppressWarnings("unchecked")
 	private DataObject updateAnnotationData(SecurityContext ctx, DataObject ann)
 		throws DSOutOfServiceException, DSAccessException
 	{

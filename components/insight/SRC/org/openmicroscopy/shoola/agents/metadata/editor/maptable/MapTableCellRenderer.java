@@ -23,8 +23,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import java.awt.Component;
 import java.awt.Font;
-
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -38,12 +36,16 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-@SuppressWarnings("serial")
 public class MapTableCellRenderer extends DefaultTableCellRenderer {
 
+	private static final long serialVersionUID = -8392760871394286099L;
+	
 	/** Italic font used for the 'add entry' row */
 	private static final Font ITALIC = (new JLabel()).getFont().deriveFont(Font.ITALIC);
 	
+	/**
+	 * Creates a new instance
+	 */
 	public MapTableCellRenderer() {
 		
 	}

@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -42,14 +42,21 @@ import javax.swing.TransferHandler;
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-@SuppressWarnings("serial")
 public class TableRowTransferHandler extends TransferHandler {
 
+	private static final long serialVersionUID = -2692838348100758280L;
+
+	/** DataFlavor for handling int values */
 	private final DataFlavor localObjectFlavor = new ActivationDataFlavor(
 			Integer.class, "Integer Row Index");
 
+	/** Reference to the table */
 	private JTable table = null;
 
+	/**
+	 * Creates a new instance
+	 * @param table Reference to the table
+	 */
 	public TableRowTransferHandler(JTable table) {
 		this.table = table;
 	}

@@ -169,6 +169,9 @@ class EditorModel
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
+	/** Enum to distinguish between different kind of 
+	 * {@link MapAnnotationData}, see {@link #getMapAnnotations(MapAnnotationType)}
+	 */
 	public static enum MapAnnotationType {
 		USER, OTHER_USERS, OTHER
 	}
@@ -1929,6 +1932,7 @@ class EditorModel
 	/**
 	 * Returns the collection of map annotations.
 	 * 
+	 * @param type The kind of map annotations to return, see {@link MapAnnotationType}
 	 * @return See above.
 	 */
 	List<MapAnnotationData> getMapAnnotations(MapAnnotationType type) {

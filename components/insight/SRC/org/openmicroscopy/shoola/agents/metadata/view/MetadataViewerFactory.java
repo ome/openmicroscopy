@@ -26,19 +26,14 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
 //Third-party libraries
-
-
-import omero.model.NamedValue;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
+import omero.model.NamedValue;
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.WellSampleData;

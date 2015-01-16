@@ -50,7 +50,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -64,36 +63,26 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.editor.EditorModel.MapAnnotationType;
-import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTable;
-import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
-
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.LongAnnotationData;
-import pojos.MapAnnotationData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.XMLAnnotationData;
-import omero.model.NamedValue;
 
 /** 
  * Components displaying the various annotations linked to the related 
@@ -235,6 +224,7 @@ class AnnotationDataUI
 	/** Button to remove all other annotations. */
 	private JButton removeOtherAnnotationsButton;
 	
+	/** The component displaying the MapAnnotations */
 	private MapAnnotationsComponent mapsPane;
 	
 	/**

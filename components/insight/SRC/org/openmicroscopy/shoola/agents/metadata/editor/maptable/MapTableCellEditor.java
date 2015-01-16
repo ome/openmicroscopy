@@ -37,17 +37,29 @@ import javax.swing.table.TableCellEditor;
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-@SuppressWarnings({ "serial" })
 public class MapTableCellEditor extends AbstractCellEditor implements
 		TableCellEditor {
 
+	private static final long serialVersionUID = 8616404360198544605L;
+
+	/** The editing component */
 	private JComponent component = null;
 
+	/** Flag if double-click is needed for editing */
 	private boolean doubleClickEdit = false;
 
+	/**
+	 * Creates a new instance
+	 */
 	public MapTableCellEditor() {
 	}
 
+	/**
+	 * If set to <code>true</code> a double-click is needed
+	 * to switch a cell into editing mode; single-click sufficient
+	 * otherwise.
+	 * @param doubleClickEdit
+	 */
 	public void setDoubleClickEdit(boolean doubleClickEdit) {
 		this.doubleClickEdit = doubleClickEdit;
 	}

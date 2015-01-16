@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2014-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,8 +30,22 @@
  */
 package org.openmicroscopy.shoola.util.ui.table;
 
+import javax.swing.table.TableModel;
+
+/**
+ * Interface for a {@link TableModel}, declaring that it supports
+ * reordering of rows; see {@link TableRowTransferHandler}
+ * 
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ */
 public interface Reorderable {
 
+	/**
+	 * Moves a table row from fromIndex to toIndex
+	 * @param fromIndex See above
+	 * @param toIndex See above
+	 */
 	public void reorder(int fromIndex, int toIndex);
 
 }
