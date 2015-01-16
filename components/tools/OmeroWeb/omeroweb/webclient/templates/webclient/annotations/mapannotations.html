@@ -84,11 +84,12 @@
                 tableData = [];
 
             $table.find('tbody tr').each(function() {
-                var rowData = getRowData($(this));
-                // Don't add placeholder rows!
-                if (!((rowData[0] == "Add Key") && (rowData[1] == "Add Value"))) {
-                    tableData.push(rowData);
-                }
+                var rowData = getRowData($(this)),
+                    k = rowData[0],
+                    v = rowData[1];
+                // Don't add placeholder rows or empty rows
+                if ((k == "Add Key" || k == "") && (v == "Add Value" || v =="")) return;
+                tableData.push(rowData);
             });
             // If we are editing a saved map annotation...
             if (annId) {
@@ -110,7 +111,21 @@
         // start editing a td
         var startEdit = function startEdit($td) {
 
-            var value = $td.text();
+            var value = getCellText($td);
+            // If we're editing a placeholder row, clear both fields
+            $td.parent().removeClass("placeholder");
+            if (value == "Add Key") {
+                value = "";
+                if (getCellText($td.next()) == "Add Value") {
+                    $td.next().text("");
+                }
+            }
+            if (value == "Add Value") {
+                value = "";
+                if (getCellText($td.prev()) == "Add Key") {
+                    $td.prev().text("");
+                }
+            }
             $input = $("<input value='" + value + "' />");
             $td.empty().append($input);
             $input.focus();
@@ -296,12 +311,13 @@
     .keyValueTable {
         position: relative;
         top: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         width: 98% !important;
     }
     .keyValueTable td, .keyValueTable th {
         width: 50%;
         padding: 2px 5px !important;
+        color: hsl(210,10%,30%) !important;
         height: 20px;
         vertical-align: middle;
     }
@@ -314,7 +330,7 @@
     .keyValueTable tr.ui-selected {
         background-color: #ddf;
     }
-    .editableKeyValueTable tr{
+    .editableKeyValueTable tr {
         background-color: #fff;
         border: solid #ddd 1px;
     }
@@ -327,6 +343,10 @@
         top: 0px;
         right: 5px;
         z-index: 100;
+    }
+    .editableKeyValueTable tr.placeholder td {
+        font-style: italic;
+        color: #999 !important;
     }
 </style>
 
