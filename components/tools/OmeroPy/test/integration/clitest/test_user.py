@@ -23,13 +23,14 @@ from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
 from omero.plugins.user import UserControl
 from test.integration.clitest.cli import CLITest, RootCLITest
+from test.integration.clitest.cli import UserIdNameFixtures
+from test.integration.clitest.cli import GroupFixtures
 from Glacier2 import PermissionDeniedException
 import getpass
 import pytest
 
-user_pairs = [('--id', 'id'), ('--name', 'omeName')]
-group_pairs = [(None, 'id'), (None, 'name'), ('--group-id', 'id'),
-               ('--group-name', 'name')]
+GroupNames = [str(x) for x in GroupFixtures]
+UserIdNameNames = [str(x) for x in UserIdNameFixtures]
 sort_keys = [None, "id", "login", "first-name", "last-name", "email"]
 columns = {'login': 1, 'first-name': 2, 'last-name': 3, 'email': 4}
 middlename_prefixes = [None, '-m', '--middlename']
@@ -181,7 +182,7 @@ class TestUser(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
-    def testInfo(self, capsys):
+    def testGroups(self, capsys):
 
         import omero.model
         adminService = self.sf.getAdminService()
@@ -194,7 +195,7 @@ class TestUser(CLITest):
         roles = adminService.getSecurityRoles()
         user_groups.append(roles.userGroupId)
 
-        self.args += ["info"]
+        self.args += ["groups"]
         self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
 
@@ -236,20 +237,18 @@ class TestUserRoot(RootCLITest):
 
     # User joingroup subcommand
     # ========================================================================
-    @pytest.mark.parametrize("user_prefix,user_attr", user_pairs)
-    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
+    @pytest.mark.parametrize(
+        "idnamefixture", UserIdNameFixtures, ids=UserIdNameNames)
+    @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
     @pytest.mark.parametrize("owner_arg", [None, '--as-owner'])
-    def testJoinGroup(self, user_prefix, user_attr, group_prefix, group_attr,
-                      owner_arg):
+    def testJoinGroup(self, idnamefixture, groupfixture, owner_arg):
         user = self.new_user()
         group = self.new_group()
         assert user.id.val not in self.getuserids(group.id.val)
 
-        self.args += ["joingroup", user_prefix,
-                      "%s" % getattr(user, user_attr).val]
-        if group_prefix:
-            self.args += [group_prefix]
-        self.args += ["%s" % getattr(group, group_attr).val]
+        self.args += ["joingroup"]
+        self.args += idnamefixture.get_arguments(user)
+        self.args += groupfixture.get_arguments(group)
         if owner_arg:
             self.args += [owner_arg]
         self.cli.invoke(self.args, strict=True)
@@ -262,12 +261,13 @@ class TestUserRoot(RootCLITest):
 
     # User leavegroup subcommand
     # ========================================================================
-    @pytest.mark.parametrize("user_prefix,user_attr", user_pairs)
-    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
+    @pytest.mark.parametrize(
+        "idnamefixture", UserIdNameFixtures, ids=UserIdNameNames)
+    @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
     @pytest.mark.parametrize("is_owner", [True, False])
     @pytest.mark.parametrize("owner_arg", [None, '--as-owner'])
-    def testLeaveGroup(self, user_prefix, user_attr, group_prefix, group_attr,
-                       is_owner, owner_arg):
+    def testLeaveGroup(self, idnamefixture, groupfixture, is_owner,
+                       owner_arg):
         user = self.new_user()
         group = self.new_group([user])
         if is_owner:
@@ -276,11 +276,9 @@ class TestUserRoot(RootCLITest):
         else:
             assert user.id.val in self.getmemberids(group.id.val)
 
-        self.args += ["leavegroup", user_prefix,
-                      "%s" % getattr(user, user_attr).val]
-        if group_prefix:
-            self.args += [group_prefix]
-        self.args += ["%s" % getattr(group, group_attr).val]
+        self.args += ["leavegroup"]
+        self.args += idnamefixture.get_arguments(user)
+        self.args += groupfixture.get_arguments(group)
         if owner_arg:
             self.args += [owner_arg]
         self.cli.invoke(self.args, strict=True)
@@ -337,17 +335,15 @@ class TestUserRoot(RootCLITest):
             roles = self.sf.getAdminService().getSecurityRoles()
             assert user.id.val in self.getuserids(roles.systemGroupId)
 
-    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
-    def testAddGroup(self, group_prefix, group_attr):
+    @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
+    def testAddGroup(self, groupfixture):
         group = self.new_group()
         login = self.uuid()
         firstname = self.uuid()
         lastname = self.uuid()
 
         self.args += ["add", login, firstname, lastname]
-        if group_prefix:
-            self.args += [group_prefix]
-        self.args += ["%s" % getattr(group, group_attr).val]
+        self.args += groupfixture.get_arguments(group)
         self.args += ['-P', login]
         self.cli.invoke(self.args, strict=True)
 

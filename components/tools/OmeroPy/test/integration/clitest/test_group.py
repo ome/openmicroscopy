@@ -21,11 +21,12 @@
 from omero.plugins.group import GroupControl, defaultperms
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest, RootCLITest
+from test.integration.clitest.cli import GroupIdNameFixtures
+from test.integration.clitest.cli import UserFixtures
 import pytest
 
-group_pairs = [('--id', 'id'), ('--name', 'name')]
-user_pairs = [(None, 'id'), (None, 'omeName'), ('--user-id', 'id'),
-              ('--user-name', 'omeName')]
+UserNames = [str(x) for x in UserFixtures]
+GroupIdNameNames = [str(x) for x in GroupIdNameFixtures]
 perms_pairs = [('--perms', v) for v in defaultperms.values()]
 perms_pairs.extend([('--type', v) for v in defaultperms.keys()])
 
@@ -176,17 +177,17 @@ class TestGroupRoot(RootCLITest):
 
     # Group permissions subcommand
     # ========================================================================
-    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
+    @pytest.mark.parametrize(
+        "idnamefixture", GroupIdNameFixtures, ids=GroupIdNameNames)
     @pytest.mark.parametrize("from_perms", defaultperms.values())
     @pytest.mark.parametrize("perms_prefix,to_perms", perms_pairs)
-    def testPerms(self, group_prefix, group_attr, from_perms, perms_prefix,
-                  to_perms):
+    def testPerms(self, idnamefixture, from_perms, perms_prefix, to_perms):
         group = self.new_group([], from_perms)
         group = self.sf.getAdminService().getGroup(group.id.val)
         assert str(group.details.permissions) == from_perms
 
-        self.args += ["perms", group_prefix,
-                      "%s" % getattr(group, group_attr).val]
+        self.args += ["perms"]
+        self.args += idnamefixture.get_arguments(group)
         self.args += [perms_prefix, to_perms]
         self.cli.invoke(self.args, strict=True)
 
@@ -199,20 +200,18 @@ class TestGroupRoot(RootCLITest):
 
     # Group adduser subcommand
     # ========================================================================
-    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
-    @pytest.mark.parametrize("user_prefix,user_attr", user_pairs)
+    @pytest.mark.parametrize(
+        "idnamefixture", GroupIdNameFixtures, ids=GroupIdNameNames)
+    @pytest.mark.parametrize("userfixture", UserFixtures, ids=UserNames)
     @pytest.mark.parametrize("owner_arg", [None, '--as-owner'])
-    def testAddUser(self, group_prefix, group_attr, user_prefix, user_attr,
-                    owner_arg):
+    def testAddUser(self, idnamefixture, userfixture, owner_arg):
         group = self.new_group()
         user = self.new_user()
         assert user.id.val not in self.getuserids(group.id.val)
 
-        self.args += ["adduser", group_prefix,
-                      "%s" % getattr(group, group_attr).val]
-        if user_prefix:
-            self.args += [user_prefix]
-        self.args += ["%s" % getattr(user, user_attr).val]
+        self.args += ["adduser"]
+        self.args += idnamefixture.get_arguments(group)
+        self.args += userfixture.get_arguments(user)
         if owner_arg:
             self.args += [owner_arg]
         self.cli.invoke(self.args, strict=True)
@@ -225,12 +224,12 @@ class TestGroupRoot(RootCLITest):
 
     # Group removeuser subcommand
     # ========================================================================
-    @pytest.mark.parametrize("group_prefix,group_attr", group_pairs)
-    @pytest.mark.parametrize("user_prefix,user_attr", user_pairs)
+    @pytest.mark.parametrize(
+        "idnamefixture", GroupIdNameFixtures, ids=GroupIdNameNames)
+    @pytest.mark.parametrize("userfixture", UserFixtures, ids=UserNames)
     @pytest.mark.parametrize("is_owner", [True, False])
     @pytest.mark.parametrize("owner_arg", [None, '--as-owner'])
-    def testRemoveUser(self, group_prefix, group_attr, user_prefix, user_attr,
-                       is_owner, owner_arg):
+    def testRemoveUser(self, idnamefixture, userfixture, is_owner, owner_arg):
         user = self.new_user()
         group = self.new_group([user])
         if is_owner:
@@ -239,11 +238,9 @@ class TestGroupRoot(RootCLITest):
         else:
             assert user.id.val in self.getmemberids(group.id.val)
 
-        self.args += ["removeuser", group_prefix,
-                      "%s" % getattr(group, group_attr).val]
-        if user_prefix:
-            self.args += [user_prefix]
-        self.args += ["%s" % getattr(user, user_attr).val]
+        self.args += ["removeuser"]
+        self.args += idnamefixture.get_arguments(group)
+        self.args += userfixture.get_arguments(user)
         if owner_arg:
             self.args += [owner_arg]
         self.cli.invoke(self.args, strict=True)
@@ -256,8 +253,8 @@ class TestGroupRoot(RootCLITest):
 
     # Group copyusers subcommand
     # ========================================================================
-    @pytest.mark.parametrize("from_group", [x[1] for x in group_pairs])
-    @pytest.mark.parametrize("to_group", [x[1] for x in group_pairs])
+    @pytest.mark.parametrize("from_group", ['id', 'name'])
+    @pytest.mark.parametrize("to_group", ['id', 'name'])
     @pytest.mark.parametrize("owner_only", [None, '--as-owner'])
     def testCopyUsers(self, from_group, to_group, owner_only):
         users = [self.new_user(), self.new_user()]

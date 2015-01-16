@@ -53,3 +53,53 @@ class RootCLITest(AbstractCLITest):
 
     def setup_method(self, method):
         self.args = self.root_login_args()
+
+
+class ArgumentFixture(object):
+
+    """
+    Used to test the user/group argument
+    """
+
+    def __init__(self, prefix, attr):
+        self.prefix = prefix
+        self.attr = attr
+
+    def get_arguments(self, obj):
+        args = []
+        if self.prefix:
+            args += [self.prefix]
+        if self.attr:
+            args += ["%s" % getattr(obj, self.attr).val]
+        return args
+
+    def __repr__(self):
+        if self.prefix:
+            return "%s" % self.prefix
+        else:
+            return "%s" % self.attr
+
+
+UserIdNameFixtures = (
+    ArgumentFixture('--id', 'id'),
+    ArgumentFixture('--name', 'omeName'),
+    )
+
+UserFixtures = (
+    ArgumentFixture(None, 'id'),
+    ArgumentFixture(None, 'omeName'),
+    ArgumentFixture('--user-id', 'id'),
+    ArgumentFixture('--user-name', 'omeName'),
+    )
+
+GroupIdNameFixtures = (
+    ArgumentFixture('--id', 'id'),
+    ArgumentFixture('--name', 'name'),
+    )
+
+GroupFixtures = (
+    ArgumentFixture(None, 'id'),
+    ArgumentFixture(None, 'name'),
+    ArgumentFixture('--group-id', 'id'),
+    ArgumentFixture('--group-name', 'name'),
+    )
