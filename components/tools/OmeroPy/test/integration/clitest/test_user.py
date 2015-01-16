@@ -25,11 +25,13 @@ from omero.plugins.user import UserControl
 from test.integration.clitest.cli import CLITest, RootCLITest
 from test.integration.clitest.cli import UserIdNameFixtures
 from test.integration.clitest.cli import GroupFixtures
+from test.integration.clitest.cli import UserFixtures
 from Glacier2 import PermissionDeniedException
 import getpass
 import pytest
 
 GroupNames = [str(x) for x in GroupFixtures]
+UserNames = [str(x) for x in UserFixtures]
 UserIdNameNames = [str(x) for x in UserIdNameFixtures]
 sort_keys = [None, "id", "login", "first-name", "last-name", "email"]
 columns = {'login': 1, 'first-name': 2, 'last-name': 3, 'email': 4}
@@ -46,26 +48,14 @@ class TestUser(CLITest):
     def setup_class(self):
         super(TestUser, self).setup_class()
         self.cli.register("user", UserControl, "TEST")
+        self.user2 = self.new_user()
         self.users = self.sf.getAdminService().lookupExperimenters()
 
     def setup_method(self, method):
         super(TestUser, self).setup_method(method)
         self.args += ["user"]
 
-    # List subcommand
-    # ========================================================================
-    @pytest.mark.parametrize("sort_key", sort_keys)
-    @pytest.mark.parametrize("group_format", [None, "count", "long"])
-    def testList(self, capsys, sort_key, group_format):
-        self.args += ["list"]
-        if sort_key:
-            self.args += ["--sort-by-%s" % sort_key]
-        if group_format:
-            self.args += ["--%s" % group_format]
-        self.cli.invoke(self.args, strict=True)
-
-        # Read from the stdout
-        out, err = capsys.readouterr()
+    def get_user_ids(self, out, sort_key=None):
         lines = out.split('\n')
         ids = []
         last_value = None
@@ -82,6 +72,23 @@ class TestUser(CLITest):
                     new_value = elements[columns[sort_key]].strip()
                 assert new_value >= last_value
                 last_value = new_value
+        return ids
+
+    # List subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("sort_key", sort_keys)
+    @pytest.mark.parametrize("group_format", [None, "count", "long"])
+    def testList(self, capsys, sort_key, group_format):
+        self.args += ["list"]
+        if sort_key:
+            self.args += ["--sort-by-%s" % sort_key]
+        if group_format:
+            self.args += ["--%s" % group_format]
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+        ids = self.get_user_ids(out, sort_key=sort_key)
 
         # Check all users are listed
         if sort_key == 'login':
@@ -96,6 +103,27 @@ class TestUser(CLITest):
         else:
             sorted_list = sorted(self.users, key=lambda x: x.id.val)
         assert ids == [user.id.val for user in sorted_list]
+
+    def testInfoNoArgument(self, capsys):
+        self.args += ["info"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+        ids = self.get_user_ids(out)
+        userId = self.client.sf.getAdminService().getEventContext().userId
+        assert ids == [userId]
+
+    @pytest.mark.parametrize("userfixture", UserFixtures, ids=UserNames)
+    def testInfoArgument(self, capsys, userfixture):
+        self.args += ["info"]
+        self.args += userfixture.get_arguments(self.user2)
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+        ids = self.get_user_ids(out)
+        assert ids == [self.user2.id.val]
 
     @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
     def testListWithStyles(self, capsys, style):
@@ -182,7 +210,7 @@ class TestUser(CLITest):
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
 
-    def testGroups(self, capsys):
+    def testGroupsNoArgument(self, capsys):
 
         import omero.model
         adminService = self.sf.getAdminService()
