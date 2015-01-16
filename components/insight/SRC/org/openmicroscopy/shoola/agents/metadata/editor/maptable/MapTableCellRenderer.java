@@ -22,6 +22,7 @@
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import java.awt.Component;
+import java.awt.Font;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -40,7 +41,11 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 @SuppressWarnings("serial")
 public class MapTableCellRenderer extends DefaultTableCellRenderer {
 
+	/** Italic font used for the 'add entry' row */
+	private static final Font ITALIC = (new JLabel()).getFont().deriveFont(Font.ITALIC);
+	
 	public MapTableCellRenderer() {
+		
 	}
 
 	@Override
@@ -49,6 +54,9 @@ public class MapTableCellRenderer extends DefaultTableCellRenderer {
 			final boolean hasFocus, final int row, final int column) {
 		JLabel l = new JLabel((String) value);
 		l.setOpaque(true);
+		
+		if(((MapTable)table).isAddEntryRow(row))
+			l.setFont(ITALIC);
 		
 		if (isSelected)
 			l.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);

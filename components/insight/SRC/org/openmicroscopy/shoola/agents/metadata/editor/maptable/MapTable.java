@@ -27,7 +27,6 @@ import java.util.List;
 
 import javax.swing.DropMode;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 
 import omero.model.MapAnnotation;
@@ -119,7 +118,7 @@ public class MapTable extends JTable {
 	public void addEntry(NamedValue entry) {
 		addEntry(entry, -1);
 	}
-	
+
 	public void addEntry(NamedValue entry, int index) {
 		addEntries(Arrays.asList(entry), index);
 	}
@@ -141,6 +140,16 @@ public class MapTable extends JTable {
 	public void deleteEntries(int[] indices) {
 		MapTableModel model = (MapTableModel) getModel();
 		model.deleteEntries(indices);
+	}
+
+	/**
+	 * Checks if a given row index identifies the row used for
+	 * adding a new entry
+	 * @param row The row to check
+	 * @return See above
+	 */
+	public boolean isAddEntryRow(int row) {
+		return row == (getRowCount() - 1) && canEdit();
 	}
 
 	public void setDoubleClickEdit(boolean doubleClickEdit) {
