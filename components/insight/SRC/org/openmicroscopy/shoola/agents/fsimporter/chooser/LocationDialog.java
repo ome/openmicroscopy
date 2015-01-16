@@ -1126,10 +1126,18 @@ class LocationDialog extends JDialog implements ActionListener,
 			
 			Selectable<DataNode> comboBoxItem =
 					new Selectable<DataNode>(node, selectable);
-			if (select != null && 
-				node.getDataObject().getId() == select.getDataObject().getId())
-				selected = comboBoxItem;
-			
+			if (select != null) {
+			    if (node.getDataObject().getId() < 0 
+			            && select.getDataObject().getId() < 0) {
+			        if (node.toString().trim().equals(select.toString().trim()))
+			            selected = comboBoxItem;
+			    } else {
+			        if (node.getDataObject().getId() ==
+			                select.getDataObject().getId()) {
+			            selected = comboBoxItem;
+			        }
+			    }
+			}
 			model.addElement(comboBoxItem);
 		}
 
@@ -1492,8 +1500,14 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 		} else {
 			selectedProject = findDataNode(projects, currentProject);
+			int index = 0;
+			switch (ImporterAgent.runAsPlugin()) {
+                case LookupNames.IMAGE_J:
+                case LookupNames.IMAGE_J_IMPORT:
+                    index = 1;
+            }
 			selectedDataset = findDataNode(datasets.get(selectedProject),
-					currentDataset);
+					currentDataset, index);
 			selectedScreen = findDataNode(screens, currentScreen);
 		}
 		
@@ -1562,7 +1576,33 @@ class LocationDialog extends JDialog implements ActionListener,
 		}
 		return sorted;
 	}
-	
+
+	/**
+     * Searches the list of nodes returning the entry with the same Id as 
+     * the find parameter, returns <null> if the list is empty, or the first 
+     * item in the list if the find parameter is not found or is null.
+     * @param nodes The list of nodes to scan.
+     * @param find The node to match Id against.
+     * @param index The default index if valid.
+     * @return The item, <null> if no list, first list item if find is <null>.
+     */
+    private DataNode findDataNode(List<DataNode> nodes, DataNode find, int index)
+    {
+        if (CollectionUtils.isEmpty(nodes)) return null;
+        
+        if (find == null) {
+            if (index >= nodes.size()) return nodes.get(0);
+            return nodes.get(index);
+        }
+        
+        for (DataNode node : nodes) {
+            if (getIdOf(node) == getIdOf(find))
+                return node;
+        }
+        if (index >= nodes.size()) return nodes.get(0);
+        return nodes.get(index);
+    }
+    
 	/**
 	 * Searches the list of nodes returning the entry with the same Id as 
 	 * the find parameter, returns <null> if the list is empty, or the first 
@@ -1573,15 +1613,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private DataNode findDataNode(List<DataNode> nodes, DataNode find)
 	{
-		if (CollectionUtils.isEmpty(nodes)) return null;
-		
-		if (find == null) return nodes.get(0);
-		
-		for (DataNode node : nodes) {
-			if (getIdOf(node) == getIdOf(find))
-				return node;
-		}
-		return nodes.get(0);
+		return findDataNode(nodes, find, 0);
 	}
 
 	/**
