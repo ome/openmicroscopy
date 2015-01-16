@@ -3,9 +3,6 @@
 import logging
 
 from django.core.validators import validate_email
-from django.conf import settings
-
-from omero.util.upgrade_check import UpgradeCheck
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +19,8 @@ def upgradeCheck():
     # http://trac.openmicroscopy.org.uk/ome/wiki/UpgradeCheck
     #
     try:
+        from omero.util.upgrade_check import UpgradeCheck
+        from django.conf import settings
         check = UpgradeCheck("web", url=settings.UPGRADES_URL)
         check.run()
         if check.isUpgradeNeeded():
