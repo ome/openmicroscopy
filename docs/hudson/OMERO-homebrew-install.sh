@@ -111,7 +111,7 @@ export ICE_CONFIG=$(bin/brew --prefix omero51)/etc/ice.config
 if [ -d "$PSQL_DIR" ]; then
     rm -rf $PSQL_DIR
 fi
-bin/initdb $PSQL_DIR
+bin/initdb -E UTF8 $PSQL_DIR
 bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log -w start
 
 # Create user and database
