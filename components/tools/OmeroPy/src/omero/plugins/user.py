@@ -49,23 +49,24 @@ class UserControl(UserGroupControl):
             "--no-password", action="store_true", default=False,
             help="Create user with empty password")
 
-        list = parser.add(sub, self.list, help="List current users")
-        list.add_style_argument()
-        list.add_group_print_arguments()
-        list.add_user_sorting_arguments()
+        list = parser.add(
+            sub, self.list, help="List information about all users")
+
+        info = parser.add(
+            sub, self.info,
+            "List information about the user(s). Default to the context user")
+        self.add_user_arguments(info)
+
+        for x in (list, info):
+            x.add_style_argument()
+            x.add_group_print_arguments()
+            x.add_user_sorting_arguments()
 
         groups = parser.add(
             sub, self.groups, "List groups of the current user")
         groups.add_style_argument()
         groups.add_user_print_arguments()
         groups.add_group_sorting_arguments()
-
-        info = parser.add(
-            sub, self.info, "List information about the current user")
-        info.add_style_argument()
-        info.add_user_sorting_arguments()
-        info.add_user_print_arguments()
-        self.add_user_arguments(info)
 
         password = parser.add(
             sub, self.password, help="Set user's password")

@@ -2160,7 +2160,7 @@ class UserGroupControl(BaseControl):
                     g_list.append(g)
 
         if not gid_list:
-            if not use_context and has_group_arguments:
+            if not use_context or has_group_arguments:
                 self.error_no_group_found(fatal=True)
             else:
                 ec = self.ctx.get_event_context()

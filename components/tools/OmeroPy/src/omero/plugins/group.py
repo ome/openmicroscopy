@@ -58,10 +58,19 @@ server-permissions.html
         self.add_id_name_arguments(perms, "group")
         self.add_permissions_arguments(perms)
 
-        list = parser.add(sub, self.list, "List current groups")
-        list.add_style_argument()
-        list.add_user_print_arguments()
-        list.add_group_sorting_arguments()
+        list = parser.add(
+            sub, self.list, help="List information about all groups")
+
+        info = parser.add(
+            sub, self.info,
+            "List information about the group(s). Default to the context"
+            " group")
+        self.add_group_arguments(info)
+
+        for x in (list, info):
+            x.add_style_argument()
+            x.add_user_print_arguments()
+            x.add_group_sorting_arguments()
 
         members = parser.add(
             sub, self.members, "List members of the current group")
@@ -189,6 +198,12 @@ server-permissions.html
     def list(self, args):
         c = self.ctx.conn(args)
         groups = c.sf.getAdminService().lookupGroups()
+        self.output_groups_list(groups, args)
+
+    def info(self, args):
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+        [gid, groups] = self.list_groups(a, args, use_context=True)
         self.output_groups_list(groups, args)
 
     def members(self, args):

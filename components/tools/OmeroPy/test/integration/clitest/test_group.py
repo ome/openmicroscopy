@@ -22,9 +22,11 @@ from omero.plugins.group import GroupControl, defaultperms
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest, RootCLITest
 from test.integration.clitest.cli import GroupIdNameFixtures
+from test.integration.clitest.cli import GroupFixtures
 from test.integration.clitest.cli import UserFixtures
 import pytest
 
+GroupNames = [str(x) for x in GroupFixtures]
 UserNames = [str(x) for x in UserFixtures]
 GroupIdNameNames = [str(x) for x in GroupIdNameFixtures]
 perms_pairs = [('--perms', v) for v in defaultperms.values()]
@@ -37,21 +39,10 @@ class TestGroup(CLITest):
         super(TestGroup, self).setup_method(method)
         self.cli.register("group", GroupControl, "TEST")
         self.args += ["group"]
+        self.groups = self.sf.getAdminService().lookupGroups()
+        self.group2 = self.new_group()
 
-    # List subcommand
-    # ========================================================================
-    @pytest.mark.parametrize("sort_key", [None, "id", "name"])
-    @pytest.mark.parametrize("group_format", [None, "count", "long"])
-    def testList(self, capsys, sort_key, group_format):
-        self.args += ["list"]
-        if sort_key:
-            self.args += ["--sort-by-%s" % sort_key]
-        if group_format:
-            self.args += ["--%s" % group_format]
-        self.cli.invoke(self.args, strict=True)
-
-        # Read from the stdout
-        out, err = capsys.readouterr()
+    def get_group_ids(self, out, sort_key=None):
         lines = out.split('\n')
         ids = []
         last_value = None
@@ -68,14 +59,30 @@ class TestGroup(CLITest):
                     new_value = elements[1].strip()
                 assert new_value >= last_value
                 last_value = new_value
+        return ids
+
+    # List subcommand
+    # ========================================================================
+    @pytest.mark.parametrize("sort_key", [None, "id", "name"])
+    @pytest.mark.parametrize("group_format", [None, "count", "long"])
+    def testList(self, capsys, sort_key, group_format):
+        self.args += ["list"]
+        if sort_key:
+            self.args += ["--sort-by-%s" % sort_key]
+        if group_format:
+            self.args += ["--%s" % group_format]
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+        ids = self.get_group_ids(out, sort_key=sort_key)
 
         # Check all groups are listed
-        groups = self.sf.getAdminService().lookupGroups()
         if sort_key == 'name':
-            groups.sort(key=lambda x: x.name.val)
+            self.groups.sort(key=lambda x: x.name.val)
         else:
-            groups.sort(key=lambda x: x.id.val)
-        assert ids == [group.id.val for group in groups]
+            self.groups.sort(key=lambda x: x.id.val)
+        assert ids == [group.id.val for group in self.groups]
 
     def testAddAdminOnly(self, capsys):
         group_name = self.uuid()
@@ -110,6 +117,27 @@ class TestGroup(CLITest):
                 continue
             ids.append(int(elements[0].strip()))
         assert set(ids) == set(group_users)
+
+    def testInfoNoArgument(self, capsys):
+        self.args += ["info"]
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+        ids = self.get_group_ids(out)
+        groupId = self.client.sf.getAdminService().getEventContext().groupId
+        assert ids == [groupId]
+
+    @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
+    def testInfoArgument(self, capsys, groupfixture):
+        self.args += ["info"]
+        self.args += groupfixture.get_arguments(self.group2)
+        self.cli.invoke(self.args, strict=True)
+
+        # Read from the stdout
+        out, err = capsys.readouterr()
+        ids = self.get_group_ids(out)
+        assert ids == [self.group2.id.val]
 
 
 class TestGroupRoot(RootCLITest):
