@@ -197,7 +197,7 @@ class TestAdminPorts(object):
         self.cli.register("admin", AdminControl, "TEST")
         self.args = ["admin", "ports"]
 
-    def teardown_method(self):
+    def teardown_method(self, method):
         # Restore backups
         for key in self.cfg_files.keys():
             if self.tmp_cfg_files[key] is not None:
