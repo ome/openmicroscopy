@@ -33,6 +33,7 @@ class TestDatabase(object):
     def setup_method(self, method):
         self.cli = CLI()
         self.cli.register("db", DatabaseControl, "TEST")
+        self.args = ["db"]
 
         dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
             ".." / "dist"  # FIXME: should not be hard-coded
@@ -71,6 +72,16 @@ class TestDatabase(object):
 
     def password(self, string, strict=True):
         self.cli.invoke("db password " + string % self.data, strict=strict)
+
+    def testHelp(self):
+        self.args += ["-h"]
+        self.cli.invoke(self.args, strict=True)
+
+    @pytest.mark.parametrize(
+        'subcommand', DatabaseControl().get_subcommands())
+    def testSubcommandHelp(self, subcommand):
+        self.args += [subcommand, "-h"]
+        self.cli.invoke(self.args, strict=True)
 
     def testBadVersionDies(self):
         with pytest.raises(NonZeroReturnCode):
