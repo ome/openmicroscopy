@@ -22,6 +22,7 @@
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -155,15 +156,14 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		}
 	}
 
-	public void addEntry(String name, String value) {
-		addEntry(name, value, -1);
+	void addEntry(String name, String value) {
+		addEntries(Arrays.asList(new NamedValue(name, value)), -1);
 	}
 	
-	public void addEntry(String name, String value, int index) {
+	public void addEntries(List<NamedValue> entries, int index) {
 		if(index<0 || index>data.size())
 			index = data.size();
-		NamedValue d = new NamedValue(name, value);
-		data.add(index, d);
+		data.addAll(index, entries);
 		map.setContent(data);
 		table.revalidate();
 		newKey = DUMMY_KEY;

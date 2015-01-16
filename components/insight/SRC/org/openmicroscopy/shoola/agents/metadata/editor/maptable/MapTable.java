@@ -22,6 +22,7 @@
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DropMode;
@@ -85,8 +86,6 @@ public class MapTable extends JTable {
 		nameColumn.setCellRenderer(cellRenderer);
 		valueColumn.setCellRenderer(cellRenderer);
 
-		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
 		if (canMove()) {
 			setDragEnabled(true);
 			setDropMode(DropMode.INSERT_ROWS);
@@ -117,13 +116,17 @@ public class MapTable extends JTable {
 		return result;
 	}
 
-	public void addEntry(String name, String value) {
-		addEntry(name, value, -1);
+	public void addEntry(NamedValue entry) {
+		addEntry(entry, -1);
+	}
+	
+	public void addEntry(NamedValue entry, int index) {
+		addEntries(Arrays.asList(entry), index);
 	}
 
-	public void addEntry(String name, String value, int index) {
+	public void addEntries(List<NamedValue> entries, int index) {
 		MapTableModel model = (MapTableModel) getModel();
-		model.addEntry(name, value, index);
+		model.addEntries(entries, index);
 	}
 
 	public void deleteSelected() {

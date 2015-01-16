@@ -367,10 +367,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		MapTable t = getSelectedTable();
 		MapTableModel m = (MapTableModel) t.getModel();
 		int index = t.getSelectedRow();
-		for (NamedValue nv : copiedValues) {
-			m.addEntry(nv.name, nv.value, index);
-			index++;
-		}
+		m.addEntries(copiedValues, index);
 	}
 
 	/**
