@@ -228,11 +228,10 @@ class TestServiceOptsDict (object):
 
 class TestHelpers (object):
 
-    def test_toBoolean(self):
-        true_val = ["true", "yes", "y", "t", "1"]
-        false_val = ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+    @pytest.mark.parametrize('true_val', [True, "true", "yes", "y", "t", "1"])
+    def test_toBoolean_true(self, true_val):
+        assert toBoolean(true_val)
 
-        for v in true_val:
-            assert toBoolean(v)
-        for v in false_val:
-            assert not toBoolean(v)
+    @pytest.mark.parametrize('false_val', [False, "false", "f", "no", "n", "none", "0", "[]", "{}", "" ])
+    def test_toBoolean_false(self, false_val):
+        assert not toBoolean(false_val)
