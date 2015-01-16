@@ -10,6 +10,7 @@
 """
 
 from omero.gateway.utils import ServiceOptsDict
+from omero.gateway.utils import toBoolean
 import pytest
 
 
@@ -223,3 +224,15 @@ class TestServiceOptsDict (object):
 
         d.setOmeroShare(share)
         assert d.get("omero.share") == d.getOmeroShare()
+
+
+class TestHelpers (object):
+
+    def test_toBoolean(self):
+        true_val = ["true", "yes", "y", "t", "1"]
+        false_val = ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+
+        for v in true_val:
+            assert toBoolean(v)
+        for v in false_val:
+            assert not toBoolean(v)
