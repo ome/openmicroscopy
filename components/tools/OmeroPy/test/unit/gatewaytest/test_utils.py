@@ -232,6 +232,8 @@ class TestHelpers (object):
     def test_toBoolean_true(self, true_val):
         assert toBoolean(true_val)
 
-    @pytest.mark.parametrize('false_val', [False, "false", "f", "no", "n", "none", "0", "[]", "{}", "" ])
+    @pytest.mark.parametrize(
+        'false_val',
+        [False, "false", "f", "no", "n", "none", "0", "[]", "{}", ""])
     def test_toBoolean_false(self, false_val):
         assert not toBoolean(false_val)
