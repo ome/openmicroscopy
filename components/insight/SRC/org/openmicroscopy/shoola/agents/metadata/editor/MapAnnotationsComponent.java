@@ -28,6 +28,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.EditorModel.MapAnnotatio
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTable;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableSelectionModel;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.MapAnnotationData;
@@ -60,11 +61,12 @@ public class MapAnnotationsComponent extends JPanel implements
 	/** Flag to en/disable the ListSelectionListener */
 	private boolean listenerActive = true;
 
-	/** Storage for copied values */
-	private List<NamedValue> copiedValues = new ArrayList<NamedValue>();
-
 	/** The layout constraints */
 	private GridBagConstraints c;
+
+	/** Reference to the copy/paste storage */
+	private static List<NamedValue> copiedValues = MetadataViewerFactory
+			.getCopiedMapAnnotationsEntries();
 
 	/**
 	 * Creates a new MapAnnotationsComponent
@@ -121,7 +123,6 @@ public class MapAnnotationsComponent extends JPanel implements
 		copyButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		copyButton.setToolTipText("Copy");
 		copyButton.addMouseListener(ml);
-		copyButton.setEnabled(false);
 		bar.add(copyButton);
 
 		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
@@ -129,7 +130,6 @@ public class MapAnnotationsComponent extends JPanel implements
 		pasteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		pasteButton.setToolTipText("Paste");
 		pasteButton.addMouseListener(ml);
-		pasteButton.setEnabled(false);
 		bar.add(pasteButton);
 
 		deleteButton = new JButton(icons.getIcon(IconManager.DELETE_12));
@@ -137,7 +137,6 @@ public class MapAnnotationsComponent extends JPanel implements
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		deleteButton.setToolTipText("Delete");
 		deleteButton.addMouseListener(ml);
-		deleteButton.setEnabled(false);
 		bar.add(deleteButton);
 		return bar;
 	}
@@ -157,6 +156,10 @@ public class MapAnnotationsComponent extends JPanel implements
 
 		add(toolbar, c);
 		c.gridy++;
+		
+		copyButton.setEnabled(canCopy());
+		pasteButton.setEnabled(canPaste());
+		deleteButton.setEnabled(canDelete());
 	}
 
 	/**
@@ -167,7 +170,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		removeAll();
 		buildUI();
 	}
-	
+
 	/**
 	 * Refreshes the UI with the model's current content
 	 */
@@ -237,8 +240,8 @@ public class MapAnnotationsComponent extends JPanel implements
 	 */
 	private boolean isUsers(MapAnnotationData data) {
 		return MapAnnotationData.NS_CLIENT_CREATED.equals(data.getNameSpace())
-				&& (data.getOwner() == null || MetadataViewerAgent.getUserDetails().getId() == data
-						.getOwner().getId());
+				&& (data.getOwner() == null || MetadataViewerAgent
+						.getUserDetails().getId() == data.getOwner().getId());
 	}
 
 	/**
@@ -318,11 +321,10 @@ public class MapAnnotationsComponent extends JPanel implements
 				}
 			}
 			listenerActive = true;
-			
-			boolean buttonsEnabled = !getSelection().isEmpty();
-			deleteButton.setEnabled(buttonsEnabled);
-			copyButton.setEnabled(buttonsEnabled);
-			pasteButton.setEnabled(buttonsEnabled && !copiedValues.isEmpty()); 
+
+			deleteButton.setEnabled(canDelete());
+			copyButton.setEnabled(canCopy());
+			pasteButton.setEnabled(canPaste());
 		}
 	}
 
@@ -334,6 +336,19 @@ public class MapAnnotationsComponent extends JPanel implements
 	public MapTable getSelectedTable() {
 		for (MapTable t : mapTables) {
 			if (t.getSelectedRow() != -1)
+				return t;
+		}
+		return null;
+	}
+
+	/**
+	 * Get the table which holds the the user's own {@link MapAnnotationData}
+	 * 
+	 * @return See above
+	 */
+	public MapTable getUserTable() {
+		for (MapTable t : mapTables) {
+			if (isUsers(t.getData()))
 				return t;
 		}
 		return null;
@@ -365,6 +380,8 @@ public class MapAnnotationsComponent extends JPanel implements
 	 */
 	private void pasteSelection() {
 		MapTable t = getSelectedTable();
+		if (t == null)
+			t = getUserTable();
 		MapTableModel m = (MapTableModel) t.getModel();
 		int index = t.getSelectedRow();
 		m.addEntries(copiedValues, index);
@@ -376,5 +393,18 @@ public class MapAnnotationsComponent extends JPanel implements
 	private void deleteSelection() {
 		MapTable t = getSelectedTable();
 		t.deleteSelected();
+	}
+
+	private boolean canDelete() {
+		return !getSelection().isEmpty() && getSelectedTable().canDelete();
+	}
+
+	private boolean canCopy() {
+		return !getSelection().isEmpty();
+	}
+
+	private boolean canPaste() {
+		return !copiedValues.isEmpty()
+				&& (getSelectedTable() == null || getSelectedTable().canEdit());
 	}
 }
