@@ -23,9 +23,6 @@ from omero.cli import CLI
 from omero.plugins.sessions import SessionsControl
 import pytest
 
-subcommands = ['help', 'login', 'logout', 'group',
-               'list', 'keepalive', 'clear', 'file']
-
 
 class TestSessions(object):
 
@@ -38,7 +35,8 @@ class TestSessions(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize("subcommand", subcommands)
+    @pytest.mark.parametrize(
+        "subcommand", SessionsControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

@@ -23,9 +23,6 @@ import pytest
 from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.tag import TagControl
 
-subcommands = [
-    "create", "createset", "list", "listsets", "link", "load"]
-
 
 class TestTag(object):
 
@@ -38,7 +35,7 @@ class TestTag(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', subcommands)
+    @pytest.mark.parametrize('subcommand', TagControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

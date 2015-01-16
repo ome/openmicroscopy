@@ -23,8 +23,6 @@ from omero.plugins.user import UserControl
 from omero.cli import CLI
 import pytest
 
-subcommands = ['add', 'list', 'password', 'email', 'joingroup', 'leavegroup']
-
 
 class TestUser(object):
 
@@ -39,7 +37,7 @@ class TestUser(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize("subcommand", subcommands)
+    @pytest.mark.parametrize("subcommand", UserControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
