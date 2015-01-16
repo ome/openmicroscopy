@@ -26,14 +26,14 @@
         <li class="mapAnnotationSpinner" style="display:none">
             <input class="button" type="image"
               src="{% static "webgateway/img/spinner.gif" %}" title="Saving to server..." /></li> 
-        <li><input class="button{% if not canEdit %} button-disabled{% endif %}" type="image"
-            src="{% static "webclient/image/icon_basic_delete.png" %}"
-            alt="Delete rows" title="Delete rows" /></li>        
         <li><input class="button" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
             alt="Copy rows" title="Copy rows" /></li>
         <li><input class="button{% if not canEdit %} button-disabled{% endif %}" type="image"
             src="{% static "webclient/image/icon_toolbar_paste.png" %}"
             alt="Paste rows" title="Paste rows" /></li>
+        <li><input class="button{% if not canEdit %} button-disabled{% endif %}" type="image"
+            src="{% static "webclient/image/icon_basic_delete.png" %}"
+            alt="Delete rows" title="Delete rows" /></li>
     </ul>
 
 
