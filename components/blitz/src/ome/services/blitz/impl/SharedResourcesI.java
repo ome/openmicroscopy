@@ -35,7 +35,6 @@ import omero.ValidationException;
 import omero.constants.categories.PROCESSCALLBACK;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
-import omero.grid.AMI_Tables_getTable;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
@@ -386,26 +385,14 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
                 Arrays.<Ice.ObjectPrx> asList(tables),
                 new RepeatTask<TablePrx>() {
                     public void requestService(Ice.ObjectPrx prx,
-                            final ResultHolder holder) {
-                        final TablesPrx server = TablesPrxHelper
-                                .uncheckedCast(prx);
-                        server.getTable_async(new AMI_Tables_getTable() {
-
-                            @Override
-                            public void ice_exception(LocalException ex) {
-                                holder.set(null);
-                            }
-
-                            @Override
-                            public void ice_response(TablePrx __ret) {
-                                holder.set(__ret);
-                            }
-
-                            @Override
-                            public void ice_exception(UserException ex) {
-                                holder.set(null);
-                            }
-                        }, file, sf.proxy(), __current.ctx);
+                            final ResultHolder holder) throws ServerError {
+                        try {
+                           final TablesPrx server = TablesPrxHelper
+                                  .uncheckedCast(prx);
+                           server.getTable(file, sf.proxy());
+                        } catch (ServerError e) {
+                           throw e;
+                        }
                     }
                 });
 
