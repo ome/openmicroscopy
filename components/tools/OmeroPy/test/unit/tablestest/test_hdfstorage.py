@@ -17,7 +17,7 @@ import logging
 import threading
 import Ice
 
-from omero.rtypes import rint
+from omero.rtypes import rint, rstring
 
 from library import TestCase
 from path import path
@@ -202,7 +202,7 @@ class TestHdfStorage(TestCase):
         m1 = hdf.get_meta_map()
         assert len(m1) == 3
         assert m1['__initialized'].val > 0
-        assert m1['__version'] == rint(2)
+        assert m1['__version'] == rstring('2')
         assert m1['a'] == rint(1)
 
         with pytest.raises(omero.ApiUsageException) as exc:
@@ -219,7 +219,7 @@ class TestHdfStorage(TestCase):
         m2 = hdf.get_meta_map()
         assert len(m2) == 2
         assert m2 == {
-            '__initialized': m1['__initialized'], '__version': rint(2)}
+            '__initialized': m1['__initialized'], '__version': rstring('2')}
 
         hdf.add_meta_map({'__test': 1}, replace=True, init=True)
         m3 = hdf.get_meta_map()

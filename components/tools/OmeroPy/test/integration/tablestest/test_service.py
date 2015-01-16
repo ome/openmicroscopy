@@ -574,8 +574,8 @@ class TestTables(lib.ITest):
         table.close()
 
     @pytest.mark.parametrize('data', (
-        {"__version": omero.rtypes.rint(4)},
-        ("__version", omero.rtypes.rint(4)),
+        {"__version": omero.rtypes.rstring("4")},
+        ("__version", omero.rtypes.rstring("4")),
     ))
     def testCantWriteInternalMetadata(self, data):
         grid = self.client.sf.sharedResources()
@@ -590,8 +590,8 @@ class TestTables(lib.ITest):
                 table.setMetadata(*data)
 
     @pytest.mark.parametrize('data', (
-        {"version": omero.rtypes.rint(4)},
-        ("version", omero.rtypes.rint(4)),
+        {"version": omero.rtypes.rstring("4")},
+        ("version", omero.rtypes.rstring("4")),
     ))
     def testCanWriteAlmostInternalMetadata(self, data):
         grid = self.client.sf.sharedResources()
@@ -603,7 +603,7 @@ class TestTables(lib.ITest):
             table.setAllMetadata(data)
         else:
             table.setMetadata(*data)
-        assert 4 == table.getMetadata("version").val
+        assert "4" == table.getMetadata("version").val
 
     def testCanReadInternalMetadata(self):
         grid = self.client.sf.sharedResources()

@@ -31,7 +31,7 @@ from omero_ext.functional import wraps
 sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
 
-VERSION = 2
+VERSION = '2'
 
 
 def slen(rv):
@@ -283,19 +283,18 @@ class HdfStorage(object):
     def __getversion(self):
         """
         In OMERO.tables v2 the version attribute name was changed to __version
-        and made an int
         """
         self.__initcheck()
         k = '__version'
         try:
             v = self.__mea.attrs[k]
-            if isinstance(v, int):
+            if isinstance(v, str):
                 return v
         except KeyError:
             k = 'version'
             v = self.__mea.attrs[k]
             if v == 'v1':
-                return 1
+                return '1'
 
         msg = "Invalid version attribute (%s=%s) in path: %s" % (
             k, v, self.__hdf_path)
@@ -444,7 +443,7 @@ class HdfStorage(object):
     @modifies
     def add_meta_map(self, m, replace=False, init=False):
         if not init:
-            if self.__getversion() < 2:
+            if int(self.__getversion()) < 2:
                 # Metadata methods were generally broken for v1 tables so
                 # the introduction of internal metadata attributes is unlikely
                 # to affect anyone.
