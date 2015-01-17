@@ -62,11 +62,13 @@ class UserControl(UserGroupControl):
             x.add_group_print_arguments()
             x.add_user_sorting_arguments()
 
-        groups = parser.add(
-            sub, self.groups, "List groups of the current user")
-        groups.add_style_argument()
-        groups.add_user_print_arguments()
-        groups.add_group_sorting_arguments()
+        listgroups = parser.add(
+            sub, self.listgroups,
+            "List the groups of the user. Default to the context user")
+        self.add_user_arguments(listgroups)
+        listgroups.add_style_argument()
+        listgroups.add_user_print_arguments()
+        listgroups.add_group_sorting_arguments()
 
         password = parser.add(
             sub, self.password, help="Set user's password")
@@ -203,11 +205,13 @@ class UserControl(UserGroupControl):
         [uids, users] = self.list_users(a, args, use_context=True)
         self.output_users_list(a, users, args)
 
-    def groups(self, args):
+    def listgroups(self, args):
         c = self.ctx.conn(args)
         admin = c.sf.getAdminService()
-        ec = self.ctx.get_event_context()
-        groups = admin.containedGroups(ec.userId)
+        [uids, groups] = self.list_users(admin, args, use_context=True)
+        if len(uids) != 1:
+            self.ctx.die(516, 'No more than one user')
+        groups = admin.containedGroups(uids[0])
         self.output_groups_list(groups, args)
 
     @admin_only

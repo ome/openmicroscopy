@@ -72,12 +72,12 @@ server-permissions.html
             x.add_user_print_arguments()
             x.add_group_sorting_arguments()
 
-        members = parser.add(
-            sub, self.members, "List members of the current group")
-        self.add_group_arguments(members)
-        members.add_style_argument()
-        members.add_group_print_arguments()
-        members.add_user_sorting_arguments()
+        listusers = parser.add(
+            sub, self.listusers, "List users of the current group")
+        self.add_group_arguments(listusers)
+        listusers.add_style_argument()
+        listusers.add_group_print_arguments()
+        listusers.add_user_sorting_arguments()
 
         copyusers = parser.add(sub, self.copyusers, "Copy the users of one"
                                " group to another group")
@@ -206,11 +206,12 @@ server-permissions.html
         [gid, groups] = self.list_groups(a, args, use_context=True)
         self.output_groups_list(groups, args)
 
-    def members(self, args):
+    def listusers(self, args):
         c = self.ctx.conn(args)
         admin = c.sf.getAdminService()
         [gids, groups] = self.list_groups(admin, args, use_context=True)
-        print gids[0]
+        if len(gids) != 1:
+            self.ctx.die(516, 'No more than one user')
         users = admin.containedExperimenters(gids[0])
         self.output_users_list(admin, users, args)
 
