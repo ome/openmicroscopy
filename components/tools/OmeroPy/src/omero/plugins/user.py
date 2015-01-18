@@ -210,7 +210,7 @@ class UserControl(UserGroupControl):
         admin = c.sf.getAdminService()
         [uids, groups] = self.list_users(admin, args, use_context=True)
         if len(uids) != 1:
-            self.ctx.die(516, 'No more than one user')
+            self.ctx.die(516, 'Too many user arguments')
         groups = admin.containedGroups(uids[0])
         self.output_groups_list(groups, args)
 

@@ -211,7 +211,7 @@ server-permissions.html
         admin = c.sf.getAdminService()
         [gids, groups] = self.list_groups(admin, args, use_context=True)
         if len(gids) != 1:
-            self.ctx.die(516, 'No more than one user')
+            self.ctx.die(516, 'Too many group arguments')
         users = admin.containedExperimenters(gids[0])
         self.output_users_list(admin, users, args)
 
