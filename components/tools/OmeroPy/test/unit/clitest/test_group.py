@@ -24,7 +24,7 @@ from omero.plugins.group import GroupControl
 from omero.cli import CLI
 
 subcommands = ['add', 'perms', 'list', 'copyusers', 'adduser', 'removeuser',
-               'members']
+               'listusers']
 
 
 class TestGroup(object):

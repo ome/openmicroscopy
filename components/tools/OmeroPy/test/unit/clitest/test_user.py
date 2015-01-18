@@ -24,7 +24,7 @@ from omero.cli import CLI
 import pytest
 
 subcommands = ['add', 'list', 'password', 'email', 'joingroup', 'leavegroup',
-               'info']
+               'info', 'listgroups']
 
 
 class TestUser(object):

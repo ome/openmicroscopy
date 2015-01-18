@@ -103,3 +103,44 @@ GroupFixtures = (
     ArgumentFixture('--group-id', 'id'),
     ArgumentFixture('--group-name', 'name'),
     )
+
+
+def get_user_ids(out, sort_key=None):
+    columns = {'login': 1, 'first-name': 2, 'last-name': 3, 'email': 4}
+    lines = out.split('\n')
+    ids = []
+    last_value = None
+    for line in lines[2:]:
+        elements = line.split('|')
+        if len(elements) < 8:
+            continue
+
+        ids.append(int(elements[0].strip()))
+        if sort_key:
+            if sort_key == 'id':
+                new_value = ids[-1]
+            else:
+                new_value = elements[columns[sort_key]].strip()
+            assert new_value >= last_value
+            last_value = new_value
+    return ids
+
+
+def get_group_ids(out, sort_key=None):
+    lines = out.split('\n')
+    ids = []
+    last_value = None
+    for line in lines[2:]:
+        elements = line.split('|')
+        if len(elements) < 4:
+            continue
+
+        ids.append(int(elements[0].strip()))
+        if sort_key:
+            if sort_key == 'id':
+                new_value = ids[-1]
+            else:
+                new_value = elements[1].strip()
+            assert new_value >= last_value
+            last_value = new_value
+    return ids

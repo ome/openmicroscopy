@@ -23,6 +23,7 @@ from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
 from omero.plugins.user import UserControl
 from test.integration.clitest.cli import CLITest, RootCLITest
+from test.integration.clitest.cli import get_user_ids, get_group_ids
 from test.integration.clitest.cli import UserIdNameFixtures
 from test.integration.clitest.cli import GroupFixtures
 from test.integration.clitest.cli import UserFixtures
@@ -34,7 +35,6 @@ GroupNames = [str(x) for x in GroupFixtures]
 UserNames = [str(x) for x in UserFixtures]
 UserIdNameNames = [str(x) for x in UserIdNameFixtures]
 sort_keys = [None, "id", "login", "first-name", "last-name", "email"]
-columns = {'login': 1, 'first-name': 2, 'last-name': 3, 'email': 4}
 middlename_prefixes = [None, '-m', '--middlename']
 email_prefixes = [None, '-e', '--email']
 institution_prefixes = [None, '-i', '--institution']
@@ -48,31 +48,13 @@ class TestUser(CLITest):
     def setup_class(self):
         super(TestUser, self).setup_class()
         self.cli.register("user", UserControl, "TEST")
-        self.user2 = self.new_user()
+        self.group1 = self.new_group()
+        self.user1 = self.new_user(group=self.group1)
         self.users = self.sf.getAdminService().lookupExperimenters()
 
     def setup_method(self, method):
         super(TestUser, self).setup_method(method)
         self.args += ["user"]
-
-    def get_user_ids(self, out, sort_key=None):
-        lines = out.split('\n')
-        ids = []
-        last_value = None
-        for line in lines[2:]:
-            elements = line.split('|')
-            if len(elements) < 8:
-                continue
-
-            ids.append(int(elements[0].strip()))
-            if sort_key:
-                if sort_key == 'id':
-                    new_value = ids[-1]
-                else:
-                    new_value = elements[columns[sort_key]].strip()
-                assert new_value >= last_value
-                last_value = new_value
-        return ids
 
     # List subcommand
     # ========================================================================
@@ -88,7 +70,7 @@ class TestUser(CLITest):
 
         # Read from the stdout
         out, err = capsys.readouterr()
-        ids = self.get_user_ids(out, sort_key=sort_key)
+        ids = get_user_ids(out, sort_key=sort_key)
 
         # Check all users are listed
         if sort_key == 'login':
@@ -104,26 +86,35 @@ class TestUser(CLITest):
             sorted_list = sorted(self.users, key=lambda x: x.id.val)
         assert ids == [user.id.val for user in sorted_list]
 
+    @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
+    def testListWithStyles(self, capsys, style):
+        self.args += ["list"]
+        if style:
+            self.args += ["--style=%s" % style]
+        self.cli.invoke(self.args, strict=True)
+
+    # Info subcomand
+    # ========================================================================
     def testInfoNoArgument(self, capsys):
         self.args += ["info"]
         self.cli.invoke(self.args, strict=True)
 
         # Read from the stdout
         out, err = capsys.readouterr()
-        ids = self.get_user_ids(out)
+        ids = get_user_ids(out)
         userId = self.client.sf.getAdminService().getEventContext().userId
         assert ids == [userId]
 
     @pytest.mark.parametrize("userfixture", UserFixtures, ids=UserNames)
     def testInfoArgument(self, capsys, userfixture):
         self.args += ["info"]
-        self.args += userfixture.get_arguments(self.user2)
+        self.args += userfixture.get_arguments(self.user1)
         self.cli.invoke(self.args, strict=True)
 
         # Read from the stdout
         out, err = capsys.readouterr()
-        ids = self.get_user_ids(out)
-        assert ids == [self.user2.id.val]
+        ids = get_user_ids(out)
+        assert ids == [self.user1.id.val]
 
     def testInfoInvalidUser(self, capsys):
         self.args += ["info"]
@@ -131,12 +122,35 @@ class TestUser(CLITest):
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize("style", [None, "sql", "csv", "plain"])
-    def testListWithStyles(self, capsys, style):
-        self.args += ["list"]
-        if style:
-            self.args += ["--style=%s" % style]
+    # Listgroups subcomand
+    # ========================================================================
+    def testListGroupsNoArgument(self, capsys):
+        self.args += ["listgroups"]
         self.cli.invoke(self.args, strict=True)
+
+        out, err = capsys.readouterr()
+        ids = get_group_ids(out)
+        groupId = self.sf.getAdminService().getEventContext().groupId
+        roles = self.sf.getAdminService().getSecurityRoles()
+        assert ids == [roles.userGroupId, groupId]
+
+    @pytest.mark.parametrize("userfixture", UserFixtures, ids=UserNames)
+    def testListGroupsArgument(self, capsys, userfixture):
+        self.args += ["listgroups"]
+        self.args += userfixture.get_arguments(self.user1)
+        self.cli.invoke(self.args, strict=True)
+
+        out, err = capsys.readouterr()
+        ids = get_group_ids(out)
+        roles = self.sf.getAdminService().getSecurityRoles()
+        assert ids == [roles.userGroupId, self.group1.id.val]
+
+    def testListGroupsInvalidArgument(self, capsys):
+        self.args += ["listgroups"]
+        self.args += ["-1"]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
     # Email subcommand
     # ========================================================================
@@ -215,32 +229,6 @@ class TestUser(CLITest):
             self.cli.invoke(self.args, strict=True)
         out, err = capsys.readouterr()
         assert err.endswith("SecurityViolation: Admins only!\n")
-
-    def testGroupsNoArgument(self, capsys):
-
-        import omero.model
-        adminService = self.sf.getAdminService()
-        uid = adminService.getEventContext().userId
-        user = omero.model.ExperimenterI(uid, False)
-        group1 = self.new_group(experimenters=[user])
-        group2 = self.new_group(experimenters=[user])
-        user_groups = [x.id.val for x in [group1, group2]]
-        user_groups.append(adminService.getEventContext().groupId)
-        roles = adminService.getSecurityRoles()
-        user_groups.append(roles.userGroupId)
-
-        self.args += ["groups"]
-        self.cli.invoke(self.args, strict=True)
-        out, err = capsys.readouterr()
-
-        lines = out.split('\n')
-        ids = []
-        for line in lines[2:]:
-            elements = line.split('|')
-            if len(elements) < 4:
-                continue
-            ids.append(int(elements[0].strip()))
-        assert set(ids) == set(user_groups)
 
 
 class TestUserRoot(RootCLITest):

@@ -21,6 +21,7 @@
 from omero.plugins.group import GroupControl, defaultperms
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest, RootCLITest
+from test.integration.clitest.cli import get_user_ids, get_group_ids
 from test.integration.clitest.cli import GroupIdNameFixtures
 from test.integration.clitest.cli import GroupFixtures
 from test.integration.clitest.cli import UserFixtures
@@ -39,31 +40,13 @@ class TestGroup(CLITest):
     def setup_class(self):
         super(TestGroup, self).setup_class()
         self.cli.register("group", GroupControl, "TEST")
+        self.group1 = self.new_group()
+        self.user1 = self.new_user(group=self.group1)
         self.groups = self.sf.getAdminService().lookupGroups()
-        self.group2 = self.new_group()
 
     def setup_method(self, method):
         super(TestGroup, self).setup_method(method)
         self.args += ["group"]
-
-    def get_group_ids(self, out, sort_key=None):
-        lines = out.split('\n')
-        ids = []
-        last_value = None
-        for line in lines[2:]:
-            elements = line.split('|')
-            if len(elements) < 4:
-                continue
-
-            ids.append(int(elements[0].strip()))
-            if sort_key:
-                if sort_key == 'id':
-                    new_value = ids[-1]
-                else:
-                    new_value = elements[1].strip()
-                assert new_value >= last_value
-                last_value = new_value
-        return ids
 
     # List subcommand
     # ========================================================================
@@ -79,7 +62,7 @@ class TestGroup(CLITest):
 
         # Read from the stdout
         out, err = capsys.readouterr()
-        ids = self.get_group_ids(out, sort_key=sort_key)
+        ids = get_group_ids(out, sort_key=sort_key)
 
         # Check all groups are listed
         if sort_key == 'name':
@@ -122,30 +105,60 @@ class TestGroup(CLITest):
             ids.append(int(elements[0].strip()))
         assert set(ids) == set(group_users)
 
+    # Info subcommand
+    # ========================================================================
     def testInfoNoArgument(self, capsys):
         self.args += ["info"]
         self.cli.invoke(self.args, strict=True)
 
         # Read from the stdout
         out, err = capsys.readouterr()
-        ids = self.get_group_ids(out)
+        ids = get_group_ids(out)
         groupId = self.client.sf.getAdminService().getEventContext().groupId
         assert ids == [groupId]
 
     @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
     def testInfoArgument(self, capsys, groupfixture):
         self.args += ["info"]
-        self.args += groupfixture.get_arguments(self.group2)
+        self.args += groupfixture.get_arguments(self.group1)
         self.cli.invoke(self.args, strict=True)
 
         # Read from the stdout
         out, err = capsys.readouterr()
-        ids = self.get_group_ids(out)
-        assert ids == [self.group2.id.val]
+        ids = get_group_ids(out)
+        assert ids == [self.group1.id.val]
 
     def testInfoInvalidGroup(self, capsys):
         self.args += ["info"]
         self.args += ["-1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    # Listgroups subcomand
+    # ========================================================================
+    def testListUsersNoArgument(self, capsys):
+        self.args += ["listusers"]
+        self.cli.invoke(self.args, strict=True)
+
+        out, err = capsys.readouterr()
+        ids = get_user_ids(out)
+        userId = self.sf.getAdminService().getEventContext().userId
+        assert ids == [userId]
+
+    @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
+    def testListUsersArgument(self, capsys, groupfixture):
+        self.args += ["listusers"]
+        self.args += groupfixture.get_arguments(self.group1)
+        self.cli.invoke(self.args, strict=True)
+
+        out, err = capsys.readouterr()
+        ids = get_user_ids(out)
+        assert ids == [self.user1.id.val]
+
+    def testListUsersInvalidArgument(self, capsys):
+        self.args += ["listgroups"]
+        self.args += ["-1"]
+
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
 
