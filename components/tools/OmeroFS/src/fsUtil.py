@@ -8,6 +8,8 @@
 
 """
 
+import logging
+
 
 def monitorPackage(platformCheck):
     """
@@ -15,12 +17,14 @@ def monitorPackage(platformCheck):
 
     """
 
+    log = logging.getLogger("fsclient." + __name__)
+
     # This sequence tries to check the platform and OS version.
     #
     # At the moment a limited subset of platforms is checked for:
     #     * Mac OS 10.5 or higher
     #     * Linux kernel 2.6 then .13 or higher or kernel 3.x.y
-    #     * Windows: XP, 2003Server, 2008Server, 2008ServerR2, Vista, and 7
+    #     * Windows: versions in the list 'winTested'
     #
     # Some fine-tuning may need to be applied, some additional Windows
     # platforms added.
@@ -95,7 +99,9 @@ def monitorPackage(platformCheck):
                                "You have: %s" % platform.platform())
         else:
             current = 'WIN_any'
-            # log above error as warning
+            log.warn("Strict platform checking disabled!"
+                     "Untested Windows version %s detected"
+                     % platform.platform())
 
     # Unknown OS.
     else:
