@@ -10,7 +10,7 @@
 import logging
 import threading
 
-import omero.all
+__import__("omero.all")
 import omero.grid.monitors as monitors
 
 
