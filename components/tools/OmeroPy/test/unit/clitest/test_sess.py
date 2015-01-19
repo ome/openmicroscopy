@@ -203,21 +203,32 @@ class TestStore(object):
         s = self.store(tmpdir)
         s.set_current("srv", name=name, uuid=uuid, port=port)
         session_dir = tmpdir / "omero" / "sessions"
+
         # Using last_* methods
         assert (session_dir / "._LASTHOST_").exists()
         assert "srv" == s.last_host()
+        assert (port or '4064') == s.last_port()
         if port:
             assert (session_dir / "._LASTPORT_").exists()
-            assert port == s.last_port()
         else:
             assert not (session_dir / "._LASTPORT_").exists()
-            assert '4064' == s.last_port()
+
         # Using helpers
         assert "srv" == s.host_file().text().strip()
         if name:
-            assert "usr" == s.user_file("srv").text().strip()
+            assert name == s.user_file("srv").text().strip()
         if uuid and name:
-            assert "uuid" == s.sess_file("srv", "usr").text().strip()
+            assert uuid == s.sess_file("srv", "usr").text().strip()
+
+        # Using get_current
+        lasthost, lastname, lastuuid, lastport = s.get_current()
+        assert lasthost == "srv"
+        assert lastport == (port or '4064')
+        assert lastname == name
+        if name:
+            assert lastuuid == uuid
+        else:
+            assert lastuuid is None
 
     def testContents(self):
         s = self.store()
@@ -248,8 +259,7 @@ class TestStore(object):
             "foo": "1",
             "omero.host": "a",
             "omero.user": "b",
-            "omero.sess": "c"
-        }
+            "omero.sess": "c"}
         assert expect == rv
 
     def testConflicts(self):
