@@ -325,17 +325,24 @@ class TestUserRoot(RootCLITest):
         lastname = self.uuid()
 
         self.args += ["add", login, firstname, lastname]
+        kwargs = {
+            'omeName': login,
+            'firstName': firstname,
+            'lastName': lastname}
         self.args += ["%s" % group.id.val]
         if middlename_prefix:
             middlename = self.uuid()
             self.args += [middlename_prefix, middlename]
+            kwargs['middleName'] = middlename
         if email_prefix:
             email = "%s.%s@%s.org" % (firstname[:6], lastname[:6],
                                       self.uuid()[:6])
             self.args += [email_prefix, email]
+            kwargs['email'] = email
         if institution_prefix:
             institution = self.uuid()
             self.args += [institution_prefix, institution]
+            kwargs['institution'] = institution
         if admin_prefix:
             self.args += [admin_prefix]
         self.args += ['-P', login]
@@ -343,16 +350,10 @@ class TestUserRoot(RootCLITest):
 
         # Check user has been added to the list of member/owners
         user = self.sf.getAdminService().lookupExperimenter(login)
-        assert user.omeName.val == login
-        assert user.firstName.val == firstname
-        assert user.lastName.val == lastname
+        for key, value in kwargs.iteritems():
+            assert getattr(user, key).val == kwargs[key]
+
         assert user.id.val in self.getuserids(group.id.val)
-        if middlename_prefix:
-            assert user.middleName.val == middlename
-        if email_prefix:
-            assert user.email.val == email
-        if institution_prefix:
-            assert user.institution.val == institution
         if admin_prefix:
             roles = self.sf.getAdminService().getSecurityRoles()
             assert user.id.val in self.getuserids(roles.systemGroupId)
