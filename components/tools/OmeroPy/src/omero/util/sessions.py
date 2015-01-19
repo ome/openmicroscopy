@@ -40,6 +40,7 @@ from path import path
 
 """
 
+import omero.constants
 from omero.util import get_user_dir, make_logname
 from path import path
 
@@ -173,14 +174,15 @@ class SessionsStore(object):
             return []
         return [x.basename() for x in self.non_dot(d)]
 
-    def set_current(self, host, name=None, uuid=None, port=None):
+    def set_current(self, host, name=None, uuid=None, props=None):
         """
         Sets the current session, user, and host files
         These are used as defaults by other methods.
         """
         if host is not None:
             self.host_file().write_text(host)
-        if port is not None:
+        if props is not None:
+            port = props.get('omero.port', str(omero.constants.GLACIER2PORT))
             self.port_file().write_text(port)
         if name is not None:
             self.user_file(host).write_text(name)
@@ -225,7 +227,6 @@ class SessionsStore(object):
         """
         f = self.port_file()
         if not f.exists():
-            import omero
             return str(omero.constants.GLACIER2PORT)
         port = f.text().strip()
         if not port:
@@ -350,8 +351,7 @@ class SessionsStore(object):
         if new:
             self.add(host, ec.userName, uuid, props, sudo=sudo)
         if set_current:
-            self.set_current(host, ec.userName, uuid,
-                             props.get("omero.port", '4064'))
+            self.set_current(host, ec.userName, uuid, props)
 
         return client, uuid, timeToIdle, timeToLive
 

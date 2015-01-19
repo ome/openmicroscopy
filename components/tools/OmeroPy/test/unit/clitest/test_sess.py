@@ -56,7 +56,7 @@ class MyStore(SessionsStore):
             self.add(*add_tuple)
 
         if set_current:
-            self.set_current(*add_tuple[0:3])
+            self.set_current(*add_tuple)
 
         return return_tuple
 
@@ -201,17 +201,17 @@ class TestStore(object):
     @pytest.mark.parametrize('port', [None, '4064', '14064'])
     def testSetCurrent(self, name, uuid, port, tmpdir):
         s = self.store(tmpdir)
-        s.set_current("srv", name=name, uuid=uuid, port=port)
+        props = {}
+        if port:
+            props["omero.port"] = port
+        s.set_current("srv", name=name, uuid=uuid, props=props)
         session_dir = tmpdir / "omero" / "sessions"
 
         # Using last_* methods
         assert (session_dir / "._LASTHOST_").exists()
         assert "srv" == s.last_host()
+        assert (session_dir / "._LASTPORT_").exists()
         assert (port or '4064') == s.last_port()
-        if port:
-            assert (session_dir / "._LASTPORT_").exists()
-        else:
-            assert not (session_dir / "._LASTPORT_").exists()
 
         # Using helpers
         assert "srv" == s.host_file().text().strip()
