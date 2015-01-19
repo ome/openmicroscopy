@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -89,6 +90,9 @@ public class MapAnnotationsComponent extends JPanel implements
 	private static List<NamedValue> copiedValues = MetadataViewerFactory
 			.getCopiedMapAnnotationsEntries();
 
+	/** The panel displaying the table header */
+	private JPanel headerPanel = null;
+
 	/**
 	 * Creates a new MapAnnotationsComponent
 	 * 
@@ -107,8 +111,13 @@ public class MapAnnotationsComponent extends JPanel implements
 	private void initComponents() {
 		setLayout(new GridBagLayout());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
+
 		toolbar = createToolBar();
 		toolbar.setBackground(UIUtilities.BACKGROUND_COLOR);
+
+		headerPanel = new JPanel();
+		headerPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		headerPanel.setLayout(new BorderLayout());
 	}
 
 	/**
@@ -168,7 +177,7 @@ public class MapAnnotationsComponent extends JPanel implements
 	protected void buildUI() {
 		c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(3, 2, 3, 2);
+		c.insets = new Insets(0, 2, 4, 2);
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 1;
@@ -177,7 +186,10 @@ public class MapAnnotationsComponent extends JPanel implements
 
 		add(toolbar, c);
 		c.gridy++;
-		
+
+		add(headerPanel, c);
+		c.gridy++;
+
 		copyButton.setEnabled(canCopy());
 		pasteButton.setEnabled(canPaste());
 		deleteButton.setEnabled(canDelete());
@@ -212,12 +224,20 @@ public class MapAnnotationsComponent extends JPanel implements
 				t.setData(ma);
 			} else {
 				// if there isn't a table yet, create it
+
+				String title = isOtherUsers(ma) && ma.getOwner() != null ? ma
+						.getOwner().getUserName() : "";
+
 				JPanel p = new JPanel();
+				p.setBackground(UIUtilities.BACKGROUND_COLOR);
+				p.setBorder(BorderFactory.createTitledBorder(title));
 				p.setLayout(new BorderLayout());
 				t = createMapTable(ma);
+
 				if (t != null) {
-					if (mapTables.size() == 1)
-						p.add(t.getTableHeader(), BorderLayout.NORTH);
+					if (headerPanel.getComponentCount() == 0) {
+						headerPanel.add(t.getTableHeader(), BorderLayout.NORTH);
+					}
 					p.add(t, BorderLayout.CENTER);
 					add(p, c);
 					c.gridy++;
@@ -263,6 +283,19 @@ public class MapAnnotationsComponent extends JPanel implements
 		return MapAnnotationData.NS_CLIENT_CREATED.equals(data.getNameSpace())
 				&& (data.getOwner() == null || MetadataViewerAgent
 						.getUserDetails().getId() == data.getOwner().getId());
+	}
+
+	/**
+	 * Check if the given {@link MapAnnotationData} is an other user's annotation
+	 * 
+	 * @param data
+	 *            The {@link MapAnnotationData}
+	 * @return See above
+	 */
+	private boolean isOtherUsers(MapAnnotationData data) {
+		return MapAnnotationData.NS_CLIENT_CREATED.equals(data.getNameSpace())
+				&& (data.getOwner() == null || MetadataViewerAgent
+						.getUserDetails().getId() != data.getOwner().getId());
 	}
 
 	/**
