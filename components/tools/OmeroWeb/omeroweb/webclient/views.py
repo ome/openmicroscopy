@@ -1405,7 +1405,7 @@ def annotate_map(request, conn=None, **kwargs):
 
     annId = request.POST.get('annId')
     # Create a new annotation
-    if annId is None:
+    if annId is None and len(data) > 0:
         ann = omero.gateway.MapAnnotationWrapper(conn)
         ann.setValue(data)
         ann.setNs(omero.constants.metadata.NSCLIENTMAPANNOTATION)
@@ -1413,13 +1413,24 @@ def annotate_map(request, conn=None, **kwargs):
         for objs in oids.values():
             for obj in objs:
                 obj.linkAnnotation(ann)
+        annId = ann.getId()
     # Or update existing annotation
     else:
         ann = conn.getObject("MapAnnotation", annId)
-        ann.setValue(data)
-        ann.save()
+        if len(data) > 0:
+            ann.setValue(data)
+            ann.save()
+            annId = ann.getId()
+        else:
+            # Delete if no data
+            handle = conn.deleteObjects('/Annotation', [annId])
+            try:
+                conn._waitOnCmd(handle)
+            finally:
+                handle.close()
+            annId = None
 
-    return {"annId": ann.getId()}
+    return {"annId": annId}
 
 
 @login_required()
