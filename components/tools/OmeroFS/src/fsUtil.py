@@ -31,14 +31,13 @@ def monitorPackage(platformCheck):
     supported = {
         'MACOS_10_5+': 'fsMac-10-5-Monitor',
         'LINUX_2_6_13+pyinotify': 'fsPyinotifyMonitor',
-        'WIN_XP': 'fsWin-XP-Monitor',
-        'WIN_2003Server': 'fsWin-XP-Monitor',
-        'WIN_2008Server': 'fsWin-XP-Monitor',
-        'WIN_2008ServerR2': 'fsWin-XP-Monitor',
-        'WIN_Vista': 'fsWin-XP-Monitor',
-        'WIN_7': 'fsWin-XP-Monitor',
-        'WIN_any': 'fsWin-XP-Monitor',
+        'WIN_tested': 'fsWin-XP-Monitor',
+        'WIN_any': 'fsWin-XP-Monitor'
     }
+
+    # Versions of Windows that have been tested.
+    winTested = ['XP', '2003Server', '2008Server', '2008ServerR2', 'Vista',
+                 '7']
 
     # Initial state
     current = 'UNKNOWN'
@@ -88,20 +87,10 @@ def monitorPackage(platformCheck):
     elif system == 'Windows':
         if platformCheck:
             version = platform.platform().split('-')
-            if version[1] == 'XP':
-                current = 'WIN_XP'
-            elif version[1] == '2003Server':
-                current = 'WIN_2003Server'
-            elif version[1] == '2008Server':
-                current = 'WIN_2008Server'
-            elif version[1] == '2008ServerR2':
-                current = 'WIN_2008ServerR2'
-            elif version[1] == 'Vista':
-                current = 'WIN_Vista'
-            elif version[1] == '7':
-                current = 'WIN_7'
+            if version[1] in winTested:
+                current = 'WIN_tested'
             else:
-                errorString = ("Windows XP, Vista, 7 or Server 2003, 2008 or "
+                errorString = ("Windows XP, Vista, 7, Server 2003, 2008 or "
                                "2008R2 required. "
                                "You have: %s" % platform.platform())
         else:
