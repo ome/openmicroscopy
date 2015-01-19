@@ -184,8 +184,8 @@ class SessionsStore(object):
             self.port_file().write_text(port)
         if name is not None:
             self.user_file(host).write_text(name)
-        if uuid is not None:
-            self.sess_file(host, name).write_text(uuid)
+            if uuid is not None:
+                self.sess_file(host, name).write_text(uuid)
 
     def get_current(self):
         host = None

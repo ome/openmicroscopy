@@ -162,32 +162,62 @@ class MyCLI(CLI):
 
 class TestStore(object):
 
-    def store(self):
-        p = create_path(folder=True)
-        return MyStore(p)
+    def store(self, store_path=None):
+        if not store_path:
+            store_path = create_path(folder=True)
+        return MyStore(store_path)
 
     def testReport(self):
         s = self.store()
         s.report()
 
-    def testAdd(self):
-        s = self.store()
-        s.add("srv", "usr", "uuid", {})
+    @pytest.mark.parametrize('port', [None, '4064', '14064'])
+    @pytest.mark.parametrize('sudo', [None, 'root'])
+    def testAdd(self, port, sudo, tmpdir):
+        s = self.store(tmpdir)
+        props = {}
+        if port:
+            props["omero.port"] = port
+        s.add("srv", "usr", "uuid", props, sudo=sudo)
         assert 1 == len(s.available("srv", "usr"))
+        session_dir = tmpdir / "omero" / "sessions"
+        session_file = session_dir / "srv" / "usr" / "uuid"
+        session_file_content = session_file.read()
+        assert "omero.sess=uuid\n" in session_file_content
+        assert "omero.user=usr\n" in session_file_content
+        assert "omero.host=srv\n" in session_file_content
+        if sudo:
+            assert "omero.sudo=%s\n" % sudo in session_file_content
+        if port:
+            assert "omero.port=%s\n" % port in session_file_content
 
     def testDefaults(self):
         s = self.store()
         assert "localhost" == s.last_host()
+        assert "4064" == s.last_port()
 
-    def testCurrent(self):
-        s = self.store()
-        s.set_current("srv", "usr", "uuid")
+    @pytest.mark.parametrize('name', [None, 'usr'])
+    @pytest.mark.parametrize('uuid', [None, 'uuid'])
+    @pytest.mark.parametrize('port', [None, '4064', '14064'])
+    def testSetCurrent(self, name, uuid, port, tmpdir):
+        s = self.store(tmpdir)
+        s.set_current("srv", name=name, uuid=uuid, port=port)
+        session_dir = tmpdir / "omero" / "sessions"
         # Using last_* methods
+        assert (session_dir / "._LASTHOST_").exists()
         assert "srv" == s.last_host()
-        # Using helprs
-        assert "uuid" == s.sess_file("srv", "usr").text().strip()
-        assert "usr" == s.user_file("srv").text().strip()
+        if port:
+            assert (session_dir / "._LASTPORT_").exists()
+            assert port == s.last_port()
+        else:
+            assert not (session_dir / "._LASTPORT_").exists()
+            assert '4064' == s.last_port()
+        # Using helpers
         assert "srv" == s.host_file().text().strip()
+        if name:
+            assert "usr" == s.user_file("srv").text().strip()
+        if uuid and name:
+            assert "uuid" == s.sess_file("srv", "usr").text().strip()
 
     def testContents(self):
         s = self.store()
@@ -397,7 +427,7 @@ class TestSessions(object):
         cli.set_client(None)  # Forcing new instance
 
     def assert5975(self, key, cli):
-        host, name, uuid = cli.STORE.get_current()
+        host, name, uuid, port = cli.STORE.get_current()
         assert key != name
 
     def test5975(self):
