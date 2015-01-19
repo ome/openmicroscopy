@@ -153,8 +153,11 @@ insert into unitstime (id,permissions,value,measurementsystem)
     select ome_nextval('seq_unitstime'),-52,'d','SI.SECOND';
 
 update pixels set timeincrementunit = (select id from unitstime where value = 's') where timeincrement is not null;
-update planeinfo set deltatunit = (select id from unitstime where value = 's') where deltat is not null;
-update planeinfo set exposuretimeunit = (select id from unitstime where value = 's') where exposuretime is not null;
+
+update planeinfo
+  set deltatunit = case when deltat is null then null else (select id from unitstime where value = 's') end,
+      exposuretimeunit = case when exposuretime is null then null else (select id from unitstime where value = 's') end
+  where deltat is not null or exposuretime is not null;
 
 --
 -- FINISHED
