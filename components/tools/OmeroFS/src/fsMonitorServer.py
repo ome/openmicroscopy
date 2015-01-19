@@ -52,7 +52,7 @@ class MonitorServerI(monitors.MonitorServer):
 
     def createMonitor(self, mType, eTypes, pMode, pathString, whitelist,
                       blacklist, timeout, blockSize, ignoreSysFiles,
-                      ignoreDirEvents, proxy, current=None):
+                      ignoreDirEvents, platformCheck, proxy, current=None):
         """
             Create a the Monitor for a given path.
 
@@ -88,6 +88,9 @@ class MonitorServerI(monitors.MonitorServer):
                 ignoreDirEvents : boolean
                     Flag. If true directory events are ignored
 
+                platformCheck : boolean
+                    Flag. If true platform check is strict
+
                 proxy :
                     A proxy to be informed of events
 
@@ -107,8 +110,8 @@ class MonitorServerI(monitors.MonitorServer):
             # changed.
             self.monitors[monitorId] = MonitorFactory.createMonitor(
                 mType, eTypes, pMode, pathString, whitelist, blacklist,
-                timeout, blockSize, ignoreSysFiles, ignoreDirEvents, self,
-                monitorId)
+                timeout, blockSize, ignoreSysFiles, ignoreDirEvents,
+                platformCheck, self, monitorId)
 
         except Exception, e:
             self.log.exception('Failed to create monitor: ')

@@ -9,7 +9,7 @@
 """
 
 
-def monitorPackage():
+def monitorPackage(platformCheck):
     """
         Helper function to determine correct package to load for platform.
 
@@ -37,6 +37,7 @@ def monitorPackage():
         'WIN_2008ServerR2': 'fsWin-XP-Monitor',
         'WIN_Vista': 'fsWin-XP-Monitor',
         'WIN_7': 'fsWin-XP-Monitor',
+        'WIN_any': 'fsWin-XP-Monitor',
     }
 
     # Initial state
@@ -85,27 +86,31 @@ def monitorPackage():
 
     # Windows of some flavour.
     elif system == 'Windows':
-        version = platform.platform().split('-')
-        if version[1] == 'XP':
-            current = 'WIN_XP'
-        elif version[1] == '2003Server':
-            current = 'WIN_2003Server'
-        elif version[1] == '2008Server':
-            current = 'WIN_2008Server'
-        elif version[1] == '2008ServerR2':
-            current = 'WIN_2008ServerR2'
-        elif version[1] == 'Vista':
-            current = 'WIN_Vista'
-        elif version[1] == '7':
-            current = 'WIN_7'
+        if platformCheck:
+            version = platform.platform().split('-')
+            if version[1] == 'XP':
+                current = 'WIN_XP'
+            elif version[1] == '2003Server':
+                current = 'WIN_2003Server'
+            elif version[1] == '2008Server':
+                current = 'WIN_2008Server'
+            elif version[1] == '2008ServerR2':
+                current = 'WIN_2008ServerR2'
+            elif version[1] == 'Vista':
+                current = 'WIN_Vista'
+            elif version[1] == '7':
+                current = 'WIN_7'
+            else:
+                errorString = ("Windows XP, Vista, 7 or Server 2003, 2008 or "
+                               "2008R2 required. "
+                               "You have: %s" % platform.platform())
         else:
-            errorString = ("Windows XP, Vista, 7 or Server 2003, 2008 or "
-                           "2008R2 required. "
-                           "You have: %s" % platform.platform())
+            current = 'WIN_any'
+            # log above error as warning
 
     # Unknown OS.
     else:
-        errorString = "Unsupported platform: %s" % system
+        errorString = "Unsupported system: %s" % system
 
     try:
         return supported[current]
