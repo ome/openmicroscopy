@@ -133,13 +133,43 @@
         }
 
 
-        var addRow = function addRow($tr) {
-
+        var startNewRow = function startRow($tr) {
             var $newRow = $lastRow.clone();
             $newRow.insertAfter($tr);
 
             selectRows($newRow);
             startEdit($newRow.find("td:first"));
+        }
+
+
+        // either use $tr OR event to determine where to add rows
+        var addRow = function addRow(event) {
+
+            var $newRow = $lastRow.clone();
+
+            var $tbody = $(event.target)
+                    .parent().parent().parent().find('.keyValueTable tbody');
+            addToTable($tbody, $newRow);
+        }
+
+        var addToTable = function addToTable($tbody, $rows) {
+            // Either paste after last selected row, or at bottom of table
+            var $selRow = $tbody.find('tr.ui-selected:last')
+
+            if ($selRow.length > 0) {
+                $rows.insertAfter($selRow);
+            } else {
+                // If the last row is placeholder 'Add Key', 'Add Value', paste before
+                var $lastRow = $('tr:last', $tbody),
+                    rowData = getRowData($lastRow);
+                if (rowData[0] == "Add Key" && rowData[1] == "Add Value") {
+                    $rows.insertBefore($lastRow);
+                } else {
+                    $rows.appendTo($tbody);
+                }
+            }
+
+            saveMapAnnotation($tbody.parent());
         }
 
         var deleteSelectedRows = function deleteSelectedRows(event) {
@@ -208,7 +238,6 @@
 
             var $tbody = $(event.target)
                     .parent().parent().parent().find('.keyValueTable tbody'),
-                $selRow = $tbody.find('tr.ui-selected:last'),
                 data = window.mapAnnotationClipboard,
                 row,
                 html = "";
@@ -220,18 +249,7 @@
                 html += "<tr><td>" + row[0] + "</td><td>" + row[1] + "</td></tr>";
             }
             // Either paste after last selected row, or at bottom of table
-            if ($selRow.length > 0) {
-                $(html).insertAfter($selRow);
-            } else {
-                // If the last row is placeholder 'Add Key', 'Add Value', paste before
-                var $lastRow = $('tr:last', $tbody),
-                    rowData = getRowData($lastRow);
-                if (rowData[0] == "Add Key" && rowData[1] == "Add Value") {
-                    $(html).insertBefore($lastRow);
-                } else {
-                    $(html).appendTo($tbody);
-                }
-            }
+            addToTable($tbody, $(html));
 
             saveMapAnnotation($tbody.parent());
         }
@@ -249,6 +267,8 @@
                 case "Paste rows":
                     pasteSelectedRows(event);
                     break;
+                case "Add rows":
+                    addRow(event);
             }
         });
 
@@ -287,7 +307,7 @@
                         selectRows($td.parent().next());
                         startEdit($td.parent().next().find('td:first'));
                     } else {
-                        addRow($td.parent());
+                        startNewRow($td.parent());
                     }
                     break;
             }
