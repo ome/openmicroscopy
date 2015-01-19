@@ -57,7 +57,7 @@ def monitorPackage(platformCheck):
                 current = 'MACOS_10_5+'
             # Unsupported Mac OS version.
             else:
-                errorString = ("Mac Os 10.5 or above required. You have: %s"
+                errorString = ("Mac OS 10.5 or above required. You have: %s"
                                % platform.platform())
         except:
             # mac_ver() on python built with macports returns a version tuple
@@ -66,7 +66,7 @@ def monitorPackage(platformCheck):
             # Until a better solution is found MACOS-UNKNOWN_VERSION is used to
             # flag this.
             current = 'MACOS-UNKNOWN_VERSION'
-            errorString = ("Mac Os 10.5 or above required. "
+            errorString = ("Mac OS 10.5 or above required. "
                            "You have an unkown version")
 
     # Linux of some flavour.

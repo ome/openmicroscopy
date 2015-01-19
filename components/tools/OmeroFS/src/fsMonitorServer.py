@@ -79,7 +79,7 @@ class MonitorServerI(monitors.MonitorServer):
                 timeout : float
                     A timeout used by some types of monitor.
 
-                blockSize : intt
+                blockSize : int
                     Number of events to pack into one notification.
 
                 ignoreSysFiles : boolean
