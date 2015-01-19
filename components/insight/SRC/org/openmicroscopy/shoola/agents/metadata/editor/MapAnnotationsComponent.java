@@ -244,6 +244,8 @@ public class MapAnnotationsComponent extends JPanel implements
 				}
 			}
 		}
+		
+		setVisible(!mapTables.isEmpty());
 	}
 
 	/**
@@ -286,7 +288,8 @@ public class MapAnnotationsComponent extends JPanel implements
 	}
 
 	/**
-	 * Check if the given {@link MapAnnotationData} is an other user's annotation
+	 * Check if the given {@link MapAnnotationData} is an other user's
+	 * annotation
 	 * 
 	 * @param data
 	 *            The {@link MapAnnotationData}
@@ -309,11 +312,7 @@ public class MapAnnotationsComponent extends JPanel implements
 	 */
 	@SuppressWarnings("unchecked")
 	private MapTable createMapTable(MapAnnotationData m) {
-		boolean editable = MapAnnotationData.NS_CLIENT_CREATED.equals(m
-				.getNameSpace())
-				&& model.canAnnotate()
-				&& (m.getId() <= 0 || m.getOwner().getId() == MetadataViewerAgent
-						.getUserDetails().getId());
+		boolean editable = isUsers(m) && model.canAnnotate();
 
 		boolean deletable = MetadataViewerAgent.isAdministrator();
 
