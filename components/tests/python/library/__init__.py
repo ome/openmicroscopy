@@ -78,8 +78,6 @@ class ITest(object):
 
         p = Ice.createProperties(sys.argv)
         rootpass = p.getProperty("omero.rootpass")
-        if not rootpass:
-            raise Exception("No omero.rootpass found in ICE_CONFIG")
 
         try:
             cls.root = omero.client()  # ok because adds self
