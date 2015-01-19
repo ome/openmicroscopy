@@ -511,6 +511,7 @@
       icon="${dist.osx.icon}"
       mainclassname="${app.mainclass}">
         <option value="-Dapple.laf.useScreenMenuBar=true"/>
+        <option value="-Duser.dir=$APP_ROOT/.."/>
         <classpath refid="app.libs"/>
         <classpath dir="${dist.dir}" includes="${dist.jar.file}"/>
     </appbundler>
