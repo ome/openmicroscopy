@@ -363,10 +363,6 @@
     {% endwith %}
 {% endif %}
 
-{% with ma=manager.my_client_map_annotations canEdit=True %}
-    {% include "webclient/annotations/mapannotation.html" %}
-{% endwith %}
-
 {% if manager.client_map_annotations %}
 <hr>
 {% for ma in manager.client_map_annotations %}
