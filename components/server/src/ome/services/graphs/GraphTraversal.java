@@ -495,7 +495,7 @@ public class GraphTraversal {
         /* note the object instances for processing */
         final SetMultimap<String, Long> objectsToQuery = HashMultimap.create();
         for (final IObject instance : objectInstances) {
-            if (instance.isLoaded()) {
+            if (instance.isLoaded() && instance.getDetails() != null) {
                 final CI object = new CI(instance);
                 noteDetails(object, instance.getDetails());
                 targetSet.add(object);
@@ -826,13 +826,19 @@ public class GraphTraversal {
             for (final Entry<Long, Long> linkerIdLinkedId : linkerToLinked.entries()) {
                 final CI linker = linkersById.get(linkerIdLinkedId.getKey());
                 final CI linked = linkedsById.get(linkerIdLinkedId.getValue());
-                planning.forwardLinksCached.put(linkProperty.toCPI(linker.id), linked);
-                if (propertyIsAccessible) {
-                    planning.befores.put(linked, linker);
-                    planning.afters.put(linker, linked);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
+                if (!planning.detailsNoted.containsKey(linker)) {
+                    log.warn("failed to query for " + linker);
+                } else if (!planning.detailsNoted.containsKey(linked)) {
+                    log.warn("failed to query for " + linked);
+                } else {
+                    planning.forwardLinksCached.put(linkProperty.toCPI(linker.id), linked);
+                    if (propertyIsAccessible) {
+                        planning.befores.put(linked, linker);
+                        planning.afters.put(linker, linked);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
+                    }
                 }
             }
         }
@@ -854,13 +860,19 @@ public class GraphTraversal {
             for (final Entry<Long, Long> linkerIdLinkedId : linkerToLinked.entries()) {
                 final CI linker = linkersById.get(linkerIdLinkedId.getKey());
                 final CI linked = linkedsById.get(linkerIdLinkedId.getValue());
-                planning.backwardLinksCached.put(linkProperty.toCPI(linked.id), linker);
-                if (propertyIsAccessible) {
-                    planning.befores.put(linked, linker);
-                    planning.afters.put(linker, linked);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
+                if (!planning.detailsNoted.containsKey(linker)) {
+                    log.warn("failed to query for " + linker);
+                } else if (!planning.detailsNoted.containsKey(linked)) {
+                    log.warn("failed to query for " + linked);
+                } else {
+                    planning.backwardLinksCached.put(linkProperty.toCPI(linked.id), linker);
+                    if (propertyIsAccessible) {
+                        planning.befores.put(linked, linker);
+                        planning.afters.put(linker, linked);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
+                    }
                 }
             }
         }
