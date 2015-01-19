@@ -139,8 +139,13 @@ def login(request):
                 userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
                 if userGroupId in conn.getEventContext().memberOfGroups:
                     request.session['connector'] = connector
-                    upgradeCheck()
-
+                    # UpgradeCheck URL should be loaded from the server or loaded
+                    # omero.web.upgrades.url allows to customize web only
+                    try:
+                        upgrades_url = settings.UPGRADES_URL
+                    except:
+                        upgrades_url = conn.getUpgradesUrl()
+                    upgradeCheck(url=upgrades_url)
                     # if 'active_group' remains in session from previous login, check it's valid for this user
                     if request.session.get('active_group'):
                         if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:

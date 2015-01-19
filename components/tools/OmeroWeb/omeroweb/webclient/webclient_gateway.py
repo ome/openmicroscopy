@@ -290,6 +290,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         conf = self.getConfigService()
         return conf.getConfigValue("omero.version")
 
+    def getUpgradesUrl(self):
+        """
+        Retrieves a configuration value "omero.upgrades.url" from
+        the backend store.
+        
+        @return:        String
+        """
+        
+        conf = self.getConfigService()
+        return conf.getConfigValue("omero.upgrades.url")
+
 
     #########################################################
     ##  From Bram b(dot)gerritsen(at)nki(dot)nl            ##

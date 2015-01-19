@@ -7,7 +7,7 @@ from django.core.validators import validate_email
 logger = logging.getLogger(__name__)
 
 
-def upgradeCheck():
+def upgradeCheck(url):
     # upgrade check:
     # -------------
     # On each startup OMERO.web checks for possible server upgrades
@@ -20,15 +20,15 @@ def upgradeCheck():
     #
     try:
         from omero.util.upgrade_check import UpgradeCheck
-        from django.conf import settings
-        check = UpgradeCheck("web", url=settings.UPGRADES_URL)
-        check.run()
-        if check.isUpgradeNeeded():
-            logger.error(
-                "Upgrade is available. Please visit"
-                " http://downloads.openmicroscopy.org/latest/omero/.\n")
-        else:
-            logger.debug("Up to date.\n")
+        if url:
+            check = UpgradeCheck("web", url=url)
+            check.run()
+            if check.isUpgradeNeeded():
+                logger.error(
+                    "Upgrade is available. Please visit"
+                    " http://downloads.openmicroscopy.org/latest/omero/.\n")
+            else:
+                logger.debug("Up to date.\n")
     except Exception, x:
         logger.error("Upgrade check error: %s" % x)
 
