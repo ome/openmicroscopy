@@ -110,9 +110,6 @@ public class MapTable extends JTable {
 			setDropMode(DropMode.INSERT_ROWS);
 			setTransferHandler(new TableRowTransferHandler(this));
 		}
-
-		// increase default row height by 3px (otherwise JTextAreas are cut off)
-		setRowHeight(getRowHeight() + 3);
 	}
 
 	/**
