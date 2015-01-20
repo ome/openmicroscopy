@@ -172,18 +172,15 @@
             saveMapAnnotation($tbody.parent());
         }
 
-        var deleteSelectedRows = function deleteSelectedRows(event) {
+        var deleteSelectedRows = function deleteSelectedRows() {
 
-            var $table = $(event.target)
-                    .parent().parent().parent()
-                    .find('.keyValueTable'),
-                $selRows = $table.find('tbody tr.ui-selected');
+            var $selRows = $('.keyValueTable tr.ui-selected'),
+                $tbody = $selRows.parent();
             $selRows.remove();
-            if ($table.find('tbody tr').length == 0) {
-                $lastRow.clone().appendTo($table);
+            if ($tbody.find('tr').length == 0) {
+                $lastRow.clone().appendTo($tbody);
             }
-
-            saveMapAnnotation($table);
+            saveMapAnnotation($tbody.parent());
         }
 
         var selectRows = function selectRows($clickedRow, event) {
@@ -259,12 +256,12 @@
             })
         };
 
-        var copySelectedRows = function copySelectedRows(event) {
+        var copySelectedRows = function copySelectedRows() {
 
-            var $tbody = $(event.target)
-                    .parent().parent().parent().find('.keyValueTable tbody'),
-                data = [];
-            $tbody.find("tr.ui-selected").each(function(){
+            var data = [],
+                $selRows = $(".keyValueTable tr.ui-selected");
+            if ($selRows.length == 0) return;
+            $selRows.each(function(){
                 var rowData = getRowData($(this));
                 data.push(rowData);
             });
@@ -272,10 +269,10 @@
         };
 
         // If we have data to paste, insert below selected row, or at bottom
-        var pasteSelectedRows = function pasteSelectedRows(event) {
+        var pasteSelectedRows = function pasteSelectedRows() {
 
-            var $tbody = $(event.target)
-                    .parent().parent().parent().find('.keyValueTable tbody'),
+            var $selRows = $(".keyValueTable tr.ui-selected"),
+                $tbody = $selRows.length > 0 ? $selRows.parent() : $('.keyValueTable tbody:first'),
                 data = window.mapAnnotationClipboard,
                 row,
                 html = "";
@@ -297,16 +294,16 @@
             var alt = $(event.target).prop('alt');
             switch (alt) {
                 case "Delete rows":
-                    deleteSelectedRows(event);
+                    deleteSelectedRows();
                     break;
                 case "Copy rows":
-                    copySelectedRows(event);
+                    copySelectedRows();
                     break;
                 case "Paste rows":
-                    pasteSelectedRows(event);
+                    pasteSelectedRows();
                     break;
                 case "Insert rows":
-                    addRow(event);
+                    addRow();
             }
         });
 
