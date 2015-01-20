@@ -6,7 +6,6 @@
  */
 package ome.io.nio.utests;
 
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
