@@ -150,6 +150,8 @@
                 $tbody = $selRows.length > 0 ? $selRows.parent() : $('.keyValueTable tbody:first');
 
             addToTable($tbody, $newRow);
+            selectRows($newRow);
+            startEdit($newRow.find("td:first"));
         }
 
         var addToTable = function addToTable($tbody, $rows) {
