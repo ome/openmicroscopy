@@ -95,6 +95,8 @@ class WebControl(BaseControl):
             "--http", type=int,
             help="HTTP port for web server (not fastcgi)")
         config.add_argument(
+            "--system", action="store_true", help=SUPPRESS)
+        config.add_argument(
             "--templates_dir", type=str, help=SUPPRESS)
 
         parser.add(
@@ -146,6 +148,10 @@ class WebControl(BaseControl):
                 "Available configuration helpers:\n"
                 " - nginx, nginx-development, apache, apache-fcgi\n")
         else:
+            if args.system:
+                self.ctx.err(
+                    "WARNING: --system is no longer supported, see --help")
+
             server = args.type
             port = 8080
             if args.http:
