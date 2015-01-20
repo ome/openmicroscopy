@@ -266,9 +266,11 @@ class TestStore(object):
         s = self.store()
         s.add("a", "b", "c", {"omero.group": "1"})
         conflicts = s.conflicts("a", "b", "c", {})
-        assert "" != conflicts
+        assert conflicts == 'omero.group:1!=None;'
+        conflicts = s.conflicts("a", "b", "c", {}, ignore_nulls=True)
+        assert conflicts == ''
         conflicts = s.conflicts("a", "b", "c", {"omero.group": "2"})
-        assert "" != conflicts
+        assert conflicts == 'omero.group:1!=2;'
 
 
 class TestSessions(object):
