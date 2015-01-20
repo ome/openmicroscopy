@@ -1415,7 +1415,7 @@ def annotate_map(request, conn=None, **kwargs):
                 obj.linkAnnotation(ann)
         annId = ann.getId()
     # Or update existing annotation
-    else:
+    elif annId is not None:
         ann = conn.getObject("MapAnnotation", annId)
         if len(data) > 0:
             ann.setValue(data)
