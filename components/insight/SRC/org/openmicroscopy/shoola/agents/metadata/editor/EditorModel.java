@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -4163,6 +4163,7 @@ class EditorModel
 	        SaveAsParam p = new SaveAsParam(folder, objects);
 	        p.setIndex(format);
 	        p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
+	        p.setDeleteWhenFinished(true);
 	        UserNotifier un =
 	                MetadataViewerAgent.getRegistry().getUserNotifier();
 	        un.notifyActivity(getSecurityContext(), p);
