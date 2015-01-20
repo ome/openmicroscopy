@@ -48,7 +48,7 @@ public class PyramidWriteLockUnitTest extends AbstractPyramidPixelBufferUnitTest
      */
     @Test(groups = "ticket:5083", expectedExceptions = LockTimeout.class)
     public void testPyramidWriteLock() throws Exception {
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service._getPixelBuffer(pixels, true);
         final CountDownLatch latch = new CountDownLatch(1);
         final Runnable run = new Runnable() {
             public void run() {
@@ -69,7 +69,7 @@ public class PyramidWriteLockUnitTest extends AbstractPyramidPixelBufferUnitTest
 
         BfPyramidPixelBuffer pixelBuffer2 = null;
         try {
-            pixelBuffer2 = (BfPyramidPixelBuffer) service.getPixelBuffer(pixels);
+            pixelBuffer2 = (BfPyramidPixelBuffer) service._getPixelBuffer(pixels, true);
         } finally {
             latch.countDown();
             t.join();
