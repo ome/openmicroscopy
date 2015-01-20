@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 import ome.conditions.LockTimeout;
 import ome.io.bioformats.BfPyramidPixelBuffer;
-import ome.io.nio.PixelBuffer;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
