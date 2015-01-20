@@ -52,9 +52,12 @@ def monitorPackage():
     import os
     system = platform.system()
     try:
-        platformCheck = not (os.environ["OMERO_PLATFORM_CHECK"] == 'false')
-    except:
+        check = os.environ["OMERO_PLATFORM_CHECK"]
+        platformCheck = not (check == 'false')
+        log.info("OMERO_PLATFORM_CHECK=%s" % check)
+    except KeyError:
         platformCheck = True
+        log.info("OMERO_PLATFORM_CHECK not set")
 
     # Mac OS of some flavour.
     if system == 'Darwin':
