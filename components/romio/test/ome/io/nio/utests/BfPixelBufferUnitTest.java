@@ -73,7 +73,7 @@ public class BfPixelBufferUnitTest {
     @Test
     public void testRomioPixelBufferCreation() {
         service = new PixelsService(root);
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service._getPixelBuffer(pixels, true);
         assertTrue(pixelBuffer instanceof RomioPixelBuffer);
     }
 
