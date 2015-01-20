@@ -62,6 +62,11 @@
        <property name="mutable" value="false"/>
        <property name="visibility" value="all"/>
     </bean>
+    <bean class="ome.system.Preference" id="omero.upgrades.url">
+       <property name="db" value="false"/>
+       <property name="mutable" value="false"/>
+       <property name="visibility" value="all"/>
+    </bean>
     <bean class="ome.system.Preference" id="omero.data.dir">
        <property name="mutable" value="true"/>
     </bean>
