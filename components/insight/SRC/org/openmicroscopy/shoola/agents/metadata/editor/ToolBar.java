@@ -276,7 +276,7 @@ class ToolBar
             e = i.next();
             item = new JMenuItem(icons.getIcon(
                     IconManager.EXPORT_AS_OMETIFF));
-            item.setText("Export as "+e.getValue());
+            item.setText("Export as "+e.getValue()+"...");
             item.addActionListener(l);
             item.setActionCommand(""+e.getKey());
             item.setEnabled(enabled);
