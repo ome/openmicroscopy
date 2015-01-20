@@ -28,7 +28,7 @@
         var $input,
             saveInProgress = false,
             saveTimeout,
-            $lastRow = $(".editableKeyValueTable tr:last").clone(),
+            $lastRow = $("<tr class='placeholder'><td>Add Key</td><td>Add Value</td></tr>"),
             multiSelectKey = OME.multi_key() + "Key";
 
         // stop editing the current $input

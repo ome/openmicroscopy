@@ -44,12 +44,10 @@
             <td>{{ row.1|escape }}</td>
         </tr>
         {% endfor %}
-        {% endif %}
-
-        {% if canEdit %}
-        <tr class="placeholder">
-            <td>Add Key</td>
-            <td>Add Value</td>
-        </tr>
+        {% else %}
+          <tr class="placeholder">
+              <td>Add Key</td>
+              <td>Add Value</td>
+          </tr>
         {% endif %}
     </table>
