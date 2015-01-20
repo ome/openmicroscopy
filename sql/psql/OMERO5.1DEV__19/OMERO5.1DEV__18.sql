@@ -42,6 +42,8 @@ END;' LANGUAGE plpgsql;
 SELECT omero_assert_db_version('OMERO5.1DEV', 18);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
+INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
+             VALUES ('OMERO5.1DEV',  19,                'OMERO5.1DEV',    18);
 
 --
 -- Actual upgrade
