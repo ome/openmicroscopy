@@ -220,7 +220,7 @@ public class OmeroInterceptor implements Interceptor {
 
             if (!(entry.getCurrentPersister().getElementType()
                     instanceof ComponentType)) {
-                // We assume that any the modification of any
+                // We assume that any modification of any
                 // CollectionOfElements like NamedValue-lists
                 // should be subject to the security of the
                 // parent. If this *isn't* such a collection,
