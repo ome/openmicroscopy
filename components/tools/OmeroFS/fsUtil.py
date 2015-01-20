@@ -8,18 +8,23 @@
 
 """
 
+import logging
+
+
 def monitorPackage():
     """
         Helper function to determine correct package to load for platform. 
         
     """
     
+    log = logging.getLogger("fsclient." + __name__)
+
     # This sequence tries to check the platform and OS version. 
     #
     # At the moment a limited subset of platforms is checked for:
     #     * Mac OS 10.5 or higher
     #     * Linux kernel 2.6 then .13 or higher or kernel 3.x.y
-    #     * Windows: XP, 2003Server, 2008Server, 2008ServerR2, Vista, and 7
+    #     * Windows: versions in the list 'winTested'
     #
     # Some fine-tuning may need to be applied, some additional Windows platforms added.
     # If any platform-specific stuff in the imported library fails an exception will be
@@ -89,6 +94,9 @@ def monitorPackage():
                 errorString = "Windows XP, Vista, 7 or Server 2003, 2008 or 2008R2 required. You have: %s" % platform.platform()
         else:
             current = 'WIN_any'
+            log.warn("Strict platform checking disabled!"
+                     "Untested Windows version %s detected"
+                     % platform.platform())
 
     # Unknown OS.
     else:
