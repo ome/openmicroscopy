@@ -36,7 +36,7 @@ def monitorPackage(platformCheck):
         'MACOS_10_5+': 'fsMac-10-5-Monitor',
         'LINUX_2_6_13+pyinotify': 'fsPyinotifyMonitor',
         'WIN_tested': 'fsWin-XP-Monitor',
-        'WIN_any': 'fsWin-XP-Monitor'
+        'WIN_other': 'fsWin-XP-Monitor'
     }
 
     # Versions of Windows that have been tested.
@@ -89,19 +89,20 @@ def monitorPackage(platformCheck):
 
     # Windows of some flavour.
     elif system == 'Windows':
-        if platformCheck:
-            version = platform.platform().split('-')
-            if version[1] in winTested:
-                current = 'WIN_tested'
-            else:
-                errorString = ("Windows XP, Vista, 7, Server 2003, 2008 or "
+        if not platformCheck:
+            log.warn("Strict platform checking disabled!")
+        version = platform.platform().split('-')
+        if version[1] in winTested:
+            current = 'WIN_tested'
+        else:
+            if platformCheck:
+                errorString = ("Windows XP, Vista, 7 or Server 2003, 2008 or "
                                "2008R2 required. "
                                "You have: %s" % platform.platform())
-        else:
-            current = 'WIN_any'
-            log.warn("Strict platform checking disabled!"
-                     "Untested Windows version %s detected"
-                     % platform.platform())
+            else:
+                current = 'WIN_other'
+                log.warn("Untested Windows version %s detected"
+                         % platform.platform())
 
     # Unknown OS.
     else:
