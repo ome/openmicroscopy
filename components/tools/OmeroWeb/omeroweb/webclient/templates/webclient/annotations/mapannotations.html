@@ -295,7 +295,11 @@
 
         // Toolbar buttons
         $( ".mapAnnToolbar" ).on( "click", "input", function(event) {
-            var alt = $(event.target).prop('alt');
+            var $button = $(event.target),
+                disabled = $button.hasClass('button-disabled');
+                alt = $button.prop('alt');
+            if (disabled) return;
+
             switch (alt) {
                 case "Delete rows":
                     deleteSelectedRows();
