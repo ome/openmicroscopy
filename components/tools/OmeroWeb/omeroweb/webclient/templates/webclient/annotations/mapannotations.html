@@ -142,13 +142,13 @@
         }
 
 
-        // either use $tr OR event to determine where to add rows
-        var addRow = function addRow(event) {
+        // Insert after selected rows or at bottom of first table
+        var insertRow = function insertRow() {
 
-            var $newRow = $lastRow.clone();
+            var $newRow = $lastRow.clone(),
+                $selRows = $(".keyValueTable tr.ui-selected"),
+                $tbody = $selRows.length > 0 ? $selRows.parent() : $('.keyValueTable tbody:first');
 
-            var $tbody = $(event.target)
-                    .parent().parent().parent().find('.keyValueTable tbody');
             addToTable($tbody, $newRow);
         }
 
@@ -255,6 +255,8 @@
                 }
             })
         };
+        // Refresh enabled status on load...
+        enableToolbarButtons();
 
         var copySelectedRows = function copySelectedRows() {
 
@@ -303,7 +305,7 @@
                     pasteSelectedRows();
                     break;
                 case "Insert rows":
-                    addRow();
+                    insertRow();
             }
         });
 
