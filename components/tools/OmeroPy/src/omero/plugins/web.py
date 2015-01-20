@@ -144,7 +144,7 @@ class WebControl(BaseControl):
 
     def config(self, args):
         if not args.type:
-            self.ctx.out(
+            self.ctx.die(
                 "Available configuration helpers:\n"
                 " - nginx, nginx-development, apache, apache-fcgi\n")
         else:
