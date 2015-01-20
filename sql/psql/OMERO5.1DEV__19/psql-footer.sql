@@ -1727,7 +1727,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  18,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  19,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2753,10 +2753,45 @@ ALTER TABLE transmittancerange
     ALTER COLUMN cutout TYPE positive_float,
     ALTER COLUMN cutouttolerance TYPE nonnegative_float;
 
+-- ensure that all annotation namespaces are noted in namespace table
+
+CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF NEW.ns IS NOT NULL THEN
+            UPDATE namespace SET update_id = NEW.update_id WHERE name = NEW.ns;
+
+            IF NOT FOUND THEN
+                INSERT INTO namespace (id, name, permissions, creation_id, update_id, owner_id, group_id)
+                    SELECT ome_nextval('seq_namespace'), NEW.ns, -52, NEW.update_id, NEW.update_id, NEW.owner_id, 1;
+            END IF;
+        END IF;
+
+        RETURN NULL;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION delete_from_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot delete namespace that is still used by annotation';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER add_to_namespace
+    AFTER INSERT OR UPDATE ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE add_to_namespace();
+
+CREATE TRIGGER delete_from_namespace
+    BEFORE DELETE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE delete_from_namespace();
+
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 18 and
+        currentPatch = 19 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 
