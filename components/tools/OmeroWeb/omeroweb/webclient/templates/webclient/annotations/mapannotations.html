@@ -190,36 +190,74 @@
 
             var $rows = $clickedRow.parent().children('tr');
 
+            // Use key modifiers to select range / toggle selection
+
             // simplest case - no event OR key modifiers
             if (!event || (!event.shiftKey && !event[multiSelectKey])) {
-                $rows.removeClass("ui-selected");
+                $('.keyValueTable tr').removeClass("ui-selected");
                 $clickedRow.addClass("ui-selected");
-                return;
-            }
+            } else if (event.shiftKey) {
 
-            // Use key modifiers to select range / toggle selection
-            var clickedIndex = $rows.index($clickedRow),
-                $selectedRow = $rows.filter(".ui-selected:first"),
-                selIndex = -1;
-            if ($selectedRow.length > 0) {
-                selIndex = $rows.index($selectedRow);
-            }
-
-            if (event.shiftKey) {
+                var clickedIndex = $rows.index($clickedRow),
+                    $selectedRow = $rows.filter(".ui-selected:first"),
+                    selIndex = -1;
+                if ($selectedRow.length > 0) {
+                    selIndex = $rows.index($selectedRow);
+                }
+                $('.keyValueTable tr').removeClass("ui-selected");
                 // user tried to select a range, but we don't have a first selection yet...
                 if ( selIndex == -1 ) {
                     $clickedRow.addClass("ui-selected");
-                    return;
+                } else {
+                    // select range
+                    var start = Math.min(clickedIndex,selIndex);
+                    var end = Math.max(clickedIndex,selIndex);
+                    $rows.slice(start, end+1).addClass("ui-selected");
                 }
-                // select range
-                var start = Math.min(clickedIndex,selIndex);
-                var end = Math.max(clickedIndex,selIndex);
-                $rows.slice(start, end+1).addClass("ui-selected");
             } else if (event[multiSelectKey]) {
                 // user wants to add/remove a single image to selection
+                var $selectedRows = $rows.filter(".ui-selected");
+                $('.keyValueTable tr').removeClass("ui-selected");
+                $selectedRows.addClass("ui-selected");
                 $clickedRow.toggleClass("ui-selected");
             }
+
+            enableToolbarButtons();
         }
+
+        var enableToolbarButtons = function enableToolbarButtons() {
+
+            var $selRows = $('.keyValueTable tr.ui-selected'),
+                enabled = {"Insert rows": false,
+                            "Copy rows": false,
+                            "Paste rows": false,
+                            "Delete rows": false},
+                data = window.mapAnnotationClipboard,
+                canPaste = (data && data.length > 0);
+
+            // Nothing selected - actions will apply to user's own table
+            if ($selRows.length == 0) {
+                enabled["Insert rows"] = true;
+                enabled["Copy rows"] = false;
+                enabled["Paste rows"] = canPaste;
+                enabled["Delete rows"] = false;
+            } else {
+                var $table = $selRows.parent().parent(),
+                    canEdit = $table.hasClass('editableKeyValueTable');
+                enabled["Insert rows"] = canEdit;
+                enabled["Copy rows"] = true;
+                enabled["Paste rows"] = (canPaste && canEdit);
+                enabled["Delete rows"] = canEdit;
+            }
+            $(".mapAnnToolbar input").each(function(){
+                var $input = $(this),
+                    title = $input.attr("title");
+                if (enabled.hasOwnProperty(title)) {
+                    if (enabled[title]) $input.removeClass('button-disabled');
+                    else $input.addClass('button-disabled');
+                }
+            })
+        };
 
         var copySelectedRows = function copySelectedRows(event) {
 
@@ -267,7 +305,7 @@
                 case "Paste rows":
                     pasteSelectedRows(event);
                     break;
-                case "Add rows":
+                case "Insert rows":
                     addRow(event);
             }
         });
@@ -370,9 +408,28 @@
     }
 </style>
 
+<div class="mapAnnContainer">
+    <ul class="toolbar mapAnnToolbar">
+        <!-- not really a button - just a handy place to put a spinner -->
+        <li class="mapAnnotationSpinner" style="display:none">
+            <input class="button" type="image"
+              src="{% static "webgateway/img/spinner.gif" %}" title="Saving to server..." /></li>
+        <li><input class="button button-disabled" type="image"
+            src="{% static "webclient/image/icon_toolbar_add.png" %}"
+            alt="Insert rows" title="Insert rows" /></li>
+        <li><input class="button button-disabled" type="image" src="{% static "webclient/image/icon_toolbar_copy.png" %}"
+            alt="Copy rows" title="Copy rows" /></li>
+        <li><input class="button button-disabled" type="image"
+            src="{% static "webclient/image/icon_toolbar_paste.png" %}"
+            alt="Paste rows" title="Paste rows" /></li>
+        <li><input class="button button-disabled" type="image"
+            src="{% static "webclient/image/icon_basic_delete.png" %}"
+            alt="Delete rows" title="Delete rows" /></li>
+    </ul>
+
 {% if manager.my_client_map_annotations %}
     {% for ma in manager.my_client_map_annotations %}
-        {% with canEdit=ma.canEdit %}
+        {% with canEdit=ma.canEdit showTableHead=True %}
             {% include "webclient/annotations/mapannotation.html" %}
         {% endwith %}
     {% endfor %}
@@ -386,7 +443,6 @@
 {% if manager.client_map_annotations %}
 <hr>
 {% for ma in manager.client_map_annotations %}
-    <div style="clear:both">Owned by: {{ ma.getOwner.getFullName }}</div>
     {% with canEdit=ma.canEdit %}
         {% include "webclient/annotations/mapannotation.html" %}
     {% endwith %}
@@ -401,3 +457,5 @@
     {% endwith %}    
 {% endfor %}
 {% endif %}
+
+</div>
