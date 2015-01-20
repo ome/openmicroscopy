@@ -93,7 +93,7 @@ class WebControl(BaseControl):
             "nginx", "nginx-development", "apache", "apache-fcgi"))
         config.add_argument(
             "--http", type=int,
-            help="HTTP port for web server (not fastcgi)")
+            help="HTTP port for web server (nginx only)")
         config.add_argument(
             "--system", action="store_true", help=SUPPRESS)
         config.add_argument(
