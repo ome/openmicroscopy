@@ -136,7 +136,14 @@ public class ImportableFile
 	 * @return See above.
 	 */
 	public FileObject getFile() { return file; }
-	
+
+	/**
+	 * Returns the object to import.
+	 * 
+	 * @return See above.
+	 */
+    public FileObject getOriginalFile() { return originalFile; }
+    
 	/**
 	 * Returns <code>true</code> to make the folder a container e.g. a dataset, 
 	 * <code>false</code> otherwise.

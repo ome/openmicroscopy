@@ -807,6 +807,13 @@ public class FileImportComponent
 	public FileObject getFile() { return importable.getFile(); }
 	
 	/**
+     * Returns the file hosted by this component.
+     * 
+     * @return See above.
+     */
+    public FileObject getOriginalFile() { return importable.getOriginalFile(); }
+    
+	/**
 	 * Sets the location where to import the files.
 	 * 
 	 * @param data The data where to import the folder or screening data.

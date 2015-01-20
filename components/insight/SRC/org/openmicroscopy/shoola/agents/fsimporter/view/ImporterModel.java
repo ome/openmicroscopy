@@ -558,7 +558,7 @@ class ImporterModel
      */
     void saveROI(FileImportComponent c, List<Long> ids)
     {
-        FileObject object = c.getFile();
+        FileObject object = c.getOriginalFile();
         if (object.isImagePlus() && CollectionUtils.isNotEmpty(ids)) {
             ROIReader reader = new ROIReader();
             SecurityContext ctx = new SecurityContext(c.getGroupID());
