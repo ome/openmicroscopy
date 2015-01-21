@@ -72,7 +72,7 @@ DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',  18,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1DEV',  19,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
