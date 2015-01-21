@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
-import ij.IJ;
-import ij.ImagePlus;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
@@ -36,8 +34,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
