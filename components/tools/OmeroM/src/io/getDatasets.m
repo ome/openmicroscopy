@@ -33,7 +33,7 @@ function datasets = getDatasets(session, varargin)
 % See also: GETOBJECTS, GETPROJECTS, GETIMAGES
 
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
