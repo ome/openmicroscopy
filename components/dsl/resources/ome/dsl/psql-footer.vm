@@ -779,6 +779,16 @@ CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
     END;
 $$ LANGUAGE plpgsql;
 
+CREATE FUNCTION update_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF OLD.name <> NEW.name AND EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot rename namespace that is still used by annotation';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
 CREATE FUNCTION delete_from_namespace() RETURNS "trigger" AS $$
     BEGIN
         IF EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
@@ -792,6 +802,10 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER add_to_namespace
     AFTER INSERT OR UPDATE ON annotation
     FOR EACH ROW EXECUTE PROCEDURE add_to_namespace();
+
+CREATE TRIGGER update_namespace
+    BEFORE UPDATE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE update_namespace();
 
 CREATE TRIGGER delete_from_namespace
     BEFORE DELETE ON namespace
