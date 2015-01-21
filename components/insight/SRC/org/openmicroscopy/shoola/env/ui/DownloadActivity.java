@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.DownloadActivity 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@ import java.util.List;
 import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -265,6 +266,14 @@ public class DownloadActivity extends ActivityComponent {
 			else
 				url = FILE + "/" + localFileName;
 			registry.getTaskBar().openURL(url);
+		}
+		
+		if (parameters.getToDelete() != null) {
+			List<DeletableObject> tmp = new ArrayList<DeletableObject>();
+			tmp.add(new DeletableObject(parameters.getToDelete()));
+			DataObjectRemover eraser = new DataObjectRemover(viewer, registry,
+					tmp, null);
+			eraser.load();
 		}
 	}
 

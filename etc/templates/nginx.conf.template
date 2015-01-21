@@ -2,16 +2,21 @@
         listen       %(HTTPPORT)d;
         server_name  $hostname;
 
-         # weblitz django apps serve media from here
+
+        # maintenance page serve from here
+        location @maintenance {
+            root %(ROOT)s/etc/templates/error;
+            try_files $uri $uri/ /502.html =502;
+        }
+
+        # weblitz django apps serve media from here
         location %(STATIC_URL)s {
             alias %(OMEROWEBROOT)s/static;
         }
 
         location %(FORCE_SCRIPT_NAME)s {
-            if (-f %(ROOT)s/var/maintenance.html) {
-               error_page 503 /maintenance.html;
-               return 503;
-            }
+
+            error_page 502 @maintenance;
 
             fastcgi_pass %(FASTCGI_PASS)s;
 
@@ -30,10 +35,6 @@
             # Uncomment if nginx SSL module is enabled or you are using nginx 1.1.11 or later
             # -- See: #10273, http://nginx.org/en/CHANGES
             # fastcgi_param HTTPS $https;
-        }
-
-        location /maintenance.html {
-            root %(ROOT)s/var;
         }
 
     }
