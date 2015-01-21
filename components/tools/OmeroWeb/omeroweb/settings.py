@@ -255,6 +255,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.server_list": ["SERVER_LIST", '[["%s", 4064, "omero"]]' % CUSTOM_HOST, json.loads],
     # Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window
     "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", None, leave_none_unset_int],
+    "omero.web.plate_download.enabled": ["PLATE_DOWNLOAD_ENABLED", "false", parse_boolean],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
     "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
