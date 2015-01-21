@@ -394,10 +394,15 @@ class FileSelectionTable
 	{
 	    if (f == null) return false;
 	    if (queue == null) return true;
-	    if (f.getFile() instanceof ImagePlus) return true;
+	    Object o = f.getFile();
+	    if (o instanceof ImagePlus) {
+	        ImagePlus img = (ImagePlus) o;
+	        if (img.changes) return true;
+	    }
+	    File file = f.getTrueFile();
 	    Iterator<FileElement> i = queue.iterator();
 	    FileElement fe;
-	    String name = f.getAbsolutePath();
+	    String name = file.getAbsolutePath();
 	    while (i.hasNext()) {
 	        fe = i.next();
 	        if (fe.getFile().getAbsolutePath().equals(name) &&
@@ -571,6 +576,7 @@ class FileSelectionTable
 	        if (allowAddToQueue(inQueue, f, gID, user.getId())) {
 	            element = new FileElement(f, model.getType(), group, user);
 	            element.setName(f.getName());
+	            inQueue.add(element);
 	            value = null;
 	            v = false;
 	            if (f.getFile() instanceof File) {
