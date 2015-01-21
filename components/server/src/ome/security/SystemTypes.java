@@ -18,7 +18,6 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
-import ome.model.meta.Namespace;
 import ome.model.meta.Node;
 import ome.model.meta.ShareMember;
 import ome.system.Roles;
@@ -78,8 +77,6 @@ public class SystemTypes {
         } else if (DBPatch.class.isAssignableFrom(klass)) {
             return true;
         } else if (IGlobal.class.isAssignableFrom(klass)) {
-            return true;
-        } else if (Namespace.class.isAssignableFrom(klass)) {
             return true;
         }
 
