@@ -259,57 +259,77 @@ CREATE INDEX i_wellsample_posy ON wellsample USING btree (posy);
 
 -- 5.1DEV__13: Manual adjustments, mostly from psql-footer.sql
 
-update pixels set timeincrementunit = 's'::unitstime where timeincrement is not null;
+update detector set voltageunit = 'V'::unitselectricpotential where voltage is not null;
 
-update planeinfo set deltatunit = 's'::unitstime where deltat is not null;
-update planeinfo set exposuretimeunit = 's'::unitstime where exposuretime is not null;
+update detectorsettings
+  set readoutrateunit = case when readoutrate is null then null else 'MHz'::unitsfrequency end,
+      voltageunit = case when voltage is null then null else 'V'::unitselectricpotential end
+  where readoutrate is not null or voltage is not null;
 
-update detector set voltageunit = 'V'::unitselectricpotential where  voltage is not null;
+update imagingenvironment
+  set airpressureunit = case when airpressure is null then null else 'mbar'::unitspressure end,
+      temperatureunit = case when temperature is null then null else '°C'::unitstemperature end
+  where airpressure is not null or temperature is not null;
 
-update detectorsettings set readoutrateunit = 'MHz'::unitsfrequency where readoutrate is not null;
-update detectorsettings set voltageunit = 'V'::unitselectricpotential where voltage is not null;
-
-update imagingenvironment set airpressureunit = 'mbar'::unitspressure where airpressure is not null;
-update imagingenvironment set temperatureunit = '°C'::unitstemperature where temperature is not null;
-
-update laser set repetitionrateunit = 'Hz'::unitsfrequency where repetitionrate is not null;
-update laser set wavelengthunit = 'nm'::unitslength where wavelength is not null;
+update laser
+  set repetitionrateunit = case when repetitionrate is null then null else 'Hz'::unitsfrequency end,
+      wavelengthunit = case when wavelength is null then null else 'nm'::unitslength end
+  where repetitionrate is not null or wavelength is not null;
 
 update lightsettings set wavelengthunit = 'nm'::unitslength where wavelength is not null;
 
 update lightsource set powerunit = 'mW'::unitspower where power is not null;
 
-update logicalchannel set emissionwaveunit = 'nm'::unitslength where emissionwave is not null;
-update logicalchannel set excitationwaveunit = 'nm'::unitslength where excitationwave is not null;
-update logicalchannel set pinholesizeunit = 'µm'::unitslength where pinholesize is not null;
+update logicalchannel
+  set emissionwaveunit = case when emissionwave is null then null else 'nm'::unitslength end,
+      excitationwaveunit = case when excitationwave is null then null else 'nm'::unitslength end,
+      pinholesizeunit = case when pinholesize is null then null else 'µm'::unitslength end
+  where emissionwave is not null or excitationwave is not null or pinholesize is not null;
 
 update objective set workingdistanceunit = 'µm'::unitslength where workingdistance is not null;
 
-update pixels set physicalsizexunit = 'µm'::unitslength where physicalsizex is not null;
-update pixels set physicalsizeyunit = 'µm'::unitslength where physicalsizey is not null;
-update pixels set physicalsizezunit = 'µm'::unitslength where physicalsizez is not null;
+update pixels
+  set physicalsizexunit = case when physicalsizex is null then null else 'µm'::unitslength end,
+      physicalsizeyunit = case when physicalsizey is null then null else 'µm'::unitslength end,
+      physicalsizezunit = case when physicalsizez is null then null else 'µm'::unitslength end,
+      timeincrementunit = case when timeincrement is null then null else 's'::unitstime end
+  where physicalsizex is not null or physicalsizey is not null or physicalsizez is not null or timeincrement is not null;
 
-update planeinfo set positionxunit = 'reference frame'::unitslength where positionx is not null;
-update planeinfo set positionyunit = 'reference frame'::unitslength where positiony is not null;
-update planeinfo set positionzunit = 'reference frame'::unitslength where positionz is not null;
+update planeinfo
+  set deltatunit = case when deltat is null then null else 's'::unitstime end,
+      exposuretimeunit = case when exposuretime is null then null else 's'::unitstime end,
+      positionxunit = case when positionx is null then null else 'reference frame'::unitslength end,
+      positionyunit = case when positiony is null then null else 'reference frame'::unitslength end,
+      positionzunit = case when positionz is null then null else 'reference frame'::unitslength end
+  where deltat is not null or exposuretime is not null or positionx is not null or positiony is not null or positionz is not null;
 
-update plate set welloriginxunit = 'reference frame'::unitslength where welloriginx is not null;
-update plate set welloriginyunit = 'reference frame'::unitslength where welloriginy is not null;
+update plate
+  set welloriginxunit = case when welloriginx is null then null else 'reference frame'::unitslength end,
+      welloriginyunit = case when welloriginy is null then null else 'reference frame'::unitslength end
+  where welloriginx is not null or welloriginy is not null;
 
-update shape set fontsizeunit = 'pt'::unitslength  where fontsize is not null;
-update shape set strokewidthunit = 'pixel'::unitslength  where strokewidth is not null;
+update shape
+  set fontsizeunit = case when fontsize is null then null else 'pt'::unitslength end,
+      strokewidthunit = case when strokewidth is null then null else 'pixel'::unitslength end
+  where fontsize is not null or strokewidth is not null;
 
-update stagelabel set positionxunit = 'reference frame'::unitslength where positionx is not null;
-update stagelabel set positionyunit = 'reference frame'::unitslength where positiony is not null;
-update stagelabel set positionzunit = 'reference frame'::unitslength where positionz is not null;
+update stagelabel
+  set positionxunit = case when positionx is null then null else 'reference frame'::unitslength end,
+      positionyunit = case when positiony is null then null else 'reference frame'::unitslength end,
+      positionzunit = case when positionz is null then null else 'reference frame'::unitslength end
+  where positionx is not null or positiony is not null or positionz is not null;
 
-update transmittancerange set cutinunit = 'nm'::unitslength where cutin is not null;
-update transmittancerange set cutintoleranceunit = 'nm'::unitslength where cutintolerance is not null;
-update transmittancerange set cutoutunit = 'nm'::unitslength where cutout is not null;
-update transmittancerange set cutouttoleranceunit = 'nm'::unitslength where cutouttolerance is not null;
+update transmittancerange
+  set cutinunit = case when cutin is null then null else 'nm'::unitslength end,
+      cutintoleranceunit = case when cutintolerance is null then null else 'nm'::unitslength end,
+      cutoutunit = case when cutout is null then null else 'nm'::unitslength end,
+      cutouttoleranceunit = case when cutouttolerance is null then null else 'nm'::unitslength end
+  where cutin is not null or cutintolerance is not null or cutout is not null or cutouttolerance is not null;
 
-update wellsample set posxunit = 'reference frame'::unitslength where posx is not null;
-update wellsample set posyunit = 'reference frame'::unitslength where posy is not null;
+update wellsample
+  set posxunit = case when posx is null then null else 'reference frame'::unitslength end,
+      posyunit = case when posy is null then null else 'reference frame'::unitslength end
+  where posx is not null or posy is not null;
 
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
