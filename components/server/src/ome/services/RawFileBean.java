@@ -187,6 +187,23 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
     }
 
+    /**
+     * Extends the check of the {@link #modified} flag performed by super
+     * with an additional check of the actual file size against the value
+     * stored in the database
+     */
+    @Override
+    protected boolean isModified() {
+        if (super.isModified()) {
+            return true;
+        }
+
+        // re-load size in DB
+        long dbSize = iQuery.get(OriginalFile.class, id).getSize();
+        long fileSize = size();
+        return dbSize != fileSize;
+    }
+
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public synchronized OriginalFile save() {
