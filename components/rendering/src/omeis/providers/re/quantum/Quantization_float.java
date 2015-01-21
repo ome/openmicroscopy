@@ -32,7 +32,6 @@ import ome.model.enums.PixelsType;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Range;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -230,7 +229,7 @@ public class Quantization_float extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         try {
-            Range<Double> r = getRange(value);
+            Range r = getRange(value);
             double v = (r.upperEndpoint()+r.lowerEndpoint())/2;
             return values.get(v);
         } catch (ExecutionException e) {

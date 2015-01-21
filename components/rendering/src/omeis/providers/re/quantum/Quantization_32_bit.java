@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Range;
 
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
@@ -230,7 +229,7 @@ public class Quantization_32_bit extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         try {
-            Range<Double> r = getRange(value);
+            Range r = getRange(value);
             double v = (r.upperEndpoint()+r.lowerEndpoint())/2;
             return values.get(v);
         } catch (ExecutionException e) {

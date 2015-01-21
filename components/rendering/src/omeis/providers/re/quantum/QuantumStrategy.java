@@ -12,8 +12,6 @@ package omeis.providers.re.quantum;
 // Third-party libraries
 
 // Application-internal dependencies
-import com.google.common.collect.Range;
-
 import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
@@ -235,7 +233,7 @@ public abstract class QuantumStrategy {
      * @param value The value to handle
      * @return See above.
      */
-    protected Range<Double> getRange(double value)
+    protected Range getRange(double value)
     {
         //no range so we need to create it
         double min = getWindowStart();
@@ -243,14 +241,14 @@ public abstract class QuantumStrategy {
         double step = Math.abs(max-min)/(MAX-MIN+1);
         double end = min+step;
         if (value == min) {
-            return Range.closedOpen(min, end);
+            return new Range(min, end);//Range.closedOpen(min, end);
         }
         while (min+step < value) {
             min += step;
             end += step;
         }
-        if (end == max) return Range.closed(min, end);
-        return Range.closedOpen(min, end);
+        if (end == max) new Range(min, end);//closed(min, end);
+        return new Range(min, end);//Range.closedOpen(min, end);
     }
     
     /**
