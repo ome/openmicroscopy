@@ -511,15 +511,17 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef, boolean, boolean)
+	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef,
+	 * boolean, boolean, int)
 	 */
 	public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-		boolean asTexture, boolean largeImage)
+		boolean asTexture, boolean largeImage, int compression)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.render(context, ctx,
-						Long.valueOf(pixelsID), pDef, asTexture, largeImage);
+						Long.valueOf(pixelsID), pDef, asTexture, largeImage,
+						compression);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
