@@ -770,13 +770,9 @@ ALTER TABLE transmittancerange
 
 CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
     BEGIN
-        IF NEW.ns IS NOT NULL THEN
-            UPDATE namespace SET update_id = NEW.update_id WHERE name = NEW.ns;
-
-            IF NOT FOUND THEN
-                INSERT INTO namespace (id, name, permissions, creation_id, update_id, owner_id, group_id)
-                    SELECT ome_nextval('seq_namespace'), NEW.ns, -52, NEW.update_id, NEW.update_id, NEW.owner_id, 1;
-            END IF;
+        IF NOT (NEW.ns IS NULL OR EXISTS (SELECT 1 FROM namespace WHERE name = NEW.ns LIMIT 1)) THEN
+            INSERT INTO namespace (id, name, permissions)
+                SELECT ome_nextval('seq_namespace'), NEW.ns, -52;
         END IF;
 
         RETURN NULL;
