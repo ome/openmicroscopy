@@ -46,12 +46,6 @@
     </description>
     <property name="properties">
       <props>
-        <!-- JTA properties
-        <prop key="hibernate.connection.datasource">OmeroDs</prop>
-        <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</prop>
-        <prop key="hibernate.transaction.manager_lookup_class">ome.tools.hibernate.JBossTsTransactionManagerLookup</prop>
-        <prop key="hibernate.current_session_context_class">ome.tools.hibernate.CurrentSessionContext</prop>
-        -->
         <prop key="hibernate.transaction.factory_class">org.springframework.orm.hibernate3.SpringTransactionFactory</prop>
         <!-- current_session_context causes transaction aware data source to be used -->
         <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate3.SpringSessionContext</prop>
