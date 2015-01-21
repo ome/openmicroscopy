@@ -1031,6 +1031,21 @@ class RendererComponent
 	}
 
 	/** 
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#renderPlane(PlaneDef, int )
+	 */
+	public BufferedImage renderPlane(PlaneDef pDef, int compression)
+	{
+	    if (pDef == null) return null;
+	    try {
+	        return model.render(pDef, compression);
+	    } catch (Throwable e) {
+	        handleException(e, false);
+	    }
+	    return null;
+	}
+
+	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#renderPlane(PlaneDef)
      */
@@ -1059,7 +1074,7 @@ class RendererComponent
 		}
 		return null;
 	}
-	
+
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setRangeAllChannels(boolean)

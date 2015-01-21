@@ -97,10 +97,10 @@ public class NullRenderingService
 
     /**
      * No-op implementation
-     * @see OmeroImageService#renderImage(long, PlaneDef, boolean, boolean)
+     * @see OmeroImageService#renderImage(long, PlaneDef, boolean, boolean, int)
      */
     public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    		boolean asTexture, boolean largeImage)
+    		boolean asTexture, boolean largeImage, int compression)
             throws RenderingServiceException
     {
         return null;

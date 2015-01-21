@@ -584,11 +584,21 @@ public interface Renderer
      * @return See above
      */
     boolean isIntegerPixelData();
-    
+
     /**
      * Renders the specified plane.
      * 
      * @param pDef The plane to render.
+     * @param compression The compression level.
+     * @return See above.
+     */
+    BufferedImage renderPlane(PlaneDef pDef, int compression);
+
+    /**
+     * Renders the specified plane.
+     * 
+     * @param pDef The plane to render.
+     * @param compression The compression level.
      * @return See above.
      */
     BufferedImage renderPlane(PlaneDef pDef);

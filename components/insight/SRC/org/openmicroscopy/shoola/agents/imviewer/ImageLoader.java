@@ -69,7 +69,10 @@ public class ImageLoader
     
     /** Indicates that the rendering of that image has been cancelled.*/
     private boolean cancelled;
-    
+
+    /** The compression level to use.*/
+    private int compression;
+
     /**
      * Creates a new instance
      * 
@@ -78,15 +81,17 @@ public class ImageLoader
      * @param pixelsID  The id of the pixels set.
      * @param pd        The plane to render. 
      * @param largeImae Pass <code>true</code> to render a large image,
-	 * 					<code>false</code> otherwise.
+	 *                  <code>false</code> otherwise.
+	 * @param compression The compression level.
      */
     public ImageLoader(ImViewer viewer, SecurityContext ctx, long pixelsID,
-    		PlaneDef pd, boolean largeImage)
+    		PlaneDef pd, boolean largeImage, int compression)
     {
         super(viewer, ctx);
         this.pixelsID = pixelsID;
         this.pd = pd;
         this.largeImage = largeImage;
+        this.compression = compression;
     }
 
     /**
@@ -96,7 +101,8 @@ public class ImageLoader
     public void load()
     {
     	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-        handle = ivView.render(ctx, pixelsID, pd, asTexture, largeImage, this);
+        handle = ivView.render(ctx, pixelsID, pd, asTexture, largeImage,
+                compression, this);
     }
 
     /**

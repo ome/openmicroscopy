@@ -1124,6 +1124,7 @@ class ImViewerComponent
 			loadTiles(null);
 			return;
 		}
+		int compression = view.getUICompressionLevel();
 		boolean stop = false;
 		int index = model.getTabbedIndex();
 		RndProxyDef def;
@@ -1146,13 +1147,13 @@ class ImViewerComponent
 			if (GREY_SCALE_MODEL.equals(model.getColorModel())) {
 				model.getBrowser().onColorModelChange();
 			} else {
-				model.fireImageRetrieval();
+				model.fireImageRetrieval(compression);
 				newPlane = false;
 				fireStateChange();
 			}
 		} else {
 			//if (stop) return;
-			model.fireImageRetrieval();
+			model.fireImageRetrieval(compression);
 			newPlane = false;
 			fireStateChange();
 		}

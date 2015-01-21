@@ -1335,8 +1335,6 @@ class RendererModel
 	 * Renders the specified plane.
 	 * 
 	 * @param pDef The plane to render.
-	 * @param region The region to render, If <code>null</code> the plane
-	 * 				 is rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while setting
 	 * 									the value.
@@ -1349,6 +1347,23 @@ class RendererModel
 		return rndControl.render(pDef);
 	}
 
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @param compression The compression level.
+	 * @return See above.
+	 * @throws RenderingServiceException If an error occurred while setting
+	 *                                  the value.
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+	BufferedImage render(PlaneDef pDef, int compression)
+	        throws RenderingServiceException, DSOutOfServiceException
+	{
+	    if (rndControl == null) return null;
+	    return rndControl.render(pDef, compression);
+	}
+    
 	/**
 	 * Renders the specified plane.
 	 *
@@ -1364,7 +1379,7 @@ class RendererModel
 		if (rndControl == null) return null;
 		return rndControl.renderAsTexture(pDef);
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * that the current one, <code>false</code> otherwise.

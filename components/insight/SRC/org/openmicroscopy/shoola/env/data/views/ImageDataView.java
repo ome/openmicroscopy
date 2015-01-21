@@ -112,11 +112,13 @@ public interface ImageDataView
 	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImae Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
+	 * @param compression The compression level used.
      * @param observer  Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
     public CallHandle render(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    		boolean asTexture, boolean largeImage, AgentEventListener observer);
+    		boolean asTexture, boolean largeImage, int compression,
+    		AgentEventListener observer);
     
     /**
      * Retrieves the pixels set.

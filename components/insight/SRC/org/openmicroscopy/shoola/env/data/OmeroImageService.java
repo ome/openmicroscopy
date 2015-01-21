@@ -150,11 +150,13 @@ public interface OmeroImageService
 	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
+	 * @param compression The compression level.
 	 * @return The image representing the plane.
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderImage(SecurityContext ctx,
-		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage)
+		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage,
+		int compression)
 		throws RenderingServiceException;
 
     /**
