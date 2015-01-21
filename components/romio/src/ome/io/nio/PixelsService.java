@@ -599,6 +599,9 @@ public class PixelsService extends AbstractFileSystemService
      * @return
      */
     public boolean requiresPixelsPyramid(Pixels pixels) {
+        String type = pixels.getPixelsType().getValue();
+        if ("float".equals(type) || "double".equals(type))
+            return false;
         final long sizeX = pixels.getSizeX();
         final long sizeY = pixels.getSizeY();
         final boolean requirePyramid = (sizeX * sizeY) > (sizes.getMaxPlaneWidth()*sizes.getMaxPlaneHeight());
