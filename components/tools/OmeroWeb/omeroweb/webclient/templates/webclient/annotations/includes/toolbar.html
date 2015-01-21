@@ -47,6 +47,7 @@
 
     {% if image or filesetInfo %}
     <!-- download options -->
+    {% if not disableDownload %}
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
             <span></span>
@@ -139,6 +140,7 @@
             {% endif %}
         </ul>
     </div>
+    {% endif %}
 
     {% if image.showOriginalFilePaths %}
       <!-- show original file paths -->

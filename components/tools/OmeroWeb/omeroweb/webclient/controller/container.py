@@ -181,6 +181,16 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
         
+    def isDownloadDisabled(self):
+        """
+        Returns True only if we have an SPW object and
+        settings.PLATE_DOWNLOAD_ENABLED is false
+        """
+        if (self.screen is None and self.acquisition is None and
+                self.plate is None and self.well is None):
+            return False
+        if hasattr(settings, 'PLATE_DOWNLOAD_ENABLED'):
+            return (not settings.PLATE_DOWNLOAD_ENABLED)
 
     def listFigureScripts(self, objDict=None):
         """
