@@ -21,13 +21,20 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +42,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -43,6 +52,7 @@ import javax.swing.event.TableModelListener;
 
 import omero.model.NamedValue;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorModel.MapAnnotationType;
@@ -50,6 +60,7 @@ import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTable;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableSelectionModel;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.MapAnnotationData;
@@ -65,6 +76,12 @@ public class MapAnnotationsComponent extends JPanel implements
 
 	private static final long serialVersionUID = -6379927802043007970L;
 
+	/** Maximum width of the tables component before scrollbars are used*/
+	private static final int MAX_TABLES_COMPONENT_WIDTH = 200;
+	
+	/** Maximum height of the tables component before scrollbars are used*/
+	private static final int MAX_TABLES_COMPONENT_HEIGHT = 300;
+	
 	/** Reference to the {@link EditorModel} */
 	private EditorModel model;
 
@@ -75,7 +92,7 @@ public class MapAnnotationsComponent extends JPanel implements
 	private JPanel toolbar;
 
 	/** The toolbar buttons */
-	private JButton copyButton, pasteButton, deleteButton;
+	private JButton addButton, copyButton, pasteButton, deleteButton;
 
 	/** Reference to the {@link MapTable}s */
 	private List<MapTable> mapTables = new ArrayList<MapTable>();
@@ -90,9 +107,15 @@ public class MapAnnotationsComponent extends JPanel implements
 	private static List<NamedValue> copiedValues = MetadataViewerFactory
 			.getCopiedMapAnnotationsEntries();
 
-	/** The panel displaying the table header */
+	/** Component displaying the table header */
 	private JPanel headerPanel = null;
-
+	
+	/** Component hosting the tables */
+	private JPanel tablePanel = null;
+	
+	/** Scrollpane hosting the tables component */
+	private JScrollPane sp;
+	
 	/**
 	 * Creates a new MapAnnotationsComponent
 	 * 
@@ -102,22 +125,64 @@ public class MapAnnotationsComponent extends JPanel implements
 	public MapAnnotationsComponent(EditorModel model, EditorUI view) {
 		this.model = model;
 		this.view = view;
-		initComponents();
+		buildUI();
 	}
 
 	/**
-	 * Initializes the component
+	 * Builds the component
 	 */
-	private void initComponents() {
-		setLayout(new GridBagLayout());
+	private void buildUI() {
+		setLayout(new BorderLayout());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 
 		toolbar = createToolBar();
 		toolbar.setBackground(UIUtilities.BACKGROUND_COLOR);
-
-		headerPanel = new JPanel();
-		headerPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-		headerPanel.setLayout(new BorderLayout());
+		add(toolbar, BorderLayout.NORTH);
+		
+		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(0, 2, 4, 2);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.weightx = 1;
+		c.weighty = 0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		
+		tablePanel = new JPanel();
+		tablePanel.setLayout(new GridBagLayout());
+		tablePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		sp = new JScrollPane(tablePanel);
+		sp.setBorder(BorderFactory.createEmptyBorder());
+		tablePanel.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				adjustScrollPane();
+			}
+			@Override
+			public void componentShown(ComponentEvent e) {}
+			@Override
+			public void componentMoved(ComponentEvent e) {}
+			@Override
+			public void componentHidden(ComponentEvent e) {}
+		});
+		add(sp, BorderLayout.CENTER);
+		sp.setPreferredSize(null);
+		
+		headerPanel = createHeaderPanel();
+		tablePanel.add(headerPanel, c);
+		c.gridy++;
+	}
+	
+	private void adjustScrollPane() {
+		tablePanel.setPreferredSize(null);
+		Dimension d = tablePanel.getPreferredSize();
+		if(d.width>MAX_TABLES_COMPONENT_WIDTH)
+			d.width = MAX_TABLES_COMPONENT_WIDTH;
+		if(d.height > MAX_TABLES_COMPONENT_HEIGHT)
+			d.height = MAX_TABLES_COMPONENT_HEIGHT;
+		d.width += 5;
+		d.height += 5;
+		sp.setPreferredSize(d);
 	}
 
 	/**
@@ -136,6 +201,9 @@ public class MapAnnotationsComponent extends JPanel implements
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				if (e.getSource() == addButton) {
+					insertRow();
+				}
 				if (e.getSource() == copyButton) {
 					copySelection();
 				}
@@ -148,60 +216,70 @@ public class MapAnnotationsComponent extends JPanel implements
 			}
 
 		};
+
+		addButton = new JButton(icons.getIcon(IconManager.PLUS));
+		UIUtilities.unifiedButtonLookAndFeel(addButton);
+		addButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		addButton.setToolTipText("Insert Row");
+		addButton.addMouseListener(ml);
+		addButton.setEnabled(false);
+		bar.add(addButton);
+
 		copyButton = new JButton(icons.getIcon(IconManager.COPY));
 		UIUtilities.unifiedButtonLookAndFeel(copyButton);
 		copyButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		copyButton.setToolTipText("Copy");
+		copyButton.setToolTipText("Copy Rows");
 		copyButton.addMouseListener(ml);
+		copyButton.setEnabled(false);
 		bar.add(copyButton);
 
 		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
 		UIUtilities.unifiedButtonLookAndFeel(pasteButton);
 		pasteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		pasteButton.setToolTipText("Paste");
+		pasteButton.setToolTipText("Paste Rows");
 		pasteButton.addMouseListener(ml);
+		pasteButton.setEnabled(false);
 		bar.add(pasteButton);
 
 		deleteButton = new JButton(icons.getIcon(IconManager.DELETE_12));
 		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
 		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		deleteButton.setToolTipText("Delete");
+		deleteButton.setToolTipText("Delete Rows");
 		deleteButton.addMouseListener(ml);
+		deleteButton.setEnabled(false);
 		bar.add(deleteButton);
 		return bar;
 	}
-
-	/**
-	 * Builds the basic UI
-	 */
-	protected void buildUI() {
-		c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 4, 2);
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 1;
-		c.weighty = 0;
-		c.fill = GridBagConstraints.HORIZONTAL;
-
-		add(toolbar, c);
-		c.gridy++;
-
-		add(headerPanel, c);
-		c.gridy++;
-
-		copyButton.setEnabled(canCopy());
-		pasteButton.setEnabled(canPaste());
-		deleteButton.setEnabled(canDelete());
+	
+	private JPanel createHeaderPanel() {
+		JPanel p = new JPanel(new GridLayout(1, 2));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		
+		JLabel l = constructHeaderLabel("Key");
+		l.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
+		p.add(l);
+		p.add(constructHeaderLabel("Value"));
+		
+		return p;
 	}
 
+	private JLabel constructHeaderLabel(String text) {
+		JLabel l = new JLabel(" "+text);
+		Font f = l.getFont().deriveFont(Font.ITALIC);
+		l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+		l.setFont(f);
+		return l;
+	}
+	
 	/**
 	 * Completely resets the component
 	 */
 	public void clear() {
 		mapTables.clear();
-		removeAll();
-		buildUI();
+		tablePanel.removeAll();
+		c.gridy = 0;
+		tablePanel.add(headerPanel, c);
+		c.gridy++;
 	}
 
 	/**
@@ -224,30 +302,47 @@ public class MapAnnotationsComponent extends JPanel implements
 				t.setData(ma);
 			} else {
 				// if there isn't a table yet, create it
-
-				String title = isOtherUsers(ma) && ma.getOwner() != null ? ma
-						.getOwner().getUserName() : "";
+				String title = ma.getOwner() != null ? "Added by: "+EditorUtil
+						.formatExperimenter(ma.getOwner()) : "";
 
 				JPanel p = new JPanel();
 				p.setBackground(UIUtilities.BACKGROUND_COLOR);
-				p.setBorder(BorderFactory.createTitledBorder(title));
+				UIUtilities.setBoldTitledBorder(title, p);
 				p.setLayout(new BorderLayout());
 				t = createMapTable(ma);
 
 				if (t != null) {
-					if (headerPanel.getComponentCount() == 0) {
-						headerPanel.add(t.getTableHeader(), BorderLayout.NORTH);
-					}
 					p.add(t, BorderLayout.CENTER);
-					add(p, c);
+					
+					// if the MapAnnotation has a custom namespace, display it
+					if(!StringUtils.isEmpty(ma.getNameSpace()) && !MapAnnotationData.NS_CLIENT_CREATED.matches(ma.getNameSpace())) {
+						JLabel ns = new JLabel(UIUtilities.formatPartialName(ma.getNameSpace()));
+						ns.setFont(ns.getFont().deriveFont(Font.BOLD));
+						p.add(ns, BorderLayout.NORTH);
+					}
+					
+					tablePanel.add(p, c);
 					c.gridy++;
 				}
 			}
 		}
-		
+
+		refreshButtonStates();	
 		setVisible(!mapTables.isEmpty());
+		adjustScrollPane();
 	}
 
+	/**
+	 * En-/Disables the toolbar buttons with respect to the
+	 * current model state
+	 */
+	private void refreshButtonStates() {
+		addButton.setEnabled(canInsert());
+		copyButton.setEnabled(canCopy());
+		pasteButton.setEnabled(canPaste());
+		deleteButton.setEnabled(canDelete());
+	}
+	
 	/**
 	 * Finds the table corresponding to the given {@link MapAnnotationData}
 	 * object
@@ -288,20 +383,6 @@ public class MapAnnotationsComponent extends JPanel implements
 	}
 
 	/**
-	 * Check if the given {@link MapAnnotationData} is an other user's
-	 * annotation
-	 * 
-	 * @param data
-	 *            The {@link MapAnnotationData}
-	 * @return See above
-	 */
-	private boolean isOtherUsers(MapAnnotationData data) {
-		return MapAnnotationData.NS_CLIENT_CREATED.equals(data.getNameSpace())
-				&& (data.getOwner() == null || MetadataViewerAgent
-						.getUserDetails().getId() != data.getOwner().getId());
-	}
-
-	/**
 	 * Creates a {@link MapTable} and adds it to the list of mapTables; Returns
 	 * <code>null</code> if the {@link MapAnnotationData} is empty and not
 	 * editable!
@@ -337,10 +418,11 @@ public class MapAnnotationsComponent extends JPanel implements
 		t.getModel().addTableModelListener(new TableModelListener() {
 			@Override
 			public void tableChanged(TableModelEvent e) {
+				refreshButtonStates();
 				MapTableModel m = (MapTableModel) t.getModel();
-				if (m.isDirty()) {
-					view.saveData(true);
-				}
+				if(m.isDirty())
+					view.setDataToSave(true);
+				adjustScrollPane();
 			}
 		});
 		mapTables.add(t);
@@ -375,9 +457,7 @@ public class MapAnnotationsComponent extends JPanel implements
 			}
 			listenerActive = true;
 
-			deleteButton.setEnabled(canDelete());
-			copyButton.setEnabled(canCopy());
-			pasteButton.setEnabled(canPaste());
+			refreshButtonStates();
 		}
 	}
 
@@ -422,10 +502,22 @@ public class MapAnnotationsComponent extends JPanel implements
 	/**
 	 * Copy the current selection
 	 */
+	private void insertRow() {
+		MapTable t = getSelectedTable();
+		if (t == null)
+			t = getUserTable();
+		MapTableModel m = (MapTableModel) t.getModel();
+		int index = t.getSelectedRow()+1;
+		m.addEntries(Arrays.asList(new NamedValue("", "")), index);
+	}
+
+	/**
+	 * Copy the current selection
+	 */
 	private void copySelection() {
 		copiedValues.clear();
 		copiedValues.addAll(getSelection());
-		pasteButton.setEnabled(!copiedValues.isEmpty());
+		refreshButtonStates();
 	}
 
 	/**
@@ -436,7 +528,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		if (t == null)
 			t = getUserTable();
 		MapTableModel m = (MapTableModel) t.getModel();
-		int index = t.getSelectedRow();
+		int index = t.getSelectedRow()+1;
 		m.addEntries(copiedValues, index);
 	}
 
@@ -446,6 +538,15 @@ public class MapAnnotationsComponent extends JPanel implements
 	private void deleteSelection() {
 		MapTable t = getSelectedTable();
 		t.deleteSelected();
+	}
+
+	/**
+	 * Checks if insert action is possible
+	 */
+	private boolean canInsert() {
+		MapTable t = getSelectedTable();
+		return ((t == null || t == getUserTable()) && model.canAnnotate())
+				|| (t != null && t.canEdit());
 	}
 
 	/**

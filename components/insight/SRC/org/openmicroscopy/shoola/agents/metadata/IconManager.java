@@ -436,11 +436,14 @@ public class IconManager
     /** The <code>Paste</code> icon. */
     public static final int PASTE = 127;
     
+    /** The <code>Paste</code> icon. */
+    public static final int PLUS = 128;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing.
 	 */
-	private static final int          MAX_ID = 127;
+	private static final int          MAX_ID = 128;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -573,6 +576,7 @@ public class IconManager
         relPaths[INPLACE_IMPORT] = "red-link-icon-16.png";
         relPaths[COPY] = "eclipse_copy_edit16.png";
         relPaths[PASTE] = "eclipse_paste_edit16.png";
+        relPaths[PLUS] = "nuvola_edit_add16.png";
 	}
    
 	/** The sole instance. */

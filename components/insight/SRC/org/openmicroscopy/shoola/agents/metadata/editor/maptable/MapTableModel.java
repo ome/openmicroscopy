@@ -45,30 +45,25 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 	/** Reference to the table */
 	private MapTable table;
-	
+
 	/** The underlying {@link MapAnnotationData} to represent */
 	private MapAnnotationData map;
-	
+
 	/** The current data displayed */
 	private List<NamedValue> data;
-	
+
 	/** A copy of the original data */
 	private List<NamedValue> originalData;
 
-	/** Text content of the 'Add entry' row*/
+	/** Text content of the 'Add entry' row */
 	public static final String DUMMY_KEY = "Add Key";
-	
-	/** Text content of the 'Add entry' row*/
-	public static final String DUMMY_VALUE = "Add Value";
 
-	/** Holds the key text, which has been entered but not saved yet*/
-	private String newKey = DUMMY_KEY;
-	
-	/** Holds the value text, which has been entered but not saved yet*/
-	private String newValue = DUMMY_VALUE;
+	/** Text content of the 'Add entry' row */
+	public static final String DUMMY_VALUE = "Add Value";
 
 	/**
 	 * Creates a new instance
+	 * 
 	 * @param table
 	 */
 	public MapTableModel(MapTable table) {
@@ -77,6 +72,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 	/**
 	 * Get the entry of a certain row
+	 * 
 	 * @param index
 	 * @return
 	 */
@@ -86,19 +82,12 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public int getRowCount() {
 		if (table == null)
 			return 0;
-
-		int rows = data == null ? 0 : data.size();
-
-		// +1 for the "Add Key"|"Add Value" column
-		if (table.canEdit())
-			rows += 1;
-
-		return rows;
+		return data == null ? 0 : data.size();
 	}
 
 	@Override
@@ -132,13 +121,6 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 			case 1:
 				return d.value;
 			}
-		} else {
-			switch (column) {
-			case 0:
-				return newKey;
-			case 1:
-				return newValue;
-			}
 		}
 		return null;
 	}
@@ -155,82 +137,73 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 				break;
 			case 1:
 				d.value = value;
-			}
-			fireTableCellUpdated(row, column);
-		} else if (!StringUtils.isEmpty(value)) {
-
-			switch (column) {
-			case 0:
-				newKey = value;
-				newValue = (String) getValueAt(row, 1);
-				break;
-			case 1:
-				newKey = (String) getValueAt(row, 0);
-				newValue = value;
-			}
-
-			if (!newKey.equals(DUMMY_KEY) && !newValue.equals(DUMMY_VALUE)) {
-				addEntry(newKey, newValue);
+				// automatically add a new row at the end of the table
+				if (row == data.size() - 1 && !isEmpty(d))
+					addEntry("", "");
 			}
 		}
+		fireTableCellUpdated(row, column);
 	}
 
 	/**
 	 * Adds a new entry to the end
-	 * @param name The name, see {@link NamedValue#name}
-	 * @param value The value, see {@link NamedValue#value}
+	 * 
+	 * @param name
+	 *            The name, see {@link NamedValue#name}
+	 * @param value
+	 *            The value, see {@link NamedValue#value}
 	 */
 	void addEntry(String name, String value) {
 		addEntries(Arrays.asList(new NamedValue(name, value)), -1);
 	}
-	
+
 	/**
 	 * Inserts a list of entries at a certain position
-	 * @param entries The entries to insert
-	 * @param index The position where to insert them
+	 * 
+	 * @param entries
+	 *            The entries to insert
+	 * @param index
+	 *            The position where to insert them
 	 */
 	public void addEntries(List<NamedValue> entries, int index) {
-		if(index<0 || index>data.size())
+		if (index < 0 || index > data.size())
 			index = data.size();
 		data.addAll(index, entries);
-		map.setContent(data);
-		table.revalidate();
-		newKey = DUMMY_KEY;
-		newValue = DUMMY_VALUE;
-		fireTableDataChanged();
+		syncBackToMap();
 	}
-	
+
 	/**
 	 * Delete an entry at a certain position
-	 * @param index The position of the entry to delete
+	 * 
+	 * @param index
+	 *            The position of the entry to delete
 	 */
 	public void deleteEntry(int index) {
 		if (index >= 0 && index < data.size()) {
 			data.remove(index);
-			map.setContent(data);
-			table.revalidate();
-			fireTableDataChanged();
+			syncBackToMap();
 		}
 	}
-	
+
 	/**
 	 * Delete entries at certain positions
-	 * @param indices The positions of the entries to delete
+	 * 
+	 * @param indices
+	 *            The positions of the entries to delete
 	 */
 	public void deleteEntries(int[] indices) {
 		List<NamedValue> toRemove = new ArrayList<NamedValue>();
-		for(int index : indices) 
+		for (int index : indices)
 			toRemove.add(getRow(index));
 		data.removeAll(toRemove);
-		
-		map.setContent(data);
-		table.revalidate();
-		fireTableDataChanged();
+		syncBackToMap();
 	}
 
 	/**
 	 * Set the {@link MapAnnotationData} to represent
-	 * @param map The {@link MapAnnotationData}
+	 * 
+	 * @param map
+	 *            The {@link MapAnnotationData}
 	 */
 	@SuppressWarnings("unchecked")
 	public void setData(MapAnnotationData map) {
@@ -245,13 +218,60 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 				this.originalData.add(new NamedValue(tmp.name, tmp.value));
 			}
 		}
+
+		// Add a dummy row to an editable, but empty table
+		if (data.size() == 0 && table.canEdit()) {
+			addEntry(DUMMY_KEY, DUMMY_VALUE);
+		}
+	}
+
+	/**
+	 * Returns the data, but with empty rows removed
+	 * 
+	 * @return See above
+	 */
+	private List<NamedValue> getTrimmedData() {
+		List<NamedValue> result = new ArrayList<NamedValue>();
+		for (NamedValue nv : data) {
+			if (!isEmpty(nv))
+				result.add(nv);
+		}
+		return result;
+	}
+
+	/**
+	 * Checks if a NamedValue contains sensible data, i. e. name and value are
+	 * neither empty nor dummy values.
+	 * 
+	 * @param nv
+	 *            The NamedValue to check
+	 * @return <code>true</code> if it doesn't contain sensible data,
+	 *         <code>false</code> if it does.
+	 */
+	private boolean isEmpty(NamedValue nv) {
+		return (StringUtils.isEmpty(nv.name) || DUMMY_KEY.equals(nv.name))
+				&& (StringUtils.isEmpty(nv.value) || DUMMY_VALUE
+						.equals(nv.value));
+	}
+
+	/**
+	 * Writes the data back to the MapAnnotation and revalidates the table
+	 */
+	private void syncBackToMap() {
+		map.setContent(getTrimmedData());
+		table.revalidate();
+		fireTableDataChanged();
 	}
 
 	/**
 	 * Check if the {@link MapTableModel} has been modified
-	 * @return <code>true</code> if it has been modified, <code>false</code> otherwise
+	 * 
+	 * @return <code>true</code> if it has been modified, <code>false</code>
+	 *         otherwise
 	 */
 	public boolean isDirty() {
+		List<NamedValue> data = getTrimmedData();
+
 		if (data.size() != originalData.size())
 			return true;
 
@@ -268,11 +288,12 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	/**
 	 * Get the {@link MapAnnotationData} represented by this
 	 * {@link MapTableModel}
+	 * 
 	 * @return
 	 */
 	public MapAnnotationData getMap() {
 		if (isDirty()) {
-			map.setContent(data);
+			map.setContent(getTrimmedData());
 		}
 		return map;
 	}
@@ -300,11 +321,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 			data.add(toIndex, v);
 
-			map.setContent(data);
-			table.revalidate();
-			fireTableDataChanged();
+			syncBackToMap();
 		}
 	}
-
-	
 }

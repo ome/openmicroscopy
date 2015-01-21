@@ -21,12 +21,15 @@
 
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DropMode;
+import javax.swing.InputMap;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.table.TableColumn;
 
 import omero.model.MapAnnotation;
@@ -48,13 +51,13 @@ public class MapTable extends JTable {
 
 	/** No permission bit (read-only) */
 	public static int PERMISSION_NONE = 0;
-	
+
 	/** Edit permission bit */
 	public static int PERMISSION_EDIT = 1;
-	
+
 	/** Move permission bit */
 	public static int PERMISSION_MOVE = 2;
-	
+
 	/** Delete permission bit */
 	public static int PERMISSION_DELETE = 4;
 
@@ -75,9 +78,11 @@ public class MapTable extends JTable {
 	}
 
 	/**
-	 * Creates a new MapTable with certain actions enabled, see
-	 * permissions parameter
-	 * @param permissions The permissions
+	 * Creates a new MapTable with certain actions enabled, see permissions
+	 * parameter
+	 * 
+	 * @param permissions
+	 *            The permissions
 	 */
 	public MapTable(int permissions) {
 		this.permissions = permissions;
@@ -110,11 +115,19 @@ public class MapTable extends JTable {
 			setDropMode(DropMode.INSERT_ROWS);
 			setTransferHandler(new TableRowTransferHandler(this));
 		}
+
+		// Change 'enter' behaviour to act like 'tab'
+		KeyStroke tab = KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0);
+		KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+		InputMap im = getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		im.put(enter, im.get(tab));
 	}
 
 	/**
 	 * Sets the {@link MapAnnotationData} to display
-	 * @param data The {@link MapAnnotationData} to display
+	 * 
+	 * @param data
+	 *            The {@link MapAnnotationData} to display
 	 */
 	public void setData(MapAnnotationData data) {
 		((MapTableModel) getModel()).setData(data);
@@ -123,6 +136,7 @@ public class MapTable extends JTable {
 
 	/**
 	 * Get the current {@link MapAnnotationData}
+	 * 
 	 * @return See above
 	 */
 	public MapAnnotationData getData() {
@@ -131,6 +145,7 @@ public class MapTable extends JTable {
 
 	/**
 	 * Get the list of currently selected entries
+	 * 
 	 * @return See above
 	 */
 	public List<NamedValue> getSelection() {
@@ -146,7 +161,9 @@ public class MapTable extends JTable {
 
 	/**
 	 * Adds an entry to the end
-	 * @param entry The {@link NamedValue} to add
+	 * 
+	 * @param entry
+	 *            The {@link NamedValue} to add
 	 */
 	public void addEntry(NamedValue entry) {
 		addEntry(entry, -1);
@@ -154,8 +171,11 @@ public class MapTable extends JTable {
 
 	/**
 	 * Adds an entry at a certain position
-	 * @param entry The {@link NamedValue} to add
-	 * @param index The position to insert it
+	 * 
+	 * @param entry
+	 *            The {@link NamedValue} to add
+	 * @param index
+	 *            The position to insert it
 	 */
 	public void addEntry(NamedValue entry, int index) {
 		addEntries(Arrays.asList(entry), index);
@@ -163,12 +183,16 @@ public class MapTable extends JTable {
 
 	/**
 	 * Adds a list of entries to a certain position
-	 * @param entries The {@link NamedValue}s to add
-	 * @param index The position to insert them
+	 * 
+	 * @param entries
+	 *            The {@link NamedValue}s to add
+	 * @param index
+	 *            The position to insert them
 	 */
 	public void addEntries(List<NamedValue> entries, int index) {
 		MapTableModel model = (MapTableModel) getModel();
 		model.addEntries(entries, index);
+		revalidate();
 	}
 
 	/**
@@ -180,7 +204,9 @@ public class MapTable extends JTable {
 
 	/**
 	 * Delete the entry at a certain position
-	 * @param index The position of the entry to delete
+	 * 
+	 * @param index
+	 *            The position of the entry to delete
 	 */
 	public void deleteEntry(int index) {
 		MapTableModel model = (MapTableModel) getModel();
@@ -189,7 +215,9 @@ public class MapTable extends JTable {
 
 	/**
 	 * Delete a specific set of entries
-	 * @param indices The positions of the entries to delete
+	 * 
+	 * @param indices
+	 *            The positions of the entries to delete
 	 */
 	public void deleteEntries(int[] indices) {
 		MapTableModel model = (MapTableModel) getModel();
@@ -197,19 +225,9 @@ public class MapTable extends JTable {
 	}
 
 	/**
-	 * Checks if a given row index identifies the row used for
-	 * adding a new entry
-	 * @param row The row to check
-	 * @return See above
-	 */
-	public boolean isAddEntryRow(int row) {
-		return row == (getRowCount() - 1) && canEdit();
-	}
-
-	/**
-	 * If set to <code>true</code> a double-click is needed
-	 * to switch a cell into editing mode; single-click sufficient
-	 * otherwise.
+	 * If set to <code>true</code> a double-click is needed to switch a cell
+	 * into editing mode; single-click sufficient otherwise.
+	 * 
 	 * @param doubleClickEdit
 	 */
 	public void setDoubleClickEdit(boolean doubleClickEdit) {
@@ -218,6 +236,7 @@ public class MapTable extends JTable {
 
 	/**
 	 * Checks if edit flag is set
+	 * 
 	 * @return See above
 	 */
 	public boolean canEdit() {
@@ -226,6 +245,7 @@ public class MapTable extends JTable {
 
 	/**
 	 * Checks if move flag is set
+	 * 
 	 * @return See above
 	 */
 	public boolean canMove() {
@@ -234,6 +254,7 @@ public class MapTable extends JTable {
 
 	/**
 	 * Checks if delete flag is set
+	 * 
 	 * @return See above
 	 */
 	public boolean canDelete() {

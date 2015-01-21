@@ -21,8 +21,10 @@
 
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -39,15 +41,25 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class MapTableCellRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = -8392760871394286099L;
-	
+
+	/** Selection color for inactive table row */
+	private static final Color GREY = new Color(200, 200, 200);
+
+	/** Inactive table row color for even rows */
+	private static final Color LIGHT_GREY = new Color(230, 230, 230);
+
+	/** Inactive table row color for odd rows */
+	private static final Color LIGHTER_GREY = new Color(238, 238, 238);
+
 	/** Italic font used for the 'add entry' row */
-	private static final Font ITALIC = (new JLabel()).getFont().deriveFont(Font.ITALIC);
-	
+	private static final Font ITALIC = (new JLabel()).getFont().deriveFont(
+			Font.ITALIC);
+
 	/**
 	 * Creates a new instance
 	 */
 	public MapTableCellRenderer() {
-		
+
 	}
 
 	@Override
@@ -56,15 +68,27 @@ public class MapTableCellRenderer extends DefaultTableCellRenderer {
 			final boolean hasFocus, final int row, final int column) {
 		JLabel l = new JLabel((String) value);
 		l.setOpaque(true);
-		
-		if(((MapTable)table).isAddEntryRow(row))
+
+		if (row == table.getRowCount() - 1
+				&& (MapTableModel.DUMMY_KEY.equals(value) || MapTableModel.DUMMY_VALUE
+						.equals(value))) {
+			l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 			l.setFont(ITALIC);
-		
+		}
+
+		boolean editable = ((MapTable) table).canEdit();
+
+		Color selColor = editable ? UIUtilities.SELECTED_BACKGROUND_COLOUR
+				: GREY;
+		Color evenColor = editable ? UIUtilities.BACKGROUND_COLOUR_EVEN
+				: LIGHT_GREY;
+		Color oddColor = editable ? UIUtilities.BACKGROUND_COLOUR_ODD
+				: LIGHTER_GREY;
+
 		if (isSelected)
-			l.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
+			l.setBackground(selColor);
 		else
-			l.setBackground(row % 2 == 0 ? UIUtilities.BACKGROUND_COLOUR_EVEN
-                    : UIUtilities.BACKGROUND_COLOUR_ODD);
+			l.setBackground(row % 2 == 0 ? evenColor : oddColor);
 
 		return l;
 	}

@@ -22,6 +22,8 @@
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import java.awt.Component;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
@@ -56,9 +58,9 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 	}
 
 	/**
-	 * If set to <code>true</code> a double-click is needed
-	 * to switch a cell into editing mode; single-click sufficient
-	 * otherwise.
+	 * If set to <code>true</code> a double-click is needed to switch a cell
+	 * into editing mode; single-click sufficient otherwise.
+	 * 
 	 * @param doubleClickEdit
 	 */
 	public void setDoubleClickEdit(boolean doubleClickEdit) {
@@ -81,16 +83,32 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 			text = "";
 
 		component = new JTextField(text);
-		component.setBorder(BorderFactory.createEmptyBorder()); 
+		component.setBorder(BorderFactory.createEmptyBorder());
+
+		component.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				fireEditingStopped();
+			}
+
+			@Override
+			public void focusGained(FocusEvent e) {
+			}
+		});
+
 		return component;
 	}
 
 	@Override
 	public boolean isCellEditable(EventObject e) {
-		if (e instanceof MouseEvent && doubleClickEdit) {
-			return ((MouseEvent) e).getClickCount() > 1;
+		if (!doubleClickEdit)
+			return super.isCellEditable(e);
+		else {
+			if (e == null || !(e instanceof MouseEvent)
+					|| (((MouseEvent) e).getClickCount() >= 2))
+				return true;
+			return false;
 		}
-		return super.isCellEditable(e);
 	}
 
 }

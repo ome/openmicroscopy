@@ -928,8 +928,6 @@ class AnnotationDataUI
 			}
 			otherRating.setVisible(true);
 		}
-
-		mapsPane.buildUI();
 		
 		otherRating.setText(buffer.toString()); 
 		
