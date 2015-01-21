@@ -435,6 +435,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                             }
                             
                             if (logFile != null) {
+                                sendLogs = true;
                                 errorContainer.addFile(logFile.getAbsolutePath());
                             } else sendLogs = false;
                         } else sendLogs = false;
