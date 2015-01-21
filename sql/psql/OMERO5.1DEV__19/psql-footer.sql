@@ -506,8 +506,6 @@
   CREATE INDEX i_microscope_owner ON microscope(owner_id);
   CREATE INDEX i_microscope_group ON microscope(group_id);
   CREATE INDEX i_Microscope_type ON microscope(type);
-  CREATE INDEX i_namespace_owner ON namespace(owner_id);
-  CREATE INDEX i_namespace_group ON namespace(group_id);
   CREATE INDEX i_namespaceannotationlink_owner ON namespaceannotationlink(owner_id);
   CREATE INDEX i_namespaceannotationlink_group ON namespaceannotationlink(group_id);
   CREATE INDEX i_NamespaceAnnotationLink_parent ON namespaceannotationlink(parent);
@@ -678,6 +676,10 @@
   CREATE INDEX i_WellSample_plateAcquisition ON wellsample(plateAcquisition);
   CREATE INDEX i_WellSample_well ON wellsample(well);
   CREATE INDEX i_WellSample_image ON wellsample(image);
+
+CREATE INDEX annotation_name ON annotation(name);
+CREATE INDEX namespace_displayname ON namespace(displayname);
+CREATE INDEX roi_name ON roi(name);
 
 --
 -- Finally, a function for showing our permissions
@@ -2757,13 +2759,9 @@ ALTER TABLE transmittancerange
 
 CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
     BEGIN
-        IF NEW.ns IS NOT NULL THEN
-            UPDATE namespace SET update_id = NEW.update_id WHERE name = NEW.ns;
-
-            IF NOT FOUND THEN
-                INSERT INTO namespace (id, name, permissions, creation_id, update_id, owner_id, group_id)
-                    SELECT ome_nextval('seq_namespace'), NEW.ns, -52, NEW.update_id, NEW.update_id, NEW.owner_id, 1;
-            END IF;
+        IF NOT (NEW.ns IS NULL OR EXISTS (SELECT 1 FROM namespace WHERE name = NEW.ns LIMIT 1)) THEN
+            INSERT INTO namespace (id, name, permissions)
+                SELECT ome_nextval('seq_namespace'), NEW.ns, -52;
         END IF;
 
         RETURN NULL;
@@ -2801,6 +2799,44 @@ CREATE TRIGGER update_namespace
 CREATE TRIGGER delete_from_namespace
     BEFORE DELETE ON namespace
     FOR EACH ROW EXECUTE PROCEDURE delete_from_namespace();
+
+-- Replace globals' annotation count tables with views.
+
+DROP TABLE count_experimenter_annotationlinks_by_owner;
+DROP TABLE count_experimentergroup_annotationlinks_by_owner;
+DROP TABLE count_namespace_annotationlinks_by_owner;
+DROP TABLE count_node_annotationlinks_by_owner;
+DROP TABLE count_session_annotationlinks_by_owner;
+
+CREATE VIEW count_experimenter_annotationlinks_by_owner (experimenter_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimenterannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_experimentergroup_annotationlinks_by_owner (experimentergroup_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimentergroupannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_namespace_annotationlinks_by_owner (namespace_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM namespaceannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_node_annotationlinks_by_owner (node_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM nodeannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_session_annotationlinks_by_owner (session_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM sessionannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
