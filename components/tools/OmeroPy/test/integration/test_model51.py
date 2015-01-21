@@ -153,3 +153,43 @@ class TestModel51(lib.ITest):
             [],  # Annotator IDs
             None)
         self.assertMapAnnotation(anns[i.id.val], m.id.val)
+
+    def testMapSecurity(self):
+        c1 = self.new_client(perms="rwr---")
+        u1 = c1.sf.getUpdateService()
+        a1 = c1.sf.getAdminService()
+        g1 = a1.getEventContext().groupName
+        m1 = omero.model.MapAnnotationI()
+        m1.setMapValue(
+            [NV("foo", "bar")]
+        )
+        m1 = u1.saveAndReturnObject(m1)
+
+        # Now create another user and try to edit
+        c2 = self.new_client(group=g1)
+        q2 = c2.sf.getQueryService()
+        u2 = c2.sf.getUpdateService()
+        m2 = q2.get("MapAnnotation", m1.id.val)
+        assert not m2.details.permissions.canEdit()
+
+        # Additions fail
+        m2.getMapValue().append(
+            NV("edited-by", str(c2)))
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)
+
+        # Removals fail
+        m2.setMapValue([])
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)
+
+        # Also via a None
+        m2.setMapValue(None)
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)
+
+        # Alterations fail
+        m2.setMapValue(
+            [NV("foo", "WRONG")])
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)

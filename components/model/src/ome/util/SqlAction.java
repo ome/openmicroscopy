@@ -394,6 +394,11 @@ public interface SqlAction {
     void delCurrentEventLog(String key);
 
     /**
+     * Convert the _updated_annotations table to REINDEX entries in the event log.
+     */
+    void refreshEventLogFromUpdatedAnnotations();
+
+    /**
      * The implementation of this method guarantees that even if the current
      * transaction fails that the value found will not be used by another
      * transaction. Database implementations can choose whether to do this
@@ -1086,6 +1091,15 @@ public interface SqlAction {
             _jdbc().update(
                 _lookup("log_loader_delete"), key); //$NON-NLS-1$
 
+        }
+
+        @Override
+        public void refreshEventLogFromUpdatedAnnotations() {
+            _jdbc().query(_lookup("event_log.refresh"), new RowMapper<Object>() {
+                @Override
+                public Object mapRow(ResultSet arg0, int arg1) {
+                    return null;
+                }});
         }
 
         @Override

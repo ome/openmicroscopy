@@ -79,17 +79,16 @@ class ITest(object):
         p = Ice.createProperties(sys.argv)
         rootpass = p.getProperty("omero.rootpass")
 
-        name = None
-        if rootpass:
+        try:
             cls.root = omero.client()  # ok because adds self
             cls.__clients.add(cls.root)
             cls.root.setAgent("OMERO.py.root_test")
             cls.root.createSession("root", rootpass)
-            newuser = cls.new_user()
-            name = newuser.omeName.val
-        else:
-            cls.root = None
+        except:
+            raise Exception("Could not initiate a root connection")
 
+        newuser = cls.new_user()
+        name = newuser.omeName.val
         cls.client = omero.client()  # ok because adds self
         cls.__clients.add(cls.client)
         cls.client.setAgent("OMERO.py.test")

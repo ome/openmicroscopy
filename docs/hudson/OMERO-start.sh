@@ -36,7 +36,7 @@ echo omero.prefix=$OMERO_PREFIX >> $ICE_CONFIG
 cd dist
 
 dropdb $OMERO_CONFIG || echo Already gone maybe
-createdb -h localhost -U postgres -O hudson $OMERO_CONFIG
+createdb -h localhost -U postgres -E UTF8 -O hudson $OMERO_CONFIG
 createlang -h localhost -U postgres plpgsql $OMERO_CONFIG || echo Already installed maybe
 
 python bin/omero db script "" "" ome -f omero.sql

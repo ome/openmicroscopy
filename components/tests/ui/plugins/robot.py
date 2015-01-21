@@ -70,7 +70,7 @@ class RobotControl(BaseControl):
                                       settings.APPLICATION_SERVER_PORT)
 
         # Read robot.template file and substitute keywords
-        c = file(self.ctx.dir / "etc" / "robot.template").read()
+        c = file(self.ctx.dir / "etc" / "templates" / "robot.template").read()
         self.ctx.out(c % d)
 
 

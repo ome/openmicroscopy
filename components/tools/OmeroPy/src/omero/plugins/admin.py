@@ -26,12 +26,12 @@ import omero
 import omero.config
 
 from omero.cli import CLI
-from omero.cli import BaseControl
 from omero.cli import DirectoryType
 from omero.cli import NonZeroReturnCode
 from omero.cli import VERSION
 
-from omero.plugins.prefs import with_config
+from omero.plugins.prefs import \
+    WriteableConfigControl, with_config, with_rw_config
 
 from omero_ext import portalocker
 from omero_ext.which import whichall
@@ -59,11 +59,13 @@ Configuration properties:
  omero.windows.user
  omero.windows.pass
  omero.windows.servicename
+ omero.web.application_server.port
+ omero.web.server_list
 
 """ + "\n" + "="*50 + "\n"
 
 
-class AdminControl(BaseControl):
+class AdminControl(WriteableConfigControl):
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -76,7 +78,8 @@ class AdminControl(BaseControl):
             if i >= 0:
                 f = line[i+l:]
                 return self._complete_file(f)
-        return BaseControl._complete(self, text, line, begidx, endidx)
+        return WriteableConfigControl._complete(
+            self, text, line, begidx, endidx)
 
     def _configure(self, parser):
         sub = parser.sub()
@@ -294,6 +297,9 @@ Examples:
         ports.add_argument(
             "--ssl", default="4064",
             help="The ssl port to be used by Glacier2 (default: %(default)s)")
+        ports.add_argument(
+            "--webserver", default="4080",
+            help="The web application server port (default: %(default)s)")
         ports.add_argument(
             "--revert", action="store_true",
             help="Used to rollback from the given settings to the defaults")
@@ -1495,9 +1501,16 @@ OMERO Diagnostics %s
                            stdout=sys.stdout, stderr=sys.stderr)
         self.ctx.rv = p.wait()
 
-    def ports(self, args):
+    @with_rw_config
+    def ports(self, args, config):
         self.check_access()
         from omero.install.change_ports import change_ports
+        webserverkey = 'omero.web.application_server.port'
+        webserver_default_port = 4080
+        weblistkey = 'omero.web.server_list'
+        weblist_default_port = 4064
+        weblist_template = '[["localhost", %s, "omero"]]'
+
         if not args.skipcheck:
             if 0 == self.status(args, node_only=True):
                 self.ctx.die(
@@ -1507,10 +1520,48 @@ OMERO Diagnostics %s
             self.ctx.rv = 0
 
         if args.prefix:
-            for x in ("registry", "tcp", "ssl"):
+            for x in ("registry", "tcp", "ssl", "webserver"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
         change_ports(
             args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
+
+        # Use the same conditions as change_ports when modifying ports
+        if args.revert:
+            webserver_from = args.webserver
+            webserver_to = str(webserver_default_port)
+            weblist_from = weblist_template % args.ssl
+            weblist_to = weblist_template % str(weblist_default_port)
+        else:
+            webserver_from = str(webserver_default_port)
+            webserver_to = args.webserver
+            weblist_from = weblist_template % str(weblist_default_port)
+            weblist_to = weblist_template % args.ssl
+        try:
+            waport = config[webserverkey]
+        except KeyError:
+            waport = ''
+            webserver_from = ''
+        try:
+            weblist = config[weblistkey]
+        except KeyError:
+            weblist = ''
+            weblist_from = ''
+
+        if waport != webserver_from:
+            self.ctx.out('No match found for %s=%s in %s' % (
+                webserverkey, webserver_from, config.filename))
+        else:
+            config[webserverkey] = webserver_to
+            self.ctx.out('Converted: %s => %s %s in %s' % (
+                webserver_from, webserver_to, webserverkey, config.filename))
+
+        if weblist != weblist_from:
+            self.ctx.out('No match found for %s=%s in %s' % (
+                weblistkey, weblist_from, config.filename))
+        else:
+            config[weblistkey] = weblist_to
+            self.ctx.out('Converted: %s => %s %s in %s' % (
+                weblist_from, weblist_to, weblistkey, config.filename))
 
     def cleanse(self, args):
         self.check_access()
