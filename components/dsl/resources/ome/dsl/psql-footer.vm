@@ -66,6 +66,10 @@
 #end
 #end
 
+CREATE INDEX annotation_name ON annotation(name);
+CREATE INDEX namespace_displayname ON namespace(displayname);
+CREATE INDEX roi_name ON roi(name);
+
 --
 -- Finally, a function for showing our permissions
 -- select id, ome_perms(permissions) FROM sometable...
