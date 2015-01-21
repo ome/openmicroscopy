@@ -2314,8 +2314,8 @@ CREATE TRIGGER delete_from_namespace
     BEFORE DELETE ON namespace
     FOR EACH ROW EXECUTE PROCEDURE delete_from_namespace();
 
-INSERT INTO namespace (id, name, permissions, creation_id, update_id, owner_id, group_id)
-    SELECT ome_nextval('seq_namespace'), ns, -52, update_id, update_id, owner_id, 1
+INSERT INTO namespace (id, name, permissions)
+    SELECT ome_nextval('seq_namespace'), ns, -52
         FROM annotation WHERE id IN
              (SELECT id_row.id 
                   FROM (SELECT id, row_number() OVER (PARTITION BY ns) AS row_n FROM annotation
