@@ -1145,6 +1145,7 @@ def batch_annotate(request, conn=None, **kwargs):
             'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
+    context['disableDownload'] = manager.isDownloadDisabled(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
