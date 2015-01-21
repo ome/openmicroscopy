@@ -365,6 +365,10 @@ public class MockFixture {
             return sessionByConnection.get(arg0.con).ice_id();
         }
 
+        public int getACMTimeout(Ice.Current arg0) {
+            throw new UnsupportedOperationException();
+        }
+
         public long getSessionTimeout(Current arg0) {
             throw new UnsupportedOperationException();
         }
@@ -388,6 +392,11 @@ public class MockFixture {
         }
 
         public void refreshSession(Ice.Current current) throws Glacier2.SessionNotExistException {
+            throw new UnsupportedOperationException();
+        }
+
+        public void refreshSession_async(Glacier2.AMD_Router_refreshSession arg0, Ice.Current arg1)
+                        throws Glacier2.SessionNotExistException {
             throw new UnsupportedOperationException();
         }
 
