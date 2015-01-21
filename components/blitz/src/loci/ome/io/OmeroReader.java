@@ -47,6 +47,11 @@ import loci.formats.FormatReader;
 import loci.formats.FormatTools;
 import loci.formats.MetadataTools;
 import loci.formats.meta.MetadataStore;
+import ome.formats.model.UnitsFactory;
+import ome.model.units.Unit;
+import ome.units.UNITS;
+import ome.xml.model.enums.FontStyle;
+import ome.xml.model.primitives.NonNegativeInteger;
 import ome.xml.model.primitives.Timestamp;
 import omero.RString;
 import omero.RTime;
@@ -66,6 +71,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Label;
 import omero.model.Length;
+import omero.model.LengthI;
 import omero.model.LineI;
 import omero.model.LogicalChannel;
 import omero.model.Pixels;
@@ -76,6 +82,7 @@ import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.Shape;
 import omero.model.Time;
+import omero.model.enums.UnitsLength;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import Glacier2.CannotCreateSessionException;
@@ -437,6 +444,7 @@ public class OmeroReader extends FormatReader {
                 }
             }
 
+            //            store.setImageID("omero:iid=", (int) img.getId().getValue());
             //Load ROIs to the img -->
             RoiOptions options = new RoiOptions();
             options.userId = omero.rtypes.rlong(serviceFactory.getAdminService().getEventContext().userId);
@@ -508,7 +516,7 @@ public class OmeroReader extends FormatReader {
 
     public static void saveOmeroRoiToMetadataStore(List<omero.model.Roi> rois,
             MetadataStore store) {
-        
+
         int n = rois.size();
 
         for (int thisROI=0  ; thisROI<n ; thisROI++){
@@ -553,20 +561,37 @@ public class OmeroReader extends FormatReader {
 
     private static void storeOmeroLabel(Shape shape, MetadataStore store,
             int roiNum, int shapeNum) {
-        
+
         Label shape1 = (Label) shape;
 
         String polylineID = MetadataTools.createLSID("Shape", roiNum, shapeNum);
         store.setLabelID(polylineID, roiNum, shapeNum);
-        store.setLabelText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        if (shape1.getTextValue() != null){
+            store.setLabelText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        }
         store.setLabelX(shape1.getX().getValue(), roiNum, shapeNum);
         store.setLabelY(shape1.getY().getValue(), roiNum, shapeNum);
+
+        if (shape1.getStrokeWidth() != null) {
+            store.setLabelStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeColor() != null){
+            store.setLabelStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+        }
+        if (shape1.getFillColor() != null){
+            store.setLabelFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
+        }
+
+        if (shape1.getFontSize() != null){
+            ome.units.quantity.Length labelSize = new ome.units.quantity.Length(shape1.getFontSize().getValue(), UNITS.PIXEL);
+            store.setLabelFontSize(labelSize , roiNum, shapeNum);
+        }
 
     }
 
     private static void storeOmeroRect(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        
+
         RectI shape1 = (RectI) shape;
 
         double x1 = shape1.getX().getValue();
@@ -580,12 +605,24 @@ public class OmeroReader extends FormatReader {
         store.setRectangleY(y1, roiNum, shapeNum);
         store.setRectangleWidth(width, roiNum, shapeNum);
         store.setRectangleHeight(height, roiNum, shapeNum);
+        if (shape1.getTextValue() != null){
+            store.setRectangleText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeWidth() != null) {
+            store.setRectangleStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeColor() != null){
+            store.setRectangleStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+        }
+        if (shape1.getFillColor() != null){
+            store.setRectangleFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
+        }
 
     }
 
     private static void storeOmeroEllipse(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        
+
         EllipseI shape1 = (EllipseI) shape;
 
         double x1 = shape1.getCx().getValue();
@@ -600,11 +637,24 @@ public class OmeroReader extends FormatReader {
         store.setEllipseRadiusX(width, roiNum, shapeNum);
         store.setEllipseRadiusY(height, roiNum, shapeNum);
 
+        if (shape1.getTextValue() != null){
+            store.setEllipseText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeWidth() != null) {
+            store.setEllipseStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeColor() != null){
+            store.setEllipseStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+        }
+        if (shape1.getFillColor() != null){
+            store.setEllipseFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
+        }
+
     }
 
     private static void storeOmeroPoint(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        
+
         PointI shape1 = (PointI) shape;
         double ox1 = shape1.getCx().getValue();
         double oy1 = shape1.getCy().getValue();
@@ -614,11 +664,24 @@ public class OmeroReader extends FormatReader {
         store.setPointX(ox1, roiNum, shapeNum);
         store.setPointY(oy1, roiNum, shapeNum);
 
+        if (shape1.getTextValue() != null){
+            store.setPointText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeWidth() != null) {
+            store.setPointStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeColor() != null){
+            store.setPointStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+        }
+        if (shape1.getFillColor() != null){
+            store.setPointFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
+        }
+
     }
 
     private static void storeOmeroLine(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
-        
+
         LineI shape1 = (LineI) shape;
         double x1 = shape1.getX1().getValue();
         double y1 = shape1.getY1().getValue();
@@ -632,6 +695,21 @@ public class OmeroReader extends FormatReader {
         store.setLineX2(new Double(x2), roiNum, shapeNum);
         store.setLineY1(new Double(y1), roiNum, shapeNum);
         store.setLineY2(new Double(y2), roiNum, shapeNum);
+
+        if (shape1.getTextValue() != null){
+            store.setLineText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeWidth() != null) {
+            UnitsLength cc = UnitsFactory.Shape_StrokeWidth;
+            store.setLineStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+        }
+        if (shape1.getStrokeColor() != null){
+            store.setLineStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+        }
+        if (shape1.getFillColor() != null){
+            store.setLineFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
+        }
+
 
     }
 
@@ -648,6 +726,18 @@ public class OmeroReader extends FormatReader {
 
             store.setPolygonID(polylineID, roiNum, shapeNum);
             store.setPolygonPoints(points2d, roiNum, shapeNum);
+            if (shape1.getTextValue() != null){
+                store.setPolygonText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+            }
+            if (shape1.getStrokeWidth() != null) {
+                store.setPolygonStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+            }
+            if (shape1.getStrokeColor() != null){
+                store.setPolygonStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+            }
+            if (shape1.getFillColor() != null){
+                store.setPolygonFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
+            }
         }else{
             PolylineI shape1 = (PolylineI) shape;
             points = shape1.getPoints().getValue();
@@ -655,6 +745,19 @@ public class OmeroReader extends FormatReader {
 
             store.setPolylineID(polylineID, roiNum, shapeNum);
             store.setPolylinePoints(points2d, roiNum, shapeNum);
+
+            if (shape1.getTextValue() != null){
+                store.setPolylineText(shape1.getTextValue().getValue(), roiNum, shapeNum);
+            }
+            if (shape1.getStrokeWidth() != null) {
+                store.setPolylineStrokeWidth(new ome.units.quantity.Length(shape1.getStrokeWidth().getValue(), UNITS.PIXEL), roiNum, shapeNum);
+            }
+            if (shape1.getStrokeColor() != null){
+                store.setPolylineStrokeColor(new ome.xml.model.primitives.Color(shape1.getStrokeColor().getValue()), roiNum, shapeNum);
+            }
+            if (shape1.getFillColor() != null){
+                store.setPolylineFillColor(new ome.xml.model.primitives.Color(shape1.getFillColor().getValue()), roiNum, shapeNum);
+            }
         }
 
     }
