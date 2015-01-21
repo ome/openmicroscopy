@@ -90,7 +90,7 @@
                 Download...</a>
             </li>
             {% endif %}
-            {% if image %}
+            {% if image and not omeTiffDisabled %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
