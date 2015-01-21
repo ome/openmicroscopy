@@ -386,17 +386,21 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
                 new RepeatTask<TablePrx>() {
                     public void requestService(Ice.ObjectPrx prx,
                             final ResultHolder holder) throws ServerError {
-                        try {
-                           final TablesPrx server = TablesPrxHelper
-                                  .uncheckedCast(prx);
-                           server.getTable(file, sf.proxy());
-                        } catch (ServerError e) {
-                           throw e;
-                        }
-                    }
-                });
+                       final TablesPrx server = TablesPrxHelper
+                          .uncheckedCast(prx);
+                       server.begin_getTable(file, sf.proxy(),
+                           new Ice.Callback() {
+                               public void completed(Ice.AsyncResult r) {
+                                   try {
+                                       holder.set(server.end_getTable(r));
+                                   } catch (Exception e) {
+                                       holder.set(null);
+                                   }
+                               }});
+                       }
+                    });
 
-        sf. allow(tablePrx);
+        sf.allow(tablePrx);
         register(tablePrx);
         return tablePrx;
 
