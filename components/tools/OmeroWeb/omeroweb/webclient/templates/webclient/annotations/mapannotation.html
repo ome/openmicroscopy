@@ -1,4 +1,5 @@
 
+{% load common_filters %}
 {% comment %}
 <!--
   Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
@@ -32,6 +33,11 @@
             <tr>
                 <th>Key</th>
                 <th>Value</th>
+            </tr>
+          {% endif %}
+          {% if showNs and ma.ns %}
+            <tr title="{{ ma.ns|escape }}">
+                <th colspan="2">{{ ma.ns|escape|truncateafter:"50" }}</th>
             </tr>
           {% endif %}
         </thead>

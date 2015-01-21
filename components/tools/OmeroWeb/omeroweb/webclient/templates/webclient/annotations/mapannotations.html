@@ -462,7 +462,7 @@
 {% if manager.map_annotations %}
 <hr>
 {% for ma in manager.map_annotations %}
-    {% with canEdit=False %}
+    {% with canEdit=False showNs=True %}
         {% include "webclient/annotations/mapannotation.html" %}
     {% endwith %}    
 {% endfor %}
