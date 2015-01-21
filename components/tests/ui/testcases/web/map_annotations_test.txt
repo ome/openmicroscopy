@@ -1,0 +1,35 @@
+*** Settings ***
+Documentation     Tests Map Annotations
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Test Map Annotation
+    [Documentation]     Tests creation of Map Annotation on New Project
+
+    Create Project
+    Wait Until Page Contains Element    css=div.mapAnnContainer
+    # No rows selected. Toolbar should allow 'Insert' only.
+    Xpath Should Not Have Class   xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Insert rows']  button-disabled
+    Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Copy rows']    button-disabled
+    Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Paste rows']   button-disabled
+    Xpath Should Have Class       xpath=//ul[contains(@class, 'mapAnnToolbar')]//input[@title='Delete rows']  button-disabled
+
+    # Map annotation should have a single row with 'Add Key', 'Add Value'
+    Xpath Should Match X Times      //table[contains(@class, 'editableKeyValueTable')]/tbody/tr    1
+    Page Should Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Key')]
+    Page Should Contain Element     xpath=//div[contains(@class, 'mapAnnContainer')]//td[contains(text(), 'Add Value')]
+
+    # Before click...
+    Xpath Should Not Have Class     xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr           ui-selected
+    Page Should NotContain Element  xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td/input
+    # Clicking the row should highlight it and start edit
+    Click Element                   xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td
+    Xpath Should Have Class         xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr           ui-selected
+    Page Should Contain Element     xpath=//table[contains(@class, 'editableKeyValueTable')]/tbody/tr/td/input
