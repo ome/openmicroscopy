@@ -12,7 +12,8 @@ function [projects, datasets] = getProjects(session, varargin)
 %
 %   projects = getProjects(session, ids, loaded) returns all the projects
 %   identified by the input ids in the context of the session group. If
-%   loaded is False, the images attached to the  datasets are not loaded.
+%   loaded is false, the images attached to the  datasets are not loaded.
+%   Default: false.
 %
 %   projects = getProjects(session, 'owner', ownerId) returns all the
 %   projects owned by the input owner in the context of the session group.
@@ -57,7 +58,7 @@ function [projects, datasets] = getProjects(session, varargin)
 % Input check
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
-ip.addOptional('loaded', true, @islogical);
+ip.addOptional('loaded', false, @islogical);
 ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
