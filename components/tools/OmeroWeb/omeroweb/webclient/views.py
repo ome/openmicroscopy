@@ -39,6 +39,8 @@ from omero_version import omero_version
 import omero, omero.scripts
 from omero.rtypes import wrap, unwrap
 
+from omero.gateway.utils import toBoolean
+
 from django.conf import settings
 from django.template import loader as template_loader
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
@@ -69,7 +71,7 @@ from controller.search import BaseSearch
 from controller.share import BaseShare
 
 from omeroweb.webadmin.forms import LoginForm
-from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
+from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
 
@@ -130,8 +132,13 @@ def login(request):
                 userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
                 if userGroupId in conn.getEventContext().memberOfGroups:
                     request.session['connector'] = connector
-                    upgradeCheck()
-
+                    # UpgradeCheck URL should be loaded from the server or loaded
+                    # omero.web.upgrades.url allows to customize web only
+                    try:
+                        upgrades_url = settings.UPGRADES_URL
+                    except:
+                        upgrades_url = conn.getUpgradesUrl()
+                    upgradeCheck(url=upgrades_url)
                     # if 'active_group' remains in session from previous login, check it's valid for this user
                     if request.session.get('active_group'):
                         if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:
@@ -2510,12 +2517,15 @@ def list_scripts (request, conn=None, **kwargs):
 
     # group scripts into 'folders' (path), named by parent folder name
     scriptMenu = {}
+    scripts_to_ignore = conn.getConfigService() \
+                        .getConfigValue("omero.client.scripts_to_ignore") \
+                        .split(",")
     for s in scripts:
         scriptId = s.id.val
         path = s.path.val
         name = s.name.val
         fullpath = os.path.join(path, name)
-        if fullpath in settings.SCRIPTS_TO_IGNORE:
+        if fullpath in scripts_to_ignore:
             logger.info('Ignoring script %r' % fullpath)
             continue
 

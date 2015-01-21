@@ -240,8 +240,8 @@ CUSTOM_HOST = CUSTOM_SETTINGS.get("Ice.Default.Host", "localhost")
 INTERNAL_SETTINGS_MAPPING = {
     "omero.qa.feedback":
         ["FEEDBACK_URL", "http://qa.openmicroscopy.org.uk", str, None],
-    "omero.upgrades.url":
-        ["UPGRADES_URL", "http://upgrade.openmicroscopy.org.uk/", str, None],
+    "omero.web.upgrades.url":
+        ["UPGRADES_URL", None, leave_none_unset, None],
 
     # Allowed hosts:
     # https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
@@ -548,12 +548,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "E.g. ``'[[\"Webtest\", \"webtest_index\"], [\"Homepage\","
           " \"http://...\", {\"title\": \"Homepage\", \"target\": \"new\"}"
           " ]]'``")],
-    "omero.web.ui.menu.dropdown":
-        ["UI_MENU_DROPDOWN",
-         ('{"LEADERS": "Owners", "COLLEAGUES": "Members", '
-          '"ALL": "All members"}'),
-         json.loads,
-         "Shows/hides users in dropdown menu."],
     "omero.web.ui.right_plugins":
         ["RIGHT_PLUGINS",
          ('[["Acquisition",'
@@ -586,17 +580,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
          leave_none_unset_int,
          ("Configuration options for the viewer. -1: zoom in fully,"
           " 0: zoom out fully, unset: zoom to fit window")],
-    "omero.web.scripts_to_ignore":
-        ["SCRIPTS_TO_IGNORE",
-         ('["/omero/figure_scripts/Movie_Figure.py", '
-          '"/omero/figure_scripts/Split_View_Figure.py", '
-          '"/omero/figure_scripts/Thumbnail_Figure.py", '
-          '"/omero/figure_scripts/ROI_Split_Figure.py", '
-          ' "/omero/export_scripts/Make_Movie.py",'
-          '"/omero/setup_scripts/FLIM_initialise.py", '
-          '"/omero/import_scripts/Populate_ROI.py"]'),
-         parse_paths,
-         None],
 
 }
 
@@ -611,14 +594,6 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
     # "DESCRIPTION":"This is a virtual container with orphaned images. These
     # images are not linked anywhere. Just drag them to the selected
     # container."}'
-    "omero.web.ui.tree.orphaned":
-        ["UI_TREE_ORPHANED",
-         ('{"NAME":"Orphaned images",'
-          ' "DESCRIPTION":"This is a virtual container with orphaned images.'
-          ' These images are not linked anywhere. Just drag them to the'
-          ' selected container."}'),
-         json.loads,
-         None],
     "omero.web.webstart_admins_only":
         ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
     "omero.web.webadmin.enable_email":
