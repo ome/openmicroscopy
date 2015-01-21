@@ -245,7 +245,13 @@ class TestAdminPorts(object):
             assert client_endpoints in s
 
     @pytest.mark.parametrize('prefix', [None, 1, 2])
-    def testRevert(self, prefix):
+    @pytest.mark.parametrize('default', [True, False])
+    def testRevert(self, prefix, default):
+
+        if not default:
+            with open(self.cfg_files['ice.config'], 'w') as f:
+                f.write('omero.host=localhost')
+
         kwargs = {}
         if prefix:
             self.args += ['--prefix', '%s' % prefix]
