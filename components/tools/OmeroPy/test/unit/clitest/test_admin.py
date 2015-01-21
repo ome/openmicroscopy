@@ -10,6 +10,7 @@
 """
 
 import os
+import re
 import pytest
 
 from path import path
@@ -224,7 +225,9 @@ class TestAdminPorts(object):
 
     def check_ice_config(self, prefix='', webserver=4080, ssl=4064, **kwargs):
         config_text = self.cfg_files["ice.config"].text()
-        assert config_text.endswith("\nomero.port=%s%s\n" % (prefix, ssl))
+        pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
+        matches = pattern.findall(config_text)
+        assert matches == ["omero.port=%s%s" % (prefix, ssl)]
 
     def check_default_xml(self, prefix='', tcp=4063, ssl=4064, **kwargs):
         routerport = (
