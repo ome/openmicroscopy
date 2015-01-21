@@ -49,17 +49,61 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- Actual upgrade
 --
 
+-- Replace globals' annotation count tables with views.
+
+DROP TABLE count_experimenter_annotationlinks_by_owner;
+DROP TABLE count_experimentergroup_annotationlinks_by_owner;
+DROP TABLE count_node_annotationlinks_by_owner;
+DROP TABLE count_session_annotationlinks_by_owner;
+
+CREATE VIEW count_experimenter_annotationlinks_by_owner (experimenter_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimenterannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_experimentergroup_annotationlinks_by_owner (experimentergroup_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimentergroupannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_node_annotationlinks_by_owner (node_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM nodeannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_session_annotationlinks_by_owner (session_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM sessionannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+-- Namespace is now a global.
+
+ALTER TABLE namespace DROP COLUMN creation_id;
+ALTER TABLE namespace DROP COLUMN group_id;
+ALTER TABLE namespace DROP COLUMN owner_id;
+ALTER TABLE namespace DROP COLUMN update_id;
+
+-- More objects are named.
+
+ALTER TABLE annotation ADD COLUMN name VARCHAR(255);
+ALTER TABLE namespace ADD COLUMN displayname VARCHAR(255);
+ALTER TABLE roi ADD COLUMN name VARCHAR(255);
+
+CREATE INDEX annotation_name ON annotation(name);
+CREATE INDEX namespace_displayname ON namespace(displayname);
+CREATE INDEX roi_name ON roi(name);
+
 -- The namespace table now reflects all the namespaces used in the annotation.ns column.
 
 CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
     BEGIN
-        IF NEW.ns IS NOT NULL THEN
-            UPDATE namespace SET update_id = NEW.update_id WHERE name = NEW.ns;
-
-            IF NOT FOUND THEN
-                INSERT INTO namespace (id, name, permissions, creation_id, update_id, owner_id, group_id)
-                    SELECT ome_nextval('seq_namespace'), NEW.ns, -52, NEW.update_id, NEW.update_id, NEW.owner_id, 1;
-            END IF;
+        IF NOT (NEW.ns IS NULL OR EXISTS (SELECT 1 FROM namespace WHERE name = NEW.ns LIMIT 1)) THEN
+            INSERT INTO namespace (id, name, permissions)
+                SELECT ome_nextval('seq_namespace'), NEW.ns, -52;
         END IF;
 
         RETURN NULL;
