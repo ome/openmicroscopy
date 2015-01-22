@@ -40,10 +40,10 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
-import omero.api.RawPixelsStorePrx;
-import omero.api.StatefulServiceInterfacePrx;
-import omero.api.ThumbnailStorePrx;
+
 //Application-internal dependencies
+import omero.api.RawPixelsStorePrx;
+import omero.api.ThumbnailStorePrx;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
