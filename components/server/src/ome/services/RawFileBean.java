@@ -212,18 +212,20 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public synchronized OriginalFile save() {
-        if (isModified() || buffer != null && size() == 0) {
-            Long id = (file == null) ? null : file.getId();
-            if (id == null) {
-                return null;
-            }
 
-            String path = buffer.getPath();
+        final Long id = (file == null) ? null : file.getId();
+        if (id == null) {
+            return null;
+        }
+
+        if (isModified() || buffer != null && size() == 0) {
+
+            final String path = buffer.getPath();
 
             try {
                 buffer.flush(true);
             } catch (IOException ie) {
-                final String msg = "cannot flush " + buffer.getPath() + ": " + ie;
+                final String msg = "cannot flush " + path + ": " + ie;
                 log.warn(msg);
                 clean();
                 throw new ResourceError(msg);
