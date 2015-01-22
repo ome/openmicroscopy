@@ -59,8 +59,8 @@ Options for logging in:
 
     # Provide all values interactively
     $ bin/omero sessions login
-    Server:
-    Username:
+    Server: [localhost:4064]
+    Username: [root]
     Password:
 
     # Pass values as the target
@@ -71,16 +71,16 @@ Options for logging in:
 
     # Pass some values via arguments
     $ bin/omero -s localhost sessions login
-    Username:
+    Username: [user]
     Password:
     $ bin/omero -p 24064 sessions login
-    Server:
-    Username:
+    Server: [localhost:24064]
+    Username: [user]
     Password:
 
     # Pass all non-password values via arguments
     $ bin/omero -s localhost -u john sessions login
-    Password
+    Password:
 
     # Use a session ID to login without a password
     $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
