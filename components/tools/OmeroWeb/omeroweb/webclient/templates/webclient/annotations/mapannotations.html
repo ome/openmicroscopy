@@ -450,7 +450,7 @@
             {% include "webclient/annotations/mapannotation.html" %}
         {% endwith %}
     {% endfor %}
-{% elif manager.canEdit %}
+{% elif manager.canAnnotate %}
     <!-- Add an empty placeholder -->
     {% with canEdit=True %}
         {% include "webclient/annotations/mapannotation.html" %}
@@ -459,7 +459,7 @@
 
 {% if manager.client_map_annotations %}
 
-{% if manager.canEdit %}
+{% if manager.canAnnotate %}
     <!-- only need this <hr> if there is something already above -->
     <hr>
 {% endif %}
