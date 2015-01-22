@@ -16,7 +16,7 @@ clean()
 
 build_java()
 {
-    TEST="-p" ./build.py build-default test-compile
+    TEST="-p" ./build.py build-default test-compile -Dpackage-extra=false
     for dir in dsl model common rendering romio server
     do
         ./build.py -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
@@ -35,7 +35,7 @@ build_java()
 build_python()
 {
     flake8 .
-    ./build.py build-default
+    ./build.py build-default -Dpackage-extra=false
     ./build.py -py test -Dtest.with.fail=true -DMARK="not broken"
     ./build.py -fs test -Dtest.with.fail=true -DMARK="not broken"
     ./build.py -web test -Dtest.with.fail=true -DMARK="not broken"
