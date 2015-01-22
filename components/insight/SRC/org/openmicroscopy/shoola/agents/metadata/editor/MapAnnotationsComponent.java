@@ -173,6 +173,10 @@ public class MapAnnotationsComponent extends JPanel implements
 		c.gridy++;
 	}
 	
+	/**
+	 * Adjusts the size of the scrollpane hosting
+	 * the tables
+	 */
 	private void adjustScrollPane() {
 		tablePanel.setPreferredSize(null);
 		Dimension d = tablePanel.getPreferredSize();
@@ -183,6 +187,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		d.width += 5;
 		d.height += 5;
 		sp.setPreferredSize(d);
+		view.revalidate();
 	}
 
 	/**
