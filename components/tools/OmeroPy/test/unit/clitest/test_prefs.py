@@ -104,9 +104,9 @@ class TestPrefs(object):
         self.invoke("set omero.Z val")
         self.invoke("get")
         self.assertStdoutStderr(capsys, out=(
-                'omero.X.pass=password1\n'
-                'omero.Y.password=password2\n'
-                'omero.Z=val'))
+            'omero.X.pass=password1\n'
+            'omero.Y.password=password2\n'
+            'omero.Z=val'))
         self.invoke("get --hide-password")
         self.assertStdoutStderr(capsys, out=(
             'omero.X.pass=*********\n'
