@@ -436,7 +436,7 @@ public class IconManager
     /** The <code>Paste</code> icon. */
     public static final int PASTE = 127;
     
-    /** The <code>Paste</code> icon. */
+    /** The <code>Plus</code> icon. */
     public static final int PLUS = 128;
     
     /** 
