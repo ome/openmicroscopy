@@ -99,18 +99,18 @@ class TestPrefs(object):
         self.assertStdoutStderr(capsys)
 
     def testGetHidePassword(self, capsys):
-        self.invoke("set omero.X.pass password1")
-        self.invoke("set omero.Y.password password2")
+        self.invoke("set omero.X.pass shortpass")
+        self.invoke("set omero.Y.password long_password")
         self.invoke("set omero.Z val")
         self.invoke("get")
         self.assertStdoutStderr(capsys, out=(
-            'omero.X.pass=password1\n'
-            'omero.Y.password=password2\n'
+            'omero.X.pass=shortpass\n'
+            'omero.Y.password=long_password\n'
             'omero.Z=val'))
         self.invoke("get --hide-password")
         self.assertStdoutStderr(capsys, out=(
-            'omero.X.pass=*********\n'
-            'omero.Y.password=*********\n'
+            'omero.X.pass=********\n'
+            'omero.Y.password=********\n'
             'omero.Z=val'))
 
     def testSetFails(self, capsys):

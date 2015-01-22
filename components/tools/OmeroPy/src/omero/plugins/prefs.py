@@ -276,7 +276,7 @@ class PrefsControl(WriteableConfigControl):
                 self.ctx.out(config[k])
             else:
                 if (hide_password and is_password(k)):
-                    self.ctx.out("%s=%s" % (k, '*' * len(config[k])))
+                    self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
                 else:
                     self.ctx.out("%s=%s" % (k, config[k]))
 
