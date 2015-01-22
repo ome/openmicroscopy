@@ -48,7 +48,7 @@ public class TableRowTransferHandler extends TransferHandler {
 
 	/** DataFlavor for handling int values */
 	private final DataFlavor localObjectFlavor = new ActivationDataFlavor(
-			Integer.class, "Integer Row Index");
+			(new int[0]).getClass(), "Integer Row Indices");
 
 	/** Reference to the table */
 	private JTable table = null;
@@ -63,7 +63,7 @@ public class TableRowTransferHandler extends TransferHandler {
 
 	@Override
 	protected Transferable createTransferable(JComponent c) {
-		return new DataHandler(new Integer(table.getSelectedRow()),
+		return new DataHandler(table.getSelectedRows(),
 				localObjectFlavor.getMimeType());
 	}
 
@@ -91,17 +91,12 @@ public class TableRowTransferHandler extends TransferHandler {
 			index = max;
 		target.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		try {
-			Integer rowFrom = (Integer) info.getTransferable().getTransferData(
+			int[] rowFrom = (int[]) info.getTransferable().getTransferData(
 					localObjectFlavor);
-			if (rowFrom != -1 && rowFrom != index) {
-				((Reorderable) table.getModel()).reorder(rowFrom, index);
-				if (index > rowFrom)
-					index--;
-				target.getSelectionModel().addSelectionInterval(index, index);
+				int newIndex = ((Reorderable) table.getModel()).reorder(rowFrom, index);
+				target.getSelectionModel().addSelectionInterval(newIndex, newIndex+rowFrom.length-1);
 				return true;
-			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return false;
 	}

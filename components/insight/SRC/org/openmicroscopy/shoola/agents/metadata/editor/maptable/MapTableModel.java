@@ -306,22 +306,35 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	}
 
 	@Override
-	public void reorder(int fromIndex, int toIndex) {
-		if (fromIndex >= 0 && fromIndex < data.size()) {
-			NamedValue v = data.remove(fromIndex);
+	public int reorder(int fromIndices[], int toIndex) {
+		
+		List<NamedValue> values = new ArrayList<NamedValue>();
+		int offset = 0;
 
-			if (fromIndex < toIndex)
-				toIndex--;
-
+		for (int fromIndex : fromIndices) {
 			if (toIndex < 0)
 				toIndex = 0;
 
 			if (toIndex > data.size())
 				toIndex = data.size();
 
-			data.add(toIndex, v);
+			if (fromIndex >= 0 && fromIndex < data.size()) {
+				values.add(data.get(fromIndex));
+				if (fromIndex <= toIndex)
+					offset--;
+			}
 
-			syncBackToMap();
 		}
+		
+		int newIndex = toIndex + offset;
+		
+		if (!values.isEmpty()) {
+			data.removeAll(values);
+			data.addAll(newIndex, values);
+		}
+		
+		syncBackToMap();
+		
+		return newIndex;
 	}
 }

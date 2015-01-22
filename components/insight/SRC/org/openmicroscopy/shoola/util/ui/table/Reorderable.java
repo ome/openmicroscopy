@@ -42,10 +42,11 @@ import javax.swing.table.TableModel;
 public interface Reorderable {
 
 	/**
-	 * Moves a table row from fromIndex to toIndex
+	 * Moves certain rows of a table from fromIndices to toIndex
 	 * @param fromIndex See above
 	 * @param toIndex See above
+	 * @return The new index where the rows have been inserted
 	 */
-	public void reorder(int fromIndex, int toIndex);
+	public int reorder(int[] fromIndices, int toIndex);
 
 }
