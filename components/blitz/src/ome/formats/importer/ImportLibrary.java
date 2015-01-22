@@ -19,6 +19,9 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.rlong;
+import static omero.rtypes.rbool;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,16 +72,21 @@ import omero.model.ChecksumAlgorithm;
 import omero.model.Dataset;
 import omero.model.Fileset;
 import omero.model.FilesetI;
+import omero.model.FilesetEntry;
+import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+import omero.model.UploadJob;
+import omero.sys.Parameters;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 
 import Ice.Current;
@@ -154,6 +162,20 @@ public class ImportLibrary implements IObservable
         }
         availableChecksumAlgorithms = builder.build();
     }
+    
+    /*
+     * This class is used in the server-side creation of import containers. The
+     * suggestImportPaths method sanitizes the paths in due course. From the
+     * server side, we cannot imitate ImportLibrary.createImport in applying
+     * client-side specifics to clean up the path.
+     */
+    private static final ClientFilePathTransformer nopClientTransformer = new ClientFilePathTransformer(
+            new Function<String, String>() {
+                @Override
+                public String apply(String from) {
+                    return from;
+                }
+            });
 
     /**
      * The default implementation of {@link FileTransfer} performs a
@@ -535,6 +557,136 @@ public class ImportLibrary implements IObservable
         }
     }
 
+    public Fileset loadFileset(final Long fsid) throws ServerError, IOException {
+        checkManagedRepo();
+
+        String query = "select fs from Fileset as fs "
+                + "left outer join fetch fs.images as im "
+                + "left outer join fetch fs.usedFiles as fse "
+                + "left outer join fetch fse.originalFile as f "
+                + "left outer join fetch f.hasher "
+                + "left outer join fetch fs.jobLinks fjl "
+                + "left outer join fetch fjl.child j "
+                + "where fs.id = :fid "
+                + "order by im.id asc";
+
+        Parameters params = new Parameters();
+        params.map = new HashMap<String, omero.RType>();
+        params.map.put("fid", rlong(fsid));
+        Fileset fs = (Fileset) store.getIQuery().findByQuery(query, params);
+
+        // work around to load fileset jobs
+        for (FilesetJobLink fjl : fs.copyJobLinks()) {
+            if (fjl.getChild() instanceof UploadJob) {
+                String query2 = "select job from UploadJob as job join job.versionInfo "
+                        + "where job.id = :jid";
+                Parameters params2 = new Parameters();
+                params2.map = new HashMap<String, omero.RType>();
+                params2.map.put("jid", fjl.getChild().getId());
+                fjl.setChild((UploadJob) store.getIQuery().findByQuery(query2,
+                        params2));
+            }
+        }
+        return fs;
+    }
+
+    public ImportProcessPrx createReimport(Fileset fs,
+            ImportContainer container, ImportSettings settings)
+            throws ServerError, IOException {
+
+        try {
+            ChecksumAlgorithm hasher = fs.copyUsedFiles().get(0)
+                    .getOriginalFile().getHasher();
+            container.fillData(settings, fs, nopClientTransformer);
+            settings.checksumAlgorithm = ChecksumAlgorithmMapper
+                    .getChecksumAlgorithm(hasher.getValue().getValue());
+        } catch (IOException e) {
+            throw new IOException("IO exception from operation without IO");
+        }
+
+        return repo.importFileset(fs, settings);
+    }
+
+    public List<Pixels> reimportFileset(ImportConfig config)
+            throws FormatException, IOException, Throwable {
+
+        HandlePrx handle;
+
+        Fileset fs = loadFileset(config.targetId.get());
+
+        List<String> paths = new ArrayList<String>();
+        List<String> hashs = new ArrayList<String>();
+        for (FilesetEntry fse : fs.copyUsedFiles()) {
+            paths.add(fse.getOriginalFile().getPath().getValue());
+            hashs.add(fse.getOriginalFile().getHash().getValue());
+        }
+
+        final ImportSettings settings = new ImportSettings();
+        settings.reimportFileset = fs.sizeOfImages() > 0;
+
+        final ImportContainer container = new ImportContainer(null /* file */,
+                null /* target */, null /* userPixels */,
+                "Unknown" /* reader */,
+                paths.toArray(new String[paths.size()]), false /* spw */);
+        container.setReimportFileset(settings.reimportFileset);
+
+        ImportProcessPrx proc = createReimport(fs, container, settings);
+
+        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+
+        try {
+            handle = proc.verifyUpload(hashs);
+        } catch (ChecksumValidationException cve) {
+            failingChecksums = cve.failingChecksums;
+            throw cve;
+        } finally {
+
+            try {
+                proc.close();
+            } catch (Exception e) {
+                log.warn("Exception while closing proc", e);
+            }
+
+        }
+        // At this point the import is running, check handle for number of
+        // steps.
+        ImportCallback cb = null;
+        try {
+
+            cb = createCallback(proc, handle, container);
+
+            if (minutesToWait == 0) {
+                log.info("Disconnecting from import process...");
+                cb.close(false);
+                cb = null;
+                handle = null;
+                return Collections.emptyList(); // EARLY EXIT
+            }
+
+            if (minutesToWait < 0) {
+                while (true) {
+                    if (cb.block(5000)) {
+                        break;
+                    }
+                }
+            } else {
+                cb.loop(minutesToWait * 30, 2000);
+            }
+
+            final ImportResponse rsp = cb.getImportResponse();
+            if (rsp == null) {
+                throw new Exception("Import failure");
+            }
+            return rsp.pixels;
+        } finally {
+            if (cb != null) {
+                cb.close(true); // Allow cb to close handle
+            } else if (handle != null) {
+                handle.close();
+            }
+        }
+    }
+
     public ImportCallback createCallback(ImportProcessPrx proc,
         HandlePrx handle, ImportContainer container) throws ServerError {
         return new ImportCallback(proc, handle, container);
@@ -588,26 +740,40 @@ public class ImportLibrary implements IObservable
 
         @Override
         public void step(int step, int total, Ice.Current current) {
-            if (step == 1) {
-                notifyObservers(new ImportEvent.METADATA_IMPORTED(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total, logFileId));
-            } else if (step == 2) {
-                notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total, logFileId));
-            } else if (step == 3) {
-                notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total, logFileId));
-            } else if (step == 4) {
-                notifyObservers(new ImportEvent.METADATA_PROCESSED(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total, logFileId));
-            } else if (step == 5) {
-                notifyObservers(new ImportEvent.OBJECTS_RETURNED(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total, logFileId));
+            // TODO: This code should be improved to make sure we do not hardcode usecases.
+            if (this.container.getReimportFileset()) {
+             // Reimport will only update metadata
+                if (step == 1) {
+                    notifyObservers(new ImportEvent.METADATA_REIMPORTED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total, logFileId));
+                } else if (step == 2) {
+                    notifyObservers(new ImportEvent.OBJECTS_RETURNED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total, logFileId));
+                }
+            } else {
+                if (step == 1) {
+                    notifyObservers(new ImportEvent.METADATA_IMPORTED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total, logFileId));
+                } else if (step == 2) {
+                    notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total, logFileId));
+                } else if (step == 3) {
+                    notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total, logFileId));
+                } else if (step == 4) {
+                    notifyObservers(new ImportEvent.METADATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total, logFileId));
+                } else if (step == 5) {
+                    notifyObservers(new ImportEvent.OBJECTS_RETURNED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total, logFileId));
+                }
             }
         }
 

@@ -133,6 +133,9 @@ class ImportControl(BaseControl):
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
         java_group.add_argument(
+            "--reimport", dest="java_reimport",
+            help="Reimport a specific fileset (**)", metavar="FILESET_ID")
+        java_group.add_argument(
             "--report", action="store_true", dest="java_report",
             help="Report errors to the OME team (**)")
         java_group.add_argument(
@@ -222,6 +225,7 @@ class ImportControl(BaseControl):
             "java_l": "-l",
             "java_d": "-d",
             "java_r": "-r",
+            "java_reimport": "--reimport",
             "java_name": ("--name",),
             "java_description": ("--description",),
             "java_plate_name": ("--plate_name",),

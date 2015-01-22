@@ -291,6 +291,11 @@ module omero {
              omero::model::ChecksumAlgorithm checksumAlgorithm;
 
              /**
+              * Reimport flag
+              **/
+             bool reimportFileset;
+
+             /**
               * If set, the [ImportProcess*] and the [Handle*] associated with
               * the import will be closed as soon as complete. This will prevent
               * clients from finding out the status of the import itself.

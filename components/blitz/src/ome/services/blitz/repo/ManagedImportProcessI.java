@@ -28,13 +28,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.Advised;
 
 import Ice.Current;
-
 import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
-
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.cmd.HandlePrx;
@@ -46,6 +44,7 @@ import omero.grid.ImportSettings;
 import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
+import omero.model.FilesetEntry;
 import omero.model.FilesetJobLink;
 
 /**
@@ -290,9 +289,17 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                             hashes.size()));
         }
 
+        List<FilesetEntry> fse = fs.copyUsedFiles();
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
         for (int i = 0; i < size; i++) {
-            String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+            String usedFile = null;
+            if (settings.reimportFileset) {
+                usedFile = fse.get(i).getOriginalFile().getPath().getValue()
+                        + fse.get(i).getOriginalFile().getName().getValue();
+            } else {
+                usedFile = location.sharedPath + FsFile.separatorChar
+                        + location.usedFiles.get(i);
+            }
             CheckedPath cp = repo.checkPath(usedFile, settings.checksumAlgorithm, this.current);
             final String clientHash = hashes.get(i);
             final String serverHash = cp.hash();
@@ -307,11 +314,15 @@ public class ManagedImportProcessI extends AbstractCloseableAmdServant
                     "A checksum mismatch has occurred.",
                     failingChecksums);
         }
+        
         // i==0 is the upload job which is implicit.
-        FilesetJobLink link = fs.getFilesetJobLink(0);
-        repo.repositoryDao.updateJob(link.getChild(),
+        FilesetJobLink link = null;
+        if (!settings.reimportFileset) {
+            link = fs.getFilesetJobLink(0);
+            repo.repositoryDao.updateJob(link.getChild(),
                 "Finished", "Finished", this.current);
-
+        }
+        
         // Now move on to the metadata import.
         link = fs.getFilesetJobLink(1);
         CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();

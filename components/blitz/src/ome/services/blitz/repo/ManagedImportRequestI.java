@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,6 @@ import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -42,7 +42,6 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
-
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
@@ -68,11 +67,9 @@ import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
 
 import org.apache.commons.codec.binary.Hex;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-
 
 import ch.qos.logback.classic.ClassicConstants;
 
@@ -133,6 +130,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private boolean doThumbnails = true;
 
+    private boolean reimportFileset = false;
+
     private String fileName = null;
 
     private String shortName = null;
@@ -181,7 +180,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     public void init(Helper helper) {
         this.helper = helper;
-        helper.setSteps(5);
 
         final ImportConfig config = new ImportConfig();
         final String sessionUuid = helper.getEventContext().getCurrentSessionUuid();
@@ -214,7 +212,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             annotationList = settings.userSpecifiedAnnotationList;
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
-
+            reimportFileset = settings.reimportFileset;
             detectAutoClose();
 
             fileName = file.getFullFsPath();
@@ -250,6 +248,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "error-on-init");
         } finally {
+            if (reimportFileset)
+                helper.setSteps(2);
+            else {
+                helper.setSteps(5);
+            }
             MDC.clear();
         }
     }
@@ -379,21 +382,33 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                         "job-type", j.ice_id());
             }
 
-            if (step == 0) {
-                return importMetadata((MetadataImportJob) j);
-            } else if (step == 1) {
-                return pixelData(null);//(ThumbnailGenerationJob) j);
-            } else if (step == 2) {
-                return generateThumbnails(null);//(PixelDataJob) j); Nulls image
-            } else if (step == 3) {
-                // TODO: indexing and scripting here as well.
-                store.launchProcessing();
-                return null;
-            } else if (step == 4) {
-                return objects;
+            // TODO: This code should be improved to make sure we do not hardcode usecases.
+            if (reimportFileset) {
+                if (step == 0) {
+                    return importMetadata((MetadataImportJob) j);
+                } else if (step == 1) {
+                    return objects;
+                } else {
+                    throw helper.cancel(new ERR(), null, "bad-step",
+                            "step", ""+step);
+                }
             } else {
-                throw helper.cancel(new ERR(), null, "bad-step",
-                        "step", ""+step);
+                if (step == 0) {
+                    return importMetadata((MetadataImportJob) j);
+                } else if (step == 1) {
+                    return pixelData(null);//(ThumbnailGenerationJob) j);
+                } else if (step == 2) {
+                    return generateThumbnails(null);//(PixelDataJob) j); Nulls image
+                } else if (step == 3) {
+                    // TODO: indexing and scripting here as well.
+                    store.launchProcessing();
+                    return null;
+                } else if (step == 4) {
+                    return objects;
+                } else {
+                    throw helper.cancel(new ERR(), null, "bad-step",
+                            "step", ""+step);
+                }
             }
         } catch (MissingLibraryException mle) {
             notifyObservers(new ErrorHandler.MISSING_LIBRARY(
@@ -446,7 +461,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        if (step == 4) {
+        if ((reimportFileset && step == 1) || step == 4) {
             ImportResponse rsp = new ImportResponse();
             Map<String, List<IObject>> rv = (Map<String, List<IObject>>) object;
             rsp.pixels = (List) rv.get(Pixels.class.getSimpleName());
@@ -515,7 +530,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         imageList = (List) objects.get(Image.class.getSimpleName());
         plateList = (List) objects.get(Plate.class.getSimpleName());
         //TODO: below line has to be moved to store.saveToDB()
-        store.attachCompanionFilesToImage(activity.getParent(), imageList);
+        if(!reimportFileset)
+            store.attachCompanionFilesToImage(activity.getParent(), imageList);
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 

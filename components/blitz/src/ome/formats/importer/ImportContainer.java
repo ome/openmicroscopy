@@ -43,6 +43,7 @@ import omero.model.CommentAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.FilesetEntryI;
+import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.NamedValue;
 import omero.model.UploadJob;
@@ -59,6 +60,7 @@ public class ImportContainer
     private String userSpecifiedName;
     private String userSpecifiedDescription;
     private boolean doThumbnails = true;
+    private boolean reimportFileset = false;
     private List<Annotation> customAnnotationList;
     private IObject target;
     private String checksumAlgorithm;
@@ -105,6 +107,28 @@ public class ImportContainer
     public void setDoThumbnails(boolean v)
     {
         doThumbnails = v;
+    }
+
+    /**
+     * Retrieves whether or not we are performing metadata reimport.
+     * return <code>true</code> if we are to perform metadata reimport and
+     * <code>false</code> otherwise.
+     * @since OMERO Beta 5.1.0.
+     */
+    public boolean getReimportFileset()
+    {
+        return reimportFileset;
+    }
+
+    /**
+     * Sets whether or not we are performing metadata reimport.
+     * @param v <code>true</code> if we are to perform metadata reimport and
+     * <code>false</code> otherwise.
+     * @since OMERO Beta 5.1.0.
+     */
+    public void setReimportFileset(boolean v)
+    {
+        reimportFileset = v;
     }
 
     /**
@@ -297,6 +321,7 @@ public class ImportContainer
 
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than misusing ImportContainer.
+        settings.reimportFileset = getReimportFileset();
         settings.doThumbnails = rbool(getDoThumbnails());
         settings.userSpecifiedTarget = getTarget();
         settings.userSpecifiedName = getUserSpecifiedName() == null ? null
@@ -326,31 +351,45 @@ public class ImportContainer
             settings.userSpecifiedPixels = target; // May be null.
         }
 
-        // Fill used paths
-        for (String usedFile : getUsedFiles()) {
-            final FilesetEntry entry = new FilesetEntryI();
-            final FsFile fsPath = sanitizer.getFsFileFromClientFile(new File(usedFile), Integer.MAX_VALUE);
-            entry.setClientPath(rstring(fsPath.toString()));
-            fs.addFilesetEntry(entry);
-        }
+        if (settings.reimportFileset) {
+            // Fill used paths
+            this.setFile(new File(getUsedFiles()[0]));
+            this.updateUsedFilesTotalSize();
 
-        // Record any special file transfer
-        if (transfer != null &&
-                !transfer.getClass().equals(UploadFileTransfer.class)) {
-            String type = transfer.getClass().getName();
-            CommentAnnotation transferAnnotation = new CommentAnnotationI();
-            transferAnnotation.setNs(omero.rtypes.rstring(NSFILETRANSFER.value));
-            transferAnnotation.setTextValue(omero.rtypes.rstring(type));
-            fs.linkAnnotation(transferAnnotation);
-        }
+            // Fill BF info
+            for (FilesetJobLink fjl: fs.copyJobLinks()) {
+                if (fjl.getChild() instanceof UploadJob) {
+                    UploadJob job = (UploadJob) fjl.getChild();
+                    config.fillVersionInfo(job.getVersionInfo());
+                }
+            }
+        } else {
+            // Fill used paths
+            for (String usedFile : getUsedFiles()) {
+                final FilesetEntry entry = new FilesetEntryI();
+                final FsFile fsPath = sanitizer.getFsFileFromClientFile(new File(usedFile), Integer.MAX_VALUE);
+                entry.setClientPath(rstring(fsPath.toString()));
+                fs.addFilesetEntry(entry);
+            }
 
-        // Fill BF info
-        final List<NamedValue> clientVersionInfo = new ArrayList<NamedValue>();
-        clientVersionInfo.add(new NamedValue(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, reader));
-        config.fillVersionInfo(clientVersionInfo);
-        UploadJob upload = new UploadJobI();
-        upload.setVersionInfo(clientVersionInfo);
-        fs.linkJob(upload);
+            // Record any special file transfer
+            if (transfer != null &&
+                    !transfer.getClass().equals(UploadFileTransfer.class)) {
+                String type = transfer.getClass().getName();
+                CommentAnnotation transferAnnotation = new CommentAnnotationI();
+                transferAnnotation.setNs(omero.rtypes.rstring(NSFILETRANSFER.value));
+                transferAnnotation.setTextValue(omero.rtypes.rstring(type));
+                fs.linkAnnotation(transferAnnotation);
+            }
+
+            // Fill BF info
+            final List<NamedValue> clientVersionInfo = new ArrayList<NamedValue>();
+            clientVersionInfo.add(new NamedValue(ImportConfig.VersionInfo.BIO_FORMATS_READER.key, reader));
+            config.fillVersionInfo(clientVersionInfo);
+            UploadJob upload = new UploadJobI();
+            upload.setVersionInfo(clientVersionInfo);
+            fs.linkJob(upload);
+        }
 
     }
 

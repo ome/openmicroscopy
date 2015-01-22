@@ -418,6 +418,14 @@ public class ImportEvent {
         }
     }
 
+    public static class METADATA_REIMPORTED extends POST_UPLOAD_EVENT {
+        public METADATA_REIMPORTED(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, filename, target, pixId, series, size, numDone, total, fsId);
+        }
+    }
+
     public static class THUMBNAILS_GENERATED extends POST_UPLOAD_EVENT {
         public THUMBNAILS_GENERATED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size,

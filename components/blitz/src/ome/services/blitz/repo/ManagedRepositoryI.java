@@ -221,6 +221,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
             Ice.Current __current) throws omero.ServerError {
 
         ImportLocation location = internalImport(fs, settings, __current);
+        if (settings.reimportFileset) {
+            return createReimportProcess(fs, location, settings, __current);
+        }
         return createImportProcess(fs, location, settings, __current);
 
     }
@@ -245,9 +248,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         // at this point, the template path should not yet exist on the filesystem
-        final List<FsFile> sortedPaths = Ordering.usingToString().immutableSortedCopy(paths);
-        final FsFile relPath = createTemplatePath(sortedPaths, __current);
-        fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
+        final List<FsFile> sortedPaths = Ordering.usingToString()
+                .immutableSortedCopy(paths);
+        final FsFile relPath;
+        
+        if (settings.reimportFileset) {
+            relPath = new FsFile(fs.getTemplatePrefix().getValue());
+        } else {
+            relPath = createTemplatePath(sortedPaths, __current);
+            fs.setTemplatePrefix(rstring(relPath.toString()
+                    + FsFile.separatorChar));
+        }
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
 
@@ -258,7 +269,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         return suggestImportPaths(relPath, basePath, paths, readerClass,
-                settings.checksumAlgorithm, __current);
+                settings.checksumAlgorithm, !settings.reimportFileset, __current);
 
     }
 
@@ -459,15 +470,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         metadata.setVersionInfo(serverVersionInfo);
         fs.linkJob(metadata);
 
-        fs.linkJob(new PixelDataJobI());
-
-        if (settings.doThumbnails != null && settings.doThumbnails.getValue()) {
-            ThumbnailGenerationJob thumbnail = new ThumbnailGenerationJobI();
-            fs.linkJob(thumbnail);
-        }
-
-        fs.linkJob(new IndexingJobI());
-
         if (location instanceof ManagedImportLocationI) {
             OriginalFile of = ((ManagedImportLocationI) location).getLogFile().asOriginalFile(IMPORT_LOG_MIMETYPE);
             of = persistLogFile(of, __current);
@@ -475,6 +477,39 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         return createUploadProcess(fs, location, settings, __current, false);
+    }
+    
+    /**
+     * Creating the process will register itself in an appropriate
+     * container (i.e. a SessionI or similar) for the current
+     * user and therefore this instance no longer needs to worry
+     * about the maintenance of the object.
+     */
+    protected ImportProcessPrx createReimportProcess(Fileset fs,
+            ImportLocation location, ImportSettings settings, Current __current)
+                throws ServerError {
+        final ImportConfig config = new ImportConfig();
+        final List<NamedValue> serverVersionInfo = new ArrayList<NamedValue>();
+        config.fillVersionInfo(serverVersionInfo);
+
+        MetadataImportJob metadata = new MetadataImportJobI();
+        metadata.setVersionInfo(serverVersionInfo);
+        fs.linkJob(metadata);
+
+        final int size = fs.sizeOfUsedFiles();
+        final List<CheckedPath> checked = new ArrayList<CheckedPath>(size);
+        for (int i = 0; i < size; i++) {
+            final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
+            checked.add(checkPath(path, settings.checksumAlgorithm, __current));
+        }
+
+        // Since the fileset saved validly, we create a session for the user
+        // and return the process.
+        final Fileset managedFs = fs;
+        final ManagedImportProcessI proc = new ManagedImportProcessI(this,
+                managedFs, location, settings, __current);
+        processes.addProcess(proc);
+        return proc.getProxy();
     }
 
     /**
@@ -1331,9 +1366,32 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param checksumAlgorithm the checksum algorithm to use in verifying the integrity of uploaded files
      * @return {@link ImportLocation} instance
      */
-    protected ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
-            Class<? extends FormatReader> reader, ChecksumAlgorithm checksumAlgorithm, Ice.Current __current)
-                    throws omero.ServerError {
+    protected ImportLocation suggestImportPaths(FsFile relPath,
+            FsFile basePath, List<FsFile> paths,
+            Class<? extends FormatReader> reader,
+            ChecksumAlgorithm checksumAlgorithm, Ice.Current __current)
+            throws omero.ServerError {
+        return suggestImportPaths(relPath, basePath, paths, reader,
+                checksumAlgorithm, true, __current);
+    }
+
+    /**
+     * Take a relative path that the user would like to see in his or her
+     * upload area, and provide an import location instance whose paths
+     * correspond to existing directories corresponding to the sanitized
+     * file paths.
+     * @param relPath Path parsed from the template
+     * @param basePath Common base of all the listed paths ("/my/path")
+     * @param reader BioFormats reader for data, may be null
+     * @param checksumAlgorithm the checksum algorithm to use in verifying the integrity of uploaded files
+     * @param createDirs flag allowing to reimport fileset without creating any directories
+     * @return {@link ImportLocation} instance
+     */
+    protected ImportLocation suggestImportPaths(FsFile relPath,
+            FsFile basePath, List<FsFile> paths,
+            Class<? extends FormatReader> reader,
+            ChecksumAlgorithm checksumAlgorithm, boolean createDirs,
+            Ice.Current __current) throws omero.ServerError {
         final Paths trimmedPaths = trimPaths(basePath, paths, reader);
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
@@ -1352,7 +1410,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         data.logFile = checkPath(relPath.toString()+".log", checksumAlgorithm, __current);
 
         // try actually making directories
-        final FsFile newBase = FsFile.concatenate(relPath, basePath);
+        final FsFile newBase;
+        if (createDirs) {
+            newBase = FsFile.concatenate(relPath, basePath);
+        } else {
+            newBase = relPath;
+        }
         data.sharedPath = newBase.toString();
         data.usedFiles = new ArrayList<String>(paths.size());
         data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
@@ -1364,20 +1427,23 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     this.checksumProviderFactory, checksumAlgorithm));
         }
 
-        // Assuming we reach here, then we need to make
-        // sure that the directory exists since the call
-        // to saveFileset() requires the parent dirs to
-        // exist.
-        List<CheckedPath> dirs = new ArrayList<CheckedPath>();
-        Set<String> seen = new HashSet<String>();
-        dirs.add(checkPath(data.sharedPath, checksumAlgorithm, __current));
-        for (CheckedPath checked : data.checkedPaths) {
-            if (!seen.contains(checked.getRelativePath())) {
-                dirs.add(checked.parent());
-                seen.add(checked.getRelativePath());
+        if (createDirs) {
+            // Assuming we reach here, then we need to make
+            // sure that the directory exists since the call
+            // to saveFileset() requires the parent dirs to
+            // exist.
+            List<CheckedPath> dirs = new ArrayList<CheckedPath>();
+            Set<String> seen = new HashSet<String>();
+            dirs.add(checkPath(data.sharedPath, checksumAlgorithm, __current));
+            for (CheckedPath checked : data.checkedPaths) {
+                if (!seen.contains(checked.getRelativePath())) {
+                    dirs.add(checked.parent());
+                    seen.add(checked.getRelativePath());
+                }
             }
+            repositoryDao.makeDirs(this, dirs, true, __current);
+
         }
-        repositoryDao.makeDirs(this, dirs, true, __current);
 
         return data;
     }
