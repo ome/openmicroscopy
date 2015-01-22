@@ -1400,7 +1400,6 @@ def annotate_map(request, conn=None, **kwargs):
                 break
 
     data = request.POST.get('mapAnnotation')
-    data = unicodedata.normalize('NFKD', data).encode('ascii','ignore')
     data = json.loads(data)
 
     annId = request.POST.get('annId')
