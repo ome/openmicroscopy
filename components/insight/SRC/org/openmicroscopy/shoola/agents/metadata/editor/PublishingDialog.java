@@ -80,7 +80,7 @@ class PublishingDialog
 	
 	/** The text associated to the export as OME-TIFF action. */
 	private static final String EXPORT_AS_OME_TIFF_TEXT = 
-		"Export As OME-TIFF...";
+		"Export as OME-TIFF...";
 	
 	/** The text associated to the SPLIT_VIEW_FIGURE action. */
 	private static final String SPLIT_VIEW_FIGURE_TEXT = "Split View Figure...";

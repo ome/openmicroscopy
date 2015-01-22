@@ -2,7 +2,7 @@
 # nginx userland template
 # this configuration is designed for running nginx as the omero user or similar
 # nginx -c etc/nginx.conf
-# for inclusion in a system-wide nginx configuration see omero web config nginx --system
+# for inclusion in a system-wide nginx configuration see omero web config nginx
 #
 pid %(ROOT)s/var/pid.nginx;
 error_log %(ROOT)s/var/log/nginx_error.log;
@@ -32,16 +32,20 @@ http {
         fastcgi_temp_path %(ROOT)s/var/nginx_tmp;
         proxy_temp_path %(ROOT)s/var/nginx_tmp;
 
-         # weblitz django apps serve static content from here
+        # maintenance page serve from here
+        location @maintenance {
+            root %(ROOT)s/etc/templates/error;
+            try_files $uri $uri/ /502.html =502;
+        }
+
+        # weblitz django apps serve static content from here
         location %(STATIC_URL)s {
             alias %(OMEROWEBROOT)s/static;
         }
 
         location %(FORCE_SCRIPT_NAME)s {
-            if (-f %(ROOT)s/var/maintenance.html) {
-               error_page 503 /maintenance.html;
-               return 503;
-            }
+
+            error_page 502 @maintenance;
 
             fastcgi_pass %(FASTCGI_PASS)s;
 
@@ -60,10 +64,6 @@ http {
             # Uncomment if nginx SSL module is enabled or you are using nginx 1.1.11 or later
             # -- See: #10273, http://nginx.org/en/CHANGES
             # fastcgi_param HTTPS $https;
-        }
-
-        location /maintenance.html {
-            root %(ROOT)s/var;
         }
 
     }

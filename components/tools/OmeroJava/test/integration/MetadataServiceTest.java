@@ -77,6 +77,9 @@ import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
+import omero.model.NamedValue;
 import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.OriginalFile;
@@ -125,6 +128,7 @@ import pojos.FileAnnotationData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.XMLAnnotationData;
@@ -151,6 +155,9 @@ public class MetadataServiceTest extends AbstractServerTest {
     /** Identifies the file annotation. */
     private static final String FILE_ANNOTATION = "ome.model.annotations.FileAnnotation";
 
+    /** Identifies the file annotation. */
+    private static final String MAP_ANNOTATION = "ome.model.annotations.MapAnnotation";
+    
     /** Helper reference to the <code>IAdmin</code> service. */
     private IMetadataPrx iMetadata;
 
@@ -202,6 +209,51 @@ public class MetadataServiceTest extends AbstractServerTest {
             }
         }
     }
+    
+	/**
+	 * Tests the creation of map annotation and load it. Loads the annotation
+	 * using the <code>loadAnnotation</code> method.
+	 *
+	 * @throws Exception
+	 *             Thrown if an error occurred.
+	 */
+	@Test(groups = "ticket:1155")
+	public void testLoadMapAnnotation() throws Exception {
+		MapAnnotation ma = new MapAnnotationI();
+		List<NamedValue> values = new ArrayList<NamedValue>();
+		for (int i = 0; i < 3; i++)
+			values.add(new NamedValue("name " + i, "value " + i));
+		ma.setMapValue(values);
+		MapAnnotation data = (MapAnnotation) iUpdate.saveAndReturnObject(ma);
+		assertNotNull(data);
+
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(data.getId().getValue());
+		List<Annotation> annotations = iMetadata.loadAnnotation(ids);
+		assertNotNull(annotations);
+		Iterator<Annotation> i = annotations.iterator();
+		Annotation annotation;
+		MapAnnotationData maData;
+		while (i.hasNext()) {
+			annotation = i.next();
+			if (annotation instanceof MapAnnotation) { // test creation of
+														// pojos
+				maData = new MapAnnotationData((MapAnnotation) annotation);
+				assertNotNull(maData);
+
+				@SuppressWarnings("unchecked")
+				List<NamedValue> list = (List<NamedValue>) maData.getContent();
+				assertNotNull(list);
+				assertEquals(3, list.size());
+				for (int j = 0; j < 3; j++) {
+					NamedValue v1 = values.get(j);
+					NamedValue v2 = list.get(j);
+					assertEquals(v1.name, v2.name);
+					assertEquals(v1.value, v2.value);
+				}
+			}
+		}
+	}
 
     /**
      * Tests the creation of file annotation with an original file and load it.
@@ -248,6 +300,65 @@ public class MetadataServiceTest extends AbstractServerTest {
                 faData = new FileAnnotationData((FileAnnotation) o);
                 assertNotNull(faData);
                 assertEquals(faData.getFileID(), of.getId().getValue());
+            }
+        }
+    }
+    
+    /**
+     * Tests the creation of map annotation and load it.
+     * Loads the annotation using the <code>loadAnnotations</code> method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:1155")
+    public void testLoadAnnotationsMapAnnotation() throws Exception {
+    	MapAnnotation ma = new MapAnnotationI();
+		List<NamedValue> values = new ArrayList<NamedValue>();
+		for (int i = 0; i < 3; i++)
+			values.add(new NamedValue("name " + i, "value " + i));
+		ma.setMapValue(values);
+		MapAnnotation data = (MapAnnotation) iUpdate.saveAndReturnObject(ma);
+		assertNotNull(data);
+		
+        // link the image
+        // create an image and link the annotation
+        Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
+                .simpleImage());
+        ImageAnnotationLinkI link = new ImageAnnotationLinkI();
+        link.setParent(image);
+        link.setChild(data);
+        iUpdate.saveAndReturnObject(link);
+
+        List<Long> ids = new ArrayList<Long>();
+        Parameters param = new Parameters();
+        List<Long> nodes = new ArrayList<Long>();
+        nodes.add(image.getId().getValue());
+        Map<Long, List<IObject>> result = iMetadata.loadAnnotations(
+                Image.class.getName(), nodes, Arrays.asList(MAP_ANNOTATION),
+                ids, param);
+        assertNotNull(result);
+        List<IObject> l = result.get(image.getId().getValue());
+        assertNotNull(l);
+        Iterator<IObject> i = l.iterator();
+        IObject o;
+        MapAnnotationData maData;
+        while (i.hasNext()) {
+            o = i.next();
+            if (o instanceof MapAnnotation) {
+                maData = new MapAnnotationData((MapAnnotation) o);
+                assertNotNull(maData);
+                
+                @SuppressWarnings("unchecked")
+				List<NamedValue> list = (List<NamedValue>) maData.getContent();
+				assertNotNull(list);
+				assertEquals(3, list.size());
+				for (int j = 0; j < 3; j++) {
+					NamedValue v1 = values.get(j);
+					NamedValue v2 = list.get(j);
+					assertEquals(v1.name, v2.name);
+					assertEquals(v1.value, v2.value);
+				}
             }
         }
     }

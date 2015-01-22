@@ -86,7 +86,8 @@ class TestTickets3000(lib.ITest):
 
         # This was never supported
         with pytest.raises(
-                (Ice.UnmarshalOutOfBoundsException, Ice.UnknownUserException)):
+                (Ice.UnmarshalOutOfBoundsException, Ice.UnknownUserException,
+                 Ice.UnknownLocalException)):
             q.findAllByQuery(sql, None)
 
         p1 = omero.sys.Parameters()
@@ -95,7 +96,8 @@ class TestTickets3000(lib.ITest):
         p1.theFilter = f1
 
         # Nor was this
-        with pytest.raises(Ice.UnknownUserException):
+        with pytest.raises((Ice.UnknownUserException,
+                            Ice.UnknownLocalException)):
             q.findAllByQuery(sql, p1)
 
         # Only IQuery.projection can return non-IObject types

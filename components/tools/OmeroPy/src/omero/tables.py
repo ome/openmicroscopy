@@ -22,7 +22,7 @@ import omero.callbacks
 
 # For ease of use
 from omero.columns import columns2definition
-from omero.rtypes import rfloat, rint, rlong, rstring, unwrap, wrap
+from omero.rtypes import rfloat, rint, rlong, rstring, unwrap
 from omero.util.decorators import remoted, locked, perf
 from omero_ext import portalocker
 from omero_ext.functional import wraps
@@ -30,6 +30,8 @@ from omero_ext.functional import wraps
 
 sys = __import__("sys")  # Python sys
 tables = __import__("tables")  # Pytables
+
+VERSION = '2'
 
 
 def slen(rv):
@@ -40,6 +42,13 @@ def slen(rv):
     if rv is None:
         return None
     return len(rv)
+
+
+def internal_attr(s):
+    """
+    Checks whether this attribute name is reserved for internal use
+    """
+    return s.startswith('__')
 
 
 def stamped(func, update=False):
@@ -271,6 +280,27 @@ class HdfStorage(object):
                 raise omero.ApiUsageException(
                     None, None, "Rows not specified: %s" % rowNumbers)
 
+    def __getversion(self):
+        """
+        In OMERO.tables v2 the version attribute name was changed to __version
+        """
+        self.__initcheck()
+        k = '__version'
+        try:
+            v = self.__mea.attrs[k]
+            if isinstance(v, str):
+                return v
+        except KeyError:
+            k = 'version'
+            v = self.__mea.attrs[k]
+            if v == 'v1':
+                return '1'
+
+        msg = "Invalid version attribute (%s=%s) in path: %s" % (
+            k, v, self.__hdf_path)
+        self.logger.error(msg)
+        raise omero.ValidationException(None, None, msg)
+
     #
     # Locked methods
     #
@@ -304,6 +334,9 @@ class HdfStorage(object):
             if not c.name:
                 raise omero.ApiUsageException(
                     None, None, "Column unnamed: %s" % c)
+            if internal_attr(c.name):
+                raise omero.ApiUsageException(
+                    None, None, "Reserved column name: %s" % c.name)
 
         self.__definition = columns2definition(cols)
         self.__ome = self.__hdf_file.createGroup("/", "OME")
@@ -317,12 +350,12 @@ class HdfStorage(object):
         self.__hdf_file.createArray(
             self.__ome, "ColumnDescriptions", self.__descriptions)
 
-        self.__mea.attrs.version = "v1"
-        self.__mea.attrs.initialized = time.time()
+        md = {}
         if metadata:
-            for k, v in metadata.items():
-                self.__mea.attrs[k] = v
-                # See attrs._f_list("user") to retrieve these.
+            md = metadata.copy()
+        md['__version'] = VERSION
+        md['__initialized'] = time.time()
+        self.add_meta_map(md, replace=True, init=True)
 
         self.__hdf_file.flush()
         self.__initialized = True
@@ -393,13 +426,13 @@ class HdfStorage(object):
         keys = list(self.__mea.attrs._v_attrnamesuser)
         for key in keys:
             val = attr[key]
-            if type(val) == numpy.float64:
+            if isinstance(val, float):
                 val = rfloat(val)
-            elif type(val) == numpy.int32:
+            elif isinstance(val, int):
                 val = rint(val)
-            elif type(val) == numpy.int64:
+            elif isinstance(val, long):
                 val = rlong(val)
-            elif type(val) == numpy.string_:
+            elif isinstance(val, str):
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
@@ -408,12 +441,38 @@ class HdfStorage(object):
 
     @locked
     @modifies
-    def add_meta_map(self, m):
+    def add_meta_map(self, m, replace=False, init=False):
+        if not init:
+            if int(self.__getversion()) < 2:
+                # Metadata methods were generally broken for v1 tables so
+                # the introduction of internal metadata attributes is unlikely
+                # to affect anyone.
+                # http://trac.openmicroscopy.org.uk/ome/ticket/12606
+                msg = 'Tables metadata is only supported for OMERO.tables >= 2'
+                self.logger.error(msg)
+                raise omero.ApiUsageException(None, None, msg)
+
+            self.__initcheck()
+            for k, v in m.iteritems():
+                if internal_attr(k):
+                    raise omero.ApiUsageException(
+                        None, None, "Reserved attribute name: %s" % k)
+                if not isinstance(v, (
+                        omero.RString, omero.RLong, omero.RInt, omero.RFloat)):
+                    raise omero.ValidationException(
+                        "Unsupported type: %s" % type(v))
+
+        attr = self.__mea.attrs
+        if replace:
+            for f in list(attr._v_attrnamesuser):
+                if init or not internal_attr(f):
+                    del attr[f]
         if not m:
             return
-        self.__initcheck()
-        attr = self.__mea.attrs
-        for k, v in m.items():
+
+        for k, v in m.iteritems():
+            # This uses the default pytables type conversion, which may
+            # convert it to a numpy type or keep it as a native Python type
             attr[k] = unwrap(v)
 
     @locked
@@ -847,7 +906,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def setAllMetadata(self, value, current=None):
         self.assert_write()
-        self.storage.add_meta_map({"key": wrap(value)})
+        self.storage.add_meta_map(value, replace=True)
         self.logger.info("%s.setMetadata() => number=%s", self, slen(value))
 
     # Column methods missing

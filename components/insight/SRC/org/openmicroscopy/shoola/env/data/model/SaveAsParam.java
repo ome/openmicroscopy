@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.SaveAsParam 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -66,6 +66,9 @@ public class SaveAsParam
 	
     /** The icon associated to the parameters. */
     private Icon icon;
+    
+    /** Flag to indicate to delete the file after downloading */
+    private boolean deleteWhenFinished = false;
     
 	/**
 	 * Creates a new instance.
@@ -140,5 +143,24 @@ public class SaveAsParam
 	 * @return See above.
 	 */
 	public List<pojos.DataObject> getObjects() { return objects; }
+
+	/**
+	 * Returns <code>true</code> if the the file should
+	 * be deleted after downloading
+	 * @return See above
+	 */
+	public boolean isDeleteWhenFinished() {
+		return deleteWhenFinished;
+	}
+
+	/**
+	 * Pass <code>true</code> to delete the file after
+	 * downloading
+	 * @param deleteWhenFinished See above
+	 */
+	public void setDeleteWhenFinished(boolean deleteWhenFinished) {
+		this.deleteWhenFinished = deleteWhenFinished;
+	}
+	
 	
 }

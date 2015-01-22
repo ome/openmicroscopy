@@ -3,7 +3,7 @@
 # 
 # 
 # 
-# Copyright (c) 2008-2011 University of Dundee.
+# Copyright (c) 2008-2015 University of Dundee.
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -39,13 +39,10 @@ from custom_forms import MetadataModelChoiceField, \
 from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
                         ExperimenterModelMultipleChoiceField, \
                         GroupModelMultipleChoiceField, GroupModelChoiceField
-
-from decimal import Decimal, getcontext
+from omeroweb.webclient.webclient_utils import formatPercentFraction
 
 logger = logging.getLogger(__name__)
 
-# Set precision for decimal display
-getcontext().prec = 2
              
 ##################################################################
 # Static values
@@ -365,14 +362,10 @@ class MetadataChannelForm(forms.Form):
         # ndFilter
         try:
             if logicalCh is not None and logicalCh.ndFilter is not None:
-                ndValue = logicalCh.ndFilter * 100
-                if ndValue != 100:
-                    # doing division uses the precision set with getcontext() above
-                    ndValue = Decimal(str(ndValue))/1       # str() required for floats in python 2.6
                 self.fields['ndFilter'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(logicalCh.id)+', \'name\', this.value);'}),
-                    initial=ndValue,
+                    initial=formatPercentFraction(logicalCh.ndFilter),
                     label="ND filter (%)",
                     required=False)
             else:
@@ -1227,7 +1220,8 @@ class MetadataFilterForm(forms.Form):
                 self.fields['transmittance'] = forms.CharField(
                     max_length=100,
                     widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['filter'].id)+', \'transmittance\', this.value);'}),
-                    initial=kwargs['initial']['filter'].getTransmittanceRange().transmittance,
+                    initial=formatPercentFraction(kwargs['initial']['filter'].getTransmittanceRange().transmittance),
+                    label="Transmittance (%)",
                     required=False)
             else:
                 self.fields['transmittance'] = forms.CharField(
@@ -1971,14 +1965,10 @@ class MetadataLightSourceForm(forms.Form):
         
         # Attenuation
         if lightSourceSettings is not None and lightSourceSettings.attenuation is not None:
-            lsAttn = lightSourceSettings.attenuation * 100
-            if lsAttn != 100:
-                # doing division uses the precision set with getcontext() above
-                lsAttn = Decimal(str(lsAttn))/1      # str() required for floats in python 2.6
             self.fields['attenuation'] = forms.CharField(
                 max_length=100,
                 widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(lightSourceSettings.id)+', \'attenuation\', this.value);'}),
-                initial=lsAttn,
+                initial=formatPercentFraction(lightSourceSettings.attenuation),
                 label="Attenuation (%)",
                 required=False)
         else:
@@ -1987,8 +1977,8 @@ class MetadataLightSourceForm(forms.Form):
                 widget=forms.TextInput(attrs={'size':25}),
                 initial="N/A",
                 required=False)
-            self.fields['attenuation'].widget.attrs['disabled'] = True
-            self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
+        self.fields['attenuation'].widget.attrs['disabled'] = True
+        self.fields['attenuation'].widget.attrs['class'] = 'disabled-metadata'
 
         self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'pump', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell', 'attenuation']
     

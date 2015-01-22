@@ -680,7 +680,7 @@ class BrowserModel
 		//to do with updates
 	    ImageFinder finder = new ImageFinder();
 	    accept(finder, ImageDisplayVisitor.ALL_NODES);
-	    return finder.getVisibleImageNodes();
+	    return new ArrayList<ImageNode>(finder.getVisibleImageNodes());
 	}
 
 	/**

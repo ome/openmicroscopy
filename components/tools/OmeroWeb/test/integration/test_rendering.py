@@ -40,10 +40,10 @@ def itest(request):
     finalizer so that pytest will clean it up.
     """
     o = lib.ITest()
-    o.setup_method(None)
+    o.setup_class()
 
     def finalizer():
-        o.teardown_method(None)
+        o.teardown_class()
     request.addfinalizer(finalizer)
     return o
 

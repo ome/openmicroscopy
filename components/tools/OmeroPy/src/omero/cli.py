@@ -213,6 +213,51 @@ Optional session arguments:
             help="Quiet mode. Causes most warning and diagnostic messages to "
             "be suppressed.")
 
+    def add_group_print_arguments(self):
+        printgroup = self.add_mutually_exclusive_group()
+        printgroup.add_argument(
+            "--long", action="store_true", default=True,
+            help="Print comma-separated list of all groups (default)")
+        printgroup.add_argument(
+            "--count", action="store_true", default=False,
+            help="Print count of all groups")
+
+    def add_user_print_arguments(self):
+        printgroup = self.add_mutually_exclusive_group()
+        printgroup.add_argument(
+            "--count", action="store_true", default=True,
+            help="Print count of all users and owners (default)")
+        printgroup.add_argument(
+            "--long", action="store_true", default=False,
+            help="Print comma-separated list of all users and owners")
+
+    def add_user_sorting_arguments(self):
+        sortgroup = self.add_mutually_exclusive_group()
+        sortgroup.add_argument(
+            "--sort-by-id", action="store_true", default=True,
+            help="Sort users by ID (default)")
+        sortgroup.add_argument(
+            "--sort-by-login", action="store_true", default=False,
+            help="Sort users by login")
+        sortgroup.add_argument(
+            "--sort-by-first-name", action="store_true", default=False,
+            help="Sort users by first name")
+        sortgroup.add_argument(
+            "--sort-by-last-name", action="store_true", default=False,
+            help="Sort users by last name")
+        sortgroup.add_argument(
+            "--sort-by-email", action="store_true", default=False,
+            help="Sort users by email")
+
+    def add_group_sorting_arguments(self):
+        sortgroup = self.add_mutually_exclusive_group()
+        sortgroup.add_argument(
+            "--sort-by-id", action="store_true", default=True,
+            help="Sort groups by ID (default)")
+        sortgroup.add_argument(
+            "--sort-by-name", action="store_true", default=False,
+            help="Sort groups by name")
+
     def set_args_unsorted(self):
         self._sort_args = False
 
@@ -1891,3 +1936,236 @@ class UserGroupControl(BaseControl):
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()
                if x.owner.val]
         return ids
+
+    def output_users_list(self, admin, users, args):
+        roles = admin.getSecurityRoles()
+        user_group = roles.userGroupId
+        sys_group = roles.systemGroupId
+
+        from omero.util.text import TableBuilder
+        if args.count:
+            tb = TableBuilder("id", "login", "first name", "last name",
+                              "email", "active", "ldap", "admin",
+                              "# group memberships", "# group ownerships")
+        else:
+            tb = TableBuilder("id", "login", "first name", "last name",
+                              "email", "active", "ldap", "admin", "member of",
+                              "owner of")
+        if args.style:
+            tb.set_style(args.style)
+
+        # Sort users
+        if isinstance(users, list):
+            if args.sort_by_login:
+                users.sort(key=lambda x: x.omeName.val)
+            elif args.sort_by_first_name:
+                users.sort(key=lambda x: x.firstName.val)
+            elif args.sort_by_last_name:
+                users.sort(key=lambda x: x.lastName.val)
+            elif args.sort_by_email:
+                users.sort(key=lambda x: (x.email and x.email.val or ""))
+            elif args.sort_by_id:
+                users.sort(key=lambda x: x.id.val)
+        else:
+            users = [users]
+
+        for user in users:
+            row = [user.id.val, user.omeName.val, user.firstName.val,
+                   user.lastName.val]
+            row.append(user.email and user.email.val or "")
+            active = ""
+            admin = ""
+            ldap = user.ldap.val
+            member_of = []
+            leader_of = []
+            for x in user.copyGroupExperimenterMap():
+                if not x:
+                    continue
+                gid = x.parent.id.val
+                if user_group == gid:
+                    active = "Yes"
+                elif sys_group == gid:
+                    admin = "Yes"
+                elif x.owner.val:
+                    leader_of.append(str(gid))
+                else:
+                    member_of.append(str(gid))
+
+            row.append(active)
+            row.append(ldap)
+            row.append(admin)
+
+            if member_of:
+                if args.count:
+                    row.append(len(member_of))
+                else:
+                    row.append(",".join(member_of))
+            else:
+                row.append("")
+            if leader_of:
+                if args.count:
+                    row.append(len(leader_of))
+                else:
+                    row.append(",".join(leader_of))
+            else:
+                row.append("")
+
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
+
+    def output_groups_list(self, groups, args):
+        from omero.util.text import TableBuilder
+
+        # Sort groups
+        if args.sort_by_name:
+            groups.sort(key=lambda x: x.name.val)
+        elif args.sort_by_id:
+            groups.sort(key=lambda x: x.id.val)
+
+        if args.long:
+            tb = TableBuilder("id", "name", "perms", "ldap", "owner ids",
+                              "member ids")
+        else:
+            tb = TableBuilder("id", "name", "perms", "ldap", "# of owners",
+                              "# of members")
+        if args.style:
+            tb.set_style(args.style)
+
+        for group in groups:
+            row = [group.id.val, group.name.val,
+                   str(group.details.permissions), group.ldap.val]
+            ownerids = self.getownerids(group)
+            memberids = self.getmemberids(group)
+            if args.long:
+                row.append(",".join(sorted([str(x) for x in ownerids])))
+                row.append(",".join(sorted([str(x) for x in memberids])))
+            else:
+                row.append(len(ownerids))
+                row.append(len(memberids))
+            tb.row(*tuple(row))
+        self.ctx.out(str(tb.build()))
+
+    def add_id_name_arguments(self, parser, objtype=""):
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
+            "--id", help="ID of the %s" % objtype)
+        group.add_argument(
+            "--name", help="Name of the %s" % objtype)
+        return group
+
+    def add_user_arguments(self, parser, action=""):
+        group = parser.add_argument_group('User arguments')
+        group.add_argument("user_id_or_name",  metavar="user", nargs="*",
+                           help="ID or name of the user(s)%s" % action)
+        group.add_argument("--user-id", metavar="user", nargs="+",
+                           help="ID of the user(s)%s" % action)
+        group.add_argument("--user-name", metavar="user", nargs="+",
+                           help="Name of the user(s)%s" % action)
+        return group
+
+    def list_users(self, a, args, use_context=False):
+        """
+        Retrieve users from the arguments defined in
+        :meth:`add_user_arguments`
+        """
+
+        # Check input arguments
+        has_user_arguments = (args.user_id_or_name or args.user_id
+                              or args.user_name)
+        if (not use_context and not has_user_arguments):
+            self.error_no_input_user(fatal=True)
+
+        # Retrieve groups by id or name
+        uid_list = []
+        u_list = []
+        if args.user_id_or_name:
+            for user in args.user_id_or_name:
+                [uid, u] = self.find_user(a, user, fatal=False)
+                if uid is not None:
+                    uid_list.append(uid)
+                    u_list.append(u)
+
+        if args.user_id:
+            for user_id in args.user_id:
+                [uid, u] = self.find_user_by_id(a, user_id, fatal=False)
+                if uid is not None:
+                    uid_list.append(uid)
+                    u_list.append(u)
+
+        if args.user_name:
+            for user_name in args.user_name:
+                [uid, u] = self.find_user_by_name(a, user_name, fatal=False)
+                if uid is not None:
+                    uid_list.append(uid)
+                    u_list.append(u)
+
+        if not uid_list:
+            if not use_context or has_user_arguments:
+                self.error_no_user_found(fatal=True)
+            else:
+                ec = self.ctx.get_event_context()
+                [uid, u] = self.find_user_by_id(a, ec.userId, fatal=False)
+                uid_list.append(uid)
+                u_list.append(u)
+
+        return uid_list, u_list
+
+    def add_group_arguments(self, parser, action=""):
+        group = parser.add_argument_group('Group arguments')
+        group.add_argument(
+            "group_id_or_name",  metavar="group", nargs="*",
+            help="ID or name of the group(s)%s" % action)
+        group.add_argument(
+            "--group-id", metavar="group", nargs="+",
+            help="ID  of the group(s)%s" % action)
+        group.add_argument(
+            "--group-name", metavar="group", nargs="+",
+            help="Name of the group(s)%s" % action)
+        return group
+
+    def list_groups(self, a, args, use_context=False):
+        """
+        Retrieve users from the arguments defined in
+        :meth:`add_user_arguments`
+        """
+
+        # Check input arguments
+        has_group_arguments = (args.group_id_or_name or args.group_id
+                               or args.group_name)
+        if (not use_context and not has_group_arguments):
+            self.error_no_input_group(fatal=True)
+
+        # Retrieve groups by id or name
+        gid_list = []
+        g_list = []
+        if args.group_id_or_name:
+            for group in args.group_id_or_name:
+                [gid, g] = self.find_group(a, group, fatal=False)
+                if g:
+                    gid_list.append(gid)
+                    g_list.append(g)
+
+        if args.group_id:
+            for group_id in args.group_id:
+                [gid, g] = self.find_group_by_id(a, group_id, fatal=False)
+                if g:
+                    gid_list.append(gid)
+                    g_list.append(g)
+
+        if args.group_name:
+            for group_name in args.group_name:
+                [gid, g] = self.find_group_by_name(a, group_name, fatal=False)
+                if g:
+                    gid_list.append(gid)
+                    g_list.append(g)
+
+        if not gid_list:
+            if not use_context or has_group_arguments:
+                self.error_no_group_found(fatal=True)
+            else:
+                ec = self.ctx.get_event_context()
+                [gid, g] = self.find_group_by_id(a, ec.groupId, fatal=False)
+                gid_list.append(gid)
+                g_list.append(g)
+
+        return gid_list, g_list

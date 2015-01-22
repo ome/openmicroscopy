@@ -30,7 +30,6 @@ import org.apache.commons.collections.CollectionUtils;
 
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts.Op;
-import omero.cmd.GraphModify;
 import omero.cmd.GraphModify2;
 import omero.cmd.Request;
 import omero.cmd.graphs.ChildOption;
@@ -240,8 +239,7 @@ public class GraphUtil {
      * @return if the target model object of the second request was successfully merged into those of the first request
      */
     private static boolean isCombined(ChgrpFacadeI chgrp1, ChgrpFacadeI chgrp2) {
-        if (chgrp1.type.equals(chgrp2.type) &&
-            isEqualMaps(chgrp1.options, chgrp2.options) &&
+        if (isEqualMaps(chgrp1.options, chgrp2.options) &&
             chgrp1.grp == chgrp2.grp) {
             chgrp1.addToTargets(chgrp2.type, chgrp2.id);
             return true;
@@ -257,8 +255,7 @@ public class GraphUtil {
      * @return if the target model object of the second request was successfully merged into those of the first request
      */
     private static boolean isCombined(ChownFacadeI chown1, ChownFacadeI chown2) {
-        if (chown1.type.equals(chown2.type) &&
-            isEqualMaps(chown1.options, chown2.options) &&
+        if (isEqualMaps(chown1.options, chown2.options) &&
             chown1.user == chown2.user) {
             chown1.addToTargets(chown2.type, chown2.id);
             return true;
@@ -276,7 +273,7 @@ public class GraphUtil {
     private static boolean isCombined(DeleteFacadeI delete1, DeleteFacadeI delete2) {
         /* in deleting original files, order is significant */
         if (!delete1.type.endsWith("/OriginalFile") &&
-            delete1.type.equals(delete2.type) &&
+            !delete2.type.endsWith("/OriginalFile") &&
             isEqualMaps(delete1.options, delete2.options)) {
             delete1.addToTargets(delete2.type, delete2.id);
             return true;

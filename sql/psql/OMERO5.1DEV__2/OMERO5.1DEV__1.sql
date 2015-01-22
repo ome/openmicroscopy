@@ -159,9 +159,11 @@ ALTER TABLE otf ALTER COLUMN sizeX TYPE positive_int;
 ALTER TABLE otf ALTER COLUMN sizeY TYPE positive_int;
 ALTER TABLE otf DROP CONSTRAINT otf_check;
 
-UPDATE pixels SET physicalSizeX = NULL WHERE physicalSizeX <= 0;
-UPDATE pixels SET physicalSizeY = NULL WHERE physicalSizeY <= 0;
-UPDATE pixels SET physicalSizeZ = NULL WHERE physicalSizeZ <= 0;
+UPDATE pixels
+  SET physicalSizeX = CASE WHEN physicalSizeX <= 0 THEN NULL ELSE physicalSizeX END,
+      physicalSizeY = CASE WHEN physicalSizeY <= 0 THEN NULL ELSE physicalSizeY END,
+      physicalSizeZ = CASE WHEN physicalSizeZ <= 0 THEN NULL ELSE physicalSizeZ END
+  WHERE physicalSizeX <= 0 OR physicalSizeY <= 0 OR physicalSizeZ <= 0;
 
 ALTER TABLE pixels ALTER COLUMN physicalSizeX TYPE positive_float;
 ALTER TABLE pixels ALTER COLUMN physicalSizeY TYPE positive_float;
