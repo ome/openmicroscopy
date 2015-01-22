@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.config.Registry
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.ConfigService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -172,5 +173,11 @@ public interface Registry
      *          supported {@link DataServicesView} interfaces.
      */
     public DataServicesView getDataServicesView(Class<?> view);
+    
+    /**
+     * Returns a reference to the {@link ConfigService}
+     * @return See above.
+     */
+    public ConfigService getConfigService();
 
 }
