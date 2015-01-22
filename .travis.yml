@@ -24,7 +24,7 @@ before_install:
 
 install:
 
-# Attempt the build twice, due to:
+# retry the build due to:
 # https://github.com/travis-ci/travis-ci/issues/2507
 script:
-    - ./components/tools/travis-build $BUILD || ([ $? -eq 247 ] && ./components/tools/travis-build $BUILD)
+    - "travis_retry ./components/tools/travis-build $BUILD"
