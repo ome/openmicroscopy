@@ -100,16 +100,19 @@ class TestPrefs(object):
 
     def testGetHidePassword(self, capsys):
         self.invoke("set omero.X.pass shortpass")
+        self.cli.invoke(self.args + ["set", "omero.Y.pass", ""], strict=True)
         self.invoke("set omero.Y.password long_password")
         self.invoke("set omero.Z val")
         self.invoke("get")
         self.assertStdoutStderr(capsys, out=(
             'omero.X.pass=shortpass\n'
+            'omero.Y.pass=\n'
             'omero.Y.password=long_password\n'
             'omero.Z=val'))
         self.invoke("get --hide-password")
         self.assertStdoutStderr(capsys, out=(
             'omero.X.pass=********\n'
+            'omero.Y.pass=\n'
             'omero.Y.password=********\n'
             'omero.Z=val'))
 
