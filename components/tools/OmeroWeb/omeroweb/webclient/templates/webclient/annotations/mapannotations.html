@@ -241,9 +241,10 @@
 
             // Nothing selected - actions will apply to user's own table
             if ($selRows.length == 0) {
-                enabled["Insert rows"] = true;
+                var canEdit = $('.editableKeyValueTable').length > 0;
+                enabled["Insert rows"] = canEdit;
                 enabled["Copy rows"] = false;
-                enabled["Paste rows"] = canPaste;
+                enabled["Paste rows"] = (canPaste && canEdit);
                 enabled["Delete rows"] = false;
             } else {
                 var $table = $selRows.parent().parent(),
@@ -449,7 +450,7 @@
             {% include "webclient/annotations/mapannotation.html" %}
         {% endwith %}
     {% endfor %}
-{% else %}
+{% elif manager.canEdit %}
     <!-- Add an empty placeholder -->
     {% with canEdit=True %}
         {% include "webclient/annotations/mapannotation.html" %}
@@ -457,7 +458,12 @@
 {% endif %}
 
 {% if manager.client_map_annotations %}
-<hr>
+
+{% if manager.canEdit %}
+    <!-- only need this <hr> if there is something already above -->
+    <hr>
+{% endif %}
+
 {% for ma in manager.client_map_annotations %}
     {% with canEdit=ma.canEdit %}
         {% include "webclient/annotations/mapannotation.html" %}
