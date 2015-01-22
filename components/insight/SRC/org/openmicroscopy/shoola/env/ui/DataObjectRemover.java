@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.DataObjectRemover
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -97,7 +97,8 @@ public class DataObjectRemover
      */
     protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to delete the object", message, ex);
+    	if (activity != null)
+    		activity.notifyError("Unable to delete the object", message, ex);
     }
     
     /**
@@ -170,7 +171,8 @@ public class DataObjectRemover
     			if (callback != null)
     				callback.cancel();
 			}
-    		activity.onActivityCancelled();
+    		if (activity != null)
+    			activity.onActivityCancelled();
 		} catch (Exception e) {
 			handleException(e);
 		}
@@ -194,7 +196,7 @@ public class DataObjectRemover
             	callBack.setAdapter(this);
             	callBacks.add(callBack);
             	number++;
-            	if (number == objects.size())
+            	if (number == objects.size() && activity != null)
             		activity.onCallBackSet();
         	}
         }
@@ -209,11 +211,13 @@ public class DataObjectRemover
      */
     public void handleResult(Object result)
     {
-    	if (result instanceof Boolean) {
-    		boolean b = ((Boolean) result).booleanValue();
-    		if (b) activity.endActivity(DeleteActivity.DELETE_COMPLETE);
-    		else onException(MESSAGE_RESULT, null);
-    	} else activity.endActivity(result);
+    	if (activity != null) {
+	    	if (result instanceof Boolean) {
+	    		boolean b = ((Boolean) result).booleanValue();
+	    		if (b) activity.endActivity(DeleteActivity.DELETE_COMPLETE);
+	    		else onException(MESSAGE_RESULT, null);
+	    	} else activity.endActivity(result);
+    	}
     }
 
 }

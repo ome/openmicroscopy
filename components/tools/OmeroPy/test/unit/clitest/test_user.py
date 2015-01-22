@@ -23,7 +23,8 @@ from omero.plugins.user import UserControl
 from omero.cli import CLI
 import pytest
 
-subcommands = ['add', 'list', 'password', 'email', 'joingroup', 'leavegroup']
+subcommands = ['add', 'list', 'password', 'email', 'joingroup', 'leavegroup',
+               'info', 'listgroups']
 
 
 class TestUser(object):

@@ -25,7 +25,7 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 from omero_model_ProjectI import ProjectI
@@ -37,7 +37,6 @@ from omero.rtypes import rstring
 class AnnotationPermissions(lib.ITest):
 
     def setup_method(self, method, perms):
-        lib.ITest.setup_method(self, method)
 
         # Tag names and namespaces
         uuid = self.uuid()
@@ -68,7 +67,6 @@ class AnnotationPermissions(lib.ITest):
             self.project[user] = self.createProjectAs(user)
 
     def teardown_method(self, method):
-        lib.ITest.teardown_method(self, method)
         for user in self.users:
             self.clients[user].closeSession()
 

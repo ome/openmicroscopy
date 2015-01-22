@@ -39,6 +39,8 @@ from omero_version import omero_version
 import omero, omero.scripts
 from omero.rtypes import wrap, unwrap
 
+from omero.gateway.utils import toBoolean
+
 from django.conf import settings
 from django.template import loader as template_loader
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
@@ -69,7 +71,7 @@ from controller.search import BaseSearch
 from controller.share import BaseShare
 
 from omeroweb.webadmin.forms import LoginForm
-from omeroweb.webadmin.webadmin_utils import toBoolean, upgradeCheck
+from omeroweb.webadmin.webadmin_utils import upgradeCheck
 
 from omeroweb.webgateway import views as webgateway_views
 
@@ -81,20 +83,13 @@ from omeroweb.webclient.decorators import render_response
 from omeroweb.webclient.show import Show, IncorrectMenuError
 from omeroweb.connector import Connector
 from omeroweb.decorators import ConnCleaningHttpResponse, parse_url, get_client_ip
+from omeroweb.webgateway.util import getIntOrDefault
 
 import tree
 
 logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
-
-# helper method
-def getIntOrDefault(request, name, default):
-    try:
-        index = int(request.REQUEST.get(name, default))
-    except ValueError:
-        index = 0
-    return index
 
 
 ################################################################################
@@ -137,8 +132,13 @@ def login(request):
                 userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
                 if userGroupId in conn.getEventContext().memberOfGroups:
                     request.session['connector'] = connector
-                    upgradeCheck()
-
+                    # UpgradeCheck URL should be loaded from the server or loaded
+                    # omero.web.upgrades.url allows to customize web only
+                    try:
+                        upgrades_url = settings.UPGRADES_URL
+                    except:
+                        upgrades_url = conn.getUpgradesUrl()
+                    upgradeCheck(url=upgrades_url)
                     # if 'active_group' remains in session from previous login, check it's valid for this user
                     if request.session.get('active_group'):
                         if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:
@@ -980,6 +980,10 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     form_channels = list()
     form_lasers = list()
 
+    lasertypes = list(conn.getEnumerationEntries("LaserType"))
+    arctypes = list(conn.getEnumerationEntries("ArcType"))
+    filamenttypes = list(conn.getEnumerationEntries("FilamentType"))
+
     # various enums we need for the forms (don't load unless needed)
     mediums =  None
     immersions = None
@@ -996,7 +1000,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             if logicalChannel is not None:
                 channel = dict()
                 channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
-                                        'excitationWave': ch.getExcitationWave(), 'emissionWave': ch.getEmissionWave(),
+                                        'exWave': ch.getExcitationWave(units=True),
+                                        'emWave': ch.getEmissionWave(units=True),
                                         'illuminations': list(conn.getEnumerationEntries("IlluminationI")),
                                         'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")),
                                         'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
@@ -1022,10 +1027,16 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
 
                     lightSourceSettings = logicalChannel.getLightSourceSettings()
                     if lightSourceSettings is not None and lightSourceSettings._obj is not None:
-                        if lightSourceSettings.getLightSource() is not None:
-                            channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSourceSettings.getLightSource(),
+                        lightSrc = lightSourceSettings.getLightSource()
+                        if lightSrc is not None:
+                            lstypes = lasertypes
+                            if lightSrc.OMERO_CLASS == "Arc":
+                                lstypes = arctypes
+                            elif lightSrc.OMERO_CLASS == "Filament":
+                                lstypes = filamenttypes
+                            channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSrc,
                                             'lightSourceSettings': lightSourceSettings,
-                                            'lstypes': list(conn.getEnumerationEntries("LaserType")),
+                                            'lstypes': lstypes,
                                             'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                             'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
@@ -1105,8 +1116,13 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                 lasers = list(instrument.getLightSources())
                 if len(lasers) > 0:
                     for l in lasers:
+                        lstypes = lasertypes
+                        if l.OMERO_CLASS == "Arc":
+                            lstypes = arctypes
+                        elif l.OMERO_CLASS == "Filament":
+                            lstypes = filamenttypes
                         form_laser = MetadataLightSourceForm(initial={'lightSource': l,
-                                        'lstypes':list(conn.getEnumerationEntries("LaserType")),
+                                        'lstypes': lstypes,
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
                         form_lasers.append(form_laser)
@@ -2522,12 +2538,15 @@ def list_scripts (request, conn=None, **kwargs):
 
     # group scripts into 'folders' (path), named by parent folder name
     scriptMenu = {}
+    scripts_to_ignore = conn.getConfigService() \
+                        .getConfigValue("omero.client.scripts_to_ignore") \
+                        .split(",")
     for s in scripts:
         scriptId = s.id.val
         path = s.path.val
         name = s.name.val
         fullpath = os.path.join(path, name)
-        if fullpath in settings.SCRIPTS_TO_IGNORE:
+        if fullpath in scripts_to_ignore:
             logger.info('Ignoring script %r' % fullpath)
             continue
 
@@ -2791,6 +2810,32 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         context['thumbSets'] = thumbSets
         context['tags'] = uniqueTags
         context['figureName'] = figureName.replace(" ", "_")
+
+    elif scriptName == "MakeMovie":
+        scriptPath = "/omero/export_scripts/Make_Movie.py"
+        template = "webclient/scripts/make_movie.html"
+
+        # expect to run on a single image at a time
+        image = conn.getObject("Image", imageIds[0])
+        # remove extension (if 3 chars or less)
+        movieName = image.getName().rsplit(".",1)
+        if len(movieName) > 1 and len(movieName[1]) > 3:
+            movieName = ".".join(movieName)
+        else:
+            movieName = movieName[0]
+        # make sure name is not a path
+        context['movieName'] = os.path.basename(movieName)
+        chs = []
+        for c in image.getChannels():
+            chs.append({
+                'active': c.isActive(),
+                'color': c.getColor().getHtml(),
+                'label': c.getLabel()
+                })
+        context['channels'] = chs
+        context['sizeT'] = image.getSizeT()
+        context['sizeZ'] = image.getSizeZ()
+
 
     scriptService = conn.getScriptService()
     scriptId = scriptService.getScriptID(scriptPath);

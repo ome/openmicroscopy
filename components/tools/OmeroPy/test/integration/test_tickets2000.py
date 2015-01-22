@@ -10,7 +10,7 @@
 
 """
 import time
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 from omero.rtypes import rbool, rstring, rtime, rlong, rint
@@ -56,7 +56,6 @@ class TestTickets2000(lib.ITest):
         self.client.sf.getAdminService().getEventContext().sessionUuid
         self.client.sf.getAdminService().lookupLdapAuthExperimenters()
 
-    @pytest.mark.broken(ticket="11539")
     def test1069(self):
         unique = rstring(self.uuid())
         project = ProjectI()
@@ -406,7 +405,6 @@ class TestTickets2000(lib.ITest):
                 # type(m.copyGroupExperimenterMap()[0].parent),
                 # m.copyGroupExperimenterMap()[0].parent.id.val
 
-    @pytest.mark.broken(ticket="11539")
     def test1163(self):
         uuid = self.uuid()
         new_gr1 = self.new_group(perms="rw----")

@@ -12,7 +12,7 @@
 import platform
 import locale
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 
 from omero import CmdError
@@ -29,7 +29,6 @@ from omero_version import omero_version
 class AbstractRepoTest(lib.ITest):
 
     def setup_method(self, method):
-        super(AbstractRepoTest, self).setup_method(method)
         self.unique_dir = self.test_dir()
 
     def test_dir(self, client=None):

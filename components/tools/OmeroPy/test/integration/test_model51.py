@@ -23,7 +23,7 @@
 Basic tests for additions/changes to the 5.1 model.
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 import omero.model
@@ -100,3 +100,96 @@ class TestModel51(lib.ITest):
         )
         m = g.getConfigAsMap()
         assert m["foo"] == "bar"
+
+    def assertMapAnnotation(self, anns, mid):
+        m = None
+        for a in anns:
+            if isinstance(a, omero.model.MapAnnotationI):
+                if a.id.val == mid:
+                    m = a
+        assert m
+        assert "foo" == m.getMapValue()[0].name
+        assert "bar" == m.getMapValue()[0].value
+
+    def testMapEagerFetch(self):
+        m = omero.model.MapAnnotationI()
+        m.setMapValue(
+            [NV("foo", "bar")]
+        )
+        m = self.update.saveAndReturnObject(m)
+        anns = self.query.findAllByQuery(
+            "select m from MapAnnotation m ",
+            None)
+        self.assertMapAnnotation(anns, m.id.val)
+
+        # Add a second annotation and query both
+        c = omero.model.CommentAnnotationI()
+        c = self.update.saveAndReturnObject(c)
+        anns = self.query.findAllByQuery(
+            "select m from Annotation m ",
+            None)
+        self.assertMapAnnotation(anns, m.id.val)
+
+        # Now place both on an image and retry
+        i = omero.model.ImageI()
+        i.setName(omero.rtypes.rstring("testMapEagerFetch"))
+        i.linkAnnotation(m)
+        i.linkAnnotation(c)
+        i = self.update.saveAndReturnObject(i)
+        imgs = self.query.findByQuery(
+            ("select i from Image i join fetch "
+             "i.annotationLinks l join fetch l.child "
+             "where i.id = :id"),
+            omero.sys.ParametersI().addId(i.id.val))
+        anns = imgs.linkedAnnotationList()
+        self.assertMapAnnotation(anns, m.id.val)
+
+        # And now load via IMetadata
+        meta = self.client.sf.getMetadataService()
+        anns = meta.loadAnnotations(
+            "omero.model.Image",
+            [i.id.val],
+            [],  # Supported Annotation types
+            [],  # Annotator IDs
+            None)
+        self.assertMapAnnotation(anns[i.id.val], m.id.val)
+
+    def testMapSecurity(self):
+        c1 = self.new_client(perms="rwr---")
+        u1 = c1.sf.getUpdateService()
+        a1 = c1.sf.getAdminService()
+        g1 = a1.getEventContext().groupName
+        m1 = omero.model.MapAnnotationI()
+        m1.setMapValue(
+            [NV("foo", "bar")]
+        )
+        m1 = u1.saveAndReturnObject(m1)
+
+        # Now create another user and try to edit
+        c2 = self.new_client(group=g1)
+        q2 = c2.sf.getQueryService()
+        u2 = c2.sf.getUpdateService()
+        m2 = q2.get("MapAnnotation", m1.id.val)
+        assert not m2.details.permissions.canEdit()
+
+        # Additions fail
+        m2.getMapValue().append(
+            NV("edited-by", str(c2)))
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)
+
+        # Removals fail
+        m2.setMapValue([])
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)
+
+        # Also via a None
+        m2.setMapValue(None)
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)
+
+        # Alterations fail
+        m2.setMapValue(
+            [NV("foo", "WRONG")])
+        with pytest.raises(omero.SecurityViolation):
+            u2.saveAndReturnObject(m2)

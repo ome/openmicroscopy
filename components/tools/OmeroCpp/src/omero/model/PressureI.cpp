@@ -50,10 +50,10 @@ namespace omero {
             s[omero::model::enums::MILLITORR] = "mTorr";
             s[omero::model::enums::MMHG] = "mm Hg";
             s[omero::model::enums::NANOPASCAL] = "nPa";
-            s[omero::model::enums::PASCAL] = "Pa";
             s[omero::model::enums::PETAPASCAL] = "PPa";
             s[omero::model::enums::PICOPASCAL] = "pPa";
             s[omero::model::enums::PSI] = "psi";
+            s[omero::model::enums::Pascal] = "Pa";
             s[omero::model::enums::TERAPASCAL] = "TPa";
             s[omero::model::enums::TORR] = "Torr";
             s[omero::model::enums::YOCTOPASCAL] = "yPa";

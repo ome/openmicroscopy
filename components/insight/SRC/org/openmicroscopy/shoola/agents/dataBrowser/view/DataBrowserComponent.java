@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -830,7 +830,7 @@ class DataBrowserComponent
 		} else {
 			ImageDisplay d = getBrowser().getLastSelectedDisplay();
 			if (d instanceof WellSampleNode) 
-				firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, 
+				firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, null, 
 						getBrowser().getSelectedDataObjects());
 			else 
 				firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, 
@@ -1073,7 +1073,7 @@ class DataBrowserComponent
 		} else {
 			ImageDisplay d = getBrowser().getLastSelectedDisplay();
 			if (d instanceof WellSampleNode) 
-				firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, 
+				firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, null, 
 						getBrowser().getSelectedDataObjects());
 			else 
 				firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, 
@@ -1104,7 +1104,12 @@ class DataBrowserComponent
 						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 		*/
-		firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY,
+		ImageDisplay d = getBrowser().getLastSelectedDisplay();
+		if (d instanceof WellSampleNode) 
+			firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY, null, 
+					getBrowser().getSelectedDataObjects());
+		else 
+			firePropertyChange(SET__OWNER_RND_SETTINGS_PROPERTY,
 				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 

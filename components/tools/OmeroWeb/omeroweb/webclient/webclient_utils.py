@@ -23,6 +23,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def formatPercentFraction(value):
+    """ Formats a fraction as a percentage for display """
+    value = value * 100
+    if value < 1:
+        value = "%.1f" % round(value, 1)
+    else:
+        value = "%s" % int(round(value))
+    return value
+
 def _formatReport(callback):
     """
     Added as workaround to the changes made in #3006.

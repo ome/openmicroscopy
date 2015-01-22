@@ -156,7 +156,7 @@ public class UpdateServiceTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     @Test(groups = "ticket:118")
-    public void tesVersionNotIncreasingAfterUpdate() throws Exception {
+    public void testVersionNotIncreasingAfterUpdate() throws Exception {
         CommentAnnotation ann = new CommentAnnotationI();
         Image img = mmFactory.simpleImage();
         img.setName(rstring("version_test"));

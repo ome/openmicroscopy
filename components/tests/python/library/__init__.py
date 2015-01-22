@@ -69,34 +69,35 @@ class ITest(object):
 
     log = logging.getLogger("ITest")
 
-    def setup_method(self, method):
+    @classmethod
+    def setup_class(cls):
 
-        self.OmeroPy = self.omeropydir()
+        cls.OmeroPy = cls.omeropydir()
 
-        self.__clients = Clients()
+        cls.__clients = Clients()
 
         p = Ice.createProperties(sys.argv)
         rootpass = p.getProperty("omero.rootpass")
 
-        name = None
-        if rootpass:
-            self.root = omero.client()  # ok because adds self
-            self.__clients.add(self.root)
-            self.root.setAgent("OMERO.py.root_test")
-            self.root.createSession("root", rootpass)
-            newuser = self.new_user()
-            name = newuser.omeName.val
-        else:
-            self.root = None
+        try:
+            cls.root = omero.client()  # ok because adds self
+            cls.__clients.add(cls.root)
+            cls.root.setAgent("OMERO.py.root_test")
+            cls.root.createSession("root", rootpass)
+        except:
+            raise Exception("Could not initiate a root connection")
 
-        self.client = omero.client()  # ok because adds self
-        self.__clients.add(self.client)
-        self.client.setAgent("OMERO.py.test")
-        self.sf = self.client.createSession(name, name)
+        newuser = cls.new_user()
+        name = newuser.omeName.val
+        cls.client = omero.client()  # ok because adds self
+        cls.__clients.add(cls.client)
+        cls.client.setAgent("OMERO.py.test")
+        cls.sf = cls.client.createSession(name, name)
 
-        self.update = self.sf.getUpdateService()
-        self.query = self.sf.getQueryService()
+        cls.update = cls.sf.getUpdateService()
+        cls.query = cls.sf.getQueryService()
 
+    @classmethod
     def omeropydir(self):
         count = 10
         searched = []
@@ -118,17 +119,21 @@ class ITest(object):
         else:
             assert False, "Could not find OmeroPy/; searched %s" % searched
 
+    @classmethod
     def uuid(self):
         import omero_ext.uuid as _uuid  # see ticket:3774
         return str(_uuid.uuid4())
 
-    def login_args(self):
+    @classmethod
+    def login_args(self, key=None):
         p = self.client.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
-        key = self.sf.ice_getIdentity().name
+        if not key:
+            key = self.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
+    @classmethod
     def root_login_args(self):
         p = self.root.ic.getProperties()
         host = p.getProperty("omero.host")
@@ -139,6 +144,7 @@ class ITest(object):
     def tmpfile(self):
         return str(create_path())
 
+    @classmethod
     def new_group(self, experimenters=None, perms=None):
         admin = self.root.sf.getAdminService()
         gname = self.uuid()
@@ -152,6 +158,7 @@ class ITest(object):
         self.add_experimenters(group, experimenters)
         return group
 
+    @classmethod
     def add_experimenters(self, group, experimenters):
         admin = self.root.sf.getAdminService()
         if experimenters:
@@ -431,6 +438,7 @@ class ITest(object):
         assert passes == is_ok, str(rsp)
         return callback
 
+    @classmethod
     def new_user(self, group=None, perms=None,
                  owner=False, system=False):
         """
@@ -516,6 +524,7 @@ class ITest(object):
         elapsed = stop - start
         return elapsed, rv
 
+    @classmethod
     def group_and_name(self, group):
         group = unwrap(group)
         admin = self.root.sf.getAdminService()
@@ -537,6 +546,7 @@ class ITest(object):
 
         return group, name
 
+    @classmethod
     def user_and_name(self, user):
         user = unwrap(user)
         admin = self.root.sf.getAdminService()
@@ -748,10 +758,11 @@ class ITest(object):
                             omero_group=omero_group)
         return rsp
 
-    def teardown_method(self, method):
-        self.root.killSession()
-        self.root = None
-        self.__clients.__del__()
+    @classmethod
+    def teardown_class(cls):
+        cls.root.killSession()
+        cls.root = None
+        cls.__clients.__del__()
 
     def make_project(self, name=None, client=None):
         """

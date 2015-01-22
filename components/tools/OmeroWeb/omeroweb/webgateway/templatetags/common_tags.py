@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# 
-# 
-# Copyright (c) 2008-2014 University of Dundee. 
-# 
+#
+#
+#
+# Copyright (c) 2008-2014 University of Dundee.
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
+#
 # Version: 1.0
 #
 
@@ -33,20 +33,23 @@ register = template.Library()
 
 logger = logging.getLogger(__name__)
 
+
 # makes settings available in template
 @register.tag
-def setting ( parser, token ):
+def setting(parser, token):
     try:
         tag_name, option = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires a single argument" % token.contents[0]
-    return SettingNode( option )
+        raise template.TemplateSyntaxError(
+            "%r tag requires a single argument" % token.contents[0])
+    return SettingNode(option)
 
-class SettingNode ( template.Node ):
-    def __init__ ( self, option ):
+
+class SettingNode (template.Node):
+    def __init__(self, option):
         self.option = option
 
-    def render ( self, context ):
+    def render(self, context):
         try:
             setting = settings
             for name in self.option.split('.'):
@@ -65,7 +68,6 @@ class SettingNode ( template.Node ):
             return ""
 
 
-
 class PluralNode(template.Node):
     def __init__(self, quantity, single, plural):
         self.quantity = template.Variable(quantity)
@@ -78,18 +80,22 @@ class PluralNode(template.Node):
         else:
             return u'%s' % self.plural.resolve(context)
 
+
 @register.tag(name="plural")
 def do_plural(parser, token):
     """
     Usage: {% plural quantity name_singular name_plural %}
 
-    This simple version only works with template variable since we will use blocktrans for strings.
+    This simple version only works with template variable since we will use
+    blocktrans for strings.
     """
-    
+
     try:
         # split_contents() knows not to split quoted strings.
         tag_name, quantity, single, plural = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires exactly three arguments" % token.contents.split()[0]
+        raise template.TemplateSyntaxError(
+            "%r tag requires exactly three arguments"
+            % token.contents.split()[0])
 
     return PluralNode(quantity, single, plural)

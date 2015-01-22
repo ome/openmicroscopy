@@ -10,7 +10,7 @@
 Integration tests for tickets between 4000 and 4999
 """
 import omero
-import test.integration.library as lib
+import library as lib
 
 
 class TestTickets5000(lib.ITest):

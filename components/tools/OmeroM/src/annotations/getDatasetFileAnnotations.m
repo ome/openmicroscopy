@@ -27,10 +27,12 @@ function fas = getDatasetFileAnnotations(session, ids, varargin)
 %        fas = getDatasetFileAnnotations(session, ids, 'exclude', exclude)
 %        fas = getDatasetFileAnnotations(session, ids, 'owner', -1)
 %
-% See also: GETOBJECTANNOTATIONS, GETDATASETCOMMENTANNOTATIONS,
-% GETDATASETTAGANNOTATIONS, GETDATASETXMLANNOTATIONS
+% See also: GETDATASETCOMMENTANNOTATIONS, GETDATASETDOUBLEANNOTATIONS,
+% GETDATASETLONGANNOTATIONS, GETDATASETTAGANNOTATIONS,
+% GETDATASETTIMESTAMPANNOTATIONS, GETDATASETXMLANNOTATIONS,
+% GETOBJECTANNOTATIONS
 
-% Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify

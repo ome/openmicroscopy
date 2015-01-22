@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2014 University of Dundee. All rights reserved.
+ * Copyright 2006-2015 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -201,7 +201,10 @@ public class DeleteServiceTest extends AbstractServerTest {
 
     /** Identifies the File. */
     public static final String REF_FILE = "/FileAnnotation";
-
+    
+    /** Identifies the MapAnnotation. */
+    public static final String REF_MAP = "/MapAnnotation";
+    
     /** Indicates to force the deletion. */
     public static final String FORCE = "FORCE";
 
@@ -234,6 +237,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         SHARABLE_TO_KEEP.put(REF_TAG, KEEP);
         SHARABLE_TO_KEEP.put(REF_TERM, KEEP);
         SHARABLE_TO_KEEP.put(REF_FILE, KEEP);
+        SHARABLE_TO_KEEP.put(REF_MAP, KEEP);
     }
 
     /**

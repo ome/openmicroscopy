@@ -23,7 +23,7 @@
    Integration test for adding annotations to Project.
 """
 
-import test.integration.library as lib
+import library as lib
 import omero
 import omero.scripts
 from omero.rtypes import rstring, rbool, rtime, rlong, rdouble

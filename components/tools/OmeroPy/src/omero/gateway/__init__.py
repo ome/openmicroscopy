@@ -7222,7 +7222,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return None
             if isinstance(size, IntType):
                 size = (size,)
-            if z is not None and t is not None:
+            if z is not None or t is not None:
+                if z is None:
+                    z = self.getDefaultZ()
+                if t is None:
+                    t = self.getDefaultT()
                 pos = z, t
             else:
                 pos = None
@@ -8370,6 +8374,20 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return self._re.getDefaultT()
 
+    @assert_re()
+    def setDefaultZ(self, z):
+        """
+        Sets the default Z index to the rendering engine
+        """
+        return self._re.setDefaultZ(z)
+
+    @assert_re()
+    def setDefaultT(self, t):
+        """
+        Sets the default T index to the rendering engine
+        """
+        return self._re.setDefaultT(t)
+
     @assert_pixels
     def getPixelsType(self):
         """
@@ -9198,6 +9216,17 @@ class _LaserWrapper (_LightSourceWrapper):
             if not self.laserMedium.loaded:
                 self.laserMedium = rv._obj
             return rv
+
+    def getPump(self):
+        """
+        Gets the pump (Light Source) for this Laser
+
+        :return:    Pump (Light Source)
+        :rtype:     :class:`LightSourceWrapper`
+        """
+        rv = self.pump
+        if rv is not None:
+            return LightSourceWrapper(self._conn, rv)
 
 LaserWrapper = _LaserWrapper
 _LightSourceClasses[omero.model.LaserI] = 'LaserWrapper'

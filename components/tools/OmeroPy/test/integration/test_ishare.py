@@ -10,7 +10,7 @@
 
 """
 import time
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 from omero_model_ImageI import ImageI
@@ -392,6 +392,7 @@ class TestIShare(lib.ITest):
             tb.setPixelsId(rdefs[0].pixels.id.val)
         except omero.SecurityViolation:
             assert False, "Pixels was not in share"
+        share.deactivate()
 
     def test1201(self):
         admin = self.client.sf.getAdminService()
@@ -441,7 +442,9 @@ class TestIShare(lib.ITest):
         return client_user1, sid, expiration
 
     def test1201b(self):
-        share = self.client.sf.getShareService()
+        new_group = self.new_group()
+        new_client, new_user = self.new_client_and_user(new_group)
+        share = new_client.sf.getShareService()
         # create share
         description = "my description"
         timeout = None
@@ -698,9 +701,11 @@ class TestIShare(lib.ITest):
         Accessing deleted image in share seems to have changed.
         This tests what happens using the raw API.
         """
-        share = self.client.sf.getShareService()
-        query = self.client.sf.getQueryService()
-        update = self.client.sf.getUpdateService()
+        new_group = self.new_group()
+        new_client, new_user = self.new_client_and_user(new_group)
+        share = new_client.sf.getShareService()
+        query = new_client.sf.getQueryService()
+        update = new_client.sf.getUpdateService()
 
         image = self.new_image()
         image = update.saveAndReturnObject(image)
@@ -708,12 +713,12 @@ class TestIShare(lib.ITest):
 
         share_id = share.createShare("", None, objects, [], [], True)
         new_context = omero.model.ShareI(share_id, False)
-        old_context = self.client.sf.setSecurityContext(new_context)
+        old_context = new_client.sf.setSecurityContext(new_context)
         query.get("Image", image.id.val)
 
-        self.client.sf.setSecurityContext(old_context)
+        new_client.sf.setSecurityContext(old_context)
         update.deleteObject(image)
-        self.client.sf.setSecurityContext(new_context)
+        new_client.sf.setSecurityContext(new_context)
 
         with pytest.raises(omero.ValidationException):
             query.get("Image", image.id.val)
@@ -723,9 +728,11 @@ class TestIShare(lib.ITest):
         Accessing deleted image in share seems to have changed.
         This tests what happens using BlitzGateway wrappers.
         """
-        share = self.client.sf.getShareService()
-        query = self.client.sf.getQueryService()
-        update = self.client.sf.getUpdateService()
+        new_group = self.new_group()
+        new_client, new_user = self.new_client_and_user(new_group)
+        share = new_client.sf.getShareService()
+        query = new_client.sf.getQueryService()
+        update = new_client.sf.getUpdateService()
 
         image = self.new_image()
         image = update.saveAndReturnObject(image)
@@ -733,17 +740,17 @@ class TestIShare(lib.ITest):
 
         share_id = share.createShare("", None, objects, [], [], True)
         new_context = omero.model.ShareI(share_id, False)
-        old_context = self.client.sf.setSecurityContext(new_context)
+        old_context = new_client.sf.setSecurityContext(new_context)
         image = query.get("Image", image.id.val)
 
         from omero.gateway import ImageWrapper, BlitzGateway
 
-        conn = BlitzGateway(client_obj=self.client)
+        conn = BlitzGateway(client_obj=new_client)
         wrapper = ImageWrapper(conn=conn, obj=image)
 
-        self.client.sf.setSecurityContext(old_context)
+        new_client.sf.setSecurityContext(old_context)
         update.deleteObject(image)
-        self.client.sf.setSecurityContext(new_context)
+        new_client.sf.setSecurityContext(new_context)
 
         with pytest.raises(IndexError):
             wrapper.__loadedHotSwap__()

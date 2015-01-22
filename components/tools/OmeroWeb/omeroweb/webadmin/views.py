@@ -49,7 +49,7 @@ from forms import ForgottonPasswordForm, ExperimenterForm, GroupForm
 from forms import GroupOwnerForm, MyAccountForm, ChangePassword
 from forms import UploadPhotoForm, EmailForm
 
-from omeroweb.webadmin.webadmin_utils import toBoolean
+from omero.gateway.utils import toBoolean
 
 from omeroweb.http import HttpJPEGResponse
 from omeroweb.webclient.decorators import login_required, render_response

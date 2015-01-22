@@ -56,10 +56,6 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 
 ALTER TABLE experimentergroup ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
 
--- Set "ldap" value for each group to be false
-
-UPDATE experimentergroup SET ldap = false;
-
 --
 -- FINISHED
 --

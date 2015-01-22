@@ -25,7 +25,7 @@ Test of the CmdCallbackI object
 
 import threading
 
-import test.integration.library as lib
+import library as lib
 import omero
 import omero.all
 from omero.util.concurrency import get_event

@@ -12,7 +12,7 @@
 import omero
 import omero.clients
 import pytest
-import test.integration.library as lib
+import library as lib
 
 from omero.gateway import BlitzGateway, ProjectWrapper, DatasetWrapper, \
     ImageWrapper, TagAnnotationWrapper, ScreenWrapper, PlateWrapper, \
@@ -48,10 +48,10 @@ def itest(request):
     attached finalizer so that pytest will clean it up.
     """
     o = lib.ITest()
-    o.setup_method(None)
+    o.setup_class()
 
     def finalizer():
-        o.teardown_method(None)
+        o.teardown_class()
     request.addfinalizer(finalizer)
     return o
 

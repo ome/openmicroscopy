@@ -25,8 +25,7 @@
 """
 
 import time
-import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 
 
@@ -116,7 +115,6 @@ class TestChmodEasy(BaseChmodTest):
         assert self.elapsed < 0.5
         BaseChmodTest.assertChmod(self)
 
-    @pytest.mark.broken(ticket="11539")
     def test_chmod_rw_rwr(self):
         self.init("rw----", "rwr---")
         self.addData()

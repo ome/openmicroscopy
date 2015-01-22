@@ -24,7 +24,7 @@
 
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 from omero.rtypes import rstring
@@ -170,7 +170,6 @@ class TestAdmin(lib.ITest):
         assert len(ec1.memberOfGroups)+1 == len(ec2.memberOfGroups)
         assert group.id.val in ec2.memberOfGroups
 
-    @pytest.mark.broken(reason="This test fails since #11465", ticket="11465")
     def testUserRoles4056(self):
         """
         Tests for optimistic lock exception when modifying roles.

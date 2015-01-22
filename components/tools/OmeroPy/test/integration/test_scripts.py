@@ -11,7 +11,7 @@
 
 import os
 import pytest
-import test.integration.library as lib
+import library as lib
 import omero
 import omero.all
 
@@ -48,7 +48,6 @@ class TestScripts(lib.ITest):
         self.client.setInput("a", rstring("a"))
         self.client.getInput("a")
 
-    @pytest.mark.broken(ticket="11539")
     def testUploadAndPing(self):
         name = str(self.pingfile())
         file = self.client.upload(name, type="text/x-python")
@@ -128,8 +127,9 @@ class TestScripts(lib.ITest):
             impl.cleanup()
 
     def testUploadOfficialScript(self):
-        scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
+        uuid = self.uuid()
 
         scriptLines = [
             "import omero",
@@ -145,7 +145,7 @@ class TestScripts(lib.ITest):
 
         id = scriptService.uploadOfficialScript(
             "/testUploadOfficialScript%s.py" % uuid, script)
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             # force the server to parse the file enough to get params (checks
             # syntax etc)
@@ -165,9 +165,9 @@ class TestScripts(lib.ITest):
     def testRunScript(self):
         # Trying to run script as described:
         # http://trac.openmicroscopy.org.uk/ome/browser/trunk/components/blitz/resources/omero/api/IScript.ice#L40
-        scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        client = self.root
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
+        uuid = self.uuid()
 
         scriptLines = [
             "import omero",
@@ -189,11 +189,11 @@ class TestScripts(lib.ITest):
             "offical/test/script%s.py" % uuid, script)
         assert scriptService.canRunScript(officialScriptId)  # ticket:2341
 
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             proc = scriptService.runScript(officialScriptId, map, None)
             try:
-                cb = omero.scripts.ProcessCallbackI(client, proc)
+                cb = omero.scripts.ProcessCallbackI(root_client, proc)
                 while not cb.block(1000):  # ms.
                     pass
                 cb.close()
@@ -221,7 +221,7 @@ class TestScripts(lib.ITest):
         try:
             proc = scriptService.runScript(userScriptId, map, None)
             try:
-                cb = omero.scripts.ProcessCallbackI(client, proc)
+                cb = omero.scripts.ProcessCallbackI(root_client, proc)
                 while not cb.block(1000):  # ms.
                     pass
                 cb.close()
@@ -235,15 +235,16 @@ class TestScripts(lib.ITest):
         assert "returnMessage" not in results, \
             "Script should not have run. No user processor!"
 
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             assert scriptService.canRunScript(userScriptId)  # ticket:2341
         finally:
             impl.cleanup()
 
     def testEditScript(self):
-        scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
+        uuid = self.uuid()
 
         scriptLines = [
             "import omero",
@@ -294,11 +295,9 @@ client.closeSession()
             assert x in paramsAfter.outputs
 
     def testScriptValidation(self):
-        scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-
-        scriptService = self.root.sf.getScriptService()
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        root_client = self.new_client(system=True)
+        scriptService = root_client.sf.getScriptService()
+        uuid = self.uuid()
 
         invalidScript = "This text is not valid as a script"
 
@@ -385,9 +384,11 @@ client.closeSession()
         finally:
             impl.cleanup()
 
-    @pytest.mark.broken(ticket="11539")
+    @pytest.mark.intermittent(reason="Minor performance failure",
+                              ticket="11539")
     def testParamLoadingPerformanceTicket2285(self):
-        svc = self.root.sf.getScriptService()
+        root_client = self.new_client(system=True)
+        svc = root_client.sf.getScriptService()
         SCRIPT = """if True:
         import omero.model as OM
         import omero.rtypes as OR
@@ -399,7 +400,7 @@ client.closeSession()
         """
         upload_time, scriptID = self.timeit(
             svc.uploadOfficialScript, "/test/perf%s.py" % self.uuid(), SCRIPT)
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             params_time, params = self.timeit(svc.getParams, scriptID)
             assert params_time < (upload_time / 10), \
@@ -411,7 +412,7 @@ client.closeSession()
                 svc.runScript, scriptID, wrap({"a": long(5)}).val, None)
 
             def wait():
-                cb = omero.scripts.ProcessCallbackI(self.root, process)
+                cb = omero.scripts.ProcessCallbackI(root_client, process)
                 while cb.block(500) is None:
                     # process.poll() # This seems to make things much faster
                     pass

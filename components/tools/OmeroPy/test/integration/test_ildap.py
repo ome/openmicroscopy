@@ -23,7 +23,7 @@
    Integration test focused on the omero.api.ILdap interface.
 
 """
-import test.integration.library as lib
+import library as lib
 
 
 class TestILdap(lib.ITest):

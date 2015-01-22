@@ -24,7 +24,7 @@ Integration tests for bin/omero import
 """
 
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 

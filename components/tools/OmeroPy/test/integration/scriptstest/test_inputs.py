@@ -24,7 +24,7 @@
     which all scripts might want to use.
 """
 
-import test.integration.library as lib
+import library as lib
 import pytest
 import omero
 import omero.processor
@@ -93,7 +93,8 @@ class TestInputs(lib.ITest):
             finally:
                 rfs.close()
 
-    @pytest.mark.broken(ticket="12314")
+    @pytest.mark.intermittent(reason="Process still running.",
+                              ticket="12314")
     def testInputs(self):
         import logging
         logging.basicConfig(level=10)

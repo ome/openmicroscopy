@@ -26,7 +26,78 @@ if (typeof OME === "undefined") {
 // Use userAgent to detect mobile devices
 // from http://stackoverflow.com/questions/3514784/what-is-the-best-way-to-detect-a-handheld-device-in-jquery
 OME.isMobileDevice = function() {
-    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|IEMobile|Opera Mini|Mobile Safari|Silk/i).test(navigator.userAgent)
+    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|PlayBook|IEMobile|Opera Mini|Mobile Safari|Silk/i).test(navigator.userAgent);
+};
+
+OME.rgbToHex = function rgbToHex(rgb) {
+    if (rgb.substring(0,1) == '#') {
+        return rgb.substring(1);
+    }
+    var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(rgb);
+    if (!rgbvals) return rgb;
+    var rval = parseInt(rgbvals[1], 10).toString(16);
+    var gval = parseInt(rgbvals[2], 10).toString(16);
+    var bval = parseInt(rgbvals[3], 10).toString(16);
+    if (rval.length == 1) rval = '0' + rval;
+    if (gval.length == 1) gval = '0' + gval;
+    if (bval.length == 1) bval = '0' + bval;
+    return (
+        rval +
+        gval +
+        bval
+    ).toUpperCase();
+};
+
+OME.hexToRgb = function hexToRgb(hex) {
+    hex = OME.rgbToHex(hex);    // in case 'hex' is actually rgb!
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+};
+
+// Calculate value, saturation and hue as in org.openmicroscopy.shoola.util.ui.colour.HSV
+OME.isDark = function(color) {
+
+    var c = OME.hexToRgb(color);
+
+    var min, max, delta;
+    var v, s, h;
+
+    min = Math.min(c.r, c.g, c.b);
+    max = Math.max(c.r, c.g, c.b);
+
+    v = max;
+    delta = max-min;
+
+    if (max !== 0) {
+        s = delta/max;
+    }
+    else {
+        v = 0;
+        s = 0;
+        h = 0;
+    }
+
+    if (c.r==max) {
+        h = (c.g-c.b)/delta;
+    } else if (c.g == max) {
+        h = 2 + (c.b-c.r)/delta;
+    } else {
+        h = 4 +(c.r-c.g)/delta;
+    }
+
+    h = h * 60;
+    if (h < 0) {
+        h += 360;
+    }
+    h = h/360;
+    v = v/255;
+
+    return (v < 0.6 || (h > 0.6 && s > 0.7));
 };
 
 function isInt(n){
@@ -55,7 +126,7 @@ Number.prototype.filesizeformat = function (round) {
         return (bytes / (1024*1024*1024*1024*1024)).toFixed(round) + ' PB';
     }
     
-}
+};
 
 Number.prototype.lengthformat = function (round) {
     if (round === undefined || !isInt(round)) round = 2;
@@ -78,7 +149,7 @@ Number.prototype.lengthformat = function (round) {
     } else {
         return (length / 1000 / 100 / 10 / 1000).toFixed(round) + ' km';
     }
-}
+};
 
 String.prototype.escapeHTML = function(){
     /*
@@ -102,7 +173,7 @@ String.prototype.escapeHTML = function(){
             default: return s;
         }
     });
-}
+};
 
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
