@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.init.DataServicesInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -91,6 +91,7 @@ public final class DataServicesInit
             RegistryFactory.linkOS(factory.getOS(), reg);
             RegistryFactory.linkMS(factory.getMS(), reg);
             RegistryFactory.linkAdmin(factory.getAdmin(), reg);
+            RegistryFactory.linkCS(factory.getCs(), reg);
             
             //Finally create and bind the factory used by the async data views
             //to create exec monitors.

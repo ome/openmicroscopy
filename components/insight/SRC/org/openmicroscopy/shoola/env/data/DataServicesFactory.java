@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.DataServicesFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -68,7 +68,6 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -142,6 +141,9 @@ public class DataServicesFactory
 	/** The Administration service adapter. */
 	private AdminService				admin;
 	
+	/** Reference to the ConfigService */
+	private ConfigService				cs;
+	
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
 
@@ -168,12 +170,14 @@ public class DataServicesFactory
         is = new OmeroImageServiceImpl(omeroGateway, registry);
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
         admin = new AdminServiceImpl(omeroGateway, registry);
+        cs = new ConfigServiceImpl(omeroGateway, registry);
         
         // pass the adapters on to the registry
         RegistryFactory.linkOS(ds, registry);
         RegistryFactory.linkMS(ms, registry);
         RegistryFactory.linkAdmin(admin, registry);
         RegistryFactory.linkIS(is, registry);
+        RegistryFactory.linkCS(cs, registry);
         
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
@@ -809,4 +813,13 @@ public class DataServicesFactory
 		PixelsServicesFactory.checkRenderingControls(container.getRegistry());
 	}
 
+	/**
+	 * Gets the reference to the {@link ConfigService}
+	 * @return See above.
+	 */
+	public ConfigService getCs() {
+		return cs;
+	}
+
+	
 }

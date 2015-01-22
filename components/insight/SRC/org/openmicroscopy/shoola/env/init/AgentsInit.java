@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.init.AgentsInit
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -140,6 +140,7 @@ public final class AgentsInit
         RegistryFactory.linkOS(containerReg.getDataService(), agentReg);
         RegistryFactory.linkMS(containerReg.getMetadataService(), agentReg);
         RegistryFactory.linkAdmin(containerReg.getAdminService(), agentReg);
+        RegistryFactory.linkCS(containerReg.getConfigService(), agentReg);
 		return agentReg;
 	}
 	
