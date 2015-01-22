@@ -398,9 +398,7 @@ public class MapAnnotationsComponent extends JPanel implements
 	 */
 	@SuppressWarnings("unchecked")
 	private MapTable createMapTable(MapAnnotationData m) {
-		boolean editable = isUsers(m) && model.canAnnotate();
-
-		boolean deletable = MetadataViewerAgent.isAdministrator();
+		boolean editable = (isUsers(m) && model.canAnnotate()) || model.canEdit(m);
 
 		if (!editable
 				&& (m.getContent() == null || ((List<NamedValue>) m
@@ -411,8 +409,6 @@ public class MapAnnotationsComponent extends JPanel implements
 		if (editable)
 			permissions = MapTable.PERMISSION_DELETE | MapTable.PERMISSION_MOVE
 					| MapTable.PERMISSION_EDIT;
-		else if (deletable)
-			permissions = MapTable.PERMISSION_DELETE;
 		else
 			permissions = MapTable.PERMISSION_NONE;
 
