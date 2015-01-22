@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.browser.TreeFileSet 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,10 @@ package org.openmicroscopy.shoola.agents.util.browser;
 
 //Java imports
 import java.util.Iterator;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 
 //Third-party libraries
 
@@ -71,9 +75,11 @@ public class TreeFileSet
 	 */
 	private static String getTypeName(int type)
 	{
+		Registry reg = DataBrowserAgent.getRegistry();
+		
 		switch (type) {
 			case MOVIE: return "Movies";
-			case ORPHANED_IMAGES: return "Orphaned Images";
+			case ORPHANED_IMAGES: return (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
 			case TAG:
 				return "Tags used not owned";
 			case OTHER:
