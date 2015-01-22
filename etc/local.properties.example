@@ -25,6 +25,7 @@ javac.debuglevel=lines,vars,source
 javac.maxmem=1050m
 javadoc.maxmem=1050m
 exe4j.home=/opt/exe4j
+package-extra=true
 
 artifactory.username=hudson
 artifactory.username=SECRET

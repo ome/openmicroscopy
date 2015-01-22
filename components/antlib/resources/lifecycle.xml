@@ -62,7 +62,7 @@
         <ivy:retrieve settingsRef="ivy.${ant.project.name}"
             type="jar"
             pattern="${deps.lib.dir}/[artifact](-[classifier]).[ext]"
-            log="quiet" sync="false" symlink="true"/>
+            log="quiet" sync="false" symlink="true" haltonfailure="${package-extra}"/>
     </target>
 
     <target name="prepare" depends="retrieve">
@@ -383,6 +383,10 @@ omero.version=${omero.version}
     </target>
 
     <target name="package-extra">
+
+        <if><equals arg1="true" arg2="${package-extra}"/>
+            <then>
+
         <jar destfile="${target.dir}/${ivy.module}-sources.jar">
             <fileset dir="${src.dir}" includes="**/*.java"/>
             <fileset dir="${src.dest}" includes="**/*.java"/>
@@ -408,6 +412,8 @@ omero.version=${omero.version}
         <jar destfile="${target.dir}/${ivy.module}-javadoc.jar">
                 <fileset dir="${target.dir}/javadocs"/>
         </jar>
+
+        </then></if>
     </target>
 
     <target name="load-findbugs" depends="prepare">
@@ -473,7 +479,7 @@ omero.version=${omero.version}
             <mapping conf="*" scope="compile"/>
             <dependency group="ome" artifact="bio-formats" version="${omero.version}" optional="true"/>
         </ivy:makepom>
-        <publishArtifact/>
+        <publishArtifact haltonmissing="${package-extra}"/>
     </target>
 
     <!-- Previously dependend on integration, but that may need special controls.
