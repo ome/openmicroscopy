@@ -46,7 +46,7 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 	private static final long serialVersionUID = 8616404360198544605L;
 
 	/** The editing component */
-	private JComponent component = null;
+	private JTextField component = null;
 
 	/** Flag if double-click is needed for editing */
 	private boolean doubleClickEdit = false;
@@ -69,7 +69,7 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 	@Override
 	public Object getCellEditorValue() {
-		return ((JTextField) component).getText();
+		return component.getText();
 	}
 
 	@Override
@@ -84,7 +84,8 @@ public class MapTableCellEditor extends AbstractCellEditor implements
 
 		component = new JTextField(text);
 		component.setBorder(BorderFactory.createEmptyBorder());
-
+		component.selectAll();
+		
 		component.addFocusListener(new FocusListener() {
 			@Override
 			public void focusLost(FocusEvent e) {
