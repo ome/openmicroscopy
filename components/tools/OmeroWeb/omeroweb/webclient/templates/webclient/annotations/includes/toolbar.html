@@ -88,6 +88,10 @@
                 >
                 Download...</a>
             </li>
+            {% else %}
+            <li class="disabled">
+              <a title="No original imported files to download">Download...</a>
+            </li>
             {% endif %}
             {% if image %}
             <li>
