@@ -24,6 +24,7 @@ before_install:
 
 install:
 
-# Running python tests as script, since there's no compile step.
+# Attempt the build twice, due to:
+# https://github.com/travis-ci/travis-ci/issues/2507
 script:
-    - ./components/tools/travis-build $BUILD
+    - ./components/tools/travis-build $BUILD || ([ $? -eq 247 ] && ./components/tools/travis-build $BUILD)
