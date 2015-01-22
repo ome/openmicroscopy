@@ -457,20 +457,30 @@ public final class Container
             singleton.registry.bind(LookupNames.PLUGIN, plugin);
         	LoginService loginSvc = (LoginService) singleton.registry.lookup(
         			LookupNames.LOGIN);
-        	int v = loginSvc.login((UserCredentials) singleton.registry.lookup(
-        			LookupNames.USER_CREDENTIALS));
-        	if (v == LoginService.CONNECTED) {
-        		singleton.activateAgents();
-        	} else {
-        		//Check if the splashscreen is up.
-        		Boolean b = (Boolean) singleton.registry.lookup(
-            			LookupNames.LOGIN_SPLASHSCREEN);
-        		if (b != null && !b.booleanValue()) {
-        			UserNotifier un = singleton.registry.getUserNotifier();
-            		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
-        		}
+        	UserCredentials uc = null;
+        	if (singleton.registry.lookup(LookupNames.USER_CREDENTIALS) != null) {
+        	    uc = (UserCredentials) singleton.registry.lookup(
+                        LookupNames.USER_CREDENTIALS);
         	}
-        	return Container.getInstance();
+        	if (uc != null) {
+        	    int v = loginSvc.login(uc);
+        	    boolean r = true;
+                if (v == LoginService.CONNECTED) {
+                    singleton.activateAgents();
+                } else {
+                    //Check if the splashscreen is up.
+                    Boolean b = (Boolean) singleton.registry.lookup(
+                            LookupNames.LOGIN_SPLASHSCREEN);
+                    if (b != null && !b.booleanValue()) {
+                       r = false;
+                    }
+                }
+                if (r) {
+                    return Container.getInstance();
+                }
+                singleton = null;
+        	}
+        	
         }
         
         //Initialize services as usual though.
