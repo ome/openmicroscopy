@@ -317,7 +317,7 @@ class SessionsControl(BaseControl):
         # If they've omitted some required value, we must ask for it.
         #
         if not server:
-            server, name, port = self._get_server(store, name)
+            server, name, port = self._get_server(store, name, port)
         if not name:
             name = self._get_username(previous[1])
 
@@ -638,11 +638,13 @@ class SessionsControl(BaseControl):
             name = default_name
         return server, name, port
 
-    def _get_server(self, store, name):
+    def _get_server(self, store, name, port):
         defserver = store.last_host()
-        rv = self.ctx.input("Server: [%s]" % defserver)
+        if not port:
+            port = str(omero.constants.GLACIER2PORT)
+        rv = self.ctx.input("Server: [%s:%s]" % (defserver, port))
         if not rv:
-            return defserver, name, None
+            return defserver, name, port
         else:
             return self._parse_conn(rv, name)
 

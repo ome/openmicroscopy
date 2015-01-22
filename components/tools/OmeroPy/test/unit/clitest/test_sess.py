@@ -135,8 +135,8 @@ class MyCLI(CLI):
     def throw_on_create(self, e):
         self.STORE.exceptions.append(e)
 
-    def requests_host(self, host="testhost"):
-        self.REQRESP["Server: [localhost]"] = host
+    def requests_host(self, host="testhost", port="4064"):
+        self.REQRESP["Server: [localhost:%s]" % port] = host
 
     def requests_user(self, user='testuser'):
         self.REQRESP["Username: [%s]" % get_user("Unknown")] = user
@@ -366,6 +366,21 @@ class TestSessions(object):
         cli.invoke("s login testuser@testhost:4444".split())
         cli.assertReqSize(self, 0)
 
+    def testInteractiveLoginNonDefaultPort(self):
+        cli = MyCLI()
+        cli.STORE.add("testhost", "testuser", "testsessid",
+                      {"omero.port": "4444"})
+        cli.assertReqSize(self, 0)
+        cli.creates_client(port="4444", new=False)
+        cli.requests_host()
+        cli.requests_user("testuser")
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke("s login".split())
+        cli.requests_host("testhost:4444", port="4064")
+        cli.requests_user("testuser")
+        cli.invoke("s login".split())
+        cli.assertReqSize(self, 0)
+
     def testLogicOfConflictsOnNoLocalhostRequested(self):
         cli = MyCLI()
         cli.creates_client()
@@ -376,7 +391,7 @@ class TestSessions(object):
     def testPortThenNothingShouldReuse(self):
         cli = MyCLI()
         cli.creates_client(port="4444")
-        cli.requests_host()
+        cli.requests_host(port="4444")
         cli.requests_user()
         cli.requests_pass()
         cli.invoke("-p 4444 s login")
