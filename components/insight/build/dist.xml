@@ -561,7 +561,8 @@
       <zipfileset file="${dist.dir}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
                   fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
                   filemode="775"/>
-      <zipfileset prefix="${dist.zip.prefix.osx}" file="${dist.osx.installfile}"/>
+      <zipfileset prefix="${dist.zip.prefix.osx}"
+                  file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
                   fullpath="${dist.zip.prefix.osx}/LICENSE"/>
     </zip>
