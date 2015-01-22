@@ -26,6 +26,7 @@
 
         // we are only ever editing a single cell at once:
         var $input,
+            inputEdited = false,
             saveInProgress = false,
             saveTimeout,
             $lastRow = $("<tr class='placeholder'><td>Add Key</td><td>Add Value</td></tr>"),
@@ -43,7 +44,10 @@
                 $td.html(val);
 
                 // save to server
-                saveMapAnnotation($table);
+                if (inputEdited) {
+                    saveMapAnnotation($table);
+                }
+                inputEdited = false;
             }
         };
 
@@ -355,6 +359,8 @@
                         startNewRow($td.parent());
                     }
                     break;
+                default:
+                    inputEdited = true;
             }
 
             // Ignore Tab
