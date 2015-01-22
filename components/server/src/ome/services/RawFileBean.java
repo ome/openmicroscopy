@@ -198,8 +198,13 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             return true;
         }
 
-        // re-load size in DB
-        long dbSize = iQuery.get(OriginalFile.class, id).getSize();
+        // check that the real file size doesn't differ from the DB.
+        // If there's no file, though, we can't lookup anyway.
+        if (file == null || buffer == null || file.getSize() == null) {
+            return false;
+        }
+
+        long dbSize = file.getSize();
         long fileSize = size();
         return dbSize != fileSize;
     }
