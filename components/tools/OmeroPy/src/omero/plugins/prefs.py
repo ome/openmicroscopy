@@ -52,7 +52,7 @@ def getprefs(args, dir):
     """
     if not isinstance(args, list):
         raise Exception("Not a list")
-    cmd = ["prefs"]+list(args)
+    cmd = ["prefs"] + list(args)
     return omero.java.run(cmd, chdir=dir)
 
 
@@ -136,6 +136,9 @@ class PrefsControl(WriteableConfigControl):
         get.set_defaults(func=self.get)
         get.add_argument(
             "KEY", nargs="*", help="Names of keys in the current profile")
+        get.add_argument(
+            "--hide-password", action="store_true",
+            help="Hide values of password keys in the current profile")
 
         set = parser.add(
             sub, self.set,
@@ -264,13 +267,18 @@ class PrefsControl(WriteableConfigControl):
             for k in config.IGNORE:
                 k in keys and keys.remove(k)
 
+        hide_password = 'hide_password' in args and args.hide_password
+        is_password = lambda x: x.endswith('.pass') or x.endswith('.password')
         for k in keys:
             if k not in orig:
                 continue
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                self.ctx.out("%s=%s" % (k, config[k]))
+                if (hide_password and is_password(k)):
+                    self.ctx.out("%s=%s" % (k, '*' * len(config[k])))
+                else:
+                    self.ctx.out("%s=%s" % (k, config[k]))
 
     @with_rw_config
     def set(self, args, config):
