@@ -14,22 +14,34 @@ clean()
     ant clean
 }
 
-build_java()
+java_build()
 {
     TEST="-p" ant build-default test-compile -Dpackage-extra=false
+}
+
+java_test()
+{
     ant -f components/tools/OmeroJava/build.xml test -Dtest.with.fail=true
     ant -f components/model/build.xml test -Dtest.with.fail=true
     ant -f components/common/build.xml test -Dtest.with.fail=true
 }
 
-build_python()
+py_flake8()
 {
     flake8 -v components/tools/OmeroPy/src
     flake8 -v components/tools/OmeroPy/test
     flake8 -v components/tools/OmeroWeb/omeroweb/webstart
     flake8 -v components/tools/OmeroWeb/omeroweb/webredirect
     flake8 -v components/tools/OmeroWeb/test
+}
+
+py_build()
+{
     ant build-default -Dpackage-extra=false
+}
+
+py_test()
+{
     ant -f components/tools/OmeroPy/build.xml test -Dtest.with.fail=true
     ant -f components/tools/OmeroWeb/build.xml test -Dtest.with.fail=true
     # make sure all OmeroWeb Python modules can be imported
@@ -55,9 +67,21 @@ do
         clean)
             clean ;;
         build-java)
-            build_java ;;
+            java_build && java_test ;;
         build-python)
-            build_python ;;
+            py_flake8 && py_build && py_test ;;
+        java-build)
+            java_build ;;
+        java-test)
+            java_test ;;
+        py-flake8)
+            py_flake8;;
+        py-build)
+            py_build ;;
+        py-test)
+            py_test ;;
+        all)
+            py_flake8 java_build java_test py_test ;;
         *)
             echo "Invalid argument: \"$arg\"" >&2
             exit 1
