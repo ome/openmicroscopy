@@ -8,6 +8,11 @@ if [ -z "$ICE_HOME" ]; then
   export ICE_HOME=/usr/share/Ice
 fi
 
+fold()
+{
+    printf "travis_fold:$1:$NAME.$2\n"
+}
+
 # Clean up
 clean()
 {
@@ -16,14 +21,23 @@ clean()
 
 java_build()
 {
-    TEST="-p" ant build-default test-compile -Dpackage-extra=false
+    NAME=java_build
+    fold start default
+        TEST="-p" ant build-default -Dpackage-extra=false
+    fold end default
+    fold start tests
+        TEST="-p" ant test-compile
+    fold end tests
 }
 
 java_test()
 {
+    NAME=java_test
     for dir in dsl model common rendering romio server
     do
+        fold start $dir
         ant -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
+        fold end $dir
     done
 
     # make sure that the current db script has no code-generated
@@ -43,14 +57,23 @@ py_flake8()
 
 py_build()
 {
-    ant build-default -Dpackage-extra=false
+    NAME=py_build
+    fold start default
+        ant build-default -Dpackage-extra=false
+    fold end default
 }
 
 py_test()
 {
-    ant -f components/tools/OmeroPy/build.xml test -Dtest.with.fail=true
-    ant -f components/tools/OmeroFS/build.xml test -Dtest.with.fail=true
-    ant -f components/tools/OmeroWeb/build.xml test -Dtest.with.fail=true
+    NAME=py_test
+    for dir in OmeroPy OmeroFS OmeroWeb
+    do
+        fold start $dir
+        ant -f components/$dir/build.xml test -Dtest.with.fail=true
+        fold end $dir
+    done
+
+    fold start modules
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)
     echo Checking OmeroWeb Python imports
@@ -66,6 +89,7 @@ py_test()
         grep -B2 ImportError
       )
     test $? = 0
+    fold end modules
 }
 
 build_cpp()
