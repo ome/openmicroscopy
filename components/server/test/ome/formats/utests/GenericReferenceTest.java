@@ -278,7 +278,7 @@ public class GenericReferenceTest
         referenceCache.put("Well:0:0:0", new String[] { "Reagent:0:0" });
         store.updateReferences(referenceCache);
         Assert.assertNotNull(well.linkedReagentList());
-        Assert.assertEquals(1, well.linkedReagentList().size());
+        Assert.assertEquals(well.linkedReagentList().size(), 1);
         Assert.assertEquals(well.linkedReagentList().get(0), reagent);
     }
 
@@ -342,8 +342,8 @@ public class GenericReferenceTest
                 new String[] { "Filter:0:0:OMERO_EMISSION_FILTER" });
         store.updateReferences(referenceCache);
         LightPath lightPath = logicalChannel.getLightPath();
-        Assert.assertEquals(0, lightPath.sizeOfExcitationFilterLink());
-        Assert.assertEquals(1, lightPath.sizeOfEmissionFilterLink());
+        Assert.assertEquals(lightPath.sizeOfExcitationFilterLink(), 0);
+        Assert.assertEquals(lightPath.sizeOfEmissionFilterLink(), 1);
         Assert.assertEquals(
                 lightPath.linkedEmissionFilterIterator().next(), filter);
     }
@@ -356,8 +356,8 @@ public class GenericReferenceTest
                 new String[] { "Filter:0:0:OMERO_EXCITATION_FILTER" });
         store.updateReferences(referenceCache);
         LightPath lightPath = logicalChannel.getLightPath();
-        Assert.assertEquals(1, lightPath.sizeOfExcitationFilterLink());
-        Assert.assertEquals(0, lightPath.sizeOfEmissionFilterLink());
+        Assert.assertEquals(lightPath.sizeOfExcitationFilterLink(), 1);
+        Assert.assertEquals(lightPath.sizeOfEmissionFilterLink(), 0);
         Assert.assertEquals(
                 lightPath.linkedExcitationFilterIterator().next(), filter);
     }
