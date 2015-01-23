@@ -30,8 +30,6 @@
     <dependency org="org.apache.ant" name="ant" rev="${versions.ant}"/>
     <dependency org="velocity-tools" name="velocity-tools-generic" rev="${versions.velocity-tools}"/>
     <dependency org="velocity" name="velocity" rev="${versions.velocity}"/>
-    <dependency org="emma" name="emma" rev="${versions.emma}"/>
-    <dependency org="emma" name="emma_ant" rev="${versions.emma}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
     <!-- spring -->
     <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->default"/>
