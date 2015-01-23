@@ -220,7 +220,7 @@ public final class Container
 	            !FilenameUtils.isExtension(configFile, "xml"))
 			configFile = CONFIG_FILE;
 		this.configFile = configFile;
-        if (StringUtils.isBlank(FilenameUtils.getPath(home)) )
+        if (StringUtils.isBlank(FilenameUtils.getPath(home)))
             home = System.getProperty("user.dir");
         File f = new File(home);
 		
