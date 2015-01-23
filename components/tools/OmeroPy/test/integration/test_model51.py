@@ -79,7 +79,7 @@ class TestModel51(lib.ITest):
         # once it has been dropped.
         UL = [getattr(UL, x) for x in sorted(UL._names)]
 
-    @pytest.mark.parametrize("ul", UL)
+    @pytest.mark.parametrize("ul", UL, ids = [str(x) for x in UL])
     def testAllLengths(self, ul):
         one = omero.model.LengthI()
         one.setValue(1.0)
