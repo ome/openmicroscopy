@@ -216,7 +216,9 @@ def template_xml():
 class TestAdjustStrategy(object):
 
     @pytest.mark.parametrize("fixture", AFS, ids=[x.name for x in AFS])
-    def test_adjust(self, fixture):
+    def test_adjust(self, fixture, monkeypatch):
+        monkeypatch.setattr(Strategy, '_system_memory_mb_java',
+                            lambda x: (2000, 4000))
         p = write_config(fixture.input)
         xml = template_xml()
         config = ConfigXml(filename=str(p), env_config="default")
