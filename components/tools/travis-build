@@ -14,9 +14,13 @@ clean()
     ant clean
 }
 
-build_java()
+java_build()
 {
     TEST="-p" ant build-default test-compile -Dpackage-extra=false
+}
+
+java_test()
+{
     for dir in dsl model common rendering romio server
     do
         ant -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
@@ -32,10 +36,18 @@ build_java()
     }
 }
 
-build_python()
+py_flake8()
 {
     flake8 .
+}
+
+py_build()
+{
     ant build-default -Dpackage-extra=false
+}
+
+py_test()
+{
     ant -f components/tools/OmeroPy/build.xml test -Dtest.with.fail=true
     ant -f components/tools/OmeroFS/build.xml test -Dtest.with.fail=true
     ant -f components/tools/OmeroWeb/build.xml test -Dtest.with.fail=true
@@ -88,12 +100,24 @@ do
     case $arg in
         clean)
             clean ;;
-        build-java)
-            build_java ;;
-        build-python)
-            build_python ;;
         build-cpp)
             build_cpp ;;
+        build-java)
+            java_build && java_test ;;
+        build-python)
+            py_flake8 && py_build && py_test ;;
+        java-build)
+            java_build ;;
+        java-test)
+            java_test ;;
+        py-flake8)
+            py_flake8;;
+        py-build)
+            py_build ;;
+        py-test)
+            py_test ;;
+        all)
+            py_flake8 java_build java_test py_test ;;
         *)
             echo "Invalid argument: \"$arg\"" >&2
             exit 1
