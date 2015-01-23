@@ -11,15 +11,15 @@ fi
 # Clean up
 clean()
 {
-    ./build.py clean
+    ant clean
 }
 
 build_java()
 {
-    TEST="-p" ./build.py build-default test-compile -Dpackage-extra=false
+    TEST="-p" ant build-default test-compile -Dpackage-extra=false
     for dir in dsl model common rendering romio server
     do
-        ./build.py -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
+        ant -f components/$dir/build.xml test -Dtest.with.fail=true -Dtestng.useDefaultListeners=true
     done
 
     # make sure that the current db script has no code-generated
@@ -35,10 +35,10 @@ build_java()
 build_python()
 {
     flake8 .
-    ./build.py build-default -Dpackage-extra=false
-    ./build.py -py test -Dtest.with.fail=true -DMARK="not broken"
-    ./build.py -fs test -Dtest.with.fail=true -DMARK="not broken"
-    ./build.py -web test -Dtest.with.fail=true -DMARK="not broken"
+    ant build-default -Dpackage-extra=false
+    ant -f components/tools/OmeroPy/build.xml test -Dtest.with.fail=true
+    ant -f components/tools/OmeroFS/build.xml test -Dtest.with.fail=true
+    ant -f components/tools/OmeroWeb/build.xml test -Dtest.with.fail=true
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)
     echo Checking OmeroWeb Python imports
