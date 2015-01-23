@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.GraphicsPane 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -142,27 +142,28 @@ class GraphicsPane
      */
     private String formatValue(double value)
     {
-        if (model.getRoundFactor() == 1) return ""+(int) value;
-        return UIUtilities.formatToDecimal(value);
+    	if (model.isIntegerPixelData())
+            return ""+(int) value;
+        else
+            return UIUtilities.formatToDecimal(value);
     }
 
     /** Initializes the domain slider. */
     private void initDomainSlider()
     {
-        int f = model.getRoundFactor();
-        int s = (int) (model.getWindowStart()*f);
-        int e = (int) (model.getWindowEnd()*f);
-        int absMin = (int) (model.getLowestValue()*f);
-        int absMax = (int) (model.getHighestValue()*f);
-        int min = (int) (model.getGlobalMin()*f);
-        int max = (int) (model.getGlobalMax()*f);
+    	int s = (int) model.getWindowStart();
+        int e = (int) model.getWindowEnd();
+        int absMin = (int) model.getLowestValue();
+        int absMax = (int) model.getHighestValue();
+        int min = (int) model.getGlobalMin();
+        int max = (int) model.getGlobalMax();
         double range = (max-min)*RATIO;
         int lowestBound = (int) (min-range);
         if (lowestBound < absMin) lowestBound = absMin;
         int highestBound = (int) (max+range);
         if (highestBound > absMax) highestBound = absMax;
         domainSlider.setValues(max, min, highestBound, lowestBound,
-                max, min, s, e, f);
+                max, min, s, e);
         if (model.getMaxC() > Renderer.MAX_CHANNELS)
             domainSlider.setInterval(min, max);
     }
@@ -329,14 +330,13 @@ class GraphicsPane
     /** Sets the pixels intensity interval. */
     void setInputInterval()
     {
-        int f, s, e;
+    	double s, e;
         Iterator<ChannelSlider> i = sliders.iterator();
         ChannelSlider slider;
         while (i.hasNext()) {
             slider = i.next();
-            f = model.getRoundFactor(slider.getIndex());
-            s = (int) (model.getWindowStart(slider.getIndex())*f);
-            e = (int) (model.getWindowEnd(slider.getIndex())*f);
+            s = model.getWindowStart(slider.getIndex());
+            e = model.getWindowEnd(slider.getIndex());
             slider.setInterval(s, e);
         }
     }
@@ -429,7 +429,7 @@ class GraphicsPane
      */
     int getPartialMinimum()
     { 
-        return domainSlider.getSlider().getPartialMinimum();
+    	return (int)domainSlider.getSlider().getPartialMinimum();
     }
 
     /**
@@ -439,7 +439,7 @@ class GraphicsPane
      */
     int getPartialMaximum()
     { 
-        return domainSlider.getSlider().getPartialMaximum();
+    	return (int)domainSlider.getSlider().getPartialMaximum();
     }
 
     /** 
@@ -579,9 +579,9 @@ class GraphicsPane
      */
     public void propertyChange(PropertyChangeEvent evt)
     {
-        String name = evt.getPropertyName();
+    	String name = evt.getPropertyName();
         Object source = evt.getSource();
-        if (!controlsBar.isLiveUpdate()) {
+        if (!isLiveUpdate()) {
             if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
                 paintHorizontal = false;
                 paintVertical = false;
@@ -590,34 +590,32 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
             } else if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)){
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getStartValue()
-                                    *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getStartValue());
                     paintHorizontal = false;
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getEndValue();
+                    horizontalLine = codomainSlider.getEndValueAsInt();
                     paintHorizontal = true;
                     paintVertical = false;
                     onCurveChange();
                 }
             } else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
                 if (source.equals(domainSlider)) {
-                    verticalLine = (int) (domainSlider.getEndValue()
-                            *domainSlider.getRoundingFactor());
+                    verticalLine = (int) (domainSlider.getEndValue());
                     horizontalLine = -1;
                     paintHorizontal = false;
                     paintVertical = true;
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    horizontalLine = codomainSlider.getStartValue();
+                    horizontalLine = codomainSlider.getStartValueAsInt();
                     verticalLine = -1;
                     paintHorizontal = true;
                     paintVertical = false;
@@ -634,8 +632,8 @@ class GraphicsPane
                             domainSlider.getEndValue());
                     onCurveChange();
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }
@@ -644,8 +642,8 @@ class GraphicsPane
                     controller.setInputInterval(domainSlider.getStartValue(),
                             domainSlider.getEndValue());
                 } else if (source.equals(codomainSlider)) {
-                    int s = codomainSlider.getStartValue();
-                    int e = codomainSlider.getEndValue();
+                    int s = codomainSlider.getStartValueAsInt();
+                    int e = codomainSlider.getEndValueAsInt();
                     controller.setCodomainInterval(s, e);
                     onCurveChange();
                 }

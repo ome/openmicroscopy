@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.FLIMResultsDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -936,8 +936,8 @@ public class FLIMResultsDialog
 		}else if(TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name) && evt.getSource().equals(thresholdSlider))
 		{
 
-			double startValue = calculateValue(thresholdSlider.getStartValue(),true);
-			double endValue = calculateValue(thresholdSlider.getEndValue(),false);
+			double startValue = calculateValue(thresholdSlider.getStartValueAsInt(),true);
+			double endValue = calculateValue(thresholdSlider.getEndValueAsInt(),false);
 	    	chartObject.setThreshold(startValue, endValue);
 	    	thresholdSliderMinValue.setText(UIUtilities.formatToDecimal(startValue));
 	    	thresholdSliderMaxValue.setText(UIUtilities.formatToDecimal(endValue));
