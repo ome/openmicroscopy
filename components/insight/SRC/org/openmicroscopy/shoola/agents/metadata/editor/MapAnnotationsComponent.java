@@ -398,7 +398,9 @@ public class MapAnnotationsComponent extends JPanel implements
 	 */
 	@SuppressWarnings("unchecked")
 	private MapTable createMapTable(MapAnnotationData m) {
-		boolean editable = (isUsers(m) && model.canAnnotate()) || model.canEdit(m);
+		boolean editable = (isUsers(m) && (model.canAnnotate()))
+				|| (model.canEdit(m) && MapAnnotationData.NS_CLIENT_CREATED
+						.equals(m.getNameSpace()));
 
 		if (!editable
 				&& (m.getContent() == null || ((List<NamedValue>) m
