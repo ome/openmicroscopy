@@ -17,11 +17,13 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.MapAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TermAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
+import ome.model.internal.NamedValue;
 import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
@@ -207,6 +209,10 @@ public class FullTextBridge extends BridgeHelper {
                     FileAnnotation fileAnnotation = (FileAnnotation) annotation;
                     handleFileAnnotation(document, opts,
                             fileAnnotation);
+                } else if (annotation instanceof MapAnnotation) {
+                    MapAnnotation fileAnnotation = (MapAnnotation) annotation;
+                    handleMapAnnotation(document, opts,
+                            fileAnnotation);
                 }
             }
         }
@@ -352,6 +358,30 @@ public class FullTextBridge extends BridgeHelper {
                 add(document, "file.mimetype", file.getMimetype(), opts);
             }
             addContents(document, "file.contents", file, files, parsers, opts);
+        }
+    }
+
+    /**
+     * Creates {@link Field} instances for {@link MapAnnotation} named-value
+     * pair.
+     *
+     * @param document
+     * @param store
+     * @param index
+     * @param boost
+     * @param mapAnnotation
+     */
+    private void handleMapAnnotation(final Document document,
+            final LuceneOptions opts, MapAnnotation mapAnnotation) {
+
+        List<NamedValue> nvs = mapAnnotation.getMapValue();
+        if (nvs != null && nvs.size() > 0) {
+            for (NamedValue nv : nvs) {
+                if (nv != null) {
+                    add(document, nv.getName(), nv.getValue(), opts);
+                    add(document, "map.key", nv.getName(), opts);
+                }
+            }
         }
     }
 
