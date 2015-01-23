@@ -11,15 +11,15 @@ fi
 # Clean up
 clean()
 {
-    ./build.py clean
+    ant clean
 }
 
 build_java()
 {
-    TEST="-p" ./build.py build-default test-compile -Dpackage-extra=false
-    ./build.py -java test -Dtest.with.fail=true
-    ./build.py -f components/model/build.xml test -Dtest.with.fail=true
-    ./build.py -f components/common/build.xml test -Dtest.with.fail=true
+    TEST="-p" ant build-default test-compile -Dpackage-extra=false
+    ant -f components/tools/OmeroJava/build.xml test -Dtest.with.fail=true
+    ant -f components/model/build.xml test -Dtest.with.fail=true
+    ant -f components/common/build.xml test -Dtest.with.fail=true
 }
 
 build_python()
@@ -29,9 +29,9 @@ build_python()
     flake8 -v components/tools/OmeroWeb/omeroweb/webstart
     flake8 -v components/tools/OmeroWeb/omeroweb/webredirect
     flake8 -v components/tools/OmeroWeb/test
-    ./build.py build-default -Dpackage-extra=false
-    ./build.py -py test -Dtest.with.fail=true
-    ./build.py -web test -Dtest.with.fail=true
+    ant build-default -Dpackage-extra=false
+    ant -f components/tools/OmeroPy/build.xml test -Dtest.with.fail=true
+    ant -f components/tools/OmeroWeb/build.xml test -Dtest.with.fail=true
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)
     echo Checking OmeroWeb Python imports
