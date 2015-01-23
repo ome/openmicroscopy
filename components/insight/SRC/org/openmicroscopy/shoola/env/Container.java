@@ -34,6 +34,8 @@ import java.util.Set;
 
 
 
+
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
@@ -215,10 +217,10 @@ public final class Container
 		throws StartupException
 	{
 	    if (StringUtils.isBlank(configFile) ||
-	            FilenameUtils.isExtension(configFile, "xml"));
+	            !FilenameUtils.isExtension(configFile, "xml"))
 			configFile = CONFIG_FILE;
 		this.configFile = configFile;
-        if (StringUtils.isBlank(home))
+        if (StringUtils.isBlank(FilenameUtils.getPath(home)) )
             home = System.getProperty("user.dir");
         File f = new File(home);
 		
@@ -226,7 +228,6 @@ public final class Container
 		//translation is system dependent. 
 		f = f.getAbsoluteFile();
 		homeDir = f.getAbsolutePath();
-		
 		//Make sure that what we've got is a directory. 
 		if (!f.exists() || !f.isDirectory())
 			throw new StartupException("Can't locate home dir: "+homeDir);
