@@ -207,12 +207,10 @@ public class FullTextBridge extends BridgeHelper {
                     }
                 } else if (annotation instanceof FileAnnotation) {
                     FileAnnotation fileAnnotation = (FileAnnotation) annotation;
-                    handleFileAnnotation(document, opts,
-                            fileAnnotation);
+                    handleFileAnnotation(document, opts, fileAnnotation);
                 } else if (annotation instanceof MapAnnotation) {
-                    MapAnnotation fileAnnotation = (MapAnnotation) annotation;
-                    handleMapAnnotation(document, opts,
-                            fileAnnotation);
+                    MapAnnotation mapAnnotation = (MapAnnotation) annotation;
+                    handleMapAnnotation(document, opts, mapAnnotation);
                 }
             }
         }
@@ -222,7 +220,9 @@ public class FullTextBridge extends BridgeHelper {
         if (object instanceof FileAnnotation) {
             FileAnnotation fileAnnotation = (FileAnnotation) object;
             handleFileAnnotation(document, opts, fileAnnotation);
-
+        } else if (object instanceof MapAnnotation) {
+            MapAnnotation mapAnnotation = (MapAnnotation) object;
+            handleMapAnnotation(document, opts, mapAnnotation);
         }
     }
 
@@ -373,11 +373,12 @@ public class FullTextBridge extends BridgeHelper {
      */
     private void handleMapAnnotation(final Document document,
             final LuceneOptions opts, MapAnnotation mapAnnotation) {
-
+logger().error("handling map annotation");
         List<NamedValue> nvs = mapAnnotation.getMapValue();
         if (nvs != null && nvs.size() > 0) {
             for (NamedValue nv : nvs) {
                 if (nv != null) {
+logger().error("{}={}", nv.getName(), nv.getValue());
                     add(document, nv.getName(), nv.getValue(), opts);
                     add(document, "map.key", nv.getName(), opts);
                 }

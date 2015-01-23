@@ -389,3 +389,32 @@ class TestSearch(lib.ITest):
             ]
         finally:
             search.close()
+
+    def test_map_annotations(self):
+        client = self.new_client()
+        key = "k" + self.simple_uuid()
+        val = "v" + self.simple_uuid()
+        ann = omero.model.MapAnnotationI()
+        ann.setMapValue([
+            omero.model.NamedValue(key, val)
+        ])
+        proj = omero.model.ProjectI()
+        proj.name = omero.rtypes.rstring("test_map_annotations")
+        proj.linkAnnotation(ann)
+        proj = client.sf.getUpdateService().saveAndReturnObject(proj)
+        self.root.sf.getUpdateService().indexObject(proj)
+
+        search = client.sf.createSearchService()
+        search.onlyType("Project")
+
+        try:
+            for txt in (key, val,
+                        "%s:%s" % (key, val),
+                        "map.key:%s" % key):
+                search.byFullText(txt)
+                assert search.hasNext(), txt
+                assert proj.id.val in [
+                    x.id.val for x in search.results()
+                ], txt
+        finally:
+            search.close()
