@@ -275,6 +275,26 @@ class TestStore(object):
 
 class TestSessions(object):
 
+    CONNECTION_TYPES = ["string", "prefixed_string", "options"]
+
+    def get_conn_args(self, conn_type, host="testhost", name="testuser",
+                      port=None):
+        if conn_type == "string":
+            pattern = "%s@%s"
+        elif conn_type == "prefixed_string":
+            pattern = "-s %s@%s"
+        else:
+            pattern = "-u %s -s %s"
+        args = pattern % (name, host)
+
+        if port:
+            if conn_type == "options":
+                args += " -p %s" % port
+            else:
+                args += ":%s" % port
+
+        return args.split()
+
     def testLoginWithNoArgumentsRequests(self):
         cli = MyCLI()
         cli.requests_host()
@@ -284,86 +304,83 @@ class TestSessions(object):
         cli.invoke(["s", "login"])
         assert 0 == cli.rv
 
-    def test2(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testLoginWithConnectionArguments(self, connection):
         cli = MyCLI()
         cli.requests_pass()
-        cli.creates_client(name="user")
-        cli.invoke(["s", "login", "user@host"])
+        cli.creates_client(name="testuser")
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login"] + conn_args)
         assert 0 == cli.rv
 
-    def test3(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testPasswordArgument(self, connection):
         cli = MyCLI()
-        cli.creates_client(name="user")
-        cli.invoke(["-s", "localhost", "-u", "user", "-w", "pasw", "s",
-                    "login"])
+        cli.creates_client(name="testuser")
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login", "-w", "pasw"] + conn_args)
         assert 0 == cli.rv
 
-    def test4(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testKeyArgument(self, connection):
         cli = MyCLI()
         cli.STORE.add("testhost", "testuser", "key", {})
         cli.creates_client(sess="key", new=False)
-        cli.invoke(["-s", "testuser@testhost", "-k", "key", "s", "login"])
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login", "-k", "key"] + conn_args)
         assert 0 == cli.rv
 
-    def testReuseWorks(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testReuseWorks(self, connection):
         cli = MyCLI()
         cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.creates_client(new=False)
-        cli.invoke("-s testhost -u testuser s login".split())
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login"] + conn_args)
         assert cli.get_client() is not None
 
-    def testReuseFromDifferentGroupDoesntWork(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testReuseFromDifferentGroupDoesntWork(self, connection):
         cli = MyCLI()
         cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.requests_pass()
         cli.assertReqSize(self, 1)
         cli.creates_client(group="mygroup2")
-        cli.invoke("-s testhost -u testuser -g mygroup2 s login".split())
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login", "-g", "mygroup2"] + conn_args)
         cli.assertReqSize(self, 0)
 
-    def testReuseFromSameGroupDoesWork(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testReuseFromSameGroupDoesWork(self, connection):
         cli = MyCLI()
         cli.STORE.add("testhost", "testuser", "testsessid",
                       {"omero.group": "mygroup"})
         cli.assertReqSize(self, 0)
         cli.creates_client(group="mygroup", new=False)
-        cli.invoke("-s testhost -u testuser -g mygroup s login".split())
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login", "-g", "mygroup"] + conn_args)
         cli.assertReqSize(self, 0)
 
-    def testReuseFromDifferentPortDoesntWork(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testReuseFromDifferentPortDoesntWork(self, connection):
         cli = MyCLI()
         cli.STORE.add("testhost", "testuser", "testsessid", {})
         cli.requests_pass()
         cli.assertReqSize(self, 1)
         cli.creates_client(port="4444")
-        cli.invoke("-s testhost -u testuser -p 4444 s login".split())
+        conn_args = self.get_conn_args(connection, port="4444")
+        cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
-    def testReuseFromDifferentPortDoesntWork_4072(self):
-        cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid", {})
-        cli.requests_pass()
-        cli.assertReqSize(self, 1)
-        cli.creates_client(port="4444")
-        cli.invoke("s login testuser@testhost:4444".split())
-        cli.assertReqSize(self, 0)
-
-    def testReuseFromSamePortDoesWork(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testReuseFromSamePortDoesWork(self, connection):
         cli = MyCLI()
         cli.STORE.add("testhost", "testuser", "testsessid",
                       {"omero.port": "4444"})
         cli.assertReqSize(self, 0)
         cli.creates_client(port="4444", new=False)
-        cli.invoke("-s testhost -u testuser -p 4444 s login".split())
-        cli.assertReqSize(self, 0)
-
-    def testReuseFromSamePortDoesWork_4072(self):
-        cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid",
-                      {"omero.port": "4444"})
-        cli.assertReqSize(self, 0)
-        cli.creates_client(port="4444", new=False)
-        cli.invoke("s login testuser@testhost:4444".split())
+        conn_args = self.get_conn_args(connection, port="4444")
+        cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
     def testInteractiveLoginNonDefaultPort(self):
@@ -401,7 +418,8 @@ class TestSessions(object):
         cli.invoke("s login")  # Should work. No conflict
         del cli
 
-    def testBadSessionKeyDies(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testBadSessionKeyDies(self, connection):
         """
         As seen in ticket 4223, when a bad session is
         provided, a password shouldn't be asked for.
@@ -413,15 +431,14 @@ class TestSessions(object):
         # First, successful login
         cli.creates_client(sess=MOCKKEY)
         cli.requests_pass()
-        cli.invoke("-s testuser@testhost s login")
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)  # All were requested
         cli.set_client(None)  # Forcing new instance
 
-        key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
-
         # Now try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=False)
-        cli.invoke(key_login)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
         cli.set_client(None)  # Forcing new instance
 
         # Don't do creates_client, so the session key
@@ -429,7 +446,7 @@ class TestSessions(object):
         cli.throw_on_create(
             Glacier2.PermissionDeniedException("MOCKKEY EXPIRED"))
         try:
-            cli.invoke(key_login)
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
             assert False, "This must throw 'Bad session key'"
         except NonZeroReturnCode:
             pass
@@ -437,7 +454,8 @@ class TestSessions(object):
 
         del cli
 
-    def testCopiedSessionWorks(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def testCopiedSessionWorks(self, connection):
         """
         Found by Colin while using a session key from
         a non-CLI-source.
@@ -446,27 +464,27 @@ class TestSessions(object):
 
         MOCKKEY = "MOCKKEY%s" % uuid.uuid4()
 
-        key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
-
         # Try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=True)
-        cli.invoke(key_login)
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
         cli.set_client(None)  # Forcing new instance
 
     def assert5975(self, key, cli):
         host, name, uuid, port = cli.STORE.get_current()
         assert key != name
 
-    def test5975(self):
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    def test5975(self, connection):
         """
         Runs various tests which try to force the stored user name
         to be a session uuid (which should never happen)
         """
         cli = MyCLI()
         key = str(uuid.uuid4())
-        key_login = "-s testuser@testhost -k %s s login" % key
         cli.creates_client(sess=key, new=True)
-        cli.invoke(key_login)
+        conn_args = self.get_conn_args(connection)
+        cli.invoke(["s", "login", "-k", "%s" % key] + conn_args)
         self.assert5975(key, cli)
 
         cli.invoke("s logout")
