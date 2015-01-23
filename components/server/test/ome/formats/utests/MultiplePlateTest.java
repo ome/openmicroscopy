@@ -76,7 +76,7 @@ public class MultiplePlateTest
             dichroic.setModel("Dichroic:" + d);
             indexes =  new LinkedHashMap<String, Integer>();
             indexes.put("instrumentIndex", 0);
-            indexes.put("dichroicIndex", 0);
+            indexes.put("dichroicIndex", d);
             store.updateObject(
                     String.format("Dichroic:0:%d", d), dichroic, indexes);
         }
