@@ -25,10 +25,6 @@ from omero.cli import CLI
 from omero.plugins.web import WebControl
 from omeroweb import settings
 
-subcommands = [
-    "start", "stop", "restart", "status", "iis", "config", "syncmedia",
-    "clearsessions"]
-
 
 class TestWeb(object):
 
@@ -65,7 +61,7 @@ class TestWeb(object):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('subcommand', subcommands)
+    @pytest.mark.parametrize('subcommand', WebControl().get_subcommands())
     def testSubcommandHelp(self, subcommand):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)

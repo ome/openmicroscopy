@@ -40,7 +40,7 @@ from omero_ext.argparse import ArgumentError
 from omero_ext.argparse import ArgumentParser
 from omero_ext.argparse import FileType
 from omero_ext.argparse import Namespace
-
+from omero_ext.argparse import _SubParsersAction
 # Help text
 from omero_ext.argparse import RawTextHelpFormatter
 from omero_ext.argparse import SUPPRESS
@@ -776,6 +776,19 @@ class BaseControl(object):
                 continue
             break
         return root_pass
+
+    def get_subcommands(self):
+        """Return a list of subcommands"""
+        parser = Parser()
+        self._configure(parser)
+        subparsers_actions = [action for action in parser._actions
+                              if isinstance(action, _SubParsersAction)]
+
+        subcommands = []
+        for subparsers_action in subparsers_actions:
+            for choice, subparser in subparsers_action.choices.items():
+                subcommands.append(format(choice))
+        return subcommands
 
     ###############################################
     #
