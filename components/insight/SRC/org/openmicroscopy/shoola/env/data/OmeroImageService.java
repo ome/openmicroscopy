@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -150,11 +150,13 @@ public interface OmeroImageService
 	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
+	 * @param compression The compression level.
 	 * @return The image representing the plane.
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderImage(SecurityContext ctx,
-		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage)
+		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage,
+		int compression)
 		throws RenderingServiceException;
 
     /**
