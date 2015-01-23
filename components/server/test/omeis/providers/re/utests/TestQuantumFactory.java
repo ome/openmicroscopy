@@ -31,7 +31,12 @@ public class TestQuantumFactory extends QuantumFactory {
     {
     	this.strategy = strategy;
     }
-    
+
+    public void setStrategy(QuantumStrategy strategy)
+    {
+        this.strategy = strategy;
+    }
+
     public QuantumStrategy getStrategy(QuantumDef qd, PixelsType pixelsType)
     {
     	if (strategy == null)
