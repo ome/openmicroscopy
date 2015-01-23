@@ -64,11 +64,7 @@ class AbstractMonitor(object):
 
         # Now try to import the correct MonitorServer package
         import fsUtil
-        try:
-            PlatformMonitor = __import__(
-                fsUtil.monitorPackage(platformCheck))
-        except:
-            raise
+        PlatformMonitor = __import__(fsUtil.monitorPackage(platformCheck))
 
         self.proxy = proxy
         self.monitorId = monitorId
