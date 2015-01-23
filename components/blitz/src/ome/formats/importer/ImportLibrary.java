@@ -560,6 +560,9 @@ public class ImportLibrary implements IObservable
                 this.container = container;
                 this.logFileId = loadLogFile();
                 initializationDone();
+                notifyObservers(new ImportEvent.IMPORT_STARTED(
+                        0, this.container.getFile().getAbsolutePath(),
+                        null, null, 0, null, 0, 0, logFileId));
         }
 
         protected Long loadLogFile() throws ServerError {
