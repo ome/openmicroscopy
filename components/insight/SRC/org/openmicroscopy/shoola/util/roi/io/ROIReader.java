@@ -217,7 +217,9 @@ public class ROIReader {
             r = rois[i];
             roiData = new ROIData();
             type = r.getTypeAsString();
-            roiData.setImage(new ImageI(imageID, false));
+            if (imageID >=0) {
+                roiData.setImage(new ImageI(imageID, false));
+            }
             pojos.add(roiData);
             if (r.isDrawingTool()) {//Checks if the given roi is a Text box/Arrow/Rounded Rectangle
                 if (type.matches("Text")){
@@ -293,6 +295,18 @@ public class ROIReader {
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
         return read(imageID, manager.getRoisAsArray());
+    }
+
+    /**
+     * Reads the rois from the ROI manager.
+     *
+     * @return See above.
+     */
+    public List<ROIData> readImageJROI()
+    {
+        RoiManager manager = RoiManager.getInstance();
+        if (manager == null) return null;
+        return read(-1, manager.getRoisAsArray());
     }
 
 }

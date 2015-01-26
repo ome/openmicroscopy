@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,8 @@ import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
+import omero.model.ImageI;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.ScreenData;
@@ -554,33 +557,78 @@ class ImporterModel
      * Saves the roi if any associated to the image.
      *
      * @param c The component to handle.
-     * @param ids The images to handle.
+     * @param images The images to handle.
      */
-    void saveROI(FileImportComponent c, List<Long> ids)
+    void saveROI(FileImportComponent c, List<ImageData> images)
     {
         FileObject object = c.getOriginalFile();
-        if (object.isImagePlus() && CollectionUtils.isNotEmpty(ids)) {
+        if (object.isImagePlus() && CollectionUtils.isNotEmpty(images)) {
             ROIReader reader = new ROIReader();
             SecurityContext ctx = new SecurityContext(c.getGroupID());
-            Iterator<Long> i = ids.iterator();
-            long id;
-            List<ROIData> rois;
+            Iterator<ImageData> i = images.iterator();
             ImagePlus img = (ImagePlus) object.getFile();
+            List<Object> files = object.getAssociatedFiles();
+            List<ROIData> rois;
+            Map<Integer, List<ROIData>> indexes =
+                new HashMap<Integer, List<ROIData>>();
+            int index;
+            if (CollectionUtils.isNotEmpty(files)) {
+                Iterator<Object> j = files.iterator();
+                Object o;
+                ImagePlus image;
+                while (j.hasNext()) {
+                    o = j.next();
+                    if (o instanceof ImagePlus) {
+                        image = (ImagePlus) o;
+                        index = 0; //determine indexes of image
+                        rois = reader.readImageJROI(-1, image);
+                        indexes.put(index, rois);
+                    }
+                }
+            }
+
+            //convert rois from manager.
+            List<ROIData> roisFromManager = reader.readImageJROI();
+            //rois from manager so we need to link them to all the images
+            ImageData data;
+            long id;
             while (i.hasNext()) {
-                id = i.next();
+                data = i.next();
+                id = data.getId();
                 //First check overlay
-                rois = reader.readImageJROI(id, img);
+                index = data.getIndex();
+                if (indexes.containsKey(index)) {
+                   rois = indexes.get(index);
+                   linkRoisToImage(id, rois);
+                } else {
+                   rois = reader.readImageJROI(id, img);
+                }
                 if (CollectionUtils.isEmpty(rois)) {
-                    rois = reader.readImageJROI(id);
+                    rois = roisFromManager;
+                    linkRoisToImage(id, rois);
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
-                            c.getExperimenterID());
+                        c.getExperimenterID());
                     saver.load();
                 }
             }
         }
     }
 
+    /**
+     * Links the rois to the image.
+     * 
+     * @param imageID The image's id.
+     * @param rois The rois to link to the image.
+     */
+    private void linkRoisToImage(long imageID, List<ROIData> rois)
+    {
+        if (CollectionUtils.isEmpty(rois)) return;
+        Iterator<ROIData> i = rois.iterator();
+        while (i.hasNext()) {
+            i.next().setImage(new ImageI(imageID, false));
+        }
+    }
 
 }

@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
-import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
@@ -62,6 +61,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
+import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -848,10 +848,10 @@ class ImporterComponent
 			klass = PlateData.class;
 		}
 		PixelsData pxd;
-		List<Long> ids = new ArrayList<Long>();
+		List<ImageData> ids = new ArrayList<ImageData>();
 		while (i.hasNext()) {
 			pxd = i.next();
-			ids.add(pxd.getImage().getId());
+			ids.add(pxd.getImage());
 			pxd.getImage().getId();
 			if (pxd.getSizeX()*pxd.getSizeY() < MAX_SIZE) {
 				l.add(pxd);

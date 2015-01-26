@@ -27,6 +27,7 @@ import ij.ImagePlus;
 import ij.io.FileInfo;
 
 import java.io.File;
+import java.util.List;
 
 import loci.formats.codec.CompressionType;
 
@@ -54,6 +55,11 @@ public class FileObject
      */
     private boolean generated;
 
+    /** 
+     * List of associated files. Mainly for imageJ.
+     */
+    private List<Object> associatedFiles;
+
     /**
      * Creates a new instance.
      *
@@ -64,6 +70,26 @@ public class FileObject
         if (file == null)
             throw new IllegalArgumentException("No object to import");
         this.file = file;
+    }
+
+    /**
+     * Sets the associated files if any.
+     * 
+     * @param files The collection of files to set.
+     */
+    public void setAssociatedFiles(List<Object> files)
+    {
+        associatedFiles = files;
+    }
+
+    /**
+     * Returns the associated files if any or <code>null</code>.
+     * 
+     * @preturn See above.
+     */
+    public List<Object> getAssociatedFiles()
+    {
+        return associatedFiles;
     }
 
     /**
