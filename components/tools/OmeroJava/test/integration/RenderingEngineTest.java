@@ -1794,7 +1794,7 @@ public class RenderingEngineTest extends AbstractServerTest {
         RenderingEnginePrx re = factory.createRenderingEngine();
         re.lookupPixels(id);
         if (!(re.lookupRenderingDef(id))) {
-            re.resetDefaultSettings(true);
+            re.resetDefaults();
             re.lookupRenderingDef(id);
         }
         re.load();
