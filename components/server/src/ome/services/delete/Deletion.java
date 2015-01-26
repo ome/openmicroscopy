@@ -17,32 +17,23 @@
  */
 package ome.services.delete;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.AbstractFileSystemService;
-import ome.io.nio.PixelsService;
 import ome.services.delete.files.FileDeleter;
+import ome.services.delete.files.FileDeleterGraphState;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
-import ome.services.messages.DeleteLogMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.perf4j.StopWatch;
@@ -54,6 +45,8 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.google.common.collect.SetMultimap;
 
 /**
  * Maintain state about a delete itself. That makes a central class for
@@ -276,7 +269,7 @@ public class Deletion {
                 + ") Delete a subgraph first.");
         }
 
-        this.files = new FileDeleter(ctx, afs, state, type, id);
+        this.files = new FileDeleterGraphState(ctx, afs, state, type, id);
         return (int) scheduledDeletes;
 
     }
@@ -363,4 +356,21 @@ public class Deletion {
         }
     }
 
+    /**
+     * For each Report use the map of tables to deleted ids to remove the files
+     * under Files, Pixels and Thumbnails if the ids no longer exist in the db.
+     * Create a map of failed ids (not yet passed back to client).
+      */
+    public void deleteFiles(SetMultimap<String, Long> deleteTargets) {
+        final StopWatch sw = new Slf4JStopWatch();
+        try {
+            final FileDeleter files = new FileDeleter(ctx, afs, deleteTargets);
+            files.run();
+            if (files.getFailedFilesCount() > 0) {
+                log.warn(files.getWarning());
+            }
+        } finally {
+            sw.stop("omero.delete.binary");
+        }
+    }
 }

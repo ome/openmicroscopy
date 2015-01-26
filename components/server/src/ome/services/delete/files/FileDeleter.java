@@ -15,19 +15,20 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.services.delete.files;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
 import ome.io.nio.AbstractFileSystemService;
-import ome.services.graphs.GraphState;
 import ome.system.OmeroContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Helper class which sorts through a number of
@@ -50,11 +51,7 @@ public class FileDeleter {
 
     private final AbstractFileSystemService afs;
 
-    private final GraphState state;
-
-    private final String type;
-
-    private final long id;
+    private final SetMultimap<String, Long> deleteTargets;
 
     private OriginalFileDeletions originalFD;
  
@@ -68,12 +65,10 @@ public class FileDeleter {
 
     private long bytesFailed = 0;
 
-	public FileDeleter(OmeroContext ctx, AbstractFileSystemService afs, GraphState state, String type, long id) {
+	public FileDeleter(OmeroContext ctx, AbstractFileSystemService afs, SetMultimap<String, Long> deleteTargets) {
         this.ctx = ctx;
         this.afs = afs;
-        this.state = state;
-        this.type = type;
-        this.id = id;
+        this.deleteTargets = deleteTargets;
     }
 
     public void run() {
@@ -103,15 +98,12 @@ public class FileDeleter {
     }
 
     /**
-     * Lookup the ids which are scheduled for deletion from the {@link GraphState}.
+     * Lookup the ids which are scheduled for deletion.
      * @param fileType non-null
+     * @return the IDs for that file type
      */
     protected Set<Long> load(Type fileType) {
-        Set<Long> deletedIds = state.getProcessedIds(fileType.toString());
-        log.debug(String.format("Binary delete of %s for %s:%s: %s",
-                fileType, type, id,
-                deletedIds));
-        return deletedIds;
+        return deleteTargets.get(fileType.toString());
     }
 
     public HashMap<String, long[]> getUndeletedFiles() {
