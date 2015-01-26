@@ -125,12 +125,14 @@ class ITest(object):
         return str(_uuid.uuid4())
 
     @classmethod
-    def login_args(self, key=None):
+    def login_args(self, client=None):
         p = self.client.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
-        if not key:
+        if not client:
             key = self.sf.ice_getIdentity().name
+        else:
+            key = client.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
     @classmethod

@@ -22,6 +22,8 @@
 import pytest
 import omero
 from omero.plugins.tag import TagControl
+from omero.cli import NonZeroReturnCode
+from library import PFS
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring, rlong
 from omero.util.temp_files import create_path
@@ -41,11 +43,16 @@ class AbstractTagTest(CLITest):
         self.teardown_mock()
 
     @classmethod
+    def new_tag(self, name=""):
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = omero.rtypes.rstring("%s" % name)
+        return tag
+
+    @classmethod
     def create_tags(self, ntags, name):
         tag_ids = []
         for i in list(xrange(ntags)):
-            tag = omero.model.TagAnnotationI()
-            tag.textValue = omero.rtypes.rstring("%s - %s" % (name, i))
+            tag = self.new_tag("%s - %s" % (name, i))
             tag = self.update.saveAndReturnObject(tag)
             if ntags > 1:
                 tag_ids.append(tag.id.val)
@@ -69,6 +76,19 @@ class AbstractTagTest(CLITest):
         self.update.saveArray(links)
 
         return tagset.id.val
+
+    def get_link(self, classname, object_id, client=None):
+        # Check link
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["id"] = rlong(object_id)
+        query = "select l from %sAnnotationLink as l" % classname
+        query += " join fetch l.child as a where l.parent.id=:id"
+        if not client:
+            link = self.query.findByQuery(query, params)
+        else:
+            link = client.sf.getQueryService().findByQuery(query, params)
+        return link
 
 
 class TestTag(AbstractTagTest):
@@ -201,16 +221,6 @@ class TestTag(AbstractTagTest):
 
     # Tag linking commands
     # ========================================================================
-    def get_link(self, classname, object_id):
-        # Check link
-        params = omero.sys.Parameters()
-        params.map = {}
-        params.map["id"] = rlong(object_id)
-        query = "select l from %sAnnotationLink as l" % classname
-        query += " join fetch l.child as a where l.parent.id=:id"
-        link = self.query.findByQuery(query, params)
-        return link
-
     @pytest.mark.parametrize(
         'object_type', ['Image', 'Dataset', 'Project', 'Screen', 'Plate'])
     def testLink(self, object_type):
@@ -233,13 +243,63 @@ class TestTag(AbstractTagTest):
         assert link.child.id.val == tid
 
 
+class TestPermissions(AbstractTagTest):
+
+    @classmethod
+    def setup_class(cls):
+        super(TestPermissions, cls).setup_class()
+        cls.groups = {}
+        for perms in set([x.perms for x in PFS]):
+            cls.groups[perms] = cls.new_group(perms=perms)
+
+    def setup_method(self, method):
+        super(TestPermissions, self).setup_method(method)
+        self.args = ["tag"]
+
+    @pytest.mark.parametrize('fixture', PFS)
+    def testLink(self, fixture):
+        # Create a tag and an image
+        tag = self.new_tag()
+        img = self.new_image()
+        reader = self.new_client(
+            group=self.groups[fixture.perms],
+            system=(fixture.reader == "system-admin"),
+            owner=(fixture.reader == "group-owner"),
+            )
+        tag = reader.sf.getUpdateService().saveAndReturnObject(tag)
+        img = reader.sf.getUpdateService().saveAndReturnObject(img)
+        print fixture.perms
+        print fixture.reader
+        print fixture.writer
+
+        # Call tag link subcommand
+        writer = self.new_client(
+            group=self.groups[fixture.perms],
+            system=(fixture.writer == "system-admin"),
+            owner=(fixture.writer == "group-owner"),
+            )
+        self.args += ["link"]
+        self.args += self.login_args(writer)
+        self.args += ["Image:%s" % img.id.val, "%s" % tag.id.val]
+        print self.args
+        if fixture.canRead and fixture.canLink:
+            self.cli.invoke(self.args, strict=True)
+
+            # Check link
+            link = self.get_link('Image', img.id.val, client=reader)
+            assert link.child.id.val == tag.id.val
+        else:
+            with pytest.raises(NonZeroReturnCode):
+                self.cli.invoke(self.args, strict=True)
+
+
 class TestTagList(AbstractTagTest):
 
     @classmethod
     def setup_class(cls):
         super(TestTagList, cls).setup_class()
         cls.tag_ids = cls.create_tags(2, 'list_tag')
-        cls.tagset_id = cls.create_tagset(cls.tag_ids, 'list_tagset')
+        cls.tagset_id = cls.create_tagset(cls.tag_ids, '')
 
     # Tag list commands
     # ========================================================================
