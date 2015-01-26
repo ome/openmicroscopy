@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -984,8 +984,12 @@ class ImViewerModel
 		loader.load();
 	}
 
-	/** Fires an asynchronous retrieval of the rendered image. */
-	void fireImageRetrieval()
+	/**
+	 * Fires an asynchronous retrieval of the rendered image.
+	 * 
+	 * @param compression The compression level.
+	 */
+	void fireImageRetrieval(int compression)
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
@@ -995,13 +999,13 @@ class ImViewerModel
 			browser.setUnitBar(true);
 			long pixelsID = getImage().getDefaultPixels().getId();
 			ImageLoader loader = new ImageLoader(component, ctx, 
-					pixelsID, pDef, false);
+					pixelsID, pDef, false, compression);
 			loader.load();
 			loaders.put(IMAGE, loader);
 		} else {
 			if (ImViewerAgent.hasOpenGLSupport()) 
 				component.setImage(rnd.renderPlaneAsTexture(pDef));
-			else component.setImage(rnd.renderPlane(pDef));
+			else component.setImage(rnd.renderPlane(pDef, compression));
 		}
 	}
 

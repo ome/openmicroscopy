@@ -39,6 +39,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -93,7 +94,7 @@ import omero.api.RawPixelsStorePrxHelper;
 import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
 import omero.cmd.AMD_Session_submit;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
@@ -305,7 +306,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         // TODO: This could be refactored to be the default in shared servants
         final Ice.Current adjustedCurr = makeAdjustedCurrent(__current);
         final String allId = DoAll.ice_staticId();
-        final String delId = Delete.ice_staticId();
+        final String delId = Delete2.ice_staticId();
         final DoAll all = (DoAll) getFactory(allId, adjustedCurr).create(allId);
         final Ice.ObjectFactory delFactory = getFactory(delId, adjustedCurr);
         final List<Request> commands = new ArrayList<Request>();
@@ -342,9 +343,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     }
                     // Now after we've recursed, do the actual delete.
                     RLong id = (RLong) val.getValue().get("id");
-                    Delete del = (Delete) delFactory.create(null);
-                    del.type = "/OriginalFile";
-                    del.id = id.getValue();
+                    final Delete2 del = (Delete2) delFactory.create(null);
+                    del.targetObjects = ImmutableMap.<String, long[]>of("OriginalFile", new long[] {id.getValue()});
                     commands.add(del);
                 }
             }

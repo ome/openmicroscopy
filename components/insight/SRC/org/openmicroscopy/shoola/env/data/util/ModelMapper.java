@@ -75,6 +75,9 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
+import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileAnnotationLink;
 import omero.model.OriginalFileAnnotationLinkI;
@@ -115,6 +118,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
@@ -470,7 +474,8 @@ public class ModelMapper
      * @param data              The annotation to create.
      * @return See above.
      */
-    public static Annotation createAnnotation(AnnotationData data)
+    @SuppressWarnings("unchecked")
+	public static Annotation createAnnotation(AnnotationData data)
     {
     	Annotation annotation = null;
     	if (data instanceof TextualAnnotationData) {
@@ -523,7 +528,15 @@ public class ModelMapper
     		annotation = new DoubleAnnotationI();
     		((DoubleAnnotation) annotation).setDoubleValue(omero.rtypes.rdouble(
     										(Double) data.getContent()));
-    	}
+		} else if (data instanceof MapAnnotationData) {
+			annotation = new MapAnnotationI();
+			String ns = data.getNameSpace();
+			if (StringUtils.isNotEmpty(ns)) {
+				annotation.setNs(omero.rtypes.rstring(ns));
+			}
+			((MapAnnotation) annotation).setMapValue((List<NamedValue>) data
+					.getContent());
+		}
     	return annotation;
     }
     

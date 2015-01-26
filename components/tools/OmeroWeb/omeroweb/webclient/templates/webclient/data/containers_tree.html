@@ -26,7 +26,7 @@
 
 <ul>
     <li id="experimenter-0" rel="experimenter{% ifnotequal manager.experimenter.id ome.eventContext.userId %}-locked{% endifnotequal %}">
-        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{% setting UI_MENU_DROPDOWN.ALL %}{% endif %}</a>
+        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ui.dropdown_menu.everyone }}{% endif %}</a>
         <ul>
             {% for c in projects %}
             <li id='project-{{ c.id }}' rel="project{% if not c.isOwned %}-locked{% endif %}" class="{{ c.permsCss }}">
@@ -110,7 +110,7 @@
             {% endfor %}
             
             {% if not share %}
-            <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{% setting UI_TREE_ORPHANED.NAME %}</a></li>
+            <li id='orphaned-0' rel="orphaned" {% if orphans %}class="jstree-closed"{% endif %}><a href="#">{{ ui.orphans_name }}</a></li>
             {% endif %}
 
 

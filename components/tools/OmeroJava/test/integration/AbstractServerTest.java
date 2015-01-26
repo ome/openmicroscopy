@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2015 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -92,6 +92,9 @@ import omero.model.LightSourceAnnotationLink;
 import omero.model.LightSourceAnnotationLinkI;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.MapAnnotation;
+import omero.model.MapAnnotationI;
+import omero.model.NamedValue;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileAnnotationLink;
 import omero.model.OriginalFileAnnotationLinkI;
@@ -1243,6 +1246,14 @@ public class AbstractServerTest extends AbstractTest {
         f = (FileAnnotation) iUpdate.saveAndReturnObject(f);
         ids.add(f.getId().getValue());
 
+		MapAnnotation ma = new MapAnnotationI();
+		List<NamedValue> values = new ArrayList<NamedValue>();
+		for (int i = 0; i < 3; i++)
+			values.add(new NamedValue("name " + i, "value " + i));
+		ma.setMapValue(values);
+		ma = (MapAnnotation) iUpdate.saveAndReturnObject(ma);
+		ids.add(ma.getId().getValue());
+        
         List<IObject> links = new ArrayList<IObject>();
         if (parent1 instanceof Image) {
             ImageAnnotationLink link = new ImageAnnotationLinkI();
@@ -1257,6 +1268,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Image) parent1);
             links.add(link);
+            link = new ImageAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Image) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Image) parent2);
@@ -1267,6 +1282,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new ImageAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Image) parent2);
+                links.add(link);
+                link = new ImageAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Image) parent2);
                 links.add(link);
             }
@@ -1283,6 +1302,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Project) parent1);
             links.add(link);
+            link = new ProjectAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Project) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Project) parent2);
@@ -1293,6 +1316,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new ProjectAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Project) parent2);
+                links.add(link);
+                link = new ProjectAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Project) parent2);
                 links.add(link);
             }
@@ -1309,6 +1336,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Dataset) parent1);
             links.add(link);
+            link = new DatasetAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Dataset) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Dataset) parent2);
@@ -1319,6 +1350,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new DatasetAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Dataset) parent2);
+                links.add(link);
+                link = new DatasetAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Dataset) parent2);
                 links.add(link);
             }
@@ -1335,6 +1370,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Plate) parent1);
             links.add(link);
+            link = new PlateAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Plate) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Plate) parent2);
@@ -1345,6 +1384,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new PlateAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Plate) parent2);
+                links.add(link);
+                link = new PlateAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Plate) parent2);
                 links.add(link);
             }
@@ -1361,6 +1404,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Screen) parent1);
             links.add(link);
+            link = new ScreenAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Screen) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Screen) parent2);
@@ -1371,6 +1418,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new ScreenAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Screen) parent2);
+                links.add(link);
+                link = new ScreenAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Screen) parent2);
                 links.add(link);
             }
@@ -1387,6 +1438,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Well) parent1);
             links.add(link);
+            link = new WellAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Well) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Well) parent2);
@@ -1397,6 +1452,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new WellAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Well) parent2);
+                links.add(link);
+                link = new WellAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Well) parent2);
                 links.add(link);
             }
@@ -1413,6 +1472,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((PlateAcquisition) parent1);
             links.add(link);
+            link = new PlateAcquisitionAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((PlateAcquisition) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((PlateAcquisition) parent2);
@@ -1423,6 +1486,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new PlateAcquisitionAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((PlateAcquisition) parent2);
+                links.add(link);
+                link = new PlateAcquisitionAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((PlateAcquisition) parent2);
                 links.add(link);
             }
@@ -1439,6 +1506,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Detector) parent1);
             links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Detector) parent2);
@@ -1449,6 +1520,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new DetectorAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Detector) parent2);
                 links.add(link);
             }
@@ -1465,6 +1540,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Detector) parent1);
             links.add(link);
+            link = new DetectorAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Detector) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Detector) parent2);
@@ -1475,6 +1554,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new DetectorAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Detector) parent2);
+                links.add(link);
+                link = new DetectorAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Detector) parent2);
                 links.add(link);
             }
@@ -1491,6 +1574,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((LightSource) parent1);
             links.add(link);
+            link = new LightSourceAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((LightSource) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((LightSource) parent2);
@@ -1501,6 +1588,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new LightSourceAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((LightSource) parent2);
+                links.add(link);
+                link = new LightSourceAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((LightSource) parent2);
                 links.add(link);
             }
@@ -1517,6 +1608,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((Instrument) parent1);
             links.add(link);
+            link = new InstrumentAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((Instrument) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((Instrument) parent2);
@@ -1527,6 +1622,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new InstrumentAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((Instrument) parent2);
+                links.add(link);
+                link = new InstrumentAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((Instrument) parent2);
                 links.add(link);
             }
@@ -1543,6 +1642,10 @@ public class AbstractServerTest extends AbstractTest {
             link.setChild(new FileAnnotationI(f.getId().getValue(), false));
             link.setParent((OriginalFile) parent1);
             links.add(link);
+            link = new OriginalFileAnnotationLinkI();
+            link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
+            link.setParent((OriginalFile) parent1);
+            links.add(link);
             if (parent2 != null) {
                 link.setChild(new TagAnnotationI(c.getId().getValue(), false));
                 link.setParent((OriginalFile) parent2);
@@ -1553,6 +1656,10 @@ public class AbstractServerTest extends AbstractTest {
                 links.add(link);
                 link = new OriginalFileAnnotationLinkI();
                 link.setChild(new FileAnnotationI(f.getId().getValue(), false));
+                link.setParent((OriginalFile) parent2);
+                links.add(link);
+                link = new OriginalFileAnnotationLinkI();
+                link.setChild(new MapAnnotationI(ma.getId().getValue(), false));
                 link.setParent((OriginalFile) parent2);
                 links.add(link);
             }
@@ -1603,11 +1710,11 @@ public class AbstractServerTest extends AbstractTest {
             b.setNs(omero.rtypes.rstring(ns));
 
         b = (BooleanAnnotation) iUpdate.saveAndReturnObject(b);
-
+        
         ids.add(c.getId().getValue());
         ids.add(l.getId().getValue());
         ids.add(b.getId().getValue());
-
+        
         List<IObject> links = new ArrayList<IObject>();
         if (parent instanceof Image) {
             ImageAnnotationLink link = new ImageAnnotationLinkI();

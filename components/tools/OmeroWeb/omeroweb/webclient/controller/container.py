@@ -208,8 +208,15 @@ class BaseContainer(BaseController):
         elif objDict is not None:
             if 'image' in objDict or 'dataset' in objDict:
                 thumbnailFig['enabled'] = True
+
+        makeMovie = {'id': 'MakeMovie', 'name': 'Make Movie', 'enabled': False,
+            'tooltip': "Create a movie of the image"}
+        if self.image and (self.image.getSizeT() > 0 or self.image.getSizeZ() > 0):
+            makeMovie['enabled'] = True
+
         figureScripts.append(splitView)
         figureScripts.append(thumbnailFig)
+        figureScripts.append(makeMovie)
         return figureScripts
 
 
@@ -1002,7 +1009,7 @@ class BaseContainer(BaseController):
                         up_pdl = p
                         self.conn.deleteObjectDirect(up_pdl._obj)
             elif destination[0] == 'orphaned':
-                return 'Cannot move dataset to %s.' % settings.UI_TREE_ORPHANED.NAME
+                return 'Cannot move dataset to %s.' % conn.getOrphanedContainerSettings()[1]
             else:
                 return 'Destination not supported.'
         elif self.image is not None:

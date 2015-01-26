@@ -112,8 +112,8 @@ public class SecuritySystemHolder implements SecuritySystem {
         return choose().isSystemType(klass);
     }
 
-    public void loadEventContext(boolean isReadyOnly) {
-        choose().loadEventContext(isReadyOnly);
+    public void loadEventContext(boolean isReadOnly) {
+        choose().loadEventContext(isReadOnly);
     }
 
     public void login(Principal principal) {

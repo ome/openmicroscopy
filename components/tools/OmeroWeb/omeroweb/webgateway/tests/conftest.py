@@ -19,11 +19,11 @@ from test_webgateway import fakeRequest
 
 
 class GatewayWrapper (TestDBHelper):
-    def __init__ (self):
+    def __init__(self):
         super(GatewayWrapper, self).__init__()
         self.setUp(skipTestDB=False, skipTestImages=True)
 
-    def doLogin (self, user=None):
+    def doLogin(self, user=None):
         self.gateway = None
         if user:
             r = fakeRequest()
@@ -31,9 +31,9 @@ class GatewayWrapper (TestDBHelper):
             q.update({'username': user.name, 'password': user.passwd})
             r.REQUEST.dicts += (q,)
             t = login_required(isAdmin=user.admin)
-            self.gateway = t.get_connection(1, r) #, group=user.groupname)
+            self.gateway = t.get_connection(1, r)  # , group=user.groupname)
         if self.gateway is None:
-            # If the login framework was customized (using this app outside omeroweb) the above fails
+            # If the login framework was customized (using this app outside
+            # omeroweb) the above fails
             super(GatewayWrapper, self).doLogin(user)
             self.gateway.user = views.UserProxy(self.gateway)
-

@@ -13,6 +13,8 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
+from path import path
+from omero_ext.argparse import SUPPRESS
 
 try:
     from omeroweb import settings
@@ -38,11 +40,11 @@ Configuration:
 
 %s
 
-Example Nginx usage:
+Example Nginx developer usage:
 
     omero config set omero.web.debug true
     omero config set omero.web.application_server fastcgi
-    omero web config nginx --http=8000 >> nginx.conf
+    omero web config nginx-development --http=8000 >> nginx.conf
     omero web start
     nginx -c `pwd`/nginx.conf
     omero web status
@@ -82,15 +84,20 @@ class WebControl(BaseControl):
 
         config = parser.add(
             sub, self.config,
-            "Output a config template for server"
-            " ('nginx' or 'apache' for the moment)")
-        config.add_argument("type", choices=("nginx", "apache"))
+            "Output a config template for web server\n"
+            "  nginx: Nginx system configuration for inclusion\n"
+            "  nginx-development: Standalone user-run Nginx server\n"
+            "  apache: Apache 2.2 with mod_fastcgi\n"
+            "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
+        config.add_argument("type", choices=(
+            "nginx", "nginx-development", "apache", "apache-fcgi"))
         config.add_argument(
             "--http", type=int,
-            help="HTTP port for web server (not fastcgi)")
+            help="HTTP port for web server (nginx only)")
         config.add_argument(
-            "--system", action="store_true",
-            help="System appropriate configuration file")
+            "--system", action="store_true", help=SUPPRESS)
+        config.add_argument(
+            "--templates_dir", type=str, help=SUPPRESS)
 
         parser.add(
             sub, self.syncmedia,
@@ -137,9 +144,14 @@ class WebControl(BaseControl):
 
     def config(self, args):
         if not args.type:
-            self.ctx.out(
-                "Available configuration helpers:\n - nginx, apache\n")
+            self.ctx.die(
+                "Available configuration helpers:\n"
+                " - nginx, nginx-development, apache, apache-fcgi\n")
         else:
+            if args.system:
+                self.ctx.err(
+                    "WARNING: --system is no longer supported, see --help")
+
             server = args.type
             port = 8080
             if args.http:
@@ -154,7 +166,8 @@ class WebControl(BaseControl):
                 "ROOT": self.ctx.dir,
                 "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
                 "omeroweb",
-                "STATIC_URL": settings.STATIC_URL.rstrip("/")
+                "STATIC_URL": settings.STATIC_URL.rstrip("/"),
+                "NOW": str(datetime.now())
             }
 
             try:
@@ -162,14 +175,13 @@ class WebControl(BaseControl):
             except:
                 d["FORCE_SCRIPT_NAME"] = "/"
 
-            if server == "nginx":
-                if args.system:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.system.template").read()
-                else:
-                    c = file(self.ctx.dir / "etc" /
-                             "nginx.conf.template").read()
+            if args.templates_dir:
+                templates_dir = path(args.templates_dir)
+            else:
+                templates_dir = self.ctx.dir / "etc" / "templates"
+            template_file = "%s.conf.template" % server
 
+            if server in ("nginx", "nginx-development"):
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_pass = "%s:%s" \
                         % (settings.APPLICATION_SERVER_HOST,
@@ -193,9 +205,6 @@ class WebControl(BaseControl):
                                                     "$fastcgi_script_name;\n"
 
             if server == "apache":
-                c = file(self.ctx.dir / "etc" /
-                         "apache.conf.template").read()
-
                 if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                     fastcgi_external = '-host %s:%s' % \
                         (settings.APPLICATION_SERVER_HOST,
@@ -210,8 +219,28 @@ class WebControl(BaseControl):
                         % settings.FORCE_SCRIPT_NAME.rstrip("/")
                 except:
                     d["REWRITERULE"] = ""
-                d["NOW"] = str(datetime.now())
 
+            if server == "apache-fcgi":
+                # OMERO.web requires the fastcgi PATH_INFO variable, which
+                # mod_proxy_fcgi obtains by taking everything after the last
+                # path component containing a dot.
+
+                if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+                    self.ctx.die(
+                        679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
+                fastcgi_external = '%s:%s' % (
+                    settings.APPLICATION_SERVER_HOST,
+                    settings.APPLICATION_SERVER_PORT)
+                d["FASTCGI_EXTERNAL"] = fastcgi_external
+
+                if d["FORCE_SCRIPT_NAME"] == '/':
+                    d["WEB_PREFIX"] = ''
+                else:
+                    d["WEB_PREFIX"] = d["FORCE_SCRIPT_NAME"]
+
+                d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
+
+            c = file(templates_dir / template_file).read()
             self.ctx.out(c % d)
 
     def syncmedia(self, args):

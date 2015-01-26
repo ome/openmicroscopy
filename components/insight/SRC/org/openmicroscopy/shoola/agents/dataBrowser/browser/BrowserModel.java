@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -679,8 +679,8 @@ class BrowserModel
 		//Note: avoid caching b/c we don't know yet what we are going
 		//to do with updates
 	    ImageFinder finder = new ImageFinder();
-	    accept(finder, ImageDisplayVisitor.IMAGE_SET_ONLY);
-	    return finder.getVisibleImageNodes();
+	    accept(finder, ImageDisplayVisitor.ALL_NODES);
+	    return new ArrayList<ImageNode>(finder.getVisibleImageNodes());
 	}
 
 	/**

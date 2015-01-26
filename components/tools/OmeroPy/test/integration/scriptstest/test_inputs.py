@@ -93,7 +93,8 @@ class TestInputs(lib.ITest):
             finally:
                 rfs.close()
 
-    @pytest.mark.broken(ticket="12314")
+    @pytest.mark.intermittent(reason="Process still running.",
+                              ticket="12314")
     def testInputs(self):
         import logging
         logging.basicConfig(level=10)

@@ -53,7 +53,7 @@ $.fn.colorbtn = function(cfg) {
       var btns = box.find('div:last');
       btns.append('<div class="postit-resize-bar"></div>');
       var btn_click = function () {
-        picker.setColor('#'+rgbToHex(jQuery(this).css("background-color")));
+        picker.setColor('#' + OME.rgbToHex(jQuery(this).css("background-color")));
       };
       btns.append('<span>Preset</span>');
       for (var e=0; e<colors.length; e++) {
@@ -101,7 +101,7 @@ $.fn.colorbtn = function(cfg) {
         });
       self.removeAttr('data-picked-color');
 
-      var color = '#'+rgbToHex(self.attr("data-color"));
+      var color = '#' + OME.rgbToHex(self.attr("data-color"));
       picker.linkTo(null_cb).setColor(color).linkTo(callback);
       jQuery("#"+this.cfg.prefix+"-tb").attr('value', color.substring(1).toUpperCase());
       jQuery("#"+this.cfg.prefix+"-defc").css("background-color", self.css("background-color"));
@@ -120,23 +120,3 @@ $.fn.colorbtn = function(cfg) {
     self.click(this.show_picker);
   });
 }
-
-  function rgbToHex(rgb) {
-    if (rgb.substring(0,1) == '#') {
-      return rgb.substring(1);
-    }
-    var rgbvals = /rgb\((.+),(.+),(.+)\)/i.exec(rgb);
-    if (!rgbvals) return rgb;
-    var rval = parseInt(rgbvals[1]).toString(16);
-    var gval = parseInt(rgbvals[2]).toString(16);
-    var bval = parseInt(rgbvals[3]).toString(16);
-    if (rval.length == 1) rval = '0' + rval;
-    if (gval.length == 1) gval = '0' + gval;
-    if (bval.length == 1) bval = '0' + bval;
-    return (
-      rval +
-      gval +
-      bval
-    ).toUpperCase(); 
-  }
-

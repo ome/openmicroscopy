@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__17.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__18.
 ---
 
 BEGIN;
@@ -43,8 +43,36 @@ SELECT omero_assert_db_version('OMERO5.0', 0);
 DROP FUNCTION omero_assert_db_version(varchar, int);
 
 
+--
+-- check PostgreSQL server version and database encoding
+--
+
+CREATE FUNCTION assert_db_server_prerequisites(version_prereq INTEGER) RETURNS void AS $$
+
+DECLARE
+    version_num INTEGER;
+    char_encoding TEXT;
+
+BEGIN
+    SELECT CAST(setting AS INTEGER) INTO STRICT version_num FROM pg_settings WHERE name = 'server_version_num';
+    SELECT pg_encoding_to_char(encoding) INTO STRICT char_encoding FROM pg_database WHERE datname = current_database();
+
+    IF version_num < version_prereq THEN
+        RAISE EXCEPTION 'database server version % is less than OMERO prerequisite %', version_num, version_prereq;
+    END IF;
+
+    IF char_encoding != 'UTF8' THEN
+       RAISE EXCEPTION 'OMERO database character encoding must be UTF8, not %', char_encoding;
+    END IF;
+
+END;$$ LANGUAGE plpgsql;
+
+SELECT assert_db_server_prerequisites(84000);
+DROP FUNCTION assert_db_server_prerequisites(INTEGER);
+
+
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',  17,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1DEV',  18,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -165,9 +193,11 @@ ALTER TABLE otf ALTER COLUMN sizeX TYPE positive_int;
 ALTER TABLE otf ALTER COLUMN sizeY TYPE positive_int;
 ALTER TABLE otf DROP CONSTRAINT otf_check;
 
-UPDATE pixels SET physicalSizeX = NULL WHERE physicalSizeX <= 0;
-UPDATE pixels SET physicalSizeY = NULL WHERE physicalSizeY <= 0;
-UPDATE pixels SET physicalSizeZ = NULL WHERE physicalSizeZ <= 0;
+UPDATE pixels
+  SET physicalSizeX = CASE WHEN physicalSizeX <= 0 THEN NULL ELSE physicalSizeX END,
+      physicalSizeY = CASE WHEN physicalSizeY <= 0 THEN NULL ELSE physicalSizeY END,
+      physicalSizeZ = CASE WHEN physicalSizeZ <= 0 THEN NULL ELSE physicalSizeZ END
+  WHERE physicalSizeX <= 0 OR physicalSizeY <= 0 OR physicalSizeZ <= 0;
 
 ALTER TABLE pixels ALTER COLUMN physicalSizeX TYPE positive_float;
 ALTER TABLE pixels ALTER COLUMN physicalSizeY TYPE positive_float;
@@ -1372,10 +1402,7 @@ CREATE INDEX i_planeinfo_exposuretime ON planeinfo USING btree (exposuretime);
 
 -- 5.1DEV__11: Manual adjustments, mostly from psql-footer.sql
 
-update pixels set timeincrementunit = 's'::unitstime where timeincrement is not null;
-update planeinfo set deltatunit = 's'::unitstime where deltat is not null;
-update planeinfo set exposuretimeunit = 's'::unitstime where exposuretime is not null;
-
+-- this patch's updates are superseded by 5.1DEV__13
 
 -- OMERO5.1DEV__12: #2587 LDAP: remove DN from OMERO DB.
 
@@ -1579,57 +1606,77 @@ CREATE TRIGGER shape_annotation_link_event_trigger_insert
 
 -- 5.1DEV__13: Manual adjustments, mostly from psql-footer.sql
 
-update pixels set timeincrementunit = 's'::unitstime where timeincrement is not null;
+update detector set voltageunit = 'V'::unitselectricpotential where voltage is not null;
 
-update planeinfo set deltatunit = 's'::unitstime where deltat is not null;
-update planeinfo set exposuretimeunit = 's'::unitstime where exposuretime is not null;
+update detectorsettings
+  set readoutrateunit = case when readoutrate is null then null else 'MHz'::unitsfrequency end,
+      voltageunit = case when voltage is null then null else 'V'::unitselectricpotential end
+  where readoutrate is not null or voltage is not null;
 
-update detector set voltageunit = 'V'::unitselectricpotential where  voltage is not null;
+update imagingenvironment
+  set airpressureunit = case when airpressure is null then null else 'mbar'::unitspressure end,
+      temperatureunit = case when temperature is null then null else '°C'::unitstemperature end
+  where airpressure is not null or temperature is not null;
 
-update detectorsettings set readoutrateunit = 'MHz'::unitsfrequency where readoutrate is not null;
-update detectorsettings set voltageunit = 'V'::unitselectricpotential where voltage is not null;
-
-update imagingenvironment set airpressureunit = 'mbar'::unitspressure where airpressure is not null;
-update imagingenvironment set temperatureunit = '°C'::unitstemperature where temperature is not null;
-
-update laser set repetitionrateunit = 'Hz'::unitsfrequency where repetitionrate is not null;
-update laser set wavelengthunit = 'nm'::unitslength where wavelength is not null;
+update laser
+  set repetitionrateunit = case when repetitionrate is null then null else 'Hz'::unitsfrequency end,
+      wavelengthunit = case when wavelength is null then null else 'nm'::unitslength end
+  where repetitionrate is not null or wavelength is not null;
 
 update lightsettings set wavelengthunit = 'nm'::unitslength where wavelength is not null;
 
 update lightsource set powerunit = 'mW'::unitspower where power is not null;
 
-update logicalchannel set emissionwaveunit = 'nm'::unitslength where emissionwave is not null;
-update logicalchannel set excitationwaveunit = 'nm'::unitslength where excitationwave is not null;
-update logicalchannel set pinholesizeunit = 'µm'::unitslength where pinholesize is not null;
+update logicalchannel
+  set emissionwaveunit = case when emissionwave is null then null else 'nm'::unitslength end,
+      excitationwaveunit = case when excitationwave is null then null else 'nm'::unitslength end,
+      pinholesizeunit = case when pinholesize is null then null else 'µm'::unitslength end
+  where emissionwave is not null or excitationwave is not null or pinholesize is not null;
 
 update objective set workingdistanceunit = 'µm'::unitslength where workingdistance is not null;
 
-update pixels set physicalsizexunit = 'µm'::unitslength where physicalsizex is not null;
-update pixels set physicalsizeyunit = 'µm'::unitslength where physicalsizey is not null;
-update pixels set physicalsizezunit = 'µm'::unitslength where physicalsizez is not null;
+update pixels
+  set physicalsizexunit = case when physicalsizex is null then null else 'µm'::unitslength end,
+      physicalsizeyunit = case when physicalsizey is null then null else 'µm'::unitslength end,
+      physicalsizezunit = case when physicalsizez is null then null else 'µm'::unitslength end,
+      timeincrementunit = case when timeincrement is null then null else 's'::unitstime end
+  where physicalsizex is not null or physicalsizey is not null or physicalsizez is not null or timeincrement is not null;
 
-update planeinfo set positionxunit = 'reference frame'::unitslength where positionx is not null;
-update planeinfo set positionyunit = 'reference frame'::unitslength where positiony is not null;
-update planeinfo set positionzunit = 'reference frame'::unitslength where positionz is not null;
+update planeinfo
+  set deltatunit = case when deltat is null then null else 's'::unitstime end,
+      exposuretimeunit = case when exposuretime is null then null else 's'::unitstime end,
+      positionxunit = case when positionx is null then null else 'reference frame'::unitslength end,
+      positionyunit = case when positiony is null then null else 'reference frame'::unitslength end,
+      positionzunit = case when positionz is null then null else 'reference frame'::unitslength end
+  where deltat is not null or exposuretime is not null or positionx is not null or positiony is not null or positionz is not null;
 
-update plate set welloriginxunit = 'reference frame'::unitslength where welloriginx is not null;
-update plate set welloriginyunit = 'reference frame'::unitslength where welloriginy is not null;
+update plate
+  set welloriginxunit = case when welloriginx is null then null else 'reference frame'::unitslength end,
+      welloriginyunit = case when welloriginy is null then null else 'reference frame'::unitslength end
+  where welloriginx is not null or welloriginy is not null;
 
-update shape set fontsizeunit = 'pt'::unitslength  where fontsize is not null;
-update shape set strokewidthunit = 'pixel'::unitslength  where strokewidth is not null;
+update shape
+  set fontsizeunit = case when fontsize is null then null else 'pt'::unitslength end,
+      strokewidthunit = case when strokewidth is null then null else 'pixel'::unitslength end
+  where fontsize is not null or strokewidth is not null;
 
-update stagelabel set positionxunit = 'reference frame'::unitslength where positionx is not null;
-update stagelabel set positionyunit = 'reference frame'::unitslength where positiony is not null;
-update stagelabel set positionzunit = 'reference frame'::unitslength where positionz is not null;
+update stagelabel
+  set positionxunit = case when positionx is null then null else 'reference frame'::unitslength end,
+      positionyunit = case when positiony is null then null else 'reference frame'::unitslength end,
+      positionzunit = case when positionz is null then null else 'reference frame'::unitslength end
+  where positionx is not null or positiony is not null or positionz is not null;
 
-update transmittancerange set cutinunit = 'nm'::unitslength where cutin is not null;
-update transmittancerange set cutintoleranceunit = 'nm'::unitslength where cutintolerance is not null;
-update transmittancerange set cutoutunit = 'nm'::unitslength where cutout is not null;
-update transmittancerange set cutouttoleranceunit = 'nm'::unitslength where cutouttolerance is not null;
+update transmittancerange
+  set cutinunit = case when cutin is null then null else 'nm'::unitslength end,
+      cutintoleranceunit = case when cutintolerance is null then null else 'nm'::unitslength end,
+      cutoutunit = case when cutout is null then null else 'nm'::unitslength end,
+      cutouttoleranceunit = case when cutouttolerance is null then null else 'nm'::unitslength end
+  where cutin is not null or cutintolerance is not null or cutout is not null or cutouttolerance is not null;
 
-update wellsample set posxunit = 'reference frame'::unitslength where posx is not null;
-update wellsample set posyunit = 'reference frame'::unitslength where posy is not null;
+update wellsample
+  set posxunit = case when posx is null then null else 'reference frame'::unitslength end,
+      posyunit = case when posy is null then null else 'reference frame'::unitslength end
+  where posx is not null or posy is not null;
 
 -- reactivate not null constraints
 alter table pixelstype alter column bitsize set not null;
@@ -1648,10 +1695,6 @@ ALTER TABLE transmittancerange
 -- Add "ldap" column to "experimentergroup", default to false
 
 ALTER TABLE experimentergroup ADD COLUMN ldap BOOL NOT NULL DEFAULT false;
-
--- Set "ldap" value for each group to be false
-
-UPDATE experimentergroup SET ldap = false;
 
 -- 5.1DEV__15: fix missing nonnegative_float domain
 
@@ -1855,16 +1898,351 @@ create index _fs_deletelog_path on _fs_deletelog(path);
 create index _fs_deletelog_name on _fs_deletelog(name);
 create index _fs_deletelog_repo on _fs_deletelog(repo);
 
+
+-- fix #11182: reduce duplication in REINDEX logs upon chgrp
+
+CREATE TABLE _updated_annotations (
+    event_id BIGINT NOT NULL,
+    entity_type TEXT NOT NULL,
+    entity_id BIGINT NOT NULL,
+    CONSTRAINT FK_updated_annotations_event_id
+        FOREIGN KEY (event_id)
+        REFERENCES event);
+
+CREATE INDEX _updated_annotations_event_index
+    ON _updated_annotations (event_id);
+
+CREATE INDEX _updated_annotations_row_index
+    ON _updated_annotations (event_id, entity_type, entity_id);
+
+
+CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        pid BIGINT;
+        eid BIGINT;
+
+    BEGIN
+        SELECT INTO eid _current_or_new_event();
+ 
+        FOR pid IN SELECT DISTINCT parent FROM annotationannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.annotations.Annotation', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.annotations.Annotation' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM channelannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Channel', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Channel' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM datasetannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.containers.Dataset', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Dataset' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM detectorannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Detector', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Detector' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM dichroicannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Dichroic', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Dichroic' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM experimenterannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Experimenter', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Experimenter' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM experimentergroupannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.ExperimenterGroup', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.ExperimenterGroup' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM filesetannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.fs.Fileset', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.fs.Fileset' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM filterannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Filter', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Filter' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM imageannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.Image', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.Image' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM instrumentannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Instrument', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Instrument' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM lightpathannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.LightPath', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightPath' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM lightsourceannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.LightSource', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.LightSource' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM namespaceannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Namespace', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Namespace' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM nodeannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Node', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Node' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM objectiveannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.acquisition.Objective', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.acquisition.Objective' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM originalfileannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.OriginalFile', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.OriginalFile' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM planeinfoannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.core.PlaneInfo', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.core.PlaneInfo' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM plateannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Plate', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Plate' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM plateacquisitionannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.PlateAcquisition', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.PlateAcquisition' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM projectannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.containers.Project', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.containers.Project' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM reagentannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Reagent', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Reagent' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM roiannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.roi.Roi', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Roi' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM screenannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Screen', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Screen' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM sessionannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.meta.Session', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.meta.Session' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM shapeannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.roi.Shape', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.roi.Shape' AND ua.entity_id = pid);
+        END LOOP;
+
+        FOR pid IN SELECT DISTINCT parent FROM wellannotationlink WHERE child = new.id
+        LOOP
+            INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+                SELECT eid, 'ome.model.screen.Well', pid
+                WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                    WHERE ua.event_id = eid AND ua.entity_type = 'ome.model.screen.Well' AND ua.entity_id = pid);
+        END LOOP;
+
+        RETURN new;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid int8;
+
+    BEGIN
+        SELECT INTO eid _current_or_new_event();
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], new.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = new.parent);
+
+        RETURN new;
+
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION annotation_link_delete_trigger() RETURNS TRIGGER AS $$
+
+    DECLARE
+        eid int8;
+
+    BEGIN
+        SELECT INTO eid _current_or_new_event();
+
+        INSERT INTO _updated_annotations (event_id, entity_type, entity_id)
+            SELECT eid, TG_ARGV[0], old.parent
+            WHERE NOT EXISTS (SELECT 1 FROM _updated_annotations AS ua
+                WHERE ua.event_id = eid AND ua.entity_type = TG_ARGV[0] AND ua.entity_id = old.parent);
+
+        RETURN old;
+
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION annotation_updates_note_reindex() RETURNS void AS $$
+
+    DECLARE
+        row RECORD;
+
+    BEGIN
+        FOR row IN SELECT * FROM _updated_annotations ORDER BY event_id FOR UPDATE
+        LOOP
+            DELETE FROM _updated_annotations WHERE _updated_annotations = row;
+
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, row.entity_id, row.entity_type, row.event_id
+                WHERE NOT EXISTS (SELECT 1 FROM eventlog AS el
+                    WHERE el.entityid = row.entity_id AND el.entitytype = row.entity_type AND el.event = row.event_id);
+
+        END LOOP;
+    END;
+$$ LANGUAGE plpgsql;
+
+-- now delete duplicates from eventlog
+
+DELETE FROM eventlog WHERE id IN
+    (SELECT id_row.id
+         FROM (SELECT id, row_number() OVER (PARTITION BY entityid, entitytype, event, permissions ORDER BY id) AS row_n
+                   FROM eventlog WHERE action = 'REINDEX' AND external_id IS NULL) AS id_row
+         WHERE id_row.row_n > 1);
+
+--
+-- have _fs_dir_delete trigger check only within repo
+--
+
+create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
+    begin
+        --
+        -- If any children are found, prevent deletion
+        --
+        if OLD.mimetype = 'Directory' and exists(
+            select id from originalfile
+            where repo = OLD.repo and path = OLD.path || OLD.name || '/'
+            limit 1) then
+
+                -- CANCEL DELETE
+                RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+
+        end if;
+        return OLD; -- proceed
+    end;
+$_fs_dir_delete$ LANGUAGE plpgsql;
+
+create index originalfile_path_index on originalfile (path);
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 17            AND
+          currentPatch    = 18            AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__17'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__18'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
