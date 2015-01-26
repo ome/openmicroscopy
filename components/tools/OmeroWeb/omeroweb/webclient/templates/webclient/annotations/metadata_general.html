@@ -512,7 +512,10 @@
                     var rating_url = "{% url 'annotate_rating' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
                     rating_url += "&rating=" + rating;
                     $.post(rating_url, function(data) {
-                        // Assume OK;
+                        // update summary
+                        $("#ratingsAverage").text(data.average);
+                        $("#ratingsCount").text(data.count);
+                        $("#ratingsSummary").show();
                     });
                 }
             });
@@ -826,36 +829,26 @@
                     <li class="rating myRating" style="position: relative {% if not ratings.myRating %}; display:none{% endif %}">
                         <a><img
                         {% if ratings.myRating %}
-                        {% ifequal ratings.myRating.getValue 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating.getValue 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating.getValue 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating.getValue 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                        {% ifequal ratings.myRating.getValue 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
 
                         {% else %}
                             src="{% static "webclient/image/rating0.png" %}"
                         {% endif %}
                         />
-                        <span class="ratingOwner">{{ ome.user.getNameWithInitial }}</span>
                         </a>
                         <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
                     </li>
-
-                    {% for rating in ratings.otherRatings %}
-                    <li class="rating">
-                        <a title="{{ rating.owners }}"><img
-                        {% ifequal rating.value 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
-                        {% ifequal rating.value 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
-                        {% ifequal rating.value 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
-                        {% ifequal rating.value 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
-                        {% ifequal rating.value 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
-                        {% ifequal rating.value 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
-                        />
-                        <span class="ratingOwner">({{ rating.count }})</span>
-                        </a>
-                    </li>
-                    {% endfor %}
                 </ul>
+                <div id="ratingsSummary" {% if not ratings.average %}style="display:none"{% endif %}>
+                    (avg:
+                    <span id="ratingsAverage">{{ ratings.average }}</span>
+                    / <span id="ratingsCount">{{ ratings.count }}</span>
+                    votes)
+                </div>
                 {% endwith %}
              </div>
             

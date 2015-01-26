@@ -472,17 +472,27 @@ class BaseContainer(BaseController):
                 if rVal in ratingsByValue:
                     ratingsByValue[rVal].append(rating)
 
-        groupedRatings = []
-        for r in range(5,0, -1):
-            ratings = ratingsByValue[r]
-            if len(ratings) > 0:
-                groupedRatings.append({
-                    'value': r,
-                    'count': len(ratings),
-                    'owners': ", ".join([str(r.getDetails().getOwner().getNameWithInitial()) for r in ratings])
-                    })
+        avgRating = 0
+        if (len(rating_annotations) > 0):
+            sumRating = sum([r.getValue() for r in rating_annotations])
+            avgRating = float(sumRating)/len(rating_annotations)
+            avgRating = int(round(avgRating))
 
-        return {'myRating': myRating, 'otherRatings': groupedRatings}
+        # Experimental display of ratings as in PR #3322
+        # groupedRatings = []
+        # for r in range(5,0, -1):
+        #     ratings = ratingsByValue[r]
+        #     if len(ratings) > 0:
+        #         groupedRatings.append({
+        #             'value': r,
+        #             'count': len(ratings),
+        #             'owners': ", ".join([str(r.getDetails().getOwner().getNameWithInitial()) for r in ratings])
+        #             })
+
+        myRating = myRating is not None and myRating.getValue() or 0
+        # NB: this should be json serializable as used in views.annotate_rating
+        return {'myRating': myRating,
+            'average': avgRating, 'count': len(rating_annotations)}
 
 
     def canUseOthersAnns(self):
