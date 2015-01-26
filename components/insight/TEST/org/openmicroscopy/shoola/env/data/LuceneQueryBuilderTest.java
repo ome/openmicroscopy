@@ -31,8 +31,6 @@ import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 @Test(testName = "LuceneQueryBuilderTest", enabled=false)
 public class LuceneQueryBuilderTest {
 
