@@ -547,8 +547,12 @@ JSON File Format:
         session = client.getSession()
         update_service = session.getUpdateService()
         to_add = update_service.saveAndReturnArray(to_add)
-        for link in to_add:
-            self.ctx.out("TagAnnotation:%s" % link[0].parent.id.val)
+        for element in to_add:
+            if isinstance(element, TagAnnotationI):
+                self.ctx.out("TagAnnotation:%s" % element.id.val)
+            else:
+                self.ctx.out("AnnotationAnnotationLink:%s"
+                             % element.id.val)
 
     def link(self, args):
         """
@@ -595,7 +599,8 @@ JSON File Format:
                 "Object query returned nothing. Check your object type.")
             sys.exit(1)
         obj.linkAnnotation(annotation)
-        update_service.saveAndReturnObject(obj)
+        obj = update_service.saveAndReturnObject(obj)
+        self.ctx.out("%sAnnotationLink:%s" % (obj_type, obj.id.val))
 
     def list(self, args):
         """
