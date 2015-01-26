@@ -206,6 +206,9 @@ public class MapAnnotationsComponent extends JPanel implements
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				if (!((JButton) e.getSource()).isEnabled())
+					return;
+				
 				if (e.getSource() == addButton) {
 					insertRow();
 				}
