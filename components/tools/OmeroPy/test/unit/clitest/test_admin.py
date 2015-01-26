@@ -206,6 +206,10 @@ class TestAdminPorts(object):
             else:
                 self.cfg_files[key].remove()
 
+    def create_new_ice_config(self):
+        with open(self.cfg_files['ice.config'], 'w') as f:
+            f.write('omero.host=localhost')
+
     def check_cfg(self, prefix='', registry=4061, **kwargs):
         for key in ['master.cfg', 'internal.cfg']:
             s = self.cfg_files[key].text()
@@ -249,8 +253,7 @@ class TestAdminPorts(object):
     def testRevert(self, prefix, default):
 
         if not default:
-            with open(self.cfg_files['ice.config'], 'w') as f:
-                f.write('omero.host=localhost')
+            self.create_new_ice_config()
 
         kwargs = {}
         if prefix:
@@ -272,6 +275,42 @@ class TestAdminPorts(object):
         self.check_cfg()
         self.check_config_xml()
         self.check_default_xml()
+
+    @pytest.mark.parametrize('default', [True, False])
+    def testInitRevert(self, default):
+
+        if not default:
+            self.create_new_ice_config()
+
+        self.args += ['--prefix', '%s' % 1]
+        self.args += ['--skipcheck']
+        self.args += ['--revert']
+        self.cli.invoke(self.args, strict=True)
+
+        self.check_ice_config()
+        self.check_cfg()
+        self.check_config_xml()
+        self.check_default_xml()
+
+    @pytest.mark.parametrize('default', [True, False])
+    def testFailingRevert(self, default):
+
+        if not default:
+            self.create_new_ice_config()
+
+        self.args += ['--skipcheck']
+        self.args += ['--prefix', '%s' % 1]
+        self.cli.invoke(self.args, strict=True)
+
+        self.args[-1] = "2"
+        self.args += ['--revert']
+        self.cli.invoke(self.args, strict=True)
+
+        kwargs = {'prefix': 1}
+        self.check_ice_config(**kwargs)
+        self.check_cfg(**kwargs)
+        self.check_config_xml(**kwargs)
+        self.check_default_xml(**kwargs)
 
     @pytest.mark.parametrize('prefix', [None, 1])
     @pytest.mark.parametrize('registry', [None, 111])
