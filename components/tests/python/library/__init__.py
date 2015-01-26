@@ -899,6 +899,18 @@ class ProjectionFixture(object):
         self.canEdit = canEdit
         self.canLink = canLink
 
+    def get_name(self):
+        name = self.perms
+        for e in [self.writer, self.reader]:
+            name += "-"
+            if "admin" in e:
+                name += "admin"
+            elif "owner" in e:
+                name += "owner"
+            else:
+                name += "member"
+        return name
+
 PF = ProjectionFixture
 PFS = (
     # Private group as root

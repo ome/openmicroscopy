@@ -268,7 +268,7 @@ class TestPermissions(AbstractTagTest):
         super(TestPermissions, self).setup_method(method)
         self.args = ["tag"]
 
-    @pytest.mark.parametrize('fixture', PFS)
+    @pytest.mark.parametrize('fixture', PFS, ids=[x.get_name() for x in PFS])
     def testLink(self, fixture):
         # Create a tag and an image
         tag = self.new_tag()

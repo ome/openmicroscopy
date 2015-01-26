@@ -905,7 +905,8 @@ class TestPermissionProjections(lib.ITest):
         else:
             self.assertPerms(perms, fixture)
 
-    @pytest.mark.parametrize("fixture", lib.PFS)
+    @pytest.mark.parametrize("fixture", lib.PFS,
+                             ids=[x.get_name() for x in lib.PFS])
     def testProjectionPermissionsWorkaround(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
