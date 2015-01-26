@@ -30,6 +30,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -516,6 +518,10 @@ public class MapAnnotationsComponent extends JPanel implements
 		// if nothing's selected add to end of table, otherwise below selected row
 		int index = t.getSelectedRow()==-1 ? -1 :  t.getSelectedRow()+1;
 		m.addEntries(Arrays.asList(new NamedValue("", "")), index);
+		
+		t.requestFocus();
+		t.getSelectionModel().setSelectionInterval(index, index);
+		t.setColumnSelectionInterval(0, 0);
 	}
 
 	/**
