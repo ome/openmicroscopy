@@ -547,12 +547,16 @@ JSON File Format:
         session = client.getSession()
         update_service = session.getUpdateService()
         to_add = update_service.saveAndReturnArray(to_add)
+        ids = []
         for element in to_add:
             if isinstance(element, TagAnnotationI):
                 self.ctx.out("TagAnnotation:%s" % element.id.val)
+                ids.append(element.id.val)
             else:
-                self.ctx.out("AnnotationAnnotationLink:%s"
-                             % element.id.val)
+                tag_id = element.parent.id.val
+                if tag_id not in ids:
+                    self.ctx.out("TagAnnotation:%s" % tag_id)
+                    ids.append(tag_id)
 
     def link(self, args):
         """

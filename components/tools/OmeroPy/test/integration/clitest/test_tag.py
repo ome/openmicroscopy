@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import re
 import pytest
 import omero
 from omero.plugins.tag import TagControl
@@ -90,21 +91,22 @@ class AbstractTagTest(CLITest):
             link = client.sf.getQueryService().findByQuery(query, params)
         return link
 
+    def get_object(self, out, query=None):
+        """Retrieve the created object by parsing the stderr output"""
+        if not query:
+            query = self.query
+
+        pattern = re.compile('^(?P<obj_type>.*):(?P<id>\d+)$')
+        for line in reversed(out.split('\n')):
+            print line
+            match = re.match(pattern, line)
+            if match:
+                break
+        return query.get(match.group('obj_type'), int(match.group('id')),
+                         {"omero.group": "-1"})
+
 
 class TestTag(AbstractTagTest):
-
-    def get_tag_by_name(self, tag_name, ns=None):
-        # Query
-        params = omero.sys.Parameters()
-        params.map = {}
-        query = "select t from TagAnnotation as t"
-        params.map["val"] = rstring(tag_name)
-        query += " where t.textValue=:val"
-        if ns:
-            params.map["ns"] = rstring(ns)
-            query += " and t.ns=:ns"
-        tags = self.query.findByQuery(query, params)
-        return tags
 
     def get_tags_in_tagset(self, tagset_id):
         params = omero.sys.Parameters()
@@ -121,7 +123,7 @@ class TestTag(AbstractTagTest):
     # ========================================================================
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
-    def testCreateTag(self, name_arg, desc_arg):
+    def testCreateTag(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         self.args += ["create"]
@@ -140,14 +142,16 @@ class TestTag(AbstractTagTest):
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tag is created
-        tag = self.get_tag_by_name(tag_name)
+        tag = self.get_object(o)
+        assert tag.textValue.val == tag_name
         assert tag.description.val == tag_desc
 
     @pytest.mark.parametrize('name_arg', [None, '--name'])
     @pytest.mark.parametrize('desc_arg', [None, '--desc'])
-    def testCreateTagset(self, name_arg, desc_arg):
+    def testCreateTagset(self, name_arg, desc_arg, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         tag_ids = self.create_tags(2, tag_name)
@@ -168,16 +172,19 @@ class TestTag(AbstractTagTest):
         self.mox.ReplayAll()
 
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(tag_name, NSINSIGHTTAGSET)
+        tagset = self.get_object(o)
+        assert tagset.textValue.val == tag_name
+        assert tagset.ns.val == NSINSIGHTTAGSET
         assert tagset.description.val == tag_desc
 
         # Check all tags are linked to the tagset
         tags = self.get_tags_in_tagset(tagset.id.val)
         assert sorted([x.id.val for x in tags]) == sorted(tag_ids)
 
-    def testLoadTag(self):
+    def testLoadTag(self, capfd):
         tag_name = self.uuid()
         tag_desc = self.uuid()
         p = create_path(suffix=".json")
@@ -187,12 +194,14 @@ class TestTag(AbstractTagTest):
     "desc" : "%s"}]""" % (tag_name, tag_desc))
         self.args += ["load", str(p)]
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tag is created
-        tag = self.get_tag_by_name(tag_name)
+        tag = self.get_object(o)
+        assert tag.textValue.val == tag_name
         assert tag.description.val == tag_desc
 
-    def testLoadTagset(self):
+    def testLoadTagset(self, capfd):
         ts_name = self.uuid()
         ts_desc = self.uuid()
         tag_names = ["tagset %s - %s" % (ts_name, x) for x in [1, 2]]
@@ -210,9 +219,12 @@ class TestTag(AbstractTagTest):
 }]""" % (ts_name, ts_desc, tag_names[0], tag_names[1]))
         self.args += ["load", str(p)]
         self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
 
         # Check tagset is created
-        tagset = self.get_tag_by_name(ts_name, NSINSIGHTTAGSET)
+        tagset = self.get_object(o)
+        assert tagset.textValue.val == ts_name
+        assert tagset.ns.val == NSINSIGHTTAGSET
         assert tagset.description.val == ts_desc
 
         # Check all tags are linked to the tagset
@@ -261,25 +273,22 @@ class TestPermissions(AbstractTagTest):
         # Create a tag and an image
         tag = self.new_tag()
         img = self.new_image()
-        reader = self.new_client(
-            group=self.groups[fixture.perms],
-            system=(fixture.reader == "system-admin"),
-            owner=(fixture.reader == "group-owner"),
-            )
-        tag = reader.sf.getUpdateService().saveAndReturnObject(tag)
-        img = reader.sf.getUpdateService().saveAndReturnObject(img)
-        print fixture.perms
-        print fixture.reader
-        print fixture.writer
-
-        # Call tag link subcommand
         writer = self.new_client(
             group=self.groups[fixture.perms],
             system=(fixture.writer == "system-admin"),
             owner=(fixture.writer == "group-owner"),
             )
+        tag = writer.sf.getUpdateService().saveAndReturnObject(tag)
+        img = writer.sf.getUpdateService().saveAndReturnObject(img)
+
+        # Call tag link subcommand
+        reader = self.new_client(
+            group=self.groups[fixture.perms],
+            system=(fixture.reader == "system-admin"),
+            owner=(fixture.reader == "group-owner"),
+            )
         self.args += ["link"]
-        self.args += self.login_args(writer)
+        self.args += self.login_args(reader)
         self.args += ["Image:%s" % img.id.val, "%s" % tag.id.val]
         print self.args
         if fixture.canRead and fixture.canLink:
