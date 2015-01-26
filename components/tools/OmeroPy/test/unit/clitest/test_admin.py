@@ -262,6 +262,7 @@ class TestAdminPorts(object):
         self.args += ['--skipcheck']
         self.cli.invoke(self.args, strict=True)
 
+        # Check configuration file ports have been prefixed
         self.check_ice_config(**kwargs)
         self.check_cfg(**kwargs)
         self.check_config_xml(**kwargs)
@@ -271,22 +272,7 @@ class TestAdminPorts(object):
         self.args += ['--revert']
         self.cli.invoke(self.args, strict=True)
 
-        self.check_ice_config()
-        self.check_cfg()
-        self.check_config_xml()
-        self.check_default_xml()
-
-    @pytest.mark.parametrize('default', [True, False])
-    def testInitRevert(self, default):
-
-        if not default:
-            self.create_new_ice_config()
-
-        self.args += ['--prefix', '%s' % 1]
-        self.args += ['--skipcheck']
-        self.args += ['--revert']
-        self.cli.invoke(self.args, strict=True)
-
+        # Check configuration file ports have been deprefixed
         self.check_ice_config()
         self.check_cfg()
         self.check_config_xml()
@@ -298,15 +284,23 @@ class TestAdminPorts(object):
         if not default:
             self.create_new_ice_config()
 
+        kwargs = {'prefix': 1}
         self.args += ['--skipcheck']
-        self.args += ['--prefix', '%s' % 1]
+        self.args += ['--prefix', '%s' % kwargs['prefix']]
         self.cli.invoke(self.args, strict=True)
 
+        # Check configuration file ports
+        self.check_ice_config(**kwargs)
+        self.check_cfg(**kwargs)
+        self.check_config_xml(**kwargs)
+        self.check_default_xml(**kwargs)
+
+        # Test revert with a mismatching prefix
         self.args[-1] = "2"
         self.args += ['--revert']
         self.cli.invoke(self.args, strict=True)
 
-        kwargs = {'prefix': 1}
+        # Check configuration file ports have not been modified
         self.check_ice_config(**kwargs)
         self.check_cfg(**kwargs)
         self.check_config_xml(**kwargs)
