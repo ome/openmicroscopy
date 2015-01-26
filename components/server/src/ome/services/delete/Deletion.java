@@ -54,9 +54,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.google.common.base.Function;
-import com.google.common.collect.SetMultimap;
-
 /**
  * Maintain state about a delete itself. That makes a central class for
  * providing reusable delete logic. (Note: much of this code has been
@@ -360,37 +357,13 @@ public class Deletion {
     public void deleteFiles() {
         StopWatch sw = new Slf4JStopWatch();
         try {
-            _deleteFiles(new Function<String, Set<Long>>() {
-                @Override
-                public Set<Long> apply(String fileType) {
-                    return state.getProcessedIds(fileType);
-                }
-            });
+            _deleteFiles();
         } finally {
             sw.stop("omero.delete.binary");
         }
     }
 
-    /**
-     * Delete the actual files corresponding to the given class names and IDs.
-     * Provides access to file deletion for objects not derived through {link @GraphSpec}-based operations.
-     * @param processedIds the class names and IDs whose corresponding files are to be deleted
-     */
-    public void deleteFiles(final SetMultimap<String, Long> processedIds) {
-        final StopWatch sw = new Slf4JStopWatch();
-        try {
-            _deleteFiles(new Function<String, Set<Long>>() {
-                @Override
-                public Set<Long> apply(String fileType) {
-                    return processedIds.get(fileType);
-                }
-            });
-        } finally {
-            sw.stop("omero.delete.binary");
-        }
-    }
-
-    private void _deleteFiles(Function<String, Set<Long>> processedIds) {
+    private void _deleteFiles() {
 
         File file;
         String filePath;
@@ -400,7 +373,7 @@ public class Deletion {
         bytesFailed = 0;
         filesFailed = 0;
         for (String fileType : fileTypeList) {
-            final Set<Long> deletedIds = processedIds.apply(fileType);
+            Set<Long> deletedIds = state.getProcessedIds(fileType);
             failedMap.put(fileType, new ArrayList<Long>());
             if (deletedIds != null && deletedIds.size() > 0) {
                 log.debug(String.format("Binary delete of %s for %s:%s: %s",
