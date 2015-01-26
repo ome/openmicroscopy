@@ -343,7 +343,7 @@ class TestModel(object):
         # once it has been dropped.
         UL = [getattr(UL, x) for x in sorted(UL._names)]
 
-    @pytest.mark.parametrize("ul", UL)
+    @pytest.mark.parametrize("ul", UL, ids=[str(x) for x in UL])
     def testEnumerators(self, ul):
         assert hasattr(omero.model.enums.UnitsLength, str(ul))
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2014 Glencoe Software, Inc. All Rights Reserved.
+# Copyright (C) 2014-2015 Glencoe Software, Inc. All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -215,8 +215,10 @@ def template_xml():
 
 class TestAdjustStrategy(object):
 
-    @pytest.mark.parametrize("fixture", AFS)
-    def test_adjust(self, fixture):
+    @pytest.mark.parametrize("fixture", AFS, ids=[x.name for x in AFS])
+    def test_adjust(self, fixture, monkeypatch):
+        monkeypatch.setattr(Strategy, '_system_memory_mb_java',
+                            lambda x: (2000, 4000))
         p = write_config(fixture.input)
         xml = template_xml()
         config = ConfigXml(filename=str(p), env_config="default")
