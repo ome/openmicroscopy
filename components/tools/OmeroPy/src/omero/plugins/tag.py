@@ -587,12 +587,15 @@ JSON File Format:
         if args.admin:
             ice_map["omero.group"] = "-1"
 
-        # FIXME: Do we want to wrap this in a try/except? What to check for?
+        # Retrieve annotation
         client = self.ctx.conn(args)
         session = client.getSession()
         query_service = session.getQueryService()
         update_service = session.getUpdateService()
-        annotation = query_service.find("TagAnnotation", tag_id)
+        try:
+            annotation = query_service.find("TagAnnotation", tag_id)
+        except omero.SecurityViolation, sv:
+            self.ctx.die(510, "SecurityViolation: %s" % sv.message)
 
         obj = query_service.findByQuery(
             "select o from %s as o "
@@ -602,8 +605,13 @@ JSON File Format:
             self.ctx.err(
                 "Object query returned nothing. Check your object type.")
             sys.exit(1)
+
         obj.linkAnnotation(annotation)
-        obj = update_service.saveAndReturnObject(obj)
+        try:
+            obj = update_service.saveAndReturnObject(obj)
+        except omero.SecurityViolation, sv:
+            self.ctx.die(510, "SecurityViolation: %s" % sv.message)
+
         self.ctx.out("%sAnnotationLink:%s" % (obj_type, obj.id.val))
 
     def list(self, args):

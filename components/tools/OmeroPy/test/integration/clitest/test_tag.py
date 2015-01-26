@@ -290,8 +290,7 @@ class TestPermissions(AbstractTagTest):
         self.args += ["link"]
         self.args += self.login_args(reader)
         self.args += ["Image:%s" % img.id.val, "%s" % tag.id.val]
-        print self.args
-        if fixture.canRead and fixture.canLink:
+        if fixture.canAnnotate:
             self.cli.invoke(self.args, strict=True)
 
             # Check link
