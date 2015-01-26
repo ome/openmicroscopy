@@ -18,46 +18,25 @@
 package ome.services.messages;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import ome.util.SqlAction.DeleteLog;
 import ome.util.messages.InternalMessage;
 
-public class DeleteLogMessage extends InternalMessage {
+public class DeleteLogsMessage extends InternalMessage {
 
-    private static final long serialVersionUID = 1946424150689223625L;
+    private static final long serialVersionUID = 2948752938475908723L;
 
-    private final long fileId;
+    private final List<DeleteLogMessage> messages = new ArrayList<DeleteLogMessage>();
 
-    private final List<DeleteLog> successes = new ArrayList<DeleteLog>();
-
-    private final Map<DeleteLog, Throwable> errors = new HashMap<DeleteLog, Throwable>();
-
-    public DeleteLogMessage(Object source, long fileId) {
+    public DeleteLogsMessage(Object source, List<Long> fileIds) {
         super(source);
-        this.fileId = fileId;
+        for (Long fileId : fileIds) {
+            messages.add(new DeleteLogMessage(source, fileId));
+        }
     }
 
-    public long getFileId() {
-        return fileId;
-    }
-
-    public int count() {
-        return successes.size() + errors.size();
-    }
-
-    public void success(DeleteLog log) {
-        successes.add(log);
-    }
-
-    public void error(DeleteLog log, Throwable t) {
-        errors.put(log, t);
-    }
-
-    public boolean isError(DeleteLog log) {
-        return errors.containsKey(log);
+    public List<DeleteLogMessage> getMessages() {
+        return messages;
     }
 
 }

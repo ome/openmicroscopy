@@ -172,6 +172,13 @@ public interface SqlAction {
             Set<String> mimetypes);
 
     /**
+     * Like {@link #findRepoFile(String, String, String, Set)}, but queries in
+     * bulk and returns a map for the found IDs.
+     */
+    Map<String, Long> findRepoFiles(String uuid, String dirname,
+            List<String> basenames, Set<String> mimetypes);
+
+    /**
      * Return a list of original file ids that all have a path value matching
      * the passed dirname in the given repository.
      *
@@ -737,15 +744,40 @@ public interface SqlAction {
 
         public Long findRepoFile(String uuid, String dirname, String basename,
                 Set<String> mimetypes) {
+            Map<String, Long> rv = findRepoFiles(uuid, dirname,
+                    Arrays.asList(basename), mimetypes);
+            if (rv == null) {
+                return null;
+            } else {
+                return rv.get(basename);
+            }
+        }
 
-            String findRepoFileSql = _lookup("find_repo_file"); //$NON-NLS-1$
+        public Map<String, Long> findRepoFiles(String uuid, String dirname,
+                List<String> basenames,
+                Set<String> mimetypes) {
+
+            if (basenames == null || basenames.size() == 0) {
+                return null;
+            }
+
+            String findRepoFileSql = _lookup("find_repo_files_by_name"); //$NON-NLS-1$
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("repo", uuid);
             params.put("path", dirname);
-            params.put("name", basename);
+            params.put("names", basenames);
             findRepoFileSql += addMimetypes(mimetypes, params);
             try {
-                return _jdbc().queryForLong(findRepoFileSql, params);
+                final Map<String, Long> rv = new HashMap<String, Long>();
+                _jdbc().query(findRepoFileSql,
+                        new RowMapper<Object>(){
+                            @Override
+                            public Object mapRow(ResultSet arg0, int arg1)
+                                    throws SQLException {
+                                rv.put(arg0.getString(1),  arg0.getLong(2));
+                                return null;
+                            }}, params);
+                return rv;
             } catch (EmptyResultDataAccessException e) {
                 return null;
             }
