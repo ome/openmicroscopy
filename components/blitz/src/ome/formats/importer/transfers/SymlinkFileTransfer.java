@@ -28,18 +28,18 @@ import java.util.List;
  * Local-only file transfer mechanism which makes use of soft-linking.
  *
  *  This is only useful where the commands "ln -s source target" (Unix) or
- * "mklink source target" (Windows) will work.
+ * "mklink target source" (Windows) will work.
  *
  * @since 5.0
  */
 public class SymlinkFileTransfer extends AbstractExecFileTransfer {
 
     /**
-     * Executes "ln -s file location" (Unix) or "mklink file location" (Windows)
+     * Executes "ln -s file location" (Unix) or "mklink location file" (Windows)
      * and fails on non-0 return codes.
      *
-     * @param file
-     * @param location
+     * @param file File to be copied.
+     * @param location Location to copy to.
      * @throws IOException
      * @TODO Java7: replace ln once Java6 is dropped
      */

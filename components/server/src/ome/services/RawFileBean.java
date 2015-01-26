@@ -187,21 +187,45 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
     }
 
+    /**
+     * Extends the check of the {@link #modified} flag performed by super
+     * with an additional check of the actual file size against the value
+     * stored in the database
+     */
+    @Override
+    protected boolean isModified() {
+        if (super.isModified()) {
+            return true;
+        }
+
+        // check that the real file size doesn't differ from the DB.
+        // If there's no file, though, we can't lookup anyway.
+        if (file == null || buffer == null || file.getSize() == null) {
+            return false;
+        }
+
+        long dbSize = file.getSize();
+        long fileSize = size();
+        return dbSize != fileSize;
+    }
+
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public synchronized OriginalFile save() {
-        if (isModified() || buffer != null && size() == 0) {
-            Long id = (file == null) ? null : file.getId();
-            if (id == null) {
-                return null;
-            }
 
-            String path = buffer.getPath();
+        final Long id = (file == null) ? null : file.getId();
+        if (id == null) {
+            return null;
+        }
+
+        if (isModified() || buffer != null && size() == 0) {
+
+            final String path = buffer.getPath();
 
             try {
                 buffer.flush(true);
             } catch (IOException ie) {
-                final String msg = "cannot flush " + buffer.getPath() + ": " + ie;
+                final String msg = "cannot flush " + path + ": " + ie;
                 log.warn(msg);
                 clean();
                 throw new ResourceError(msg);

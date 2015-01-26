@@ -50,6 +50,8 @@ public abstract class AbstractFileTransfer implements FileTransfer {
         ln(HardlinkFileTransfer.class),
         ln_rm(MoveFileTransfer.class),
         ln_s(SymlinkFileTransfer.class),
+        cp(CopyFileTransfer.class),
+        cp_rm(CopyMoveFileTransfer.class),
         upload(UploadFileTransfer.class),
         upload_rm(UploadRmFileTransfer.class);
         Class<?> kls;
