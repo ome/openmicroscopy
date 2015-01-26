@@ -233,6 +233,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		addButton.setToolTipText("Insert Row");
 		addButton.addMouseListener(ml);
 		addButton.setEnabled(false);
+		addButton.setFocusable(false);
 		bar.add(addButton);
 
 		copyButton = new JButton(icons.getIcon(IconManager.COPY));
@@ -241,6 +242,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		copyButton.setToolTipText("Copy Rows");
 		copyButton.addMouseListener(ml);
 		copyButton.setEnabled(false);
+		copyButton.setFocusable(false);
 		bar.add(copyButton);
 
 		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
@@ -249,6 +251,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		pasteButton.setToolTipText("Paste Rows");
 		pasteButton.addMouseListener(ml);
 		pasteButton.setEnabled(false);
+		pasteButton.setFocusable(false);
 		bar.add(pasteButton);
 
 		deleteButton = new JButton(icons.getIcon(IconManager.DELETE_12));
@@ -257,6 +260,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		deleteButton.setToolTipText("Delete Rows");
 		deleteButton.addMouseListener(ml);
 		deleteButton.setEnabled(false);
+		deleteButton.setFocusable(false);
 		bar.add(deleteButton);
 		return bar;
 	}
@@ -431,6 +435,17 @@ public class MapAnnotationsComponent extends JPanel implements
 				if(m.isDirty())
 					view.setDataToSave(true);
 				adjustScrollPane();
+			}
+		});
+		t.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				MapTableModel m = (MapTableModel) t.getModel();
+				if(m.isDirty())
+					view.saveData(true);
+			}
+			@Override
+			public void focusGained(FocusEvent e) {
 			}
 		});
 		mapTables.add(t);
