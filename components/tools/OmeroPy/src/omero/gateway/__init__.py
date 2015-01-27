@@ -2754,10 +2754,10 @@ class _BlitzGateway (object):
                 leaders = [self.getUser()]
             else:
                 colleagues = [self.getUser()]
-                
+
         colleagues.sort(key=lambda x: x.getLastName().lower())
         leaders.sort(key=lambda x: x.getLastName().lower())
-        
+
         return {"leaders": leaders, "colleagues": colleagues}
 
     def listStaffs(self):
