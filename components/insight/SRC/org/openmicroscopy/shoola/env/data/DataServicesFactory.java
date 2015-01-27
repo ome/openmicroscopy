@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import ij.IJ;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.InputStream;
@@ -46,8 +48,10 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.client;
+
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.Environment;
@@ -75,6 +79,7 @@ import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.file.IOUtil;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -751,7 +756,7 @@ public class DataServicesFactory
     { 
 		//Need to write the current group.
 		//if (!omeroGateway.isConnected()) return;
-		omeroGateway.logout();
+		if (omeroGateway != null) omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 

@@ -35,10 +35,12 @@ import java.util.Set;
 //Third-party libraries
 
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ActivateAgents;
 import org.openmicroscopy.shoola.env.data.events.ConnectedEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
@@ -393,7 +395,9 @@ public final class Container
 			System.exit(0);
 		} else {
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
-			//singleton = null;
+			try {
+			    DataServicesFactory.getInstance(singleton).shutdown(null);
+            } catch (Exception e) {}
 		}
 	}
 	
