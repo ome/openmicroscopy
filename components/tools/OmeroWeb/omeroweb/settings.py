@@ -305,6 +305,11 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["FORCE_SCRIPT_NAME",
          None,
          leave_none_unset,
+         ("DEPRECATED, use omero.web.prefix instead.")],
+    "omero.web.prefix":
+        ["FORCE_SCRIPT_NAME",
+         None,
+         leave_none_unset,
          ("Used as the value of the SCRIPT_NAME environment variable in any"
           " HTTP request.")],
     "omero.web.static_url":
