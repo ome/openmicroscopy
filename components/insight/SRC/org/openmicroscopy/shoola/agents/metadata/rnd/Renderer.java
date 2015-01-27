@@ -807,9 +807,12 @@ public interface Renderer
      * Returns <code>true</code> if the rendering settings 
      * have been modified
      *
+     * @param checkPlane Pass <code>true</code> to check the plane,
+	 * <code>false</code> otherwise.
+	 * 
      * @return See above.
      */
-    boolean isModified();
+    boolean isModified(boolean checkPlane);
     
     /**
      * Enables/Disables the paste action
