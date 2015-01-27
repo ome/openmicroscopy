@@ -39,65 +39,6 @@
     <script type="text/javascript">
 
         if (typeof OME === "undefined") { OME={}; }
-        OME.handleChgrp = function(gid, gname, oid) {
-            var $chgrpform = $("#chgrp-form");
-            $chgrpform.dialog( "option" , "title" ,"Move to Group: "+ gname);
-            $chgrpform.dialog('open');
-            // Add group & selected items to chgrp form
-            $('input.removeMe', $chgrpform).remove();   // cleanup (horrible!)
-            $("<input name='group_id' value='"+ gid +"'/>")
-                .appendTo($chgrpform).addClass('removeMe').hide();
-            var selobjs = OME.get_tree_selection().split("&");  // E.g. Image=1,2&Dataset=3
-            for (var i=0;i<selobjs.length;i++) {
-                var dtype = selobjs[i].split("=")[0],
-                    dids = selobjs[i].split("=")[1];
-                $("<input name='"+ dtype +"' value='"+ dids +"'/>")
-                    .appendTo($chgrpform).addClass('removeMe').hide();
-            }
-
-            var chgrp_target_url = "{% url 'webindex' %}load_chgrp_target/"+gid;
-            var chgrp_type = oid.split("-")[0];
-            var target_type;
-            if (chgrp_type == "dataset") target_type = "project";
-            else if (chgrp_type == "image") target_type = "dataset";
-            else if (chgrp_type == "plate") target_type = "screen";
-            chgrp_target_url += "/"+target_type+"/";
-            
-            if (chgrp_type == "project" || chgrp_type == "screen") {
-                $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
-            } else {
-                // we load a tree - then give it basic selection / expansion behaviour. jsTree would have been overkill!?
-                $("#move_group_tree").load(chgrp_target_url, function(){
-                    var node_click = function(){
-                        $("#move_group_tree a").removeClass("jstree-clicked");
-                        // only allow selection of correct nodes
-                        if ($(this).parent().attr('rel') == target_type) {
-                            $("a" ,$(this).parent()).addClass("jstree-clicked");
-                        }
-                        // toggle any children
-                        $("ul" ,$(this).parent()).toggle();
-                    };
-                    $("#move_group_tree a").click(node_click);
-                    $("#move_group_tree ins").click(node_click);
-                });
-            }
-
-            // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
-            $("#move_group_tree").hide();               // hide tree while we wait...
-            $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
-            $.get("{% url 'fileset_check' 'chgrp' %}?" + OME.get_tree_selection(), function(html){
-                if($('div.split_fileset', html).length > 0) {
-                    $(html).appendTo($chgrpform)
-                    $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
-                    var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
-                    if (chgrp_type == "image") {
-                        OME.select_fileset_images(filesetId);
-                    }
-                } else {
-                    $("#move_group_tree").show();
-                }
-            });
-        }
 
         OME.handleNewContainer = function(container_type) {
             
@@ -274,6 +215,101 @@
                     // wait for images to render, then truncate:
                     setTimeout(OME.truncateNames, 30);
                 });
+
+
+        $( "#chgrp-form" ).on( "click", ".chgrpGroup", function() {
+            $(".chgrpGroup").removeClass('ui-selected');
+            $(this).addClass('ui-selected');
+        });
+
+
+        OME.handleChgrp = function() {
+            // gid, gname, oid
+            var $chgrpform = $("#chgrp-form");
+            $chgrpform.dialog( "option" , "title" ,"Move to Group");
+            $chgrpform.dialog('open');
+            $chgrpform.empty();
+
+            var permsIcon = function(perms) {
+                if (perms.write) return "{% static 'webclient/image/group_green16.png' %}";
+                if (perms.annotate) return "{% static 'webclient/image/group_orange16.png' %}";
+                if (perms.read) return "{% static 'webclient/image/group_red16.png' %}"
+                return "{% static 'webclient/image/personal16.png' %}"
+            };
+
+            // Need to find which groups we can move selected objects to.
+            // Object owner must be member of target group.
+            var url = "{% url 'load_chgrp_groups' %}?" + OME.get_tree_selection();
+            console.log(url)
+            $.getJSON(url, function(data){
+                console.log(data);
+                var headerTxt = "<p>Move data owned by " + data.owners.join(", ") + " to Group...</p>";
+                $chgrpform.append(headerTxt);
+
+                var html = "";
+                for (var i=0; i<data.groups.length; i++){
+                    var g = data.groups[i];
+                    html += "<div class='chgrpGroup' data-gid='"+ g.id + "'>"
+                    html += "<img src='" + permsIcon(g.perms) + "'/>"
+                    html += g.name + "</div><hr>";
+                }
+                $chgrpform.append(html);
+            });
+
+            // // Add group & selected items to chgrp form
+            // $('input.removeMe', $chgrpform).remove();   // cleanup (horrible!)
+            // var selobjs = OME.get_tree_selection().split("&");  // E.g. Image=1,2&Dataset=3
+            // for (var i=0;i<selobjs.length;i++) {
+            //     var dtype = selobjs[i].split("=")[0],
+            //         dids = selobjs[i].split("=")[1];
+            //     $("<input name='"+ dtype +"' value='"+ dids +"'/>")
+            //         .appendTo($chgrpform).addClass('removeMe').hide();
+            // }
+
+            // var chgrp_target_url = "{% url 'webindex' %}load_chgrp_target/"+gid;
+            // var chgrp_type = oid.split("-")[0];
+            // var target_type;
+            // if (chgrp_type == "dataset") target_type = "project";
+            // else if (chgrp_type == "image") target_type = "dataset";
+            // else if (chgrp_type == "plate") target_type = "screen";
+            // chgrp_target_url += "/"+target_type+"/";
+
+            // if (chgrp_type == "project" || chgrp_type == "screen") {
+            //     $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
+            // } else {
+            //     // we load a tree - then give it basic selection / expansion behaviour. jsTree would have been overkill!?
+            //     $("#move_group_tree").load(chgrp_target_url, function(){
+            //         var node_click = function(){
+            //             $("#move_group_tree a").removeClass("jstree-clicked");
+            //             // only allow selection of correct nodes
+            //             if ($(this).parent().attr('rel') == target_type) {
+            //                 $("a" ,$(this).parent()).addClass("jstree-clicked");
+            //             }
+            //             // toggle any children
+            //             $("ul" ,$(this).parent()).toggle();
+            //         };
+            //         $("#move_group_tree a").click(node_click);
+            //         $("#move_group_tree ins").click(node_click);
+            //     });
+            // }
+
+            // // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
+            // $("#move_group_tree").hide();               // hide tree while we wait...
+            // $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
+            // $.get("{% url 'fileset_check' 'chgrp' %}?" + OME.get_tree_selection(), function(html){
+            //     if($('div.split_fileset', html).length > 0) {
+            //         $(html).appendTo($chgrpform)
+            //         $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
+            //         var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
+            //         if (chgrp_type == "image") {
+            //             OME.select_fileset_images(filesetId);
+            //         }
+            //     } else {
+            //         $("#move_group_tree").show();
+            //     }
+            // });
+        }
+
 
                 // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
                 var copyRenderingSettings = function(selected) {
@@ -845,29 +881,7 @@
                             config["chgrp"] = {
                                 "label" : "Move to Group...",
                                 "icon"  : '{% static "webclient/image/icon_basic_user_16.png" %}',
-                                //"action": handleChgrp
-                                "submenu"   : {
-                                    {% for grp in myGroups %}
-                                        {% ifnotequal grp.id active_group.id %}
-                                            "menuitem{{ grp.id }}" : {
-                                                "label" : "{{ grp.name }}",
-                                                "icon"  : {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
-                                                {% else %}
-                                                    {% if grp.getDetails.getPermissions.isGroupAnnotate %} src="{% static "webclient/image/group_orange16.png" %}"
-                                                    {% else %}
-                                                        {% if grp.details.permissions.isGroupRead %} src="{% static "webclient/image/group_red16.png" %}"
-                                                        {% else %}
-                                                            src="{% static "webclient/image/personal16.png" %}"
-                                                        {% endif %}
-                                                    {% endif %}
-                                                {% endif %},
-                                                "action": function(obj) {
-                                                    OME.handleChgrp({{ grp.id }}, "{{ grp.name }}", obj[0].id);
-                                                }
-                                            },
-                                        {% endifnotequal %}
-                                    {% endfor %}
-                                }
+                                "action": OME.handleChgrp
                             };
                             
                             config["basket"] = {

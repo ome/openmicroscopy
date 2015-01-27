@@ -665,6 +665,14 @@
         .fileset_image.extra {
             display:none;
         }
+
+        .chgrpGroup {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .chgrpGroup.ui-selected {
+            background-color: #cddcfc;
+        }
     
     
     .tooltip_title {

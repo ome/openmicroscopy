@@ -569,7 +569,69 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
+@render_response()
+def load_chgrp_groups(request, conn=None, **kwargs):
+    """
+    Get the potential groups we can move selected data to.
+    These will be groups that the owner(s) of selected objects is a member of.
+    Objects are specified by query string like: ?Image=1,2&Dataset=3
+    If no selected objects are specified, simply list the groups that the
+    current user is a member of.
+    Groups list will exclude the 'current' group context.
+    """
+
+    ownerIds = []
+    currentGroups = set()
+    groupSets = []
+    groups = {}
+    owners = {}
+    for dtype in ("Project", "Dataset", "Image", "Screen", "Plate"):
+        oids = request.REQUEST.get(dtype, None)
+        if oids is not None:
+            for o in conn.getObjects(dtype, oids.split(",")):
+                ownerIds.append(o.getDetails().owner.id.val)
+                currentGroups.add(o.getDetails().group.id.val)
+    ownerIds = list(set(ownerIds))
+    for owner in conn.getObjects("Experimenter", ownerIds):
+        # Each owner has a set of groups
+        gids = []
+        owners[owner.id] = owner.getFullName()
+        for group in owner.copyGroupExperimenterMap():
+            groups[group.parent.id.val] = group.parent
+            gids.append(group.parent.id.val)
+        groupSets.append(set(gids))
+
+    # Can move to groups that all owners are members of...
+    targetGroupIds = set.intersection(*groupSets)
+    #...but not 'user' group
+    userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
+    targetGroupIds.remove(userGroupId)
+
+    # if all the Objects are in a single group, exclude it from the target groups
+    if len(currentGroups) == 1:
+        targetGroupIds.remove(currentGroups.pop())
+
+    def getPerms(group):
+        p = group.getDetails().permissions
+        return {'write': p.isGroupWrite(),
+                'annotate': p.isGroupAnnotate(),
+                'read': p.isGroupRead()}
+
+    targetGroups = []
+    for gid in targetGroupIds:
+        print groups[gid].getDetails().permissions.isGroupRead()
+        targetGroups.append({
+            'id':gid,
+            'name': groups[gid].name.val,
+            'perms': getPerms(groups[gid])
+        })
+    targetGroups.sort(key=lambda x: x['name'])
+
+    return {'owners': owners.values(), 'groups': targetGroups}
+
+
+@login_required()
 @render_response()
 def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     """ Loads a tree for user to pick target Project, Dataset or Screen """

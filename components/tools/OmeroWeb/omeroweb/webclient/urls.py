@@ -67,6 +67,9 @@ urlpatterns = patterns('django.views.generic.simple',
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
+
+    # chgrp. Load potential target groups, then load target P/D within chosen group
+    url( r'^load_chgrp_groups/$', views.load_chgrp_groups, name="load_chgrp_groups"),  # Query E.g. ?Image=1,2&Dataset=3
     url( r'^load_chgrp_target/(?P<group_id>[0-9]+)/(?P<target_type>((?i)project|dataset|screen))/$', views.load_chgrp_target, name="load_chgrp_target"),
     
     # load history
