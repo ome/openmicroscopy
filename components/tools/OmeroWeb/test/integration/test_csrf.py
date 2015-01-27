@@ -25,7 +25,6 @@ working correctly.
 import omero
 import omero.clients
 from omero.rtypes import rstring, rtime
-import pytest
 import library as lib
 
 import json
@@ -46,119 +45,73 @@ from random import randint as rint
 import tempfile
 
 
-@pytest.fixture(scope='function')
-def itest(request):
-    """
-    Returns a new L{test.integration.library.ITest} instance. With attached
-    finalizer so that pytest will clean it up.
-    """
-    o = lib.ITest()
-    o.setup_class()
-
-    def finalizer():
-        o.teardown_class()
-    request.addfinalizer(finalizer)
-    return o
-
-
-@pytest.fixture(scope='function')
-def client(request, itest):
-    """Returns a new user client in a read-only group."""
-    # Use group read-only permissions (not private) by default
-    return itest.new_client(perms='rwr---')
-
-
-@pytest.fixture(scope='function')
-def image_with_channels(request, itest, client):
-    """
-    Returns a new foundational Image with Channel objects attached for
-    view method testing.
-    """
-    pixels = itest.pix(client=client)
-    for the_c in range(pixels.getSizeC().val):
-        channel = omero.model.ChannelI()
-        channel.logicalChannel = omero.model.LogicalChannelI()
-        pixels.addChannel(channel)
-    image = pixels.getImage()
-    return client.getSession().getUpdateService().saveAndReturnObject(image)
-
-
-@pytest.fixture(scope='function')
-def new_tag(request, itest, client):
-    """
-    Returns a new Tag objects
-    """
-    tag = omero.model.TagAnnotationI()
-    tag.textValue = rstring(itest.uuid())
-    tag.ns = rstring("pytest")
-    return client.getSession().getUpdateService().saveAndReturnObject(tag)
-
-
-@pytest.fixture(scope='function')
-def django_client(request, client):
-    """Returns a logged in Django test client."""
-    django_client = Client(enforce_csrf_checks=True)
-    login_url = reverse('weblogin')
-
-    response = django_client.get(login_url)
-    assert response.status_code == 200
-    csrf_token = django_client.cookies['csrftoken'].value
-
-    data = {
-        'server': 1,
-        'username': client.getProperty('omero.user'),
-        'password': client.getProperty('omero.pass'),
-        'csrfmiddlewaretoken': csrf_token
-    }
-    response = django_client.post(login_url, data)
-    assert response.status_code == 302
-
-    def finalizer():
-        logout_url = reverse('weblogout')
-        data = {'csrfmiddlewaretoken': csrf_token}
-        response = django_client.post(logout_url, data=data)
-        assert response.status_code == 302
-    request.addfinalizer(finalizer)
-    return django_client
-
-
-@pytest.fixture(scope='function')
-def django_root_client(request, itest):
-    """Returns a logged in Django test client."""
-    django_client = Client(enforce_csrf_checks=True)
-    login_url = reverse('weblogin')
-
-    response = django_client.get(login_url)
-    assert response.status_code == 200
-    csrf_token = django_client.cookies['csrftoken'].value
-
-    data = {
-        'server': 1,
-        'username': 'root',
-        'password': itest.client.ic.getProperties()
-                                   .getProperty('omero.rootpass'),
-        'csrfmiddlewaretoken': csrf_token
-    }
-    response = django_client.post(login_url, data)
-    assert response.status_code == 302
-
-    def finalizer():
-        logout_url = reverse('weblogout')
-        data = {'csrfmiddlewaretoken': csrf_token}
-        response = django_client.post(logout_url, data=data)
-        assert response.status_code == 302
-    request.addfinalizer(finalizer)
-    return django_client
-
-
-class TestCsrf(object):
+class TestCsrf(lib.ITest):
     """
     Tests to ensure that Django CSRF middleware for OMERO.web is enabled and
     working correctly.
     """
 
+    def image_with_channels(self):
+        """
+        Returns a new foundational Image with Channel objects attached for
+        view method testing.
+        """
+        pixels = self.pix(client=self.client)
+        for the_c in range(pixels.getSizeC().val):
+            channel = omero.model.ChannelI()
+            channel.logicalChannel = omero.model.LogicalChannelI()
+            pixels.addChannel(channel)
+        image = pixels.getImage()
+        return self.sf.getUpdateService().saveAndReturnObject(image)
+
+    def new_tag(self):
+        """
+        Returns a new Tag objects
+        """
+        tag = omero.model.TagAnnotationI()
+        tag.textValue = rstring(self.uuid())
+        tag.ns = rstring("pytest")
+        return self.sf.getUpdateService().saveAndReturnObject(tag)
+
+    @classmethod
+    def create_django_client(cls, name, password):
+        django_client = Client(enforce_csrf_checks=True)
+        login_url = reverse('weblogin')
+
+        response = django_client.get(login_url)
+        assert response.status_code == 200
+        csrf_token = django_client.cookies['csrftoken'].value
+
+        data = {
+            'server': 1,
+            'username': name,
+            'password': password,
+            'csrfmiddlewaretoken': csrf_token
+        }
+        response = django_client.post(login_url, data)
+        assert response.status_code == 302
+        return django_client
+
+    @classmethod
+    def setup_class(cls):
+        """Returns a logged in Django test client."""
+        super(TestCsrf, cls).setup_class()
+        omeName = cls.sf.getAdminService().getEventContext().userName
+        cls.django_client = cls.create_django_client(omeName, omeName)
+        rootpass = cls.root.ic.getProperties().getProperty('omero.rootpass')
+        cls.django_root_client = cls.create_django_client("root", rootpass)
+
+    @classmethod
+    def teardown_class(cls):
+        logout_url = reverse('weblogout')
+        for client in [cls.django_client, cls.django_root_client]:
+            data = {'csrfmiddlewaretoken': client.cookies['csrftoken'].value}
+            response = client.post(logout_url, data=data)
+            assert response.status_code == 302
+        super(TestCsrf, cls).teardown_class()
+
     # Client
-    def test_csrf_middleware_enabled(self, client):
+    def test_csrf_middleware_enabled(self):
         """
         If the CSRF middleware is enabled login attempts that do not include
         the CSRF token should fail with an HTTP 403 (forbidden) status code.
@@ -168,8 +121,8 @@ class TestCsrf(object):
 
         data = {
             'server': 1,
-            'username': client.getProperty('omero.user'),
-            'password': client.getProperty('omero.pass')
+            'username': self.client.getProperty('omero.user'),
+            'password': self.client.getProperty('omero.pass')
         }
         login_url = reverse('weblogin')
         _post_reponse(django_client, login_url, data)
@@ -177,17 +130,17 @@ class TestCsrf(object):
         logout_url = reverse('weblogout')
         _post_reponse(django_client, logout_url, {})
 
-    def test_forgot_password(self, itest, django_client):
+    def test_forgot_password(self):
 
         request_url = reverse('waforgottenpassword')
         data = {
             'username': "omename",
             'email': "email"
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
-    def test_add_and_rename_container(self, django_client):
+    def test_add_and_rename_container(self):
 
         # Add project
         request_url = reverse("manage_action_containers",
@@ -196,8 +149,8 @@ class TestCsrf(object):
             'folder_type': 'project',
             'name': 'foobar'
         }
-        _post_reponse(django_client, request_url, data)
-        response = _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        response = _csrf_post_reponse(self.django_client, request_url, data)
         pid = json.loads(response.content).get("id")
 
         # Add dataset to the project
@@ -207,8 +160,8 @@ class TestCsrf(object):
             'folder_type': 'dataset',
             'name': 'foobar'
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Rename project
         request_url = reverse("manage_action_containers",
@@ -216,8 +169,8 @@ class TestCsrf(object):
         data = {
             'name': 'anotherfoobar'
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Change project description
         request_url = reverse("manage_action_containers",
@@ -225,48 +178,46 @@ class TestCsrf(object):
         data = {
             'description': 'anotherfoobar'
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
-    def test_move_data(self, itest, client, django_root_client,
-                       image_with_channels):
+    def test_move_data(self):
 
-        user_id = client.getSession().getAdminService() \
-                                     .getEventContext().userId
-        user = client.getSession().getAdminService().getExperimenter(user_id)
-        group_id = itest.new_group(experimenters=[user]).id.val
+        user_id = self.sf.getAdminService().getEventContext().userId
+        user = self.sf.getAdminService().getExperimenter(user_id)
+        group_id = self.new_group(experimenters=[user]).id.val
 
         request_url = reverse('chgrp')
         data = {
-            'image': image_with_channels.id.val,
+            'image': self.image_with_channels().id.val,
             'group_id': group_id
         }
 
-        _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data)
+        _post_reponse(self.django_root_client, request_url, data)
+        _csrf_post_reponse(self.django_root_client, request_url, data)
 
-    def test_add_and_remove_comment(
-            self, django_client, image_with_channels):
+    def test_add_and_remove_comment(self):
 
         request_url = reverse('annotate_comment')
         data = {
             'comment': 'foobar',
-            'image': image_with_channels.id.val
+            'image': self.image_with_channels().id.val
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Remove comment, see remove tag,
         # http://trout.openmicroscopy.org/merge/webclient/action/remove/
         # [comment|tag|file]/ID/
 
-    def test_add_edit_and_remove_tag(
-            self, django_client, image_with_channels, new_tag):
+    def test_add_edit_and_remove_tag(self):
 
         # Add tag
+        img = self.image_with_channels()
+        tag = self.new_tag()
         request_url = reverse('annotate_tags')
         data = {
-            'image': image_with_channels.id.val,
+            'image': img.id.val,
             'filter_mode': 'any',
             'filter_owner_mode': 'all',
             'index': 0,
@@ -276,10 +227,10 @@ class TestCsrf(object):
             'newtags-INITIAL_FORMS': 0,
             'newtags-MAX_NUM_FORMS': 1000,
             'newtags-TOTAL_FORMS': 1,
-            'tags': new_tag.id.val
+            'tags': tag.id.val
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Edit tag, see save container name and description
         # http://trout.openmicroscopy.org/merge/webclient/action/
@@ -289,24 +240,25 @@ class TestCsrf(object):
 
         # Remove tag
         request_url = reverse("manage_action_containers",
-                              args=["remove", "tag", new_tag.id.val])
+                              args=["remove", "tag", tag.id.val])
         data = {
             'index': 0,
-            'parent': "image-%i" % image_with_channels.id.val
+            'parent': "image-%i" % img.id.val
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Delete tag
         request_url = reverse("manage_action_containers",
-                              args=["delete", "tag", new_tag.id.val])
-        _post_reponse(django_client, request_url, {})
-        _csrf_post_reponse(django_client, request_url, {})
+                              args=["delete", "tag", tag.id.val])
+        _post_reponse(self.django_client, request_url, {})
+        _csrf_post_reponse(self.django_client, request_url, {})
 
-    def test_attach_file(self, django_client, image_with_channels):
+    def test_attach_file(self):
 
         # Due to EOF both posts must be test separately
         # Bad post
+        img = self.image_with_channels()
         try:
             temp = tempfile.NamedTemporaryFile(suffix='.csrf')
             temp.write("Testing without csrf token")
@@ -314,11 +266,11 @@ class TestCsrf(object):
 
             request_url = reverse('annotate_file')
             data = {
-                'image': image_with_channels.id.val,
+                'image': img.id.val,
                 'index': 0,
                 'annotation_file': temp
             }
-            _post_reponse(django_client, request_url, data)
+            _post_reponse(self.django_client, request_url, data)
         finally:
             temp.close()
 
@@ -330,11 +282,11 @@ class TestCsrf(object):
 
             request_url = reverse('annotate_file')
             data = {
-                'image': image_with_channels.id.val,
+                'image': img.id.val,
                 'index': 0,
                 'annotation_file': temp
             }
-            _csrf_post_reponse(django_client, request_url, data)
+            _csrf_post_reponse(self.django_client, request_url, data)
         finally:
             temp.close()
 
@@ -344,8 +296,7 @@ class TestCsrf(object):
         # http://trout.openmicroscopy.org/merge/webclient/action/
         # remove/[comment|tag|file]/ID/
 
-    def test_paste_move_remove_deletamany_image(
-            self, django_client, image_with_channels):
+    def test_paste_move_remove_deletamany_image(self):
 
         # Add dataset
         request_url = reverse("manage_action_containers",
@@ -354,40 +305,38 @@ class TestCsrf(object):
             'folder_type': 'dataset',
             'name': 'foobar'
         }
-        _post_reponse(django_client, request_url, data)
-        response = _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        response = _csrf_post_reponse(self.django_client, request_url, data)
         did = json.loads(response.content).get("id")
 
         # Copy image
+        img = self.image_with_channels()
         request_url = reverse("manage_action_containers",
-                              args=["paste", "image",
-                                    image_with_channels.id.val])
+                              args=["paste", "image", img.id.val])
         data = {
             'destination': "dataset-%i" % did
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Move image
         request_url = reverse("manage_action_containers",
-                              args=["move", "image",
-                                    image_with_channels.id.val])
+                              args=["move", "image", img.id.val])
         data = {
             'destination': 'orphaned-0',
             'parent': 'dataset-%i' % did
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Remove image
         request_url = reverse("manage_action_containers",
-                              args=["remove", "image",
-                                    image_with_channels.id.val])
+                              args=["remove", "image", img.id.val])
         data = {
             'parent': 'dataset-%i' % did
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Delete image
         request_url = reverse("manage_action_containers", args=["deletemany"])
@@ -395,13 +344,12 @@ class TestCsrf(object):
             'child': 'on',
             'dataset': did
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
-    def test_basket_actions(self, itest, client, django_client,
-                            image_with_channels):
+    def test_basket_actions(self):
 
-        user_to_share = itest.new_user()
+        user_to_share = self.new_user()
 
         # Create discussion
         request_url = reverse("basket_action", args=["createdisc"])
@@ -410,35 +358,34 @@ class TestCsrf(object):
             'members': user_to_share.id.val,
             'message': 'foobar'
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # Create share
+        img = self.image_with_channels()
         request_url = reverse("basket_action", args=["createshare"])
         data = {
             'enable': 'on',
-            'image': image_with_channels.id.val,
+            'image': img.id.val,
             'members': user_to_share.id.val,
             'message': 'foobar'
         }
 
         # edit share
         # create images
-        images = [
-            itest.createTestImage(session=client.getSession()),
-            itest.createTestImage(session=client.getSession())]
+        images = [self.createTestImage(session=self.sf),
+                  self.createTestImage(session=self.sf)]
 
         # put images into the basket
-        session = django_client.session
+        session = self.django_client.session
         session['imageInBasket'] = [i.id.val for i in images]
         session.save()
 
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
-        sid = client.getSession().getShareService() \
-                    .createShare("foobar", rtime(None), images,
-                                 [user_to_share], [], True)
+        sid = self.sf.getShareService().createShare(
+            "foobar", rtime(None), images, [user_to_share], [], True)
 
         request_url = reverse("manage_action_containers",
                               args=["save", "share", sid])
@@ -449,8 +396,8 @@ class TestCsrf(object):
             'members': user_to_share.id.val,
             'message': 'another foobar'
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # remove image from share
         request_url = reverse("manage_action_containers",
@@ -458,27 +405,26 @@ class TestCsrf(object):
         data = {
             'source': images[1].id.val,
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
-    def test_edit_channel_names(
-            self, django_client, image_with_channels):
+    def test_edit_channel_names(self):
 
         """
         CSRF protection does not check `GET` requests so we need to be sure
         that this request results in an HTTP 405 (method not allowed) status
         code.
         """
-
+        img = self.image_with_channels()
         query_string = data = {'channel0': 'foobar'}
         request_url = reverse(
-            'edit_channel_names', args=[image_with_channels.id.val]
+            'edit_channel_names', args=[img.id.val]
         )
-        _csrf_get_reponse(django_client, request_url, query_string,
+        _csrf_get_reponse(self.django_client, request_url, query_string,
                           status_code=405)
-        _csrf_post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
-    def test_copy_past_rendering_settings(self, itest, client, django_client):
+    def test_copy_past_rendering_settings(self):
 
         """
         CSRF protection does not check `GET` requests so we need to be sure
@@ -486,10 +432,10 @@ class TestCsrf(object):
         code.
         """
 
-        img = itest.createTestImage(session=client.getSession())
+        img = self.createTestImage(session=self.sf)
 
         # put image id into session
-        session = django_client.session
+        session = self.django_client.session
         session['fromid'] = img.id.val
         session.save()
 
@@ -498,11 +444,12 @@ class TestCsrf(object):
             'toids': img.id.val
         }
 
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
-        _csrf_get_reponse(django_client, request_url, data, status_code=405)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
+        _csrf_get_reponse(self.django_client, request_url, data,
+                          status_code=405)
 
-    def test_reset_rendering_settings(self, itest, django_client):
+    def test_reset_rendering_settings(self):
 
         """
         CSRF protection does not check `GET` requests so we need to be sure
@@ -510,7 +457,7 @@ class TestCsrf(object):
         code.
         """
 
-        img = itest.createTestImage()
+        img = self.createTestImage()
 
         # Reset through webclient as it is calling directly
         # webgateway.reset_image_rdef_json
@@ -520,15 +467,15 @@ class TestCsrf(object):
             'to_type': 'image'
         }
 
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
-        _get_reponse(django_client, request_url, data)
-        _csrf_get_reponse(django_client, request_url, data, status_code=405)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
+        _get_reponse(self.django_client, request_url, data)
+        _csrf_get_reponse(self.django_client, request_url, data,
+                          status_code=405)
 
-    def test_apply_owners_rendering_settings(self, itest, client,
-                                             django_root_client):
+    def test_apply_owners_rendering_settings(self):
 
-        img = itest.createTestImage(session=client.getSession())
+        img = self.createTestImage(session=self.sf)
 
         request_url = reverse('reset_owners_rdef_json')
         data = {
@@ -536,10 +483,11 @@ class TestCsrf(object):
             'to_type': 'image'
         }
 
-        _post_reponse(django_root_client, request_url, data, status_code=403)
-        _csrf_post_reponse(django_root_client, request_url, data)
+        _post_reponse(self.django_root_client, request_url, data,
+                      status_code=403)
+        _csrf_post_reponse(self.django_root_client, request_url, data)
 
-    def test_ome_tiff_script(self, itest, client, django_client):
+    def test_ome_tiff_script(self):
 
         """
         CSRF protection does not check `GET` requests so we need to be sure
@@ -547,21 +495,20 @@ class TestCsrf(object):
         code.
         """
 
-        img = itest.createTestImage(session=client.getSession())
+        img = self.createTestImage(session=self.sf)
 
         request_url = reverse('ome_tiff_script', args=[img.id.val])
 
-        _post_reponse(django_client, request_url, {})
-        _csrf_post_reponse(django_client, request_url, {})
-        _csrf_get_reponse(django_client, request_url, {}, status_code=405)
+        _post_reponse(self.django_client, request_url, {})
+        _csrf_post_reponse(self.django_client, request_url, {})
+        _csrf_get_reponse(self.django_client, request_url, {}, status_code=405)
 
-    def test_script(self, itest, client, django_client):
+    def test_script(self):
 
-        img = itest.createTestImage(session=client.getSession())
+        img = self.createTestImage(session=self.sf)
 
         script_path = "omero/export_scripts/Batch_Image_Export.py"
-        script = client.getSession().getScriptService() \
-                                    .getScriptID(script_path)
+        script = self.sf.getScriptService().getScriptID(script_path)
 
         request_url = reverse('script_run', args=[script])
         data = {
@@ -575,15 +522,14 @@ class TestCsrf(object):
             "Format": "JPEG",
             "Zoom": "100%"
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
     # ADMIN
-    def test_myaccount(self, itest, client, django_client):
+    def test_myaccount(self):
 
-        user_id = client.getSession().getAdminService() \
-                                     .getEventContext().userId
-        user = client.getSession().getAdminService().getExperimenter(user_id)
+        user_id = self.sf.getAdminService().getEventContext().userId
+        user = self.sf.getAdminService().getExperimenter(user_id)
 
         request_url = reverse('wamyaccount', args=["save"])
         data = {
@@ -593,13 +539,13 @@ class TestCsrf(object):
             "institution": "foo bar",
             "default_group": user.copyGroupExperimenterMap()[0].parent.id.val
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data, status_code=302)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data,
+                           status_code=302)
 
-    def test_avatar(self, itest, client, django_client):
+    def test_avatar(self):
 
-        user_id = client.getSession().getAdminService() \
-                                     .getEventContext().userId
+        user_id = self.sf.getAdminService().getEventContext().userId
 
         # Due to EOF both posts must be test separately
         # Bad post
@@ -620,7 +566,7 @@ class TestCsrf(object):
                 'filename': 'avatar.png',
                 "photo": temp
             }
-            _post_reponse(django_client, request_url, data)
+            _post_reponse(self.django_client, request_url, data)
         finally:
             temp.close()
 
@@ -642,7 +588,7 @@ class TestCsrf(object):
                 'filename': 'avatar.png',
                 "photo": temp
             }
-            _csrf_post_reponse(django_client, request_url, data,
+            _csrf_post_reponse(self.django_client, request_url, data,
                                status_code=302)
         finally:
             temp.close()
@@ -655,24 +601,25 @@ class TestCsrf(object):
             'y1': 50,
             'y2': 150
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data, status_code=302)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data,
+                           status_code=302)
 
-    def test_create_group(self, itest, django_root_client):
-        uuid = itest.uuid()
+    def test_create_group(self):
+        uuid = self.uuid()
         request_url = reverse('wamanagegroupid', args=["create"])
         data = {
             "name": uuid,
             "description": uuid,
             "permissions": 0
         }
-        _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data,
+        _post_reponse(self.django_root_client, request_url, data)
+        _csrf_post_reponse(self.django_root_client, request_url, data,
                            status_code=302)
 
-    def test_create_user(self, itest, django_root_client):
-        uuid = itest.uuid()
-        groupid = itest.new_group().id.val
+    def test_create_user(self):
+        uuid = self.uuid()
+        groupid = self.new_group().id.val
         request_url = reverse('wamanageexperimenterid', args=["create"])
         data = {
             "omename": uuid,
@@ -684,24 +631,24 @@ class TestCsrf(object):
             "password": uuid,
             "confirmation": uuid
         }
-        _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data,
+        _post_reponse(self.django_root_client, request_url, data)
+        _csrf_post_reponse(self.django_root_client, request_url, data,
                            status_code=302)
 
-    def test_edit_group(self, itest, django_root_client):
-        group = itest.new_group(perms="rw----")
+    def test_edit_group(self):
+        group = self.new_group(perms="rw----")
         request_url = reverse('wamanagegroupid', args=["save", group.id.val])
         data = {
             "name": group.name.val,
             "description": "description",
             "permissions": 0
         }
-        _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data,
+        _post_reponse(self.django_root_client, request_url, data)
+        _csrf_post_reponse(self.django_root_client, request_url, data,
                            status_code=302)
 
-    def test_edit_user(self, itest, django_root_client):
-        user = itest.new_user()
+    def test_edit_user(self):
+        user = self.new_user()
         request_url = reverse('wamanageexperimenterid',
                               args=["save", user.id.val])
         data = {
@@ -711,20 +658,18 @@ class TestCsrf(object):
             "default_group": user.copyGroupExperimenterMap()[0].parent.id.val,
             "other_groups": user.copyGroupExperimenterMap()[0].parent.id.val,
         }
-        _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data,
+        _post_reponse(self.django_root_client, request_url, data)
+        _csrf_post_reponse(self.django_root_client, request_url, data,
                            status_code=302)
 
-    def test_edit_group_by_owner(self, itest, client, django_client):
+    def test_edit_group_by_owner(self):
 
-        user_id = client.getSession().getAdminService() \
-                                     .getEventContext().userId
-        user = client.getSession().getAdminService().getExperimenter(user_id)
-        group_id = client.getSession().getAdminService() \
-                                      .getEventContext().groupId
-        group = client.getSession().getAdminService().getGroup(group_id)
+        user_id = self.sf.getAdminService().getEventContext().userId
+        user = self.sf.getAdminService().getExperimenter(user_id)
+        group_id = self.sf.getAdminService().getEventContext().groupId
+        group = self.sf.getAdminService().getGroup(group_id)
 
-        itest.add_groups(experimenter=user, groups=[group], owner=True)
+        self.add_groups(experimenter=user, groups=[group], owner=True)
 
         request_url = reverse('wamanagegroupownerid', args=["save", group_id])
         data = {
@@ -732,22 +677,23 @@ class TestCsrf(object):
             "owners": user_id,
             "permissions": 0
         }
-        _post_reponse(django_client, request_url, data)
-        _csrf_post_reponse(django_client, request_url, data, status_code=302)
+        _post_reponse(self.django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data,
+                           status_code=302)
 
-    def test_change_password(self, itest, django_root_client):
-        user = itest.new_user()
+    def test_change_password(self):
+        user = self.new_user()
         request_url = reverse('wamanagechangepasswordid', args=[user.id.val])
         data = {
-            "old_password": itest.client.ic.getProperties()
-                                           .getProperty('omero.rootpass'),
+            "old_password": self.root.ic.getProperties().getProperty(
+                'omero.rootpass'),
             "password": "new",
             "confirmation": "new"
         }
-        _post_reponse(django_root_client, request_url, data)
-        _csrf_post_reponse(django_root_client, request_url, data)
+        _post_reponse(self.django_root_client, request_url, data)
+        _csrf_post_reponse(self.django_root_client, request_url, data)
 
-    def test_su(self, itest, django_root_client):
+    def test_su(self):
 
         """
         CSRF protection does not check `GET` requests so we need to be sure
@@ -755,13 +701,13 @@ class TestCsrf(object):
         code.
         """
 
-        user = itest.new_user()
+        user = self.new_user()
 
         request_url = reverse('webgateway_su', args=[user.omeName.val])
 
-        _csrf_get_reponse(django_root_client, request_url, {})
-        _post_reponse(django_root_client, request_url, {})
-        _csrf_post_reponse(django_root_client, request_url, {})
+        _csrf_get_reponse(self.django_root_client, request_url, {})
+        _post_reponse(self.django_root_client, request_url, {})
+        _csrf_post_reponse(self.django_root_client, request_url, {})
 
 
 # Helpers
