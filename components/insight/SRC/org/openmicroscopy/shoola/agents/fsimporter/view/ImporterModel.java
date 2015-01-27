@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
-import ij.IJ;
 import ij.ImagePlus;
 
 import java.util.Collection;
@@ -586,7 +585,6 @@ class ImporterModel
             }
 
             //convert rois from manager.
-            List<ROIData> roisFromManager = reader.readImageJROI();
             //rois from manager so we need to link them to all the images
             ImageData data;
             long id;
@@ -594,17 +592,17 @@ class ImporterModel
             while (i.hasNext()) {
                 data = i.next();
                 id = data.getId();
-                //First check overlay
                 index = data.getIndex(); //to be modified when series is available.
+              //First check overlay
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
                 } else {
                    rois = reader.readImageJROI(id, img);
                 }
+                //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {
-                    rois = roisFromManager;
-                    linkRoisToImage(id, rois);
+                    rois = reader.readImageJROI(id);
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
@@ -617,7 +615,7 @@ class ImporterModel
 
     /**
      * Links the rois to the image.
-     * 
+     *
      * @param imageID The image's id.
      * @param rois The rois to link to the image.
      */
