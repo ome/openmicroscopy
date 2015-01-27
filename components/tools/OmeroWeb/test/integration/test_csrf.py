@@ -25,7 +25,7 @@ working correctly.
 import omero
 import omero.clients
 from omero.rtypes import rstring, rtime
-import library as lib
+import weblibrary as lib
 
 import json
 
@@ -45,7 +45,7 @@ from random import randint as rint
 import tempfile
 
 
-class TestCsrf(lib.ITest):
+class TestCsrf(lib.IWebTest):
     """
     Tests to ensure that Django CSRF middleware for OMERO.web is enabled and
     working correctly.
@@ -72,43 +72,6 @@ class TestCsrf(lib.ITest):
         tag.textValue = rstring(self.uuid())
         tag.ns = rstring("pytest")
         return self.sf.getUpdateService().saveAndReturnObject(tag)
-
-    @classmethod
-    def create_django_client(cls, name, password):
-        django_client = Client(enforce_csrf_checks=True)
-        login_url = reverse('weblogin')
-
-        response = django_client.get(login_url)
-        assert response.status_code == 200
-        csrf_token = django_client.cookies['csrftoken'].value
-
-        data = {
-            'server': 1,
-            'username': name,
-            'password': password,
-            'csrfmiddlewaretoken': csrf_token
-        }
-        response = django_client.post(login_url, data)
-        assert response.status_code == 302
-        return django_client
-
-    @classmethod
-    def setup_class(cls):
-        """Returns a logged in Django test client."""
-        super(TestCsrf, cls).setup_class()
-        omeName = cls.sf.getAdminService().getEventContext().userName
-        cls.django_client = cls.create_django_client(omeName, omeName)
-        rootpass = cls.root.ic.getProperties().getProperty('omero.rootpass')
-        cls.django_root_client = cls.create_django_client("root", rootpass)
-
-    @classmethod
-    def teardown_class(cls):
-        logout_url = reverse('weblogout')
-        for client in [cls.django_client, cls.django_root_client]:
-            data = {'csrfmiddlewaretoken': client.cookies['csrftoken'].value}
-            response = client.post(logout_url, data=data)
-            assert response.status_code == 302
-        super(TestCsrf, cls).teardown_class()
 
     # Client
     def test_csrf_middleware_enabled(self):
