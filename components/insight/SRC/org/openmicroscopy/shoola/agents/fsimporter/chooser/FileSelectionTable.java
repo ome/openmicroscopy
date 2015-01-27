@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 import info.clearthought.layout.TableLayout;
 
@@ -407,8 +408,13 @@ class FileSelectionTable
 	        fe = i.next();
 	        if (fe.getFile().getAbsolutePath().equals(name) &&
 	                fe.getGroup().getId() == gID &&
-	                fe.getUser().getId() == userID)
+	                fe.getUser().getId() == userID) {
+	            o = fe.getFile().getFile();
+	            if (o instanceof ImagePlus && f.getFile() instanceof ImagePlus) {
+	                fe.getFile().addAssociatedFile(new FileObject(f.getFile()));
+	            }
 	            return false;
+	        }
 	    }
 	    return true;
 	}

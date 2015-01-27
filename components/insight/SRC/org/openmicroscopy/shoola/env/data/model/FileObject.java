@@ -27,6 +27,7 @@ import ij.ImagePlus;
 import ij.io.FileInfo;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.codec.CompressionType;
@@ -58,7 +59,7 @@ public class FileObject
     /** 
      * List of associated files. Mainly for imageJ.
      */
-    private List<Object> associatedFiles;
+    private List<FileObject> associatedFiles;
 
     /**
      * Creates a new instance.
@@ -73,13 +74,18 @@ public class FileObject
     }
 
     /**
-     * Sets the associated files if any.
+     * Add the associated file if any.
      * 
-     * @param files The collection of files to set.
+     * @param file The file to add.
      */
-    public void setAssociatedFiles(List<Object> files)
+    public void addAssociatedFile(FileObject file)
     {
-        associatedFiles = files;
+        if (associatedFiles == null) {
+            associatedFiles = new ArrayList<FileObject>();
+        }
+        if (file != null) {
+            associatedFiles.add(file);
+        }
     }
 
     /**
@@ -87,7 +93,7 @@ public class FileObject
      * 
      * @preturn See above.
      */
-    public List<Object> getAssociatedFiles()
+    public List<FileObject> getAssociatedFiles()
     {
         return associatedFiles;
     }
@@ -270,6 +276,20 @@ public class FileObject
      *
      * @return See above.
      */
-    public boolean isImagePlus() { return file instanceof ImagePlus;}
+    public boolean isImagePlus() { return file instanceof ImagePlus; }
 
+    /**
+     * Returns the index of the image if it is an image plus.
+     *
+     * @return
+     */
+    public int getIndex()
+    {
+        if (!isImagePlus()) return -1;
+        ImagePlus image = (ImagePlus) file;
+        Object value = image.getProperty("Series");
+        if (value != null && value instanceof Integer)
+            return ((Integer) value).intValue();
+        return -1;
+    }
 }

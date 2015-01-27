@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 
 import java.util.Collection;
@@ -565,23 +566,20 @@ class ImporterModel
         if (object.isImagePlus() && CollectionUtils.isNotEmpty(images)) {
             ROIReader reader = new ROIReader();
             SecurityContext ctx = new SecurityContext(c.getGroupID());
-            Iterator<ImageData> i = images.iterator();
             ImagePlus img = (ImagePlus) object.getFile();
-            List<Object> files = object.getAssociatedFiles();
+            List<FileObject> files = object.getAssociatedFiles();
             List<ROIData> rois;
             Map<Integer, List<ROIData>> indexes =
                 new HashMap<Integer, List<ROIData>>();
             int index;
             if (CollectionUtils.isNotEmpty(files)) {
-                Iterator<Object> j = files.iterator();
-                Object o;
-                ImagePlus image;
+                Iterator<FileObject> j = files.iterator();
+                FileObject o;
                 while (j.hasNext()) {
                     o = j.next();
-                    if (o instanceof ImagePlus) {
-                        image = (ImagePlus) o;
-                        index = 0; //determine indexes of image
-                        rois = reader.readImageJROI(-1, image);
+                    if (o.isImagePlus()) {
+                        index = o.getIndex();
+                        rois = reader.readImageJROI(-1, (ImagePlus) o.getFile());
                         indexes.put(index, rois);
                     }
                 }
@@ -592,11 +590,12 @@ class ImporterModel
             //rois from manager so we need to link them to all the images
             ImageData data;
             long id;
+            Iterator<ImageData> i = images.iterator();
             while (i.hasNext()) {
                 data = i.next();
                 id = data.getId();
                 //First check overlay
-                index = data.getIndex();
+                index = data.getIndex(); //to be modified when series is available.
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
