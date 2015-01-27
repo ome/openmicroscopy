@@ -394,10 +394,10 @@ public class GraphPathReport {
                 out.write("^^^^^^^^^^^^^\n\n");
                 */
                 if (!superclassOf.isEmpty()) {
-                    out.write("subclasses are " + Joiner.on(", ").join(superclassOf) + "\n\n");
+                    out.write("Subclasses: " + Joiner.on(", ").join(superclassOf) + "\n\n");
                 }
                 if (!linkerText.isEmpty()) {
-                    out.write("used by " + Joiner.on(", ").join(linkerText) + "\n\n");
+                    out.write("Used by: " + Joiner.on(", ").join(linkerText) + "\n\n");
                 }
             }
             /* write the class' properties */
@@ -405,7 +405,7 @@ public class GraphPathReport {
             out.write("Properties\n");
             out.write("^^^^^^^^^^\n\n");
             */
-            out.write("properties are,\n");
+            out.write("Properties:\n");
             for (final Map.Entry<String, String> byProperty : byClass.getValue().entrySet()) {
                 final String propertyName = byProperty.getKey();
                 // if (linkers.containsEntry(className, propertyName)) {
