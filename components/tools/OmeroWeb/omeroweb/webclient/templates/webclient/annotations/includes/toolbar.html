@@ -70,6 +70,12 @@
                 Download...</a>
             </li>
               {% endwith %}
+            <li>
+              <a href="{% url 'download_orig_metadata' image.id %}"
+                  title="Download Original Metadata as a text file">
+                Download Original Metadata
+              </a>
+            </li>
             <!-- Here we handle multiple images (batch annotate panel) -->
             {% elif filesetInfo %}
             <li {% if not filesetInfo.count %}class='disabled'{% endif %}>
