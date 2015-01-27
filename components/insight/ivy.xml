@@ -33,7 +33,7 @@
         <exclude ext="pom"/>
     </dependency>
     <!-- For build -->
-    <dependency org="insight" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
+    <dependency org="ome" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
     <dependency org="insight" name="jarbundler" rev="${versions.jarbundler}" conf="build->default"/>
     <!-- From classpath -->
     <dependency org="insight" name="ai_path" rev="${versions.ai_path}"/>

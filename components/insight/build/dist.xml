@@ -145,6 +145,30 @@
   </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * TASK NAME: appbundler-init
+   *
+   * DESCRIPTION:
+   * Packages a Java application as a Mac app bundle.  We are using a fork
+   * (https://bitbucket.org/infinitekind/appbundler) of the Oracle Java
+   * Application Bundler (https://java.net/projects/appbundler).
+   * Documentation on usage can be found here:
+   *   * https://java.net/downloads/appbundler/appbundler.html
+   *   * https://bitbucket.org/infinitekind/appbundler
+   *
+   * EXTERNAL DEPENDENCIES: appbundler
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="appbundler-init">
+    <path id="appbundler-init.cp">
+      <fileset dir="${base.lib.dir}" includes="appbundler*.jar"/>
+    </path>
+    <echo message="${appbundler-init.cp}"/>
+    <taskdef name="appbundler"
+      classname="com.oracle.appbundler.AppBundlerTask">
+      <classpath refid="appbundler-init.cp"/>
+    </taskdef>
+  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Package the whole app into the ${dist.jar.file} under ${dist.dir}.
    * The whole content of the ${app.compiled.dir} is jar'ed and a suitable
    * manifest is generated that links all the required libraries.  That is
@@ -380,7 +404,7 @@
    *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="dist-osx-appbundler"
-          depends="jar"
+          depends="jar,appbundler-init"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
     <delete dir="${dist.dir}/OMERO.insight_Java7+.app"/>
     <appbundler
@@ -451,6 +475,177 @@
     </zip>
   </target>
 
+<<<<<<< HEAD
+=======
+  <target name="dist-osx-openGL"
+          depends="jar"
+          description="Build and package the app for OS X distribution with OpenGL support.">
+    <delete dir="${dist.dir}/OMERO.insight_Java6.app"/>
+    <jarbundler dir="${dist.dir}"
+                name="${distInsight.name}_Java6"
+                mainclass="${app.mainclass}"
+                version="${dist.bundle.version}"
+                infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
+                aboutmenuname="${distInsight.name}"
+                screenmenu="true"
+                icon="${dist.osx.icon}"
+                stubfile="${dist.osx.stub}"
+                jvmversion="1.6+"
+                vmoptions="${dist.vmparameters}">
+      <jarfileset refid="app.libs"/>
+      <javaproperty name="java.library.path" value="$JAVAROOT"/>
+      <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+      <jarfileset dir="${native.lib.dir}/osx-native" includes="*"/>
+    </jarbundler>
+    <copy file="${app.config.dir}/imviewer.xml"
+      tofile="${dist.dir}/opengl-imviewer.xml"/>
+    <replace file="${dist.dir}/opengl-imviewer.xml"
+        token='entry name="/library/opengl" type="boolean"&gt;false&lt;/entry'
+        value='entry name="/library/opengl" type="boolean"&gt;true&lt;/entry'>
+    </replace>
+
+    <property name="dist.zip.prefix.osx.openGL"
+              value="${dist.bundle.name}-${dist.bundle.version}-mac-openGL"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.osx.openGL}.zip">
+      <zipfileset prefix="${dist.zip.prefix.osx.openGL}/${dist.app.config.dir.name}"
+                  dir="${app.config.dir}"
+                  includes="**"
+                  excludes="imviewer.xml"/>
+      <zipfileset prefix="${dist.zip.prefix.osx.openGL}" dir="${dist.dir}"
+               includes="OMERO.insight.app/**"
+               excludes="**/${dist.osx.stub.name}"/>
+      <zipfileset file="${dist.osx.stub}"
+                  fullpath="${dist.zip.prefix.osx.openGL}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
+                  filemode="775"/>
+      <zipfileset prefix="${dist.zip.prefix.osx.openGL}" file="${dist.osx.installfile}"/>
+      <zipfileset file="${base.licensefile}"
+                  fullpath="${dist.zip.prefix.osx.openGL}/LICENSE"/>
+      <zipfileset file="${dist.dir}/opengl-imviewer.xml"
+                  fullpath="${dist.zip.prefix.osx.openGL}/${dist.app.config.dir.name}/imviewer.xml"/>
+    </zip>
+  </target>
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     * Creates the Windows distribution bundle under ${dist.dir}.
+     * This is a zip file whose name is set to
+     * ${dist.bundle.name}-${dist.bundle.version}-win.zip
+     * and whose contents are:
+     *   + A config dir, containing all the app.config files.  The dir name is
+     *     set to the name of the ${app.config.dir}.
+     *   + The OMERO.insight application.  That is, the .app dir embedding the app
+     *     jar file, all the the app.libs files, and Windows exe.
+     *   + The license file, ${base.licensefile}.
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+    <target name="distEditor-win" depends="jar,exe4j-init"
+              if="dist.exe4j.exists"
+              description="Build and package the app for Windows distribution.">
+        <make-windows-executables type="Editor"/>
+        <property name="dist.zip.prefix.editor.win"
+                  value="${distEditor.bundle.name}-${dist.bundle.version}-win"/>
+        <zip destfile="${dist.dir}/${dist.zip.prefix.editor.win}.zip">
+          <zipfileset prefix="${dist.zip.prefix.editor.win}/${dist.app.config.dir.name}"
+                      dir="${app.config.dir}"/>
+          <zipfileset prefix="${dist.zip.prefix.editor.win}/libs" dir="${app.lib.dir}"
+                      includes="*"/>
+          <zipfileset prefix="${dist.zip.prefix.editor.win}"
+                      file="${app.dir}/${distEditor.win.exename}.exe"/>
+          <zipfileset prefix="${dist.zip.prefix.editor.win}"
+                      file="${app.dir}/${distEditor.win64.exename}.exe"/>
+          <zipfileset file="${base.licensefile}"
+                      fullpath="${dist.zip.prefix.editor.win}/LICENSE"/>
+          <zipfileset prefix="${dist.zip.prefix.editor.win}" dir="${dist.dir}"
+                      includes="${dist.jar.file}"/>
+        </zip>
+      </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  * Creates the Mac OS X distribution bundle under ${dist.dir}.
+  * This is a zip file whose name is set to
+  * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
+  * and whose contents are:
+  *   + A config dir, containing all the app.config files.  The dir name is
+  *     set to the name of the ${app.config.dir}.
+  *   + The OMERO.insight application.  That is, the .app dir embedding the app
+  *     jar file, all the the app.libs files, and Mac OS X specific config.
+  *   + The install instructions, ${dist.osx.installfile}.
+  *   + The license file, ${base.licensefile}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="distEditor-osx"
+	        depends="jar,distEditor-osx-appbundler"
+	        description="Build and package the app for OS X distribution.">
+  <delete dir="${dist.dir}/OMERO.editor_Java6.app"/>
+  <jarbundler dir="${dist.dir}"
+	        name="${distEditor.name}_Java6"
+	        mainclass="${app.mainclass}"
+	        version="${dist.bundle.version}"
+	        infostring="${distEditor.name} Java Client, ${dist.bundle.version}"
+	        aboutmenuname="${distEditor.name}"
+	        screenmenu="true"
+	        icon="${distEditor.osx.icon}"
+	        stubfile="${dist.osx.stub}"
+	        jvmversion="1.6+"
+  	        vmoptions="${dist.vmparameters}"
+  			arguments="containerEditor.xml">
+	  <jarfileset refid="app.libs"/>
+	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+  </jarbundler>
+  <property name="dist.zip.prefix.editor.osx"
+            value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
+	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
+            <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
+	                 dir="${app.config.dir}"/>
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
+	               includes="OMERO.editor*.app/**"
+                   excludes="**/${dist.osx.stub.name},**/${distEditor.name}"/>
+	     <zipfileset file="${dist.osx.stub}"
+	                 fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
+	                 filemode="775"/>
+         <zipfileset file="${dist.dir}/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
+                     fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
+                     filemode="775"/>
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}"
+	                 file="${dist.osx.installfile}"/>
+	     <zipfileset file="${base.licensefile}"
+	                 fullpath="${dist.zip.prefix.editor.osx}/LICENSE"/>
+	  </zip>
+  </target>
+
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Creates the Mac OS X distribution bundle under ${dist.dir} using the
+   * Java Application Bundler infrastructure for Java 1.7+.
+   * This is a zip file whose name is set to
+   * ${dist.bundle.name}-${dist.bundle.version}-mac.zip
+   * and whose contents are:
+   *   + A config dir, containing all the app.config files.  The dir name is
+   *     set to the name of the ${app.config.dir}.
+   *   + The OMERO.insight application.  That is, the .app dir embedding the app
+   *     jar file, all the the app.libs files, and Mac OS X specific config.
+   *   + The install instructions, ${dist.osx.installfile}.
+   *   + The license file, ${base.licensefile}.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="distEditor-osx-appbundler"
+          depends="jar,appbundler-init"
+          description="Build and package the app for OS X distribution using the Java Application Bundler.">
+    <delete dir="${dist.dir}/OMERO.editor_Java7+.app"/>
+    <appbundler
+      outputdirectory="${dist.dir}"
+      name="${distEditor.name}_Java7+"
+      displayname="${distEditor.name}"
+      executableName="${distEditor.name}"
+      identifier="org.openmicroscopy.editor"
+      shortversion="${dist.bundle.version}"
+      version="${dist.bundle.version}"
+      icon="${distEditor.osx.icon}"
+      mainclassname="${app.mainclass}">
+        <option value="-Dapple.laf.useScreenMenuBar=true"/>
+        <option value="-Duser.dir=$APP_ROOT/.."/>
+        <classpath refid="app.libs"/>
+        <classpath dir="${dist.dir}" includes="${dist.jar.file}"/>
+        <argument value="containerEditor.xml"/>
+    </appbundler>
+  </target>
+
+>>>>>>> b61bd57... Load `appbundler` dependency from Artifactory
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   * Creates the Windows distribution bundle under ${dist.dir}.
   * This is a zip file whose name is set to
@@ -550,7 +745,7 @@
    *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="distImporter-osx-appbundler"
-          depends="jar"
+          depends="jar,appbundler-init"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
     <delete dir="${dist.dir}/OMERO.importer+.app"/>
     <appbundler

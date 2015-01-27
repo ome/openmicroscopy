@@ -109,22 +109,4 @@ ${checkdup.found}
       <classpath refid="insight.tools.path" />
   </taskdef>
 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * TASK NAME: appbundler
-   *
-   * DESCRIPTION:
-   * Packages a Java application as a Mac app bundle.  We are using a fork
-   * (https://bitbucket.org/infinitekind/appbundler) of the Oracle Java
-   * Application Bundler (https://java.net/projects/appbundler).
-   * Documentation on usage can be found here:
-   *   * https://java.net/downloads/appbundler/appbundler.html
-   *   * https://bitbucket.org/infinitekind/appbundler
-   *
-   * EXTERNAL DEPENDENCIES: appbundler
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <taskdef name="appbundler"
-    classname="com.oracle.appbundler.AppBundlerTask">
-    <classpath refid="insight.tools.path" />
-  </taskdef>
-
 </antlib>
