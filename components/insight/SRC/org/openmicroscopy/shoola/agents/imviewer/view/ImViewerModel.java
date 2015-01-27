@@ -2241,15 +2241,17 @@ class ImViewerModel
 	 * Returns <code>true</code> if the rendering settings are original,
 	 * <code>false</code> otherwise.
 	 * 
+	 * @param checkPlane Pass <code>true</code> to check the plane,
+	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	boolean isOriginalSettings()
+	boolean isOriginalSettings(boolean checkPlane)
 	{
 		if (originalDef == null) return true;
 		if (metadataViewer == null) return true;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return true;
-		return isSameSettings(originalDef, false);
+		return isSameSettings(originalDef, checkPlane);
 	}
 
 	/**
