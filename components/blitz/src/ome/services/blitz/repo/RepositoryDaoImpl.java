@@ -589,7 +589,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 public Object doWork(Session session, ServiceFactory sf) {
                     return _internalRegister(repoUuid,
                             Arrays.asList(checked), Arrays.asList(parent),
-                            null, mimetype, sf, getSqlAction());
+                            null, mimetype, sf, getSqlAction()).get(0);
                 }
             });
 
