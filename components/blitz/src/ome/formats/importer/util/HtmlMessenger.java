@@ -2,7 +2,7 @@
  * ome.formats.importer.util.HtmlMessenger
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,18 +25,32 @@ package ome.formats.importer.util;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import ome.formats.importer.util.FileUploadCounter.ProgressListener;
-import ome.util.Utils;
-
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.params.HttpClientParams;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 
 /**
  * This class allows you to submit a URL and a String hash map of
@@ -48,80 +62,139 @@ public class HtmlMessenger
 {
 
 	/** proxy host. */
-	static final String        PROXY_HOST = "http.proxyHost";
+	static final String PROXY_HOST = "http.proxyHost";
 
 	/** proxy port. */
-	static final String        PROXY_PORT = "http.proxyPort";
+	static final String PROXY_PORT = "http.proxyPort";
 
 	/** connection_timeout **/
-	static final int           CONN_TIMEOUT = 10000;
+	static final int CONN_TIMEOUT = 10000;
 
-	HttpClient client = null;
-	PostMethod method = null;
+	/** The request to post.*/
+	private HttpPost request;
+
+	private boolean secure;
 
 	/**
-	 * Instantiate html messenger
+     * Creates a connection.
+     *
+     * @return See above
+     * @throws HtmlMessengerException Thrown if an error occurred while creating the
+     *                            SSL context.
+     */
+    private SSLConnectionSocketFactory createSSLConnection()
+        throws HtmlMessengerException
+    {
+        SSLContext sslcontext = SSLContexts.createSystemDefault();
+        final TrustManager trustEverything = new X509TrustManager() {
+            private final X509Certificate[] 
+                    acceptedIssuers = new X509Certificate[0];
+
+            @Override
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+
+            @Override
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                return this.acceptedIssuers;
+            }
+        };
+        
+        TrustManager[] managers = {trustEverything};
+        try {
+            sslcontext = SSLContext.getInstance("TLS");
+            sslcontext.init(null, managers, null);
+        } catch (Exception e) {
+            new HtmlMessengerException("Cannot create security context", e);
+        }
+        return new SSLConnectionSocketFactory(sslcontext,
+                SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+    }
+
+    /**
+     * Creates a communicator.
+     *
+     * @param secure <code>Pass</code> true if https, <code>false</code>
+     *              otherwise.
+     * @return See above
+     * @throws HtmlMessengerException Thrown if an error occurred while creating
+     *                                the communicator.
+     */
+	private CloseableHttpClient getCommunicationLink(boolean secure)
+	        throws HtmlMessengerException
+	{
+	  //Default connection configuration
+        RequestConfig.Builder builder = RequestConfig.custom();
+        builder.setCookieSpec(CookieSpecs.BEST_MATCH)
+                .setExpectContinueEnabled(true)
+                .setStaleConnectionCheckEnabled(true)
+                .setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM,
+                        AuthSchemes.DIGEST))
+                .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC));
+        builder.setConnectTimeout(CONN_TIMEOUT);
+        String proxyHost = System.getProperty(PROXY_HOST);
+        String proxyPort = System.getProperty(PROXY_PORT);
+        if (StringUtils.isNotBlank(proxyHost) &&
+                StringUtils.isNotBlank(proxyPort)) {
+            builder.setProxy(new HttpHost(proxyHost,
+                    Integer.parseInt(proxyPort)));
+        }
+        HttpClientBuilder httpBuilder = HttpClients.custom();
+        httpBuilder.setDefaultRequestConfig(builder.build());
+
+        if (secure)
+            httpBuilder.setSSLSocketFactory(createSSLConnection());
+        return httpBuilder.build();
+	}
+
+	/**
+	 * Instantiate messenger
 	 *
 	 * @param url
-	 * @param postList - variables list in post
+	 * @param postList variables list in post
 	 * @throws HtmlMessengerException
 	 */
-	public HtmlMessenger(String url,  List<Part> postList) throws HtmlMessengerException
+	public HtmlMessenger(String url, Map<String, String> postList)
+	        throws HtmlMessengerException
 	{
 		try
 		{
-			HostConfiguration cfg = new HostConfiguration();
-			cfg.setHost(url);
-			String proxyHost = System.getProperty(PROXY_HOST);
-			String proxyPort = System.getProperty(PROXY_PORT);
-			if (proxyHost != null && proxyPort != null)
-			{
-				int port = Integer.parseInt(proxyPort);
-				cfg.setProxy(proxyHost, port);
-			}
-
-			client = new HttpClient();
-			client.setHostConfiguration(cfg);
-			HttpClientParams params = new HttpClientParams();
-			params.setConnectionManagerTimeout(CONN_TIMEOUT);
-			params.setSoTimeout(CONN_TIMEOUT);
-			client.setParams(params);
-
-			method = new PostMethod( url );
-
-			Part[] parts = new Part[postList.size()];
-
-			int i = 0;
-			for (Part part : postList)
-			{
-				parts[i] = part;
-				i++;
-			}
-
-			MultipartRequestEntity mpre =
-				new MultipartRequestEntity(parts, method.getParams());
-
-			ProgressListener listener = new ProgressListener()
-			{
-				/* (non-Javadoc)
-				 * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
-				 */
-				public void update(long bytesRead)
-				{
-				}
-			};
-
-			FileUploadCounter hfre = new FileUploadCounter(mpre, listener);
-
-			method.setRequestEntity(hfre);
-
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
+		  //Create request.
+	        if (StringUtils.isBlank(url))
+	            throw new HtmlMessengerException("No URL specified.");
+	        request = new HttpPost(url);
+	        request.addHeader("Accept", "text/plain");
+	        request.addHeader("Content-type", "application/x-www-form-urlencoded");
+	        List<BasicNameValuePair> p = new ArrayList<BasicNameValuePair>();
+	        Entry<String, String> entry;
+	        Iterator<Entry<String, String>> k = postList.entrySet().iterator();
+	        while (k.hasNext()) {
+	            entry = k.next();
+	            p.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+	        }
+	        request.setEntity(new UrlEncodedFormEntity(p));
+	        secure = url.toLowerCase().startsWith("https");
+		} catch (Exception e) {
 			throw new HtmlMessengerException("Error creating post parameters", e);
 		}
 
+	}
+
+	/**
+	 * Creates a client to communicate.
+	 *
+	 * @param url
+	 * @return
+	 * @throws HtmlMessengerException
+	 */
+	public CloseableHttpClient getCommunicationLink(String url)
+	        throws HtmlMessengerException
+	{
+	    if (StringUtils.isBlank(url))
+            throw new HtmlMessengerException("No URL specified.");
+	    return getCommunicationLink(url.toLowerCase().startsWith("https"));
 	}
 
 	/**
@@ -135,92 +208,35 @@ public class HtmlMessenger
 	 {
 		String serverReply = "";
 		Reader reader = null;
+		CloseableHttpClient client = null;
 		try {
 			// Execute the POST method
-			int statusCode = client.executeMethod( method );
-			if( statusCode != -1 ) {
-				reader = new InputStreamReader(
-						method.getResponseBodyAsStream(),
-						method.getRequestCharSet());
-				char[] buf = new char[32678];
-				StringBuilder str = new StringBuilder();
-				for (int n; (n = reader.read(buf)) != -1;)
-					str.append(buf, 0, n);
-				method.releaseConnection();
-				serverReply = str.toString();
-			}
-			return serverReply;
+		    client = getCommunicationLink(secure);
+		    CloseableHttpResponse response = client.execute(request);
+		    HttpEntity entity = response.getEntity();
+	        if (entity != null) {
+	            reader = new InputStreamReader(entity.getContent());
+                char[] buf = new char[32678];
+                StringBuilder str = new StringBuilder();
+                for (int n; (n = reader.read(buf)) != -1;)
+                    str.append(buf, 0, n);
+                serverReply = str.toString();
+	        }
 		} catch( Exception e ) {
 			throw new HtmlMessengerException("Cannot Connect", e);
 		} finally {
-		    Utils.closeQuietly(reader);
+		    if (client != null) {
+		        try {
+		            client.close();
+                } catch (Exception ex) {}
+		    }
+		    if (reader != null) {
+                try {
+                    reader.close();
+                } catch (Exception ex) {}
+            }
 		}
+		return serverReply;
 	 }
 
-	 /**
-	 * @return http client
-	 */
-	public HttpClient getHttpClient()
-	 {
-		 return client;
-	 }
-
-	 /**
-	  * Login to website
-	  *
-	 * @param url
-	 * @param username
-	 * @param password
-	 * @return
-	 * @throws HtmlMessengerException
-	 */
-	public String login(String url, String username, String password) throws HtmlMessengerException {
-		 String serverReply = "";
-         Reader reader = null;
-
-		 try {
-			 // Execute the POST method
-			 PostMethod loginMethod = new PostMethod( url );
-
-			 Part[] parts = {
-					 new StringPart("username", username),
-					 new StringPart("password", password)
-			 };
-
-			 MultipartRequestEntity mpre =
-				 new MultipartRequestEntity(parts, loginMethod.getParams());
-
-			 ProgressListener listener = new ProgressListener()
-			 {
-				 /* (non-Javadoc)
-				 * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
-				 */
-				public void update(long bytesRead)
-				 {
-				 }
-			 };
-
-			 FileUploadCounter hfre = new FileUploadCounter(mpre, listener);
-
-			 loginMethod.setRequestEntity(hfre);
-
-			 int statusCode = client.executeMethod( loginMethod );
-			 if( statusCode != -1 ) {
-				 reader = new InputStreamReader(
-						 loginMethod.getResponseBodyAsStream(),
-						 loginMethod.getRequestCharSet());
-				 char[] buf = new char[32678];
-				 StringBuilder str = new StringBuilder();
-				 for (int n; (n = reader.read(buf)) != -1;)
-					 str.append(buf, 0, n);
-				 loginMethod.releaseConnection();
-				 serverReply = str.toString();
-			 }
-			 return serverReply;
-		 } catch( Exception e ) {
-			 throw new HtmlMessengerException("Cannot Connect", e);
-		 } finally {
-		     Utils.closeQuietly(reader);
-		 }
-	 }
 }

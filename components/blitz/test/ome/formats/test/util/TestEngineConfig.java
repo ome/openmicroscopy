@@ -78,7 +78,7 @@ public class TestEngineConfig extends IniPreferences
     /** Feedback url to be used */
     public static final String CONFIG_FEEDBACK = "feedback_url";
 
-    public static final String DEFAULT_FEEDBACK = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";
+    public static final String DEFAULT_FEEDBACK = "http://qa.openmicroscopy.org.uk";
 
     public static final String CONFIG_FEEDBACK_LOGIN_URL = "login_url";
 
