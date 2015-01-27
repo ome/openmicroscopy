@@ -99,6 +99,12 @@
               <a title="No original imported files to download">Download...</a>
             </li>
             {% endif %}
+            <li class="disabled">
+              <a href="#"
+                  title="Download Original Metadata (for single images only)">
+                Download Original Metadata
+              </a>
+            </li>
             {% if image %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
