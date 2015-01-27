@@ -953,18 +953,18 @@ public class RepositoryDaoImpl implements RepositoryDao {
             ofile.setHasher(ca);
         }
 
-        List<Long> ids = new ArrayList<Long>();
         IObject[] saved = sf.getUpdateService().saveAndReturnArray(rv.toArray(new IObject[rv.size()]));
+        final List<Long> ids = new ArrayList<Long>(saved.length);
         for (int i = 0; i < saved.length; i++) {
             final CheckedPath path = checked.get(i);
             final ome.model.core.OriginalFile ofile = (ome.model.core.OriginalFile) saved[i];
             rv.set(i, ofile);
-            // ids.add(ofile.getId()); TODO: Use this in a bulk setFileRepo call
-            sql.setFileRepo(ofile.getId(), repoUuid);
+            ids.add(ofile.getId());
             if (PublicRepositoryI.DIRECTORY_MIMETYPE.equals(ofile.getMimetype())) {
                 internalMkdir(path);
             }
         }
+        sql.setFileRepo(ids, repoUuid);
         return rv;
     }
 

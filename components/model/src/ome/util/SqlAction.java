@@ -467,7 +467,7 @@ public interface SqlAction {
 
     List<String> getUserGroups(String userName);
 
-    void setFileRepo(long id, String repoId);
+    void setFileRepo(Collection<Long> ids, String repoId);
 
     void setPixelsNamePathRepo(long pixId, String name, String path,
             String repoId);

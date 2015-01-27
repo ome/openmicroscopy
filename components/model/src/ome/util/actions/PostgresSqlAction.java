@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+
+import com.google.common.collect.ImmutableMap;
 
 public class PostgresSqlAction extends SqlAction.Impl {
 
@@ -245,9 +248,10 @@ public class PostgresSqlAction extends SqlAction.Impl {
                 new IdRowMapper(), roiId);
     }
 
-    public void setFileRepo(long id, String repoId) {
+    @Override
+    public void setFileRepo(Collection<Long> ids, String repoId) {
         _jdbc().update(_lookup("set_file_repo"), //$NON-NLS-1$
-                repoId, id);
+                ImmutableMap.of("ids", ids, "repo", repoId));
     }
 
     public void setPixelsNamePathRepo(long pixId, String name, String path,
