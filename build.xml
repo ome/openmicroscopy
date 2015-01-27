@@ -546,24 +546,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
 
-    <target name="release-coverage" depends="build-eclipse"
-        description="Merge code coverage reports into single top-level report">
-        <path id="omero.classpath">
-                <fileset dir="${omero.home}/target/libs" />
-        </path>
-        <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
-        <emma>
-            <merge outfile="${target.dir}/coverage.es" >
-                <fileset dir="components" includes="**/target/coverage.emma,**/target/metadata.emma"/>
-            </merge>
-            <report sourcepath="${src.dir}" >
-                <fileset dir="${target.dir}" includes="coverage.es"/>
-                <html outfile="${target.dir}/coverage.html" />
-                <xml outfile="${target.dir}/coverage.xml" />
-            </report>
-        </emma>
-    </target>
-
     <target name="release-docs" depends="release-javadoc,release-sphinx-api,release-slice2html" description="Generate Docs for all components under dist/docs/api">
         <zip destfile="${omero.home}/target/OMERO.docs-${omero.version}.zip">
             <zipfileset dir="${dist.dir}/docs" prefix="OMERO.docs-${omero.version}"/>

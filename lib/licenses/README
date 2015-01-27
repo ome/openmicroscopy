@@ -188,13 +188,6 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    emma-*.jar
-  Project:      EMMA, a free Java code coverage tool
-  Web Site:     http://emma.sourceforge.net
-  License:      Common Public License v1.0
-  License File: cpl-v10.html
-
-
   Artifacts:    findbugs-*.jar
   Project:      FindBugs, Find Bugs in Java Programs
   Web Site:     http://findbugs.sourceforge.net
