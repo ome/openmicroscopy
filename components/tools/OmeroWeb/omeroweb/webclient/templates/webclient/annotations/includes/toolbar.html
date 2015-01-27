@@ -115,17 +115,17 @@
             {% if image %}
               <li>
                 <a href="{% url 'web_render_image_download' image.id %}" title="Download as JPEG">
-                  Save as JPEG
+                  Export as JPEG
                 </a>
               </li>
               <li>
                 <a href="{% url 'web_render_image_download' image.id %}?format=png" title="Download as PNG">
-                  Save as PNG
+                  Export as PNG
                 </a>
               </li>
               <li>
                 <a href="{% url 'web_render_image_download' image.id %}?format=tif" title="Download as TIFF">
-                  Save as TIFF
+                  Export as TIFF
                 </a>
               </li>
             {% else %}
@@ -133,17 +133,17 @@
               <li>
                 <a href="#"
                   onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=jpeg&index={{ index }}');"
-                  title="Download as JPEGs (zip)">Save as JPEG</a>
+                  title="Download as JPEGs (zip)">Export as JPEG</a>
               </li>
               <li>
                 <a href="#"
                   onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=png&index={{ index }}');"
-                  title="Download as PNGs (zip)">Save as PNG</a>
+                  title="Download as PNGs (zip)">Export as PNG</a>
               </li>
               <li>
                 <a href="#"
                   onClick="return OME.openPopup('{% url 'download_placeholder' %}?ids={{ link_string }}&format=tif&index={{ index }}');"
-                  title="Download as TIFFs (zip)">Save as TIFF</a>
+                  title="Download as TIFFs (zip)">Export as TIFF</a>
               </li>
               {% endif %}
             {% endif %}
