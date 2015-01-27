@@ -25,11 +25,11 @@ working correctly.
 import omero
 import omero.clients
 from omero.rtypes import rstring, rtime
-import weblibrary as lib
+from weblibrary import IWebTest
+from weblibrary import _csrf_post_reponse, _post_reponse
+from weblibrary import _csrf_get_reponse, _get_reponse
 
 import json
-
-from urllib import urlencode
 
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -45,7 +45,7 @@ from random import randint as rint
 import tempfile
 
 
-class TestCsrf(lib.IWebTest):
+class TestCsrf(IWebTest):
     """
     Tests to ensure that Django CSRF middleware for OMERO.web is enabled and
     working correctly.
@@ -671,30 +671,3 @@ class TestCsrf(lib.IWebTest):
         _csrf_get_reponse(self.django_root_client, request_url, {})
         _post_reponse(self.django_root_client, request_url, {})
         _csrf_post_reponse(self.django_root_client, request_url, {})
-
-
-# Helpers
-def _post_reponse(django_client, request_url, data, status_code=403):
-    response = django_client.post(request_url, data=data)
-    assert response.status_code == status_code
-    return response
-
-
-def _csrf_post_reponse(django_client, request_url, data, status_code=200):
-    csrf_token = django_client.cookies['csrftoken'].value
-    data['csrfmiddlewaretoken'] = csrf_token
-    return _post_reponse(django_client, request_url, data, status_code)
-
-
-def _get_reponse(django_client, request_url, query_string, status_code=405):
-    query_string = urlencode(query_string.items())
-    response = django_client.get('%s?%s' % (request_url, query_string))
-    assert response.status_code == status_code
-    return response
-
-
-def _csrf_get_reponse(django_client, request_url, query_string,
-                      status_code=200):
-    csrf_token = django_client.cookies['csrftoken'].value
-    query_string['csrfmiddlewaretoken'] = csrf_token
-    return _get_reponse(django_client, request_url, query_string, status_code)
