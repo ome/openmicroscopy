@@ -597,6 +597,9 @@ JSON File Format:
         except omero.SecurityViolation, sv:
             self.ctx.die(510, "SecurityViolation: %s" % sv.message)
 
+        if not annotation:
+            self.ctx.die(400, "Could not find annotation")
+
         obj = query_service.findByQuery(
             "select o from %s as o "
             "left outer join fetch o.annotationLinks "

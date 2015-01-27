@@ -254,6 +254,26 @@ class TestTag(AbstractTagTest):
         link = self.get_link(object_type, oid)
         assert link.child.id.val == tid
 
+    def testLinkInvalidObject(self):
+        # Create a tag and an image
+        tid = self.create_tags(1, "%s" % self.uuid())
+
+        # Call tag link subcommand
+        self.args += ["link", "Project:0", "%s" % tid]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testLinkInvalidTag(self):
+        # Create a tag and an image
+        img = self.new_image()
+        img.name = rstring("%s" % self.uuid())
+        img = self.update.saveAndReturnObject(img)
+
+        # Call tag link subcommand
+        self.args += ["link", "Image:%s" % img.id.val, "-1"]
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
 
 class TestPermissions(AbstractTagTest):
 
