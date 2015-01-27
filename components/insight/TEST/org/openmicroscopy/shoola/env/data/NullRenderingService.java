@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.NullRenderingService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -40,10 +40,10 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
-import omero.api.RawPixelsStorePrx;
-import omero.api.StatefulServiceInterfacePrx;
-import omero.api.ThumbnailStorePrx;
+
 //Application-internal dependencies
+import omero.api.RawPixelsStorePrx;
+import omero.api.ThumbnailStorePrx;
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
@@ -97,10 +97,10 @@ public class NullRenderingService
 
     /**
      * No-op implementation
-     * @see OmeroImageService#renderImage(long, PlaneDef, boolean, boolean)
+     * @see OmeroImageService#renderImage(long, PlaneDef, boolean, boolean, int)
      */
     public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    		boolean asTexture, boolean largeImage)
+    		boolean asTexture, boolean largeImage, int compression)
             throws RenderingServiceException
     {
         return null;

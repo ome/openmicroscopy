@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -56,7 +56,6 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -1335,8 +1334,6 @@ class RendererModel
 	 * Renders the specified plane.
 	 * 
 	 * @param pDef The plane to render.
-	 * @param region The region to render, If <code>null</code> the plane
-	 * 				 is rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while setting
 	 * 									the value.
@@ -1349,6 +1346,23 @@ class RendererModel
 		return rndControl.render(pDef);
 	}
 
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @param compression The compression level.
+	 * @return See above.
+	 * @throws RenderingServiceException If an error occurred while setting
+	 *                                  the value.
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+	BufferedImage render(PlaneDef pDef, int compression)
+	        throws RenderingServiceException, DSOutOfServiceException
+	{
+	    if (rndControl == null) return null;
+	    return rndControl.render(pDef, compression);
+	}
+    
 	/**
 	 * Renders the specified plane.
 	 *
@@ -1364,7 +1378,7 @@ class RendererModel
 		if (rndControl == null) return null;
 		return rndControl.renderAsTexture(pDef);
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the passed rendering settings are the same
 	 * that the current one, <code>false</code> otherwise.

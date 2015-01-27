@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.roi.io.InputServerStrategy
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -462,8 +462,8 @@ class InputServerStrategy
 		List<Integer> mask = data.getMaskPoints();
 		for (int i = 0; i < points.size(); i++)
 		{
-			fig.addNode(new Node(mask.get(i), points.get(i), points1.get(i), 
-					points2.get(i)));
+			fig.addNode(new Node(i, points.get(i), points.get(i), 
+					points.get(i)));
 		}
 		
 		addShapeSettings(fig, data.getShapeSettings());
@@ -547,8 +547,8 @@ class InputServerStrategy
 				data.canDelete(), data.canAnnotate());
 		fig.setVisible(data.isVisible());
 		for (int i = 0; i < points.size(); i++)
-			fig.addNode(new Node(mask.get(i), points.get(i), 
-					points1.get(i), points2.get(i)));
+			fig.addNode(new Node(i, points.get(i), points.get(i),
+			        points.get(i)));
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		String text = data.getText();

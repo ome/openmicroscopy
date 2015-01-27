@@ -49,7 +49,7 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
 
     @Test
     public void testTruePyramidCreation() {
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service._getPixelBuffer(pixels, true);
     }
 
     @Test(dependsOnMethods={"testTruePyramidCreation"}, enabled=true)
@@ -58,7 +58,7 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
         assertEquals(tileCount, 768);
         pixelBuffer.close();
         // close now nulls the reader to free file descriptors
-        pixelBuffer = service.getPixelBuffer(pixels);
+        pixelBuffer = service._getPixelBuffer(pixels, true);
     }
 
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=false)

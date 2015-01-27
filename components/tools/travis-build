@@ -34,7 +34,7 @@ build_java()
 
 build_python()
 {
-    flake8 -v .
+    flake8 .
     ./build.py build-default
     ./build.py -py test -Dtest.with.fail=true -DMARK="not broken"
     ./build.py -fs test -Dtest.with.fail=true -DMARK="not broken"

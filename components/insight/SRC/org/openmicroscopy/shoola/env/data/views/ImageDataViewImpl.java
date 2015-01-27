@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.ImViewerViewImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -123,14 +123,15 @@ class ImageDataViewImpl
 
     /**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#render(long, PlaneDef, boolean, boolean, 
+     * @see ImageDataView#render(long, PlaneDef, boolean, boolean, int,
      * AgentEventListener)
      */
     public CallHandle render(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    		boolean asTexture, boolean largeImage, AgentEventListener observer)
+    		boolean asTexture, boolean largeImage, int compression,
+    		AgentEventListener observer)
     {
         BatchCallTree cmd = new ImageRenderer(ctx, pixelsID, pd, asTexture,
-        		largeImage);
+        		largeImage, compression);
         return cmd.exec(observer);
     }
 

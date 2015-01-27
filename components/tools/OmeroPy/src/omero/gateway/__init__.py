@@ -4418,6 +4418,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
                 kwargs['link'] = BlitzObjectWrapper(conn, link)
             return klass.registry[obj.__class__](conn, obj, **kwargs)
         else:  # pragma: no cover
+            logger.error("Failed to _wrap() annotation: %s" % obj.__class__)
             return None
 
     @classmethod
@@ -7132,7 +7133,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         handle = self._conn.c.sf.submit(req)
         try:
-            cb = self._conn._waitOnCmd(handle)
+            cb = self._conn._waitOnCmd(handle, failontimeout=True)
             rsp = cb.getResponse()
         finally:
             handle.close()
