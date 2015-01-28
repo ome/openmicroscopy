@@ -905,10 +905,12 @@ present, the user will enter a console""")
         config2.XML = None  # Prevent re-saving
         config2.close()
         config.save()
+        return rv
 
     @with_config
     def diagnostics(self, args, config):
         self.check_access(os.R_OK)
+        memory = self.jvmcfg(args, config, verbose=False)
         config = config.as_map()
         omero_data_dir = '/OMERO'
         try:
@@ -1222,6 +1224,16 @@ OMERO Diagnostics %s
             self.ctx.out("Exists? %s\tIs writable? %s%s" %
                          (dir_path_exists, is_writable,
                           dir_size))
+
+        # JVM settings
+        self.ctx.out("")
+        for k, v in sorted(memory.items()):
+            settings = v.pop(0)
+            sb = " ".join([str(x) for x in v])
+            if str(settings) != "Settings()":
+                sb += " # %s" % settings
+            item("JVM settings", " %s" % (k[0].upper() + k[1:]))
+            self.ctx.out("%s" % sb)
 
         # OMERO.web diagnostics
         self.ctx.out("")
