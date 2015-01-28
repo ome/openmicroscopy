@@ -631,7 +631,9 @@ def load_chgrp_groups(request, conn=None, **kwargs):
         })
     targetGroups.sort(key=lambda x: x['name'])
 
-    return {'owners': owners.values(), 'groups': targetGroups}
+    owners = [[k, v] for k, v in owners.items()]
+
+    return {'owners': owners, 'groups': targetGroups}
 
 
 @login_required()
@@ -642,8 +644,11 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     # filter by group (not switching group)
     conn.SERVICE_OPTS.setOmeroGroup(int(group_id))
 
+    owner = getIntOrDefault(request, 'owner', None)
+    print 'owner', owner
+
     manager= BaseContainer(conn)
-    manager.listContainerHierarchy()
+    manager.listContainerHierarchy(owner)
     template = 'webclient/data/chgrp_target_tree.html'
 
     show_projects = target_type in ('project', 'dataset')

@@ -21,24 +21,16 @@ $(function() {
 
     if (typeof window.OME === "undefined") { window.OME={}; }
 
-    var webindex_url;
-
-    // Handle clicking on specific group in chgrp dialog...
-    $( "#chgrp-form" ).on( "click", ".chgrpGroup", function() {
-
-        var $this = $(this),
-            gid = $this.attr('data-gid'),
-            chgrp_target_url = webindex_url + "load_chgrp_target/" + gid;
-
-        $(".chgrpGroup").remove();
-        $("#chgrp-form").append($this);
-    });
+    var webindex_url,
+        data_owners,
+        chgrp_type,
+        $chgrpform = $("#chgrp-form");
 
 
+    // external entry point, called by jsTree right-click menu
     window.OME.handleChgrp = function(webindex, static_url) {
         webindex_url = webindex;
         // gid, gname, oid
-        var $chgrpform = $("#chgrp-form");
         $chgrpform.dialog({"title": "Move to Group",
             height: 450,
             width: 400});
@@ -55,11 +47,14 @@ $(function() {
         // Need to find which groups we can move selected objects to.
         // Object owner must be member of target group.
         var url = webindex_url + "load_chgrp_groups?" + OME.get_tree_selection();
-        console.log(url);
         $.getJSON(url, function(data){
-            var headerTxt = "<p>Move data owned by " + data.owners.join(", ") + " to Group...</p>";
+            data_owners = data.owners;  // save for later
+            var ownernames = [];
+            for (var o=0; o<data.owners.length; o++) {ownernames.push(data.owners[o][1]);}
+            var headerTxt = "<p>Move data owned by " + ownernames.join(", ") + " to Group...</p>";
             $chgrpform.append(headerTxt);
 
+            // List the target groups...
             var html = "";
             for (var i=0; i<data.groups.length; i++){
                 var g = data.groups[i];
@@ -67,62 +62,97 @@ $(function() {
                 html += "<img src='" + permsIcon(g.perms) + "'/>";
                 html += g.name + "<hr></div>";
             }
+            // If no target groups found...
+            if (data.groups.length === 0) {
+                html = "<hr><p>No target groups found</p><hr>";
+                if (data.owners.length === 1) {
+                    html += "Owner of the data may only be in 1 group.";
+                } else {
+                    html += "Owners of the data may only be in 1 group,";
+                    html += "or they are not all in any common groups to move data to.";
+                }
+            }
             $chgrpform.append(html);
         });
-
-        // // Add group & selected items to chgrp form
-        // $('input.removeMe', $chgrpform).remove();   // cleanup (horrible!)
-        // var selobjs = OME.get_tree_selection().split("&");  // E.g. Image=1,2&Dataset=3
-        // for (var i=0;i<selobjs.length;i++) {
-        //     var dtype = selobjs[i].split("=")[0],
-        //         dids = selobjs[i].split("=")[1];
-        //     $("<input name='"+ dtype +"' value='"+ dids +"'/>")
-        //         .appendTo($chgrpform).addClass('removeMe').hide();
-        // }
-
-        // var chgrp_target_url = "{% url 'webindex' %}load_chgrp_target/"+gid;
-        // var chgrp_type = oid.split("-")[0];
-        // var target_type;
-        // if (chgrp_type == "dataset") target_type = "project";
-        // else if (chgrp_type == "image") target_type = "dataset";
-        // else if (chgrp_type == "plate") target_type = "screen";
-        // chgrp_target_url += "/"+target_type+"/";
-
-        // if (chgrp_type == "project" || chgrp_type == "screen") {
-        //     $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
-        // } else {
-        //     // we load a tree - then give it basic selection / expansion behaviour. jsTree would have been overkill!?
-        //     $("#move_group_tree").load(chgrp_target_url, function(){
-        //         var node_click = function(){
-        //             $("#move_group_tree a").removeClass("jstree-clicked");
-        //             // only allow selection of correct nodes
-        //             if ($(this).parent().attr('rel') == target_type) {
-        //                 $("a" ,$(this).parent()).addClass("jstree-clicked");
-        //             }
-        //             // toggle any children
-        //             $("ul" ,$(this).parent()).toggle();
-        //         };
-        //         $("#move_group_tree a").click(node_click);
-        //         $("#move_group_tree ins").click(node_click);
-        //     });
-        // }
-
-        // // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
-        // $("#move_group_tree").hide();               // hide tree while we wait...
-        // $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
-        // $.get("{% url 'fileset_check' 'chgrp' %}?" + OME.get_tree_selection(), function(html){
-        //     if($('div.split_fileset', html).length > 0) {
-        //         $(html).appendTo($chgrpform)
-        //         $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
-        //         var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
-        //         if (chgrp_type == "image") {
-        //             OME.select_fileset_images(filesetId);
-        //         }
-        //     } else {
-        //         $("#move_group_tree").show();
-        //     }
-        // });
     };
+
+
+    var checkFilesetSplit = function checkFilesetSplit () {
+        // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
+        $("#move_group_tree").hide();               // hide tree while we wait...
+        $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
+        $.get(webindex_url + "fileset_check/chgrp?" + OME.get_tree_selection(), function(html){
+            if($('div.split_fileset', html).length > 0) {
+                $(html).appendTo($chgrpform);
+                $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
+                var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
+                if (chgrp_type == "Image") {
+                    OME.select_fileset_images(filesetId);
+                }
+            } else {
+                $("#move_group_tree").show();
+            }
+        });
+    };
+
+
+    // Handle clicking on specific group in chgrp dialog...
+    $chgrpform.on( "click", ".chgrpGroup", function() {
+
+        var $this = $(this),
+            gid = $this.attr('data-gid'),
+            chgrp_target_url = webindex_url + "load_chgrp_target/" + gid,
+            dtype,
+            dids;
+
+        $(".chgrpGroup").remove();
+        $chgrpform.append($this);
+
+        // Add input to include 'group_id' in the POST data
+        $("<input name='group_id' value='"+ gid +"'/>")
+                .appendTo($chgrpform).addClass('removeMe').hide();
+
+        // Add group & selected items to chgrp form
+        var selobjs = OME.get_tree_selection().split("&");  // E.g. Image=1,2&Dataset=3
+        for (var i = 0; i < selobjs.length; i++) {
+            dtype = selobjs[i].split("=")[0];
+            dids = selobjs[i].split("=")[1];
+            $("<input name='"+ dtype +"' value='"+ dids +"'/>")
+                .appendTo($chgrpform).addClass('removeMe').hide();
+        }
+
+        chgrp_type = dtype;     // This will be the dtype of last object
+        var target_type;
+        if (chgrp_type == "Dataset") target_type = "project";
+        else if (chgrp_type == "Image") target_type = "dataset";
+        else if (chgrp_type == "Plate") target_type = "screen";
+        chgrp_target_url += "/"+target_type+"/";
+        chgrp_target_url += "?owner=" + data_owners[0][0];  // ID of the (first) owner
+
+        $("<div id='move_group_tree'></div>").appendTo($chgrpform);
+
+        if (chgrp_type == "Project" || chgrp_type == "Screen") {
+            $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
+        } else {
+            // we load a tree - then give it basic selection / expansion behaviour. jsTree would have been overkill!?
+            $("#move_group_tree").load(chgrp_target_url, function(){
+                var node_click = function(){
+                    $("#move_group_tree a").removeClass("jstree-clicked");
+                    // only allow selection of correct nodes
+                    if ($(this).parent().attr('rel') == target_type) {
+                        $("a" ,$(this).parent()).addClass("jstree-clicked");
+                    }
+                    // toggle any children
+                    $("ul" ,$(this).parent()).toggle();
+                };
+                $("#move_group_tree a").click(node_click);
+                $("#move_group_tree ins").click(node_click);
+            });
+        }
+
+        checkFilesetSplit();
+    });
+
 
 
     // After we edit the chgrp dialog to handle Filesets, we need to clean-up
@@ -132,7 +162,7 @@ $(function() {
         $("#chgrp_split_filesets").remove();
     };
 
-    var $chgrpform = $("#chgrp-form");
+    // set-up the dialog
     $chgrpform.dialog({
         dialogClass: 'chgrp_confirm_dialog',
         autoOpen: false,
@@ -152,7 +182,7 @@ $(function() {
                         return false;
                     }
                 }
-                $("#chgrp-form").submit();
+                $chgrpform.submit();
                 resetChgrpForm();
             },
             "Cancel": function() {
@@ -165,9 +195,9 @@ $(function() {
         }
     });
     // handle chgrp 
-    $("#chgrp-form").ajaxForm({
+    $chgrpform.ajaxForm({
         beforeSubmit: function(data){
-            $("#chgrp-form").dialog("close");
+            $chgrpform.dialog("close");
             var chgrp_target = $("#move_group_tree a.jstree-clicked");
             if (chgrp_target.length == 1){
                 data.push({'name':'target_id', 'value': chgrp_target.parent().attr('id')});
@@ -179,12 +209,5 @@ $(function() {
             $("#dataTree").jstree('remove', selected);
         }
     });
-    // chgrp form behavior
-    $("#chgrp-form .group_option").click(function(){
-        $("#chgrp-form .group_option").removeClass('selected');
-        $(this).addClass('selected');
-        $("input[type='radio']", $(this)).prop('checked', true);
-    });
-    $("#chgrp-form .group_option :first").click();  // select first option
 
 });
