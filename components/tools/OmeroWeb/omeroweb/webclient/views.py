@@ -593,6 +593,9 @@ def load_chgrp_groups(request, conn=None, **kwargs):
                 ownerIds.append(o.getDetails().owner.id.val)
                 currentGroups.add(o.getDetails().group.id.val)
     ownerIds = list(set(ownerIds))
+    # In case we were passed no objects or they weren't found
+    if len(ownerIds) == 0:
+        ownerIds = [conn.getUserId()]
     for owner in conn.getObjects("Experimenter", ownerIds):
         # Each owner has a set of groups
         gids = []
@@ -618,9 +621,9 @@ def load_chgrp_groups(request, conn=None, **kwargs):
                 'annotate': p.isGroupAnnotate(),
                 'read': p.isGroupRead()}
 
+    # From groupIds, create a list of group dicts for json
     targetGroups = []
     for gid in targetGroupIds:
-        print groups[gid].getDetails().permissions.isGroupRead()
         targetGroups.append({
             'id':gid,
             'name': groups[gid].name.val,

@@ -217,16 +217,24 @@
                 });
 
 
+        // Handle clicking on specific group in chgrp dialog...
         $( "#chgrp-form" ).on( "click", ".chgrpGroup", function() {
-            $(".chgrpGroup").removeClass('ui-selected');
-            $(this).addClass('ui-selected');
+
+            var $this = $(this),
+                gid = $this.attr('data-gid'),
+                chgrp_target_url = "{% url 'webindex' %}load_chgrp_target/"+gid;
+
+            $(".chgrpGroup").remove();
+            $("#chgrp-form").append($this);
         });
 
 
         OME.handleChgrp = function() {
             // gid, gname, oid
             var $chgrpform = $("#chgrp-form");
-            $chgrpform.dialog( "option" , "title" ,"Move to Group");
+            $chgrpform.dialog({"title": "Move to Group",
+                height: 450,
+                width: 400});
             $chgrpform.dialog('open');
             $chgrpform.empty();
 
@@ -242,7 +250,6 @@
             var url = "{% url 'load_chgrp_groups' %}?" + OME.get_tree_selection();
             console.log(url)
             $.getJSON(url, function(data){
-                console.log(data);
                 var headerTxt = "<p>Move data owned by " + data.owners.join(", ") + " to Group...</p>";
                 $chgrpform.append(headerTxt);
 
@@ -251,7 +258,7 @@
                     var g = data.groups[i];
                     html += "<div class='chgrpGroup' data-gid='"+ g.id + "'>"
                     html += "<img src='" + permsIcon(g.perms) + "'/>"
-                    html += g.name + "</div><hr>";
+                    html += g.name + "<hr></div>";
                 }
                 $chgrpform.append(html);
             });
@@ -935,12 +942,6 @@
                             }
                             if(!obj.hasClass('canChgrp')) {
                                 config["chgrp"]["_disabled"] = true;
-                                // need to disable all the group submenu items we created above
-                                {% for grp in myGroups %}
-                                    {% ifnotequal grp.id active_group.id %}
-                                        config["chgrp"]["submenu"]["menuitem{{ grp.id }}"]["_disabled"] = true;
-                                    {% endifnotequal %}
-                                {% endfor %}
                             }
                             // if experimenter or orphaned is selected, use 'locked' flag to decide permissions
                             if(obj.attr("id").indexOf("experimenter")>=0 || obj.attr("rel") == 'orphaned') {
