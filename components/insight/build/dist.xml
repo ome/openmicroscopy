@@ -717,22 +717,33 @@
   </jarbundler>
   <property name="dist.zip.prefix.editor.osx"
             value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
-	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
-            <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
+	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}_Java6.zip">
+            <zipfileset prefix="${dist.zip.prefix.editor.osx}_Java6/${dist.app.config.dir.name}"
 	                 dir="${app.config.dir}"/>
-	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
-	               includes="OMERO.editor*.app/**"
-                   excludes="**/${dist.osx.stub.name},**/${distEditor.name}"/>
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}_Java6" dir="${dist.dir}"
+	               includes="OMERO.editor_Java6.app/**"
+                   excludes="**/${dist.osx.stub.name}"/>
 	     <zipfileset file="${dist.osx.stub}"
-	                 fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
+	                 fullpath="${dist.zip.prefix.editor.osx}_Java6/OMERO.editor_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
 	                 filemode="775"/>
-         <zipfileset file="${dist.dir}/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
-                     fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
-                     filemode="775"/>
-	     <zipfileset prefix="${dist.zip.prefix.editor.osx}"
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}_Java6"
 	                 file="${dist.osx.installfile}"/>
 	     <zipfileset file="${base.licensefile}"
-	                 fullpath="${dist.zip.prefix.editor.osx}/LICENSE"/>
+	                 fullpath="${dist.zip.prefix.editor.osx}_Java6/LICENSE"/>
+	  </zip>
+	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}_Java7+.zip">
+            <zipfileset prefix="${dist.zip.prefix.editor.osx}_Java7+/${dist.app.config.dir.name}"
+	                 dir="${app.config.dir}"/>
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}_Java7+" dir="${dist.dir}"
+	               includes="OMERO.editor_Java7+.app/**"
+                   excludes="**/${distEditor.name}"/>
+         <zipfileset file="${dist.dir}/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
+                     fullpath="${dist.zip.prefix.editor.osx}_Java7+/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
+                     filemode="775"/>
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx}_Java7+"
+	                 file="${dist.osx.installfile}"/>
+	     <zipfileset file="${base.licensefile}"
+	                 fullpath="${dist.zip.prefix.editor.osx}_Java7+/LICENSE"/>
 	  </zip>
   </target>
 
