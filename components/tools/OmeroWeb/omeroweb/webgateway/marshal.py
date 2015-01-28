@@ -99,7 +99,9 @@ def imageMarshal (image, key=None):
                      'wellSampleId': wellsample and wellsample.id or '',
                      'wellId': well and well.id.val or '',
                      'imageTimestamp': time.mktime(image.getDate().timetuple()),
-                     'imageId': image.id,},
+                     'imageId': image.id,
+                     'pixelsType': image.getPixelsType(),
+                    },
             }
     try:
         reOK = image._prepareRenderingEngine()
