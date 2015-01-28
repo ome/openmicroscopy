@@ -62,6 +62,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -199,7 +200,7 @@ public class PropertiesUI
     private JPanel				descriptionPanel;
     
     /** The component hosting the id of the <code>DataObject</code>. */
-    private JLabel				idLabel;
+    private JTextField				idLabel;
     
     /** The component hosting the icon for inplace imported images */
     private JLabel 				inplaceIcon;
@@ -328,8 +329,10 @@ public class PropertiesUI
        	wellLabel.setFont(newFont);
        	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	
-       	idLabel = UIUtilities.setTextFont("");
-       	idLabel.setName("ID label");
+       	idLabel = new JTextField();
+       	idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
+       	idLabel.setEditable(false);
+       	idLabel.setBorder(BorderFactory.createEmptyBorder());
        	inplaceIcon = new JLabel(IconManager.getInstance().getIcon(IconManager.INPLACE_IMPORT));
        	ClickableTooltip inplaceIconTooltip = new ClickableTooltip(INPLACE_IMPORT_TOOLTIP_TEXT, createInplaceIconAction());
         inplaceIconTooltip.attach(inplaceIcon);
