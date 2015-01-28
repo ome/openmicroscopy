@@ -279,11 +279,13 @@ public class OmeroReader extends FormatReader {
                 client = client.createClient(false);
                 serviceFactory = client.getSession();
             }
-
+            
+            IAdminPrx iAdmin = serviceFactory.getAdminService();
+            IQueryPrx iQuery = serviceFactory.getQueryService();
+            EventContext eventContext = iAdmin.getEventContext();
+            
             if (group != null || groupID != null) {
-                IAdminPrx iAdmin = serviceFactory.getAdminService();
-                IQueryPrx iQuery = serviceFactory.getQueryService();
-                EventContext eventContext = iAdmin.getEventContext();
+
                 ExperimenterGroup defaultGroup =
                         iAdmin.getDefaultGroup(eventContext.userId);
                 if (!defaultGroup.getName().getValue().equals(group) &&
@@ -447,7 +449,7 @@ public class OmeroReader extends FormatReader {
             //            store.setImageID("omero:iid=", (int) img.getId().getValue());
             //Load ROIs to the img -->
             RoiOptions options = new RoiOptions();
-            options.userId = omero.rtypes.rlong(serviceFactory.getAdminService().getEventContext().userId);
+            options.userId = omero.rtypes.rlong(iAdmin.getEventContext().userId);
             RoiResult r = serviceFactory.getRoiService().findByImage(img.getId().getValue(), new RoiOptions());
             if (r != null){
                 List<Roi> rois = r.rois;
