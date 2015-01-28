@@ -456,22 +456,33 @@
     </jarbundler>
     <property name="dist.zip.prefix.osx"
               value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
-    <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
-      <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
+    <zip destfile="${dist.dir}/${dist.zip.prefix.osx}_Java6.zip">
+      <zipfileset prefix="${dist.zip.prefix.osx}_Java6/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
-      <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
-               includes="OMERO.insight*.app/**"
-               excludes="**/${dist.osx.stub.name},**/${distInsight.name}"/>
+      <zipfileset prefix="${dist.zip.prefix.osx}_Java6" dir="${dist.dir}"
+               includes="OMERO.insight_Java6.app/**"
+               excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}"
-                  fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
+                  fullpath="${dist.zip.prefix.osx}_Java6/OMERO.insight_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="775"/>
-      <zipfileset file="${dist.dir}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
-                  fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
-                  filemode="775"/>
-      <zipfileset prefix="${dist.zip.prefix.osx}"
+      <zipfileset prefix="${dist.zip.prefix.osx}_Java6"
                   file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
-                  fullpath="${dist.zip.prefix.osx}/LICENSE"/>
+                  fullpath="${dist.zip.prefix.osx}_Java6/LICENSE"/>
+    </zip>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.osx}_Java7+.zip">
+      <zipfileset prefix="${dist.zip.prefix.osx}_Java7+/${dist.app.config.dir.name}"
+                  dir="${app.config.dir}"/>
+      <zipfileset prefix="${dist.zip.prefix.osx}_Java7+" dir="${dist.dir}"
+               includes="OMERO.insight_Java7+.app/**"
+               excludes="**/${distInsight.name}"/>
+      <zipfileset file="${dist.dir}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
+                  fullpath="${dist.zip.prefix.osx}_Java7+/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
+                  filemode="775"/>
+      <zipfileset prefix="${dist.zip.prefix.osx}_Java7+"
+                  file="${dist.osx.installfile}"/>
+      <zipfileset file="${base.licensefile}"
+                  fullpath="${dist.zip.prefix.osx}_Java7+/LICENSE"/>
     </zip>
   </target>
 
