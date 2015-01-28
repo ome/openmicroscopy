@@ -627,10 +627,6 @@ def map_deprecated_settings(settings):
 
 def process_custom_settings(
         module, settings='CUSTOM_SETTINGS_MAPPINGS', deprecated=None):
-    """
-    Handle deprecated settings. If both the old and new keys are set then
-    raise an exception, otherwise copy the deprecated property to the new one
-    """
     logging.info('Processing custom settings for module %s' % module.__name__)
 
     if deprecated:
