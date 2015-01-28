@@ -28,6 +28,33 @@ def line_has_port(line, port):
     return m
 
 
+def update_ice_config(f, f_glacier2, t_glacier2):
+    old_port = "omero.port=%s" % f_glacier2
+    new_port = "omero.port=%s" % t_glacier2
+    glacier_port_pattern = re.compile('^%s$' % old_port, re.MULTILINE)
+    general_port_pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
+    commented_port_pattern = re.compile('^## omero.port=\d+$', re.MULTILINE)
+
+    with open(f, 'r') as r:
+        text = r.read()
+
+    (new_text, n) = glacier_port_pattern.subn(new_port, text)
+    if n != 0:
+        return (new_text, "Converted: %s => %s in %s"
+                % (old_port, new_port, f))
+
+    (new_text, n) = general_port_pattern.subn(new_port, text)
+    if n != 0:
+        return None, "No values found for %s in %s" % (old_port, f)
+
+    (new_text, n) = commented_port_pattern.subn(new_port, text)
+    if n != 0:
+        return (new_text, "Uncommented: %s in %s" % (new_port, f))
+
+    new_text = text + "\n%s\n" % new_port
+    return (new_text, "Appended: %s to %s" % (new_port, f))
+
+
 def change_ports(glacier2, glacier2insecure, registry, revert=False, dir="."):
     """
     Parses the etc configuration files to change
@@ -107,8 +134,10 @@ def change_ports(glacier2, glacier2insecure, registry, revert=False, dir="."):
 
     ice_cfg = ETC.files("ice.config")
     for x in ice_cfg:
-        x.write_text("omero.port=%s\n" % t_glacier2, append=True)
-    print "Appended omero.port=%s to %s" % (t_glacier2, x)
+        (text, msg) = update_ice_config(x, f_glacier2, t_glacier2)
+        if text:
+            x.write_text(text)
+        print msg
 
     for x in ((found_reg, f_registry, t_registry),
               (found_tcp, f_glacier2insecure, t_glacier2insecure),
