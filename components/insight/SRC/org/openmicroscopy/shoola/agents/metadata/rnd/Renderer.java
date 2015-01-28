@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.Renderer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -586,6 +586,12 @@ public interface Renderer
      */
     boolean isMappedImageRGB(List channels);
 
+    /**
+	 * Checks if the image pixel type is integer
+	 * @return See above
+	 */
+    boolean isIntegerPixelData();
+    
     /**
      * Creates an image with only the passed channel turned on.
      * All active channels will turn off then back on when the has been created.
