@@ -8,30 +8,82 @@ if [ -z "$ICE_HOME" ]; then
   export ICE_HOME=/usr/share/Ice
 fi
 
+fold()
+{
+    printf "travis_fold:$1:$NAME.$2\n"
+}
+
 # Clean up
 clean()
 {
-    ./build.py clean
+    ant clean
 }
 
-build_java()
+java_build()
 {
-    TEST="-p" ./build.py build-default test-compile
-    ./build.py -java test -Dtest.with.fail=true
-    ./build.py -f components/model/build.xml test -Dtest.with.fail=true
-    ./build.py -f components/common/build.xml test -Dtest.with.fail=true
+    NAME=java_build
+    fold start default
+        TEST="-p" ant build-default -Dpackage-extra=false
+    fold end default
+    fold start tests
+        TEST="-p" ant test-compile
+    fold end tests
 }
 
-build_python()
+java_test()
 {
-    flake8 -v components/tools/OmeroPy/src
-    flake8 -v components/tools/OmeroPy/test
-    flake8 -v components/tools/OmeroWeb/omeroweb/webstart
-    flake8 -v components/tools/OmeroWeb/omeroweb/webredirect
-    flake8 -v components/tools/OmeroWeb/test
-    ./build.py build-default
-    ./build.py -py test -Dtest.with.fail=true
-    ./build.py -web test -Dtest.with.fail=true
+    NAME=java_test
+
+    fold start java
+        ant -f components/tools/OmeroJava/build.xml test -Dtest.with.fail=true
+    fold end java
+
+    fold start model
+        ant -f components/model/build.xml test -Dtest.with.fail=true
+    fold end model
+
+    fold start common
+        ant -f components/common/build.xml test -Dtest.with.fail=true
+    fold end common
+}
+
+py_flake8()
+{
+    NAME=py_flake8
+
+    fold start OmeroPy
+        flake8 -v components/tools/OmeroPy/src
+        flake8 -v components/tools/OmeroPy/test
+    fold end OmeroPy
+
+    fold start OmeroWeb
+        flake8 -v components/tools/OmeroWeb/omeroweb/webstart
+        flake8 -v components/tools/OmeroWeb/omeroweb/webredirect
+        flake8 -v components/tools/OmeroWeb/test
+    fold end OmeroWeb
+}
+
+py_build()
+{
+    NAME=py_build
+    fold start default
+        ant build-default -Dpackage-extra=false
+    fold end default
+}
+
+py_test()
+{
+    NAME=py_test
+
+    fold start OmeroPy
+        ant -f components/tools/OmeroPy/build.xml test -Dtest.with.fail=true
+    fold end OmeroPy
+
+    fold start OmeroWeb
+        ant -f components/tools/OmeroWeb/build.xml test -Dtest.with.fail=true
+    fold end OmeroWeb
+
+    fold start modules
     # make sure all OmeroWeb Python modules can be imported
     # (this will find invalid imports that flake8 does not check for)
     echo Checking OmeroWeb Python imports
@@ -47,6 +99,7 @@ build_python()
         grep -B2 ImportError
       )
     test $? = 0
+    fold end modules
 }
 
 for arg in "$@"
@@ -55,9 +108,21 @@ do
         clean)
             clean ;;
         build-java)
-            build_java ;;
+            java_build && java_test ;;
         build-python)
-            build_python ;;
+            py_flake8 && py_build && py_test ;;
+        java-build)
+            java_build ;;
+        java-test)
+            java_test ;;
+        py-flake8)
+            py_flake8;;
+        py-build)
+            py_build ;;
+        py-test)
+            py_test ;;
+        all)
+            py_flake8 java_build java_test py_test ;;
         *)
             echo "Invalid argument: \"$arg\"" >&2
             exit 1
