@@ -12,12 +12,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import loci.common.lut.AbstractLutSource;
+import loci.common.lut.LutSource;
+import loci.common.lut.ij.ImageJLutSource;
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
+import loci.formats.Colorizer;
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
@@ -31,10 +36,10 @@ import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.messages.MissingStatsInfoMessage;
-import ome.system.metrics.Metrics;
-import ome.system.metrics.Timer;
 import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
+import ome.system.metrics.Metrics;
+import ome.system.metrics.Timer;
 import ome.util.PixelData;
 
 import org.apache.commons.io.FileUtils;
@@ -628,14 +633,43 @@ public class PixelsService extends AbstractFileSystemService
      */
     protected int getSeries(Pixels pixels)
     {
+        Map<String, String> params = resolver.getPixelsParams(pixels);
+        return getSeries(params);
+    }
+
+    protected int getSeries(Map<String, String> params)
+    {
         try
         {
-            Map<String, String> params = resolver.getPixelsParams(pixels);
             return Integer.valueOf(params.get("image_no"));
         }
         catch (Exception e)  // NumberFormatException, NullPointerException
         {
             return 0;
+        }
+    }
+
+    /**
+     * Retrieves the series for a given set of pixels.
+     * @param pixels Set of pixels to return the series for.
+     * @return The series as specified by the pixels parameters or
+     * <code>0</code> (the first series).
+     */
+    protected LutSource getLutSource(Map<String, String> params)
+    {
+        String lut = null;
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            if (param.getKey().startsWith("lut")) {
+                lut = param.getValue();
+                break;
+            }
+        }
+        if (lut == null) {
+            return new AbstractLutSource() {
+                // no-op
+            };
+        } else {
+            return new ImageJLutSource(lut);
         }
     }
 
@@ -741,6 +775,7 @@ public class PixelsService extends AbstractFileSystemService
     {
         try
         {
+            // TODO: do we need to apply the LUTs here?
             IFormatReader reader = createBfReader();
             MinMaxCalculator calculator = new MinMaxCalculator(reader);
             calculator.setMinMaxStore(store);
@@ -769,10 +804,13 @@ public class PixelsService extends AbstractFileSystemService
     public IFormatReader getBfReader(Pixels pixels) throws FormatException, IOException {
         // from getPixelBuffer
         final String originalFilePath = getOriginalFilePath(pixels);
-        final int series = getSeries(pixels);
-        final IFormatReader reader = createBfReader();
+        final Map<String, String> params = resolver.getPixelsParams(pixels);
+        final int series = getSeries(params);
+        final LutSource source = getLutSource(params);
+        final Colorizer reader = createBfReader();
         reader.setId(originalFilePath); // Called by BfPixelsBuffer elsewhere.
         reader.setSeries(series);
+        reader.setLutSource(source);
         return reader;
     }
 
@@ -780,14 +818,14 @@ public class PixelsService extends AbstractFileSystemService
      * Create an {@link IFormatReader} with the appropriate {@link loci.formats.ReaderWrapper}
      * instances and {@link IFormatReader#setFlattenedResolutions(boolean)} set to false.
      */
-    protected IFormatReader createBfReader() {
+    private Colorizer createBfReader() {
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
         reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader.setFlattenedResolutions(false);
         reader.setMetadataFiltered(true);
-        return reader;
+        return new Colorizer(reader);
     }
 
     /**
@@ -801,6 +839,7 @@ public class PixelsService extends AbstractFileSystemService
                                               final int series) {
         try
         {
+            // TODO: do we need to apply LUTs here?
             IFormatReader reader = createBfReader();
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
