@@ -33,6 +33,8 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -399,21 +401,20 @@ public class AdminLoader
     
     /**
      * Creates a new instance.
-     * 
+     *
      * @param ctx The security context.
-     * @param oldPassword 	The password used to log in.  
-     * @param newPassword	The new password value.
+     * @param oldPassword The password used to log in.
+     * @param newPassword The new password value.
      */
     public AdminLoader(SecurityContext ctx, String oldPassword,
-    		String newPassword)
+            String newPassword)
     {
-    	if (newPassword == null || newPassword.trim().length() == 0)
-    		throw new IllegalArgumentException("Password not valid.");
-    	if (oldPassword == null || oldPassword.trim().length() == 0)
-    		throw new IllegalArgumentException("Password not valid.");
-    	loadCall = changePassword(ctx, oldPassword, newPassword);
+        if (StringUtils.isBlank(newPassword) ||
+                StringUtils.isBlank(oldPassword))
+            throw new IllegalArgumentException("Password not valid.");
+        loadCall = changePassword(ctx, oldPassword, newPassword);
     }
-    
+
     /**
      * Creates a new instance.
      * 
