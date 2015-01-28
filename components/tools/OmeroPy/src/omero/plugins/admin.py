@@ -1094,42 +1094,6 @@ OMERO Diagnostics %s
                     win32service.CloseServiceHandle(hsc)
                 win32service.CloseServiceHandle(hscm)
 
-            # List SSL & TCP ports of deployed applications
-            self.ctx.out("")
-            p = self.ctx.popen(self._cmd("-e", "application list"))  # popen
-            rv = p.wait()
-            io = p.communicate()
-            if rv != 0:
-                self.ctx.out("Cannot list deployed applications.")
-                self.ctx.dbg("""
-                Stdout:\n%s
-                Stderr:\n%s
-                """ % io)
-            else:
-                applications = io[0].split()
-                applications.sort()
-                for s in applications:
-                    p2 = self.ctx.popen(
-                        self._cmd("-e", "application describe %s" % s))
-                    io2 = p2.communicate()
-                    if io2[1]:
-                        self.ctx.err(io2[1].strip())
-                    elif io2[0]:
-                        ssl_port, tcp_port = get_ports(io2[0])
-                        item("%s" % s, "SSL port")
-                        if not ssl_port:
-                            self.ctx.err("Not found")
-                        else:
-                            self.ctx.out("%s" % ssl_port)
-
-                        item("%s" % s, "TCP port")
-                        if not tcp_port:
-                            self.ctx.err("Not found")
-                        else:
-                            self.ctx.out("%s" % tcp_port)
-                    else:
-                        self.ctx.err("UNKNOWN!")
-
         if not args.no_logs:
 
             def log_dir(log, cat, cat2, knownfiles):
@@ -1215,7 +1179,37 @@ OMERO Diagnostics %s
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
 
+        # List SSL & TCP ports of deployed applications
         self.ctx.out("")
+        p = self.ctx.popen(self._cmd("-e", "application list"))  # popen
+        rv = p.wait()
+        io = p.communicate()
+        if rv != 0:
+            self.ctx.out("Cannot list deployed applications.")
+            self.ctx.dbg("""
+            Stdout:\n%s
+            Stderr:\n%s
+            """ % io)
+        else:
+            applications = io[0].split()
+            applications.sort()
+            for s in applications:
+                def port_val(port_type, value):
+                    item("%s %s port" % (s, port_type),
+                         "%s" % value or "Not found")
+                    self.ctx.out("")
+                p2 = self.ctx.popen(
+                    self._cmd("-e", "application describe %s" % s))
+                io2 = p2.communicate()
+                if io2[1]:
+                    self.ctx.err(io2[1].strip())
+                elif io2[0]:
+                    ssl_port, tcp_port = get_ports(io2[0])
+                    port_val("SSL", ssl_port)
+                    port_val("TCP", tcp_port)
+                else:
+                    self.ctx.err("UNKNOWN!")
+
         for dir_name, dir_path, dir_size in (
                 ("data", omero_data_dir, ""),
                 ("temp", omero_temp_dir, True)):
@@ -1224,10 +1218,13 @@ OMERO Diagnostics %s
             if dir_size and dir_path_exists:
                 dir_size = self.getdirsize(omero_temp_dir)
                 dir_size = "   (Size: %s)" % dir_size
-            self.ctx.out("OMERO %s dir: '%s'\tExists? %s\tIs writable? %s%s" %
-                         (dir_name, dir_path, dir_path_exists, is_writable,
+            item("OMERO %s dir" % dir_name, "'%s'" % dir_path)
+            self.ctx.out("Exists? %s\tIs writable? %s%s" %
+                         (dir_path_exists, is_writable,
                           dir_size))
 
+        # OMERO.web diagnostics
+        self.ctx.out("")
         from omero.plugins.web import WebControl
         try:
             WebControl().status(args)
