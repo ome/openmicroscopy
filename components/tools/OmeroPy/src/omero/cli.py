@@ -1462,12 +1462,9 @@ class GraphArg(object):
             type = parts[0]
             id = long(parts[1])
 
-            import omero
-            import omero.cmd
-            return omero.cmd.DoAll([
-                self.cmd_type(type=type,
-                              id=id,
-                              options={})])
+            return self.cmd_type(type=type,
+                                 id=id,
+                                 options={})
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1673,16 +1670,19 @@ class GraphControl(CmdControl):
             self.ctx.out("\n".join(keys))
             return  # Early exit.
 
-        for req_or_doall in args.obj:
-            doall = self.as_doall(req_or_doall)
-            for req in doall.requests:
-                if args.edit:
-                    req.options = self.edit_options(req, specmap)
-                if args.opt:
-                    for opt in args.opt:
-                        self.line_to_opts(opt, req.options)
+        if len(args.obj) == 1 and isinstance(args.obj[0], omero.cmd.DoAll):
+            doall = args.obj[0]
+        else:
+            doall = omero.cmd.DoAll(args.obj)
 
-            self._process_request(doall, args, client)
+        for req in doall.requests:
+            if args.edit:
+                req.options = self.edit_options(req, specmap)
+            if args.opt:
+                for opt in args.opt:
+                    self.line_to_opts(opt, req.options)
+
+        self._process_request(doall, args, client)
 
     def edit_options(self, req, specmap):
 
@@ -1718,11 +1718,11 @@ class GraphControl(CmdControl):
                 start_text += self.append_options(optkey, specmap, indent+1)
         return start_text
 
-    def print_request_description(self, req):
-        doall = self.as_doall(req)
-        for req in doall.requests:
-            cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
-            return "%s %s %s... " % (cmd_type, req.type, req.id)
+    def print_request_description(self, request):
+        doall = self.as_doall(request)
+        cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
+        objects = ['%s %s' % (req.type, req.id) for req in doall.requests]
+        return "%s %s... " % (cmd_type, ', '.join(objects))
 
 
 class UserGroupControl(BaseControl):

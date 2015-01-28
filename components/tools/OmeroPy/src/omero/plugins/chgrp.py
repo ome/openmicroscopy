@@ -69,7 +69,7 @@ class ChgrpControl(GraphControl):
         except omero.ApiUsageException:
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
-        # Check session owner is member of the trarget group
+        # Check session owner is member of the target group
         uid = client.sf.getAdminService().getEventContext().userId
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
         if uid not in ids:
