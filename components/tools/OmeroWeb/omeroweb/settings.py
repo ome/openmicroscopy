@@ -709,6 +709,17 @@ def report_settings(module):
                 "%s = %r (source:%s)", global_name,
                 cleanse_setting(global_name, global_value), source)
 
+    deprecated_settings = getattr(module, 'DEPRECATED_SETTINGS_MAPPINGS', {})
+    for key in sorted(deprecated_settings):
+        values = deprecated_settings[key]
+        global_name, default_value, mapping, description, using_default = \
+            values
+        global_value = getattr(module, global_name, None)
+        if global_name.isupper() and not using_default:
+            logger.warning(
+                "%s = %r (Deprecated: %s, %s)", global_name,
+                cleanse_setting(global_name, global_value), key, description)
+
 report_settings(sys.modules[__name__])
 
 SITE_ID = 1
