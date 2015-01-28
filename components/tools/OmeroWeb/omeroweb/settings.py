@@ -301,11 +301,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER_PORT", "4080", str, "Upstream application port"],
     "omero.web.application_server.max_requests":
         ["APPLICATION_SERVER_MAX_REQUESTS", 400, int, None],
-    "omero.web.force_script_name":
-        ["FORCE_SCRIPT_NAME",
-         None,
-         leave_none_unset,
-         ("DEPRECATED, use omero.web.prefix instead.")],
     "omero.web.prefix":
         ["FORCE_SCRIPT_NAME",
          None,
@@ -586,6 +581,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ("Configuration options for the viewer. -1: zoom in fully,"
           " 0: zoom out fully, unset: zoom to fit window")],
 
+}
+
+DEPRECATED_SETTINGS_MAPPINGS = {
+    # Deprecated settings, description should indicate the replacement.
+    "omero.web.force_script_name":
+        ["FORCE_SCRIPT_NAME",
+         None,
+         leave_none_unset,
+         ("Use omero.web.prefix instead.")],
 }
 
 del CUSTOM_HOST
