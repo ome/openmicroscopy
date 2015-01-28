@@ -610,8 +610,35 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
 }
 
 
-def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
+def map_deprecated_settings(settings):
+    m = {}
+    for key, values in settings.items():
+        try:
+            global_name = values[0]
+            m[global_name] = (CUSTOM_SETTINGS[key], key)
+            if len(values) < 5:
+                # Not using default (see process_custom_settings)
+                values.append(False)
+        except KeyError:
+            if len(values) < 5:
+                values.append(True)
+    return m
+
+
+def process_custom_settings(
+        module, settings='CUSTOM_SETTINGS_MAPPINGS', deprecated=None):
+    """
+    Handle deprecated settings. If both the old and new keys are set then
+    raise an exception, otherwise copy the deprecated property to the new one
+    """
     logging.info('Processing custom settings for module %s' % module.__name__)
+
+    if deprecated:
+        deprecated_map = map_deprecated_settings(
+            getattr(module, deprecated, {}))
+    else:
+        deprecated_map = {}
+
     for key, values in getattr(module, settings, {}).items():
         # Django may import settings.py more than once, see:
         # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
@@ -629,6 +656,17 @@ def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
             values.append(True)
 
         try:
+            using_default = values[-1]
+            if global_name in deprecated_map:
+                dep_value, dep_key = deprecated_map[global_name]
+                if using_default:
+                    logging.warning(
+                        'Setting %s is deprecated, use %s', dep_key, key)
+                    global_value = dep_value
+                else:
+                    logging.error(
+                        '%s and its deprecated key %s are both set, using %s',
+                        key, dep_key, key)
             setattr(module, global_name, mapping(global_value))
         except ValueError:
             raise ValueError(
@@ -637,7 +675,8 @@ def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
             pass
 
 process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
-process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS')
+process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS',
+                        'DEPRECATED_SETTINGS_MAPPINGS')
 process_custom_settings(sys.modules[__name__], 'DEVELOPMENT_SETTINGS_MAPPINGS')
 
 if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
