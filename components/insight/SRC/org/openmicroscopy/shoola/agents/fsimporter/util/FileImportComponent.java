@@ -1073,7 +1073,29 @@ public class FileImportComponent
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if the component has imports to cancel,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    public boolean hasImportToCancel()
+    {
+        boolean b = statusLabel.isMarkedAsCancel();
+        if (b) return false;
+        if (getFile().isFile() && !hasImportStarted()) return true;
+        if (components == null) return false;
+        Iterator<FileImportComponent> i = components.values().iterator();
+        FileImportComponent fc;
+        while (i.hasNext()) {
+            fc = i.next();
+            if (!fc.isCancelled() && !fc.hasImportStarted())
+                return true;
+        }
+        return false;
+    }
+    
 	/**
 	 * Returns <code>true</code> if the file can be re-imported,
 	 * <code>false</code> otherwise.
@@ -1127,7 +1149,7 @@ public class FileImportComponent
 		}
 		return count == components.size();
 	}
-	
+
 	/**
 	 * Returns <code>true</code> the error can be submitted, <code>false</code>
 	 * otherwise.
