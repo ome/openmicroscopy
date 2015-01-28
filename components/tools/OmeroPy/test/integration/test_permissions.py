@@ -887,7 +887,8 @@ class TestPermissionProjections(lib.ITest):
         assert expected_arr == found_arr
 
     @pytest.mark.broken(ticket="12474")
-    @pytest.mark.parametrize("fixture", lib.PFS)
+    @pytest.mark.parametrize("fixture", lib.PFS,
+                             ids=[x.get_name() for x in lib.PFS])
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
