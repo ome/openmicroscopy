@@ -67,9 +67,10 @@ import ome.tools.hibernate.ListAsSQLArrayUserType;
 
 /**
  * A standalone tool for producing a summary of the Hibernate object mapping for our Sphinx documentation. One may invoke it with
- * <code>java -cp lib/server/\* `bin/omero config get | awk '{print"-D"$1}'` ome.services.graphs.GraphPathReport EveryObject.txt</code>
- * and transform the result via <code>fold -sw72</code>.
- * It is heavily based on the {@link GraphPathBean}.
+ * <code>java -cp lib/server/\* `bin/omero config get | awk '{print"-D"$1}'` ome.services.graphs.GraphPathReport EveryObject.txt</code>.
+ * Comments in code indicate different formatting possibilities for the output.
+ * If not using {@code |} prefixes then one may transform the output via {@code fold -sw72}.
+ * This class is heavily based on the {@link GraphPathBean}.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
  *
