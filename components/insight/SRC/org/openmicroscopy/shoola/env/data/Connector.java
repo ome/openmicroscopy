@@ -479,11 +479,24 @@ class Connector
     IAdminPrx getAdminService()
             throws DSOutOfServiceException
     {
-        return IAdminPrxHelper.uncheckedCast(
-                get(omero.constants.ADMINSERVICE.value,
-                        unsecureClient == null));
+        return getAdminService(unsecureClient == null);
     }
 
+
+    /**
+     * Returns the {@link IAdminPrx} service.
+     *
+     * @param secure Pass <code>true</code> to have a secure admin service,
+     *               <code>false</code> otherwise.
+     * @return See above.
+     * @throws Throwable Thrown if the service cannot be initialized.
+     */
+    IAdminPrx getAdminService(boolean secure)
+            throws DSOutOfServiceException
+    {
+        return IAdminPrxHelper.uncheckedCast(
+                get(omero.constants.ADMINSERVICE.value, secure));
+    }
 
     //
     // Irregular service lookups

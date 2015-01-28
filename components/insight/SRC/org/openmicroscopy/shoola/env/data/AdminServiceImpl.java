@@ -620,6 +620,7 @@ class AdminServiceImpl
 				//check that the user is not ldap
 				String ldap = gateway.lookupLdapAuthExperimenter(ctx,
 						exp.getId());
+				System.err.println(ldap);
 				if (StringUtils.isNotBlank(ldap)) l.add(exp);
 				else 
 					gateway.resetPassword(ctx, exp.getUserName(), exp.getId(), 
