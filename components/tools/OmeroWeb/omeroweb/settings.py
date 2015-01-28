@@ -716,8 +716,8 @@ def report_settings(module):
             values
         global_value = getattr(module, global_name, None)
         if global_name.isupper() and not using_default:
-            logger.warning(
-                "%s = %r (Deprecated: %s, %s)", global_name,
+            logger.debug(
+                "%s = %r (deprecated:%s, %s)", global_name,
                 cleanse_setting(global_name, global_value), key, description)
 
 report_settings(sys.modules[__name__])
