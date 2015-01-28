@@ -165,14 +165,7 @@
             if ($selRow.length > 0) {
                 $rows.insertAfter($selRow);
             } else {
-                // If the last row is placeholder 'Add Key', 'Add Value', paste before
-                var $lastRow = $('tr:last', $tbody),
-                    rowData = getRowData($lastRow);
-                if (rowData[0] == "Add Key" && rowData[1] == "Add Value") {
-                    $rows.insertBefore($lastRow);
-                } else {
-                    $rows.appendTo($tbody);
-                }
+                $rows.appendTo($tbody);
             }
 
             saveMapAnnotation($tbody.parent());
