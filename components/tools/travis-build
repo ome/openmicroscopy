@@ -69,7 +69,7 @@ py_test()
     for dir in OmeroPy OmeroFS OmeroWeb
     do
         fold start $dir
-        ant -f components/$dir/build.xml test -Dtest.with.fail=true
+        ant -f components/tools/$dir/build.xml test -Dtest.with.fail=true
         fold end $dir
     done
 
