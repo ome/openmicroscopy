@@ -91,8 +91,12 @@ class FileTable
 	{
 		Iterator<ImportErrorObject> i = files.iterator();
 		nodes = new ArrayList<FileTableNode>();
+		ImportErrorObject o;
 		while (i.hasNext()) {
-			nodes.add(new FileTableNode(i.next()));
+		    o = i.next();
+		    if (o.getFile() != null) {
+		        nodes.add(new FileTableNode(o));
+		    }
 		}
 	}
 	
