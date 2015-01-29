@@ -96,8 +96,6 @@ class WebControl(BaseControl):
             help="HTTP port for web server (nginx only)")
         config.add_argument(
             "--system", action="store_true", help=SUPPRESS)
-        config.add_argument(
-            "--templates_dir", type=str, help=SUPPRESS)
 
         parser.add(
             sub, self.syncmedia,
@@ -145,6 +143,9 @@ class WebControl(BaseControl):
     def _get_python_dir(self):
         return self.ctx.dir / "lib" / "python"
 
+    def _get_templates_dir(self):
+        return self.ctx.dir / "etc" / "templates"
+
     def config(self, args):
         if not args.type:
             self.ctx.die(
@@ -177,10 +178,6 @@ class WebControl(BaseControl):
             except:
                 d["FORCE_SCRIPT_NAME"] = "/"
 
-            if args.templates_dir:
-                templates_dir = path(args.templates_dir)
-            else:
-                templates_dir = self.ctx.dir / "etc" / "templates"
             template_file = "%s.conf.template" % server
 
             if server in ("nginx", "nginx-development"):
@@ -242,7 +239,7 @@ class WebControl(BaseControl):
 
                 d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
-            c = file(templates_dir / template_file).read()
+            c = file(self._get_templates_dir() / template_file).read()
             self.ctx.out(c % d)
 
     def syncmedia(self, args):
