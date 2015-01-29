@@ -129,16 +129,6 @@ class WebControl(BaseControl):
             "Developer use: Loads the blitz gateway into a Python"
             " interpreter")
 
-        selenium = parser.add(
-            sub, self.seleniumtest,
-            "Developer use: runs selenium tests on a django app")
-        selenium.add_argument(
-            "--config", action="store", help="ice.config location")
-        selenium.add_argument("djangoapp", help="Django-app to be tested")
-        selenium.add_argument("seleniumserver", help="E.g. localhost")
-        selenium.add_argument("hostname", help="E.g. http://localhost:4080")
-        selenium.add_argument("browser", help="E.g. firefox")
-
     def _get_python_dir(self):
         return self.ctx.dir / "lib" / "python"
 
@@ -277,32 +267,6 @@ class WebControl(BaseControl):
         os.environ['DJANGO_SETTINGS_MODULE'] = \
             os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         self.ctx.call(args, cwd=location)
-
-    def seleniumtest(self, args):
-        try:
-            ice_config = args.config
-            appname = args.djangoapp
-            seleniumserver = args.seleniumserver
-            hostname = args.hostname
-            browser = args.browser
-        except:
-            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp}"
-                         " [seleniumserver] [hostname] [browser]")
-
-        if appname.find('.') > 0:
-            appname = appname.split('.')
-            appbase = appname[0]
-            location = self.ctx.dir / appbase
-            appname = '.'.join(appname[1:])
-        else:
-            location = self._get_python_dir() / "omeroweb"
-
-        cargs = [sys.executable, location / appname / "tests" /
-                 "seleniumtests.py", seleniumserver, hostname, browser]
-        # cargs += args.arg[1:]
-        self.set_environ(ice_config=ice_config)
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-        self.ctx.call(cargs, cwd=location)
 
     def call(self, args):
         try:
