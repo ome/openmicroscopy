@@ -176,11 +176,13 @@
             var $selRows = $('.keyValueTable tr.ui-selected'),
                 $tbody = $selRows.parent();
             $selRows.remove();
+            enableToolbarButtons();
+            saveMapAnnotation($tbody.parent());
+
+            // Add back a placeholder if table is empty (after saving!)
             if ($tbody.find('tr').length == 0) {
                 $lastRow.clone().appendTo($tbody);
             }
-            enableToolbarButtons();
-            saveMapAnnotation($tbody.parent());
         }
 
         var selectRows = function selectRows($clickedRow, event) {
