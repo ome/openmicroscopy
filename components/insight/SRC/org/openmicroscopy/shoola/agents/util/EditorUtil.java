@@ -709,8 +709,7 @@ public class EditorUtil
 			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
 			l = data.getPixelSizeZ(UnitsLength.MICROMETER);
 			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
-			details.put(PIXEL_TYPE,
-					PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
+			details.put(PIXEL_TYPE, data.getPixelType());
         }
         details.put(EMISSION+" "+WAVELENGTH+"s", "");
         return details;
