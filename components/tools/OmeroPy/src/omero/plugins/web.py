@@ -13,7 +13,6 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
-from path import path
 from omero_ext.argparse import SUPPRESS
 
 try:
