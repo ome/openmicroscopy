@@ -523,10 +523,10 @@
   <target name="dist-osx-appbundler"
           depends="jar,appbundler-init"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
-    <delete dir="${dist.dir}/OMERO.insight_Java7+.app"/>
+    <delete dir="${dist.dir}/OMERO.insight.app"/>
     <appbundler
       outputdirectory="${dist.dir}"
-      name="${distInsight.name}_Java7+"
+      name="${distInsight.name}"
       displayname="${distInsight.name}"
       executableName="${distInsight.name}"
       identifier="org.openmicroscopy.insight"
@@ -556,9 +556,30 @@
   <target name="dist-osx"
           depends="jar,dist-osx-appbundler"
           description="Build and package the app for OS X distribution.">
-    <delete dir="${dist.dir}/OMERO.insight_Java6.app"/>
+
+    <property name="dist.zip.prefix.osx"
+              value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
+
+    <property name="dist.zip.prefix.osx.107"
+              value="${dist.zip.prefix.osx}_Java7+"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.osx.107}.zip">
+      <zipfileset prefix="${dist.zip.prefix.osx.107}/${dist.app.config.dir.name}"
+                  dir="${app.config.dir}"/>
+      <zipfileset prefix="${dist.zip.prefix.osx.107}" dir="${dist.dir}"
+               includes="OMERO.insight.app/**"
+               excludes="**/${distInsight.name}"/>
+      <zipfileset file="${dist.dir}/OMERO.insight.app/Contents/MacOS/${distInsight.name}"
+                  fullpath="${dist.zip.prefix.osx.107}/OMERO.insight.app/Contents/MacOS/${distInsight.name}"
+                  filemode="775"/>
+      <zipfileset prefix="${dist.zip.prefix.osx.107}"
+                  file="${dist.osx.installfile}"/>
+      <zipfileset file="${base.licensefile}"
+                  fullpath="${dist.zip.prefix.osx.107}/LICENSE"/>
+    </zip>
+
+    <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
-                name="${distInsight.name}_Java6"
+                name="${distInsight.name}"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
@@ -571,33 +592,31 @@
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
     </jarbundler>
-    <property name="dist.zip.prefix.osx"
-              value="${dist.bundle.name}-${dist.bundle.version}-mac"/>
-    <zip destfile="${dist.dir}/${dist.zip.prefix.osx}.zip">
-      <zipfileset prefix="${dist.zip.prefix.osx}/${dist.app.config.dir.name}"
+
+    <property name="dist.zip.prefix.osx.106"
+              value="${dist.zip.prefix.osx}_Java6"/>
+    <zip destfile="${dist.dir}/${dist.zip.prefix.osx.106}.zip">
+      <zipfileset prefix="${dist.zip.prefix.osx.106}/${dist.app.config.dir.name}"
                   dir="${app.config.dir}"/>
-      <zipfileset prefix="${dist.zip.prefix.osx}" dir="${dist.dir}"
-               includes="OMERO.insight*.app/**"
-               excludes="**/${dist.osx.stub.name},**/${distInsight.name}"/>
+      <zipfileset prefix="${dist.zip.prefix.osx.106}" dir="${dist.dir}"
+               includes="OMERO.insight.app/**"
+               excludes="**/${dist.osx.stub.name}"/>
       <zipfileset file="${dist.osx.stub}"
-                  fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
+                  fullpath="${dist.zip.prefix.osx.106}/OMERO.insight.app/Contents/MacOS/${dist.osx.stub.name}"
                   filemode="775"/>
-      <zipfileset file="${dist.dir}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
-                  fullpath="${dist.zip.prefix.osx}/OMERO.insight_Java7+.app/Contents/MacOS/${distInsight.name}"
-                  filemode="775"/>
-      <zipfileset prefix="${dist.zip.prefix.osx}"
+      <zipfileset prefix="${dist.zip.prefix.osx.106}"
                   file="${dist.osx.installfile}"/>
       <zipfileset file="${base.licensefile}"
-                  fullpath="${dist.zip.prefix.osx}/LICENSE"/>
+                  fullpath="${dist.zip.prefix.osx.106}/LICENSE"/>
     </zip>
   </target>
 
   <target name="dist-osx-openGL"
           depends="jar"
           description="Build and package the app for OS X distribution with OpenGL support.">
-    <delete dir="${dist.dir}/OMERO.insight_Java6.app"/>
+    <delete dir="${dist.dir}/OMERO.insight.app"/>
     <jarbundler dir="${dist.dir}"
-                name="${distInsight.name}_Java6"
+                name="${distInsight.name}"
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
@@ -688,9 +707,30 @@
   <target name="distEditor-osx"
 	        depends="jar,distEditor-osx-appbundler"
 	        description="Build and package the app for OS X distribution.">
-  <delete dir="${dist.dir}/OMERO.editor_Java6.app"/>
+
+  <property name="dist.zip.prefix.editor.osx"
+            value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
+
+  <property name="dist.zip.prefix.editor.osx.107"
+	        value="${dist.zip.prefix.editor.osx}_Java7+"/>
+  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx.107}.zip">
+           <zipfileset prefix="${dist.zip.prefix.editor.osx.107}/${dist.app.config.dir.name}"
+                 dir="${app.config.dir}"/>
+     <zipfileset prefix="${dist.zip.prefix.editor.osx.107}" dir="${dist.dir}"
+               includes="OMERO.editor.app/**"
+                  excludes="**/${distEditor.name}"/>
+        <zipfileset file="${dist.dir}/OMERO.editor.app/Contents/MacOS/${distEditor.name}"
+                    fullpath="${dist.zip.prefix.editor.osx.107}/OMERO.editor.app/Contents/MacOS/${distEditor.name}"
+                    filemode="775"/>
+     <zipfileset prefix="${dist.zip.prefix.editor.osx.107}"
+                 file="${dist.osx.installfile}"/>
+     <zipfileset file="${base.licensefile}"
+                 fullpath="${dist.zip.prefix.editor.osx.107}/LICENSE"/>
+  </zip>
+
+  <delete dir="${dist.dir}/OMERO.editor.app"/>
   <jarbundler dir="${dist.dir}"
-	        name="${distEditor.name}_Java6"
+	        name="${distEditor.name}"
 	        mainclass="${app.mainclass}"
 	        version="${dist.bundle.version}"
 	        infostring="${distEditor.name} Java Client, ${dist.bundle.version}"
@@ -704,25 +744,24 @@
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
   </jarbundler>
-  <property name="dist.zip.prefix.editor.osx"
-            value="${distEditor.bundle.name}-${dist.bundle.version}-mac"/>
-	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx}.zip">
-            <zipfileset prefix="${dist.zip.prefix.editor.osx}/${dist.app.config.dir.name}"
+
+	  <property name="dist.zip.prefix.editor.osx.106"
+		        value="${dist.zip.prefix.editor.osx}_Java6"/>
+	  <zip destfile="${dist.dir}/${dist.zip.prefix.editor.osx.106}.zip">
+	           <zipfileset prefix="${dist.zip.prefix.editor.osx.106}/${dist.app.config.dir.name}"
 	                 dir="${app.config.dir}"/>
-	     <zipfileset prefix="${dist.zip.prefix.editor.osx}" dir="${dist.dir}"
-	               includes="OMERO.editor*.app/**"
-                   excludes="**/${dist.osx.stub.name},**/${distEditor.name}"/>
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx.106}" dir="${dist.dir}"
+	               includes="OMERO.editor.app/**"
+	                  excludes="**/${dist.osx.stub.name}"/>
 	     <zipfileset file="${dist.osx.stub}"
-	                 fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
+	                 fullpath="${dist.zip.prefix.editor.osx.106}/OMERO.editor.app/Contents/MacOS/${dist.osx.stub.name}"
 	                 filemode="775"/>
-         <zipfileset file="${dist.dir}/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
-                     fullpath="${dist.zip.prefix.editor.osx}/OMERO.editor_Java7+.app/Contents/MacOS/${distEditor.name}"
-                     filemode="775"/>
-	     <zipfileset prefix="${dist.zip.prefix.editor.osx}"
+	     <zipfileset prefix="${dist.zip.prefix.editor.osx.106}"
 	                 file="${dist.osx.installfile}"/>
 	     <zipfileset file="${base.licensefile}"
-	                 fullpath="${dist.zip.prefix.editor.osx}/LICENSE"/>
+	                 fullpath="${dist.zip.prefix.editor.osx.106}/LICENSE"/>
 	  </zip>
+
   </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -741,10 +780,10 @@
   <target name="distEditor-osx-appbundler"
           depends="jar,appbundler-init"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
-    <delete dir="${dist.dir}/OMERO.editor_Java7+.app"/>
+    <delete dir="${dist.dir}/OMERO.editor.app"/>
     <appbundler
       outputdirectory="${dist.dir}"
-      name="${distEditor.name}_Java7+"
+      name="${distEditor.name}"
       displayname="${distEditor.name}"
       executableName="${distEditor.name}"
       identifier="org.openmicroscopy.editor"
@@ -807,41 +846,59 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <target name="distImporter-osx"
         depends="jar,distImporter-osx-appbundler"
-        description="Build and package the app for OS X distribution.">
-  <delete dir="${dist.dir}/OMERO.importer_Java6.app"/>
-  <jarbundler dir="${dist.dir}"
-        name="${distImporter.name}_Java6"
-        mainclass="${app.mainclass}"
-        version="${dist.bundle.version}"
-        infostring="${distImporter.name} Java Client, ${dist.bundle.version}"
-        aboutmenuname="${distImporter.name}"
-        screenmenu="true"
-        icon="${distImporter.osx.icon}"
-        stubfile="${dist.osx.stub}"
-        jvmversion="1.6+"
-  	    vmoptions="${dist.vmparameters}"
-        arguments="containerImporter.xml">
-  <jarfileset refid="app.libs"/>
-  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
-  </jarbundler>
-  <property name="dist.zip.prefix.importer.osx"
-            value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
-      <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx}.zip">
-         <zipfileset prefix="${dist.zip.prefix.importer.osx}/${dist.app.config.dir.name}"
+        description="Build and package the app for OS X distribution.">	
+	  <property name="dist.zip.prefix.importer.osx"
+	            value="${distImporter.bundle.name}-${dist.bundle.version}-mac"/>
+	
+	  <property name="dist.zip.prefix.importer.osx.107"
+		        value="${dist.zip.prefix.importer.osx}_Java7+"/>
+	   <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx.107}.zip">
+	      <zipfileset prefix="${dist.zip.prefix.importer.osx.107}/${dist.app.config.dir.name}"
+	                  dir="${app.config.dir}"/>
+	      <zipfileset prefix="${dist.zip.prefix.importer.osx.107}" dir="${dist.dir}"
+	                includes="OMERO.importer.app/**"
+	                excludes="**/${dist.osx.stub.name},**/${distImporter.name}"/>
+	      <zipfileset file="${dist.dir}/OMERO.importer.app/Contents/MacOS/${distImporter.name}"
+	                  fullpath="${dist.zip.prefix.importer.osx.107}/OMERO.importer.app/Contents/MacOS/${distImporter.name}"
+	                  filemode="775"/>
+	      <zipfileset prefix="${dist.zip.prefix.importer.osx.107}"
+	                  file="${dist.osx.installfile}"/>
+	      <zipfileset file="${base.licensefile}"
+	                  fullpath="${dist.zip.prefix.importer.osx.107}/LICENSE"/>
+	   </zip>
+
+	  <delete dir="${dist.dir}/OMERO.importer.app"/>
+	  <jarbundler dir="${dist.dir}"
+	        name="${distImporter.name}"
+	        mainclass="${app.mainclass}"
+	        version="${dist.bundle.version}"
+	        infostring="${distImporter.name} Java Client, ${dist.bundle.version}"
+	        aboutmenuname="${distImporter.name}"
+	        screenmenu="true"
+	        icon="${distImporter.osx.icon}"
+	        stubfile="${dist.osx.stub}"
+	        jvmversion="1.6+"
+	  	    vmoptions="${dist.vmparameters}"
+	        arguments="containerImporter.xml">
+	  <jarfileset refid="app.libs"/>
+	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+	  </jarbundler>
+
+	  <property name="dist.zip.prefix.importer.osx.106"
+		        value="${dist.zip.prefix.importer.osx}_Java6"/>
+      <zip destfile="${dist.dir}/${dist.zip.prefix.importer.osx.106}.zip">
+         <zipfileset prefix="${dist.zip.prefix.importer.osx.106}/${dist.app.config.dir.name}"
                      dir="${app.config.dir}"/>
-         <zipfileset prefix="${dist.zip.prefix.importer.osx}" dir="${dist.dir}"
-                   includes="OMERO.importer*.app/**"
-                   excludes="**/${dist.osx.stub.name},**/${distImporter.name}"/>
+         <zipfileset prefix="${dist.zip.prefix.importer.osx.106}" dir="${dist.dir}"
+                   includes="OMERO.importer.app/**"
+                   excludes="**/${dist.osx.stub.name}"/>
          <zipfileset file="${dist.osx.stub}"
-                     fullpath="${dist.zip.prefix.importer.osx}/OMERO.importer_Java6.app/Contents/MacOS/${dist.osx.stub.name}"
+                     fullpath="${dist.zip.prefix.importer.osx.106}/OMERO.importer.app/Contents/MacOS/${dist.osx.stub.name}"
                      filemode="775"/>
-         <zipfileset file="${dist.dir}/OMERO.importer_Java7+.app/Contents/MacOS/${distImporter.name}"
-                     fullpath="${dist.zip.prefix.importer.osx}/OMERO.importer_Java7+.app/Contents/MacOS/${distImporter.name}"
-                     filemode="775"/>
-         <zipfileset prefix="${dist.zip.prefix.importer.osx}"
+         <zipfileset prefix="${dist.zip.prefix.importer.osx.106}"
                      file="${dist.osx.installfile}"/>
          <zipfileset file="${base.licensefile}"
-                     fullpath="${dist.zip.prefix.importer.osx}/LICENSE"/>
+                     fullpath="${dist.zip.prefix.importer.osx.106}/LICENSE"/>
       </zip>
   </target>
 
@@ -864,7 +921,7 @@
     <delete dir="${dist.dir}/OMERO.importer+.app"/>
     <appbundler
       outputdirectory="${dist.dir}"
-      name="${distImporter.name}_Java7+"
+      name="${distImporter.name}"
       displayname="${distImporter.name}"
       executableName="${distImporter.name}"
       identifier="org.openmicroscopy.importer"
