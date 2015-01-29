@@ -285,7 +285,7 @@
 
             for (var r=0; r<data.length; r++) {
                 row = data[r];
-                html += "<tr><td>" + row[0] + "</td><td>" + row[1] + "</td></tr>";
+                html += "<tr><td>" + row[0].escapeHTML() + "</td><td>" + row[1].escapeHTML() + "</td></tr>";
             }
             // Either paste after last selected row, or at bottom of table
             addToTable($tbody, $(html));
