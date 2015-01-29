@@ -22,14 +22,18 @@ $(function() {
     if (typeof window.OME === "undefined") { window.OME={}; }
 
     var webindex_url,
+        static_url,
         data_owners,
         chgrp_type,
-        $chgrpform = $("#chgrp-form");
+        $chgrpform = $("#chgrp-form"),
+        $group_chooser,
+        $move_group_tree;
 
 
     // external entry point, called by jsTree right-click menu
-    window.OME.handleChgrp = function(webindex, static_url) {
+    window.OME.handleChgrp = function(webindex, staticurl) {
         webindex_url = webindex;
+        static_url = staticurl;
         // gid, gname, oid
         $chgrpform.dialog({"title": "Move to Group",
             height: 450,
@@ -37,13 +41,14 @@ $(function() {
         $chgrpform.dialog('open');
         $chgrpform.empty();
 
-        var permsIcon = function(perms) {
-            if (perms.write) return static_url + "/image/group_green16.png";
-            if (perms.annotate) return static_url + "/image/group_orange16.png";
-            if (perms.read) return static_url + "/image/group_red16.png";
-            return static_url + "/image/personal16.png";
-        };
+        // Containers to handle everything after fileset check
+        $group_chooser = $("<div id='group_chooser'></div>").appendTo($chgrpform);
+        $move_group_tree = $("<div id='move_group_tree'></div>").appendTo($chgrpform);
 
+        // first we check filesets...
+        checkFilesetSplit();
+
+        //...while we load groups
         // Need to find which groups we can move selected objects to.
         // Object owner must be member of target group.
         var url = webindex_url + "load_chgrp_groups?" + OME.get_tree_selection();
@@ -52,7 +57,7 @@ $(function() {
             var ownernames = [];
             for (var o=0; o<data.owners.length; o++) {ownernames.push(data.owners[o][1]);}
             var headerTxt = "<p>Move data owned by " + ownernames.join(", ") + " to Group...</p>";
-            $chgrpform.append(headerTxt);
+            $group_chooser.append(headerTxt);
 
             // List the target groups...
             var html = "";
@@ -72,25 +77,32 @@ $(function() {
                     html += "or they are not all in any common groups to move data to.";
                 }
             }
-            $chgrpform.append(html);
+            console.log(html);
+            $group_chooser.append(html);
         });
     };
 
+    var permsIcon = function(perms) {
+        if (perms.write) return static_url + "/image/group_green16.png";
+        if (perms.annotate) return static_url + "/image/group_orange16.png";
+        if (perms.read) return static_url + "/image/group_red16.png";
+        return static_url + "/image/personal16.png";
+    };
 
     var checkFilesetSplit = function checkFilesetSplit () {
         // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
-        $("#move_group_tree").hide();               // hide tree while we wait...
+        $group_chooser.hide();                      // hide group_chooser while we wait...
         $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
         $.get(webindex_url + "fileset_check/chgrp?" + OME.get_tree_selection(), function(html){
             if($('div.split_fileset', html).length > 0) {
                 $(html).appendTo($chgrpform);
-                $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
+                $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("Move All");
                 var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
                 if (chgrp_type == "Image") {
                     OME.select_fileset_images(filesetId);
                 }
             } else {
-                $("#move_group_tree").show();
+                $("#group_chooser").show();
             }
         });
     };
@@ -105,10 +117,11 @@ $(function() {
             dtype,
             dids;
 
+        // Remove all groups (except the chosen one)
         $(".chgrpGroup").remove();
-        $chgrpform.append($this);
+        $group_chooser.append($this);
 
-        // Add input to include 'group_id' in the POST data
+        // Add hidden inputs to include 'group_id' in the POST data
         $("<input name='group_id' value='"+ gid +"'/>")
                 .appendTo($chgrpform).addClass('removeMe').hide();
 
@@ -129,8 +142,6 @@ $(function() {
         chgrp_target_url += "/"+target_type+"/";
         chgrp_target_url += "?owner=" + data_owners[0][0];  // ID of the (first) owner
 
-        $("<div id='move_group_tree'></div>").appendTo($chgrpform);
-
         if (chgrp_type == "Project" || chgrp_type == "Screen") {
             $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
         } else {
@@ -149,15 +160,12 @@ $(function() {
                 $("#move_group_tree ins").click(node_click);
             });
         }
-
-        checkFilesetSplit();
     });
-
 
 
     // After we edit the chgrp dialog to handle Filesets, we need to clean-up
     var resetChgrpForm = function() {
-        $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("OK");
+        $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("OK");
         $("#move_group_tree").show();
         $("#chgrp_split_filesets").remove();
     };
@@ -171,12 +179,15 @@ $(function() {
         width:420,
         modal: true,
         buttons: {
+            "New...": function() {
+
+            },
             "OK": function() {
-                var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span');
+                var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
                 // If we have split filesets, on the first click 'OK', we ask 'Move All'?
                 if ($("#chgrp_split_filesets .split_fileset").length > 0) {
                     if ($thisBtn.text() == 'Move All') {
-                        $("#move_group_tree").show();
+                        $("#group_chooser").show();
                         $("#chgrp_split_filesets").hide();
                         $thisBtn.text('OK');
                         return false;
