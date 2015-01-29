@@ -30,9 +30,8 @@ and tests.
 import re
 import sys
 import shlex
-import fileinput
 
-from omero_ext.argparse import SUPPRESS
+from omero_ext.argparse import FileType
 from omero.cli import BaseControl, CLI, ExceptionHandler
 from omero.rtypes import rlong
 
@@ -297,38 +296,50 @@ Bash examples:
 
         self.exc = ExceptionHandler()
         parser.add_login_arguments()
-        parser.add_argument(
-            "--file", help=SUPPRESS)
-        parser.add_argument(
-            "command", nargs="?",
-            choices=("new", "update"),
-            help="operation to be performed")
-        parser.add_argument(
-            "Class", nargs="?",
-            help="OMERO model object name, e.g. Project")
-        parser.add_argument(
-            "fields", nargs="*",
-            help="fields to be set, e.g. name=foo")
-        parser.set_defaults(func=self.process)
+        sub = parser.sub()
 
-    def process(self, args):
+        new = parser.add(sub, self.new, "Create a new OMERO object")
+
+        update = parser.add(
+            sub, self.update, "Update an existing OMERO object")
+
+        load = parser.add(
+            sub, self.load,
+            "Load a series of commands from a file or the stdin")
+        load.add_argument("file", nargs="*", type=FileType("r"),
+                          default=[sys.stdin])
+
+        for x in [new, update]:
+            x.add_argument(
+                "Class", nargs="?",
+                help="OMERO model object name, e.g. Project")
+            x.add_argument(
+                "fields", nargs="*",
+                help="fields to be set, e.g. name=foo")
+
+    def new(self, args):
+        self.process('new', args)
+
+    def update(self, args):
+        self.process('update', args)
+
+    def load(self, args):
+        self.process('load', args)
+
+    def process(self, command, args):
         state = TxState(self.ctx)
         self.ctx.set("tx.state", state)
         actions = []
-        if not args.command:
-            path = "-"
-            if args.file:
-                path = args.file
-            for line in fileinput.input([path]):
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    actions.append(self.parse(state, line=line))
+        if command == 'load':
+            for f in args.file:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        actions.append(self.parse(state, line=line))
         else:
-            if args.file:
-                self.ctx.err("Ignoring %s" % args.file)
             actions.append(
                 self.parse(state,
-                           arg_list=[args.command, args.Class] +
+                           arg_list=[command, args.Class] +
                            args.fields))
 
         for action in actions:
