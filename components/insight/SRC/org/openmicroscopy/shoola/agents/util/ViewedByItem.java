@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ViewedByItem 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -112,7 +112,7 @@ public class ViewedByItem extends JLabel {
         l.add("Viewed by: " + getText());
         Timestamp time = rndDef.getLastModified();
         if (time != null)
-            l.add("Last modified: " + UIUtilities.formatShortDateTime(time));
+            l.add("Last modified: " + UIUtilities.formatDefaultDate(time));
         setToolTipText(UIUtilities.formatToolTipText(l));
         
         addMouseListener(new MouseAdapter() {

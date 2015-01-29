@@ -787,7 +787,7 @@ public class PropertiesUI
     		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE+":",
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
-        	v =  UIUtilities.formatShortDateTime(image.getInserted());
+        	v =  UIUtilities.formatDefaultDate(image.getInserted());
         	value.setText(v);
         	content.add(label, c);
         	c.gridx++;
@@ -1088,7 +1088,7 @@ public class PropertiesUI
 			Timestamp t = dob.getCreated();
 			if (t != null)
 				createDateLabel.setText(CREATIONDATE_TEXT
-						+ UIUtilities.formatShortDateTime(t));
+						+ UIUtilities.formatDefaultDate(t));
 			else
 				createDateLabel.setText(CREATIONDATE_TEXT + "N/A");
 			

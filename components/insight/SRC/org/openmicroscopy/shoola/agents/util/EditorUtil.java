@@ -2340,7 +2340,7 @@ public class EditorUtil
         else if (object instanceof ImageData)
             time = getAcquisitionTime((ImageData) object);
         else time = object.getCreated();
-        if (time != null) date = UIUtilities.formatShortDateTime(time);
+        if (time != null) date = UIUtilities.formatDefaultDate(time);
         return date;
     }
 
@@ -2403,7 +2403,7 @@ public class EditorUtil
         l.add(v);
         try {
             v = "<b>"+IMPORTED_DATE+": </b>"+
-                    UIUtilities.formatShortDateTime(img.getInserted());
+                    UIUtilities.formatDefaultDate(img.getInserted());
             l.add(v);
         } catch (Exception e) {}
         PixelsData data = null;
