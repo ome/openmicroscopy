@@ -123,7 +123,6 @@ ignore = ['omero_client.jar',
 suffixes = ['mac_Java6', 'mac_Java7+', 'linux', 'win']
 for suffix in suffixes:
     target_artifacts = list()
-    target_artifacts += find(EDITOR + "*%s.zip" % suffix)
     target_artifacts += find(INSIGHT + "*%s.zip" % suffix)
     target_artifacts += find(IMPORTER + "*%s.zip" % suffix)
     target = '%s.%s' % (TARGET_PREFIX, suffix)
