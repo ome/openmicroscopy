@@ -307,6 +307,7 @@ class WebControl(BaseControl):
 
     def start(self, args):
         self.collectstatic()
+        self.clearsessions()
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -460,6 +461,7 @@ using bin\omero web start on Windows with FastCGI.
 
     def iis(self, args):
         self.collectstatic()
+        self.clearsessions()
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
 
