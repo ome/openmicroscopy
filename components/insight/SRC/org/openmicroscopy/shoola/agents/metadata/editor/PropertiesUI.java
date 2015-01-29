@@ -768,16 +768,21 @@ public class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
-    			Font.BOLD, size);
-    	JLabel value = UIUtilities.createComponent(null);
+    	JLabel label;
+    	JLabel value;
     	String v = model.formatDate(image);
-    	value.setText(v);
-    	content.add(label, c);
-    	c.gridx++;
-    	content.add(value, c);
-    	c.gridy++;
-    	c.gridx = 0;
+    	if(!StringUtils.isEmpty(v)) {
+	    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
+	    			Font.BOLD, size);
+	    	value = UIUtilities.createComponent(null);
+	    	value.setText(v);
+	    	content.add(label, c);
+	    	c.gridx++;
+	    	content.add(value, c);
+	    	c.gridy++;
+	    	c.gridx = 0;
+    	}
+    	
     	try { //just to be on the save side
     		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE+":",
         			Font.BOLD, size);
