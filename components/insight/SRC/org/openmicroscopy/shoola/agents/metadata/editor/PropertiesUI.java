@@ -1079,23 +1079,22 @@ public class PropertiesUI
 				|| refObject instanceof ProjectData
 				|| refObject instanceof PlateData
 				|| refObject instanceof ScreenData) {
-
 			DataObject dob = (DataObject) refObject;
-			JLabel createDateLabel = new JLabel();
-			createDateLabel.setFont((new JLabel()).getFont().deriveFont(
-					Font.BOLD));
-
-			Timestamp t = dob.getCreated();
-			if (t != null)
-				createDateLabel.setText(CREATIONDATE_TEXT
-						+ UIUtilities.formatDefaultDate(t));
-			else
-				createDateLabel.setText(CREATIONDATE_TEXT + "N/A");
 			
-			JPanel p = UIUtilities.buildComponentPanel(createDateLabel, 0, 0);
-			p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-			p.setBackground(UIUtilities.BACKGROUND_COLOR);
-			add(p);
+			Timestamp crDate = dob.getCreated();
+			if (crDate != null) {
+				JLabel createDateLabel = new JLabel();
+				createDateLabel.setFont((new JLabel()).getFont().deriveFont(
+						Font.BOLD));
+				createDateLabel.setText(CREATIONDATE_TEXT
+						+ UIUtilities.formatDefaultDate(crDate));
+
+				JPanel p = UIUtilities.buildComponentPanel(createDateLabel, 0,
+						0);
+				p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+				p.setBackground(UIUtilities.BACKGROUND_COLOR);
+				add(p);
+			}
 		}
     }
 
