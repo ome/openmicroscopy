@@ -131,7 +131,7 @@ public class GraphPathReport {
      * @return a Sphinx label for that class
      */
     private static String labelFor(String className) {
-        return Joiner.on('.').join("omero.model", className);
+        return Joiner.on('.').join("Hibernate definition corresponding to class omero.model", className);
     }
 
     /**
@@ -140,7 +140,7 @@ public class GraphPathReport {
      * @return a Sphinx label for that class property
      */
     private static String labelFor(String className, String propertyName) {
-        return Joiner.on('.').join("omero.model", className, propertyName);
+        return Joiner.on('.').join("Hibernate definition corresponding to property omero.model", className, propertyName);
     }
 
     /**
