@@ -88,7 +88,9 @@ Create Edit Group
     Page Should Contain     ${group_name}
     # find row which contains group name, and click 'btn_edit' of that row
     Click Element           xpath=//table[@id="groupTable"]/tbody/tr[descendant::td[contains(text(), '${group_name}')]]//a[contains(@class, "btn_edit")]
-    Page Should Contain Element   xpath=//input[@id='id_name'][@value='${group_name}']
+    Wait Until Page Contains Element    id=id_name
+    ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_name']@value
+    Should Be Equal                     "${group_name}"    "${createdName}"
     Input Text              name    ${group_name}-Edited
     Click Button            Save
     Location Should Be      ${GROUPS URL}
@@ -119,7 +121,9 @@ Create Edit User
     # find row which contains user name, and click 'btn_edit' of that row
     Click Element           xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${user_name}')]]//a[contains(@class, "btn_edit")]
 
-    Page Should Contain Element   xpath=//input[@id='id_first_name'][@value='${user_name}']
+    Wait Until Page Contains Element    id=id_first_name
+    ${createdName}=                     Get Element Attribute   xpath=//input[@id='id_first_name']@value
+    Should Be Equal                     "${user_name}"    "${createdName}"
 
     # Edit Password
     Click Element           id=change_password
