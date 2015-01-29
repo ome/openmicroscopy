@@ -1221,6 +1221,14 @@ def batch_annotate(request, conn=None, **kwargs):
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
+    # get average values for User ratings and Other ratings.
+    r = [r['ann'].getLongValue() for r in batchAnns['UserRatings']]
+    userRatingAvg = r and sum(r) / len(r) or 0
+    # get all ratings and summarise
+    allratings = [a['ann'] for a in batchAnns['UserRatings']]
+    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
+    ratings = manager.getGroupedRatings(allratings)
+
     figScripts = manager.listFigureScripts(objs)
     filesetInfo = None
     iids = []
@@ -1251,7 +1259,7 @@ def batch_annotate(request, conn=None, **kwargs):
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
             'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked,
-            'differentGroups':False}
+            'userRatingAvg': userRatingAvg, 'ratings': ratings, 'differentGroups':False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
         context['differentGroups'] = True       # E.g. don't run scripts etc
@@ -1351,6 +1359,31 @@ def annotate_file(request, conn=None, **kwargs):
         template = "webclient/annotations/files_form.html"
     context['template'] = template
     return context
+
+
+@login_required()
+@render_response()
+def annotate_rating(request, conn=None, **kwargs):
+    """
+    Handle adding Rating to one or more objects
+    """
+    index = getIntOrDefault(request, 'index', 0)
+    rating = getIntOrDefault(request, 'rating', 0)
+    oids = getObjects(request, conn)
+
+    # add / update rating
+    for otype, objs in oids.items():
+        for o in objs:
+            o.setRating(rating)
+
+    # return a summary of ratings
+    manager = BaseContainer(conn)
+    batchAnns = manager.loadBatchAnnotations(oids)
+    allratings = [a['ann'] for a in batchAnns['UserRatings']]
+    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
+    ratings = manager.getGroupedRatings(allratings)
+    return ratings
+
 
 @login_required()
 @render_response()
