@@ -120,8 +120,9 @@ class TestDownload(object):
     Tests to check download is disabled where specified.
     """
 
-    def test_spw_download(self, itest, client, django_client, image_well_plate):
-        """ 
+    def test_spw_download(self, itest, client, django_client,
+                          image_well_plate):
+        """
         Download of an Image that is part of a plate should be disabled,
         and return a 404 response.
         """
