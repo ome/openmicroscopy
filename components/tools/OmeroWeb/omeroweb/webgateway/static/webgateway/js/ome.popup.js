@@ -166,7 +166,7 @@ String.prototype.escapeHTML = function(){
     return s.replace(/[\&"<>\\]/g, function(s) {
         switch(s) {
             case "&": return "&amp;";
-            // case "\\": return "\\\\";
+            case "\\": return "&#92;";
             case '"': return '\"';
             case "<": return "&lt;";
             case ">": return "&gt;";
