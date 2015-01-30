@@ -1546,6 +1546,9 @@ class AnnotationDataUI
 				if (b.getValue().booleanValue()) l.add(b);
 			}
 		}
+		
+		l.addAll(mapsPane.getEmptyMapAnnotations());
+		
 		return l; 
 	}
 
@@ -1742,7 +1745,7 @@ class AnnotationDataUI
 			}
 		}
 		
-		l.addAll(mapsPane.getMapAnnotations(true));
+		l.addAll(mapsPane.getMapAnnotations(true, true));
 		
 		return l;
 	}
@@ -1764,7 +1767,7 @@ class AnnotationDataUI
 			if (publishedBox.isSelected()) return true;
 		}
 		
-		if(!mapsPane.getMapAnnotations(true).isEmpty())
+		if(!mapsPane.getMapAnnotations(true, false).isEmpty())
 			return true;
 		
 		return (selectedValue != initialValue);

@@ -30,10 +30,12 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.MapAnnotationData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -198,6 +200,8 @@ public class DeletableObject
 			return "PlateAcquisition";
 		} else if (objectToDelete instanceof FileAnnotationData) {
 			return "File";
+		} else if (objectToDelete instanceof MapAnnotationData) {
+			return "Map Annotation";
 		}
 		return "";
 	}
@@ -230,6 +234,8 @@ public class DeletableObject
 			return ((PlateAcquisitionData) objectToDelete).getLabel();
 		} else if (objectToDelete instanceof FileAnnotationData) {
 			return ((FileAnnotationData) objectToDelete).getFileName();
+		} else if (objectToDelete instanceof MapAnnotationData) {
+			return "Map Annotation";
 		}
 		return "";
 	}

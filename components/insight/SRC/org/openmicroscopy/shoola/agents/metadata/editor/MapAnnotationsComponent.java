@@ -111,13 +111,13 @@ public class MapAnnotationsComponent extends JPanel implements
 
 	/** Component displaying the table header */
 	private JPanel headerPanel = null;
-	
+
 	/** Component hosting the tables */
 	private JPanel tablePanel = null;
-	
+
 	/** Scrollpane hosting the tables component */
 	private JScrollPane sp;
-	
+
 	/**
 	 * Creates a new MapAnnotationsComponent
 	 * 
@@ -140,7 +140,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		toolbar = createToolBar();
 		toolbar.setBackground(UIUtilities.BACKGROUND_COLOR);
 		add(toolbar, BorderLayout.NORTH);
-		
+
 		c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.insets = new Insets(0, 2, 4, 2);
@@ -149,7 +149,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		c.weightx = 1;
 		c.weighty = 0;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		
+
 		tablePanel = new JPanel();
 		tablePanel.setLayout(new GridBagLayout());
 		tablePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -160,31 +160,36 @@ public class MapAnnotationsComponent extends JPanel implements
 			public void componentResized(ComponentEvent e) {
 				adjustScrollPane();
 			}
+
 			@Override
-			public void componentShown(ComponentEvent e) {}
+			public void componentShown(ComponentEvent e) {
+			}
+
 			@Override
-			public void componentMoved(ComponentEvent e) {}
+			public void componentMoved(ComponentEvent e) {
+			}
+
 			@Override
-			public void componentHidden(ComponentEvent e) {}
+			public void componentHidden(ComponentEvent e) {
+			}
 		});
 		add(sp, BorderLayout.CENTER);
 		sp.setPreferredSize(null);
-		
+
 		headerPanel = createHeaderPanel();
 		tablePanel.add(headerPanel, c);
 		c.gridy++;
 	}
-	
+
 	/**
-	 * Adjusts the size of the scrollpane hosting
-	 * the tables
+	 * Adjusts the size of the scrollpane hosting the tables
 	 */
 	private void adjustScrollPane() {
 		tablePanel.setPreferredSize(null);
 		Dimension d = tablePanel.getPreferredSize();
-		if(d.width>MAX_TABLES_COMPONENT_WIDTH)
+		if (d.width > MAX_TABLES_COMPONENT_WIDTH)
 			d.width = MAX_TABLES_COMPONENT_WIDTH;
-		if(d.height > MAX_TABLES_COMPONENT_HEIGHT)
+		if (d.height > MAX_TABLES_COMPONENT_HEIGHT)
 			d.height = MAX_TABLES_COMPONENT_HEIGHT;
 		d.width += 5;
 		d.height += 5;
@@ -210,7 +215,7 @@ public class MapAnnotationsComponent extends JPanel implements
 			public void mouseReleased(MouseEvent e) {
 				if (!((JButton) e.getSource()).isEnabled())
 					return;
-				
+
 				if (e.getSource() == addButton) {
 					insertRow();
 				}
@@ -264,27 +269,28 @@ public class MapAnnotationsComponent extends JPanel implements
 		bar.add(deleteButton);
 		return bar;
 	}
-	
+
 	private JPanel createHeaderPanel() {
 		JPanel p = new JPanel(new GridLayout(1, 2));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		
+
 		JLabel l = constructHeaderLabel("Key");
-		l.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
+		l.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1,
+				Color.LIGHT_GRAY));
 		p.add(l);
 		p.add(constructHeaderLabel("Value"));
-		
+
 		return p;
 	}
 
 	private JLabel constructHeaderLabel(String text) {
-		JLabel l = new JLabel(" "+text);
+		JLabel l = new JLabel(" " + text);
 		Font f = l.getFont().deriveFont(Font.ITALIC);
 		l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 		l.setFont(f);
 		return l;
 	}
-	
+
 	/**
 	 * Completely resets the component
 	 */
@@ -316,8 +322,9 @@ public class MapAnnotationsComponent extends JPanel implements
 				t.setData(ma);
 			} else {
 				// if there isn't a table yet, create it
-				String title = ma.getOwner() != null ? "Added by: "+EditorUtil
-						.formatExperimenter(ma.getOwner()) : "";
+				String title = ma.getOwner() != null && !isUsers(ma) ? "Added by: "
+						+ EditorUtil.formatExperimenter(ma.getOwner())
+						: "";
 
 				JPanel p = new JPanel();
 				p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -327,28 +334,30 @@ public class MapAnnotationsComponent extends JPanel implements
 
 				if (t != null) {
 					p.add(t, BorderLayout.CENTER);
-					
+
 					// if the MapAnnotation has a custom namespace, display it
-					if(!StringUtils.isEmpty(ma.getNameSpace()) && !MapAnnotationData.NS_CLIENT_CREATED.matches(ma.getNameSpace())) {
-						JLabel ns = new JLabel(UIUtilities.formatPartialName(ma.getNameSpace()));
+					if (!StringUtils.isEmpty(ma.getNameSpace())
+							&& !MapAnnotationData.NS_CLIENT_CREATED.matches(ma
+									.getNameSpace())) {
+						JLabel ns = new JLabel(UIUtilities.formatPartialName(ma
+								.getNameSpace()));
 						ns.setFont(ns.getFont().deriveFont(Font.BOLD));
 						p.add(ns, BorderLayout.NORTH);
 					}
-					
+
 					tablePanel.add(p, c);
 					c.gridy++;
 				}
 			}
 		}
 
-		refreshButtonStates();	
+		refreshButtonStates();
 		setVisible(!mapTables.isEmpty());
 		adjustScrollPane();
 	}
 
 	/**
-	 * En-/Disables the toolbar buttons with respect to the
-	 * current model state
+	 * En-/Disables the toolbar buttons with respect to the current model state
 	 */
 	private void refreshButtonStates() {
 		addButton.setEnabled(canInsert());
@@ -356,7 +365,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		pasteButton.setEnabled(canPaste());
 		deleteButton.setEnabled(canDelete());
 	}
-	
+
 	/**
 	 * Finds the table corresponding to the given {@link MapAnnotationData}
 	 * object
@@ -431,8 +440,10 @@ public class MapAnnotationsComponent extends JPanel implements
 			public void tableChanged(TableModelEvent e) {
 				refreshButtonStates();
 				MapTableModel m = (MapTableModel) t.getModel();
-				if(m.isDirty())
+				if (m.isDirty())
 					view.setDataToSave(true);
+				if(m.isEmpty() && m.getMap().getId()>=0)
+					view.deleteAnnotation(m.getMap());
 				adjustScrollPane();
 			}
 		});
@@ -440,9 +451,10 @@ public class MapAnnotationsComponent extends JPanel implements
 			@Override
 			public void focusLost(FocusEvent e) {
 				MapTableModel m = (MapTableModel) t.getModel();
-				if(m.isDirty())
+				if (m.isDirty())
 					view.saveData(true);
 			}
+
 			@Override
 			public void focusGained(FocusEvent e) {
 			}
@@ -456,17 +468,31 @@ public class MapAnnotationsComponent extends JPanel implements
 	 * 
 	 * @param onlyDirty
 	 *            Pass <code>true</code> if you only want the dirty ones
+	 * @param excludeEmpty
+	 *            Pass <code>true</code> to exclude {@link MapAnnotationData}s
+	 *            without {@link NamedValue} entries
 	 * @return
 	 */
-	public List<MapAnnotationData> getMapAnnotations(boolean onlyDirty) {
+	public List<MapAnnotationData> getMapAnnotations(boolean onlyDirty,
+			boolean excludeEmpty) {
 		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
 		for (MapTable t : mapTables) {
-			if (!onlyDirty || ((MapTableModel) t.getModel()).isDirty())
+			if ((!onlyDirty || ((MapTableModel) t.getModel()).isDirty())
+					&& !(excludeEmpty && t.isEmpty()))
 				result.add(t.getData());
 		}
 		return result;
 	}
 
+	public List<MapAnnotationData> getEmptyMapAnnotations() {
+		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
+		for (MapTable t : mapTables) {
+			if (t.isEmpty())
+				result.add(t.getData());
+		}
+		return result;
+	}
+	
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		if (!e.getValueIsAdjusting() && listenerActive) {
@@ -529,10 +555,11 @@ public class MapAnnotationsComponent extends JPanel implements
 		if (t == null)
 			t = getUserTable();
 		MapTableModel m = (MapTableModel) t.getModel();
-		// if nothing's selected add to end of table, otherwise below selected row
-		int index = t.getSelectedRow()==-1 ? -1 :  t.getSelectedRow()+1;
+		// if nothing's selected add to end of table, otherwise below selected
+		// row
+		int index = t.getSelectedRow() == -1 ? -1 : t.getSelectedRow() + 1;
 		m.addEntries(Arrays.asList(new NamedValue("", "")), index);
-		
+
 		t.requestFocus();
 		t.getSelectionModel().setSelectionInterval(index, index);
 		t.setColumnSelectionInterval(0, 0);
@@ -555,7 +582,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		if (t == null)
 			t = getUserTable();
 		MapTableModel m = (MapTableModel) t.getModel();
-		int index = t.getSelectedRow()+1;
+		int index = t.getSelectedRow() + 1;
 		m.addEntries(copiedValues, index);
 	}
 

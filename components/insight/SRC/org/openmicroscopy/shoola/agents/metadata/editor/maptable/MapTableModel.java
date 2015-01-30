@@ -284,6 +284,14 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 		return false;
 	}
+	
+	/**
+	 * Checks if the table contains any {@link NamedValue}s
+	 * @return <code>true</code> if it doesn't, <code>false</code> if it does.
+	 */
+	public boolean isEmpty() {
+		return data.isEmpty();
+	}
 
 	/**
 	 * Get the {@link MapAnnotationData} represented by this

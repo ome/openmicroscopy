@@ -227,16 +227,14 @@ public class MapTable extends JTable {
 		model.deleteEntries(indices);
 	}
 
-	// /**
-	// * If set to <code>true</code> a double-click is needed to switch a cell
-	// * into editing mode; single-click sufficient otherwise.
-	// *
-	// * @param doubleClickEdit
-	// */
-	// public void setDoubleClickEdit(boolean doubleClickEdit) {
-	// cellEditor.setDoubleClickEdit(doubleClickEdit);
-	// }
-
+	/**
+	 * Checks if the table contains any {@link NamedValue}s
+	 * @return <code>true</code> if it doesn't, <code>false</code> if it does.
+	 */
+	public boolean isEmpty() {
+		return ((MapTableModel) getModel()).isEmpty();
+	}
+	
 	/**
 	 * Checks if edit flag is set
 	 * 
