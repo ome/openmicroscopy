@@ -140,15 +140,14 @@ class TestDownload(object):
         Download of archived files for a non-SPW Image.
         """
 
-        iid1 = itest.createTestImage(sizeC=2,
-                                     session=client.getSession()).id.val
+        image = itest.importSingleImage(client=client)
+
         # download archived files
         request_url = reverse('webgateway.views.archived_files')
         data = {
-            "image": iid1
+            "image": image.id.val
         }
-        # Currently get a 500 error since test image has no archived files.
-        _get_reponse(django_client, request_url, data, status_code=500)
+        _get_reponse(django_client, request_url, data, status_code=200)
 
 
 # Helpers
