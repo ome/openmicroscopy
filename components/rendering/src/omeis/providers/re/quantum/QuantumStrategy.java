@@ -16,6 +16,7 @@ import ome.model.display.QuantumDef;
 import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import omeis.providers.re.data.PlaneFactory;
+import omeis.providers.re.metadata.StatsFactory;
 
 /**
  * Subclasses Work on explicit pixel types. Taking into
@@ -56,6 +57,9 @@ public abstract class QuantumStrategy {
 
     /** The maximum size for a lookup table. */
     static final double MAX_SIZE_LUT = 0x10000;
+    
+    /** The maximum size of the cache.*/
+    static final long MAX_SIZE = 1000;
     
     /** The minimum value for the pixels type. */
     private double pixelsTypeMin;
@@ -193,61 +197,10 @@ public abstract class QuantumStrategy {
      */
     private void initPixelsRange(boolean withRange)
     {
-        double range;
-        String typeAsString = type.getValue();
-        if (PlaneFactory.INT8.equals(typeAsString)) {
-            pixelsTypeMin = -128;
-            pixelsTypeMax = 127;
-        } else if (PlaneFactory.UINT8.equals(typeAsString)) {
-            pixelsTypeMin = 0;
-            pixelsTypeMax = 255;
-        } else if (PlaneFactory.INT16.equals(typeAsString)) {
-            pixelsTypeMin = -32768;
-            pixelsTypeMax = 32767;
-        } else if (PlaneFactory.UINT16.equals(typeAsString)) {
-            pixelsTypeMin = 0;
-            pixelsTypeMax = 65535;
-        } else if (PlaneFactory.INT32.equals(typeAsString)) {
-            if (withRange) {
-                range = globalMax - globalMin;
-                if (range < 0x10000) { 
-                    pixelsTypeMin = -32768;
-                    pixelsTypeMax = 32767;
-                }
-            } else {
-                pixelsTypeMin = -32768;
-                pixelsTypeMax = 32767;
-            }
-        } else if (PlaneFactory.UINT32.equals(typeAsString)) {
-            if (withRange) {
-                range = globalMax - globalMin;
-                if (range < 0x10000) { 
-                    pixelsTypeMin = 0;
-                    pixelsTypeMax = 65535;
-                }
-            } else {
-                pixelsTypeMin = 0;
-                pixelsTypeMax = 65535;
-            }
-
-        } else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
-                PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
-            if (withRange) {
-                range = globalMax - globalMin;
-                if (range < 0x10000 && globalMin > -1) { 
-                    pixelsTypeMin = 0;
-                    pixelsTypeMax = 65535;
-                }
-                if (range < 0x10000 && globalMin < 0) { 
-                    pixelsTypeMin = -32768;
-                    pixelsTypeMax = 32767;
-                }
-            } else {
-                //b/c we don't know if it is signed or not
-                pixelsTypeMin = 0;
-                pixelsTypeMax = 32767;
-            }
-        }
+        StatsFactory sf = new StatsFactory();
+        double[] values = sf.initPixelsRange(type);
+        pixelsTypeMin = values[0];
+        pixelsTypeMax = values[1];
     }
 
     /**
@@ -274,6 +227,30 @@ public abstract class QuantumStrategy {
         initPixelsRange(false);
     }
 
+    /**
+     * Returns the range the values belongs to.
+     *
+     * @param value The value to handle
+     * @return See above.
+     */
+    protected Range getRange(double value)
+    {
+        //no range so we need to create it
+        double min = getWindowStart();
+        double max = getWindowEnd();
+        double step = Math.abs(max-min)/(MAX-MIN+1);
+        double end = min+step;
+        if (value == min) {
+            return new Range(min, end);//Range.closedOpen(min, end);
+        }
+        while (min+step < value) {
+            min += step;
+            end += step;
+        }
+        if (end == max) new Range(min, end);//closed(min, end);
+        return new Range(min, end);//Range.closedOpen(min, end);
+    }
+    
     /**
      * Sets the maximum range of the input window.
      * 

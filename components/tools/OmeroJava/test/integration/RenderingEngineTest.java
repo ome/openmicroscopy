@@ -1766,4 +1766,58 @@ public class RenderingEngineTest extends AbstractServerTest {
     public void testSaveCurrentSettingsByAdminRWRW() throws Exception {
         saveRenderingSettings("rwrw--", ADMIN);
     }
+
+    /**
+     * Tests the retrieval of the rendering settings data using the rendering
+     * engine.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testRenderingEngineChannelWindowGetter() throws Exception {
+        File f = File.createTempFile("testRenderingEngineGetters", "."
+                + OME_FORMAT);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import image", e);
+        }
+        Pixels p = pixels.get(0);
+        long id = p.getId().getValue();
+        factory.getRenderingSettingsService().setOriginalSettingsInSet(
+                Pixels.class.getName(), Arrays.asList(id));
+        RenderingEnginePrx re = factory.createRenderingEngine();
+        re.lookupPixels(id);
+        if (!(re.lookupRenderingDef(id))) {
+            re.resetDefaults();
+            re.lookupRenderingDef(id);
+        }
+        re.load();
+        // retrieve the rendering def
+        RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+        QuantumDef q1 = def.getQuantization();
+        assertNotNull(q1);
+        List<ChannelBinding> channels1 = def.copyWaveRendering();
+        assertNotNull(channels1);
+        Iterator<ChannelBinding> i = channels1.iterator();
+        ChannelBinding c1;
+        int index = 0;
+        double s = 0.11;
+        double e = 0.21;
+        while (i.hasNext()) {
+            c1 = i.next();
+            e = c1.getInputEnd().getValue()+0.21;
+            s = c1.getInputStart().getValue()+0.11;
+            re.setChannelWindow(index, s, e);
+            assertEquals(s, re.getChannelWindowStart(index));
+            assertEquals(e, re.getChannelWindowEnd(index));
+            index++;
+        }
+        re.close();
+    }
 }

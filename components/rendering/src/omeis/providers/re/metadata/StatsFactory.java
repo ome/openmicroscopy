@@ -16,6 +16,7 @@ import java.awt.Dimension;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
@@ -250,28 +251,30 @@ public class StatsFactory {
     	if (type == null) return minmax;
     	String typeAsString = type.getValue();
     	if (PlaneFactory.INT8.equals(typeAsString)) {
-    		minmax[0] = -128;
-    		minmax[1] = 127;
+    		minmax[0] = -Math.pow(2, 8)/2;
+    		minmax[1] = Math.pow(2, 8)/2-1;
     	} else if (PlaneFactory.UINT8.equals(typeAsString)) {
     		minmax[0] = 0;
-    		minmax[1] = 255;
+    		minmax[1] = Math.pow(2, 8)-1;
     	} else if (PlaneFactory.INT16.equals(typeAsString)) {
-    		minmax[0] = -32768;
-    		minmax[1] = 32767;
+    		minmax[0] = -Math.pow(2, 16)/2;
+    		minmax[1] = Math.pow(2, 16)/2-1;
     	} else if (PlaneFactory.UINT16.equals(typeAsString)) {
     		minmax[0] = 0;
-    		minmax[1] = 65535;
+    		minmax[1] = Math.pow(2, 16)-1;
     	} else if (PlaneFactory.INT32.equals(typeAsString)) {
-    		minmax[0] = -32768;
-			minmax[1] = 32767;
+    		minmax[0] = -Math.pow(2, 32)/2;
+			minmax[1] = Math.pow(2, 32)/2-1;
     	} else if (PlaneFactory.UINT32.equals(typeAsString)) {
     		minmax[0] = 0;
-			minmax[1] = 65535;
-    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString) ||
-    			PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
+			minmax[1] = Math.pow(2, 32)-1;
+    	} else if (PlaneFactory.DOUBLE_TYPE.equals(typeAsString)) {
     		//b/c we don't know if it is signed or not
-    		minmax[0] = 0;
-			minmax[1] = 32767;
+    		minmax[0] = -Double.MAX_VALUE;
+			minmax[1] = Double.MAX_VALUE;
+    	} else if (PlaneFactory.FLOAT_TYPE.equals(typeAsString)) {
+    	    minmax[0] = -Float.MAX_VALUE;
+            minmax[1] = Float.MAX_VALUE;
     	}
     	return minmax;
     }

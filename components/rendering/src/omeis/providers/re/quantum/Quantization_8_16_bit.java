@@ -10,8 +10,6 @@ package omeis.providers.re.quantum;
 // Java imports
 
 // Third-party libraries
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
@@ -38,9 +36,6 @@ import ome.model.enums.PixelsType;
  */
 public class Quantization_8_16_bit extends QuantumStrategy {
 
-    /** The logger for this particular class */
-    private static Logger log = LoggerFactory.getLogger(Quantization_8_16_bit.class);
-
     /** The look-up table. */
     private byte[] LUT;
 
@@ -52,10 +47,10 @@ public class Quantization_8_16_bit extends QuantumStrategy {
 
     /** The lower bound of the table. */
     private int lutMin;
-    
+
     /** The upper bound of the table. */
     private int lutMax;
-    
+
     /** The input start normalized value. */
     private double ysNormalized;
 
@@ -70,7 +65,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
 
     /** The upper bound of the decile interval. */
     private double Q9;
-    
+
     /**
      * The mapping parameters from the sub-interval of [Q1, Q9] to the device
      * space.
@@ -82,13 +77,13 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * {@link QuantumDef} if the noise reduction flag is <code>true</code>.
      */
     private int cdStart, cdEnd;
-    
+
     /**
      * Initializes the LUT. Comparable getGlobalMin and getGlobalMax assumed to
      * be Integer, QuantumStrategy enforces min &lt; max. QuantumFactory makes
      * sure 0 &lt; max-min &lt; 2^N where N = 8 or N = 16. LUT size is at most
      * 256 bytes if N = 8 or 2^16 bytes = 2^6Kb = 64Kb if N = 16.
-     * 
+     *
      * @param s The lower bound.
      * @param e The upper bound.
      */
@@ -96,26 +91,28 @@ public class Quantization_8_16_bit extends QuantumStrategy {
     {
         min = (int) getGlobalMin();
         max = (int) getGlobalMax();
-        
+
         lutMin = (int) getPixelsTypeMin();
         lutMax = (int) getPixelsTypeMax();
         if (lutMax == 0) { //couldn't initialize the value
-        	if (s < min) lutMin = s;
-        	else lutMin = min;
-        	if (e > max) lutMax = e;
-        	else lutMax = max;
+            if (s < min) lutMin = s;
+            else lutMin = min;
+            if (e > max) lutMax = e;
+            else lutMax = max;
         }
         int range = lutMax - lutMin;
         if (range > MAX_SIZE_LUT) 
         {
-        	// We want to avoid *huge* memory allocations below so if we
-        	// couldn't initialize the value above and our lutMax and lutMin
-        	// have been assigned out of range values we want to choke, not
-        	// cause the server to throw a java.lang.OutOfMemory exception.
-        	// *** Ticket #1353 -- Chris Allan <callan@blackcat.ca> ***
-        	throw new IllegalArgumentException(String.format(
-        			"Lookup table of size %d greater than supported size %d",
-        			range, MAX_SIZE_LUT));
+            // We want to avoid *huge* memory allocations below so if we
+            // couldn't initialize the value above and our lutMax and lutMin
+            // have been assigned out of range values we want to choke, not
+            // cause the server to throw a java.lang.OutOfMemory exception.
+            // *** Ticket #1353 -- Chris Allan <callan@blackcat.ca> ***
+            //This should not happen since we have now strategy for float
+            //and 32bit.
+            throw new IllegalArgumentException(String.format(
+                    "Lookup table of size %d greater than supported size %f",
+                    range, MAX_SIZE_LUT));
         }
         LUT = new byte[lutMax-lutMin+1];
     }
@@ -123,30 +120,30 @@ public class Quantization_8_16_bit extends QuantumStrategy {
     /**
      * Resets the LUT. We rebuild the LUT if and only if the 
      * pixels type range was not determined at init time.
-     * 
+     *
      * @param s The lower bound.
      * @param e The upper bound.
      */
     private void resetLUT(int s, int e)
     {
-    	int pMax = (int) getPixelsTypeMax();
-    	if (pMax != 0) return;
-    	if (s < lutMin && e > lutMax) {
-    		lutMin = s;
-    		lutMax = e;
-    		LUT = new byte[lutMax-lutMin+1];
-    	} else if (s < lutMin && e <= lutMax) {
-    		lutMin = s;
-    		LUT = new byte[lutMax-lutMin+1];
-    	} else if (s >= lutMin && e > lutMax) {
-    		lutMax = e;
-    		LUT = new byte[lutMax-lutMin+1];
-    	} 
+        int pMax = (int) getPixelsTypeMax();
+        if (pMax != 0) return;
+        if (s < lutMin && e > lutMax) {
+            lutMin = s;
+            lutMax = e;
+            LUT = new byte[lutMax-lutMin+1];
+        } else if (s < lutMin && e <= lutMax) {
+            lutMin = s;
+            LUT = new byte[lutMax-lutMin+1];
+        } else if (s >= lutMin && e > lutMax) {
+            lutMax = e;
+            LUT = new byte[lutMax-lutMin+1];
+        }
     }
-    
+
     /**
      * Initializes the coefficient of the normalize mapping operation.
-     * 
+     *
      * @param k
      *            The coefficient of the selected curve.
      */
@@ -161,7 +158,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * Initializes the parameter to map the pixels intensities to the device
      * space and returned the default initial depending on the value of the
      * noise reduction flag.
-     * 
+     *
      * @param dStart
      *            The input window start.
      * @param dEnd
@@ -172,22 +169,22 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         cdStart = qDef.getCdStart().intValue();
         cdEnd = qDef.getCdEnd().intValue();
         double denum = dEnd - dStart, num = MAX;
-        
+
         double v = 0, b = dStart;
         int e = 0;
         double startMin = min;
         double startMax = max;
         Q1 = min;
         Q9 = max;
-        
+
         if (dStart <= startMin) {
-        	Q1 = dStart;
+            Q1 = dStart;
         }
         if (dEnd >= startMax) Q9 = dEnd;
         if (startMin == startMax) v = 1;
         double decile = (startMax - startMin) / DECILE;
         if (getNoiseReduction()) {
-        	Q1 += decile;
+            Q1 += decile;
             Q9 -= decile;
             denum = Q9 - Q1;
             v = DECILE;
@@ -212,7 +209,7 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         }
         aDecile = num / denum;
         bDecile = aDecile * b - e;
-        
+
         return v;
     }
 
@@ -232,11 +229,11 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         if (LUT == null) {
             initLUT((int) dStart, (int) dEnd);
         } else {
-        	resetLUT((int) dStart, (int) dEnd);
+            resetLUT((int) dStart, (int) dEnd);
         }
         // Comparable assumed to be Integer
         // domain
-        
+
         double k = getCurveCoefficient();
         double a1 = (qDef.getCdEnd().intValue() - qDef.getCdStart().intValue())
                 / qDef.getBitResolution().doubleValue();
@@ -249,7 +246,6 @@ public class Quantization_8_16_bit extends QuantumStrategy {
         
 
         // Build the LUT
-        
         int x = lutMin;
         for (; x < dStart; ++x) {
             LUT[x - lutMin] = (byte) cdStart;
@@ -303,40 +299,25 @@ public class Quantization_8_16_bit extends QuantumStrategy {
     @Override
     public int quantize(double value) throws QuantizationException {
         int x = (int) value;
-        /*
-        if (x < min || x > max) {
-            throw new QuantizationException("The value " + x
-                    + " is not in the interval [" + min + "," + max + "]");
-        }
-        int i = LUT[x - min];
-        return i & 0xFF; // assumed x in [min, max]
-        */
-        /*
-        if (x < lutMin || x > lutMax) {
-            throw new QuantizationException("The value " + x
-                   + " is not in the interval [" + lutMin + "," + lutMax + "]");
-        }
-        */
-        int diff;
         if (x < lutMin) {
-        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
-        	if (r != 0) {
-        		double f = (lutMax-lutMin)/r;
-        		x = (int) (f*(x-lutMin));
-        		if (x < lutMin) x = lutMin;
-        	} else x = lutMin;
- 
+            double r = getOriginalGlobalMax()-getOriginalGlobalMin();
+            if (r != 0) {
+                double f = (lutMax-lutMin)/r;
+                x = (int) (f*(x-lutMin));
+                if (x < lutMin) x = lutMin;
+            } else x = lutMin;
+
         }
         if (x > lutMax) {
-        	double r = getOriginalGlobalMax()-getOriginalGlobalMin();
-        	if (r != 0) {
-        		double f = (lutMax-lutMin)/r;
-        		x = (int) (f*(x-lutMin));
-        		if (x > lutMax) x = lutMax;
-        	} else x = lutMax;
+            double r = getOriginalGlobalMax()-getOriginalGlobalMin();
+            if (r != 0) {
+                double f = (lutMax-lutMin)/r;
+                x = (int) (f*(x-lutMin));
+                if (x > lutMax) x = lutMax;
+            } else x = lutMax;
         }
         int i = LUT[x - lutMin];
-        return i & 0xFF; // assumed x in [min, max]
+        return i & 0xFF;
     }
 
 }
