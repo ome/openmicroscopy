@@ -424,7 +424,6 @@ public class MapAnnotationsComponent extends JPanel implements
 			permissions = MapTable.PERMISSION_NONE;
 
 		final MapTable t = new MapTable(permissions);
-		t.setDoubleClickEdit(true);
 		t.getSelectionModel().addListSelectionListener(this);
 		t.setData(m);
 		t.getModel().addTableModelListener(new TableModelListener() {

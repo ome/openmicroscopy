@@ -22,94 +22,93 @@
 package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import java.awt.Component;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
-import javax.swing.AbstractCellEditor;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 
+import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 /**
- * {@link TableCellEditor} used for the {@link MapTable}
+ * {@link TableCellEditor} used for the {@link MapTable} This basically is just
+ * a wrapper around the original default TableCellEditor.
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-public class MapTableCellEditor extends AbstractCellEditor implements
-		TableCellEditor {
+public class MapTableCellEditor implements TableCellEditor {
 
-	private static final long serialVersionUID = 8616404360198544605L;
-
-	/** The editing component */
-	private JTextField component = null;
-
-	/** Flag if double-click is needed for editing */
-	private boolean doubleClickEdit = false;
+	/** Reference to the original TableCellEditor */
+	private TableCellEditor original;
 
 	/**
 	 * Creates a new instance
 	 */
-	public MapTableCellEditor() {
-	}
-
-	/**
-	 * If set to <code>true</code> a double-click is needed to switch a cell
-	 * into editing mode; single-click sufficient otherwise.
-	 * 
-	 * @param doubleClickEdit
-	 */
-	public void setDoubleClickEdit(boolean doubleClickEdit) {
-		this.doubleClickEdit = doubleClickEdit;
+	public MapTableCellEditor(TableCellEditor original) {
+		this.original = original;
 	}
 
 	@Override
 	public Object getCellEditorValue() {
-		return component.getText();
+		return original.getCellEditorValue();
 	}
 
 	@Override
-	public Component getTableCellEditorComponent(final JTable table,
-			final Object value, final boolean isSelected, final int row,
-			final int column) {
+	public boolean isCellEditable(EventObject anEvent) {
+		return original.isCellEditable(anEvent);
+	}
+
+	@Override
+	public boolean shouldSelectCell(EventObject anEvent) {
+		return original.shouldSelectCell(anEvent);
+	}
+
+	@Override
+	public boolean stopCellEditing() {
+		return original.stopCellEditing();
+	}
+
+	@Override
+	public void cancelCellEditing() {
+		original.cancelCellEditing();
+
+	}
+
+	@Override
+	public void addCellEditorListener(CellEditorListener l) {
+		original.addCellEditorListener(l);
+
+	}
+
+	@Override
+	public void removeCellEditorListener(CellEditorListener l) {
+		original.removeCellEditorListener(l);
+
+	}
+
+	@Override
+	public Component getTableCellEditorComponent(JTable table, Object value,
+			boolean isSelected, int row, int column) {
+		JTextField t = (JTextField) original.getTableCellEditorComponent(table,
+				value, isSelected, row, column);
+
+		if (isSelected)
+			t.setBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
+		else
+			t.setBackground(row % 2 == 0 ? UIUtilities.BACKGROUND_COLOUR_EVEN
+					: UIUtilities.BACKGROUND_COLOUR_ODD);
 
 		String text = (String) value;
 		if (text.equals(MapTableModel.DUMMY_KEY)
 				|| text.equals(MapTableModel.DUMMY_VALUE))
-			text = "";
-
-		component = new JTextField(text);
-		component.setBorder(BorderFactory.createEmptyBorder());
-		component.selectAll();
+			t.setText("");
+		else if(!StringUtils.isEmpty(text))
+			t.selectAll();
 		
-		component.addFocusListener(new FocusListener() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				fireEditingStopped();
-			}
-
-			@Override
-			public void focusGained(FocusEvent e) {
-			}
-		});
-
-		return component;
-	}
-
-	@Override
-	public boolean isCellEditable(EventObject e) {
-		if (!doubleClickEdit)
-			return super.isCellEditable(e);
-		else {
-			if (e == null || !(e instanceof MouseEvent)
-					|| (((MouseEvent) e).getClickCount() >= 2))
-				return true;
-			return false;
-		}
+		return t;
 	}
 
 }

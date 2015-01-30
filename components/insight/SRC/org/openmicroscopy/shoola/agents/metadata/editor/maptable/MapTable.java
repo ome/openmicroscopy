@@ -30,6 +30,8 @@ import javax.swing.DropMode;
 import javax.swing.InputMap;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import omero.model.MapAnnotation;
@@ -47,8 +49,6 @@ import pojos.MapAnnotationData;
  */
 public class MapTable extends JTable {
 
-	private static final long serialVersionUID = 1320101292161922797L;
-
 	/** No permission bit (read-only) */
 	public static int PERMISSION_NONE = 0;
 
@@ -62,10 +62,10 @@ public class MapTable extends JTable {
 	public static int PERMISSION_DELETE = 4;
 
 	/** The cell editor */
-	private MapTableCellEditor cellEditor;
+	// private MapTableCellEditor cellEditor;
 
 	/** The cell renderer */
-	private MapTableCellRenderer cellRenderer;
+	// private MapTableCellRenderer cellRenderer;
 
 	/** Permissions bits */
 	private int permissions = PERMISSION_NONE;
@@ -98,8 +98,11 @@ public class MapTable extends JTable {
 
 		setSelectionModel(new MapTableSelectionModel(this));
 
-		cellEditor = new MapTableCellEditor();
-		cellRenderer = new MapTableCellRenderer();
+		final TableCellRenderer orgRend = getDefaultRenderer(String.class);
+		final TableCellEditor orgEdit = getDefaultEditor(String.class);
+
+		TableCellRenderer cellRenderer = new MapTableCellRenderer(orgRend);
+		TableCellEditor cellEditor = new MapTableCellEditor(orgEdit);
 
 		TableColumn nameColumn = getColumnModel().getColumn(0);
 		TableColumn valueColumn = getColumnModel().getColumn(1);
@@ -224,15 +227,15 @@ public class MapTable extends JTable {
 		model.deleteEntries(indices);
 	}
 
-	/**
-	 * If set to <code>true</code> a double-click is needed to switch a cell
-	 * into editing mode; single-click sufficient otherwise.
-	 * 
-	 * @param doubleClickEdit
-	 */
-	public void setDoubleClickEdit(boolean doubleClickEdit) {
-		cellEditor.setDoubleClickEdit(doubleClickEdit);
-	}
+	// /**
+	// * If set to <code>true</code> a double-click is needed to switch a cell
+	// * into editing mode; single-click sufficient otherwise.
+	// *
+	// * @param doubleClickEdit
+	// */
+	// public void setDoubleClickEdit(boolean doubleClickEdit) {
+	// cellEditor.setDoubleClickEdit(doubleClickEdit);
+	// }
 
 	/**
 	 * Checks if edit flag is set

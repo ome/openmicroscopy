@@ -29,14 +29,14 @@ import javax.swing.ListSelectionModel;
  */
 public class MapTableSelectionModel extends DefaultListSelectionModel {
 
-	private static final long serialVersionUID = -4744852219663491250L;
-	
 	/** Reference to the {@link MapTable} */
 	private MapTable table;
 
 	/**
 	 * Creates a new instance
-	 * @param table Reference to the {@link MapTable}
+	 * 
+	 * @param table
+	 *            Reference to the {@link MapTable}
 	 */
 	public MapTableSelectionModel(MapTable table) {
 		this.table = table;
@@ -45,6 +45,7 @@ public class MapTableSelectionModel extends DefaultListSelectionModel {
 
 	/**
 	 * Get the {@link MapTable} this model belongs to
+	 * 
 	 * @return See above
 	 */
 	public MapTable getTable() {

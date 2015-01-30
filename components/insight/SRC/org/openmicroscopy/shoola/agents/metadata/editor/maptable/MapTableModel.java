@@ -24,13 +24,15 @@ package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import org.apache.commons.lang.StringUtils;
-
 import omero.model.NamedValue;
+
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.util.ui.table.Reorderable;
+
 import pojos.MapAnnotationData;
 
 /**
@@ -40,8 +42,6 @@ import pojos.MapAnnotationData;
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class MapTableModel extends DefaultTableModel implements Reorderable {
-
-	private static final long serialVersionUID = -3459565254623216860L;
 
 	/** Reference to the table */
 	private MapTable table;
@@ -307,7 +307,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 	@Override
 	public int reorder(int fromIndices[], int toIndex) {
-		
+
 		List<NamedValue> values = new ArrayList<NamedValue>();
 		int offset = 0;
 
@@ -325,16 +325,16 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 			}
 
 		}
-		
+
 		int newIndex = toIndex + offset;
-		
+
 		if (!values.isEmpty()) {
 			data.removeAll(values);
 			data.addAll(newIndex, values);
 		}
-		
+
 		syncBackToMap();
-		
+
 		return newIndex;
 	}
 }

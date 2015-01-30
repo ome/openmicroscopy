@@ -27,47 +27,49 @@ import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
- * {@link TableCellRenderer} used for the {@link MapTable}
+ * {@link TableCellRenderer} used for the {@link MapTable} This basically is
+ * just a wrapper around the original default TableCellEditor.
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
-public class MapTableCellRenderer extends DefaultTableCellRenderer {
-
-	private static final long serialVersionUID = -8392760871394286099L;
+public class MapTableCellRenderer implements TableCellRenderer {
 
 	/** Selection color for inactive table row */
-	private static final Color GREY = new Color(200, 200, 200);
+	public static final Color GREY = new Color(200, 200, 200);
 
 	/** Inactive table row color for even rows */
-	private static final Color LIGHT_GREY = new Color(230, 230, 230);
+	public static final Color LIGHT_GREY = new Color(230, 230, 230);
 
 	/** Inactive table row color for odd rows */
-	private static final Color LIGHTER_GREY = new Color(238, 238, 238);
+	public static final Color LIGHTER_GREY = new Color(238, 238, 238);
 
 	/** Italic font used for the 'add entry' row */
 	private static final Font ITALIC = (new JLabel()).getFont().deriveFont(
 			Font.ITALIC);
 
+	/** Reference to the original TableCellRenderer */
+	private TableCellRenderer original;
+
 	/**
 	 * Creates a new instance
 	 */
-	public MapTableCellRenderer() {
-
+	public MapTableCellRenderer(TableCellRenderer original) {
+		this.original = original;
 	}
 
 	@Override
 	public Component getTableCellRendererComponent(final JTable table,
 			final Object value, final boolean isSelected,
 			final boolean hasFocus, final int row, final int column) {
-		JLabel l = new JLabel((String) value);
-		l.setOpaque(true);
+
+		JLabel l = (JLabel) original.getTableCellRendererComponent(table,
+				value, isSelected, hasFocus, row, column);
 
 		if (row == table.getRowCount() - 1
 				&& (MapTableModel.DUMMY_KEY.equals(value) || MapTableModel.DUMMY_VALUE
