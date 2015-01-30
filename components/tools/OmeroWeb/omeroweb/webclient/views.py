@@ -643,9 +643,7 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
 
     # filter by group (not switching group)
     conn.SERVICE_OPTS.setOmeroGroup(int(group_id))
-
     owner = getIntOrDefault(request, 'owner', None)
-    print 'owner', owner
 
     manager= BaseContainer(conn)
     manager.listContainerHierarchy(owner)
@@ -2959,6 +2957,13 @@ def chgrp(request, conn=None, **kwargs):
         raise AttributeError("chgrp: No group_id specified")
     group_id = long(group_id)
 
+    def getObjectOwnerId(r):
+        for t in ["Dataset", "Image", "Plate"]:
+            ids = r.REQUEST.get(t, None)
+            if ids is not None:
+                for o in list(conn.getObjects(t, ids.split(","))):
+                    return o.getDetails().owner.id.val
+
     group = conn.getObject("ExperimenterGroup", group_id)
     new_container_name = request.REQUEST.get('new_container_name', None)
     new_container_type = request.REQUEST.get('new_container_type', None)
@@ -2966,6 +2971,8 @@ def chgrp(request, conn=None, **kwargs):
     if (new_container_name is not None and len(new_container_name) > 0 and
                 new_container_type is not None):
         # Create a new container in target group, for Images, Datasets or Plates
+        ownerId = getObjectOwnerId(request)
+        conn.SERVICE_OPTS.setOmeroUser(ownerId)
         conn.SERVICE_OPTS.setOmeroGroup(group_id)
         container_id = conn.createContainer(new_container_type, new_container_name)
     # No new container, check if target is specified
