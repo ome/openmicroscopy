@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -56,6 +57,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXBusyLabel;
@@ -67,6 +69,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
@@ -76,6 +79,7 @@ import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -433,7 +437,7 @@ class ToolBar
 		
 		viewButton = new JButton(icons.getIcon(IconManager.VIEW));
 		viewButton.setToolTipText("Open the Image Viewer");
-		if (MetadataViewerAgent.runAsPlugin() == MetadataViewer.IMAGE_J) {
+		if (MetadataViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 			viewButton.addMouseListener(new MouseAdapter() {
 				
 				/**

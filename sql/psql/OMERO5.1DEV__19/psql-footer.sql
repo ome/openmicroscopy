@@ -506,8 +506,6 @@
   CREATE INDEX i_microscope_owner ON microscope(owner_id);
   CREATE INDEX i_microscope_group ON microscope(group_id);
   CREATE INDEX i_Microscope_type ON microscope(type);
-  CREATE INDEX i_namespace_owner ON namespace(owner_id);
-  CREATE INDEX i_namespace_group ON namespace(group_id);
   CREATE INDEX i_namespaceannotationlink_owner ON namespaceannotationlink(owner_id);
   CREATE INDEX i_namespaceannotationlink_group ON namespaceannotationlink(group_id);
   CREATE INDEX i_NamespaceAnnotationLink_parent ON namespaceannotationlink(parent);
@@ -678,6 +676,10 @@
   CREATE INDEX i_WellSample_plateAcquisition ON wellsample(plateAcquisition);
   CREATE INDEX i_WellSample_well ON wellsample(well);
   CREATE INDEX i_WellSample_image ON wellsample(image);
+
+CREATE INDEX annotation_name ON annotation(name);
+CREATE INDEX namespace_displayname ON namespace(displayname);
+CREATE INDEX roi_name ON roi(name);
 
 --
 -- Finally, a function for showing our permissions
@@ -1727,7 +1729,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  18,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  19,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2753,10 +2755,236 @@ ALTER TABLE transmittancerange
     ALTER COLUMN cutout TYPE positive_float,
     ALTER COLUMN cutouttolerance TYPE nonnegative_float;
 
+-- ensure that all annotation namespaces are noted in namespace table
+
+CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF NOT (NEW.ns IS NULL OR EXISTS (SELECT 1 FROM namespace WHERE name = NEW.ns LIMIT 1)) THEN
+            INSERT INTO namespace (id, name, permissions)
+                SELECT ome_nextval('seq_namespace'), NEW.ns, -52;
+        END IF;
+
+        RETURN NULL;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION update_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF OLD.name <> NEW.name AND EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot rename namespace that is still used by annotation';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION delete_from_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot delete namespace that is still used by annotation';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER add_to_namespace
+    AFTER INSERT OR UPDATE ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE add_to_namespace();
+
+CREATE TRIGGER update_namespace
+    BEFORE UPDATE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE update_namespace();
+
+CREATE TRIGGER delete_from_namespace
+    BEFORE DELETE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE delete_from_namespace();
+
+-- Replace globals' annotation count tables with views.
+
+DROP TABLE count_experimenter_annotationlinks_by_owner;
+DROP TABLE count_experimentergroup_annotationlinks_by_owner;
+DROP TABLE count_namespace_annotationlinks_by_owner;
+DROP TABLE count_node_annotationlinks_by_owner;
+DROP TABLE count_session_annotationlinks_by_owner;
+
+CREATE VIEW count_experimenter_annotationlinks_by_owner (experimenter_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimenterannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_experimentergroup_annotationlinks_by_owner (experimentergroup_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimentergroupannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_namespace_annotationlinks_by_owner (namespace_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM namespaceannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_node_annotationlinks_by_owner (node_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM nodeannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_session_annotationlinks_by_owner (session_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM sessionannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+-- A property value is null if and only if the corresponding unit is null.
+
+ALTER TABLE detector ADD CONSTRAINT voltage_unitpair
+    CHECK (voltage IS NULL AND voltageUnit IS NULL
+        OR voltage IS NOT NULL AND voltageUnit IS NOT NULL);
+
+ALTER TABLE detectorsettings ADD CONSTRAINT voltage_unitpair
+    CHECK (voltage IS NULL AND voltageUnit IS NULL
+        OR voltage IS NOT NULL AND voltageUnit IS NOT NULL);
+
+ALTER TABLE detectorsettings ADD CONSTRAINT readOutRate_unitpair
+    CHECK (readOutRate IS NULL AND readOutRateUnit IS NULL
+        OR readOutRate IS NOT NULL AND readOutRateUnit IS NOT NULL);
+
+ALTER TABLE imagingenvironment ADD CONSTRAINT temperature_unitpair
+    CHECK (temperature IS NULL AND temperatureUnit IS NULL
+        OR temperature IS NOT NULL AND temperatureUnit IS NOT NULL);
+
+ALTER TABLE imagingenvironment ADD CONSTRAINT airPressure_unitpair
+    CHECK (airPressure IS NULL AND airPressureUnit IS NULL
+        OR airPressure IS NOT NULL AND airPressureUnit IS NOT NULL);
+
+ALTER TABLE laser ADD CONSTRAINT wavelength_unitpair
+    CHECK (wavelength IS NULL AND wavelengthUnit IS NULL
+        OR wavelength IS NOT NULL AND wavelengthUnit IS NOT NULL);
+
+ALTER TABLE laser ADD CONSTRAINT repetitionRate_unitpair
+    CHECK (repetitionRate IS NULL AND repetitionRateUnit IS NULL
+        OR repetitionRate IS NOT NULL AND repetitionRateUnit IS NOT NULL);
+
+ALTER TABLE lightsettings ADD CONSTRAINT wavelength_unitpair
+    CHECK (wavelength IS NULL AND wavelengthUnit IS NULL
+        OR wavelength IS NOT NULL AND wavelengthUnit IS NOT NULL);
+
+ALTER TABLE lightsource ADD CONSTRAINT power_unitpair
+    CHECK (power IS NULL AND powerUnit IS NULL
+        OR power IS NOT NULL AND powerUnit IS NOT NULL);
+
+ALTER TABLE logicalchannel ADD CONSTRAINT pinHoleSize_unitpair
+    CHECK (pinHoleSize IS NULL AND pinHoleSizeUnit IS NULL
+        OR pinHoleSize IS NOT NULL AND pinHoleSizeUnit IS NOT NULL);
+
+ALTER TABLE logicalchannel ADD CONSTRAINT excitationWave_unitpair
+    CHECK (excitationWave IS NULL AND excitationWaveUnit IS NULL
+        OR excitationWave IS NOT NULL AND excitationWaveUnit IS NOT NULL);
+
+ALTER TABLE logicalchannel ADD CONSTRAINT emissionWave_unitpair
+    CHECK (emissionWave IS NULL AND emissionWaveUnit IS NULL
+        OR emissionWave IS NOT NULL AND emissionWaveUnit IS NOT NULL);
+
+ALTER TABLE objective ADD CONSTRAINT workingDistance_unitpair
+    CHECK (workingDistance IS NULL AND workingDistanceUnit IS NULL
+        OR workingDistance IS NOT NULL AND workingDistanceUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT physicalSizeX_unitpair
+    CHECK (physicalSizeX IS NULL AND physicalSizeXUnit IS NULL
+        OR physicalSizeX IS NOT NULL AND physicalSizeXUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT physicalSizeY_unitpair
+    CHECK (physicalSizeY IS NULL AND physicalSizeYUnit IS NULL
+        OR physicalSizeY IS NOT NULL AND physicalSizeYUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT physicalSizeZ_unitpair
+    CHECK (physicalSizeZ IS NULL AND physicalSizeZUnit IS NULL
+        OR physicalSizeZ IS NOT NULL AND physicalSizeZUnit IS NOT NULL);
+
+ALTER TABLE pixels ADD CONSTRAINT timeIncrement_unitpair
+    CHECK (timeIncrement IS NULL AND timeIncrementUnit IS NULL
+        OR timeIncrement IS NOT NULL AND timeIncrementUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT deltaT_unitpair
+    CHECK (deltaT IS NULL AND deltaTUnit IS NULL
+        OR deltaT IS NOT NULL AND deltaTUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT positionX_unitpair
+    CHECK (positionX IS NULL AND positionXUnit IS NULL
+        OR positionX IS NOT NULL AND positionXUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT positionY_unitpair
+    CHECK (positionY IS NULL AND positionYUnit IS NULL
+        OR positionY IS NOT NULL AND positionYUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT positionZ_unitpair
+    CHECK (positionZ IS NULL AND positionZUnit IS NULL
+        OR positionZ IS NOT NULL AND positionZUnit IS NOT NULL);
+
+ALTER TABLE planeinfo ADD CONSTRAINT exposureTime_unitpair
+    CHECK (exposureTime IS NULL AND exposureTimeUnit IS NULL
+        OR exposureTime IS NOT NULL AND exposureTimeUnit IS NOT NULL);
+
+ALTER TABLE plate ADD CONSTRAINT wellOriginX_unitpair
+    CHECK (wellOriginX IS NULL AND wellOriginXUnit IS NULL
+        OR wellOriginX IS NOT NULL AND wellOriginXUnit IS NOT NULL);
+
+ALTER TABLE plate ADD CONSTRAINT wellOriginY_unitpair
+    CHECK (wellOriginY IS NULL AND wellOriginYUnit IS NULL
+        OR wellOriginY IS NOT NULL AND wellOriginYUnit IS NOT NULL);
+
+ALTER TABLE shape ADD CONSTRAINT strokeWidth_unitpair
+    CHECK (strokeWidth IS NULL AND strokeWidthUnit IS NULL
+        OR strokeWidth IS NOT NULL AND strokeWidthUnit IS NOT NULL);
+
+ALTER TABLE shape ADD CONSTRAINT fontSize_unitpair
+    CHECK (fontSize IS NULL AND fontSizeUnit IS NULL
+        OR fontSize IS NOT NULL AND fontSizeUnit IS NOT NULL);
+
+ALTER TABLE stagelabel ADD CONSTRAINT positionX_unitpair
+    CHECK (positionX IS NULL AND positionXUnit IS NULL
+        OR positionX IS NOT NULL AND positionXUnit IS NOT NULL);
+
+ALTER TABLE stagelabel ADD CONSTRAINT positionY_unitpair
+    CHECK (positionY IS NULL AND positionYUnit IS NULL
+        OR positionY IS NOT NULL AND positionYUnit IS NOT NULL);
+
+ALTER TABLE stagelabel ADD CONSTRAINT positionZ_unitpair
+    CHECK (positionZ IS NULL AND positionZUnit IS NULL
+        OR positionZ IS NOT NULL AND positionZUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutIn_unitpair
+    CHECK (cutIn IS NULL AND cutInUnit IS NULL
+        OR cutIn IS NOT NULL AND cutInUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutOut_unitpair
+    CHECK (cutOut IS NULL AND cutOutUnit IS NULL
+        OR cutOut IS NOT NULL AND cutOutUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutInTolerance_unitpair
+    CHECK (cutInTolerance IS NULL AND cutInToleranceUnit IS NULL
+        OR cutInTolerance IS NOT NULL AND cutInToleranceUnit IS NOT NULL);
+
+ALTER TABLE transmittancerange ADD CONSTRAINT cutOutTolerance_unitpair
+    CHECK (cutOutTolerance IS NULL AND cutOutToleranceUnit IS NULL
+        OR cutOutTolerance IS NOT NULL AND cutOutToleranceUnit IS NOT NULL);
+
+ALTER TABLE wellsample ADD CONSTRAINT posX_unitpair
+    CHECK (posX IS NULL AND posXUnit IS NULL
+        OR posX IS NOT NULL AND posXUnit IS NOT NULL);
+
+ALTER TABLE wellsample ADD CONSTRAINT posY_unitpair
+    CHECK (posY IS NULL AND posYUnit IS NULL
+        OR posY IS NOT NULL AND posYUnit IS NOT NULL);
+
+
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 18 and
+        currentPatch = 19 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

@@ -149,7 +149,7 @@
 			<to_child type="ome.model.meta.Experimenter"/>
 		</properties>
 	</link>
-	<type id="ome.model.meta.Namespace" annotated="true" named="true" described="true">
+	<type id="ome.model.meta.Namespace" global="true" annotated="true" named="true" described="true">
 		<!-- Note: Namespace is not in model-->
 		<properties>
 
@@ -168,6 +168,10 @@
                         values or false will lead to many clients
                         hiding the objects -->
 			<optional name="display" type="boolean"/>
+
+                        <!-- The human-readable text denoting this
+                        namespace -->
+			<optional name="displayName" type="string"/>
 
 		</properties>
 	</type>

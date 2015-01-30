@@ -30,17 +30,24 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
 
+
+
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
+import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
@@ -64,6 +71,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -491,6 +499,21 @@ public class TreeViewerAgent
     	if (exp == null) return;
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) viewer.activate();
+        if (runAsPlugin() == LookupNames.IMAGE_J_IMPORT) {
+            EventBus bus = registry.getEventBus();
+            GroupData gp = null;
+            try {
+                gp = exp.getDefaultGroup();
+            } catch (Exception ex) {
+                //No default group
+            }
+            long id = -1;
+            if (gp != null) id = gp.getId();
+            LoadImporter event = new LoadImporter(null,
+                    BrowserSelectionEvent.PROJECT_TYPE);
+            event.setGroup(id);
+            bus.post(event);
+        }
     }
 
     /**

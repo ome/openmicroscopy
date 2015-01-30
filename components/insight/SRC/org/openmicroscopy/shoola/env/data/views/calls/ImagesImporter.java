@@ -30,6 +30,8 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
@@ -136,8 +138,7 @@ public class ImagesImporter
      */
     public ImagesImporter(ImportableObject object)
     {
-    	if (object == null || object.getFiles() == null ||
-    			object.getFiles().size() == 0)
+    	if (object == null || CollectionUtils.isEmpty(object.getFiles()))
     		throw new IllegalArgumentException("No Files to import.");
     	this.object = object;
     }

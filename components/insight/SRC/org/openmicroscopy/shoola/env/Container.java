@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.Container
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,8 @@
 package org.openmicroscopy.shoola.env;
 
 //Java imports
+import ij.IJ;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,13 +33,9 @@ import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
-
-
-
-
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -51,7 +49,6 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.init.Initializer;
 import org.openmicroscopy.shoola.env.init.StartupException;
-import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -326,6 +323,7 @@ public final class Container
 		Integer v = (Integer) singleton.registry.lookup(
 				LookupNames.ENTRY_POINT);
 		int value = LookupNames.INSIGHT_ENTRY;
+		Integer plugin = (Integer) singleton.registry.lookup(LookupNames.PLUGIN);
 		if (v != null) {
 			switch (v.intValue()) {
 				case LookupNames.IMPORTER_ENTRY:
@@ -338,9 +336,11 @@ public final class Container
 		Iterator<AgentInfo> i = agents.iterator();
 		AgentInfo agentInfo;
 		Agent a;
+		int n;
 		while (i.hasNext()) {
 			agentInfo = i.next();
-			if (agentInfo.isActive() && agentInfo.getNumber() == value) {
+			n = agentInfo.getNumber();
+			if (agentInfo.isActive() && (n == value)) {
 				a = agentInfo.getAgent();
 				a.activate(true);
 			}
@@ -394,14 +394,10 @@ public final class Container
 		if (value <= 0) {
 			System.exit(0);
 		} else {
-		    try {
-		        DataServicesFactory.getInstance(this).shutdown(null);
-            } catch (Exception e) {
-                Logger logger = getRegistry().getLogger();
-                if (logger != null) logger.error(this, e.toString());
-            }
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
-			singleton = null;
+			try {
+			    DataServicesFactory.getInstance(singleton).shutdown(null);
+            } catch (Exception e) {}
 		}
 	}
 	
@@ -462,22 +458,33 @@ public final class Container
     {
         if (Container.getInstance() != null) {
         	//reconnect.
+            singleton.registry.bind(LookupNames.PLUGIN, plugin);
         	LoginService loginSvc = (LoginService) singleton.registry.lookup(
         			LookupNames.LOGIN);
-        	int v = loginSvc.login((UserCredentials) singleton.registry.lookup(
-        			LookupNames.USER_CREDENTIALS));
-        	if (v == LoginService.CONNECTED) {
-        		singleton.activateAgents();
-        	} else {
-        		//Check if the splashscreen is up.
-        		Boolean b = (Boolean) singleton.registry.lookup(
-            			LookupNames.LOGIN_SPLASHSCREEN);
-        		if (b != null && !b.booleanValue()) {
-        			UserNotifier un = singleton.registry.getUserNotifier();
-            		un.notifyInfo("Reconnect", "Unable to reconnect to server.");
-        		}
+        	UserCredentials uc = null;
+        	if (singleton.registry.lookup(LookupNames.USER_CREDENTIALS) != null) {
+        	    uc = (UserCredentials) singleton.registry.lookup(
+                        LookupNames.USER_CREDENTIALS);
         	}
-        	return Container.getInstance();
+        	if (uc != null) {
+        	    int v = loginSvc.login(uc);
+        	    boolean r = true;
+                if (v == LoginService.CONNECTED) {
+                    singleton.activateAgents();
+                } else {
+                    //Check if the splashscreen is up.
+                    Boolean b = (Boolean) singleton.registry.lookup(
+                            LookupNames.LOGIN_SPLASHSCREEN);
+                    if (b != null && !b.booleanValue()) {
+                       r = false;
+                    }
+                }
+                if (r) {
+                    return Container.getInstance();
+                }
+                singleton = null;
+        	}
+        	
         }
         
         //Initialize services as usual though.
