@@ -117,11 +117,6 @@
   CREATE OR REPLACE VIEW count_LightSource_annotationLinks_by_owner (LightSource_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM lightsourceannotationlink GROUP BY parent, owner_id ORDER BY parent;
 
-  DROP TABLE count_Namespace_annotationLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Namespace_annotationLinks_by_owner (Namespace_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM namespaceannotationlink GROUP BY parent, owner_id ORDER BY parent;
-
   DROP TABLE count_Objective_annotationLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_Objective_annotationLinks_by_owner (Objective_id, owner_id, count) AS select parent, owner_id, count(*)

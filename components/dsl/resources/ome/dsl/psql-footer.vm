@@ -66,6 +66,10 @@
 #end
 #end
 
+CREATE INDEX annotation_name ON annotation(name);
+CREATE INDEX namespace_displayname ON namespace(displayname);
+CREATE INDEX roi_name ON roi(name);
+
 --
 -- Finally, a function for showing our permissions
 -- select id, ome_perms(permissions) FROM sometable...
@@ -761,6 +765,102 @@ ALTER TABLE transmittancerange
     ALTER COLUMN cutintolerance TYPE nonnegative_float,
     ALTER COLUMN cutout TYPE positive_float,
     ALTER COLUMN cutouttolerance TYPE nonnegative_float;
+
+-- ensure that all annotation namespaces are noted in namespace table
+
+CREATE FUNCTION add_to_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF NOT (NEW.ns IS NULL OR EXISTS (SELECT 1 FROM namespace WHERE name = NEW.ns LIMIT 1)) THEN
+            INSERT INTO namespace (id, name, permissions)
+                SELECT ome_nextval('seq_namespace'), NEW.ns, -52;
+        END IF;
+
+        RETURN NULL;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION update_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF OLD.name <> NEW.name AND EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot rename namespace that is still used by annotation';
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION delete_from_namespace() RETURNS "trigger" AS $$
+    BEGIN
+        IF EXISTS (SELECT 1 FROM annotation WHERE ns = OLD.name LIMIT 1) THEN
+            RAISE EXCEPTION 'cannot delete namespace that is still used by annotation';
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER add_to_namespace
+    AFTER INSERT OR UPDATE ON annotation
+    FOR EACH ROW EXECUTE PROCEDURE add_to_namespace();
+
+CREATE TRIGGER update_namespace
+    BEFORE UPDATE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE update_namespace();
+
+CREATE TRIGGER delete_from_namespace
+    BEFORE DELETE ON namespace
+    FOR EACH ROW EXECUTE PROCEDURE delete_from_namespace();
+
+-- Replace globals' annotation count tables with views.
+
+DROP TABLE count_experimenter_annotationlinks_by_owner;
+DROP TABLE count_experimentergroup_annotationlinks_by_owner;
+DROP TABLE count_namespace_annotationlinks_by_owner;
+DROP TABLE count_node_annotationlinks_by_owner;
+DROP TABLE count_session_annotationlinks_by_owner;
+
+CREATE VIEW count_experimenter_annotationlinks_by_owner (experimenter_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimenterannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_experimentergroup_annotationlinks_by_owner (experimentergroup_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM experimentergroupannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_namespace_annotationlinks_by_owner (namespace_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM namespaceannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_node_annotationlinks_by_owner (node_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM nodeannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+CREATE VIEW count_session_annotationlinks_by_owner (session_id, owner_id, count) AS
+    SELECT parent, owner_id, count(*)
+        FROM sessionannotationlink
+        GROUP BY parent, owner_id
+        ORDER BY parent;
+
+-- A property value is null if and only if the corresponding unit is null.
+
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if($prop.foreignKey && $prop.type.startsWith("ome.model.units."))
+ALTER TABLE ${prop.actualType.table} ADD CONSTRAINT ${prop.name}_unitpair
+    CHECK (${prop.name} IS NULL AND ${prop.name}Unit IS NULL
+        OR ${prop.name} IS NOT NULL AND ${prop.name}Unit IS NOT NULL);
+
+#end
+#end
+#end
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()

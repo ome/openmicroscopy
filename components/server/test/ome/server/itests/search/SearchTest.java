@@ -112,6 +112,7 @@ public class SearchTest extends AbstractTest {
         String part = uuid.substring(0, uuid.indexOf("DASH"));
         Image i = new Image("myIQueryImageTest");
         TagAnnotation tag = new TagAnnotation();
+        tag.setName("theTagNameInMyIQueryTest");
         tag.setNs("theNamespaceInMyIQueryTest");
         tag.setTextValue("some test and an " + uuid + " to search");
         i.linkAnnotation(tag);
@@ -148,6 +149,10 @@ public class SearchTest extends AbstractTest {
         list = this.iQuery.findAllByFullText(Image.class, "annotation:" + uuid,
                 null);
         assertTrue(list.toString(), list.size() == 1);
+
+        list = this.iQuery.findAllByFullText(Image.class,
+                "annotation.name:theTagName*", null);
+        assertTrue(list.toString(), list.size() >= 1);
 
         list = this.iQuery.findAllByFullText(Image.class,
                 "annotation.ns:theNamespace*", null);
