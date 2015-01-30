@@ -528,6 +528,56 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
             kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
+
+    def createDataset(self, name, description=None, img_ids=None):
+        """ 
+        Creates a Dataset and adds images if img_ids is specified.
+        Returns the new Dataset ID.
+        """
+        ds = omero.model.DatasetI()
+        ds.name = rstring(str(name))
+        if description is not None and description != "" :
+            ds.description = rstring(str(description))
+        dsid = self.saveAndReturnId(ds)
+        if img_ids is not None:
+            iids = [int(i) for i in img_ids.split(",")]
+            links = []
+            for iid in iids:
+                link = omero.model.DatasetImageLinkI()
+                link.setParent(omero.model.DatasetI(dsid, False))
+                link.setChild(omero.model.ImageI(iid, False))
+                links.append(link)
+            self.saveArray(links)
+        return dsid
+
+    def createProject(self, name, description=None):
+        """ Creates new Project and returns ID """
+
+        pr = omero.model.ProjectI()
+        pr.name = rstring(str(name))
+        if description is not None and description != "" :
+            pr.description = rstring(str(description))
+        return self.saveAndReturnId(pr)
+
+    def createScreen(self, name, description=None):
+        """ Creates new Screen and returns ID """
+
+        sc = omero.model.ScreenI()
+        sc.name = rstring(str(name))
+        if description is not None and description != "" :
+            sc.description = rstring(str(description))
+        return self.saveAndReturnId(sc)
+
+    def createContainer(self, dtype, name, description=None):
+        """ Creates new Project, Dataset or Screen and returns ID """
+
+        dtype = dtype.lower()
+        if dtype == "project":
+            return self.createProject(name, description)
+        elif dtype == "dataset":
+            return self.createDataset(name, description)
+        elif dtype == "screen":
+            return self.createScreen(name, description)
     
     # DATA RETRIVAL BY TAGs
     def findTag (self, name, desc=None):
