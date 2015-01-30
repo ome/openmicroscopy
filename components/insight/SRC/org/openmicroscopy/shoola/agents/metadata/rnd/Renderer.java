@@ -25,9 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -552,6 +550,15 @@ public interface Renderer
      * @param end The upper bound of the interval.
      */
     void setChannelWindow(int index, double start, double end);
+
+    /**
+     * Renders the specified plane.
+     * 
+     * @param pDef The plane to render.
+     * @param compression The compression level.
+     * @return See above.
+     */
+    BufferedImage renderPlane(PlaneDef pDef, int compression);
 
     /**
      * Renders the specified plane.
