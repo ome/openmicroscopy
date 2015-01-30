@@ -290,7 +290,7 @@ class WebControl(BaseControl):
             print traceback.print_exc()
 
     def collectstatic(self):
-        # Ensure that static media is copied to the correct location
+        """Ensure that static media is copied to the correct location"""
         location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
         rv = self.ctx.call(args, cwd=location)
@@ -298,7 +298,7 @@ class WebControl(BaseControl):
             self.ctx.die(607, "Failed to collect static content.\n")
 
     def clearsessions(self, args):
-        # Clean out expired sessions.
+        """Clean out expired sessions."""
         location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "clearsessions"]
         rv = self.ctx.call(args, cwd=location)
@@ -307,7 +307,7 @@ class WebControl(BaseControl):
 
     def start(self, args):
         self.collectstatic()
-        self.clearsessions()
+        self.clearsessions(args)
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -460,10 +460,11 @@ using bin\omero web start on Windows with FastCGI.
                                  self.ctx.dir / 'bin')
 
     def iis(self, args):
-        self.collectstatic()
-        self.clearsessions()
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
+
+        self.collectstatic()
+        self.clearsessions(args)
 
         web_iis = self._get_python_dir() / "omero_web_iis.py"
         cmd = [sys.executable, str(web_iis)]
