@@ -39,18 +39,14 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
 
 import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -80,6 +76,7 @@ public class SaveResultsDialog
     /** Initializes the components.*/
     private void initialize()
     {
+        activeWindow = true;
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
             
@@ -98,6 +95,7 @@ public class SaveResultsDialog
         });
         roi = new JCheckBox("ROI");
         roi.setSelected(true);
+        roi.setEnabled(false);
     }
 
     /** Closes the dialog.*/
@@ -170,7 +168,7 @@ public class SaveResultsDialog
     private JPanel buildContents()
     {
         JPanel buttons = new JPanel();
-        buttons.add(new JLabel("Save results for"));
+        buttons.add(UIUtilities.setTextFont("Save results for"));
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
         ButtonGroup group = new ButtonGroup();
         JRadioButton b = new JRadioButton("Image from current window");
@@ -185,23 +183,13 @@ public class SaveResultsDialog
             }
         });
         b = new JRadioButton("Image from all image windows");
+        b.setSelected(activeWindow);
         buttons.add(b);
         group.add(b);
-        buttons.add(new JSeparator());
+        buttons.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
+        buttons.add(UIUtilities.setTextFont("Save"));
         buttons.add(roi);
-        return buttons;
-    }
-    
-    /**
-     * Creates the header.
-     *
-     * @return See above.
-     */
-    private TitlePanel createHeader()
-    {
-        IconManager icons = IconManager.getInstance();
-        return new TitlePanel(getTitle(), "Select the results to save",
-                icons.getIcon(IconManager.OWNER_GROUP_48));
+        return UIUtilities.buildComponentPanel(buttons);
     }
 
     /**
@@ -211,7 +199,6 @@ public class SaveResultsDialog
     {
         Container c = getContentPane();
         c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
-        c.add(createHeader(), BorderLayout.NORTH);
         c.add(buildContents(), BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
     }
@@ -224,7 +211,9 @@ public class SaveResultsDialog
     public SaveResultsDialog(JFrame parent)
     {
         super(parent);
+        setTitle("Save ImageJ results");
         initialize();
         buildGUI();
+        pack();
     }
 }
