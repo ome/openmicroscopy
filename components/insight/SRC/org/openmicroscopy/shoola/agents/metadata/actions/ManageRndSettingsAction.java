@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -141,7 +141,7 @@ public class ManageRndSettingsAction
 			case ABSOLUTE_MIN_MAX:
 				putValue(Action.NAME, NAME_ABSOLUTE_MIN_MAX);
 				setEnabled(model.getPixelsDimensionsC() < 
-						Renderer.MAX_CHANNELS);
+						Renderer.MAX_CHANNELS && model.isIntegerPixelData());
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(
 								DESCRIPTION_ABSOLUTE_MIN_MAX));

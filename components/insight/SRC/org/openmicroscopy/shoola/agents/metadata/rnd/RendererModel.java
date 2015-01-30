@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -35,8 +35,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -47,6 +49,7 @@ import org.openmicroscopy.shoola.agents.metadata.RenderingControlShutDown;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -56,7 +59,7 @@ import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloParser;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -657,32 +660,6 @@ class RendererModel
 			return globalMinChannels.doubleValue();
 		}
 		return getGlobalMin(selectedChannelIndex);
-	}
-
-	/**
-	 * Returns the rounding factor used for the input value.
-	 *
-	 * @return See above.
-	 */
-	int getRoundFactor()
-	{
-		return getRoundFactor(selectedChannelIndex);
-	}
-	
-	/**
-	 * Returns the rounding factor used for the input value.
-	 *
-	 * @param channel The channel to handle.
-	 * @return See above.
-	 */
-	int getRoundFactor(int channel)
-	{
-		double min = getGlobalMin(channel);
-		double max = getGlobalMax(channel);
-		double rmin = UIUtilities.roundTwoDecimals(min);
-		double rmax = UIUtilities.roundTwoDecimals(max);
-		if (rmin == min && rmax == max) return 1;
-		return 100;
 	}
 
 	/**
@@ -1661,4 +1638,18 @@ class RendererModel
             }
         }
     }
+	
+	/**
+	 * Checks if the image pixel type is integer
+	 * @return See above
+	 */
+	boolean isIntegerPixelData() {
+        String t = image.getDefaultPixels().getPixelType();
+        return t.equals(OmeroImageService.INT_8)
+                || t.equals(OmeroImageService.UINT_8)
+                || t.equals(OmeroImageService.INT_16)
+                || t.equals(OmeroImageService.UINT_16)
+                || t.equals(OmeroImageService.INT_32)
+                || t.equals(OmeroImageService.UINT_32);
+	}
 }
