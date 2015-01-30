@@ -25,9 +25,12 @@ $(function() {
         static_url,
         data_owners,
         chgrp_type,
+        target_type,
         $chgrpform = $("#chgrp-form"),
         $group_chooser,
-        $move_group_tree;
+        $move_group_tree,
+        $newbtn,
+        $okbtn;
 
 
     // external entry point, called by jsTree right-click menu
@@ -108,6 +111,19 @@ $(function() {
     };
 
 
+    // Called from "New..." button, simply add input to form (and hide tree)
+    var newContainer = function newContainer() {
+
+        var ownerId = data_owners[0][0];
+        $move_group_tree.hide();
+        $("<p>New " + target_type + ": <input name='new_container_name'/></p>")
+                .appendTo($chgrpform).click();
+        // Hidden input
+        $("<input name='new_container_type' value='" + target_type + "'/>")
+                .appendTo($chgrpform).hide();
+    };
+
+
     // Handle clicking on specific group in chgrp dialog...
     $chgrpform.on( "click", ".chgrpGroup", function() {
 
@@ -135,15 +151,15 @@ $(function() {
         }
 
         chgrp_type = dtype;     // This will be the dtype of last object
-        var target_type;
         if (chgrp_type == "Dataset") target_type = "project";
         else if (chgrp_type == "Image") target_type = "dataset";
         else if (chgrp_type == "Plate") target_type = "screen";
         chgrp_target_url += "/"+target_type+"/";
         chgrp_target_url += "?owner=" + data_owners[0][0];  // ID of the (first) owner
 
+
         if (chgrp_type == "Project" || chgrp_type == "Screen") {
-            $("#move_group_tree").html("<h1>"+ chgrp_type.capitalize() +" will be moved to group: " + gname +"</h1>");
+            // Don't need to show anything
         } else {
             // we load a tree - then give it basic selection / expansion behaviour. jsTree would have been overkill!?
             $("#move_group_tree").load(chgrp_target_url, function(){
@@ -158,6 +174,7 @@ $(function() {
                 };
                 $("#move_group_tree a").click(node_click);
                 $("#move_group_tree ins").click(node_click);
+                $newbtn.show();
             });
         }
     });
@@ -166,6 +183,7 @@ $(function() {
     // After we edit the chgrp dialog to handle Filesets, we need to clean-up
     var resetChgrpForm = function() {
         $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("OK");
+        $newbtn.hide();
         $("#move_group_tree").show();
         $("#chgrp_split_filesets").remove();
     };
@@ -180,7 +198,7 @@ $(function() {
         modal: true,
         buttons: {
             "New...": function() {
-
+                newContainer();
             },
             "OK": function() {
                 var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
@@ -205,9 +223,17 @@ $(function() {
             }
         }
     });
+
+    $newbtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1)');
+    $newbtn.hide();
+    $okbtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2)');
+
     // handle chgrp 
     $chgrpform.ajaxForm({
         beforeSubmit: function(data){
+            // Don't submit if we haven't populated the form with group etc.
+            if (data.length === 0) return false;
+            if (data[0].name !== "group_id") return false;
             $chgrpform.dialog("close");
             var chgrp_target = $("#move_group_tree a.jstree-clicked");
             if (chgrp_target.length == 1){
