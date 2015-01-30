@@ -292,4 +292,19 @@ public class FileObject
             return ((Integer) value).intValue();
         return -1;
     }
+
+    /**
+     * Returns the <code>OMERO</code> id or <code>-1</code> if not set.
+     *
+     * @return See above.
+     */
+    public int getOMEROID()
+    {
+        if (!isImagePlus()) return -1;
+        ImagePlus image = (ImagePlus) file;
+        Object value = image.getProperty("OMERO");
+        if (value != null && value instanceof Integer)
+            return ((Integer) value).intValue();
+        return -1;
+    }
 }
