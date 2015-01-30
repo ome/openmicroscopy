@@ -292,32 +292,19 @@ public class OmeroReader extends FormatReader {
                         !new Long(defaultGroup.getId().getValue()).equals(groupID))
                 {
                     Experimenter exp = iAdmin.getExperimenter(eventContext.userId);
+                    List<Long> groupList = iAdmin.getMemberOfGroupIds(exp);
 
-                    ParametersI p = new ParametersI();
-                    p.addId(eventContext.userId);
-                    List<IObject> groupList = iQuery.findAllByQuery(
-                            "select distinct g from ExperimenterGroup as g " +
-                                    "join fetch g.groupExperimenterMap as map " +
-                                    "join fetch map.parent e " +
-                                    "left outer join fetch map.child u " +
-                                    "left outer join fetch u.groupExperimenterMap m2 " +
-                                    "left outer join fetch m2.parent p " +
-                                    "where g.id in " +
-                                    "  (select m.parent from GroupExperimenterMap m " +
-                                    "  where m.child.id = :id )", p);
+                    Iterator<Long> i = groupList.iterator();
 
-                    Iterator<IObject> i = groupList.iterator();
-
-                    ExperimenterGroup g = null;
+                    Long g = null;
 
                     boolean in = false;
                     while (i.hasNext()) {
-                        g = (ExperimenterGroup) i.next();
-                        if (g.getName().getValue().equals(group) ||
-                                new Long(g.getId().getValue()).equals(groupID))
+                        g = i.next();
+                        if (g.equals(groupID))
                         {
                             in = true;
-                            groupID = g.getId().getValue();
+                            groupID = g;
                             break;
                         }
                     }
