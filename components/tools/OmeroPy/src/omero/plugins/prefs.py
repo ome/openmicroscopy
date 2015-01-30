@@ -90,7 +90,37 @@ def with_rw_config(func):
     return wraps(func)(_make_open_and_close_config(func, False))
 
 
-class WriteableConfigControl(BaseControl):
+class ConfigControl(BaseControl):
+    """
+    Base class for controls which need write access to the OMERO configuration
+    using the @with_rw_config decorator
+
+    Note BaseControl should be used for read-only access using @with_config
+    """
+
+    def open_config(self, args):
+        if args.source:
+            cfg_xml = path(args.source)
+            if not cfg_xml.exists():
+                self.ctx.die(124, "File not found: %s" % args.source)
+        else:
+            grid_dir = self.ctx.dir / "etc" / "grid"
+            if grid_dir.exists():
+                cfg_xml = grid_dir / "config.xml"
+            else:
+                userdir = path(get_user_dir())
+                usr_xml = userdir / "omero" / "config.xml"
+                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
+                cfg_xml = usr_xml
+        try:
+            return ConfigXml(str(cfg_xml))
+        except portalocker.LockException:
+            self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
+        except Exception, e:
+            self.ctx.die(113, str(e))
+
+
+class WriteableConfigControl(ConfigControl):
     """
     Base class for controls which need write access to the OMERO configuration
     using the @with_rw_config decorator
@@ -213,27 +243,6 @@ class PrefsControl(WriteableConfigControl):
         old = parser.add(sub, self.old, "Delegate to the old configuration"
                          " system using Java preferences")
         old.add_argument("target", nargs="*")
-
-    def open_config(self, args):
-        if args.source:
-            cfg_xml = path(args.source)
-            if not cfg_xml.exists():
-                self.ctx.die(124, "File not found: %s" % args.source)
-        else:
-            grid_dir = self.ctx.dir / "etc" / "grid"
-            if grid_dir.exists():
-                cfg_xml = grid_dir / "config.xml"
-            else:
-                userdir = path(get_user_dir())
-                usr_xml = userdir / "omero" / "config.xml"
-                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
-                cfg_xml = usr_xml
-        try:
-            return ConfigXml(str(cfg_xml))
-        except portalocker.LockException:
-            self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
-        except Exception, e:
-            self.ctx.die(113, str(e))
 
     @with_config
     def all(self, args, config):

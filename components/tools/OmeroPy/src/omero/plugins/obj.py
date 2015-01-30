@@ -32,8 +32,9 @@ import sys
 import shlex
 
 from omero_ext.argparse import FileType
-from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.cli import CLI, ExceptionHandler
 from omero.rtypes import rlong
+from omero.plugins.prefs import ConfigControl, with_config
 
 
 class TxField(object):
@@ -267,7 +268,7 @@ class TxState(object):
         return len(self._commands)
 
 
-class ObjControl(BaseControl):
+class ObjControl(ConfigControl):
     """Create and Update OMERO objects
 
 The obj command allows inserting any objects into the OMERO
@@ -308,6 +309,14 @@ Bash examples:
             "Load a series of commands from a file or the stdin")
         load.add_argument("file", nargs="*", type=FileType("r"),
                           default=[sys.stdin])
+
+        graphreport = parser.add(
+            sub, self.graphreport, "Generate")
+        graphreport.add_argument(
+            "--source", help="Configuration file to be used. Default:"
+            " etc/grid/config.xml")
+        graphreport.add_argument(
+            "file", help="Output file")
 
         for x in [new, update]:
             x.add_argument(
@@ -358,6 +367,42 @@ Bash examples:
             return UpdateObjectTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
+
+    @with_config
+    def graphreport(self, args, config):
+
+        import os
+        import omero.java
+        server_dir = self.ctx.dir / "lib" / "server"
+        classpath = [file.abspath() for file in server_dir.files("*.jar")]
+        xargs = ["-cp", os.pathsep.join(classpath)]
+
+        cfg = config.as_map()
+        config.close()  # Early close. See #9800
+        for x in ("name", "user", "host", "port"):
+            # NOT passing password on command-line
+            k = "omero.db.%s" % x
+            if k in cfg:
+                v = cfg[k]
+                xargs.append("-D%s=%s" % (k, v))
+
+        # Pass omero.db.pass using JAVA_OPTS environment variable
+        if "omero.db.pass" in cfg:
+            dbpassargs = "-Domero.db.pass=%s" % cfg["omero.db.pass"]
+            if "JAVA_OPTS" not in os.environ:
+                os.environ['JAVA_OPTS'] = dbpassargs
+            else:
+                os.environ['JAVA_OPTS'] = "%s %s" % (
+                    os.environ.get('JAVA_OPTS'), dbpassargs)
+
+        cmd = ["ome.services.graphs.GraphPathReport", args.file]
+
+        debug = False
+        self.ctx.dbg(
+            "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
+        p = omero.java.run(cmd, use_exec=True, debug=debug, xargs=xargs,
+                           stdout=sys.stdout, stderr=sys.stderr)
+        self.ctx.rv = p.wait()
 
 
 try:
