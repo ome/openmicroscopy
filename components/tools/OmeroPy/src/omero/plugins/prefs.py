@@ -77,14 +77,14 @@ def _make_open_and_close_config(func, allow_readonly):
 
 def with_config(func):
     """
-    opens a config and passes it as the second argument.
+    Opens a config and passes it as the second argument.
     """
     return wraps(func)(_make_open_and_close_config(func, True))
 
 
 def with_rw_config(func):
     """
-    opens a config and passes it as the second argument.
+    Opens a config and passes it as the second argument.
     Requires that the returned config be writeable
     """
     return wraps(func)(_make_open_and_close_config(func, False))
@@ -92,10 +92,8 @@ def with_rw_config(func):
 
 class ConfigControl(BaseControl):
     """
-    Base class for controls which need write access to the OMERO configuration
-    using the @with_rw_config decorator
-
-    Note BaseControl should be used for read-only access using @with_config
+    Base class for controls which need read-only access to the OMERO
+    configuration using the :func:`with_config` decorator
     """
 
     def open_config(self, args):
@@ -123,9 +121,10 @@ class ConfigControl(BaseControl):
 class WriteableConfigControl(ConfigControl):
     """
     Base class for controls which need write access to the OMERO configuration
-    using the @with_rw_config decorator
+    using the :func:`with_rw_config` decorator
 
-    Note BaseControl should be used for read-only access using @with_config
+    Note :class:`ConfigControl` should be used for read-only access using
+    :func:`with_config`
     """
 
     def die_on_ro(self, config):
