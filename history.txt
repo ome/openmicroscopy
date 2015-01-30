@@ -4,7 +4,7 @@ OMERO version history
 5.0.7 (February 2015)
 ---------------------
 
-This is bug-fix release covering a number of issues:
+This is a bug-fix release covering a number of issues:
 
 -  rendering improvements including 32 bit and float support
 -  vast improvements in Mac launching (separate clients for your Java version)
