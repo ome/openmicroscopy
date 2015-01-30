@@ -560,6 +560,14 @@ public interface Renderer
      */
     BufferedImage renderPlane(PlaneDef pDef, int compression);
 
+    /**
+     * Renders the specified plane.
+     * 
+     * @param pDef The plane to render.
+     * @return See above.
+     */
+    BufferedImage renderPlane(PlaneDef pDef);
+
     /** 
      * Sets the maximum range for channels.
      * 
