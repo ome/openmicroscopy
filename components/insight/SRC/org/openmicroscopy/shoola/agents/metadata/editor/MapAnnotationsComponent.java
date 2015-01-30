@@ -65,6 +65,8 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import com.apple.laf.AquaButtonBorder.Named;
+
 import pojos.MapAnnotationData;
 
 /**
@@ -575,6 +577,21 @@ public class MapAnnotationsComponent extends JPanel implements
 	}
 
 	/**
+	 * Creates a new {@link NamedValue} object with identical name and value as the
+	 * {@link NamedValue} in original
+	 * @param original The list of {@link NamedValue} objects to copy
+	 * @return A new list with the copied {@link NamedValue}s
+	 */
+	private List<NamedValue> deepCopy(List<NamedValue> original) {
+		List<NamedValue> result = new ArrayList<NamedValue>();
+		for(NamedValue orig : original) {
+			NamedValue copy = new NamedValue(orig.name, orig.value);
+			result.add(copy);
+		}
+		return result;
+	}
+	
+	/**
 	 * Paste previously copied selection
 	 */
 	private void pasteSelection() {
@@ -583,7 +600,7 @@ public class MapAnnotationsComponent extends JPanel implements
 			t = getUserTable();
 		MapTableModel m = (MapTableModel) t.getModel();
 		int index = t.getSelectedRow() + 1;
-		m.addEntries(copiedValues, index);
+		m.addEntries(deepCopy(copiedValues), index);
 		
 		index += copiedValues.size()-1;
 		t.requestFocus();
