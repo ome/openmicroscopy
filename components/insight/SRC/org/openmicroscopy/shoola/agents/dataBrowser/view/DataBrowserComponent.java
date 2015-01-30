@@ -35,10 +35,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
 //Third-party libraries
+
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
@@ -62,6 +64,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
@@ -77,6 +80,7 @@ import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -1734,9 +1738,9 @@ class DataBrowserComponent
 				if (go instanceof DataObject) 
 					data = (DataObject) go;
 				object.setContext(data, null);
-				if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+				if (DataBrowserAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 					ViewInPluginEvent evt = new ViewInPluginEvent(ctx,
-							img, DataBrowser.IMAGE_J);
+							img, LookupNames.IMAGE_J);
 					bus.post(evt);
 				} else {
 					bus.post(new ViewImage(ctx, object, null));
@@ -1758,11 +1762,11 @@ class DataBrowserComponent
 					data = (DataObject) go;
 				object.setContext((DataObject) parent, data);
 			}
-			if (DataBrowserAgent.runAsPlugin() == DataBrowser.IMAGE_J) {
+			if (DataBrowserAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 				
 				ViewInPluginEvent evt = new ViewInPluginEvent(
 						model.getSecurityContext(),
-						wellSample.getImage(), DataBrowser.IMAGE_J);
+						wellSample.getImage(), LookupNames.IMAGE_J);
 				bus.post(evt);
 			} else {
 				bus.post(new ViewImage(model.getSecurityContext(), object, 

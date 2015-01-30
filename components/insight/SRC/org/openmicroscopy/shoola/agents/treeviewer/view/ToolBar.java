@@ -611,7 +611,8 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         switch (TreeViewerAgent.runAsPlugin()) {
-        case TreeViewer.IMAGE_J:
+        case LookupNames.IMAGE_J:
+        case LookupNames.IMAGE_J_IMPORT:
             b = UIUtilities.formatButtonFromAction(
                     controller.getAction(TreeViewerControl.VIEW));
             UIUtilities.unifiedButtonLookAndFeel(b);

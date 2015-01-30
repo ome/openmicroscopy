@@ -565,9 +565,9 @@ class TreeViewerControl
 		actionsMap.put(CREATE_DATASET_FROM_SELECTION,  
 				new CreateObjectWithChildren(model, 
 						CreateObjectWithChildren.DATASET));
-		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, TreeViewer.IMAGE_J));
+		actionsMap.put(VIEW_IN_IJ, new ViewInPlugin(model, LookupNames.IMAGE_J));
 		actionsMap.put(VIEW_IN_KNIME, new ViewInPlugin(model,
-				TreeViewer.KNIME));
+		        LookupNames.KNIME));
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
 		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
 		actionsMap.put(SWITCH_GROUP, new SwitchGroup(model));

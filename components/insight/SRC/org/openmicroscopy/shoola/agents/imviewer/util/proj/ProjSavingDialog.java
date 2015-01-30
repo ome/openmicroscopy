@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -61,9 +62,12 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
@@ -77,6 +81,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -694,7 +699,7 @@ public class ProjSavingDialog
 	 */
 	public void setContainers(Collection containers)
 	{
-		if (containers == null || containers.size() == 0) return;
+		if (CollectionUtils.isEmpty(containers)) return;
 		parentsBox.removeItemListener(parentsBoxListener);
 		parentsBox.removeAllItems();
 		datasetsBox.removeAllItems();
@@ -704,7 +709,7 @@ public class ProjSavingDialog
 		DataObject ho;
 		DataNode n;
 		
-		if (containers != null && containers.size() > 0) {
+		if (CollectionUtils.isNotEmpty(containers)) {
 			Iterator<DataObject> i = containers.iterator();
 			while (i.hasNext()) {
 				ho = i.next();

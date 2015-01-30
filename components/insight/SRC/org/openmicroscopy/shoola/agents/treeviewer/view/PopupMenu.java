@@ -30,6 +30,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -41,6 +42,7 @@ import javax.swing.border.BevelBorder;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -51,6 +53,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewOtherAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.LookupNames;
+
 import pojos.ExperimenterData;
 
 
@@ -211,7 +215,8 @@ class PopupMenu
 		switch (index) {
 			case TreeViewer.VIEW_MENU:
 				switch (TreeViewerAgent.runAsPlugin()) {
-					case TreeViewer.IMAGE_J:
+				    case LookupNames.IMAGE_J:
+				    case LookupNames.IMAGE_J_IMPORT:
 						a = controller.getAction(TreeViewerControl.VIEW);
 						view = new JMenuItem(a);
 						initMenuItem(view, a.getActionName());
@@ -219,7 +224,7 @@ class PopupMenu
 						viewInPlugin = new JMenuItem(a);
 						initMenuItem(viewInPlugin, a.getActionName());
 						break;
-					case TreeViewer.KNIME:
+					case LookupNames.KNIME:
 						a = controller.getAction(TreeViewerControl.VIEW);
 						view = new JMenuItem(a);
 						initMenuItem(view, a.getActionName());
@@ -238,10 +243,11 @@ class PopupMenu
 				initMenuItem(view, a.getActionName());
 				a = null;
 				switch (TreeViewerAgent.runAsPlugin()) {
-					case TreeViewer.IMAGE_J:
+					case LookupNames.IMAGE_J:
+					case LookupNames.IMAGE_J_IMPORT:
 						a = controller.getAction(TreeViewerControl.VIEW_IN_IJ);
 						break;
-					case TreeViewer.KNIME:
+					case LookupNames.KNIME:
 						a = controller.getAction(
 								TreeViewerControl.VIEW_IN_KNIME);
 				}

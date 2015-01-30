@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
+import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.BorderLayout;
@@ -86,6 +87,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -367,7 +369,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (files == null || files.length == 0)
 			return;
 		
-		List<File> fileList = new ArrayList<File>();
+		List<FileObject> fileList = new ArrayList<FileObject>();
 		
 		for (int i = 0; i < files.length; i++) {
 			checkFile(files[i], fileList);
@@ -378,6 +380,28 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		table.addFiles(fileList, importSettings);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
+
+	/**  Adds the images from imageJ to the queue.*/
+	private void addImageJFiles()
+	{
+	    int plugin = ImporterAgent.runAsPlugin();
+	    
+        if (!(plugin == LookupNames.IMAGE_J_IMPORT ||
+                plugin == LookupNames.IMAGE_J)) return;
+        boolean active = locationDialog.isActiveWindow();
+        List<FileObject> list = new ArrayList<FileObject>();
+        if (active) {
+            list.add(new FileObject(WindowManager.getCurrentImage()));
+        } else {
+            int[] values = WindowManager.getIDList();
+            for (int i = 0; i < values.length; i++) {
+                list.add(new FileObject(WindowManager.getImage(values[i])));
+            }
+        }
+        ImportLocationSettings settings = locationDialog.getImportSettings();
+        table.addFiles(list, settings);
+        importButton.setEnabled(table.hasFilesToImport());
+   }
 
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
@@ -447,7 +471,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private void handleEnterKeyPressed(Object source) {
 		if (source instanceof JList || source instanceof JTable) {
 			JComponent c = (JComponent) source;
-			if (c.isFocusOwner()) // addFiles();
+			if (c.isFocusOwner())
 				showLocationDialog();
 		}
 	}
@@ -1006,9 +1030,22 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		JPanel tablePanel = new JPanel(new TableLayout(tablePanelDesign));
 		tablePanel.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		tablePanel.add(tabbedPane, "2, 1, 3, 1");
-		
-		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chooser, tablePanel);
+		int plugin = ImporterAgent.runAsPlugin();
+		JSplitPane pane;
+		if (plugin == LookupNames.IMAGE_J_IMPORT ||
+		   plugin == LookupNames.IMAGE_J) {
+		    JPanel panel = new JPanel();
+		    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		    JLabel label = UIUtilities.setTextFont(
+                    "Select where to import the image(s).");
+		    panel.add(UIUtilities.buildComponentPanel(label));
+		    panel.add(locationDialog.getContentPane());
+		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+		            panel, tablePanel);
+		} else {
+		    pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+	                chooser, tablePanel);
+		}
 		
 		JPanel mainPanel = new JPanel();
 		double[][] mainPanelDesign = { { TableLayout.FILL },
@@ -1162,16 +1199,17 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @param f
 	 *            The file to handle.
 	 */
-	private boolean checkFile(File f, List<File> l) {
+	private boolean checkFile(File f, List<FileObject> l)
+	{
 		if (f == null || f.isHidden())
 			return false;
 		if (f.isFile()) {
 			if (isFileImportable(f))
-				l.add(f);
+				l.add(new FileObject(f));
 		} else if (f.isDirectory()) {
 			File[] list = f.listFiles();
 			if (list != null && list.length > 0) {
-				l.add(f);
+				l.add(new FileObject(f));
 				return true;
 			}
 		}
@@ -1548,8 +1586,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				|| ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)
 				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
+		} else if (LocationDialog.ADD_TO_QUEUE_PROPERTY.equals(name)) {
+		    addImageJFiles();
 		}
-		
 	}
 
 	/**

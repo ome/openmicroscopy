@@ -52,6 +52,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -245,7 +246,7 @@ public class StatusLabel
     private boolean uploadStarted;
 
     /** The file or folder this component is for.*/
-    private File sourceFile;
+    private FileObject sourceFile;
 
     /** 
      * Formats the size of the uploaded data.
@@ -337,7 +338,7 @@ public class StatusLabel
      * 
      * @param sourceFile The file associated to that label.
      */
-    public StatusLabel(File sourceFile)
+    public StatusLabel(FileObject sourceFile)
     {
         this.sourceFile = sourceFile;
         initialize();
@@ -708,7 +709,7 @@ public class StatusLabel
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
             ImportEvent.METADATA_IMPORTED e =
                     (ImportEvent.METADATA_IMPORTED) event;
-            logFileID = e.logFileId;
+            if (e.logFileId != null) logFileID = e.logFileId;
             step = 2;
             processingBar.setValue(step);
             processingBar.setString(STEPS.get(step));

@@ -61,6 +61,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
+import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -251,6 +252,14 @@ class ImporterComponent
 				model.getGroupId());
 	}
 
+	/** Shuts down the component.*/
+    void shutDown()
+    {
+        view.setVisible(false);
+        discard();
+        model.setState(NEW);
+    }
+    
 	/**
 	 * Sets the display mode.
 	 * 
@@ -818,37 +827,46 @@ class ImporterComponent
 		Object result = component.getImportResult();
 		if (result instanceof Exception) {
 			if (component.getFile().isFile()) {
-				ImportErrorObject r = new ImportErrorObject(component.getFile(),
+				ImportErrorObject r = new ImportErrorObject(
+				        component.getFile().getTrueFile(),
 						(Exception) result, component.getGroupID());
 				element.setImportResult(component, result);
 				handleCompletion(element, r, !component.hasParent());
 			}
 			return;
 		}
+		
 		element.setImportResult(component, result);
 		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
+		
 		if (CollectionUtils.isEmpty(pixels)) return;
-		Collection<DataObject> l = new ArrayList<DataObject>();
+		List<DataObject> l = new ArrayList<DataObject>();
 		Iterator<PixelsData> i = pixels.iterator();
 		Class<?> klass = ThumbnailData.class;
-		int n = FileImportComponent.MAX_THUMBNAILS;
 		if (component.isHCS()) {
-			n = 1;
 			klass = PlateData.class;
 		}
-		int index = 0;
 		PixelsData pxd;
+		List<ImageData> ids = new ArrayList<ImageData>();
 		while (i.hasNext()) {
-			if (index == n) break;
 			pxd = i.next();
+			ids.add(pxd.getImage());
+			pxd.getImage().getId();
 			if (pxd.getSizeX()*pxd.getSizeY() < MAX_SIZE) {
 				l.add(pxd);
-				index++;
 			}
 		}
-		if (l.size() > 0)
-			model.fireImportResultLoading(l, klass, component);
+		model.saveROI(component, ids);
+		if (l.size() > 0) {
+		    if (PlateData.class.equals(klass)) l = l.subList(0, 0);
+		    else {
+		        if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
+		            l = l.subList(0, FileImportComponent.MAX_THUMBNAILS); 
+		        }
+		    }
+		    model.fireImportResultLoading(l, klass, component);
+		}
 	}
 
 	/** 
