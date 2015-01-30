@@ -114,9 +114,12 @@ $(function() {
     // Called from "New..." button, simply add input to form (and hide tree)
     var newContainer = function newContainer() {
 
+        if ($("input[name='new_container_name']", $chgrpform).length > 0) {
+            return;     // already clicked 'New'!
+        }
         var ownerId = data_owners[0][0];
         $move_group_tree.hide();
-        $("<p>New " + target_type + ": <input name='new_container_name'/></p>")
+        $("<p>New " + target_type.capitalize() + " name: <input name='new_container_name'/></p>")
                 .appendTo($chgrpform).click();
         // Hidden input
         $("<input name='new_container_type' value='" + target_type + "'/>")
