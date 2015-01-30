@@ -770,10 +770,6 @@
                                 }
                             };
                             
-                            {% if myGroups|length < 2 %}
-                            config["chgrp"]["_disabled"] = true;
-                            {% endif %}
-                            
                             // use canLink, canDelete etc classes on each node to enable/disable right-click menu
                             if(!obj.hasClass('canDelete')) {
                                 config["delete"]["_disabled"] = true;
