@@ -584,6 +584,10 @@ public class MapAnnotationsComponent extends JPanel implements
 		MapTableModel m = (MapTableModel) t.getModel();
 		int index = t.getSelectedRow() + 1;
 		m.addEntries(copiedValues, index);
+		
+		index += copiedValues.size()-1;
+		t.requestFocus();
+		t.getSelectionModel().setSelectionInterval(index, index);
 	}
 
 	/**
@@ -591,7 +595,16 @@ public class MapAnnotationsComponent extends JPanel implements
 	 */
 	private void deleteSelection() {
 		MapTable t = getSelectedTable();
+		
+		int index = t.getSelectedRow();
+		
 		t.deleteSelected();
+		
+		if(index >= t.getRowCount())
+			index = t.getRowCount() -1;
+		
+		t.requestFocus();
+		t.getSelectionModel().setSelectionInterval(index, index);
 	}
 
 	/**
