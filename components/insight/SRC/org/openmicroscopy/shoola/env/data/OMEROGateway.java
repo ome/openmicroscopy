@@ -4112,7 +4112,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx service = c.getAdminService();
+		    IAdminPrx service = c.getAdminService(true);
 			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
@@ -7940,7 +7940,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx svc = c.getAdminService();
+		    IAdminPrx svc = c.getAdminService(true);
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);

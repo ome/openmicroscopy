@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.AdminCreator 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,8 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -161,6 +163,7 @@ public class AdminCreator
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         List l;
+        UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         switch (object.getIndex()) {
         	case AdminObject.CREATE_GROUP:
         	case AdminObject.CREATE_EXPERIMENTER:
@@ -169,9 +172,7 @@ public class AdminCreator
 				break;
         	case AdminObject.RESET_PASSWORD:
         		l = (List) result;
-        		if (l.size() != 0) {
-        			UserNotifier un = 
-        				TreeViewerAgent.getRegistry().getUserNotifier();
+        		if (CollectionUtils.isNotEmpty(l)) {
         			Iterator i = l.iterator();
         			ExperimenterData exp;
         			StringBuffer s = new StringBuffer();
@@ -184,13 +185,14 @@ public class AdminCreator
         			buffer.append("the following experimenters:\n");
         			buffer.append(s.toString());
         			un.notifyInfo("Reset password", buffer.toString());
+        		} else {
+        		    un.notifyInfo("Reset password",
+        		            "The password has been reset.");
         		}
         		break;
         	case AdminObject.ACTIVATE_USER:
         		l = (List) result;
-        		if (l.size() != 0) {
-        			UserNotifier un = 
-        				TreeViewerAgent.getRegistry().getUserNotifier();
+        		if (CollectionUtils.isNotEmpty(l)) {
         			Iterator i = l.iterator();
         			ExperimenterData exp;
         			StringBuffer s = new StringBuffer();
