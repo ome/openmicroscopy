@@ -6812,16 +6812,6 @@ public class OMEROMetadataStoreClient
         ignoreUnneeded("setRoot", root);
     }
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRoot(MetadataRoot)
-     */
-    @Deprecated
-    @Override
-    public void setRoot(Object root)
-    {
-        ignoreUnneeded("setRoot", root);
-    }
-
     //////// Screen /////////
 
     /**
