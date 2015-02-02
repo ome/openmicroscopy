@@ -85,28 +85,19 @@ def project(request, itest, update_service):
 def django_client(request, client_2_groups):
     """Returns a logged in Django test client."""
     client = client_2_groups[0]
-    django_client = Client(enforce_csrf_checks=True)
-    login_url = reverse('weblogin')
+    username = client.getProperty('omero.user')
+    password = client.getProperty('omero.pass')
+    django_client = _login_django_client(request, client, username, password)
+    return django_client
 
-    response = django_client.get(login_url)
-    assert response.status_code == 200
-    csrf_token = django_client.cookies['csrftoken'].value
 
-    data = {
-        'server': 1,
-        'username': client.getProperty('omero.user'),
-        'password': client.getProperty('omero.pass'),
-        'csrfmiddlewaretoken': csrf_token
-    }
-    response = django_client.post(login_url, data)
-    assert response.status_code == 302
-
-    def finalizer():
-        logout_url = reverse('weblogout')
-        data = {'csrfmiddlewaretoken': csrf_token}
-        response = django_client.post(logout_url, data=data)
-        assert response.status_code == 302
-    request.addfinalizer(finalizer)
+@pytest.fixture(scope='function')
+def admin_django_client(request, client_2_groups):
+    """Returns Admin logged in Django test client."""
+    client = client_2_groups[0]
+    username = 'root'
+    password = client.getProperty('omero.rootpass')
+    django_client = _login_django_client(request, client, username, password)
     return django_client
 
 
@@ -132,6 +123,24 @@ class TestChgrp(object):
         assert len(data['groups']) == 1
         assert data['groups'][0]['id'] == group2.id.val
 
+    def test_load_chgrp_groups_admin(self, client_2_groups,
+                                     project, admin_django_client):
+        """
+        Admin should be able to move a user's Project
+        from one group to another.
+        """
+        group2 = client_2_groups[1]
+
+        request_url = reverse('load_chgrp_groups')
+        data = {
+            "Project": project.id.val
+        }
+        data = _get_response_json(admin_django_client, request_url, data)
+
+        assert 'groups' in data
+        assert len(data['groups']) == 1
+        assert data['groups'][0]['id'] == group2.id.val
+
 
 # Helpers
 def _post_reponse(django_client, request_url, data, status_code=403):
@@ -150,3 +159,29 @@ def _get_response_json(django_client, request_url,
     rsp = _get_reponse(django_client, request_url, query_string, status_code)
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
+
+def _login_django_client(request, client, username, password):
+
+    django_client = Client(enforce_csrf_checks=True)
+    login_url = reverse('weblogin')
+
+    response = django_client.get(login_url)
+    assert response.status_code == 200
+    csrf_token = django_client.cookies['csrftoken'].value
+
+    data = {
+        'server': 1,
+        'username': username,
+        'password': password,
+        'csrfmiddlewaretoken': csrf_token
+    }
+    response = django_client.post(login_url, data)
+    assert response.status_code == 302
+
+    def finalizer():
+        logout_url = reverse('weblogout')
+        data = {'csrfmiddlewaretoken': csrf_token}
+        response = django_client.post(logout_url, data=data)
+        assert response.status_code == 302
+    request.addfinalizer(finalizer)
+    return django_client
