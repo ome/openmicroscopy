@@ -1991,6 +1991,7 @@ public class FigureDialog
 		if (renderer == null)
 			throw new IllegalArgumentException("No renderer.");
 		this.renderer = renderer;
+		this.renderer.resetSettings();
 		rndDef = renderer.getInitialRndSettings();
 		channelsPane.removeAll();
 		switch (dialogType) {
