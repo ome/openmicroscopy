@@ -65,8 +65,6 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import com.apple.laf.AquaButtonBorder.Named;
-
 import pojos.MapAnnotationData;
 
 /**
