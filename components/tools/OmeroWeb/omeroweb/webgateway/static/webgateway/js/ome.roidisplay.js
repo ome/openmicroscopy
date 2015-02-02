@@ -248,7 +248,7 @@ $.fn.roi_display = function(options) {
         }
 
         // load the ROIs from json call and display
-        load_rois = function(display_rois) {
+        load_rois = function(display_rois, filter) {
             if (json_url == undefined) return;
             
             $.getJSON(json_url+'?callback=?', function(data) {
@@ -257,10 +257,27 @@ $.fn.roi_display = function(options) {
                 // plot the rois
                 if (display_rois) {
                   rois_displayed = true;
-                  refresh_rois();
+                  refresh_rois(filter=filter);
                 }
                 $viewportimg.trigger("rois_loaded");
             });
+        }
+
+        filter_rois = function (filter) {
+            if (filter != undefined) {
+                console.log('Applying filter ' + filter);
+                roi_json_filtered = [];
+                for (r=0; r<roi_json.length; r++) {
+                    console.log('Checking ID ' + roi_json[r].id);
+                    if (filter.indexOf(roi_json[r].id) != -1) {
+                        roi_json_filtered.push(roi_json[r]);
+                    }
+                }
+                console.log('Filtered JSON ' + roi_json_filtered);
+                return roi_json_filtered;
+            } else {
+                return roi_json;
+            }
         }
 
         // returns the ROI data as json. May be null if not yet loaded! 
@@ -269,7 +286,7 @@ $.fn.roi_display = function(options) {
         }
 
         // clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based. 
-        this.refresh_rois = function(theZ, theT) {
+        this.refresh_rois = function(theZ, theT, rois_filter) {
 
             if (typeof theZ != 'undefined') this.theZ = theZ;
             if (typeof theT != 'undefined') this.theT = theT;
@@ -277,11 +294,12 @@ $.fn.roi_display = function(options) {
             paper.clear();
             shape_objects.length = 0;
             if (!rois_displayed) return;
-            if (roi_json == null) return;
+            rois = filter_rois(rois_filter);
+            if (rois == null) return;
             
-
-            for (var r=0; r<roi_json.length; r++) {
-                var roi = roi_json[r];
+            console.log('ROI JSON ' + rois);
+            for (var r=0; r<rois.length; r++) {
+                var roi = rois[r];
                 var shapes = roi['shapes'];
                 var shape = null;
                 for (var s=0; s<shapes.length; s++) {
@@ -380,14 +398,14 @@ $.fn.roi_display = function(options) {
 
 
         // loads the ROIs if needed and displays them
-        this.show_rois = function(theZ, theT) {
-            this.theZ = theZ
-            this.theT = theT
+        this.show_rois = function(theZ, theT, filter) {
+            this.theZ = theZ;
+            this.theT = theT;
           if (roi_json == null) {
-              load_rois(true);      // load and display
+              load_rois(true, filter);      // load and display
           } else {
               rois_displayed = true;
-              this.refresh_rois();
+              this.refresh_rois(undefined, undefined, filter);
           }
         }
         
@@ -398,9 +416,9 @@ $.fn.roi_display = function(options) {
             this.refresh_rois();
         }
         
-        this.show_labels = function(visible) {
+        this.show_labels = function(visible, filter) {
             roi_label_displayed = visible;
-            this.refresh_rois();
+            this.refresh_rois(undefined, undefined, filter);
         }
 
         // sets the Zoom of the ROI paper (canvas)
