@@ -1767,8 +1767,11 @@ class AnnotationDataUI
 			if (publishedBox.isSelected()) return true;
 		}
 		
-		if(!mapsPane.getMapAnnotations(true, false).isEmpty())
-			return true;
+		if(!mapsPane.getMapAnnotations(true, false).isEmpty()) {
+			// just save, don't ask
+			view.saveData(true);
+			return false;
+		}
 		
 		return (selectedValue != initialValue);
 	}
