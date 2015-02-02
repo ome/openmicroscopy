@@ -1115,8 +1115,12 @@ def batch_annotate(request, conn=None, **kwargs):
     batchAnns = manager.loadBatchAnnotations(objs)
     figScripts = manager.listFigureScripts(objs)
     filesetInfo = None
+    iids = []
+    if 'well' in objs and len(objs['well']) > 0:
+        iids = [w.getWellSample(index).image().getId() for w in objs['well']]
     if 'image' in objs and len(objs['image']) > 0:
         iids = [i.getId() for i in objs['image']]
+    if len(iids) > 0:
         filesetInfo = conn.getFilesetFilesInfo(iids)
         archivedInfo = conn.getArchivedFilesInfo(iids)
         filesetInfo['count'] += archivedInfo['count']
@@ -1141,6 +1145,7 @@ def batch_annotate(request, conn=None, **kwargs):
             'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
+    context['disableDownload'] = manager.isDownloadDisabled(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1928,6 +1933,8 @@ def download_placeholder(request):
     download_url = download_url + "?" + query
     if format is not None:
         download_url = download_url + "&format=%s" % format
+    if request.REQUEST.get('index'):
+        download_url = download_url + "&index=%s" % request.REQUEST.get('index')
 
     context = {
             'template': "webclient/annotations/download_placeholder.html",
