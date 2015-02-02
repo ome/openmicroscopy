@@ -591,7 +591,7 @@ class BlitzObjectWrapper (object):
         group. Web client will only allow this for the data Owner. Admin CAN
         move other user's data, but we don't support this in Web yet.
         """
-        return self.canEdit() #8974
+        return self.canEdit()    # See ticket #8974
 
     def countChildren(self):
         """
