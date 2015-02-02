@@ -39,6 +39,7 @@ READONLY = 'rwr---'
 READANNOTATE = 'rwra--'
 COLLAB = 'rwrw--'
 
+
 @pytest.fixture(scope='function')
 def itest(request):
     """
@@ -103,7 +104,7 @@ def admin_django_client(request, client_2_groups):
 
 class TestChgrp(object):
     """
-    Tests chgrp 
+    Tests chgrp
     """
 
     def test_load_chgrp_groups(self, client_2_groups, project, django_client):
@@ -148,17 +149,20 @@ def _post_reponse(django_client, request_url, data, status_code=403):
     assert response.status_code == status_code
     return response
 
+
 def _get_reponse(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
     response = django_client.get('%s?%s' % (request_url, query_string))
     assert response.status_code == status_code
     return response
 
+
 def _get_response_json(django_client, request_url,
                        query_string, status_code=200):
     rsp = _get_reponse(django_client, request_url, query_string, status_code)
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
+
 
 def _login_django_client(request, client, username, password):
 
