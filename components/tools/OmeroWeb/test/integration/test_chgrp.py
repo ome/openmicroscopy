@@ -92,24 +92,16 @@ def dataset(request, itest, update_service):
     return update_service.saveAndReturnObject(dataset)
 
 
-@pytest.fixture(scope='function')
-def django_client(request, client_2_groups):
-    """Returns a logged in Django test client."""
-    client = client_2_groups[0]
+def getUserCredentials(client):
     username = client.getProperty('omero.user')
     password = client.getProperty('omero.pass')
-    django_client = _login_django_client(request, client, username, password)
-    return django_client
+    return username, password
 
 
-@pytest.fixture(scope='function')
-def admin_django_client(request, client_2_groups):
-    """Returns Admin logged in Django test client."""
-    client = client_2_groups[0]
+def getAdminCredentials(client):
     username = 'root'
     password = client.getProperty('omero.rootpass')
-    django_client = _login_django_client(request, client, username, password)
-    return django_client
+    return username, password
 
 
 class TestChgrp(object):
@@ -117,12 +109,20 @@ class TestChgrp(object):
     Tests chgrp
     """
 
-    def test_load_chgrp_groups(self, client_2_groups, project, django_client):
+    @pytest.mark.parametrize("credentials",
+                             [getUserCredentials, getAdminCredentials])
+    def test_load_chgrp_groups(self, request, credentials,
+                               client_2_groups, project):
         """
         A user in 2 groups should have options to move object
         from one group to another.
         """
+        client = client_2_groups[0]
         group2 = client_2_groups[1]
+
+        username, password = credentials(client)
+        django_client = _login_django_client(request, client,
+                                             username, password)
 
         request_url = reverse('load_chgrp_groups')
         data = {
@@ -134,25 +134,10 @@ class TestChgrp(object):
         assert len(data['groups']) == 1
         assert data['groups'][0]['id'] == group2.id.val
 
-    def test_load_chgrp_groups_admin(self, client_2_groups,
-                                     project, admin_django_client):
-        """
-        Admin should be able to move a user's Project
-        from one group to another.
-        """
-        group2 = client_2_groups[1]
-
-        request_url = reverse('load_chgrp_groups')
-        data = {
-            "Project": project.id.val
-        }
-        data = _get_response_json(admin_django_client, request_url, data)
-
-        assert 'groups' in data
-        assert len(data['groups']) == 1
-        assert data['groups'][0]['id'] == group2.id.val
-
-    def test_chgrp_new_container(self, client_2_groups, dataset, django_client):
+    @pytest.mark.parametrize("credentials",
+                             [getUserCredentials, getAdminCredentials])
+    def test_chgrp_new_container(self, request, credentials,
+                                 client_2_groups, dataset):
         """
         Performs a chgrp POST, polls the activities json till done,
         then checks that Dataset has moved to new group and has new
@@ -161,8 +146,12 @@ class TestChgrp(object):
         client = client_2_groups[0]
         group2 = client_2_groups[1]
 
+        username, password = credentials(client)
+        django_client = _login_django_client(request, client,
+                                             username, password)
+
         request_url = reverse('chgrp')
-        projectName = "chgrp-project-%s" % client.getSessionId()
+        projectName = "chgrp-project%s-%s" % (username, client.getSessionId())
         data = {
             "group_id": group2.id.val,
             "Dataset": dataset.id.val,
@@ -200,55 +189,6 @@ class TestChgrp(object):
         # Project owner should be current user
         assert p.getDetails().owner.id.val == userId
 
-    def test_chgrp_new_container_admin(self, client_2_groups,
-                                       dataset, admin_django_client):
-        """
-        Tests Admin chgrp of another user's Project.
-        Performs a chgrp POST, polls the activities json till done,
-        then checks that Dataset has moved to new group and has new
-        Project as parent, owned by the user.
-        """
-        client = client_2_groups[0]
-        group2 = client_2_groups[1]
-
-        request_url = reverse('chgrp')
-        projectName = "chgrp-project-%s" % client.getSessionId()
-        data = {
-            "group_id": group2.id.val,
-            "Dataset": dataset.id.val,
-            "new_container_name": projectName,
-            "new_container_type": "project",
-        }
-        data = _csrf_post_response(admin_django_client, request_url, data)
-        assert data.content == "OK"
-
-        activities_url = reverse('activities_json')
-
-        data = _get_response_json(admin_django_client, activities_url, {})
-
-        # Keep polling activities until no jobs in progress
-        while data['inprogress'] > 0:
-            time.sleep(0.5)
-            data = _get_response_json(admin_django_client, activities_url, {})
-
-        # individual activities/jobs are returned as dicts within json data
-        for k, o in data.items():
-            if hasattr(o, 'values'):    # a dict
-                assert o['job_name'] == 'Change group'
-                assert o['to_group_id'] == group2.id.val
-
-        # Dataset should now be in new group, contained in new Project
-        conn = BlitzGateway(client_obj=client)
-        userId = conn.getUserId()
-        conn.SERVICE_OPTS.setOmeroGroup('-1')
-        d = conn.getObject("Dataset", dataset.id.val)
-        assert d is not None
-        assert d.getDetails().group.id.val == group2.id.val
-        p = d.getParent()
-        assert p is not None
-        assert p.getName() == projectName
-        # Project owner should be current user
-        assert p.getDetails().owner.id.val == userId
 
 # Helpers
 def _post_response(django_client, request_url, data, status_code=200):
