@@ -74,6 +74,8 @@ def parse_permissions_css(permissions, ownerid, conn):
     '''
     restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
     permissionsCss = [r for r in restrictions if permissions.get(r)]
+    if ownerid == conn.getUserId() or conn.isAdmin():
+        permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
 
 
