@@ -115,44 +115,19 @@ def compress(target, base):
 
 
 #
-# Create the composite Windows client build
+# Create the composite client builds
 #
-target_artifacts = list()
-target_artifacts += find(INSIGHT + "*win.zip")
-target_artifacts += find(IMPORTER + "*win.zip")
-target = '%s.win' % TARGET_PREFIX
 ignore = ['omero_client.jar',
           'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
-os.makedirs(target)
-for artifact in target_artifacts:
-    extract(artifact, target, ignore)
-compress('%s.zip' % target, target)
+suffixes = ['mac_Java6', 'mac_Java7+', 'linux', 'win']
+for suffix in suffixes:
+    target_artifacts = list()
+    target_artifacts += find(INSIGHT + "*%s.zip" % suffix)
+    target_artifacts += find(IMPORTER + "*%s.zip" % suffix)
+    target = '%s.%s' % (TARGET_PREFIX, suffix)
 
-#
-# Create the composite Mac OS X client build
-#
-target_artifacts = list()
-target_artifacts += find(INSIGHT + "*mac.zip")
-target_artifacts += find(IMPORTER + "*mac.zip")
-target = '%s.mac' % TARGET_PREFIX
-
-os.makedirs(target)
-for artifact in target_artifacts:
-    extract(artifact, target, IGNORE)
-compress('%s.zip' % target, target)
-
-#
-# Create the composite Linux client build
-#
-target_artifacts = list()
-target_artifacts += find(INSIGHT + "*linux.zip")
-target_artifacts += find(IMPORTER + "*linux.zip")
-target = '%s.linux' % TARGET_PREFIX
-
-os.makedirs(target)
-for artifact in target_artifacts:
-    extract(artifact, target, ignore)
-compress('%s.zip' % target, target)
-
-# Insight no longer uses omero_client.jar
+    os.makedirs(target)
+    for artifact in target_artifacts:
+        extract(artifact, target, ignore)
+    compress('%s.zip' % target, target)
