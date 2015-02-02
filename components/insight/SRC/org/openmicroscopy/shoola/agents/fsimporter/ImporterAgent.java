@@ -426,6 +426,7 @@ public class ImporterAgent
         bus.register(this, ChangeUserGroupEvent.class);
         bus.register(this, DisplayModeEvent.class);
         bus.register(this, ActivitiesEvent.class);
+        bus.register(this, SaveResultsEvent.class);
         browserType = getDefaultBrowser();
         groupId = -1;
         register();

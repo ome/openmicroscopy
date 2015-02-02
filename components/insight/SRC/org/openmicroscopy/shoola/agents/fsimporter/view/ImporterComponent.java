@@ -942,11 +942,11 @@ class ImporterComponent
     {
         if (object == null) return;
         if (importImage) {
-            //Add image
+            //Import images first
             activate(Importer.PROJECT_TYPE, null, null, getImportFor());
             List<FileObject> files = (List) object.getRefObjects();
             chooser.addImageJFiles(files);
-            
+            chooser.importFiles();
         } else {
            model.saveResults(object);
         }

@@ -614,9 +614,11 @@ class ToolBar
         JButton b = new JButton(controller.getAction(TreeViewerControl.BROWSE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        boolean ij = false;
         switch (TreeViewerAgent.runAsPlugin()) {
         case LookupNames.IMAGE_J:
         case LookupNames.IMAGE_J_IMPORT:
+            ij = true;
             b = UIUtilities.formatButtonFromAction(
                     controller.getAction(TreeViewerControl.VIEW));
             UIUtilities.unifiedButtonLookAndFeel(b);
@@ -714,12 +716,10 @@ class ToolBar
             }
         });
         bar.add(b);
-        switch (TreeViewerAgent.runAsPlugin()) {
-            case LookupNames.IMAGE_J:
-            case LookupNames.IMAGE_J_IMPORT:
+        if (ij) {
             b = new JButton("Save ImageJ Results");
             b.addActionListener(new ActionListener() {
-    
+                
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     SaveResultsDialog d = new SaveResultsDialog(view);

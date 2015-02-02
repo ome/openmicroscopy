@@ -129,7 +129,6 @@ public class SaveResultsDialog
             StringBuffer buf = new StringBuffer();
             buf.append("Do you wish to import the selected image(s), not in "
                     + "OMERO?");
-            
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
