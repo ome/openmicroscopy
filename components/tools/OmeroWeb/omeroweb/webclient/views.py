@@ -2511,7 +2511,7 @@ def activities(request, conn=None, **kwargs):
         # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
         rv[cbString] = copy.copy(request.session['callback'][cbString])
 
-    # return json (not used now, but still an option)
+    # return json (used for testing)
     if 'template' in kwargs and kwargs['template'] == 'json':
         for cbString in request.session.get('callback').keys():
             rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])

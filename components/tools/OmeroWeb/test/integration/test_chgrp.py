@@ -23,10 +23,12 @@ Tests chgrp functionality of views.py
 
 # import omero
 # import omero.clients
-from omero.model import ProjectI
+from omero.model import ProjectI, DatasetI
 from omero.rtypes import rstring
+from omero.gateway import BlitzGateway
 
 import pytest
+import time
 import library as lib
 
 from urllib import urlencode
@@ -80,6 +82,14 @@ def project(request, itest, update_service):
     project = ProjectI()
     project.name = rstring(itest.uuid())
     return update_service.saveAndReturnObject(project)
+
+
+@pytest.fixture(scope='function')
+def dataset(request, itest, update_service):
+    """Returns a new OMERO Project with required fields set."""
+    dataset = DatasetI()
+    dataset.name = rstring(itest.uuid())
+    return update_service.saveAndReturnObject(dataset)
 
 
 @pytest.fixture(scope='function')
@@ -142,15 +152,118 @@ class TestChgrp(object):
         assert len(data['groups']) == 1
         assert data['groups'][0]['id'] == group2.id.val
 
+    def test_chgrp_new_container(self, client_2_groups, dataset, django_client):
+        """
+        Performs a chgrp POST, polls the activities json till done,
+        then checks that Dataset has moved to new group and has new
+        Project as parent.
+        """
+        client = client_2_groups[0]
+        group2 = client_2_groups[1]
+
+        request_url = reverse('chgrp')
+        projectName = "chgrp-project-%s" % client.getSessionId()
+        data = {
+            "group_id": group2.id.val,
+            "Dataset": dataset.id.val,
+            "new_container_name": projectName,
+            "new_container_type": "project",
+        }
+        data = _csrf_post_response(django_client, request_url, data)
+        assert data.content == "OK"
+
+        activities_url = reverse('activities_json')
+
+        data = _get_response_json(django_client, activities_url, {})
+
+        # Keep polling activities until no jobs in progress
+        while data['inprogress'] > 0:
+            time.sleep(0.5)
+            data = _get_response_json(django_client, activities_url, {})
+
+        # individual activities/jobs are returned as dicts within json data
+        for k, o in data.items():
+            if hasattr(o, 'values'):    # a dict
+                assert o['job_name'] == 'Change group'
+                assert o['to_group_id'] == group2.id.val
+
+        # Dataset should now be in new group, contained in new Project
+        conn = BlitzGateway(client_obj=client)
+        userId = conn.getUserId()
+        conn.SERVICE_OPTS.setOmeroGroup('-1')
+        d = conn.getObject("Dataset", dataset.id.val)
+        assert d is not None
+        assert d.getDetails().group.id.val == group2.id.val
+        p = d.getParent()
+        assert p is not None
+        assert p.getName() == projectName
+        # Project owner should be current user
+        assert p.getDetails().owner.id.val == userId
+
+    def test_chgrp_new_container_admin(self, client_2_groups,
+                                       dataset, admin_django_client):
+        """
+        Tests Admin chgrp of another user's Project.
+        Performs a chgrp POST, polls the activities json till done,
+        then checks that Dataset has moved to new group and has new
+        Project as parent, owned by the user.
+        """
+        client = client_2_groups[0]
+        group2 = client_2_groups[1]
+
+        request_url = reverse('chgrp')
+        projectName = "chgrp-project-%s" % client.getSessionId()
+        data = {
+            "group_id": group2.id.val,
+            "Dataset": dataset.id.val,
+            "new_container_name": projectName,
+            "new_container_type": "project",
+        }
+        data = _csrf_post_response(admin_django_client, request_url, data)
+        assert data.content == "OK"
+
+        activities_url = reverse('activities_json')
+
+        data = _get_response_json(admin_django_client, activities_url, {})
+
+        # Keep polling activities until no jobs in progress
+        while data['inprogress'] > 0:
+            time.sleep(0.5)
+            data = _get_response_json(admin_django_client, activities_url, {})
+
+        # individual activities/jobs are returned as dicts within json data
+        for k, o in data.items():
+            if hasattr(o, 'values'):    # a dict
+                assert o['job_name'] == 'Change group'
+                assert o['to_group_id'] == group2.id.val
+
+        # Dataset should now be in new group, contained in new Project
+        conn = BlitzGateway(client_obj=client)
+        userId = conn.getUserId()
+        conn.SERVICE_OPTS.setOmeroGroup('-1')
+        d = conn.getObject("Dataset", dataset.id.val)
+        assert d is not None
+        assert d.getDetails().group.id.val == group2.id.val
+        p = d.getParent()
+        assert p is not None
+        assert p.getName() == projectName
+        # Project owner should be current user
+        assert p.getDetails().owner.id.val == userId
 
 # Helpers
-def _post_reponse(django_client, request_url, data, status_code=403):
+def _post_response(django_client, request_url, data, status_code=200):
     response = django_client.post(request_url, data=data)
     assert response.status_code == status_code
     return response
 
 
-def _get_reponse(django_client, request_url, query_string, status_code=405):
+def _csrf_post_response(django_client, request_url, data, status_code=200):
+    csrf_token = django_client.cookies['csrftoken'].value
+    data['csrfmiddlewaretoken'] = csrf_token
+    return _post_response(django_client, request_url, data, status_code)
+
+
+def _get_response(django_client, request_url, query_string, status_code=200):
     query_string = urlencode(query_string.items())
     response = django_client.get('%s?%s' % (request_url, query_string))
     assert response.status_code == status_code
@@ -159,7 +272,7 @@ def _get_reponse(django_client, request_url, query_string, status_code=405):
 
 def _get_response_json(django_client, request_url,
                        query_string, status_code=200):
-    rsp = _get_reponse(django_client, request_url, query_string, status_code)
+    rsp = _get_response(django_client, request_url, query_string, status_code)
     assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
 
