@@ -705,16 +705,6 @@ class ToolBar
         menuButton.addMouseListener(adapter);
         bar.add(menuButton);
         setPermissions();
-        b = new JButton("Save ImageJ Results");
-        b.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SaveResultsDialog d = new SaveResultsDialog(view);
-                UIUtilities.centerAndShow(d);
-
-            }
-        });
         bar.add(b);
         if (ij) {
             b = new JButton("Save ImageJ Results");
@@ -727,6 +717,7 @@ class ToolBar
     
                 }
             });
+            bar.add(Box.createHorizontalStrut(5));
             bar.add(b);
         }
         return bar;
