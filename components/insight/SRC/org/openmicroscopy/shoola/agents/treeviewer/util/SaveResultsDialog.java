@@ -132,14 +132,14 @@ public class SaveResultsDialog
             
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
-                 result = new ResultsObject(toImport, null);
+                 result = new ResultsObject(toImport);
                  result.setROI(roi.isSelected());
                  TreeViewerAgent.getRegistry().getEventBus().post(
                          new SaveResultsEvent(result, true));
             }
         }
         if (images.size() == 0) return;
-        result = new ResultsObject(images, null);
+        result = new ResultsObject(images);
         result.setROI(roi.isSelected());
         TreeViewerAgent.getRegistry().getEventBus().post(
                 new SaveResultsEvent(result));

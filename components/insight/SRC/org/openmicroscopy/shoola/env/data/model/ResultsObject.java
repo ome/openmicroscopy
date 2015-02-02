@@ -33,24 +33,19 @@ import java.util.List;
 public class ResultsObject {
 
     /** The objects holding the results information.*/
-    public List<Object> refObjects;
-
-    /** The objects to link the results to.*/
-    public List<DataObject> targets;
+    private List<Object> refObjects;
 
     /** Indicates to save the roi if any.*/
-    public boolean roi;
+    private boolean roi;
  
     /**
      * Creates a new instance.
      *
      * @param refObjects The objects holding the results information.
-     * @param targets The objects to link the results to.
      */
-    public ResultsObject(List<Object> refObjects, List<DataObject> targets)
+    public ResultsObject(List<Object> refObjects)
     {
         this.refObjects = refObjects;
-        this.targets = targets;
     }
 
     /**
@@ -60,11 +55,11 @@ public class ResultsObject {
     public List<Object> getRefObjects() { return refObjects; }
 
     /**
-     * Returns the objects to link the results to.
-     * @return See above.
+     * Sets to <code>true</code> to import the ROI, <code>false</code>
+     * otherwise.
+     *
+     * @param roi The value to set.
      */
-    public List<DataObject> getTargets() { return targets; }
-
     public void setROI(boolean roi) { this.roi = roi; }
 
     /**

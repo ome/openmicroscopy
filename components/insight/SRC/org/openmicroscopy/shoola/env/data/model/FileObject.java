@@ -298,13 +298,28 @@ public class FileObject
      *
      * @return See above.
      */
-    public int getOMEROID()
+    public long getOMEROID()
     {
         if (!isImagePlus()) return -1;
         ImagePlus image = (ImagePlus) file;
-        Object value = image.getProperty("OMERO");
-        if (value != null && value instanceof Integer)
-            return ((Integer) value).intValue();
+        Object value = image.getProperty("Omero");
+        if (value != null && value instanceof Long)
+            return ((Long) value).longValue();
+        return -1;
+    }
+
+    /**
+     * Returns the <code>OMERO</code> group id or <code>-1</code> if not set.
+     *
+     * @return See above.
+     */
+    public long getGroupID()
+    {
+        if (!isImagePlus()) return -1;
+        ImagePlus image = (ImagePlus) file;
+        Object value = image.getProperty("Omero_group");
+        if (value != null && value instanceof Long)
+            return ((Long) value).longValue();
         return -1;
     }
 }

@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 import pojos.DataObject;
@@ -384,4 +385,13 @@ public interface Importer
      * @return See above.
      */
     boolean isSystemGroup(long groupID, String key);
+
+    /**
+     * Imports the results.
+     *
+     * @param object The object to handle.
+     * @param importImage Pass <code>true</code> to import the image first,
+     *                    <code>false</code> otherwise.
+     */
+    void importResults(ResultsObject object, boolean importImage);
 }

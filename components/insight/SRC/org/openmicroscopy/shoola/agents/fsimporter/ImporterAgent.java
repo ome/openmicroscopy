@@ -40,6 +40,7 @@ import javax.swing.JMenuItem;
 
 
 
+
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
@@ -48,6 +49,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -303,6 +305,18 @@ public class ImporterAgent
         ImporterFactory.setDiplayMode(displayMode);
     }
 
+    /**
+     * Imports and saved the results when completed.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSaveResultsEvent(SaveResultsEvent evt)
+    {
+        if (evt == null) return;
+        Importer importer = ImporterFactory.getImporter(groupId, displayMode);
+        importer.importResults(evt.getObject(), evt.isFirstImport());
+    }
+
     /** Registers the agent with the tool bar.*/
     private void register()
     {
@@ -466,6 +480,8 @@ public class ImporterAgent
             handleDisplayModeEvent((DisplayModeEvent) e);
         } else if (e instanceof ActivitiesEvent) {
             handleActivitiesEvent((ActivitiesEvent) e);
+        } else if (e instanceof SaveResultsEvent) {
+            handleSaveResultsEvent((SaveResultsEvent) e);
         }
     }
 

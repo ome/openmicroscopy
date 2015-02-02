@@ -48,8 +48,10 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -930,5 +932,23 @@ class ImporterComponent
     public boolean isSystemGroup(long groupID, String key)
     {
         return model.isSystemGroup(groupID, key);
+    }
+
+    /** 
+     * Implemented as specified by the {@link Importer} interface.
+     * @see Importer#importResults(ResultsObject, boolean)
+     */
+    public void importResults(ResultsObject object, boolean importImage)
+    {
+        if (object == null) return;
+        if (importImage) {
+            //Add image
+            activate(Importer.PROJECT_TYPE, null, null, getImportFor());
+            List<FileObject> files = (List) object.getRefObjects();
+            chooser.addImageJFiles(files);
+            
+        } else {
+           model.saveResults(object);
+        }
     }
 }

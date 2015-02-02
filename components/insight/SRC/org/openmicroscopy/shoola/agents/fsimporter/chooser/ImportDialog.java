@@ -76,6 +76,7 @@ import javax.swing.filechooser.FileFilter;
 
 import loci.formats.gui.ComboFileFilter;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -380,28 +381,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		table.addFiles(fileList, importSettings);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
-
-	/**  Adds the images from imageJ to the queue.*/
-	private void addImageJFiles()
-	{
-	    int plugin = ImporterAgent.runAsPlugin();
-	    
-        if (!(plugin == LookupNames.IMAGE_J_IMPORT ||
-                plugin == LookupNames.IMAGE_J)) return;
-        boolean active = locationDialog.isActiveWindow();
-        List<FileObject> list = new ArrayList<FileObject>();
-        if (active) {
-            list.add(new FileObject(WindowManager.getCurrentImage()));
-        } else {
-            int[] values = WindowManager.getIDList();
-            for (int i = 0; i < values.length; i++) {
-                list.add(new FileObject(WindowManager.getImage(values[i])));
-            }
-        }
-        ImportLocationSettings settings = locationDialog.getImportSettings();
-        table.addFiles(list, settings);
-        importButton.setEnabled(table.hasFilesToImport());
-   }
 
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
@@ -1110,7 +1089,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/** Imports the selected files. */
-	private void importFiles() {
+	public void importFiles() {
 		option = CMD_IMPORT;
 		importButton.setEnabled(false);
 		// Set the current directory as the defaults
@@ -1544,6 +1523,35 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		locationDialog.setSelectedGroup(group);
 	}
 
+	   /**
+     * Adds the images from imageJ to the queue.
+     *
+     * @param list The files to import
+     */
+    public void addImageJFiles(List<FileObject> list)
+    {
+        int plugin = ImporterAgent.runAsPlugin();
+        
+        if (!(plugin == LookupNames.IMAGE_J_IMPORT ||
+                plugin == LookupNames.IMAGE_J)) return;
+        if (CollectionUtils.isEmpty(list)) {
+            boolean active = locationDialog.isActiveWindow();
+            list = new ArrayList<FileObject>();
+            if (active) {
+                list.add(new FileObject(WindowManager.getCurrentImage()));
+            } else {
+                int[] values = WindowManager.getIDList();
+                for (int i = 0; i < values.length; i++) {
+                    list.add(new FileObject(WindowManager.getImage(values[i])));
+                }
+            }
+        }
+        
+        ImportLocationSettings settings = locationDialog.getImportSettings();
+        table.addFiles(list, settings);
+        importButton.setEnabled(table.hasFilesToImport());
+   }
+
 	/**
 	 * Reacts to property fired by the table.
 	 * 
@@ -1587,7 +1595,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		} else if (LocationDialog.ADD_TO_QUEUE_PROPERTY.equals(name)) {
-		    addImageJFiles();
+		    addImageJFiles(null);
 		}
 	}
 
