@@ -377,7 +377,7 @@ jQuery.fn.viewportImage = function(options) {
 
     this.doZoom = function (increment, justDirection, center) {
       if (justDirection) {
-        var t = Math.max(1,((imagewidth+3)*cur_zoom/imagewidth) - cur_zoom);
+        var t = Math.max(5,((imagewidth+3)*cur_zoom/imagewidth) - cur_zoom);
         increment = cur_zoom + (increment>0?t:-t);
       }
       this.setZoom(parseInt(increment, 10), null, null, center);
