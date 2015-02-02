@@ -371,7 +371,7 @@ public class PostgresSqlAction extends SqlAction.Impl {
             sb.append(_lookup("set_file_params4")); //$NON-NLS-1$
             list.add(id);
             return _jdbc().update(sb.toString(),
-                    (Object[]) list.toArray(new Object[list.size()]));
+                    list.toArray(new Object[list.size()]));
         }
     }
 
@@ -464,7 +464,7 @@ public class PostgresSqlAction extends SqlAction.Impl {
             sb.append(_lookup("set_pixels_params_4")); //$NON-NLS-1$
             list.add(id);
             return _jdbc().update(sb.toString(),
-                    (Object[]) list.toArray(new Object[list.size()]));
+                    list.toArray(new Object[list.size()]));
         }
     }
 
