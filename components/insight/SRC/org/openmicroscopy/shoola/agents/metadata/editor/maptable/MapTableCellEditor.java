@@ -102,8 +102,8 @@ public class MapTableCellEditor implements TableCellEditor {
 					: UIUtilities.BACKGROUND_COLOUR_ODD);
 
 		String text = (String) value;
-		if (text.equals(MapTableModel.DUMMY_KEY)
-				|| text.equals(MapTableModel.DUMMY_VALUE))
+		if (text.equals(MapUtils.DUMMY_KEY)
+				|| text.equals(MapUtils.DUMMY_VALUE))
 			t.setText("");
 		else if(!StringUtils.isEmpty(text))
 			t.selectAll();

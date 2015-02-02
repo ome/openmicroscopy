@@ -72,7 +72,7 @@ public class MapTableCellRenderer implements TableCellRenderer {
 				value, isSelected, hasFocus, row, column);
 
 		if (row == table.getRowCount() - 1
-				&& (MapTableModel.DUMMY_KEY.equals(value) || MapTableModel.DUMMY_VALUE
+				&& (MapUtils.DUMMY_KEY.equals(value) || MapUtils.DUMMY_VALUE
 						.equals(value))) {
 			l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 			l.setFont(ITALIC);

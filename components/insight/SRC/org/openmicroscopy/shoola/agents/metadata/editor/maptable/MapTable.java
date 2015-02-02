@@ -61,12 +61,6 @@ public class MapTable extends JTable {
 	/** Delete permission bit */
 	public static int PERMISSION_DELETE = 4;
 
-	/** The cell editor */
-	// private MapTableCellEditor cellEditor;
-
-	/** The cell renderer */
-	// private MapTableCellRenderer cellRenderer;
-
 	/** Permissions bits */
 	private int permissions = PERMISSION_NONE;
 

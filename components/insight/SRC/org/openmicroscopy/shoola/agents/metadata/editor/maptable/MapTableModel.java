@@ -30,7 +30,6 @@ import javax.swing.table.TableModel;
 
 import omero.model.NamedValue;
 
-import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.util.ui.table.Reorderable;
 
 import pojos.MapAnnotationData;
@@ -54,12 +53,6 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 	/** A copy of the original data */
 	private List<NamedValue> originalData;
-
-	/** Text content of the 'Add entry' row */
-	public static final String DUMMY_KEY = "Add Key";
-
-	/** Text content of the 'Add entry' row */
-	public static final String DUMMY_VALUE = "Add Value";
 
 	/**
 	 * Creates a new instance
@@ -138,7 +131,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 			case 1:
 				d.value = value;
 				// automatically add a new row at the end of the table
-				if (row == data.size() - 1 && !isEmpty(d))
+				if (row == data.size() - 1 && !MapUtils.isEmpty(d))
 					addEntry("", "");
 			}
 		}
@@ -221,7 +214,7 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 		// Add a dummy row to an editable, but empty table
 		if (data.size() == 0 && table.canEdit()) {
-			addEntry(DUMMY_KEY, DUMMY_VALUE);
+			addEntry(MapUtils.DUMMY_KEY, MapUtils.DUMMY_VALUE);
 		}
 	}
 
@@ -233,25 +226,10 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 	private List<NamedValue> getTrimmedData() {
 		List<NamedValue> result = new ArrayList<NamedValue>();
 		for (NamedValue nv : data) {
-			if (!isEmpty(nv))
+			if (!MapUtils.isEmpty(nv))
 				result.add(nv);
 		}
 		return result;
-	}
-
-	/**
-	 * Checks if a NamedValue contains sensible data, i. e. name and value are
-	 * neither empty nor dummy values.
-	 * 
-	 * @param nv
-	 *            The NamedValue to check
-	 * @return <code>true</code> if it doesn't contain sensible data,
-	 *         <code>false</code> if it does.
-	 */
-	private boolean isEmpty(NamedValue nv) {
-		return (StringUtils.isEmpty(nv.name) || DUMMY_KEY.equals(nv.name))
-				&& (StringUtils.isEmpty(nv.value) || DUMMY_VALUE
-						.equals(nv.value));
 	}
 
 	/**
@@ -284,9 +262,10 @@ public class MapTableModel extends DefaultTableModel implements Reorderable {
 
 		return false;
 	}
-	
+
 	/**
 	 * Checks if the table contains any {@link NamedValue}s
+	 * 
 	 * @return <code>true</code> if it doesn't, <code>false</code> if it does.
 	 */
 	public boolean isEmpty() {
