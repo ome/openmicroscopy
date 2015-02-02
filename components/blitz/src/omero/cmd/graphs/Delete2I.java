@@ -157,6 +157,10 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             default:
                 throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
             }
+        } catch (GraphException ge) {
+            final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
+            graphERR.message = ge.message;
+            throw helper.cancel(graphERR, ge, "model object graph operation failed");
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "model object graph operation failed");
         }
