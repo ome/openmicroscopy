@@ -13,6 +13,7 @@
 
 """
 
+import os
 import sys
 
 from path import path
@@ -116,6 +117,23 @@ class ConfigControl(BaseControl):
             self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
         except Exception, e:
             self.ctx.die(113, str(e))
+
+    def set_db_arguments(self, cfg, xargs):
+
+        # NOT passing password on command-line
+        for x in ("name", "user", "host", "port"):
+            key = "omero.db.%s" % x
+            if key in cfg:
+                xargs.append("-D%s=%s" % (key, cfg[key]))
+
+        # Pass omero.db.pass using JAVA_OPTS environment variable
+        if "omero.db.pass" in cfg:
+            dbpassargs = "-Domero.db.pass=%s" % cfg["omero.db.pass"]
+            if "JAVA_OPTS" not in os.environ:
+                os.environ['JAVA_OPTS'] = dbpassargs
+            else:
+                os.environ['JAVA_OPTS'] = "%s %s" % (
+                    os.environ.get('JAVA_OPTS'), dbpassargs)
 
 
 class WriteableConfigControl(ConfigControl):
