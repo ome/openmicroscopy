@@ -30,7 +30,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 
 public class PostgresSqlAction extends SqlAction.Impl {
@@ -252,8 +251,11 @@ public class PostgresSqlAction extends SqlAction.Impl {
     @Override
     public void setFileRepo(Collection<Long> ids, String repoId) {
        for (final List<Long> idsBatch : Iterables.partition(ids, 256)) {
+           final Map<String, Object> parameters = new HashMap<String, Object>();
+           parameters.put("ids", idsBatch);
+           parameters.put("repo", repoId);
            _jdbc().update(_lookup("set_file_repo"), //$NON-NLS-1$
-                   ImmutableMap.of("ids", idsBatch, "repo", repoId));
+                   parameters);
        }
     }
 
