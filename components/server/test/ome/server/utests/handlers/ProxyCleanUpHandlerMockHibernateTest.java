@@ -14,13 +14,13 @@ import java.util.Set;
 
 import ome.tools.hibernate.ProxyCleanupFilter;
 
-import org.hibernate.collection.PersistentBag;
-import org.hibernate.collection.PersistentIdentifierBag;
-import org.hibernate.collection.PersistentList;
-import org.hibernate.collection.PersistentMap;
-import org.hibernate.collection.PersistentSet;
-import org.hibernate.engine.PersistenceContext;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.collection.internal.PersistentBag;
+import org.hibernate.collection.internal.PersistentIdentifierBag;
+import org.hibernate.collection.internal.PersistentList;
+import org.hibernate.collection.internal.PersistentMap;
+import org.hibernate.collection.internal.PersistentSet;
+import org.hibernate.engine.spi.PersistenceContext;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.AfterMethod;

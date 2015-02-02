@@ -45,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -319,7 +318,7 @@ public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
     }
 
     private Session session() {
-        return SessionFactoryUtils.getSession(getSessionFactory(), false);
+        return getSessionFactory().getCurrentSession();
     }
 }
 

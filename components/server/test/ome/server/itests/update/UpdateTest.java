@@ -54,6 +54,7 @@ import ome.testing.ObjectFactory;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
@@ -670,24 +671,6 @@ public class UpdateTest extends AbstractUpdateTest {
 
     @Test(groups = "ticket:5639")
     public void testCatchDeadlockException() throws Exception {
-        /*
-        HibernateInterceptor ht = (HibernateInterceptor) this.applicationContext.getBean("hibernateHandler");
-        SQLErrorCodeSQLExceptionTranslator trans = (SQLErrorCodeSQLExceptionTranslator) ht.getJdbcExceptionTranslator();
-        if (trans == null) {
-            trans = new SQLEr
-            ht.setJdbcExceptionTranslator(jdbcExceptionTranslator)
-        }
-        String[] loserCodes = trans.getSqlErrorCodes().getDeadlockLoserCodes();
-        String[] newLoserCodes;
-        if (loserCodes != null) {
-            newLoserCodes = new String[loserCodes.length+1];
-            System.arraycopy(loserCodes, 0, newLoserCodes, 0, loserCodes.length);
-        } else {
-            newLoserCodes = new String[1];
-        }
-        newLoserCodes[newLoserCodes.length-1] = "40P01";
-        trans.getSqlErrorCodes().setDeadlockLoserCodes(newLoserCodes);
-        */
         loginNewUser();
         final Image i1 = iUpdate.saveAndReturnObject(new_Image("catchDeadLock1"));
         final Image i2 = iUpdate.saveAndReturnObject(new_Image("catchDeadLock2"));

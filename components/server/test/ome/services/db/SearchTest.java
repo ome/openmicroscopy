@@ -27,6 +27,8 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.testng.annotations.Test;
 
+import static org.apache.lucene.util.Version.LUCENE_30;
+
 @Test( groups = "integration" )
 public class SearchTest extends TestCase {
 
@@ -82,8 +84,9 @@ public class SearchTest extends TestCase {
         ht.setupSession();
 
         String queryStr = "root OR manual";
-        QueryParser qp = new MultiFieldQueryParser(new String[] { "omeName",
-                "status" }, new StandardAnalyzer());
+        QueryParser qp = new MultiFieldQueryParser(LUCENE_30,
+                new String[] { "omeName", "status" },
+                new StandardAnalyzer(LUCENE_30));
         org.apache.lucene.search.Query lq = qp.parse(queryStr);
         FullTextSession fts = Search.getFullTextSession(ht.s);
         Query q = fts.createFullTextQuery(lq, Event.class, Experimenter.class);
@@ -98,8 +101,8 @@ public class SearchTest extends TestCase {
     private <T extends IObject> List<T> query(HibernateTest ht,
             String queryStr, Class<T> k, String... fields)
             throws ParseException {
-        MultiFieldQueryParser parser = new MultiFieldQueryParser(fields,
-                new StandardAnalyzer());
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(LUCENE_30, fields,
+                new StandardAnalyzer(LUCENE_30));
         org.apache.lucene.search.Query luceneQuery = parser.parse(queryStr);
         FullTextSession fts = Search.getFullTextSession(ht.s);
         Query q = fts.createFullTextQuery(luceneQuery, k);

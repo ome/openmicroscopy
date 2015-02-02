@@ -14,7 +14,6 @@
 
 package ome.services.query;
 
-import java.sql.SQLException;
 import java.util.Collection;
 
 import org.hibernate.Criteria;
@@ -47,8 +46,7 @@ public class PojosFindHierarchiesQueryDefinition extends
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
         Criteria c = session.createCriteria(Image.class);
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         c.add(Restrictions.in("id", (Collection) value(IDS)));

@@ -15,7 +15,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.event.AbstractEvent;
+import org.hibernate.event.spi.AbstractEvent;
 
 // Application-internal dependencies
 import ome.conditions.InternalException;

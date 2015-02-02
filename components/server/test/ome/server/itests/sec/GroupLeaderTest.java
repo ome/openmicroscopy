@@ -6,7 +6,6 @@
  */
 package ome.server.itests.sec;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ import ome.system.Principal;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.testng.annotations.Test;
 
 public class GroupLeaderTest extends AbstractManagedContextTest {
@@ -75,7 +74,7 @@ public class GroupLeaderTest extends AbstractManagedContextTest {
         final Experimenter exp = e;
         List<Long> groupIds = iQuery.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
                 Query q = session
                         .createQuery(groupByOwner);
                 q.setParameter("id", exp.getId());

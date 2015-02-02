@@ -17,11 +17,12 @@ import ome.util.TableIdGenerator;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.Session;
 import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.aop.framework.ProxyFactory;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
+import org.springframework.orm.hibernate4.SessionFactoryUtils;
 
 /**
  * Simple source of Thread-aware {@link Session} instances. Wraps a
@@ -36,13 +37,13 @@ public class SessionFactory implements MethodInterceptor {
     private final static Set<String> FORBIDDEN = Collections.unmodifiableSet(
         new HashSet<String>(
             Arrays.asList(
-                "createSQLQuery", "getSession", "doWork",
+                "createSQLQuery", "doWork",
                 "connection", "disconnect", "reconnect")));
 
     static {
         // Check for spelling mistakes
         int found = 0;
-        Method[] methods = Session.class.getMethods();
+        Method[] methods = SessionImpl.class.getMethods();
         for (Method m : methods) {
             if (FORBIDDEN.contains(m.getName())) {
                 found++;
@@ -76,13 +77,13 @@ public class SessionFactory implements MethodInterceptor {
      */
     public Session getSession() {
 
-        Session unwrapped = SessionFactoryUtils.getSession(factory, false);
+        Session unwrapped = factory.getCurrentSession();
 
         ProxyFactory proxyFactory = new ProxyFactory();
         proxyFactory.setInterfaces(new Class[]{
             Session.class,
-            org.hibernate.classic.Session.class,
-            org.hibernate.event.EventSource.class});
+            org.hibernate.Session.class,
+            org.hibernate.event.spi.EventSource.class});
         proxyFactory.setTarget(unwrapped);
         proxyFactory.addAdvice(0, this);
         return (Session) proxyFactory.getProxy();

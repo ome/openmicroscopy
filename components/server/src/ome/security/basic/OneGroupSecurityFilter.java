@@ -17,7 +17,6 @@ import java.util.Properties;
 import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 
 import ome.conditions.InternalException;
 import ome.model.internal.Details;

@@ -19,18 +19,18 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 import ome.api.IQuery;
+import ome.security.basic.FilterDefinitionFactoryBean;
 import ome.server.itests.ManagedContextFixture;
+import ome.services.sessions.LocalSessionFactoryBean;
 import ome.testing.Report;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.Level;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
-import org.hibernate.engine.FilterDefinition;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.FilterDefinition;
 import org.hibernate.stat.Statistics;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
-import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -79,17 +79,17 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         fdfb.setDefaultFilterCondition("true = true");
         fdfb.afterPropertiesSet();
         FilterDefinition fd = (FilterDefinition) fdfb.getObject();
-        AnnotationSessionFactoryBean asfb = new AnnotationSessionFactoryBean();
-        asfb.setHibernateProperties(p);
-        asfb.setConfigLocation(new ClassPathResource("hibernate.cfg.xml"));
-        asfb.setDataSource(ds);
-        asfb.setFilterDefinitions(new FilterDefinition[] { fd });
+        LocalSessionFactoryBean lsfb = new LocalSessionFactoryBean();
+        lsfb.setHibernateProperties(p);
+        lsfb.setConfigLocation(new ClassPathResource("hibernate.cfg.xml"));
+        lsfb.setDataSource(ds);
+        lsfb.setFilterDefinitions(new FilterDefinition[] { fd });
         try {
-            asfb.afterPropertiesSet();
+            lsfb.afterPropertiesSet();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return (SessionFactory) asfb.getObject();
+        return (SessionFactory) lsfb.getObject();
     }
 
     List<Callable<Object>> calls = new ArrayList<Callable<Object>>();

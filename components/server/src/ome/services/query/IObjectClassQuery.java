@@ -14,7 +14,6 @@
 
 package ome.services.query;
 
-import java.sql.SQLException;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -57,8 +56,7 @@ public class IObjectClassQuery extends Query {
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
         Criteria c = session.createCriteria((Class) value(CLASS));
         for (QueryParameter qp : params.queryParameters()) {
             if (!qp.name.equals(CLASS)) {

@@ -32,10 +32,10 @@
     <dependency org="velocity" name="velocity" rev="${versions.velocity}"/>
     <dependency org="checkstyle" name="checkstyle" rev="${versions.checkstyle}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,runtime->default"/>
+    <dependency org="org.springframework" name="spring-core" rev="${versions.spring}" conf="build,runtime->default"/>
     <!-- Moving all testing dependencies back to "build" for eclipse .classpath generation-->
-    <dependency org="org.springframework" name="org.springframework.test" rev="${versions.spring}" conf="build->*"/>
-    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}" conf="build->default"/>
+    <dependency org="org.springframework" name="spring-test" rev="${versions.spring}" conf="build->*"/>
+    <dependency org="org.springframework" name="spring-aop" rev="${versions.spring}" conf="build->default"/>
     <dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build->default"/>
     <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build->default"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="build->default"/>

@@ -18,6 +18,8 @@ import org.apache.lucene.analysis.LowerCaseTokenizer;
 import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
 
+import static org.apache.lucene.util.Version.LUCENE_30;
+
 /**
  * {@link Analyzer} implementation based largely on {@link SimpleAnalyzer}, but
  * with extensions for handling scientific and OS-type strings.
@@ -25,7 +27,7 @@ import org.apache.lucene.analysis.TokenStream;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class FullTextAnalyzer extends Analyzer {
+public final class FullTextAnalyzer extends Analyzer {
 
     private final static Logger log = LoggerFactory.getLogger(FullTextAnalyzer.class);
 
@@ -43,29 +45,39 @@ public class FullTextAnalyzer extends Analyzer {
     static class LowercaseAlphaNumericTokenizer extends CharTokenizer {
 
         public LowercaseAlphaNumericTokenizer(Reader input) {
-            super(input);
+            super(LUCENE_30, input);
         }
 
         /**
-         * Returns true if "c" is {@link Character#isLetter(char)} or
+         * Returns true if "i" is the codepoint for a {@link Character#isLetter(char)} or
          * {@link Character#isDigit(char)}.
          */
         @Override
-        protected boolean isTokenChar(char c) {
-            return Character.isLetter(c) || Character.isDigit(c);
+        protected boolean isTokenChar(int i) {
+            char[] cs = Character.toChars(i);
+            if (cs.length > 1) {
+                // This should only be the case for surrogate pairs
+                return false;
+            } else {
+                return  Character.isLetter(cs[0]) || Character.isDigit(cs[0]);
+            }
         }
 
         /**
          * Lower cases via {@link Character#toLowerCase(char)}
          */
         @Override
-        protected char normalize(char c) {
-            return Character.toLowerCase(c);
+        protected int normalize(int i) {
+            char c = Character.toChars(i)[0];
+            c = Character.toLowerCase(c);
+            char[] cs = {c};
+            return Character.codePointAt(cs, 0);
         }
     }
 
     /**
-     * Returns a {@link LowercaseAlphaNumericTokenizer}
+     * Returns {@link TokenStreamComponents} containing the
+     * {@link LowercaseAlphaNumericTokenizer}.
      */
     @Override
     public TokenStream tokenStream(String fieldName, Reader reader) {

@@ -7,7 +7,6 @@
 
 package ome.services.sharing;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -193,7 +192,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             public void runAsAdmin() {
                 iQuery.execute(new HibernateCallback<Object>() {
                     public Object doInHibernate(org.hibernate.Session s)
-                        throws HibernateException, SQLException {
+                        throws HibernateException {
                         Query q = qb.query(s);
                         List<Object[]> results = q.list();
                         if (results.size() != shareIds.size()) {
@@ -496,7 +495,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
             iQuery.execute(new HibernateCallback<Object>() {
                 public Object doInHibernate(org.hibernate.Session s)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
 
                     resetReadFilter(s);
 
@@ -544,7 +543,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             List<SessionAnnotationLink> links =
                 (List<SessionAnnotationLink>) iQuery.execute(new HibernateCallback<Object>(){
                 public Object doInHibernate(org.hibernate.Session arg0)
-                        throws HibernateException, SQLException {
+                        throws HibernateException {
 
                     resetReadFilter(arg0);
                     return arg0.createQuery(
@@ -809,7 +808,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
         List<Session> list = iQuery.execute(new HibernateCallback<Object>() {
             public Object doInHibernate(org.hibernate.Session arg0)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
                 BasicSecuritySystem bss = (BasicSecuritySystem) sec;
                 try {
                     bss.disableReadFilter(arg0);
@@ -835,7 +834,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     protected Share shareToSession(final ShareData data) {
         Share share = iQuery.execute(new HibernateCallback<Object>() {
             public Object doInHibernate(org.hibernate.Session arg0)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
                 BasicSecuritySystem bss = (BasicSecuritySystem) sec;
                 try {
                     bss.disableReadFilter(arg0);

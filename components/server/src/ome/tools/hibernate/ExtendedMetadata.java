@@ -14,10 +14,9 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.EntityMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.CollectionType;
@@ -290,7 +289,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
             if (hibernateClasses.containsKey(key)) {
                 throw new RuntimeException("Duplicate keys!: " + key);
             }
-            hibernateClasses.put(key, cm.getMappedClass(EntityMode.POJO));
+            hibernateClasses.put(key, cm.getMappedClass());
         }
 
         for (String key : m.keySet()) {
@@ -325,7 +324,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
                 }
             }
             if (hasMapProperty) {
-                for (Class<?> mc = cm.getMappedClass(EntityMode.POJO); mc != null; mc = mc.getSuperclass()) {
+                for (Class<?> mc = cm.getMappedClass(); mc != null; mc = mc.getSuperclass()) {
                     mapPropertyClasses.add(mc);
                 }
             }
@@ -340,7 +339,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
             collectionCountHolder.putAll(queries);
 
             // Checking classes, specifically for ITypes
-            Class c = cm.getMappedClass(EntityMode.POJO);
+            Class c = cm.getMappedClass();
             if (IAnnotated.class.isAssignableFrom(c)) {
                 anns.add(c);
             }
@@ -673,7 +672,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
         final List<Class<?>> h = new ArrayList<Class<?>>();
 
         ClassMetadata cm = m.get(key);
-        Class<?> c = cm.getMappedClass(EntityMode.POJO);
+        Class<?> c = cm.getMappedClass();
         h.add(c);
 
         int index = 0;
@@ -684,7 +683,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
                     continue;
                 } else {
                     cm = m.get(key2);
-                    c = cm.getMappedClass(EntityMode.POJO);
+                    c = cm.getMappedClass();
                     if (c.getSuperclass().equals(h.get(index))) {
                         h.add(c);
                     }
@@ -900,7 +899,7 @@ class Locks {
     public IObject[] getLockCandidates(IObject o) {
         int idx = 0;
         IObject[] toCheck = new IObject[total()];
-        Object[] values = cm.getPropertyValues(o, EntityMode.POJO);
+        Object[] values = cm.getPropertyValues(o);
         for (int i = 0; i < size(); i++) {
             if (!include(i)) {
                 continue;
@@ -996,7 +995,7 @@ class Locks {
      * component value.
      */
     public Object getSubtypeValue(int i, int j, Object o) {
-        return cm.getPropertyValue(o, subnames[i][j], EntityMode.POJO);
+        return cm.getPropertyValue(o, subnames[i][j]);
     }
 
     /**

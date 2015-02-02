@@ -14,10 +14,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
-import org.hibernate.event.EventSource;
-import org.hibernate.event.RefreshEvent;
-import org.hibernate.event.RefreshEventListener;
-import org.hibernate.util.IdentityMap;
+import org.hibernate.event.spi.EventSource;
+import org.hibernate.event.spi.RefreshEvent;
+import org.hibernate.event.spi.RefreshEventListener;
+import org.hibernate.internal.util.collections.IdentityMap;
 
 // Application-internal dependencies
 import ome.annotations.RevisionDate;
@@ -47,7 +47,7 @@ public class ReloadingRefreshEventListener implements RefreshEventListener {
      */
     @SuppressWarnings("unchecked")
     public void onRefresh(RefreshEvent event) throws HibernateException {
-        onRefresh(event, IdentityMap.instantiate(10));
+        onRefresh(event, IdentityMap.instantiateSequenced(10));
     }
 
     /**

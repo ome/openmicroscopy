@@ -7,7 +7,6 @@
 
 package ome.logic;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,7 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -228,7 +227,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         List<Long> groupIds = iQuery.execute(new HibernateCallback<List<Long>>() {
             public List<Long> doInHibernate(Session session)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
                 org.hibernate.Query q = qb.query(session);
                 return (List<Long>) q.list();
             }
@@ -255,7 +254,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         List<String> groupNames = iQuery.execute(new HibernateCallback() {
             public Object doInHibernate(Session session)
-                    throws HibernateException, SQLException {
+                    throws HibernateException {
                 org.hibernate.Query q = session
                         .createQuery("select m.parent." + name + " " +
                             "from Experimenter e " +
@@ -1252,8 +1251,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         @Override
-        protected void buildQuery(Session session) throws HibernateException,
-                SQLException {
+        protected void buildQuery(Session session) throws HibernateException {
             Criteria c = session.createCriteria(Experimenter.class);
 
             Criteria m = c.createCriteria("groupExperimenterMap",
@@ -1284,8 +1282,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         @Override
-        protected void buildQuery(Session session) throws HibernateException,
-                SQLException {
+        protected void buildQuery(Session session) throws HibernateException {
             
             QueryBuilder qb = new QueryBuilder();
             qb.select("g");

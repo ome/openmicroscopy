@@ -12,7 +12,7 @@ package ome.tools.spring;
 // Third-party imports
 import org.hibernate.Session;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 // Application-internal dependencies
 

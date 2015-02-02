@@ -18,7 +18,7 @@ import org.jmock.Mock;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
 import org.jmock.core.stub.DefaultResultStub;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.testng.annotations.Test;
 
 import ome.conditions.ApiUsageException;

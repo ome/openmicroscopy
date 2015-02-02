@@ -6,8 +6,6 @@
  */
 package ome.services.query;
 
-import java.sql.SQLException;
-
 import ome.model.core.Image;
 import ome.parameters.Parameters;
 
@@ -24,8 +22,7 @@ public class PojosGetUserImagesQueryDefinition extends Query {
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
         // TODO copied from PojosGetImages refactor
         Criteria c = session.createCriteria(Image.class);
         c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);

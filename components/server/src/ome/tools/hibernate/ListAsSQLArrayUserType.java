@@ -16,6 +16,7 @@ import java.util.Properties;
 import org.hibernate.HibernateException;
 import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
+import org.hibernate.engine.spi.SessionImplementor;
 
 /**
  * Hibernate type to store Lists of primitives using SQL ARRAY.
@@ -306,8 +307,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType, Parameteriz
     }
 
     @SuppressWarnings("unused")
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner)
-            throws HibernateException, SQLException {
+    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor session,
+            Object owner) throws HibernateException, SQLException {
 
         Array sqlArray = resultSet.getArray(names[0]);
         if (resultSet.wasNull())
@@ -317,7 +318,7 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType, Parameteriz
     }
 
     public void nullSafeSet(PreparedStatement preparedStatement, Object value,
-            int index) throws HibernateException, SQLException {
+            int index, SessionImplementor session) throws HibernateException, SQLException {
         if (null == value)
             preparedStatement.setNull(index, SQL_TYPE);
         else

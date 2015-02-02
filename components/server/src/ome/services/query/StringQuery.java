@@ -15,7 +15,6 @@
 package ome.services.query;
 
 // Java imports
-import java.sql.SQLException;
 import java.util.Collection;
 
 import ome.conditions.ApiUsageException;
@@ -63,8 +62,7 @@ public class StringQuery extends Query {
     }
 
     @Override
-    protected void buildQuery(Session session) throws HibernateException,
-            SQLException {
+    protected void buildQuery(Session session) throws HibernateException {
 
         String queryString = (String) value(STRING);
         if (sql != null) {

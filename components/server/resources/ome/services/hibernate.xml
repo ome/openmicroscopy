@@ -51,15 +51,8 @@
     </description>
     <property name="properties">
       <props>
-        <!-- JTA properties
-        <prop key="hibernate.connection.datasource">OmeroDs</prop>
-        <prop key="hibernate.transaction.factory_class">org.hibernate.transaction.JTATransactionFactory</prop>
-        <prop key="hibernate.transaction.manager_lookup_class">ome.tools.hibernate.JBossTsTransactionManagerLookup</prop>
-        <prop key="hibernate.current_session_context_class">ome.tools.hibernate.CurrentSessionContext</prop>
-        -->
-        <prop key="hibernate.transaction.factory_class">org.springframework.orm.hibernate3.SpringTransactionFactory</prop>
         <!-- current_session_context causes transaction aware data source to be used -->
-        <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate3.SpringSessionContext</prop>
+        <prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
         <!-- session context sets: auto_close_session, flush_before_completion, release_mode -->
         <prop key="hibernate.dialect">${omero.db.dialect}</prop>
         <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
@@ -107,14 +100,7 @@
     session is opened for any new stateful session invocation, and will be closed
     once "close()" is invoked.
     </description>
-    <constructor-arg ref="sessionFactory"/>    
-  </bean>
-
-  <bean id="hibernateHandler" class="org.springframework.orm.hibernate3.HibernateInterceptor">
-    <description>
-    Scope: private
-    </description>
-    <property name="sessionFactory" ref="sessionFactory"/>
+    <constructor-arg ref="sessionFactory"/>
   </bean>
 
   <bean id="omeroSessionFactory" class="ome.tools.hibernate.SessionFactory">
@@ -122,7 +108,7 @@
     <constructor-arg ref="simpleSqlAction"/><!-- Used for ome_nextval -->
   </bean>
 
-  <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+  <bean id="sessionFactory" class="ome.services.sessions.LocalSessionFactoryBean">
     <description>
     Scope: private
     Note:  many of the references for the sessionFactory are defined in 
@@ -142,8 +128,7 @@
     <property name="lobHandler" ref="lobHandler"/>
   </bean>
 
-  <!-- Note: it was necessary to overwrite org.hibernate.stat.ConcurrentStatisticsImpl to prevent memory issues -->
-  <bean id="hibernateMBean" class="org.hibernate.jmx.StatisticsService">
+  <bean id="hibernateMBean" class="ome.tools.hibernate.StatisticsService">
    <property name="sessionFactory" ref="sessionFactory"/>
    <property name="statisticsEnabled" value="${omero.db.statistics}"/>
   </bean>

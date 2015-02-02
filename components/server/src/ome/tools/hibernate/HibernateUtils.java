@@ -21,8 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
-import org.hibernate.collection.PersistentCollection;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.collection.spi.PersistentCollection;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
 
@@ -137,10 +137,8 @@ public abstract class HibernateUtils {
     public static void fixNulledOrFilteredCollections(IObject entity,
             IObject target, EntityPersister persister, SessionImplementor source) {
 
-        Object[] currentState = persister.getPropertyValues(entity, source
-                .getEntityMode());
-        Object[] previousState = persister.getPropertyValues(target, source
-                .getEntityMode());
+        Object[] currentState = persister.getPropertyValues(entity);
+        Object[] previousState = persister.getPropertyValues(target);
         String[] propertyNames = persister.getPropertyNames();
         Type[] types = persister.getPropertyTypes();
 
@@ -162,8 +160,7 @@ public abstract class HibernateUtils {
                 }
                 log("Copying filtered collection ", string);
                 Collection copy = copy(((Collection) previous));
-                persister.setPropertyValue(entity, idx, copy, source
-                        .getEntityMode());
+                persister.setPropertyValue(entity, idx, copy);
             }
         }
 
@@ -176,23 +173,19 @@ public abstract class HibernateUtils {
                 } else if (previous instanceof Collection) {
                     if (!Hibernate.isInitialized(previous)) {
                         log("Skipping uninitialized collection: ", propertyNames[i]);
-                        persister.setPropertyValue(entity, i, previous, source
-                                .getEntityMode());
+                        persister.setPropertyValue(entity, i, previous);
                     } else {
                         log("Copying nulled collection: ", propertyNames[i]);
                         Collection copy = copy(((Collection) previous));
-                        persister.setPropertyValue(entity, i, copy, source
-                                .getEntityMode());
+                        persister.setPropertyValue(entity, i, copy);
                     }
                 } else if (previous instanceof Map) {
                     if (!Hibernate.isInitialized(previous)) {
                         log("Skipping uninitialized map: ", propertyNames[i]);
-                        persister.setPropertyValue(entity, i, previous, source
-                                .getEntityMode());
+                        persister.setPropertyValue(entity, i, previous);
                     } else {
                         Map copy = copy((Map) previous);
-                        persister.setPropertyValue(entity, i, copy, source
-                            .getEntityMode());
+                        persister.setPropertyValue(entity, i, copy);
                     }
                 } else {
                     throw new InternalException(String.format(
@@ -330,3 +323,4 @@ public abstract class HibernateUtils {
         }
     }
 }
+
