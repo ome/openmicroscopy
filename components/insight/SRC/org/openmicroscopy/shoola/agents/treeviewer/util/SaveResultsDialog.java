@@ -142,6 +142,7 @@ public class SaveResultsDialog
         result.setROI(roi.isSelected());
         TreeViewerAgent.getRegistry().getEventBus().post(
                 new SaveResultsEvent(result));
+        cancel();
     }
 
     /**
