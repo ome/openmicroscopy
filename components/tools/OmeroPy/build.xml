@@ -77,7 +77,6 @@
    <target name="tools-clean" depends="python-clean">
         <delete dir="${copy.dir}"/>
         <delete dir="${basedir}/build"/>
-        <delete dir="${basedir}/test__test.sql"/>
     </target>
 
 </project>
