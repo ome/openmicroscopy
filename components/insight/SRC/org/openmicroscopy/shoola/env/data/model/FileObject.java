@@ -46,6 +46,12 @@ import org.apache.commons.lang.StringUtils;
 public class FileObject
 {
 
+    /** The field identifying the image id.*/
+    public static final String OMERO_ID = "Omero_iid";
+
+    /** The field identifying the group id.*/
+    public static final String OMERO_GROUP = "Omero_group";
+
     /** The file to import.
      * This could be a file on disk or an ImageJ object for example.
      */
@@ -302,7 +308,7 @@ public class FileObject
     {
         if (!isImagePlus()) return -1;
         ImagePlus image = (ImagePlus) file;
-        Object value = image.getProperty("Omero");
+        Object value = image.getProperty(OMERO_ID);
         if (value != null && value instanceof Long)
             return ((Long) value).longValue();
         return -1;
@@ -317,7 +323,7 @@ public class FileObject
     {
         if (!isImagePlus()) return -1;
         ImagePlus image = (ImagePlus) file;
-        Object value = image.getProperty("Omero_group");
+        Object value = image.getProperty(OMERO_GROUP);
         if (value != null && value instanceof Long)
             return ((Long) value).longValue();
         return -1;
