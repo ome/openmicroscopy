@@ -442,8 +442,10 @@ public class MapAnnotationsComponent extends JPanel implements
 				MapTableModel m = (MapTableModel) t.getModel();
 				if (m.isDirty())
 					view.setDataToSave(true);
-				if(m.isEmpty() && m.getMap().getId()>=0)
+				if(m.isEmpty() && m.getMap().getId()>=0) {
 					view.deleteAnnotation(m.getMap());
+					view.saveData(true);
+				}
 				adjustScrollPane();
 			}
 		});
