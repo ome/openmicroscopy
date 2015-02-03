@@ -35,6 +35,7 @@ $.fn.roi_display = function(options) {
         }
 
         var roi_json = null;          // load ROI data as json when needed
+        var active_rois = null;       // show only the active ROIs
         this.theZ = null;
         this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
@@ -257,27 +258,37 @@ $.fn.roi_display = function(options) {
                 // plot the rois
                 if (display_rois) {
                   rois_displayed = true;
-                  refresh_rois(filter=filter);
+                  refresh_rois(undefined, undefined, filter);
                 }
                 $viewportimg.trigger("rois_loaded");
             });
         }
 
         filter_rois = function (filter) {
+            active_rois = [];
             if (filter != undefined) {
-                console.log('Applying filter ' + filter);
-                roi_json_filtered = [];
                 for (r=0; r<roi_json.length; r++) {
-                    console.log('Checking ID ' + roi_json[r].id);
-                    if (filter.indexOf(roi_json[r].id) != -1) {
-                        roi_json_filtered.push(roi_json[r]);
+                    if (filter.indexOf(roi_json[r].id) != -1 && active_rois.indexOf(roi_json[r].id) == -1) {
+                        active_rois.push(roi_json[r].id);
                     }
                 }
-                console.log('Filtered JSON ' + roi_json_filtered);
-                return roi_json_filtered;
             } else {
-                return roi_json;
+                for (r=0; r<roi_json.length; r++) {
+                    if (active_rois.indexOf(roi_json[r].id) == -1) {
+                        active_rois.push(roi_json[r].id);
+                    }
+                }
             }
+        }
+
+        get_active_rois = function () {
+            act_rois = [];
+            for (r=0; r<roi_json.length; r++) {
+                if (active_rois.indexOf(roi_json[r].id) != -1) {
+                    act_rois.push(roi_json[r]);
+                }
+            }
+            return act_rois;
         }
 
         // returns the ROI data as json. May be null if not yet loaded! 
@@ -294,10 +305,10 @@ $.fn.roi_display = function(options) {
             paper.clear();
             shape_objects.length = 0;
             if (!rois_displayed) return;
-            rois = filter_rois(rois_filter);
+            filter_rois(rois_filter);
+            rois = get_active_rois();
             if (rois == null) return;
-            
-            console.log('ROI JSON ' + rois);
+
             for (var r=0; r<rois.length; r++) {
                 var roi = rois[r];
                 var shapes = roi['shapes'];
@@ -408,10 +419,10 @@ $.fn.roi_display = function(options) {
               this.refresh_rois(undefined, undefined, filter);
           }
         }
-        
 
         // hides the ROIs from display
         this.hide_rois = function() {
+            active_rois = [];
             rois_displayed = false;
             this.refresh_rois();
         }
