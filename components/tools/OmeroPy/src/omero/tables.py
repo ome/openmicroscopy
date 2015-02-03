@@ -111,12 +111,11 @@ class HdfList(object):
         self._lock = threading.RLock()
         self.__filenos = {}
         self.__paths = {}
-        self.__locks = {}
 
     @locked
     def addOrThrow(self, hdfpath, hdfstorage):
 
-        if hdfpath in self.__locks:
+        if hdfpath in self.__paths:
             raise omero.LockTimeout(
                 None, None, "Path already in HdfList: %s" % hdfpath)
 
@@ -125,24 +124,21 @@ class HdfList(object):
             raise omero.ApiUsageException(
                 None, None, "Parent directory does not exist: %s" % parent)
 
-        lock = None
+        hdffile = hdfstorage.openfile("a")
+        fileno = hdffile.fileno()
+
         try:
-            lock = open(hdfpath, "a+")
-            portalocker.lock(lock, portalocker.LOCK_NB | portalocker.LOCK_EX)
-            self.__locks[hdfpath] = lock
+            portalocker.lockno(
+                fileno, portalocker.LOCK_NB | portalocker.LOCK_EX)
         except portalocker.LockException:
-            if lock:
-                lock.close()
+            hdffile.close()
             raise omero.LockTimeout(
                 None, None,
                 "Cannot acquire exclusive lock on: %s" % hdfpath, 0)
         except:
-            if lock:
-                lock.close()
+            hdffile.close()
             raise
 
-        hdffile = hdfstorage.openfile("a")
-        fileno = hdffile.fileno()
         if fileno in self.__filenos.keys():
             hdffile.close()
             raise omero.LockTimeout(
@@ -164,16 +160,6 @@ class HdfList(object):
     def remove(self, hdfpath, hdffile):
         del self.__filenos[hdffile.fileno()]
         del self.__paths[hdfpath]
-        try:
-            if hdfpath in self.__locks:
-                try:
-                    lock = self.__locks[hdfpath]
-                    lock.close()
-                finally:
-                    del self.__locks[hdfpath]
-        except Exception:
-            self.logger.warn("Exception on remove(%s)" %
-                             hdfpath, exc_info=True)
 
 # Global object for maintaining files
 HDFLIST = HdfList()
