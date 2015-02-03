@@ -591,8 +591,10 @@ class EditorControl
 			Boolean b = (Boolean) evt.getNewValue();
 			view.saveData(b.booleanValue());
 		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name) ||
-				MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name) ||
 				MetadataViewer.ADMIN_UPDATED_PROPERTY.equals(name)) {
+			view.clearData();
+		} else if (MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name)
+				&& evt.getNewValue() == view.getRefObject()) {
 			view.clearData();
 		} else if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
 			view.handleTaskPaneCollapsed((JXTaskPane) evt.getSource());
