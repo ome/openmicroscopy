@@ -13,7 +13,6 @@ from omero.cli import BaseControl, CLI
 import platform
 import sys
 import os
-from path import path
 from omero_ext.argparse import SUPPRESS
 
 try:
@@ -96,8 +95,6 @@ class WebControl(BaseControl):
             help="HTTP port for web server (nginx only)")
         config.add_argument(
             "--system", action="store_true", help=SUPPRESS)
-        config.add_argument(
-            "--templates_dir", type=str, help=SUPPRESS)
 
         parser.add(
             sub, self.syncmedia,
@@ -132,15 +129,11 @@ class WebControl(BaseControl):
             "Developer use: Loads the blitz gateway into a Python"
             " interpreter")
 
-        selenium = parser.add(
-            sub, self.seleniumtest,
-            "Developer use: runs selenium tests on a django app")
-        selenium.add_argument(
-            "--config", action="store", help="ice.config location")
-        selenium.add_argument("djangoapp", help="Django-app to be tested")
-        selenium.add_argument("seleniumserver", help="E.g. localhost")
-        selenium.add_argument("hostname", help="E.g. http://localhost:4080")
-        selenium.add_argument("browser", help="E.g. firefox")
+    def _get_python_dir(self):
+        return self.ctx.dir / "lib" / "python"
+
+    def _get_templates_dir(self):
+        return self.ctx.dir / "etc" / "templates"
 
     def config(self, args):
         if not args.type:
@@ -164,8 +157,7 @@ class WebControl(BaseControl):
 
             d = {
                 "ROOT": self.ctx.dir,
-                "OMEROWEBROOT": self.ctx.dir / "lib" / "python" /
-                "omeroweb",
+                "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
                 "STATIC_URL": settings.STATIC_URL.rstrip("/"),
                 "NOW": str(datetime.now())
             }
@@ -175,10 +167,6 @@ class WebControl(BaseControl):
             except:
                 d["FORCE_SCRIPT_NAME"] = "/"
 
-            if args.templates_dir:
-                templates_dir = path(args.templates_dir)
-            else:
-                templates_dir = self.ctx.dir / "etc" / "templates"
             template_file = "%s.conf.template" % server
 
             if server in ("nginx", "nginx-development"):
@@ -240,14 +228,14 @@ class WebControl(BaseControl):
 
                 d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
-            c = file(templates_dir / template_file).read()
+            c = file(self._get_templates_dir() / template_file).read()
             self.ctx.out(c % d)
 
     def syncmedia(self, args):
         self.collectstatic()
 
     def enableapp(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        location = self._get_python_dir() / "omeroweb"
         if not args.appname:
             apps = [x.name for x in filter(
                 lambda x: x.isdir() and
@@ -272,7 +260,7 @@ class WebControl(BaseControl):
             self.syncmedia(None)
 
     def gateway(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "-i", location /
                 "../omero/gateway/scripts/dbhelpers.py"]
         self.set_environ()
@@ -280,36 +268,9 @@ class WebControl(BaseControl):
             os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         self.ctx.call(args, cwd=location)
 
-    def seleniumtest(self, args):
-        try:
-            ice_config = args.config
-            appname = args.djangoapp
-            seleniumserver = args.seleniumserver
-            hostname = args.hostname
-            browser = args.browser
-        except:
-            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp}"
-                         " [seleniumserver] [hostname] [browser]")
-
-        if appname.find('.') > 0:
-            appname = appname.split('.')
-            appbase = appname[0]
-            location = self.ctx.dir / appbase
-            appname = '.'.join(appname[1:])
-        else:
-            appbase = "omeroweb"
-            location = self.ctx.dir / "lib" / "python" / "omeroweb"
-
-        cargs = [sys.executable, location / appname / "tests" /
-                 "seleniumtests.py", seleniumserver, hostname, browser]
-        # cargs += args.arg[1:]
-        self.set_environ(ice_config=ice_config)
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-        self.ctx.call(cargs, cwd=location)
-
     def call(self, args):
         try:
-            location = self.ctx.dir / "lib" / "python" / "omeroweb"
+            location = self._get_python_dir() / "omeroweb"
             cargs = []
             appname = args.appname
             scriptname = args.scriptname.split(' ')
@@ -329,16 +290,16 @@ class WebControl(BaseControl):
             print traceback.print_exc()
 
     def collectstatic(self):
-        # Ensure that static media is copied to the correct location
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        """Ensure that static media is copied to the correct location"""
+        location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "collectstatic", "--noinput"]
         rv = self.ctx.call(args, cwd=location)
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
 
     def clearsessions(self, args):
-        # Clean out expired sessions.
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        """Clean out expired sessions."""
+        location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "clearsessions"]
         rv = self.ctx.call(args, cwd=location)
         if rv != 0:
@@ -346,10 +307,11 @@ class WebControl(BaseControl):
 
     def start(self, args):
         self.collectstatic()
+        self.clearsessions(args)
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        location = self._get_python_dir() / "omeroweb"
         self.ctx.out("Starting OMERO.web... ", newline=False)
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None and cache_backend.startswith("file:///"):
@@ -498,11 +460,13 @@ using bin\omero web start on Windows with FastCGI.
                                  self.ctx.dir / 'bin')
 
     def iis(self, args):
-        self.collectstatic()
         if not (self._isWindows() or self.ctx.isdebug):
             self.ctx.die(2, "'iis' command is for Windows only")
 
-        web_iis = self.ctx.dir / "lib" / "python" / "omero_web_iis.py"
+        self.collectstatic()
+        self.clearsessions(args)
+
+        web_iis = self._get_python_dir() / "omero_web_iis.py"
         cmd = [sys.executable, str(web_iis)]
         if args.remove:
             cmd.append("remove")

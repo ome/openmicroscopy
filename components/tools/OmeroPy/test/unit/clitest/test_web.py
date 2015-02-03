@@ -33,12 +33,13 @@ class TestWeb(object):
         self.cli.register("web", WebControl, "TEST")
         self.args = ["web"]
 
-    def add_templates_dir(self):
+    def set_templates_dir(self, monkeypatch):
+
         dist_dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." /\
             ".." / "dist"  # FIXME: should not be hard-coded
         dist_dir = dist_dir.abspath()
-        templates_dir = dist_dir / "etc" / "templates"
-        self.args += ["--templates_dir", templates_dir]
+        monkeypatch.setattr(WebControl, '_get_templates_dir',
+                            lambda x: dist_dir / "etc" / "templates")
 
     def add_prefix(self, prefix, monkeypatch):
         if prefix:
@@ -79,7 +80,7 @@ class TestWeb(object):
             self.args += ["nginx-development"]
         if http:
             self.args += ["--http", str(http)]
-        self.add_templates_dir()
+        self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         lines = self.clean_generated_file(o)
@@ -100,7 +101,7 @@ class TestWeb(object):
 
         static_prefix = self.add_prefix(prefix, monkeypatch)
         self.args += ["config", "apache"]
-        self.add_templates_dir()
+        self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
@@ -130,7 +131,7 @@ class TestWeb(object):
 
         static_prefix = self.add_prefix(prefix, monkeypatch)
         self.args += ["config", "apache-fcgi"]
-        self.add_templates_dir()
+        self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
 
