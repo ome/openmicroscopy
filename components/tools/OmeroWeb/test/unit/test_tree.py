@@ -23,7 +23,6 @@ Simple unit tests for the "tree" module.
 
 import pytest
 
-import omero.sys
 from omero.rtypes import rlong, rstring, rtime
 from omeroweb.webclient.tree import marshal_plate_acquisition, \
     marshal_dataset, marshal_plate, parse_permissions_css
