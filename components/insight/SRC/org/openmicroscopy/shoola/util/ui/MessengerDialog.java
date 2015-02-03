@@ -593,9 +593,6 @@ public class MessengerDialog
     		if (count) {
     		    row.add(new JLabel("Submit Exceptions and: "));
                 row.add(UIUtilities.buildComponentPanel(submitFile));
-    		} else {
-    		    submitFile.removeActionListener(this);
-    		    submitFile.setSelected(false);
     		}
     		
     		JPanel p = new JPanel();

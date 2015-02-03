@@ -123,7 +123,8 @@ public class FileUploader
 			} else {
 				//Create a zip if required
 				File f = object.getFile();
-				String[] usedFiles = object.getUsedFiles();
+				String[] usedFiles = null;
+				if (f != null) usedFiles = object.getUsedFiles();
 				long id = object.getLogFileID();
 				OmeroMetadataService svc = context.getMetadataService();
 				SecurityContext ctx = new SecurityContext(
@@ -144,7 +145,7 @@ public class FileUploader
 								FilenameUtils.removeExtension(f.getName()));
 						FileUtils.copyFileToDirectory(f, directory, true);
 					}
-					usedFiles = object.getUsedFiles();
+					if (f != null) usedFiles = object.getUsedFiles();
 					if (usedFiles != null) {
 						for (int i = 0; i < usedFiles.length; i++) {
 							FileUtils.copyFileToDirectory(new File(usedFiles[i]),
@@ -167,7 +168,6 @@ public class FileUploader
 							context.getLogger().error(this, msg);
 						}
 					}
-					//zip the directory.
 					f = IOUtil.zipDirectory(directory, false);
 				}
 				c.submitFilesError("",

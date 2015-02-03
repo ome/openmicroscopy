@@ -94,9 +94,9 @@ class FileTable
 		ImportErrorObject o;
 		while (i.hasNext()) {
 		    o = i.next();
-		    if (o.getFile() != null) {
+		    //if (o.getFile() != null) {
 		        nodes.add(new FileTableNode(o));
-		    }
+		    //}
 		}
 	}
 	
