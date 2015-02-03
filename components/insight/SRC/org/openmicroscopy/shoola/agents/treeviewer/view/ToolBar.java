@@ -706,16 +706,9 @@ class ToolBar
         bar.add(menuButton);
         setPermissions();
         if (ij) {
-            b = new JButton("Save ImageJ Results");
-            b.addActionListener(new ActionListener() {
-                
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    SaveResultsDialog d = new SaveResultsDialog(view);
-                    UIUtilities.centerAndShow(d);
-    
-                }
-            });
+            b = new JButton(a = controller.getAction(
+                    TreeViewerControl.SAVE_TO_OMERO));
+            bar.add(Box.createHorizontalStrut(5));
             bar.add(b);
         }
         return bar;
