@@ -420,6 +420,7 @@ $.fn.roi_display = function(options) {
         }
 
         this.refresh_active_rois = function (theZ, theT) {
+            rois_displayed = true;
             refresh_rois(theZ, theT, active_rois);
         }
 
