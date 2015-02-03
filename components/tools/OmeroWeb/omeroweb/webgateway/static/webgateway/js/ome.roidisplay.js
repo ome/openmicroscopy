@@ -291,6 +291,18 @@ $.fn.roi_display = function(options) {
             return act_rois;
         }
 
+        this.activate_roi = function (roi_id) {
+            if (active_rois.indexOf(roi_id) == -1) {
+                active_rois.push(roi_id);
+            }
+        }
+
+        this.deactivate_roi = function (roi_id) {
+            if (active_rois.indexOf(roi_id) != -1) {
+                active_rois.splice(active_rois.indexOf(roi_id), 1);
+            }
+        }
+
         // returns the ROI data as json. May be null if not yet loaded! 
         this.get_roi_json = function() {
             return roi_json;
@@ -407,6 +419,9 @@ $.fn.roi_display = function(options) {
             display_selected();
         }
 
+        this.refresh_active_rois = function (theZ, theT) {
+            refresh_rois(theZ, theT, active_rois);
+        }
 
         // loads the ROIs if needed and displays them
         this.show_rois = function(theZ, theT, filter) {
