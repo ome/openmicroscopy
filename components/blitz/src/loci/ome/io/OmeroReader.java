@@ -502,7 +502,7 @@ public class OmeroReader extends FormatReader {
         }
         omeroReader.close();
     }
-
+    /** Converts omero.model.Roi to ome.xml.model.* and updates the MetadataStore */
     public static void saveOmeroRoiToMetadataStore(List<omero.model.Roi> rois,
             MetadataStore store) {
 
@@ -547,7 +547,7 @@ public class OmeroReader extends FormatReader {
 
     }
 
-
+    /** Converts omero.model.Shape (omero.model.Label in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroLabel(Shape shape, MetadataStore store,
             int roiNum, int shapeNum) {
 
@@ -577,7 +577,7 @@ public class OmeroReader extends FormatReader {
         }
 
     }
-
+    /** Converts omero.model.Shape (omero.model.RectI in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroRect(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
 
@@ -608,7 +608,7 @@ public class OmeroReader extends FormatReader {
         }
 
     }
-
+    /** Converts omero.model.Shape (omero.model.EllipseI in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroEllipse(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
 
@@ -640,7 +640,7 @@ public class OmeroReader extends FormatReader {
         }
 
     }
-
+    /** Converts omero.model.Shape (omero.model.PointI in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroPoint(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
 
@@ -667,7 +667,7 @@ public class OmeroReader extends FormatReader {
         }
 
     }
-
+    /** Converts omero.model.Shape (omero.model.LineI in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroLine(omero.model.Shape shape,
             MetadataStore store, int roiNum, int shapeNum) {
 
@@ -701,7 +701,7 @@ public class OmeroReader extends FormatReader {
 
 
     }
-
+    /** Converts omero.model.Shape (omero.model.PolygonI/omero.model.PolylineI in this case) to ome.xml.model.* and updates the MetadataStore */
     private static void storeOmeroPolygon(omero.model.Shape shape, MetadataStore store,
             int roiNum, int shapeNum){
 
@@ -750,7 +750,7 @@ public class OmeroReader extends FormatReader {
         }
 
     }
-
+    /** Parse Points String obtained from convertPoints and extract Coordinates as String*/
     protected static String parsePoints(String str)
     {
         String points = null;
@@ -783,7 +783,7 @@ public class OmeroReader extends FormatReader {
 
         return points.toString();
     }
-
+    /** Split Points coordinates and obtain information for the first plane alone */
     private static String convertPoints(String pts, String type)
     {
         if (pts.length() == 0) return "";
