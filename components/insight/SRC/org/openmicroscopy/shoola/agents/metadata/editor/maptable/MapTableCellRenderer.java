@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * {@link TableCellRenderer} used for the {@link MapTable} This basically is
- * just a wrapper around the original default TableCellEditor.
+ * just a wrapper around the original default TableCellRenderer.
  *
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>

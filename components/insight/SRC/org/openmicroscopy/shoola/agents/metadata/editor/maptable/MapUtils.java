@@ -25,7 +25,8 @@ import omero.model.NamedValue;
 import org.apache.commons.lang.StringUtils;
 
 /**
- *
+ * UI utility class for dealing with MapAnnotations
+ * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1

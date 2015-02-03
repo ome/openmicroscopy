@@ -270,6 +270,10 @@ public class MapAnnotationsComponent extends JPanel implements
 		return bar;
 	}
 
+	/**
+	 * Creates a header panel for the MapAnnotations table
+	 * @return See above
+	 */
 	private JPanel createHeaderPanel() {
 		JPanel p = new JPanel(new GridLayout(1, 2));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -283,6 +287,10 @@ public class MapAnnotationsComponent extends JPanel implements
 		return p;
 	}
 
+	/**
+	 * Constructs a label for the header panel
+	 * @return See above
+	 */
 	private JLabel constructHeaderLabel(String text) {
 		JLabel l = new JLabel(" " + text);
 		Font f = l.getFont().deriveFont(Font.ITALIC);
@@ -425,12 +433,8 @@ public class MapAnnotationsComponent extends JPanel implements
 						.getContent()).isEmpty()))
 			return null;
 
-		int permissions;
-		if (editable)
-			permissions = MapTable.PERMISSION_DELETE | MapTable.PERMISSION_MOVE
-					| MapTable.PERMISSION_EDIT;
-		else
-			permissions = MapTable.PERMISSION_NONE;
+		int permissions = editable ? MapTable.PERMISSION_DELETE | MapTable.PERMISSION_MOVE
+				| MapTable.PERMISSION_EDIT : MapTable.PERMISSION_NONE;
 
 		final MapTable t = new MapTable(permissions);
 		t.getSelectionModel().addListSelectionListener(this);
@@ -486,6 +490,10 @@ public class MapAnnotationsComponent extends JPanel implements
 		return result;
 	}
 
+	/**
+	 * Get all empty MapAnnotations
+	 * @return See above.
+	 */
 	public List<MapAnnotationData> getEmptyMapAnnotations() {
 		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
 		for (MapTable t : mapTables) {

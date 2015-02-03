@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.DeletableObject 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 //Third-party libraries
-
 
 //Application-internal dependencies
 import pojos.DatasetData;
