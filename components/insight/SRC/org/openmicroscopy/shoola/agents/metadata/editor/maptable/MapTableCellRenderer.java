@@ -52,7 +52,13 @@ public class MapTableCellRenderer implements TableCellRenderer {
 	/** Italic font used for the 'add entry' row */
 	private static final Font ITALIC = (new JLabel()).getFont().deriveFont(
 			Font.ITALIC);
+	
+	/** Default JLabel font */
+	private static final Font DEFAULT_FONT = (new JLabel()).getFont();
 
+	/** Default JLabel font color */
+	private static final Color DEFAULT_FONT_COLOR = (new JLabel()).getForeground();
+	
 	/** Reference to the original TableCellRenderer */
 	private TableCellRenderer original;
 
@@ -76,6 +82,10 @@ public class MapTableCellRenderer implements TableCellRenderer {
 						.equals(value))) {
 			l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
 			l.setFont(ITALIC);
+		}
+		else {
+			l.setForeground(DEFAULT_FONT_COLOR);
+			l.setFont(DEFAULT_FONT);
 		}
 
 		boolean editable = ((MapTable) table).canEdit();

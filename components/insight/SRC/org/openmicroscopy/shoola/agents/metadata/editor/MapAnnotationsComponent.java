@@ -559,7 +559,7 @@ public class MapAnnotationsComponent extends JPanel implements
 		MapTableModel m = (MapTableModel) t.getModel();
 		// if nothing's selected add to end of table, otherwise below selected
 		// row
-		int index = t.getSelectedRow() == -1 ? -1 : t.getSelectedRow() + 1;
+		int index = t.getSelectedRow() == -1 ? t.getRowCount() : t.getSelectedRow() + 1;
 		m.addEntries(Arrays.asList(new NamedValue("", "")), index);
 
 		t.requestFocus();
