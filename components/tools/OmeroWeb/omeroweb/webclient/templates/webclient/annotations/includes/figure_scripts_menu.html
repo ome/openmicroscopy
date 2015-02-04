@@ -28,7 +28,7 @@
         <li {% if not script.enabled %}class="disabled"{% endif %}
             title="{{ script.tooltip }}">
             <a href="{% url 'figure_script' script.id %}">
-                {{ script.name }}
+                {{ script.name }}...
             </a>
         </li>
         {% endfor %}
