@@ -513,11 +513,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer-${omero.version}\1.zip"/>
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
-
-        <apply executable="python" dir="${target.dir}" failonerror="true">
-           <env key="OMERO_VERSION" value="${omero.version}"/>
-           <fileset dir="${omero.home}/lib" includes="composite.py"/>
-       </apply>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">
