@@ -1588,6 +1588,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         ms = [m._obj for m in members]
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         
+        handle = None
         #send email if avtive
         if self.getEmailSettings():
             recp = [e.id for e in members]
@@ -1596,8 +1597,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
             req = omero.cmd.SendEmailRequest(subject=subject, body=message, userIds=recp)
             handle = self.c.sf.submit(req)
-            return sid, handle
-        return sid
+        return sid, handle
 
     def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
@@ -1609,6 +1609,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if len(rm_members) > 0:
             sh.removeUsers(long(share_id), rm_members)
         
+        handle = None
         #send email if avtive
         if len(add_members) > 0:
             try:
@@ -1622,8 +1623,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
                 req = omero.cmd.SendEmailRequest(subject=subject, body=message, userIds=recp)
                 handle = self.c.sf.submit(req)
-                return share_id, handle
-            
+
         if len(rm_members) > 0:
             try:
                 recp = [e.id for e in rm_members]
@@ -1636,7 +1636,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
                 req = omero.cmd.SendEmailRequest(subject=subject, body=message, userIds=recp)
                 handle = self.c.sf.submit(req)
-                return share_id, handle
+
+        return share_id, handle
 
     ##############################################
     ##  History methods                        ##
