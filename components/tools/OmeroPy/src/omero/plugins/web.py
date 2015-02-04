@@ -15,22 +15,10 @@ import sys
 import os
 from omero_ext.argparse import SUPPRESS
 
-try:
-    from omeroweb import settings
+HELP = "OMERO.web configuration/deployment tools"
 
-    CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
-    CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
 
-    for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
-        global_name, default_value, mapping, desc, using_default = \
-            settings.CUSTOM_SETTINGS_MAPPINGS[key]
-        global_value = getattr(settings, global_name, "(unset)")
-        CONFIG_TABLE += CONFIG_TABLE_FMT % (key, using_default, global_value)
-except:
-    CONFIG_TABLE = (
-        "INVALID OR LOCKED CONFIGURATION! Cannot display default values")
-
-HELP = """OMERO.web configuration/deployment tools
+LONGHELP = """OMERO.web configuration/deployment tools
 
 Configuration:
 
@@ -61,7 +49,7 @@ Example IIS usage:
     omero web iis --remove
     iisreset
 
-""" % CONFIG_TABLE
+"""
 
 
 class WebControl(BaseControl):
@@ -69,6 +57,7 @@ class WebControl(BaseControl):
     def _configure(self, parser):
         sub = parser.sub()
 
+        parser.add(sub, self.help, "Extended help")
         parser.add(sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
         parser.add(sub, self.restart, "Restart the OMERO.web server")
@@ -129,6 +118,27 @@ class WebControl(BaseControl):
             "Developer use: Loads the blitz gateway into a Python"
             " interpreter")
 
+    def help(self, args):
+        """Return extended help"""
+        from omeroweb import settings
+        try:
+            CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
+            CONFIG_TABLE = CONFIG_TABLE_FMT % (
+                "Key", "Default?", "Current value")
+
+            for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
+                global_name, default_value, mapping, desc, using_default = \
+                    settings.CUSTOM_SETTINGS_MAPPINGS[key]
+                global_value = getattr(settings, global_name, "(unset)")
+                CONFIG_TABLE += CONFIG_TABLE_FMT % (
+                    key, using_default, global_value)
+        except:
+            CONFIG_TABLE = (
+                "INVALID OR LOCKED CONFIGURATION!"
+                " Cannot display default values")
+
+        self.ctx.err(LONGHELP % CONFIG_TABLE)
+
     def _get_python_dir(self):
         return self.ctx.dir / "lib" / "python"
 
@@ -136,6 +146,7 @@ class WebControl(BaseControl):
         return self.ctx.dir / "etc" / "templates"
 
     def config(self, args):
+        from omeroweb import settings
         if not args.type:
             self.ctx.die(
                 "Available configuration helpers:\n"
@@ -159,8 +170,7 @@ class WebControl(BaseControl):
                 "ROOT": self.ctx.dir,
                 "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
                 "STATIC_URL": settings.STATIC_URL.rstrip("/"),
-                "NOW": str(datetime.now())
-            }
+                "NOW": str(datetime.now())}
 
             try:
                 d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
@@ -237,6 +247,7 @@ class WebControl(BaseControl):
     def enableapp(self, args):
         location = self._get_python_dir() / "omeroweb"
         if not args.appname:
+            from omeroweb import settings
             apps = [x.name for x in filter(
                 lambda x: x.isdir() and
                 (x / 'scripts' / 'enable.py').exists(),
