@@ -594,6 +594,42 @@ DEPRECATED_SETTINGS_MAPPINGS = {
          None,
          leave_none_unset,
          ("Use omero.web.prefix instead.")],
+    "omero.web.server_email":
+        ["SERVER_EMAIL",
+         None,
+         identity,
+         ("Use omero.mail.from instead.")],
+    "omero.web.email_host":
+        ["EMAIL_HOST",
+         None,
+         identity,
+         ("Use omero.mail.host instead.")],
+    "omero.web.email_host_password":
+        ["EMAIL_HOST_PASSWORD",
+         None,
+         identity,
+         ("Use omero.mail.password instead.")],
+    "omero.web.email_host_user":
+        ["EMAIL_HOST_USER",
+         None,
+         identity,
+         ("Use omero.mail.username instead.")],
+    "omero.web.email_port":
+        ["EMAIL_PORT",
+         None,
+         identity,
+         ("Use omero.mail.port instead.")],
+    "omero.web.email_subject_prefix":
+        ["EMAIL_SUBJECT_PREFIX",
+         "[OMERO.web]",
+         str,
+         ("Default email subject is no longer configurable.")],
+    "omero.web.email_use_tls":
+        ["EMAIL_USE_TLS",
+         "false",
+         parse_boolean,
+         ("Use omero.mail.smtp.* instead to set up"
+          " javax.mail.Session properties.")],
 }
 
 del CUSTOM_HOST
