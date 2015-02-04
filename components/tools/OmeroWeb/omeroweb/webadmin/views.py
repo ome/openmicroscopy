@@ -31,13 +31,13 @@ or anything.'''
 
 import traceback
 import logging
+import datetime
 
 import omeroweb.webclient.views
 
 from omero_version import build_year
 from omero_version import omero_version
 
-from django.conf import settings
 from django.template import loader as template_loader
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -54,8 +54,6 @@ from omero.gateway.utils import toBoolean
 from omeroweb.http import HttpJPEGResponse
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.connector import Connector
-
-from .webadmin_utils import removeUnaddressable
 
 logger = logging.getLogger(__name__)
 
@@ -78,13 +76,18 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
         super(render_response_admin, self).prepare_context(request, context,
                                                            *args, **kwargs)
 
-        noGroupsCreated = kwargs["conn"].isAnythingCreated()
+        if 'conn' not in kwargs:
+            return
+        conn = kwargs['conn']
+
+        noGroupsCreated = conn.isAnythingCreated()
         if noGroupsCreated:
             msg = _('User must be in a group - You have not created any'
                     ' groups yet. Click <a href="%s">here</a> to create a'
                     ' group') % (reverse(viewname="wamanagegroupid",
                                          args=["new"]))
             context['ome']['message'] = msg
+        context['ome']['email'] = conn.getEmailSettings()
 
 ##############################################################################
 # utils
@@ -964,12 +967,7 @@ def email(request, conn=None, **kwargs):
     """
 
     # Check that the appropriate web settings are available
-    if (not (settings.SERVER_EMAIL or settings.EMAIL_HOST or
-             settings.EMAIL_PORT)):
-        return {'template': 'webadmin/noemail.html'}
-
-    if (settings.EMAIL_USE_TLS and not (settings.EMAIL_HOST_USER or
-                                        settings.EMAIL_HOST_PASSWORD)):
+    if (not conn.getEmailSettings()):
         return {'template': 'webadmin/noemail.html'}
 
     # Get experimenters and groups.
@@ -977,20 +975,34 @@ def email(request, conn=None, **kwargs):
     groups = list(conn.getObjects("ExperimenterGroup"))
 
     # Sort experimenters and groups
-    # Validating and getting the email addresses here is important if we do
-    # not wish to display users who are not addressable
-    experimenters = removeUnaddressable(experimenters)
     experimenters.sort(key=lambda x: x.getFirstName().lower())
+    groups = list(conn.getObjects("ExperimenterGroup"))
     groups.sort(key=lambda x: x.getName().lower())
 
     if request.method == 'POST':  # If the form has been submitted...
         # ContactForm was defined in the the previous section
         form = EmailForm(experimenters, groups, conn, request,
-                         data=request.POST)  # A form bound to the POST data
-
+                         data=request.POST.copy())
         if form.is_valid():  # All validation rules pass
-            form.send_email()
-            # Go back to a blank form
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            experimenters = form.cleaned_data['experimenters']
+            groups = form.cleaned_data['groups']
+            everyone = toBoolean(form.cleaned_data['everyone'])
+            inactive = toBoolean(form.cleaned_data['inactive'])
+
+            req = omero.cmd.SendEmailRequest(subject=subject, body=message,
+                                             groupIds=groups,
+                                             userIds=experimenters,
+                                             everyone=everyone,
+                                             inactive=inactive)
+            handle = conn.c.sf.submit(req)
+            if handle is not None:
+                request.session.modified = True
+                request.session['callback'][str(handle)] = {
+                    'job_type': 'send_email',
+                    'status': 'in progress', 'error': 0,
+                    'start_time': datetime.datetime.now()}
             return HttpResponseRedirect(reverse("waemail"))
 
     else:
