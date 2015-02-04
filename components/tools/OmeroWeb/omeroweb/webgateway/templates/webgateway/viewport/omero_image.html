@@ -238,6 +238,51 @@
 
     }
 
+    var slide_start_cb = function() {
+        // Note starting values, so we can tell which handle/value changed
+        // This is for floating point data where ui.values may not be what we set
+        return function(event, ui) {
+            $(this).data('channel_start', ui.values[0])
+                .data('channel_end', ui.values[1]);
+        };
+    };
+    var slide_cb = function() {
+        return function(event, ui) {
+            // Only update the value that changed
+            var s = $(this).data('channel_start');
+            var e = $(this).data('channel_end');
+            if (ui.values[0] !== s) {
+                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
+            } else if (ui.values[1] !== e) {
+                $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
+            }
+        };
+    };
+
+    var init_ch_slider = function(i, channels) {
+        var min = Math.min(channels[i].window.min, channels[i].window.start),  // range may extend outside min/max pixel
+            max = Math.max(channels[i].window.max, channels[i].window.end),
+            start = channels[i].window.start,
+            end = channels[i].window.end,
+            ptype = viewport.loadedImg.meta.pixelsType,
+            step = 1;
+        if (ptype == "float") {
+            var STEPS = 100;
+            step = (max - min) / STEPS;
+        }
+
+        $('#wblitz-ch'+i+'-cwslider').slider({
+            range: true,
+            step: step,
+            min: min,
+            max: max,
+            values: [ start, end ],
+            start: slide_start_cb(),
+            slide: slide_cb(),
+            }).data('channel-idx', i);
+    };
+
+
     // disable 'split' view for single channel images.
     if (channels.length < 2) {
       $("input[value='split']").attr('disabled', 'disabled');
@@ -330,16 +375,7 @@
         template: '<span class="min">min: $min</span> $start - $end <span class="max">max: $max</span>',
         lblStart: '',
         lblEnd: ''});
-      $('#wblitz-ch'+i+'-cwslider').slider({
-        range: true,
-        min: Math.min(channels[i].window.min, channels[i].window.start+1),  // range may extend outside min/max pixel
-        max: Math.max(channels[i].window.max, channels[i].window.end-1),
-        values: [ channels[i].window.start+1, channels[i].window.end-1 ],
-        slide: function(event, ui) {
-          $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-start').val(ui.values[0]).change();
-          $('#wblitz-ch'+$(event.target).data('channel-idx')+'-cw-end').val(ui.values[1]).change();
-        }
-        }).data('channel-idx', i);
+      init_ch_slider(i, channels);
       cb = function (i) {
         return function (e) {
           var new_start = e.target.value,
@@ -441,7 +477,7 @@
       btns.removeClass('forcegrey');
     }
     $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
-    //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+    $('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
     //syncRDCW();
   };
 

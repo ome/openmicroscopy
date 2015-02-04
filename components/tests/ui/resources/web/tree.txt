@@ -121,4 +121,5 @@ Select Node By Id
     [Arguments]         ${nodeId}
     # Make sure node is visible (by clicking parent node)
     Execute Javascript  if(!$("#${nodeId}").is(":visible")){$("#${nodeId}").parent().parent().children("a").click()}
+    Sleep               1
     Click Element       css=#${nodeId}>a

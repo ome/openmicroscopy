@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.slider.TwoKnobSliderModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -50,22 +50,22 @@ class TwoKnobsSliderModel
 {
 
 	/** The absolute minimum. */
-	private int							absoluteMin;
+	private double							absoluteMin;
 
 	/** The absolute maximum. */
-	private int							absoluteMax;
+	private double							absoluteMax;
 
 	/** The maximum value. */
-	private int         				maximum;
+	private double         				maximum;
 
 	/** The minimum value. */
-	private int         				minimum;
+	private double         				minimum;
 
 	/** The value of the start knob, the default value is {@link #minimum}. */
-	private int         				startValue;
+	private double         				startValue;
 
 	/** The value of the end knob, the default value is {@link #maximum}. */
-	private int         				endValue;
+	private double         				endValue;
 
 	/** Flag indicating if we can move the knobs. */
 	private boolean     				enabled;
@@ -83,16 +83,16 @@ class TwoKnobsSliderModel
 	private boolean     				paintEndLabels;
 
 	/** The space between the major ticks. */
-	private int         				majorTickSpacing;
+	private double         				majorTickSpacing;
 
 	/** The space between the minor ticks. */
-	private int         				minorTickSpacing;
+	private double         				minorTickSpacing;
 
 	/** The ticks increment value. */
-	private int         				increment;
+	private double         				increment;
 
 	/** The collection storing the labels. */
-	private Map<Integer, String>		labels;
+	private Map<Double, String>		labels;
 
 	/**
 	 * Identifies the orientation of the slider either 
@@ -101,10 +101,10 @@ class TwoKnobsSliderModel
 	private int         				orientation;
 
 	/** The partial min is for example the minimum value minus the increment. */
-	private int							partialMin;
+	private double							partialMin;
 
 	/** The partial max is for example the maximum value plus the increment. */
-	private int							partialMax;
+	private double							partialMax;
 
 	/** Indicates that overlap is allowed.*/
 	private boolean						overlap;
@@ -112,15 +112,15 @@ class TwoKnobsSliderModel
 	/** Creates labels for the minimum and maximum values. */
 	private void createEndLabels()
 	{
-		labels.put(Integer.valueOf(minimum), render(minimum));
-		labels.put(Integer.valueOf(maximum), render(maximum));
+		labels.put(Double.valueOf(minimum), render(minimum));
+		labels.put(Double.valueOf(maximum), render(maximum));
 	}
 
 	/** Creates the labels. */
 	private void createLabels()
 	{
-		for (int i = minimum; i <= maximum; i += increment)
-			labels.put(Integer.valueOf(i), render(i));
+		for (double i = minimum; i <= maximum; i += increment)
+			labels.put(Double.valueOf(i), render(i));
 	}
 
 	/** Initializes the controls with the default values. */
@@ -131,7 +131,7 @@ class TwoKnobsSliderModel
 		increment = (maximum-minimum)/10;
 		minorTickSpacing = 1;
 		majorTickSpacing = 10;
-		labels = new HashMap<Integer, String>();
+		labels = new HashMap<Double, String>();
 		setPaintLabels(false);
 		setPaintEndLabels(true);
 		setOrientation(TwoKnobsSlider.HORIZONTAL);
@@ -147,14 +147,15 @@ class TwoKnobsSliderModel
 	 * @param startValue    The value of the start knob.
 	 * @param endValue      The value of the end knob.
 	 */
-	TwoKnobsSliderModel(int absoluteMax, int absoluteMin, int maximum, 
-			int minimum, int startValue, int endValue)
+	TwoKnobsSliderModel(double absoluteMax, double absoluteMin, double maximum, 
+	        double minimum, double startValue, double endValue)
 	{
 		checkValues(absoluteMax, absoluteMin, maximum, minimum, startValue, 
 				endValue);
 		installDefaults();
 	}
 
+        
 	/**
 	 * Checks if the specified values are valid.
 	 * 
@@ -165,8 +166,8 @@ class TwoKnobsSliderModel
 	 * @param startValue    The value of the start knob.
 	 * @param endValue      The value of the end knob.
 	 */
-	void checkValues(int absoluteMax, int absoluteMin, int maximum, int minimum,
-			int startValue, int endValue)
+	void checkValues(double absoluteMax, double absoluteMin, double maximum, double minimum,
+	        double startValue, double endValue)
 	{
 		if (maximum >= minimum && startValue <= endValue &&
 				absoluteMax >= absoluteMin && maximum <= absoluteMax &&
@@ -206,56 +207,56 @@ class TwoKnobsSliderModel
 	 * 
 	 * @return See above.
 	 */
-	int getEndValue() { return endValue; }
+	double getEndValue() { return endValue; }
 
 	/**
 	 * Returns the value of the start knob.
 	 * 
 	 * @return See above.
 	 */
-	int getStartValue() { return startValue; }
+	double getStartValue() { return startValue; }
 
 	/**
 	 * Returns the maximum value of the slider.
 	 * 
 	 * @return See above.
 	 */
-	int getMaximum() { return maximum; }
+	double getMaximum() { return maximum; }
 
 	/**
 	 * Returns the minimum value of the slider.
 	 * 
 	 * @return See above.
 	 */
-	int getMinimum() { return minimum; }
+	double getMinimum() { return minimum; }
 
 	/**
 	 * Returns the maximum value of the slider.
 	 * 
 	 * @return See above.
 	 */
-	int getAbsoluteMaximum() { return absoluteMax; }
+	double getAbsoluteMaximum() { return absoluteMax; }
 
 	/**
 	 * Returns the minimum value of the slider.
 	 * 
 	 * @return See above.
 	 */
-	int getAbsoluteMinimum() { return absoluteMin; }
+	double getAbsoluteMinimum() { return absoluteMin; }
 
 	/**
 	 * Returns the partial minimum.
 	 * 
 	 * @return See above.
 	 */
-	int getPartialMinimum() { return absoluteMin; }
+	double getPartialMinimum() { return absoluteMin; }
 
 	/**
 	 * Returns the partial maximum.
 	 * 
 	 * @return See above.
 	 */
-	int getPartialMaximum() { return absoluteMax; }
+	double getPartialMaximum() { return absoluteMax; }
 
 	/**
 	 * Sets the value of the start knob, value in the range
@@ -263,7 +264,7 @@ class TwoKnobsSliderModel
 	 * 
 	 * @param startValue The value to set.
 	 */
-	void setStartValue(int startValue)
+	void setStartValue(double startValue)
 	{ 
 		if (overlap) {
 			if (startValue > endValue) return;
@@ -283,7 +284,7 @@ class TwoKnobsSliderModel
 	 * 
 	 * @param endValue The value to set.
 	 */
-	void setEndValue(int endValue)
+	void setEndValue(double endValue)
 	{ 
 		if (overlap) {
 			if (endValue < startValue) return;
@@ -302,7 +303,7 @@ class TwoKnobsSliderModel
 	 * @param start	The value to set.
 	 * @param end	The value to set.
 	 */
-	void setInterval(int start, int end)
+	void setInterval(double start, double end)
 	{
 		if (end > absoluteMax) end = absoluteMax;
 		if (end >= partialMax) partialMax = end;
@@ -389,7 +390,7 @@ class TwoKnobsSliderModel
 	 * 
 	 * @return See above. 
 	 */
-	int getMajorTickSpacing() { return majorTickSpacing; }
+	double getMajorTickSpacing() { return majorTickSpacing; }
 
 	/**
 	 * Sets the majorTickSpacing value.  
@@ -403,28 +404,28 @@ class TwoKnobsSliderModel
 	 * 
 	 * @return See above. 
 	 */
-	int getMinorTickSpacing() { return minorTickSpacing; }
+	double getMinorTickSpacing() { return minorTickSpacing; }
 
 	/**
 	 * Sets the minorTickSpacing value.  
 	 * 
 	 * @param v The value to set.
 	 */
-	void setMinorTickSpacing(int v) { minorTickSpacing = v; }
+	void setMinorTickSpacing(double v) { minorTickSpacing = v; }
 
 	/**
 	 * Returns the increment value.
 	 * 
 	 * @return See above.
 	 */
-	int getIncrement() { return increment; }
+	double getIncrement() { return increment; }
 
 	/**
 	 * Returns the map with the labels.
 	 * 
 	 * @return See above. 
 	 */
-	Map<Integer, String> getLabels() { return labels; }
+	Map<Double, String> getLabels() { return labels; }
 
 	/**
 	 * Formats the specified value.

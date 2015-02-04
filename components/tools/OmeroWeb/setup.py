@@ -17,6 +17,10 @@ for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
     if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
         sys.path.insert(0, os.path.abspath(tools))
 
+os.environ.setdefault('OMERO_HOME', os.path.abspath(
+    os.path.join("..", "..", "..", "dist")))
+
+
 LIB = os.path.join("..", "target", "lib", "python")
 sys.path.insert(0, LIB)
 OMEROWEB_LIB = os.path.join(LIB, "omeroweb")

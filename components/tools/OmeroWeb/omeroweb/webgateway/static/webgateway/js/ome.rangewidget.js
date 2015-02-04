@@ -21,8 +21,8 @@
   $.fn.rangewidget = function (cfg) {
     return this.each(function () {
       this.cfg = {
-	min: cfg && !isNaN(parseInt(cfg.min)) ? parseInt(cfg.min) : null,
-	max: cfg && !isNaN(parseInt(cfg.max)) ? parseInt(cfg.max) : null,
+	min: cfg && !isNaN(parseFloat(cfg.min)) ? parseFloat(cfg.min) : null,
+	max: cfg && !isNaN(parseFloat(cfg.max)) ? parseFloat(cfg.max) : null,
 	lblStart: cfg && cfg.lblStart != undefined ? cfg.lblStart : 'Start',
 	lblEnd: cfg && cfg.lblEnd != undefined ? cfg.lblEnd : 'End',
         template: cfg && cfg.template ? cfg.template : null
@@ -42,6 +42,17 @@
           this.cfg.lblEnd = this.cfg.max;
         }
       }
+      // try to format if values aren't integers
+      try {
+        if (this.cfg.lblStart != parseInt(this.cfg.lblStart)) {
+          this.cfg.lblStart = this.cfg.lblStart.toFixed(3);
+        }
+        if (this.cfg.lblEnd != parseInt(this.cfg.lblEnd)) {
+          this.cfg.lblEnd = this.cfg.lblEnd.toFixed(3);
+        }
+      }
+      catch(err) {}
+
       var self = $(this);
       self.addClass('rangewidget');
       if (this.cfg.template == null) {

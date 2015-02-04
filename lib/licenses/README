@@ -95,6 +95,13 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    appbundler-*.jar
+  Project:      Packages a Java application as a Mac app bundle.
+  Web Site:     https://java.net/projects/appbundler
+  License:      General Public License (GPL), Version 2
+  License File: gpl.txt
+
+
   Artifacts:    axis-client-*.jar
   Project:      Apache Axis is an implementation of the SOAP
                 ("Simple Object Access Protocol") submission to W3C.

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerControl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -41,10 +41,10 @@ import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 /** 
@@ -67,18 +67,6 @@ class MoviePlayerControl
             PropertyChangeListener
 {
 
-	/** Identifies the entering of a starting timepoint. */
-    private static final int    START_T = 0;
-    
-    /** Identifies the entering of a ending timepoint. */
-    private static final int    END_T = 1;
-    
-    /** Identifies the entering of a starting z-section. */
-    private static final int    START_Z = 2;
-    
-    /** Identifies the entering of a ending z-section. */
-    private static final int    END_Z = 3;
-    
     /** Identifies the play movie action. */
     private static final int    PLAY_CMD = 4;
     
@@ -104,13 +92,7 @@ class MoviePlayerControl
     
     /** Indicates that the movie is played across z-sections and timepoints. */
     private static final int    ACROSS_ZT_CMD = 11;
-    
-    /** Indicates that a new start/end z-section has been entered. */
-    private static final int    TYPE_Z = 200;
-    
-    /** Indicates that a new start/end timepoint has been entered. */
-    private static final int    TYPE_T = 201;
-    
+
     /** Reference to the View. */
     private MoviePlayer     model;
 
@@ -128,16 +110,15 @@ class MoviePlayerControl
         button.setActionCommand(""+id);
     }
     
-    /** Adds listeners to a {@link JTextField}. 
-     * 
+    /**
+     * Adds listeners to a {@link JTextField}. 
+     *
      * @param field The component to attach the listeners to.
-     * @param id    The action command ID.
      */
-    private void attachFieldListeners(JTextField field, int id)
+    private void attachFieldListeners(JTextField field)
     {
-        field.setActionCommand(""+id);  
-        field.addActionListener(this);
         field.addFocusListener(this);
+        field.addPropertyChangeListener(this);
     }
     
     /** Adds listeners to the UI components. */
@@ -162,10 +143,10 @@ class MoviePlayerControl
         //JSpinner
         view.fps.addChangeListener(this);
         //MoviePane
-        attachFieldListeners(view.startT, START_T);
-        attachFieldListeners(view.endT, END_T);
-        attachFieldListeners(view.startZ, START_Z);
-        attachFieldListeners(view.endZ, END_Z);
+        attachFieldListeners(view.startT);
+        attachFieldListeners(view.endT);
+        attachFieldListeners(view.startZ);
+        attachFieldListeners(view.endZ);
         attachButtonListener(view.acrossZ, ACROSS_Z_CMD);
         attachButtonListener(view.acrossT, ACROSS_T_CMD);
         //attachButtonListener(view.acrossZT, ACROSS_ZT_CMD);
@@ -173,95 +154,7 @@ class MoviePlayerControl
         view.zSlider.addPropertyChangeListener(this);
     }
 
-    /**
-     * Sets the start value depending on the specified type.
-     * 
-     * @param start The start value either z-section or timepoint depending on 
-     *              the type.
-     * @param end   The end value either z-section or timepoint depending on 
-     *              the type.
-     * @param type  One of the following constants {@link #TYPE_T} or
-     *              {@link #TYPE_Z}.
-     */
-    private void movieStartActionHandler(JTextField start, JTextField end,
-                                        int type)
-    {
-        boolean valid = false;
-        int val = 0;
-        int valEnd = 0;
-        if (type == TYPE_T) valEnd = model.getMaxT();
-        else if (type == TYPE_Z) valEnd = model.getMaxZ();
-        try {
-            val = Integer.parseInt(start.getText());
-            valEnd = Integer.parseInt(end.getText());
-            if (type == TYPE_Z) {
-            	val = val-1;
-            	valEnd = valEnd-1;
-            }
-            if (0 <= val && val < valEnd) valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (!valid) {
-            int v = valEnd+1; 
-            start.selectAll();
-            UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid start point", 
-                "Please enter a value between 1 and "+v);
-            return;
-        }
-        if (type == TYPE_T) {
-            model.setStartT(val);
-            view.setStartT(val);
-        } else if (type == TYPE_Z) {
-            model.setStartZ(val);
-            view.setStartZ(val);
-        }
-    }
-    
-    /**
-     * Sets the end value depending on the specified type.
-     * 
-     * @param start The start value either z-section or timepoint depending on 
-     *              the type.
-     * @param end   The end value either z-section or timepoint depending on 
-     *              the type.
-     * @param type  One of the following constants {@link #TYPE_T} or
-     *              {@link #TYPE_Z}.
-     */
-    private void movieEndActionHandler(JTextField start, JTextField end,
-                                        int type)
-    {
-        boolean valid = false;
-        int val = 0;
-        int valStart = 0;
-        int max = 0;
-        if (type == TYPE_T) max = model.getMaxT();
-        else if (type == TYPE_Z) max = model.getMaxZ();
-        try {
-            val = Integer.parseInt(end.getText());
-            valStart = Integer.parseInt(start.getText());
-            if (type == TYPE_Z) {
-            	val = val-1;
-            	valStart = valStart-1;
-            }
-            if (valStart < val && val <= max) valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (!valid) {
-            end.selectAll();
-            UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-            int v = valStart+1;
-            un.notifyInfo("Invalid end point", "Please enter a value between "+
-                            v+" and "+(max+1));
-            return;
-        }
-        if (type == TYPE_T) {
-            model.setEndT(val);
-            view.setEndT(val);
-        } else if (type == TYPE_Z) {
-            model.setEndZ(val);
-            view.setEndZ(val);
-        }
-    }
-    
+
     /**
      * Checks if the delay entered for the timer is valid.
      * If so, sets the value and updates the UI.
@@ -306,18 +199,6 @@ class MoviePlayerControl
         try {
             int index = Integer.parseInt(ae.getActionCommand());
             switch (index) {
-                case START_T:
-                    movieStartActionHandler(view.startT, view.endT, TYPE_T);
-                    break;
-                case END_T:
-                    movieEndActionHandler(view.startT, view.endT, TYPE_T); 
-                    break;
-                case START_Z:
-                    movieStartActionHandler(view.startZ, view.endZ, TYPE_Z);  
-                    break;
-                case END_Z:
-                    movieEndActionHandler(view.startZ, view.endZ, TYPE_Z); 
-                    break;
                 case ACROSS_T_CMD:
                 	if (view.acrossZ.isSelected()) {
                 		if (view.acrossT.isSelected())
@@ -389,24 +270,24 @@ class MoviePlayerControl
      */
     public void focusLost(FocusEvent e)
     {
-        String edit = view.editor.getText(), 
+        String edit = view.editor.getText(),
         ed = ""+model.getTimerDelay();
         if (edit == null || !edit.equals(ed)) 
             view.editor.setText(ed);
-        String startT = ""+model.getStartT();
-        String endT = ""+model.getEndT();
+        String startT = ""+(model.getStartT()+1);
+        String endT = ""+(model.getEndT()+1);
         String startVal = view.startT.getText(), endVal = view.endT.getText();
-        if (startVal == null || !startVal.equals(startT))
-             view.startT.setText(startT);        
-        if (endVal == null || !endVal.equals(endT)) 
+        if (StringUtils.isBlank(startVal) || !startVal.equals(startT))
+             view.startT.setText(startT);
+        if (StringUtils.isBlank(endVal) || !endVal.equals(endT)) 
             view.endT.setText(endT);
         String startZ = ""+(model.getStartZ()+1);
         String endZ = ""+(model.getEndZ()+1);
         startVal = view.startZ.getText();
         endVal = view.endZ.getText();
-        if (startVal == null || !startVal.equals(startZ))
-            view.startZ.setText(startZ);        
-        if (endVal == null || !endVal.equals(endZ)) 
+        if (StringUtils.isBlank(startVal) || !startVal.equals(startZ))
+            view.startZ.setText(startZ);
+        if (StringUtils.isBlank(endVal) || !endVal.equals(endZ)) 
             view.endZ.setText(endZ);
     }
 
@@ -422,23 +303,54 @@ class MoviePlayerControl
         int e = -1;
         if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)) {
         	if (source.equals(view.zSlider)) {
-        		s = view.zSlider.getStartValue();
+        		s = view.zSlider.getStartValueAsInt();
         		model.setStartZ(s);
         		view.setStartZ(s);
         	} else if (source.equals(view.tSlider)) {
-        		s = view.tSlider.getStartValue();
+        		s = view.tSlider.getStartValueAsInt();
         		model.setStartT(s);
         		view.setStartT(s);
         	}
         } else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
             if (source.equals(view.zSlider)) {
-                e = view.zSlider.getEndValue();
+                e = view.zSlider.getEndValueAsInt();
                 model.setEndZ(e);
                 view.setEndZ(e);
             } else if (source.equals(view.tSlider)) {
-                e = view.tSlider.getEndValue();
+                e = view.tSlider.getEndValueAsInt();
                 model.setEndT(e);
                 view.setEndT(e);
+            }
+        } else if (NumericalTextField.TEXT_UPDATED_PROPERTY.equals(name)) {
+            Number n;
+            if (source.equals(view.startT)) {
+                n = view.startT.getValueAsNumber();
+                if (n == null) return;
+                s = n.intValue()-1;
+                if (s >= model.getEndT() || s < 0) return;
+                model.setStartT(s);
+                view.tSlider.setStartValue(s);
+            } else if (source.equals(view.startZ)) {
+                n = view.startZ.getValueAsNumber();
+                if (n == null) return;
+                s = n.intValue()-1;
+                if (s >= model.getEndZ() || s < 0) return;
+                model.setStartZ(s);
+                view.zSlider.setStartValue(s);
+            } else if (source.equals(view.endZ)) {
+                n = view.endZ.getValueAsNumber();
+                if (n == null) return;
+                s = n.intValue()-1;
+                if (s <= model.getStartZ() || s > model.getMaxZ()) return;
+                model.setEndZ(s);
+                 view.zSlider.setEndValue(s);
+            } else if (source.equals(view.endT)) {
+                n = view.endT.getValueAsNumber();
+                if (n == null) return;
+                s = n.intValue()-1;
+                if (s <= model.getStartT() || s > model.getMaxT()) return;
+                model.setEndT(s);
+                view.tSlider.setEndValue(s);
             }
         }
     }

@@ -32,6 +32,12 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+
+
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -210,18 +216,18 @@ public final class Container
 	private Container(String home, String configFile)
 		throws StartupException
 	{
-		if (configFile == null || configFile.trim().equals(""))
+	    if (StringUtils.isBlank(configFile) ||
+	            !FilenameUtils.isExtension(configFile, "xml"))
 			configFile = CONFIG_FILE;
 		this.configFile = configFile;
-		//Convert to abstract pathname. 
-		//(empty string leads to empty abstract pathname)
-		File f = new File(home == null ? "" : home);
+        if (StringUtils.isBlank(FilenameUtils.getPath(home)))
+            home = System.getProperty("user.dir");
+        File f = new File(home);
 		
 		//Now make it absolute. If the original path wasn't absolute, then
 		//translation is system dependent. 
 		f = f.getAbsoluteFile();
 		homeDir = f.getAbsolutePath();
-		
 		//Make sure that what we've got is a directory. 
 		if (!f.exists() || !f.isDirectory())
 			throw new StartupException("Can't locate home dir: "+homeDir);

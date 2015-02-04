@@ -41,6 +41,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -225,7 +227,34 @@ public class MeasureBezierFigure
 		}
 		total += map.size();
 	}
-	
+
+	/**
+	 * Formats the area.
+	 * 
+	 * @param value The value to format.
+	 * @param lineUnits Pass <code>true</code> to use the line units,
+	 *                  <code>false</code> otherwise.
+	 * @return See above.
+	 */
+	private String formatValue(double value, boolean lineUnits)
+	{
+	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+	    if (units.isInMicrons()){
+	        UnitsObject v;
+	        if (lineUnits) {
+	            v = UIUtilities.transformSize(value);
+	        } else {
+	            v = UIUtilities.transformSquareSize(value);
+	        }
+	        StringBuffer buffer = new StringBuffer();
+	        buffer.append(formatter.format(v.getValue()));
+	        buffer.append(v.getUnits());
+	        return buffer.toString();
+	    }
+	    if (lineUnits) return addLineUnits(formatter.format(value));
+	    return addAreaUnits(formatter.format(value));
+	}
+
 	/** Creates an instance of the Bezier figure. */
 	public MeasureBezierFigure()
 	{
@@ -321,14 +350,15 @@ public class MeasureBezierFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
+		    Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
 			if (isClosed())
 			{
-				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-				String polygonArea = formatter.format(getArea());
-				polygonArea = addAreaUnits(polygonArea);
-				double sz = ((Double) this.getAttribute(
-							MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
+				String polygonArea = formatValue(getArea(), false);
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
 				bounds = new Rectangle2D.Double(
 						this.getBounds().getCenterX()-bounds.getWidth()/2,
@@ -351,12 +381,7 @@ public class MeasureBezierFigure
 			}
 			else
 			{
-				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-				String polygonLength = formatter.format(getLength());
-				polygonLength = addLineUnits(polygonLength);
-				double sz = (Double) 
-						getAttribute(MeasurementAttributes.FONT_SIZE);
-				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
+				String polygonLength = formatValue(getLength(), true);
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
 				if (super.getNodeCount() > 1)
@@ -482,9 +507,9 @@ public class MeasureBezierFigure
 		Point2D.Double pt = getNode(i).getControlPoint(0); 
 		if (units.isInMicrons()) {
 			double tx = UIUtilities.transformSize(
-					pt.getX()*units.getMicronsPixelX()).getValue();
+					pt.getX()*units.getMicronsPixelX(), refUnits);
 			double ty = UIUtilities.transformSize(
-					pt.getY()*units.getMicronsPixelY()).getValue();
+					pt.getY()*units.getMicronsPixelY(), refUnits);
 			return new Point2D.Double(tx, ty);
 		}
 		return pt;
@@ -526,9 +551,9 @@ public class MeasureBezierFigure
 		{
 			Point2D.Double pt1 =  path.getCenter();
 			double tx = UIUtilities.transformSize(
-					pt1.getX()*units.getMicronsPixelX()).getValue();
+					pt1.getX()*units.getMicronsPixelX(), refUnits);
 			double ty = UIUtilities.transformSize(
-					pt1.getY()*units.getMicronsPixelY()).getValue();
+					pt1.getY()*units.getMicronsPixelY(), refUnits);
 			pt1.setLocation(tx, ty);
 			return pt1;
 		}

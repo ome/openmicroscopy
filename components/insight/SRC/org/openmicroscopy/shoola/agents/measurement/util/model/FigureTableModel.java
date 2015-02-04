@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
+
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -73,13 +75,14 @@ public class FigureTableModel
 	
 	/** Collection of fields. */
 	private List<AttributeField>	fieldList;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param fieldList The collection of fields. Mustn't be <code>null</code>.
-	 * @param columnNames The collection of column's names. 
-	 * 	Mustn't be <code>null</code>.
+	 * @param columnNames The collection of column's names.
+	 *                    Mustn't be <code>null</code>.
+	 * @param canvas Reference to the drawing canvas. Mustn't be <code>null</code>.
 	 */
 	public FigureTableModel(List<AttributeField> fieldList,
 			List<String> columnNames)
@@ -125,6 +128,7 @@ public class FigureTableModel
 				key = (AttributeKey) i.next();
 				if (key.equals(fieldName.getKey()))
 				{
+				    Object value = figure.getAttribute(key);
 					if (MeasurementAttributes.TEXT.equals(key) ||
 							MeasurementAttributes.WIDTH.equals(key) ||
 							MeasurementAttributes.HEIGHT.equals(key)) {
@@ -133,7 +137,7 @@ public class FigureTableModel
 						else fieldName.setEditable(figure.canEdit());
 					}
 					keys.add(key);
-					values.add(figure.getAttribute(key));
+					values.add(value);
 					found = true;
 					break;
 				}
@@ -253,7 +257,7 @@ public class FigureTableModel
 	 */
 	public void setValueAt(Object value, int row, int col)
 	{
-		if (col == 0) return;
+		if (col == 0 || keys.size() <= row) return;
 		AttributeKey key = keys.get(row);
 		if (figure.getAttribute(key) instanceof Double) 
 		{

@@ -987,7 +987,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
         try {
             errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            return cb[w].getInputEnd().intValue();
+            return cb[w].getInputEnd().doubleValue();
         } finally {
             rwl.readLock().unlock();
         }
@@ -1005,7 +1005,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
         try {
             errorIfInvalidState();
             ChannelBinding[] cb = renderer.getChannelBindings();
-            return cb[w].getInputStart().intValue();
+            return cb[w].getInputStart().doubleValue();
         } finally {
             rwl.readLock().unlock();
         }

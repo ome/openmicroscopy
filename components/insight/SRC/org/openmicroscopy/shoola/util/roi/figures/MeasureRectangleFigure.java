@@ -36,6 +36,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -113,7 +115,26 @@ public class MeasureRectangleFigure
 	
 	/** Flag indicating if the user can move or resize the shape.*/
 	private boolean interactable;
-	
+
+	/**
+	 * Formats the area.
+	 * 
+	 * @param value The value to format.
+	 * @return See above.
+	 */
+	private String formatValue(double value)
+	{
+	    NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
+        if (units.isInMicrons()){ 
+            UnitsObject v = UIUtilities.transformSquareSize(value);
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(formatter.format(v.getValue()));
+            buffer.append(v.getUnits());
+            return buffer.toString();
+        }
+        return addUnits(formatter.format(value));
+	}
+
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
@@ -220,6 +241,7 @@ public class MeasureRectangleFigure
 		setAttribute(MeasurementAttributes.HEIGHT, height);
 		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
 		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+        setAttribute(MeasurementAttributes.SCALE_PROPORTIONALLY, Boolean.FALSE);
         shape = null;
 		roi = null;
 		status = IDLE;
@@ -241,7 +263,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getX()*units.getMicronsPixelX()).getValue();
+					getX()*units.getMicronsPixelX(), refUnits);
     	}
     	return getX();
     }
@@ -255,7 +277,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getY()*units.getMicronsPixelY()).getValue();
+					getY()*units.getMicronsPixelY(), refUnits);
     	}
     	return getY();
     }
@@ -270,7 +292,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getWidth()*units.getMicronsPixelX()).getValue();
+					getWidth()*units.getMicronsPixelX(), refUnits);
     	}
     	return getWidth();
     }
@@ -284,7 +306,7 @@ public class MeasureRectangleFigure
     {
     	if (units.isInMicrons()) {
     		return UIUtilities.transformSize(
-					getHeight()*units.getMicronsPixelY()).getValue();
+					getHeight()*units.getMicronsPixelY(), refUnits);
     	}
     	return getHeight();
     }
@@ -328,13 +350,13 @@ public class MeasureRectangleFigure
 		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
 				MeasurementAttributes.SHOWID.get(this))
 		{
-			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
-			String rectangleArea = formatter.format(getArea());
-			rectangleArea = addUnits(rectangleArea);
-			//double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
-			Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
-			if (font != null) 
-				g.setFont(font);
+			String rectangleArea = formatValue(getArea());
+			Double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+            Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+            if (font != null) g.setFont(font.deriveFont(sz.floatValue()));
+            else {
+                g.setFont(new Font(FONT_FAMILY, FONT_STYLE, sz.intValue()));
+            }
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(
 						getBounds().getCenterX()-bounds.getWidth()/2,
@@ -485,9 +507,9 @@ public class MeasureRectangleFigure
 	{
      	if (units.isInMicrons()) {
      		double tx = UIUtilities.transformSize(
-     				rectangle.getCenterX()*units.getMicronsPixelX()).getValue();
+     				rectangle.getCenterX()*units.getMicronsPixelX(), refUnits);
      		double ty = UIUtilities.transformSize(
-     				rectangle.getCenterY()*units.getMicronsPixelY()).getValue();
+     				rectangle.getCenterY()*units.getMicronsPixelY(), refUnits);
      		return new Point2D.Double(tx, ty);
      	}
     	return new Point2D.Double(rectangle.getCenterX(), 

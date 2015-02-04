@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.RendererComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,17 +25,12 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -950,6 +945,21 @@ class RendererComponent
 	}
 
 	/** 
+	 * Implemented as specified by the {@link Renderer} interface.
+	 * @see Renderer#renderPlane(PlaneDef, int )
+	 */
+	public BufferedImage renderPlane(PlaneDef pDef, int compression)
+	{
+	    if (pDef == null) return null;
+	    try {
+	        return model.render(pDef, compression);
+	    } catch (Throwable e) {
+	        handleException(e, false);
+	    }
+	    return null;
+	}
+
+	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#renderPlane(PlaneDef)
      */
@@ -978,7 +988,7 @@ class RendererComponent
 		}
 		return null;
 	}
-	
+
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setRangeAllChannels(boolean)
@@ -1018,6 +1028,14 @@ class RendererComponent
 		return model.isMappedImageRGB(channels);
 	}
 
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#isIntegerPixelData()
+     */
+	public boolean isIntegerPixelData() {
+		return model.isIntegerPixelData();
+	}
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#createSingleChannelImage(int, Color, PlaneDef)

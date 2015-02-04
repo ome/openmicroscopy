@@ -516,4 +516,24 @@ class TestTables(lib.ITest):
         with pytest.raises(omero.ApiUsageException):
             table.getWhereList('', None, 0, 0, 0)
 
+    def test12606fileSizeCheck(self):
+        """
+        Close may write additional data to a table after a flush, this is
+        most likely to occur for very small writes such as attribute changes
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        assert table
+        lcol = columns.LongColumnI('longcol', 'long col')
+        table.initialize([lcol])
+        table.setMetadata('test', wrap('test'))
+        tid = unwrap(table.getOriginalFile().getId())
+        table.close()
+
+        table = grid.openTable(omero.model.OriginalFileI(tid))
+        assert table
+        table.close()
+
 # TODO: Add tests for error conditions

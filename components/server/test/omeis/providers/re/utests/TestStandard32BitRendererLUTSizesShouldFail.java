@@ -7,67 +7,94 @@
 package omeis.providers.re.utests;
 
 import ome.model.enums.PixelsType;
+import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.quantum.QuantumStrategy;
 
+import org.perf4j.LoggingStopWatch;
+import org.perf4j.StopWatch;
 import org.testng.annotations.Test;
 
 public class TestStandard32BitRendererLUTSizesShouldFail extends BaseRenderingTest
 {
-	
-	@Override
-	protected int getSizeX()
-	{
-		return 2;
-	}
-	
-	@Override
-	protected int getSizeY()
-	{
-		return 2;
-	}
-	
-	@Override
-	protected byte[] getPlane()
-	{
-		return new byte[] {
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-				};
-	}
-	
-	@Override
-	protected int getBytesPerPixel()
-	{
-		return 4;
-	}
-	
-	@Override
-	protected PixelsType getPixelsType()
-	{
-		PixelsType pixelsType = new PixelsType();
-		pixelsType.setValue("uint32");
-		return pixelsType;
-	}
-	
-	@Test
-	public void testPixelValues() throws Exception
-	{
-		assertEquals(0.0, data.getPixelValue(0));
-		assertEquals(0.0, data.getPixelValue(1));
-		assertEquals(0.0, data.getPixelValue(2));
-		assertEquals(0.0, data.getPixelValue(3));
-		assertEquals(65535.0, data.getPixelValue(4));
-		assertEquals(65535.0, data.getPixelValue(5));
-		assertEquals(65535.0, data.getPixelValue(6));
-		assertEquals(65535.0, data.getPixelValue(7));
-		try
-		{
-			assertEquals(0.0, data.getPixelValue(8));
-			fail("Should have thrown an IndexOutOfBoundsException.");
-		}
-		catch (IndexOutOfBoundsException e) { }
-	}
+
+    @Override
+    protected int getSizeX()
+    {
+        return 2;
+    }
+
+    @Override
+    protected int getSizeY()
+    {
+        return 2;
+    }
+
+    @Override
+    protected byte[] getPlane()
+    {
+        return new byte[] {
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        };
+    }
+
+    @Override
+    protected int getBytesPerPixel()
+    {
+        return 4;
+    }
+
+    @Override
+    protected PixelsType getPixelsType()
+    {
+        PixelsType pixelsType = new PixelsType();
+        pixelsType.setValue("uint32");
+        return pixelsType;
+    }
+
+    @Test
+    public void testPixelValues() throws Exception
+    {
+        QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
+        int n = data.size();
+        for (int i = 0; i < n/2; i++) {
+            assertEquals(0.0, data.getPixelValue(i));
+        }
+        for (int i = 0; i < n/2; i++) {
+            assertEquals(qs.getPixelsTypeMax(), data.getPixelValue(i+n/2));
+        }
+        try
+        {
+            assertEquals(0.0, data.getPixelValue(n));
+            fail("Should have thrown an IndexOutOfBoundsException.");
+        }
+        catch (IndexOutOfBoundsException e) { }
+    }
+
+    @Test
+    public void testPixelValuesRange() throws Exception
+    {
+        QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
+        assertEquals(0.0, qs.getPixelsTypeMin());
+        assertEquals(Math.pow(2, 32)-1, qs.getPixelsTypeMax());
+    }
+
+    @Test(timeOut=30000)
+    public void testRenderAsPackedInt() throws Exception
+    {
+        PlaneDef def = new PlaneDef(PlaneDef.XY, 0);
+        for (int i = 0; i < RUN_COUNT; i++)
+        {
+            StopWatch stopWatch =
+                    new LoggingStopWatch("testRendererAsPackedInt");
+            renderer.renderAsPackedInt(def, pixelBuffer);
+            stopWatch.stop();
+        }
+    }
 }

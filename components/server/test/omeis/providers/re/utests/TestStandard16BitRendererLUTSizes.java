@@ -7,6 +7,7 @@
 package omeis.providers.re.utests;
 
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.quantum.QuantumStrategy;
 
 import org.perf4j.LoggingStopWatch;
 import org.perf4j.StopWatch;
@@ -40,20 +41,22 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 	@Test
 	public void testPixelValues() throws Exception
 	{
-		assertEquals(0.0, data.getPixelValue(0));
-		assertEquals(0.0, data.getPixelValue(1));
-		assertEquals(0.0, data.getPixelValue(2));
-		assertEquals(0.0, data.getPixelValue(3));
-		assertEquals(65535.0, data.getPixelValue(4));
-		assertEquals(65535.0, data.getPixelValue(5));
-		assertEquals(65535.0, data.getPixelValue(6));
-		assertEquals(65535.0, data.getPixelValue(7));
-		try
-		{
-			assertEquals(0.0, data.getPixelValue(8));
-			fail("Should have thrown an IndexOutOfBoundsException.");
-		}
-		catch (IndexOutOfBoundsException e) { }
+	    QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
+        int n = data.size();
+        for (int i = 0; i < n/2; i++) {
+            assertEquals(0.0, data.getPixelValue(i));
+        }
+        for (int i = 0; i < n/2; i++) {
+            assertEquals(qs.getPixelsTypeMax(), data.getPixelValue(i+n/2));
+        }
+
+        try
+        {
+            assertEquals(0.0, data.getPixelValue(n));
+            fail("Should have thrown an IndexOutOfBoundsException.");
+        }
+        catch (IndexOutOfBoundsException e) { }
 	}
 	
 	@Test
@@ -68,4 +71,12 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 			stopWatch.stop();
 		}
 	}
+    @Test
+    public void testPixelValuesRange() throws Exception
+    {
+        QuantumStrategy qs = quantumFactory.getStrategy(
+                settings.getQuantization(), pixels.getPixelsType());
+        assertEquals(0.0, qs.getPixelsTypeMin());
+        assertEquals(Math.pow(2, 16)-1, qs.getPixelsTypeMax());
+    }
 }
