@@ -22,13 +22,13 @@ try:
     CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
 
     for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
-        global_name, default_value, mapping, using_default = \
+        global_name, default_value, mapping, desc, using_default = \
             settings.CUSTOM_SETTINGS_MAPPINGS[key]
         global_value = getattr(settings, global_name, "(unset)")
         CONFIG_TABLE += CONFIG_TABLE_FMT % (key, using_default, global_value)
 except:
-    CONFIG_TABLE = "INVALID OR LOCKED CONFIGURATION! Cannot display default"\
-        " values"
+    CONFIG_TABLE = (
+        "INVALID OR LOCKED CONFIGURATION! Cannot display default values")
 
 HELP = """OMERO.web configuration/deployment tools
 
