@@ -44,6 +44,7 @@ import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Iterator;
@@ -51,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -73,6 +75,7 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.jdesktop.swingx.JXTaskPane;
+
 import com.google.common.base.CharMatcher;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -687,7 +690,7 @@ public class PropertiesUI
     	Length z = (Length) details.get(EditorUtil.PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
-    	NumberFormat nf = NumberFormat.getInstance();
+    	NumberFormat nf = new DecimalFormat("0.##");
     	String units = null;
     	try {
     		x = UIUtilities.transformSize(x);
