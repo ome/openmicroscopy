@@ -472,22 +472,27 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 */
 	public void openApplication(ApplicationData data, String path) {
 
-		if (data == null && path == null)
-			return;
-		
-		Logger logger = manager.getRegistry().getLogger();
-		try {
-			String[] commandLineElements = ApplicationData.buildCommand(data,
-					new File(path));
+	    if (data == null && path == null)
+	        return;
 
-			logger.info(this, "Executing command & args: " + 
-					Arrays.toString(commandLineElements));
+	    Logger logger = manager.getRegistry().getLogger();
+	    try {
+	        File f = null;
+	        if (path != null) f = new File(path);
+	        String[] cliElements = ApplicationData.buildCommand(data, f);
 
-			Runtime runtime = Runtime.getRuntime();
-			runtime.exec(commandLineElements);
-		} catch (Exception e) {
-			logger.error(this, e.getMessage());
-		}
+	        if (cliElements != null) {
+	            logger.info(this, "Executing command & args: " + 
+	                    Arrays.toString(cliElements));
+
+	            ProcessBuilder builder = new ProcessBuilder(cliElements);
+	            builder.start();
+	        } else {
+	            logger.info(this, "Unable to execute the command & args");
+	        }
+	    } catch (Exception e) {
+	        logger.error(this, e.getMessage());
+	    }
 	}
 
 	/**
