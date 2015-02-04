@@ -28,10 +28,10 @@ module omero {
          * and/or specific users.
          * 
          * examples:
-         *  - omero.cmd.SendEmailRequest(subject, body)
+         *  - omero.cmd.SendEmailRequest(subject, body, everyone)
          *		sends message to everyone who has email set
          *		and is an active user
-         *  - omero.cmd.SendEmailRequest(subject, body, inactive)
+         *  - omero.cmd.SendEmailRequest(subject, body, everyone, inactive)
          *		sends message to everyone who has email set,
          *		even inactive users
          *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...],
@@ -47,6 +47,7 @@ module omero {
              omero::sys::LongList groupIds;
              omero::api::StringSet extra;
              bool inactive;
+             bool everyone;
          };
 
          /**
