@@ -707,9 +707,6 @@ public class StatusLabel
                 processingBar.setString(STEPS.get(step));
             }
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-            ImportEvent.METADATA_IMPORTED e =
-                    (ImportEvent.METADATA_IMPORTED) event;
-            if (e.logFileId != null) logFileID = e.logFileId;
             step = 2;
             processingBar.setValue(step);
             processingBar.setString(STEPS.get(step));
