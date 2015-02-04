@@ -981,35 +981,21 @@ MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 EMAIL_TEMPLATES = {
     'create_share': {
-        'html_content': (
-            '<p>Hi,</p><p>I would like to share some of my data'
-            ' with you.<br/>Please find it on the'
-            ' <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>'),
         'text_content': (
             'Hi, I would like to share some of my data with you.'
             ' Please find it on the %s?server=%i. /n %s')
     },
     'add_member_to_share': {
-        'html_content': (
-            '<p>Hi,</p><p>I would like to share some of my data'
-            ' with you.<br/>Please find it on the'
-            ' <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>'),
-        'text_content': 'Hi, I would like to share some of my data with you.'
-        ' Please find it on the %s?server=%i. /n %s'
+        'text_content': (
+            'Hi, I would like to share some of my data with you.'
+            ' Please find it on the %s?server=%i. /n %s')
     },
     'remove_member_from_share': {
-        'html_content': (
-            '<p>You were removed from the share '
-            '<a href="%s?server=%i">%s?server=%i</a>. This share is no longer'
-            ' available for you.</p>'),
         'text_content': (
             'You were removed from the share %s?server=%i.'
             ' This share is no longer available for you.')
     },
     'add_comment_to_share': {
-        'html_content': (
-            '<p>New comment is available on share '
-            '<a href="%s?server=%i">%s?server=%i</a>.</p>'),
         'text_content': 'New comment is available on share %s?server=%i.'
     }
 }

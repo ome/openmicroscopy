@@ -277,7 +277,7 @@
 	                            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
 	                        </td>
 	                        <td class="desc">{{ c.name|truncatebefor:"65" }} {% if c.annotation_counter %}<img src="{% static "webgateway/img/knotes16.png" %}" alt="a" title="annotation"/>{% endif %}{% if not c.isOwned %} <img src="{% static "webclient/image/kgpg12.png" %}" alt="l" title="locked"/>{% endif %}</td>
-	                        <td class="date">{{ c.getDate }}</td>                    
+	                        <td class="date">{{ c.getDate }}</td>
 	                    </tr>
 	                {% endfor %}
 	            </tbody>

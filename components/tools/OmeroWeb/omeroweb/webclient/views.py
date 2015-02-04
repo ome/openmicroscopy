@@ -1421,7 +1421,12 @@ def annotate_comment(request, conn=None, **kwargs):
                 sid = oids['share'][0].id
                 manager = BaseShare(conn, sid)
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                textAnn = manager.addComment(host, conn.server_id, content)
+                textAnn, handle = manager.addComment(host, conn.server_id, content)
+                if handle is not None:
+                    request.session.modified = True
+                    request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
+                        'sid':sid, 'stype': 'share_comment', 'surl': reverse(viewname="load_template", args=['public']),
+                        'error':0, 'start_time': datetime.datetime.now()}
             else:
                 manager = BaseContainer(conn)
                 textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
@@ -1725,7 +1730,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 #guests = request.REQUEST['guests']
                 enable = toBoolean(form.cleaned_data['enable'])
                 host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                manager.updateShareOrDiscussion(host, conn.server_id, message, members, enable, expiration)
+                sid, handle = manager.updateShareOrDiscussion(host, conn.server_id, message, members, enable, expiration)
+                if handle is not None:
+                    request.session.modified = True
+                    request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
+                        'sid':sid, 'stype': 'share', 'surl': reverse(viewname="load_template", args=['public']),
+                        'error':0, 'start_time': datetime.datetime.now()}
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
@@ -2112,6 +2122,8 @@ def basket_action (request, action=None, conn=None, **kwargs):
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
 
+    request.session.modified = True
+
     if action == "toshare":
         template = "webclient/basket/basket_share_action.html"
         basket = BaseBasket(conn)
@@ -2138,7 +2150,11 @@ def basket_action (request, action=None, conn=None, **kwargs):
             enable = toBoolean(form.cleaned_data['enable'])
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
-            share.createShare(host, conn.server_id, images, message, members, enable, expiration)
+            sid, handle = share.createShare(host, conn.server_id, images, message, members, enable, expiration)
+            if handle is not None:
+                request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
+                    'sid':sid, 'stype': 'share', 'surl': reverse(viewname="load_template", args=['public']),
+                    'error':0, 'start_time': datetime.datetime.now()}
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_share_action.html"
@@ -2165,7 +2181,11 @@ def basket_action (request, action=None, conn=None, **kwargs):
             enable = toBoolean(form.cleaned_data['enable'])
             host = request.build_absolute_uri(reverse("load_template", args=["public"]))
             share = BaseShare(conn)
-            share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
+            sid, handle = share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
+            if handle is not None:
+                request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
+                    'sid':sid, 'stype': 'discussion', 'surl': reverse(viewname="load_template", args=['public']),
+                    'error':0, 'start_time': datetime.datetime.now()}
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_discussion_action.html"
@@ -2380,6 +2400,43 @@ def activities(request, conn=None, **kwargs):
                 except:
                     logger.info("Activities chgrp handle not found: %s" % cbString)
                     continue
+        elif job_type == 'send_email':
+            if status not in ("failed", "finished"):
+                rsp = None
+                try:
+                    prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    callback = omero.callbacks.CmdCallbackI(conn.c, prx)
+                    rsp = callback.getResponse()
+                    close_handle = False
+                    try:
+                        # if response is None, then we're still in progress, otherwise...
+                        if rsp is not None:
+                            close_handle = True
+                            new_results.append(cbString)
+                            if isinstance(rsp, omero.cmd.ERR):
+                                request.session['callback'][cbString]['status'] = "failed"
+                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                                logger.error("send_email failed with: %s" % rsp_params)
+                                request.session['callback'][cbString]['report'] = {'error':rsp_params}
+                                request.session['callback'][cbString]['error'] = 1
+                            else:
+                                request.session['callback'][cbString]['status'] = "finished"
+                                request.session['callback'][cbString]['rsp'] = {
+                                            'success': rsp.success,
+                                            'total': rsp.success+len(rsp.invalidusers)+len(rsp.invalidemails)
+                                }
+                                if len(rsp.invalidusers) > 0 or len(rsp.invalidemails) > 0:
+                                    request.session['callback'][cbString]['report'] = dict()
+                                    invalidusers = [e.getFullName() for e in list(conn.getObjects("Experimenter", rsp.invalidusers))]
+                                    request.session['callback'][cbString]['report']['invalidusers'] = invalidusers
+                                    request.session['callback'][cbString]['report']['invalidemails'] = rsp.invalidemails
+                        else:
+                            in_progress+=1
+                    finally:
+                        callback.close(close_handle)
+                except:
+                    logger.error(traceback.format_exc())
+                    logger.info("Activities send_email handle not found: %s" % cbString)
 
         # update delete
         elif job_type == 'delete':

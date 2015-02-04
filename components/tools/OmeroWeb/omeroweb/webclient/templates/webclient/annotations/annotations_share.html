@@ -57,6 +57,9 @@
                         if ($.trim(textArea.val()).length == 0) return false;
                     },
                     success: function(html) {
+                        {% if ome.email %}
+                            OME.refreshActivities();
+                        {% endif %}
                         var $comment = $(html)
                         $('#share_comments_container').prepend( $comment ).show();
                         $(".removeComment", $comment).click(function(event) {
