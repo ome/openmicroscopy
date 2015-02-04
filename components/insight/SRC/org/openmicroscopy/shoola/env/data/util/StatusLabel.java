@@ -737,6 +737,12 @@ public class StatusLabel
             firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
         } else if (event instanceof ImportEvent.FILESET_UPLOAD_PREPARATION) {
             generalLabel.setText("Preparing upload...");
+        } else if (event instanceof ImportEvent.IMPORT_STARTED) {
+            ImportEvent.IMPORT_STARTED e =
+                    (ImportEvent.IMPORT_STARTED) event;
+            if (e.logFileId != null) {
+                logFileID = e.logFileId;
+            }
         }
     }
 
