@@ -1024,6 +1024,7 @@
         permissions int8 not null,
         name varchar(255) not null,
         partial bool,
+        series nonnegative_int,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,
