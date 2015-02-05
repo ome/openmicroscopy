@@ -33,6 +33,7 @@ import javax.swing.Action;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -43,6 +44,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -107,7 +109,7 @@ public class TaggingAction
 
         if (ho instanceof DatasetData || ho instanceof ProjectData ||
         	ho instanceof ImageData || ho instanceof ScreenData ||
-			ho instanceof PlateData) {
+			ho instanceof PlateData || ho instanceof PlateAcquisitionData) {
         	if (model.canAnnotate(ho)) {
         		List selected = browser.getSelectedDataObjects();
         		if (selected == null) setEnabled(false);
