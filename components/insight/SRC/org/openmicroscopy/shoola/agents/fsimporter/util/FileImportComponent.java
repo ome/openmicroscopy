@@ -538,14 +538,14 @@ public class FileImportComponent
 	private void cancel(boolean fire)
 	{
 		boolean b = statusLabel.isCancellable() || getFile().isDirectory();
-		if (!isCancelled() && !hasImportFailed() && b) {
+		if (!isCancelled() && !hasImportFailed() && b &&
+		        !statusLabel.isMarkedAsDuplicate()) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();
 			cancelButton.setEnabled(false);
 			cancelButton.setVisible(false);
-			//if (fire)
-				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
+			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
 
