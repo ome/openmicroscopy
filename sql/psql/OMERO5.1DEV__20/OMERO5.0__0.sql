@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__19.
+--- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__20.
 ---
 
 BEGIN;
@@ -72,7 +72,7 @@ DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',  19,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1DEV',  20,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -2486,10 +2486,10 @@ ALTER TABLE wellsample ADD CONSTRAINT posy_unitpair
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 19            AND
+          currentPatch    = 20            AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__19'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__20'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
