@@ -151,95 +151,95 @@ class WebControl(BaseControl):
             self.ctx.die(
                 "Available configuration helpers:\n"
                 " - nginx, nginx-development, apache, apache-fcgi\n")
-        else:
-            if args.system:
-                self.ctx.err(
-                    "WARNING: --system is no longer supported, see --help")
 
-            server = args.type
-            port = 8080
-            if args.http:
-                port = args.http
+        if args.system:
+            self.ctx.err(
+                "WARNING: --system is no longer supported, see --help")
+
+        server = args.type
+        port = 8080
+        if args.http:
+            port = args.http
+        if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+            if settings.APPLICATION_SERVER_PORT == port:
+                self.ctx.die(
+                    678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
+                    % (port, settings.APPLICATION_SERVER_PORT))
+
+        d = {
+            "ROOT": self.ctx.dir,
+            "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
+            "STATIC_URL": settings.STATIC_URL.rstrip("/"),
+            "NOW": str(datetime.now())}
+
+        try:
+            d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+        except:
+            d["FORCE_SCRIPT_NAME"] = "/"
+
+        template_file = "%s.conf.template" % server
+
+        if server in ("nginx", "nginx-development"):
             if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-                if settings.APPLICATION_SERVER_PORT == port:
-                    self.ctx.die(
-                        678, "Port conflict: HTTP(%s) and"" fastcgi-tcp(%s)."
-                        % (port, settings.APPLICATION_SERVER_PORT))
-
-            d = {
-                "ROOT": self.ctx.dir,
-                "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
-                "STATIC_URL": settings.STATIC_URL.rstrip("/"),
-                "NOW": str(datetime.now())}
+                fastcgi_pass = "%s:%s" \
+                    % (settings.APPLICATION_SERVER_HOST,
+                       settings.APPLICATION_SERVER_PORT)
+            else:
+                fastcgi_pass = "unix:%s/var/django_fcgi.sock" \
+                    % self.ctx.dir
+            d["FASTCGI_PASS"] = fastcgi_pass
+            d["HTTPPORT"] = port
 
             try:
-                d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+                d["FASTCGI_PATH_SCRIPT_INFO"] = \
+                    "fastcgi_split_path_info ^(%s)(.*)$;\n" \
+                    "            " \
+                    "fastcgi_param PATH_INFO $fastcgi_path_info;\n" \
+                    "            " \
+                    "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
+                    % (settings.FORCE_SCRIPT_NAME)
             except:
-                d["FORCE_SCRIPT_NAME"] = "/"
+                d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
+                                                "$fastcgi_script_name;\n"
 
-            template_file = "%s.conf.template" % server
+        if server == "apache":
+            if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+                fastcgi_external = '-host %s:%s' % \
+                    (settings.APPLICATION_SERVER_HOST,
+                     settings.APPLICATION_SERVER_PORT)
+            else:
+                fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
+                    self.ctx.dir
+            d["FASTCGI_EXTERNAL"] = fastcgi_external
+            try:
+                d["REWRITERULE"] = \
+                    "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
+                    % settings.FORCE_SCRIPT_NAME.rstrip("/")
+            except:
+                d["REWRITERULE"] = ""
 
-            if server in ("nginx", "nginx-development"):
-                if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-                    fastcgi_pass = "%s:%s" \
-                        % (settings.APPLICATION_SERVER_HOST,
-                           settings.APPLICATION_SERVER_PORT)
-                else:
-                    fastcgi_pass = "unix:%s/var/django_fcgi.sock" \
-                        % self.ctx.dir
-                d["FASTCGI_PASS"] = fastcgi_pass
-                d["HTTPPORT"] = port
+        if server == "apache-fcgi":
+            # OMERO.web requires the fastcgi PATH_INFO variable, which
+            # mod_proxy_fcgi obtains by taking everything after the last
+            # path component containing a dot.
 
-                try:
-                    d["FASTCGI_PATH_SCRIPT_INFO"] = \
-                        "fastcgi_split_path_info ^(%s)(.*)$;\n" \
-                        "            " \
-                        "fastcgi_param PATH_INFO $fastcgi_path_info;\n" \
-                        "            " \
-                        "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
-                        % (settings.FORCE_SCRIPT_NAME)
-                except:
-                    d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
-                                                    "$fastcgi_script_name;\n"
+            if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+                self.ctx.die(
+                    679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
+            fastcgi_external = '%s:%s' % (
+                settings.APPLICATION_SERVER_HOST,
+                settings.APPLICATION_SERVER_PORT)
+            d["FASTCGI_EXTERNAL"] = fastcgi_external
 
-            if server == "apache":
-                if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-                    fastcgi_external = '-host %s:%s' % \
-                        (settings.APPLICATION_SERVER_HOST,
-                         settings.APPLICATION_SERVER_PORT)
-                else:
-                    fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
-                        self.ctx.dir
-                d["FASTCGI_EXTERNAL"] = fastcgi_external
-                try:
-                    d["REWRITERULE"] = \
-                        "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
-                        % settings.FORCE_SCRIPT_NAME.rstrip("/")
-                except:
-                    d["REWRITERULE"] = ""
+            if d["FORCE_SCRIPT_NAME"] == '/':
+                d["WEB_PREFIX"] = ''
+            else:
+                d["WEB_PREFIX"] = d["FORCE_SCRIPT_NAME"]
 
-            if server == "apache-fcgi":
-                # OMERO.web requires the fastcgi PATH_INFO variable, which
-                # mod_proxy_fcgi obtains by taking everything after the last
-                # path component containing a dot.
+            d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
-                if settings.APPLICATION_SERVER != settings.FASTCGITCP:
-                    self.ctx.die(
-                        679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
-                fastcgi_external = '%s:%s' % (
-                    settings.APPLICATION_SERVER_HOST,
-                    settings.APPLICATION_SERVER_PORT)
-                d["FASTCGI_EXTERNAL"] = fastcgi_external
-
-                if d["FORCE_SCRIPT_NAME"] == '/':
-                    d["WEB_PREFIX"] = ''
-                else:
-                    d["WEB_PREFIX"] = d["FORCE_SCRIPT_NAME"]
-
-                d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
-
-            c = file(self._get_templates_dir() / template_file).read()
-            self.ctx.out(c % d)
+        c = file(self._get_templates_dir() / template_file).read()
+        self.ctx.out(c % d)
 
     def syncmedia(self, args):
         self.collectstatic()
