@@ -79,7 +79,8 @@ Create Container
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
     Input Text                  name    ${newName}
-    Click Button                OK
+    # Make sure we pick 'OK' button from visible dialog
+    Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
     Set Selenium Speed          1
     Wait Until Page Contains Element    css=tr.data_heading_id
     Set Selenium Speed                  ${DELAY}

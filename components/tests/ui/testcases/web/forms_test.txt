@@ -139,7 +139,7 @@ Test Annotate
 
     # Comment Form
     Input Text                                  comment     test add comment
-    Click Button                                Add Comment
+    Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
     # Tags
