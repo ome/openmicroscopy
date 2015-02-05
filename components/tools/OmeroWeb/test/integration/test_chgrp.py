@@ -192,7 +192,10 @@ class TestChgrp(object):
         # Project owner should be current user
         assert p.getDetails().owner.id.val == userId
 
-    def test_chgrp_old_container(self, request,
+    @pytest.mark.xfail(ticket="11539")
+    @pytest.mark.parametrize("credentials",
+                             [getUserCredentials, getAdminCredentials])
+    def test_chgrp_old_container(self, request, credentials,
                                  client_2_groups, dataset):
         """
         Tests Admin moving user's Dataset to their Private group and
@@ -211,9 +214,7 @@ class TestChgrp(object):
         project.name = rstring(projectName)
         project = conn.getUpdateService().saveAndReturnObject(project, ctx)
 
-        # username, password = credentials(client)
-        username = 'root'
-        password = client.getProperty('omero.rootpass')
+        username, password = credentials(client)
         django_client = _login_django_client(request, client,
                                              username, password)
 
