@@ -173,7 +173,6 @@ class WebControl(BaseControl):
                 script_info % settings.FORCE_SCRIPT_NAME)
         except:
             d["FASTCGI_PATH_SCRIPT_INFO"] = script_info_fallback
-        return d
 
     def _set_apache_fastcgi(self, d, settings):
         if settings.APPLICATION_SERVER == settings.FASTCGITCP:
@@ -252,7 +251,7 @@ class WebControl(BaseControl):
             d["FORCE_SCRIPT_NAME"] = "/"
 
         if server in ("nginx", "nginx-development"):
-            d = self._set_nginx_fastcgi(d, settings)
+            self._set_nginx_fastcgi(d, settings)
 
         if server == "apache":
             self._set_apache_fastcgi(d, settings)
