@@ -525,7 +525,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     public Object pixelData(PixelDataJob pdj) throws Throwable {
 
-        boolean saveSha1 = false;
         // Parse the binary data to generate min/max values
         int seriesCount = reader.getSeriesCount();
         for (int series = 0; series < seriesCount; series++) {
@@ -536,27 +535,22 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (md != null) {
                 final String s = Hex.encodeHexString(md.digest());
                 pixels.setSha1(store.toRType(s));
-                saveSha1 = true;
             }
         }
 
-        // As we're in metadata only mode  on we need to
-        // tell the server which Pixels set matches up to which series.
-        final String targetName = file.getFullFsPath();
+        // As we're in metadata-only mode on we need to
+        // tell the server which Image matches which series.
         int series = 0;
-        for (Long pixelsId : pixelIds())
-        {
-            store.setPixelsParams(pixelsId, series, targetName, repoUuid);
-            series++;
+        for (final Pixels pixels : pixList) {
+            store.setPixelsFile(pixels.getId().getValue(), fileName, repoUuid);
+            pixels.getImage().setSeries(store.toRType(series++));
         }
 
-        if (saveSha1)
-        {
-            for (Image image : imageList) {
-                image.unloadAnnotationLinks();
-            }
-            store.updatePixels(pixList);
+        for (final Image image : imageList) {
+            image.unloadAnnotationLinks();
         }
+
+        store.updatePixels(pixList);
 
         if (!reader.isMinMaxSet())
         {
