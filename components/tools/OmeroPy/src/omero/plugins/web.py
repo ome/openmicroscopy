@@ -79,10 +79,16 @@ class WebControl(BaseControl):
             "  apache-fcgi: Apache 2.4+ with mod_proxy_fcgi\n")
         config.add_argument("type", choices=(
             "nginx", "nginx-development", "apache", "apache-fcgi"))
-        config.add_argument(
+        nginx_group = config.add_argument_group(
+            'Nginx arguments', 'Optional arguments for nginx templates.')
+        nginx_group.add_argument(
             "--http", type=int,
-            help="HTTP port for web server (nginx only)")
-        config.add_argument(
+            help="HTTP port for web server")
+        nginx_group.add_argument(
+            "--max-body-size", type=int, default=0,
+            help="Maximum allowed size of the client request body."
+            "Default: 0 (disabled)")
+        nginx_group.add_argument(
             "--system", action="store_true", help=SUPPRESS)
 
         parser.add(
@@ -234,8 +240,11 @@ class WebControl(BaseControl):
             "ROOT": self.ctx.dir,
             "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
             "STATIC_URL": settings.STATIC_URL.rstrip("/"),
-            "NOW": str(datetime.now()),
-            "HTTPORT": port}
+            "NOW": str(datetime.now())}
+
+        if server in ("nginx", "nginx-development"):
+            d["HTTPPORT"] = port
+            d["MAX_BODY_SIZE"] = args.max_body_size
 
         try:
             d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")

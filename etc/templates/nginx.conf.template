@@ -2,7 +2,7 @@
         listen       %(HTTPPORT)d;
         server_name  $hostname;
 
-        client_max_body_size 0;
+        client_max_body_size %(MAX_BODY_SIZE)d;
 
         # maintenance page serve from here
         location @maintenance {
