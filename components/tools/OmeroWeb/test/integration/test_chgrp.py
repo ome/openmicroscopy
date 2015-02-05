@@ -64,7 +64,7 @@ def client_2_groups(request, itest):
     # return itest.new_client(perms='rwr---')
     # One user in two groups
     client, exp = itest.new_client_and_user(perms=READANNOTATE)
-    grp = itest.new_group(experimenters=[exp], perms=READANNOTATE)
+    grp = itest.new_group(experimenters=[exp], perms=PRIVATE)
     client.sf.getAdminService().getEventContext()  # Reset session
     return client, grp
 
@@ -173,6 +173,9 @@ class TestChgrp(object):
         # individual activities/jobs are returned as dicts within json data
         for k, o in data.items():
             if hasattr(o, 'values'):    # a dict
+                if 'report' in o:
+                    print o['report']
+                assert o['status'] == 'finished'
                 assert o['job_name'] == 'Change group'
                 assert o['to_group_id'] == group2.id.val
 
@@ -188,6 +191,71 @@ class TestChgrp(object):
         assert p.getName() == projectName
         # Project owner should be current user
         assert p.getDetails().owner.id.val == userId
+
+    def test_chgrp_old_container(self, request,
+                                 client_2_groups, dataset):
+        """
+        Tests Admin moving user's Dataset to their Private group and
+        linking it to an existing Project there.
+        Bug from https://github.com/openmicroscopy/openmicroscopy/pull/3420
+        """
+        client = client_2_groups[0]
+        group2 = client_2_groups[1]
+
+        # user creates project in their target group
+        conn = BlitzGateway(client_obj=client)
+        ctx = conn.SERVICE_OPTS
+        ctx.setOmeroGroup(group2.id.val)
+        project = ProjectI()
+        projectName = "chgrp-target-%s" % client.getSessionId()
+        project.name = rstring(projectName)
+        project = conn.getUpdateService().saveAndReturnObject(project, ctx)
+
+        # username, password = credentials(client)
+        username = 'root'
+        password = client.getProperty('omero.rootpass')
+        django_client = _login_django_client(request, client,
+                                             username, password)
+
+        request_url = reverse('chgrp')
+        data = {
+            "group_id": group2.id.val,
+            "Dataset": dataset.id.val,
+            "target_id": "project-%s" % project.id.val,
+        }
+        data = _csrf_post_response(django_client, request_url, data)
+        assert data.content == "OK"
+
+        activities_url = reverse('activities_json')
+
+        data = _get_response_json(django_client, activities_url, {})
+
+        # Keep polling activities until no jobs in progress
+        while data['inprogress'] > 0:
+            time.sleep(0.5)
+            data = _get_response_json(django_client, activities_url, {})
+
+        # individual activities/jobs are returned as dicts within json data
+        for k, o in data.items():
+            if hasattr(o, 'values'):    # a dict
+                if 'report' in o:
+                    print o['report']
+                assert o['status'] == 'finished'
+                assert o['job_name'] == 'Change group'
+                assert o['to_group_id'] == group2.id.val
+
+        # Dataset should now be in new group, contained in Project
+        userId = conn.getUserId()
+        conn.SERVICE_OPTS.setOmeroGroup('-1')
+        d = conn.getObject("Dataset", dataset.id.val)
+        assert d is not None
+        assert d.getDetails().group.id.val == group2.id.val
+        p = d.getParent()
+        assert p is not None
+        assert p.getName() == projectName
+        # Project owner should be current user
+        assert p.getDetails().owner.id.val == userId
+        assert p.getId() == project.id.val
 
 
 # Helpers
