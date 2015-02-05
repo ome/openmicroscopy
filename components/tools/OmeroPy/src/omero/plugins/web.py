@@ -85,7 +85,7 @@ class WebControl(BaseControl):
             "--http", type=int,
             help="HTTP port for web server")
         nginx_group.add_argument(
-            "--max-body-size", type=int, default=0,
+            "--max-body-size", type=str, default='0',
             help="Maximum allowed size of the client request body."
             "Default: 0 (disabled)")
         nginx_group.add_argument(
