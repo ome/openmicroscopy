@@ -184,6 +184,6 @@ def toBoolean(val):
     if val is True or val is False:
         return val
 
-    trueItems = ["true", "yes", "y", "t", "1"]
+    trueItems = ["true", "yes", "y", "t", "1", "on"]
 
     return str(val).strip().lower() in trueItems
