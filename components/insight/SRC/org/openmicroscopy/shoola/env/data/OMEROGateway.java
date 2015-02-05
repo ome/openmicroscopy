@@ -6215,6 +6215,9 @@ class OMEROGateway
 		map.put("IDs", omero.rtypes.rlist(ids));
 		map.put("Data_Type", omero.rtypes.rstring(type));
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+		if (!StringUtils.isEmpty(param.getBatchExportFilename()))
+			map.put("Folder_Name",
+					omero.rtypes.rstring(param.getBatchExportFilename()));
 		return runScript(ctx, id, map);
 	}
 

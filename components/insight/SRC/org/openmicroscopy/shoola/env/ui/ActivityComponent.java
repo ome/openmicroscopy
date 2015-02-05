@@ -619,6 +619,7 @@ public abstract class ActivityComponent
 			activity.setUIRegister(true);
 			if (fa != null && deleteWhenFinished)
 				activity.setToDelete(fa);
+			activity.setOverwrite(true);
 			viewer.notifyActivity(ctx, activity);
 			return;
 		}
