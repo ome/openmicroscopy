@@ -91,7 +91,7 @@ class TestWeb(object):
 
         if system:
             assert lines[0] == "server {"
-            assert lines[1] == "listen       %s;" % (http or 8080)
+            assert lines[1] == "listen       %s;" % (http or 80)
             assert lines[7] == "location %s {" % static_prefix[:-1]
             assert lines[10] == "location %s {" % (prefix or "/")
         else:

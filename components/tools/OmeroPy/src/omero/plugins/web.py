@@ -217,9 +217,13 @@ class WebControl(BaseControl):
                 "WARNING: --system is no longer supported, see --help")
 
         server = args.type
-        port = 8080
         if args.http:
             port = args.http
+        elif server == 'nginx-development':
+            port = 8080
+        else:
+            port = 80
+
         if settings.APPLICATION_SERVER == settings.FASTCGITCP:
             if settings.APPLICATION_SERVER_PORT == port:
                 self.ctx.die(
