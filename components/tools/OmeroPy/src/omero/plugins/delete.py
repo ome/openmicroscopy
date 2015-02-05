@@ -49,19 +49,6 @@ class DeleteControl(GraphControl):
                 self.ctx.out("Warning message: %s" % rsp.warning)
             self.ctx.out(" ")
 
-    def create_error_report(self, rsp):
-        import omero.cmd
-        if isinstance(rsp, omero.cmd.GraphConstraintERR):
-            if "Fileset" in rsp.constraints:
-                fileset = rsp.constraints.get("Fileset")
-                return "You cannot delete part of fileset %s; only complete" \
-                    " filesets can be deleted.\n" % \
-                    ", ".join(str(x) for x in fileset)
-            else:
-                return super(DeleteControl, self).create_error_report(rsp)
-        else:
-            return super(DeleteControl, self).create_error_report(rsp)
-
 try:
     register("delete", DeleteControl, HELP)
 except NameError:

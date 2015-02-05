@@ -82,13 +82,6 @@ class ChgrpControl(GraphControl):
 
         super(ChgrpControl, self)._process_request(req, args, client)
 
-    def create_error_report(self, rsp):
-        import omero.cmd
-        if isinstance(rsp, omero.cmd.GraphException):
-            return 'Chgrp failed: %s' % rsp.message
-
-        return super(ChgrpControl, self).create_error_report(rsp)
-
 try:
     register("chgrp", ChgrpControl, HELP)
 except NameError:

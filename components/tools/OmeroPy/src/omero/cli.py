@@ -1514,6 +1514,9 @@ class CmdControl(BaseControl):
             return sb
 
     def create_error_report(self, rsp):
+        if isinstance(rsp, omero.cmd.GraphException):
+            return 'failed: %s' % rsp.message
+
         """
         Generate default error report aggregating the response parameters
         """
