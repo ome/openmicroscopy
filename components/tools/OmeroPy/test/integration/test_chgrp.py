@@ -1179,7 +1179,7 @@ class TestChgrpTarget(lib.ITest):
         assert 1 == len(dils)
 
     @pytest.mark.xfail(ticket="11539")
-    @pytest.mark.parametrize("credentials",["user", "admin"])
+    @pytest.mark.parametrize("credentials", ["user", "admin"])
     def testChgrpDatasetToTargetProject(self, credentials):
         """
         Tests that an Admin can move a user's Dataset to a private
