@@ -311,7 +311,9 @@ Bash examples:
                           default=[sys.stdin])
 
         graphreport = parser.add(
-            sub, self.graphreport, "Generate")
+            sub, self.graphreport,
+            help="Generate a full report of the object graph in"
+            " reStructuredText format")
         graphreport.add_argument(
             "--source", help="Configuration file to be used. Default:"
             " etc/grid/config.xml")
@@ -374,8 +376,10 @@ Bash examples:
         import os
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
+        log_config_file = self.ctx.dir / "etc" / "logback-cli.xml"
+        logback = "-Dlogback.configurationFile=%s" % log_config_file
         classpath = [file.abspath() for file in server_dir.files("*.jar")]
-        xargs = ["-cp", os.pathsep.join(classpath)]
+        xargs = [logback, "-cp", os.pathsep.join(classpath)]
 
         cfg = config.as_map()
         config.close()  # Early close. See #9800
