@@ -908,14 +908,11 @@ class ImViewerComponent
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
 		if (image == null) { //no need to notify.
-			if (ImViewerAgent.hasOpenGLSupport())
-				model.setImageAsTexture(null);
-			else model.setImage(null);
+			model.setImage(null);
 			return;
 		}
 		if (!(image instanceof BufferedImage)) {
 			model.setImage(null);
-			model.setImageAsTexture(null);
 			return;
 		}
 		view.removeComponentListener(controller);
@@ -3134,7 +3131,6 @@ class ImViewerComponent
 	public boolean includeROI()
 	{
 		if (layers == null) return false;
-		if (ImViewerAgent.hasOpenGLSupport()) return false;
 		Iterator<JComponent> i = layers.iterator();
 		while (i.hasNext()) {
 			if (i.next() instanceof DrawingCanvasView) return true;

@@ -518,16 +518,15 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef,
-	 * boolean, boolean, int)
+	 * boolean, int)
 	 */
 	public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-		boolean asTexture, boolean largeImage, int compression)
+		boolean largeImage, int compression)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.render(context, ctx,
-						Long.valueOf(pixelsID), pDef, asTexture, largeImage,
-						compression);
+						Long.valueOf(pixelsID), pDef, largeImage, compression);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
@@ -1561,16 +1560,15 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderOverLays(SecurityContext, long, PlaneDef,
-	 * long, Map, boolean)
+	 * long, Map)
 	 */
 	public Object renderOverLays(SecurityContext ctx, long pixelsID,
-		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture)
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.renderOverlays(context,
-					pixelsID, pd, tableID, overlays, asTexture);
+					pixelsID, pd, tableID, overlays);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}

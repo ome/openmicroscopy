@@ -1574,8 +1574,7 @@ class ImViewerUI
 		if (lens == null) {
 			if (b) {
 				firstTime = true;
-				lens = new LensComponent(this, 
-						ImViewerAgent.hasOpenGLSupport());
+				lens = new LensComponent(this, false);
 				lens.setImageName(model.getImageName());
 				lens.setXYPixelMicron(model.getPixelsSizeX(), 
 						model.getPixelsSizeY());

@@ -101,8 +101,6 @@ import pojos.PixelsData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
-import com.sun.opengl.util.texture.TextureData;
-
 /** 
 * The Model component in the <code>ImViewer</code> MVC triad.
 * This class tracks the <code>ImViewer</code>'s state and knows how to
@@ -2412,31 +2410,6 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	Collection getMeasurements() { return measurements; }
-	
-	/**
-	 * Sets the retrieved image, returns the a magnification or <code>-1</code>
-	 * if no magnification factor computed. 
-	 * 
-	 * @param image The image to set.
-	 * @return See above.
-	 */
-	double setImageAsTexture(TextureData image)
-	{
-		state = ImViewer.READY; 
-		if (image != null) browser.setRenderedImage(image);
-		loaders.remove(IMAGE);
-		firstTime = false;
-		//update image icon
-		//28/02 added to speed up process, turn back on for 4.1
-		/*
-		if (imageIcon == null) {
-			computeSizes();
-			imageIcon = Factory.magnifyImage(factor, image);
-		}
-		*/
-		if (image == null) return 1;
-		return initZoomFactor();
-	}
 
 	/**
 	 * Brings up the activity options.
@@ -2838,21 +2811,14 @@ class ImViewerModel
 		Tile tile;
 		Object image;
 		BufferedImage bi;
-		TextureData data;
 		while (i.hasNext()) {
 			tile = i.next();
 			image = tile.getImage();
-			if (image != null) {
-				if (image instanceof BufferedImage) {
-					bi = (BufferedImage) image;
-					bi.getGraphics().dispose();
-					bi.flush();
-					tile.setImage(null);
-				} else {
-					data = (TextureData) image;
-					data.flush();
-					tile.setImage(null);
-				}
+			if (image != null && image instanceof BufferedImage) {
+			    bi = (BufferedImage) image;
+                bi.getGraphics().dispose();
+                bi.flush();
+                tile.setImage(null);
 			}
 		}
 	}

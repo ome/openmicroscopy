@@ -929,7 +929,6 @@ class BrowserModel
 		double max = ZoomGridAction.MAX_ZOOM_FACTOR;
 		if (gridRatio > max) return;
 		this.gridRatio = gridRatio; 
-		if (ImViewerAgent.hasOpenGLSupport()) return;
 		if (CollectionUtils.isEmpty(originalGridImages)) {
 			try {
 				createGridImages();

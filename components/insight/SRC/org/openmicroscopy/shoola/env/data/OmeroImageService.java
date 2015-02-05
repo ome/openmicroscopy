@@ -145,8 +145,6 @@ public interface OmeroImageService
 	 * @param ctx The security context.
 	 * @param pixelsID The ID of the pixels set.
 	 * @param pd The plane to render.
-	 * @param asTexture Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @param compression The compression level.
@@ -154,8 +152,7 @@ public interface OmeroImageService
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderImage(SecurityContext ctx,
-		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage,
-		int compression)
+		long pixelsID, PlaneDef pd, boolean largeImage, int compression)
 		throws RenderingServiceException;
 
     /**
@@ -619,14 +616,11 @@ public interface OmeroImageService
 	 * @param pd		The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @return See above.
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderOverLays(SecurityContext ctx, long pixelsID,
-		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture)
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException; 
 
 	/**

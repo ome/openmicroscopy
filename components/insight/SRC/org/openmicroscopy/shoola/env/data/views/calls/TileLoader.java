@@ -61,10 +61,7 @@ public class TileLoader
     
     /** The tiles.*/
     private Collection<Tile> tiles;
-    
-    /** Flag indicating to return the tile as texture or not.*/
-    private boolean asTexture;
-    
+
     /** The plane to render.*/
     private PlaneDef pDef;
 
@@ -141,11 +138,9 @@ public class TileLoader
      * @param pixelsID 	The id of the pixels set.
      * @param pDef The plane to render.
 	 * @param tiles	The tiles.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
      */
     public TileLoader(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-    		RenderingControl proxy, Collection<Tile> tiles, boolean asTexture)
+    		RenderingControl proxy, Collection<Tile> tiles)
     {
     	if (proxy == null)
 			throw new IllegalArgumentException("No rendering control.");
@@ -156,7 +151,6 @@ public class TileLoader
         if (pDef == null)
         	 throw new IllegalArgumentException("No plane to render.");
         this.tiles = tiles;
-        this.asTexture = asTexture;
         this.pDef = pDef;
         this.proxy = proxy;
     }

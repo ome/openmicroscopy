@@ -28,8 +28,6 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,9 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.model.ChannelBinding;
 import omero.model.Pixels;
@@ -55,9 +50,6 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -478,8 +470,6 @@ public class PixelsServicesFactory
 	 *                  container's registry.
 	 * @param pixelsID  The id of the pixels set.
 	 * @param pDef      The plane to render.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImage Indicates to set the resolution to <code>0</code>.
 	 * @param compression The compression level.
 	 * @return          The image representing the plane.
@@ -490,7 +480,7 @@ public class PixelsServicesFactory
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static Object render(Registry context, SecurityContext ctx,
-			Long pixelsID, PlaneDef pDef, boolean asTexture, boolean largeImage,
+			Long pixelsID, PlaneDef pDef, boolean largeImage,
 			int compression)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -525,8 +515,6 @@ public class PixelsServicesFactory
 	 * @param pDef      The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @return See above.
 	 * 
      * @throws RenderingServiceException 	If an error occurred while setting 
@@ -534,8 +522,7 @@ public class PixelsServicesFactory
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static Object renderOverlays(Registry context, long pixelsID, 
-			PlaneDef pd, long tableID, Map<Long, Integer> overlays, 
-			boolean asTexture)
+			PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))

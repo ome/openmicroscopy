@@ -97,10 +97,10 @@ public class NullRenderingService
 
     /**
      * No-op implementation
-     * @see OmeroImageService#renderImage(long, PlaneDef, boolean, boolean, int)
+     * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef, boolean, int)
      */
     public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    		boolean asTexture, boolean largeImage, int compression)
+    		boolean largeImage, int compression)
             throws RenderingServiceException
     {
         return null;
@@ -333,19 +333,6 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#renderProjectedAsTexture(long, int, int, int, int, 
-     * List)
-     */
-	public TextureData renderProjectedAsTexture(SecurityContext ctx,
-		long pixelsID, int startZ, int endZ, int stepping, int type,
-		List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
      * @see OmeroImageService#getRenderingSettingsFor(long, long)
      */
 	public List getRenderingSettingsFor(SecurityContext ctx, long pixelsID,
@@ -390,11 +377,10 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#renderOverLays(long, PlaneDef, long, Map, boolean)
+     * @see OmeroImageService#renderOverLays(SecurityContext, long, PlaneDef, long, Map)
      */
 	public Object renderOverLays(SecurityContext ctx, long pixelsID,
-			PlaneDef pd, long tableID,
-			Map<Long, Integer> overlays, boolean asTexture)
+			PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 			throws RenderingServiceException
 	{
 		return null;
