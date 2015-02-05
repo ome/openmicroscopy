@@ -621,19 +621,19 @@ create trigger _fs_dir_delete
 before delete on originalfile
     for each row execute procedure _fs_dir_delete();
 
--- Prevent Directory entries in the originalfile table from having their mimetype changed.
-CREATE OR REPLACE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
+-- Prevent Directory and Repository entries in the originalfile table from having their mimetype changed.
+CREATE OR REPLACE FUNCTION _fs_protected_mimetype() RETURNS "trigger" AS $$
     BEGIN
-        IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
-            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
+        IF OLD.mimetype IN ('Directory', 'Repository') AND (NEW.mimetype IS NULL OR NEW.mimetype != OLD.mimetype) THEN
+            RAISE EXCEPTION 'cannot change media type %% of file id=%%', OLD.mimetype, OLD.id;
         END IF;
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER _fs_directory_mimetype
+CREATE TRIGGER _fs_protected_mimetype
     BEFORE UPDATE ON originalfile
-    FOR EACH ROW EXECUTE PROCEDURE _fs_directory_mimetype();
+    FOR EACH ROW EXECUTE PROCEDURE _fs_protected_mimetype();
 
 -- Prevent SQL DELETE from removing the root experimenter from the system or user group.
 CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
