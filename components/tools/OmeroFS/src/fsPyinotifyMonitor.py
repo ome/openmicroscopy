@@ -246,14 +246,15 @@ class ProcessEvent(pyinotify.ProcessEvent):
         # New directory within watch area, either created or moved into.
         if event.mask == (pyinotify.IN_CREATE | pyinotify.IN_ISDIR) \
                 or event.mask == (pyinotify.IN_MOVED_TO | pyinotify.IN_ISDIR):
-            self.log.info(
-                'New directory event of type %s at: %s', maskname, name)
+            self.log.debug(
+                'New directory event received of type %s at: %s',
+                maskname, name)
             if "Creation" in self.et:
                 if name.find('untitled folder') == -1:
                     if not self.ignoreDirEvents:
                         el.append((name, monitors.EventType.Create))
                     else:
-                        self.log.info('Not propagated.')
+                        self.log.debug('Not propagated.')
                     # Handle the recursion plus create any potentially missed
                     # Create events
                     if self.wm.watchParams[
@@ -264,117 +265,152 @@ class ProcessEvent(pyinotify.ProcessEvent):
                         if self.wm.watchParams[
                                 pathModule.path(name).parent].getRec():
                             for d in pathModule.path(name).walkdirs():
-                                self.log.info(
-                                    'NON-INOTIFY event: New directory at: %s',
-                                    str(d))
+                                self.log.debug(
+                                    'NON-INOTIFY event received: '
+                                    'New directory at: %s', str(d))
                                 if not self.ignoreDirEvents:
+                                    self.log.info(
+                                        'NON-INOTIFY event propagated: '
+                                        'New directory at: %s', str(d))
                                     el.append(
                                         (str(d), monitors.EventType.Create))
                                 else:
-                                    self.log.info('Not propagated.')
+                                    self.log.debug('Not propagated.')
                                 self.wm.addWatch(
                                     str(d), self.wm.watchParams[
                                         pathModule.path(
                                             name).parent].getMask())
                             for f in pathModule.path(name).walkfiles():
                                 self.log.info(
-                                    'NON-INOTIFY event: New file at: %s',
-                                    str(f))
+                                    'NON-INOTIFY event propagated: '
+                                    'New file at: %s', str(f))
                                 el.append((str(f), monitors.EventType.Create))
                         else:
                             for d in pathModule.path(name).dirs():
-                                self.log.info(
-                                    'NON-INOTIFY event: New directory at: %s',
-                                    str(d))
+                                self.log.debug(
+                                    'NON-INOTIFY event received: '
+                                    'New directory at: %s', str(d))
                                 if not self.ignoreDirEvents:
+                                    self.log.info(
+                                        'NON-INOTIFY event propagated: '
+                                        'New directory at: %s', str(d))
                                     el.append(
                                         (str(d), monitors.EventType.Create))
                                 else:
-                                    self.log.info('Not propagated.')
+                                    self.log.debug('Not propagated.')
                             for f in pathModule.path(name).files():
                                 self.log.info(
-                                    'NON-INOTIFY event: New file at: %s',
-                                    str(f))
+                                    'NON-INOTIFY event propagated: '
+                                    'New file at: %s', str(f))
                                 el.append((str(f), monitors.EventType.Create))
                 else:
-                    self.log.info('Created "untitled folder" ignored.')
+                    self.log.debug('Created "untitled folder" ignored.')
             else:
-                self.log.info('Not propagated.')
+                self.log.debug('Not propagated.')
 
         # Deleted directory or one moved out of the watch area.
         elif (event.mask == (pyinotify.IN_MOVED_FROM | pyinotify.IN_ISDIR)
                 or event.mask == (pyinotify.IN_DELETE | pyinotify.IN_ISDIR)):
-            self.log.info(
-                'Deleted directory event of type %s at: %s', maskname, name)
+            self.log.debug(
+                'Deleted directory event received of '
+                'type %s at: %s', maskname, name)
             if "Deletion" in self.et:
                 if name.find('untitled folder') == -1:
                     if not self.ignoreDirEvents:
+                        self.log.info(
+                            'Deleted directory event propagated of '
+                            'type %s at: %s', maskname, name)
                         el.append((name, monitors.EventType.Delete))
                     else:
-                        self.log.info('Not propagated.')
-                    self.log.info(
+                        self.log.debug('Not propagated.')
+                    self.log.debug(
                         'Files and subfolders within %s may have been deleted '
                         'without notice', name)
                     self.wm.removeWatch(name)
                 else:
-                    self.log.info('Deleted "untitled folder" ignored.')
+                    self.log.debug('Deleted "untitled folder" ignored.')
             else:
-                self.log.info('Not propagated.')
+                self.log.debug('Not propagated.')
 
         # New file within watch area, either created or moved into.
         # The file may have been created but it may not be complete and closed.
         # Modifications should be watched
         elif event.mask == pyinotify.IN_CREATE:
-            self.log.info('New file event of type %s at: %s', maskname, name)
+            self.log.debug(
+                'New file event received of type %s at: %s',
+                maskname, name)
             if "Creation" in self.et:
+                self.log.info(
+                    'New file event propagated of type %s at: %s',
+                    maskname, name)
                 self.waitingCreates.add(name)
             else:
-                self.log.info('Not propagated.')
+                self.log.debug('Not propagated.')
 
         # New file within watch area.
         elif event.mask == pyinotify.IN_MOVED_TO:
-            self.log.info('New file event of type %s at: %s', maskname, name)
+            self.log.debug(
+                'New file event received of type %s at: %s',
+                maskname, name)
             if "Creation" in self.et:
+                self.log.info(
+                    'New file event propagated of type %s at: %s',
+                    maskname, name)
                 el.append((name, monitors.EventType.Create))
             else:
-                self.log.info('Not propagated.')
+                self.log.debug('Not propagated.')
 
         # Modified file within watch area.
         elif event.mask == pyinotify.IN_CLOSE_WRITE:
-            self.log.info(
-                'Modified file event of type %s at: %s', maskname, name)
+            self.log.debug(
+                'Modified file event received of type %s at: %s',
+                maskname, name)
             if name in self.waitingCreates:
                 if "Creation" in self.et:
+                    self.log.info(
+                        'Modified file event propagated of type %s at: %s',
+                        maskname, name)
                     el.append((name, monitors.EventType.Create))
                     self.waitingCreates.remove(name)
                 else:
-                    self.log.info('Not propagated.')
+                    self.log.debug('Not propagated.')
             else:
                 if "Modification" in self.et:
+                    self.log.info(
+                        'Modified file event propagated of type %s at: %s',
+                        maskname, name)
                     el.append((name, monitors.EventType.Modify))
                 else:
-                    self.log.info('Not propagated.')
+                    self.log.debug('Not propagated.')
 
         # Modified file within watch area, only notify if file is not
         # waitingCreate.
         elif event.mask == pyinotify.IN_MODIFY:
-            self.log.info(
-                'Modified file event of type %s at: %s', maskname, name)
+            self.log.debug(
+                'Modified file event received of type %s at: %s',
+                maskname, name)
             if name not in self.waitingCreates:
                 if "Modification" in self.et:
+                    self.log.info(
+                        'Modified file event propagated of type %s at: %s',
+                        maskname, name)
                     el.append((name, monitors.EventType.Modify))
                 else:
-                    self.log.info('Not propagated.')
+                    self.log.debug('Not propagated.')
 
         # Deleted file  or one moved out of the watch area.
         elif (event.mask == pyinotify.IN_MOVED_FROM
                 or event.mask == pyinotify.IN_DELETE):
-            self.log.info(
-                'Deleted file event of type %s at: %s', maskname, name)
+            self.log.debug(
+                'Deleted file event received of type %s at: %s',
+                maskname, name)
             if "Deletion" in self.et:
+                self.log.debug(
+                    'Deleted file event propagated of type %s at: %s',
+                    maskname, name)
                 el.append((name, monitors.EventType.Delete))
             else:
-                self.log.info('Not propagated.')
+                self.log.debug('Not propagated.')
 
         # These are all the currently ignored events.
         elif event.mask == pyinotify.IN_ATTRIB:
@@ -415,8 +451,8 @@ class ProcessEvent(pyinotify.ProcessEvent):
 
         # Other events, log them since they really should be caught above
         else:
-            self.log.info('Uncaught event of type %s at: %s', maskname, name)
-            self.log.info('Not propagated.')
+            self.log.debug('Uncaught event of type %s at: %s', maskname, name)
+            self.log.debug('Not propagated.')
 
         if len(el) > 0:
             self.cb(el)
