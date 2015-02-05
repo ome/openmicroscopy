@@ -42,14 +42,18 @@ class TestWeb(object):
                             lambda x: dist_dir / "etc" / "templates")
 
     def add_prefix(self, prefix, monkeypatch):
+
+        def _get_default_value(x):
+            return settings.CUSTOM_SETTINGS_MAPPINGS[x][1]
         if prefix:
-            monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', prefix,
-                                raising=False)
             static_prefix = prefix + '-static/'
-            monkeypatch.setattr(settings, 'STATIC_URL', static_prefix,
-                                raising=False)
         else:
-            static_prefix = settings.STATIC_URL
+            prefix = _get_default_value('omero.web.prefix')
+            static_prefix = _get_default_value('omero.web.static_url')
+        monkeypatch.setattr(settings, 'STATIC_URL', static_prefix,
+                            raising=False)
+        monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', prefix,
+                            raising=False)
         return static_prefix
 
     def clean_generated_file(self, txt):
