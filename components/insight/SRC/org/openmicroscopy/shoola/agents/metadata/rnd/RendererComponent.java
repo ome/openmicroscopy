@@ -34,19 +34,12 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -1052,21 +1045,6 @@ class RendererComponent
 		if (pDef == null) return null;
 		try {
 			return model.render(pDef);
-		} catch (Throwable e) {
-			handleException(e, false);
-		}
-		return null;
-	}
-
-	/** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#renderPlaneAsTexture(PlaneDef)
-     */
-	public TextureData renderPlaneAsTexture(PlaneDef pDef)
-	{
-		if (pDef == null) return null;
-		try {
-			return model.renderPlaneAsTexture(pDef);
 		} catch (Throwable e) {
 			handleException(e, false);
 		}

@@ -31,10 +31,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -608,14 +604,6 @@ public interface Renderer
      *                  <code>false</code> to the minimum and maximum.
      */
     void setRangeAllChannels(boolean absolute);
-
-    /**
-     * Renders the specified plane.
-     * 
-     * @param pDef The plane to render.
-     * @return See above.
-     */
-    TextureData renderPlaneAsTexture(PlaneDef pDef);
 
     /**
      * Returns <code>true</code> if the passed channels compose an RGB image, 

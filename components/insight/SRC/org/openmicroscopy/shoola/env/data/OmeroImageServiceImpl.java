@@ -842,21 +842,7 @@ class OmeroImageServiceImpl
 		return PixelsServicesFactory.renderProjected(context, pixelsID, startZ,
 				endZ, type, stepping, channels);
 	}
-	
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderProjectedAsTexture(SecurityContext, long,
-	 * int, int, int, int, List)
-	 */
-	public TextureData renderProjectedAsTexture(SecurityContext ctx,
-		long pixelsID, int startZ, int endZ, int stepping, int type,
-		List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		return PixelsServicesFactory.renderProjectedAsTexture(context, 
-				pixelsID, startZ, endZ, type, stepping, channels);
-	}
-	
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#projectImage(SecurityContext, ProjectionParam)

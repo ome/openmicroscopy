@@ -24,10 +24,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -86,10 +82,7 @@ public class ProjectionSaver
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                if (openGLSupport)
-                	result = rds.renderProjectedAsTexture(ctx, pixelsID, startZ, 
-                			endZ, stepping, algorithm, channels);
-                else result = rds.renderProjected(ctx, pixelsID, startZ, 
+                result = rds.renderProjected(ctx, pixelsID, startZ, 
             			endZ, stepping, algorithm, channels);
             }
         };

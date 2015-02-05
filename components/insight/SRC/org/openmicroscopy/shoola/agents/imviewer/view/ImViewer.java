@@ -37,10 +37,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -1083,23 +1079,6 @@ public interface ImViewer
 	 * @param bounds The rectangle to display if possible.
 	 */
 	public void scrollToViewport(Rectangle bounds);
-
-	/**
-	 * Returns the images composing the grid. This should be invoked
-	 * only if the main image is not an RGB image.
-	 * 
-	 * @return See above.
-	 */
-	public Map<Integer, TextureData> getGridImagesAsTexture();
-
-	/**
-	 * Creates an image from the texture
-	 * 
-	 * @param type 		 The selected view.
-	 * @param includeROI Passed <code>true</code> to add ROI, 
-	 * 					 <code>false</code> otherwise.
-	 */
-	public BufferedImage createImageFromTexture(int type, boolean includeROI);
 
     /**
      * Returns <code>true</code> if the passed channels compose an RGB image, 

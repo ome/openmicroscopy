@@ -89,8 +89,7 @@ public class TileLoader
     		def.t = pDef.t;
     		def.region = new RegionDef(rt.getX(), rt.getY(),
     				rt.getWidth(), rt.getHeight());
-    		if (asTexture) tile.setImage(proxy.renderAsTexture(def));
-    		else tile.setImage(proxy.render(def));
+    		tile.setImage(proxy.render(def));
 		} catch (Exception e) {
 			tile.setImage(Factory.createDefaultImageThumbnail(rt.getWidth(), 
 					rt.getHeight()));
