@@ -156,17 +156,17 @@ class WebControl(BaseControl):
                 % self.ctx.dir
         d["FASTCGI_PASS"] = fastcgi_pass
 
+        script_info = (
+            "fastcgi_split_path_info ^(%s)(.*)$;\n"
+            "            fastcgi_param PATH_INFO $fastcgi_path_info;\n"
+            "            fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n")
+        script_info_fallback = (
+            "fastcgi_param PATH_INFO $fastcgi_script_name;\n")
         try:
-            d["FASTCGI_PATH_SCRIPT_INFO"] = \
-                "fastcgi_split_path_info ^(%s)(.*)$;\n" \
-                "            " \
-                "fastcgi_param PATH_INFO $fastcgi_path_info;\n" \
-                "            " \
-                "fastcgi_param SCRIPT_INFO $fastcgi_script_name;\n" \
-                % (settings.FORCE_SCRIPT_NAME)
+            d["FASTCGI_PATH_SCRIPT_INFO"] = (
+                script_info % settings.FORCE_SCRIPT_NAME)
         except:
-            d["FASTCGI_PATH_SCRIPT_INFO"] = "fastcgi_param PATH_INFO " \
-                                            "$fastcgi_script_name;\n"
+            d["FASTCGI_PATH_SCRIPT_INFO"] = script_info_fallback
         return d
 
     def _set_apache_fastcgi(self, d, settings):
@@ -179,9 +179,9 @@ class WebControl(BaseControl):
                 self.ctx.dir
         d["FASTCGI_EXTERNAL"] = fastcgi_external
         try:
-            d["REWRITERULE"] = \
-                "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"\
-                % settings.FORCE_SCRIPT_NAME.rstrip("/")
+            d["REWRITERULE"] = (
+                "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"
+                % settings.FORCE_SCRIPT_NAME.rstrip("/"))
         except:
             d["REWRITERULE"] = ""
 
@@ -191,8 +191,7 @@ class WebControl(BaseControl):
         # path component containing a dot.
 
         if settings.APPLICATION_SERVER != settings.FASTCGITCP:
-            self.ctx.die(
-                679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
+            self.ctx.die(679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
         fastcgi_external = '%s:%s' % (
             settings.APPLICATION_SERVER_HOST,
             settings.APPLICATION_SERVER_PORT)
@@ -207,7 +206,6 @@ class WebControl(BaseControl):
 
     def config(self, args):
         """Generate a configuration file from a template"""
-
         from omeroweb import settings
         if not args.type:
             self.ctx.die(
