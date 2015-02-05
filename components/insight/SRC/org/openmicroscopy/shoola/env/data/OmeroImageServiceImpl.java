@@ -1015,7 +1015,9 @@ class OmeroImageServiceImpl
 			}
 			//save the tag.
 			try {
-				l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    if (l.size() > 0) {
+			        l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    }
 				Iterator<IObject> j = l.iterator();
 				Annotation a;
 				while (j.hasNext()) {
