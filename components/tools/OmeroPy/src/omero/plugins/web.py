@@ -234,7 +234,8 @@ class WebControl(BaseControl):
             "ROOT": self.ctx.dir,
             "OMEROWEBROOT": self._get_python_dir() / "omeroweb",
             "STATIC_URL": settings.STATIC_URL.rstrip("/"),
-            "NOW": str(datetime.now())}
+            "NOW": str(datetime.now()),
+            "HTTPORT": port}
 
         try:
             d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
@@ -242,7 +243,6 @@ class WebControl(BaseControl):
             d["FORCE_SCRIPT_NAME"] = "/"
 
         if server in ("nginx", "nginx-development"):
-            d["HTTPPORT"] = port
             d = self._set_nginx_fastcgi(d, settings)
 
         if server == "apache":
