@@ -71,38 +71,38 @@ class TestWeb(object):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('size', [None, '0', '1m'])
-    @pytest.mark.parametrize('system', [True, False])
+    @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
+    @pytest.mark.parametrize('server_type', [
+        "nginx", "nginx-development", "nginx --system"])
     @pytest.mark.parametrize('http', [False, 8081])
     @pytest.mark.parametrize('prefix', [None, '/test'])
-    def testNginxConfig(self, system, http, prefix, capsys, monkeypatch,
-                        size):
+    def testNginxConfig(self, server_type, http, prefix, capsys, monkeypatch,
+                        max_body_size):
 
         static_prefix = self.add_prefix(prefix, monkeypatch)
         self.args += ["config"]
-        if system:
-            self.args += ["nginx"]
-        else:
-            self.args += ["nginx-development"]
+        self.args += server_type.split()
         if http:
             self.args += ["--http", str(http)]
-        if size:
-            self.args += ["--max-body-size", size]
+        if max_body_size:
+            self.args += ["--max-body-size", max_body_size]
         self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         lines = self.clean_generated_file(o)
 
-        if system:
+        if server_type.split()[0] == "nginx":
             assert lines[0] == "server {"
             assert lines[1] == "listen       %s;" % (http or 80)
-            assert lines[3] == "client_max_body_size %s;" % (size or '0')
+            assert lines[3] == "client_max_body_size %s;" % (
+                max_body_size or '0')
             assert lines[8] == "location %s {" % static_prefix[:-1]
             assert lines[11] == "location %s {" % (prefix or "/")
         else:
             assert lines[16] == "server {"
             assert lines[17] == "listen       %s;" % (http or 8080)
-            assert lines[21] == "client_max_body_size %s;" % (size or '0')
+            assert lines[21] == "client_max_body_size %s;" % (
+                max_body_size or '0')
             assert lines[26] == "location %s {" % static_prefix[:-1]
             assert lines[29] == "location %s {" % (prefix or "/")
 
