@@ -567,9 +567,11 @@ class AnnotationDataUI
 		content.add(docRef, c);
 		c.gridy++;
 
-		mapsPane.reload();
-		content.add(mapsPane, c);
-		c.gridy++;
+		if(!model.isMultiSelection()) {
+			mapsPane.reload();
+			content.add(mapsPane, c);
+			c.gridy++;
+		}
 
 		// other
 		if (!CollectionUtils.isEmpty(model.getAllOtherAnnotations())) {
