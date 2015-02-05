@@ -48,17 +48,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-
-//Third-party libraries
 import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 
-import com.sun.opengl.util.texture.TextureData;
-
-
-//Application-internal dependencies
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RawPixelsStorePrx;

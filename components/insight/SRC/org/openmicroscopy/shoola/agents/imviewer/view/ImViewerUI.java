@@ -1574,7 +1574,7 @@ class ImViewerUI
 		if (lens == null) {
 			if (b) {
 				firstTime = true;
-				lens = new LensComponent(this, false);
+				lens = new LensComponent(this);
 				lens.setImageName(model.getImageName());
 				lens.setXYPixelMicron(model.getPixelsSizeX(), 
 						model.getPixelsSizeY());

@@ -37,11 +37,6 @@ import java.util.Set;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-
-//Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.romio.PlaneDef;
