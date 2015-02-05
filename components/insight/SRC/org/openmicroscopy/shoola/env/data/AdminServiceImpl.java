@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.AdminServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -47,8 +47,6 @@ import org.apache.commons.lang.StringUtils;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.sys.Roles;
-
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -58,7 +56,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -210,7 +207,7 @@ class AdminServiceImpl
 			String newPassword) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		if (newPassword == null || newPassword.trim().length() == 0)
+		if (StringUtils.isBlank(newPassword))
 			throw new IllegalArgumentException("Password not valid.");
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);

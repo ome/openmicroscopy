@@ -2110,6 +2110,54 @@ class OmeroWebObjectWrapper (object):
         if self.canChgrp(): flags.append("canChgrp")
         return " ".join(flags)
 
+    def setRating(self, rating):
+        """
+        Add a rating (long) annotation to the object, or update an existing rating.
+        If rating is zero, we remove any existing rating annotation.
+        """
+        rating_ns = omero.constants.metadata.NSINSIGHTRATING
+        parent_type = self.OMERO_CLASS
+        userid = self._conn.getUserId()
+
+        ratingAnns = list(self._conn.getAnnotationLinks(parent_type, parent_ids=[self.id], ns=rating_ns))
+        # filter for links I own
+        ratingAnns = [r for r in ratingAnns if r.getDetails().owner.id.val == userid]
+        ratingLink = ratingAnns and ratingAnns[0] or None
+
+        def getLinkCount(annId):
+            linkCount = 0
+            for parentType in ["Project", "Dataset", "Image", "Screen", "Plate", "PlateAcquisition", "Well"]:
+                annLinks = list(self._conn.getAnnotationLinks(parentType, ann_ids=[annId]))
+                linkCount += len(annLinks)
+            return linkCount
+
+        def addRating(value):
+            if value == 0:
+                return
+            ratingAnn = omero.model.LongAnnotationI()
+            ratingAnn.setLongValue( rlong(value) )
+            ratingAnn.setNs( rstring(rating_ns) )
+            self._conn.SERVICE_OPTS.setOmeroGroup(self.getDetails().group.id.val)
+            ratingAnn = self._conn.getUpdateService().saveAndReturnObject(ratingAnn, self._conn.SERVICE_OPTS)
+            self.linkAnnotation(AnnotationWrapper(self._conn, ratingAnn))
+
+        if ratingLink is not None:
+            ratingAnn = ratingLink.getChild()
+            # if rating is only used by this object, we can update or delete
+            if getLinkCount(ratingAnn.id) == 1:
+                if rating > 0:
+                    ratingAnn.setLongValue( rlong(rating) )
+                    ratingAnn.save()
+                else:
+                    self._conn.deleteObjectDirect(ratingLink._obj)
+                    self._conn.deleteObjectDirect(ratingAnn._obj)
+            # otherwise, unlink and create a new rating
+            else:
+                self._conn.deleteObjectDirect(ratingLink._obj)
+                addRating(rating)
+        else:
+            addRating(rating)
+
 
 class ExperimenterWrapper (OmeroWebObjectWrapper, omero.gateway.ExperimenterWrapper): 
     """

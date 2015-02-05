@@ -844,7 +844,7 @@ class EditorControl
 				if (image != null) {
 					ViewInPluginEvent event = new ViewInPluginEvent(
 						model.getSecurityContext(),
-						(DataObject) object, MetadataViewer.IMAGE_J);
+						(DataObject) object, LookupNames.IMAGE_J);
 					MetadataViewerAgent.getRegistry().getEventBus().post(event);
 				}
 				break;

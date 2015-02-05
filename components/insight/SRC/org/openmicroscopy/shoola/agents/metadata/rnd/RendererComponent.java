@@ -34,8 +34,10 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
+
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -46,6 +48,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -59,6 +62,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -1267,9 +1271,9 @@ class RendererComponent
 		ImageData image = model.getRefImage();
 		if (image == null) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		if (MetadataViewerAgent.runAsPlugin() == MetadataViewer.IMAGE_J) {
+		if (MetadataViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 			bus.post(new ViewInPluginEvent(model.getSecurityContext(),
-					image, MetadataViewer.IMAGE_J));
+					image, LookupNames.IMAGE_J));
 		} else {
 			bus.post(new ViewImage(model.getSecurityContext(),
 					new ViewImageObject(image), null));

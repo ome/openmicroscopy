@@ -10,6 +10,7 @@
 """
 
 import os
+import re
 import pytest
 
 from path import path
@@ -205,6 +206,10 @@ class TestAdminPorts(object):
             else:
                 self.cfg_files[key].remove()
 
+    def create_new_ice_config(self):
+        with open(self.cfg_files['ice.config'], 'w') as f:
+            f.write('omero.host=localhost')
+
     def check_cfg(self, prefix='', registry=4061, **kwargs):
         for key in ['master.cfg', 'internal.cfg']:
             s = self.cfg_files[key].text()
@@ -224,7 +229,9 @@ class TestAdminPorts(object):
 
     def check_ice_config(self, prefix='', webserver=4080, ssl=4064, **kwargs):
         config_text = self.cfg_files["ice.config"].text()
-        assert config_text.endswith("\nomero.port=%s%s\n" % (prefix, ssl))
+        pattern = re.compile('^omero.port=\d+$', re.MULTILINE)
+        matches = pattern.findall(config_text)
+        assert matches == ["omero.port=%s%s" % (prefix, ssl)]
 
     def check_default_xml(self, prefix='', tcp=4063, ssl=4064, **kwargs):
         routerport = (
@@ -242,7 +249,12 @@ class TestAdminPorts(object):
             assert client_endpoints in s
 
     @pytest.mark.parametrize('prefix', [None, 1, 2])
-    def testRevert(self, prefix):
+    @pytest.mark.parametrize('default', [True, False])
+    def testRevert(self, prefix, default):
+
+        if not default:
+            self.create_new_ice_config()
+
         kwargs = {}
         if prefix:
             self.args += ['--prefix', '%s' % prefix]
@@ -250,6 +262,7 @@ class TestAdminPorts(object):
         self.args += ['--skipcheck']
         self.cli.invoke(self.args, strict=True)
 
+        # Check configuration file ports have been prefixed
         self.check_ice_config(**kwargs)
         self.check_cfg(**kwargs)
         self.check_config_xml(**kwargs)
@@ -259,10 +272,39 @@ class TestAdminPorts(object):
         self.args += ['--revert']
         self.cli.invoke(self.args, strict=True)
 
+        # Check configuration file ports have been deprefixed
         self.check_ice_config()
         self.check_cfg()
         self.check_config_xml()
         self.check_default_xml()
+
+    @pytest.mark.parametrize('default', [True, False])
+    def testFailingRevert(self, default):
+
+        if not default:
+            self.create_new_ice_config()
+
+        kwargs = {'prefix': 1}
+        self.args += ['--skipcheck']
+        self.args += ['--prefix', '%s' % kwargs['prefix']]
+        self.cli.invoke(self.args, strict=True)
+
+        # Check configuration file ports
+        self.check_ice_config(**kwargs)
+        self.check_cfg(**kwargs)
+        self.check_config_xml(**kwargs)
+        self.check_default_xml(**kwargs)
+
+        # Test revert with a mismatching prefix
+        self.args[-1] = "2"
+        self.args += ['--revert']
+        self.cli.invoke(self.args, strict=True)
+
+        # Check configuration file ports have not been modified
+        self.check_ice_config(**kwargs)
+        self.check_cfg(**kwargs)
+        self.check_config_xml(**kwargs)
+        self.check_default_xml(**kwargs)
 
     @pytest.mark.parametrize('prefix', [None, 1])
     @pytest.mark.parametrize('registry', [None, 111])

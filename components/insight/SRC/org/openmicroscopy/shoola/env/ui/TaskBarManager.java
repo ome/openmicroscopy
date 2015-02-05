@@ -363,6 +363,7 @@ public class TaskBarManager
 		if (evt == null) return;
 		switch (evt.getPlugin()) {
 			case LookupNames.IMAGE_J:
+			case LookupNames.IMAGE_J_IMPORT:
 				runAsImageJ(evt.getObjectID(), evt.getSecurityContext());
 				break;
 		}

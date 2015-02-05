@@ -385,6 +385,7 @@ module omero {
          * @param blockSize, the number of events to pack into each notification (int).
          * @param ignoreSysFiles, ignore system files or not (bool).
          * @param ignoreDirEvents, ignore directory events (bool).
+         * @param platformCheck, if true strictly check platform (bool).
          * @return monitorId, a uuid1 (string).
          * @throws omero::OmeroFSError
          **/
@@ -398,6 +399,7 @@ module omero {
                                 int blockSize,
                                 bool ignoreSysFiles,
                                 bool ignoreDirEvents,
+                                bool platformCheck,
                                 MonitorClient* proxy)
             throws omero::OmeroFSError;
 

@@ -72,9 +72,9 @@ public class PixelsData extends DataObject {
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>
-     * <code>double</code> string identifier.
+     * <code>float</code> string identifier.
      */
-    public static final String FLOAT_TYPE = "double";
+    public static final String FLOAT_TYPE = "float";
 
     /**
      * Identifies the type used to store pixel values. Maps onto the <i>OME</i>

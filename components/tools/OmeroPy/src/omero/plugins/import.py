@@ -103,6 +103,30 @@ class ImportControl(BaseControl):
             help="Image or plate description to use (**)",
             metavar="DESCRIPTION")
 
+        # Feedback options
+        feedback_group = parser.add_argument_group(
+            'Feedback arguments',
+            'Optional arguments passed strictly to Java allowing to report'
+            ' errors to the OME team.')
+        feedback_group.add_argument(
+            "--report", action="store_true", dest="java_report",
+            help="Report errors to the OME team (**)")
+        feedback_group.add_argument(
+            "--upload", action="store_true", dest="java_upload",
+            help=("Upload broken files and log file (if any) with report."
+                  " Required --report (**)"))
+        feedback_group.add_argument(
+            "--logs", action="store_true", dest="java_logs",
+            help=("Upload log file (if any) with report."
+                  " Required --report (**)"))
+        feedback_group.add_argument(
+            "--email", dest="java_email",
+            help="Email for reported errors. Required --report (**)",
+            metavar="EMAIL")
+        feedback_group.add_argument(
+            "--qa_baseurl", dest="java_qa_baseurl",
+            help=SUPPRESS)
+
         # DEPRECATED OPTIONS
         deprecated_name_group = parser.add_argument_group()
         deprecated_name_group.add_argument(
@@ -132,18 +156,6 @@ class ImportControl(BaseControl):
             "-r", dest="java_r",
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
-        java_group.add_argument(
-            "--report", action="store_true", dest="java_report",
-            help="Report errors to the OME team (**)")
-        java_group.add_argument(
-            "--upload", action="store_true", dest="java_upload",
-            help="Upload broken files with report (**)")
-        java_group.add_argument(
-            "--logs", action="store_true", dest="java_logs",
-            help="Upload log file with report (**)")
-        java_group.add_argument(
-            "--email", dest="java_email",
-            help="Email for reported errors (**)", metavar="EMAIL")
         java_group.add_argument(
             "--debug", dest="java_debug",
             help="Turn debug logging on (**)",
@@ -226,11 +238,12 @@ class ImportControl(BaseControl):
             "java_description": ("--description",),
             "java_plate_name": ("--plate_name",),
             "java_plate_description": ("--plate_description",),
-            "java_report": "--report",
-            "java_upload": "--upload",
-            "java_logs": "--logs",
-            "java_email": "--email",
+            "java_report": ("--report"),
+            "java_upload": ("--upload"),
+            "java_logs": ("--logs"),
+            "java_email": ("--email"),
             "java_debug": ("--debug",),
+            "java_qa_baseurl": ("--qa_baseurl",),
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",

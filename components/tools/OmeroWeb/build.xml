@@ -78,11 +78,6 @@
                 <untar compression="gzip" src="${lib.dir}/repository/flup-lib-1.0.2.tar.gz" dest="${basedir}/../target/lib/python"/>
             </then>
         </if>
-        <if><not><available file="${basedir}/../target/lib/python/selenium.py"/></not>
-            <then>
-                <untar compression="gzip" src="${lib.dir}/repository/selenium-python-client-driver-1.0.1.tar.gz" dest="${basedir}/../target/lib/python"/>
-            </then>
-        </if>
     </target>
 
     <target name="tools-build" depends="tools-init"/>

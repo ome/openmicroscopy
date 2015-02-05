@@ -12,6 +12,7 @@
         id int8 not null,
         description text,
         permissions int8 not null,
+        name varchar(255),
         ns varchar(255),
         version int4,
         boolValue bool,
@@ -1443,15 +1444,12 @@
         description text,
         permissions int8 not null,
         display bool,
+        displayName varchar(255),
         keywords text[],
         multivalued bool,
         name varchar(255) not null,
         version int4,
-        creation_id int8 not null,
         external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
         primary key (id)
     );;
 
@@ -1949,6 +1947,7 @@
         description text,
         permissions int8 not null,
         keywords text[][],
+        name varchar(255),
         namespaces text[],
         version int4,
         creation_id int8 not null,
@@ -4384,29 +4383,9 @@
         references externalinfo  ;;
 
     alter table namespace 
-        add constraint FKnamespace_creation_id_event 
-        foreign key (creation_id) 
-        references event  ;;
-
-    alter table namespace 
-        add constraint FKnamespace_update_id_event 
-        foreign key (update_id) 
-        references event  ;;
-
-    alter table namespace 
         add constraint FKnamespace_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo  ;;
-
-    alter table namespace 
-        add constraint FKnamespace_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup  ;;
-
-    alter table namespace 
-        add constraint FKnamespace_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter  ;;
 
     alter table namespaceannotationlink 
         add constraint FKnamespaceannotationlink_creation_id_event 

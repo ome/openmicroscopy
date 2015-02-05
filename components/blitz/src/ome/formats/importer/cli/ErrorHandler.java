@@ -60,11 +60,17 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
                 // final and have an onOnUpdate, etc.
                 sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
                 sendLogs = ((ImportEvent.DEBUG_SEND) event).sendLogs;
-                log.info("Sending error report "
-                        + "(" + errors.size() + ")"
-                        + (sendFiles ? " with files " : " ") + "...");
-                if (sendLogs) log.info("Sending log file...");
+                log.info("Sending error report "+ "(" + errors.size() + ")...");
                 sendErrors();
+                if (sendFiles) {
+                    if (sendLogs)
+                        log.info("Sent files and log file.");
+                    else log.info("Sent files.");
+                } else {
+                    if (sendLogs) {
+                        log.info("Sent log file.");
+                    }
+                }
             }
 
         }

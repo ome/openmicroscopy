@@ -187,6 +187,7 @@
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
+                        alert("Upload failed [" + data.status + " " + data.statusText + "]");
                     }
                 });
                 // prepare dialog for choosing file to attach...
@@ -254,6 +255,63 @@
                     OME.filterAnnotationsAddedBy();
                 });
 
+                // Rating
+                // NB: similar functionality on metadata_general.html
+                $("#add_rating").click(function(){
+                    $(".myRating").toggle();
+                });
+
+                $("#rating_annotations").on("click", ".myRating img", function(event){
+                    var $rating = $(this),
+                        clickX = event.pageX - $rating.offset().left;
+                    var r = (clickX/ $rating.width()) * 5;
+                    r = parseInt(Math.ceil(r));
+                    setRating(r, $rating);
+                });
+                // $(".addRating img").click(function(event){
+                //     var $rating = $(this),
+                //         $ratingli = $rating.parent().parent(),
+                //         clickX = event.pageX - $rating.offset().left;
+                //     var r = (clickX/ $rating.width()) * 5;
+                //     r = parseInt(Math.ceil(r));
+                //     var $newR = $ratingli.clone().prependTo("#rating_annotations");
+                //     $newR.removeClass('addRating').addClass('myRating');
+                //     $ratingli.hide();
+
+                //     setRating(r, $newR.find('img'));
+                // });
+                $("#rating_annotations").on("click", ".removeRating", function(event){
+                    event.preventDefault();
+                    var $liMyRating = $(this).parent(),
+                        $ratingimg = $liMyRating.find('img');
+                    $liMyRating.hide();
+                    setRating(0, $ratingimg);
+                });
+
+                var setRating = function(rating, $rating) {
+                    // update rating
+                    if ($rating) {
+                        var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", rating+".png");
+                        $rating.attr('src', rating_src);
+                    }
+                    $(".ratingCount").text("{{ obj_labels|length }}");
+                    // hide the [+] button if we have set a rating
+                    if (rating > 0) {
+                        $("#add_rating").hide()
+                    } else {
+                        $("#add_rating").show()
+                    }
+                    // update rating annotation
+                    var rating_url = "{% url 'annotate_rating' %}?{{ obj_string }}&index={{ index }}"
+                    rating_url += "&rating=" + rating;
+                    $.post(rating_url, function(data) {
+                        // update summary
+                        $("#ratingsAverage").text(data.average);
+                        $("#ratingsCount").text(data.count);
+                        $("#ratingsSummary").show();
+                    });
+                }
+
                 OME.initToolbarDropdowns();
             });
             
@@ -319,6 +377,49 @@
     {% if annotationBlocked %}
         <h3 class="postit_msg">{{ annotationBlocked }}</h3>
     {% endif %}
+
+
+    <!-- RATING -->
+
+    <div class="annotations_section">
+
+        <h2>{% trans "Rating" %}</h2>
+
+        {% if not annotationBlocked %}
+        <a id="add_rating"
+            {% if userRatingAvg > 0 %}style="display:none"{% endif %} class="btn silver btn_add"><span></span></a>
+        {% endif %}
+
+
+        <ul id="rating_annotations" class="lnfiles">
+
+            <li class="rating {% if not annotationBlocked %}myRating{% endif %}" style="position: relative {% ifequal userRatingAvg 0 %}; display:none{% endifequal %}">
+                <a><img
+                {% ifequal userRatingAvg 0 %} src="{% static "webclient/image/rating0.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                {% ifequal userRatingAvg 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+                />
+                <span class="ratingOwner">
+                    (avg of <span class="ratingCount">{{ batchAnns.UserRatings|length }}</span>)
+                </span>
+                </a>
+                {% if not annotationBlocked %}
+                <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
+                {% endif %}
+            </li>
+        </ul>
+        <div id="ratingsSummary" {% if not ratings.average %}style="display:none"{% endif %}>
+            (avg:
+            <span id="ratingsAverage">{{ ratings.average }}</span>
+            / <span id="ratingsCount">{{ ratings.count }}</span>
+            votes)
+        </div>
+    </div>
+
+    <hr/>
 
     <!-- TAGS -->               
     <div class="annotations_section">

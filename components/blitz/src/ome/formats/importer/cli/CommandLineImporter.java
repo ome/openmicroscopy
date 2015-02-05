@@ -300,9 +300,9 @@ public class CommandLineImporter {
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
 
             + "  --report\t\t\t\tReport errors to the OME team\n"
-            + "  --upload\t\t\t\tUpload broken files with report\n"
-            + "  --logs\t\t\t\tUpload log file with report\n"
-            + "  --email EMAIL\t\t\t\tEmail for reported errors\n"
+            + "  --upload\t\t\t\tUpload broken files and log file (if any) with report. Required --report\n"
+            + "  --logs\t\t\t\tUpload log file (if any) with report. Required --report\n"
+            + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
             + "  --annotation_ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
             + "  --annotation_text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
@@ -371,6 +371,12 @@ public class CommandLineImporter {
             + "                            \t     SHA1-160 (slow, default)\n\n"
             + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
             + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n"
+            + "\n"
+            + "  Feedback:\n"
+            + "  ---------\n\n"
+            + "    --qa_baseurl=ARG\tSpecify the base URL for reporting feedback\n"
+            + "  e.g. $ bin/omero import -- --qa_baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "       $ ./importer-cli --qa_baseurl=https://qa.staging.openmicroscopy.org/qa\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
         System.exit(1);
@@ -475,20 +481,23 @@ public class CommandLineImporter {
         LongOpt autoClose =
                 new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 19);
 
+        LongOpt qaBaseURL = new LongOpt(
+                "qa_baseurl", LongOpt.REQUIRED_ARGUMENT, null, 20);
+
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
-                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 20);
+                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 21);
         LongOpt plateDescription = new LongOpt(
-                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 21);
+                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 22);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
                                 name, description, noThumbnails,
                                 agent, annotationNamespace, annotationText,
                                 annotationLink, transferOpt, advancedHelp,
-                                checksumAlgorithm, minutesWait, closeCompleted,
-                                waitCompleted, autoClose,
-                                plateName, plateDescription});
+                                checksumAlgorithm, minutesWait,
+                                closeCompleted, waitCompleted, autoClose,
+                                qaBaseURL, plateName, plateDescription});
         int a;
 
         boolean doCloseCompleted = false;
@@ -598,9 +607,13 @@ public class CommandLineImporter {
                 config.autoClose.set(true);
                 break;
             }
+            case 20: {
+                config.qaBaseURL.set(g.getOptarg());
+                break;
+            }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
-            case 20: {
+            case 21: {
                 if (userSpecifiedNameAlreadySet) {
                     usage();
                 }
@@ -608,7 +621,7 @@ public class CommandLineImporter {
                 userSpecifiedNameAlreadySet = true;
                 break;
             }
-            case 21: {
+            case 22: {
                 if (userSpecifiedDescriptionAlreadySet) {
                     usage();
                 }
