@@ -690,7 +690,7 @@ public class PropertiesUI
     	Length z = (Length) details.get(EditorUtil.PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
-    	NumberFormat nf = new DecimalFormat("0.##");
+    	NumberFormat nf = new DecimalFormat("0.00");
     	String units = null;
     	try {
     		x = UIUtilities.transformSize(x);
