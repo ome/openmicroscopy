@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.actions.ManageRndSettingsAction
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -306,7 +306,7 @@ public class ManageRndSettingsAction
     private void copyRndSettings() {
 
             CopyRndSettings evt;
-            if (model.isModified()) {
+            if (model.isModified(false)) {
                 // copy the current 'pending' rendering settings
                 evt = new CopyRndSettings(model.getRefImage(), model.getRndSettingsCopy());
             }

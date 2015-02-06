@@ -1,7 +1,7 @@
 /* * org.openmicroscopy.shoola.agents.iviewer.view.ImViewer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -999,9 +999,11 @@ public interface ImViewer
 	 * Returns <code>true</code> if the rendering settings used to render 
 	 * the image are the original ones, <code>false</code> otherwise.
 	 * 
+	 * @param checkPlane Pass <code>true</code> to check the plane,
+	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
-	public boolean isOriginalSettings();
+	public boolean isOriginalSettings(boolean checkPlane);
 
 	/**
 	 * Sets the rendering settings to paste.

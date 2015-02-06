@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.FigureDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -1991,7 +1991,8 @@ public class FigureDialog
 		if (renderer == null)
 			throw new IllegalArgumentException("No renderer.");
 		this.renderer = renderer;
-		rndDef = renderer.getRndSettingsCopy();
+		this.renderer.resetSettings();
+		rndDef = renderer.getInitialRndSettings();
 		channelsPane.removeAll();
 		switch (dialogType) {
 			case SPLIT:

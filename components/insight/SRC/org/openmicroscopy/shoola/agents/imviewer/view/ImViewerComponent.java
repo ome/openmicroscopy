@@ -306,7 +306,7 @@ class ImViewerComponent
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JCheckBox rndBox = null;
-		if (!model.isOriginalSettings()) {
+		if (!model.isOriginalSettings(true)) {
 			rndBox = new JCheckBox(RND);
 			rndBox.setSelected(true);
 			p.add(rndBox);
@@ -616,7 +616,7 @@ class ImViewerComponent
 	boolean hasSettingsToSave()
 	{
 		if (failureToSave) return false;
-		return !isOriginalSettings();
+		return !isOriginalSettings(true);
 	}
 	
 	/**
@@ -2809,14 +2809,14 @@ class ImViewerComponent
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isOriginalSettings()
 	 */
-	public boolean isOriginalSettings()
+	public boolean isOriginalSettings(boolean checkPlane)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
 				throw new IllegalArgumentException("This method cannot be " +
 				"invoked in the DISCARDED state.");
 		}
-		return model.isOriginalSettings();
+		return model.isOriginalSettings(checkPlane);
 	}
 
 	/** 

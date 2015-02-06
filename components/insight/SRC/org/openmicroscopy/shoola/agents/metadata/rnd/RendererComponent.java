@@ -1014,8 +1014,8 @@ class RendererComponent
         * Implemented as specified by the {@link Renderer} interface.
         * @see Renderer#isModified()
         */
-	public boolean isModified() {
-	    return model.isModified();
+	public boolean isModified(boolean checkPlane) {
+	    return model.isModified(checkPlane);
 	}
 	
 	/** 

@@ -1398,12 +1398,15 @@ class RendererModel
        /**
         * Returns <code>true</code> if the rendering settings 
         * have been modified
-        *
+        * 
+        * @param checkPlane Pass <code>true</code> to check the plane,
+	    * <code>false</code> otherwise.
+	    * 
         * @return See above.
         */
-	boolean isModified() {
+	boolean isModified(boolean checkPlane) {
 	    if(rndControl!=null) {
-	        return !rndControl.isSameSettings(rndDef, false);
+	        return !rndControl.isSameSettings(rndDef, checkPlane);
 	    }
 	    return false;
 	}
