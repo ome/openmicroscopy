@@ -49,10 +49,8 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
     private boolean isPlate(String reader, String path) {
         boolean plate = false;
         try {
-            log.info("Reader: "+reader);
             Class<?> c = Class.forName(reader);
             FormatReader instance = (FormatReader) c.newInstance();
-            log.info("instance: "+instance);
             instance.setId(path);
             String[] domains = instance.getDomains();
             for (int k = 0; k < domains.length; k++) {
