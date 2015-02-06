@@ -3001,11 +3001,12 @@ def chgrp(request, conn=None, **kwargs):
     new_container_name = request.REQUEST.get('new_container_name', None)
     new_container_type = request.REQUEST.get('new_container_type', None)
     container_id = None
+
+    # Context must be set to owner of data, E.g. to create links.
+    ownerId = getObjectOwnerId(request)
+    conn.SERVICE_OPTS.setOmeroUser(ownerId)
     if (new_container_name is not None and len(new_container_name) > 0 and
                 new_container_type is not None):
-        # Create a new container in target group, for Images, Datasets or Plates
-        ownerId = getObjectOwnerId(request)
-        conn.SERVICE_OPTS.setOmeroUser(ownerId)
         conn.SERVICE_OPTS.setOmeroGroup(group_id)
         container_id = conn.createContainer(new_container_type, new_container_name)
     # No new container, check if target is specified

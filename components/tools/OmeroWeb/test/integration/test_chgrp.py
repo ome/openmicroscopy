@@ -192,7 +192,6 @@ class TestChgrp(object):
         # Project owner should be current user
         assert p.getDetails().owner.id.val == userId
 
-    @pytest.mark.xfail(ticket="11539")
     @pytest.mark.parametrize("credentials",
                              [getUserCredentials, getAdminCredentials])
     def test_chgrp_old_container(self, request, credentials,
