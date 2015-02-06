@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2322,7 +2322,10 @@ public class OMEROMetadataStoreClient
             List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
             for (Pixels pixels : pixelsList)
             {
-                pixels.unloadCollections();
+                pixels.unloadPixelsFileMaps();
+                pixels.unloadPlaneInfo();
+                pixels.unloadSettings();
+                pixels.unloadThumbnails();
                 pixels.unloadDetails();
                 objectList.add(pixels);
             }
