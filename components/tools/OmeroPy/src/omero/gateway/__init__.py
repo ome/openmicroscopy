@@ -3265,6 +3265,7 @@ class _BlitzGateway (object):
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
+                img._obj.setSeries(rint(0))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_,
