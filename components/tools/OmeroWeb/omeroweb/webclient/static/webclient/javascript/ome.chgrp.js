@@ -80,7 +80,6 @@ $(function() {
                     html += "or they are not all in any common groups to move data to.";
                 }
             }
-            console.log(html);
             $group_chooser.append(html);
         });
     };
@@ -96,16 +95,18 @@ $(function() {
         // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
         $group_chooser.hide();                      // hide group_chooser while we wait...
         $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
-        $.get(webindex_url + "fileset_check/chgrp?" + OME.get_tree_selection(), function(html){
+        var sel = OME.get_tree_selection(),
+            selImages = (sel.indexOf('Image') > -1);
+        $.get(webindex_url + "fileset_check/chgrp?" + sel, function(html){
             if($('div.split_fileset', html).length > 0) {
                 $(html).appendTo($chgrpform);
                 $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span').text("Move All");
                 var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
-                if (chgrp_type == "Image") {
+                if (selImages) {
                     OME.select_fileset_images(filesetId);
                 }
             } else {
-                $("#group_chooser").show();
+                $group_chooser.show();
             }
         });
     };
@@ -142,7 +143,7 @@ $(function() {
 
         // Add hidden inputs to include 'group_id' in the POST data
         $("<input name='group_id' value='"+ gid +"'/>")
-                .appendTo($chgrpform).addClass('removeMe').hide();
+                .appendTo($chgrpform).hide();
 
         // Add group & selected items to chgrp form
         var selobjs = OME.get_tree_selection().split("&");  // E.g. Image=1,2&Dataset=3
@@ -150,7 +151,7 @@ $(function() {
             dtype = selobjs[i].split("=")[0];
             dids = selobjs[i].split("=")[1];
             $("<input name='"+ dtype +"' value='"+ dids +"'/>")
-                .appendTo($chgrpform).addClass('removeMe').hide();
+                .appendTo($chgrpform).hide();
         }
 
         chgrp_type = dtype;     // This will be the dtype of last object
@@ -206,16 +207,13 @@ $(function() {
             "OK": function() {
                 var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
                 // If we have split filesets, on the first click 'OK', we ask 'Move All'?
-                if ($("#chgrp_split_filesets .split_fileset").length > 0) {
-                    if ($thisBtn.text() == 'Move All') {
-                        $("#group_chooser").show();
-                        $("#chgrp_split_filesets").hide();
-                        $thisBtn.text('OK');
-                        return false;
-                    }
+                if ($("#chgrp_split_filesets .split_fileset").length > 0 && $thisBtn.text() == 'Move All') {
+                    $("#group_chooser").show();
+                    $("#chgrp_split_filesets").hide();
+                    $thisBtn.text('OK');
+                    return false;
                 }
                 $chgrpform.submit();
-                resetChgrpForm();
             },
             "Cancel": function() {
                 resetChgrpForm();
@@ -233,10 +231,10 @@ $(function() {
 
     // handle chgrp 
     $chgrpform.ajaxForm({
-        beforeSubmit: function(data){
+        beforeSubmit: function(data, $form){
             // Don't submit if we haven't populated the form with group etc.
             if (data.length === 0) return false;
-            if (data[0].name !== "group_id") return false;
+            if ($("input[name='group_id']", $form).length === 0) return false;
             $chgrpform.dialog("close");
             var chgrp_target = $("#move_group_tree a.jstree-clicked");
             if (chgrp_target.length == 1){
