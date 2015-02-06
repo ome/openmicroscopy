@@ -31,6 +31,7 @@ import pytest
 from omero.model import DatasetI, DatasetImageLinkI, ExperimenterGroupI, ImageI
 from omero.model import FileAnnotationI, ImageAnnotationLinkI, TagAnnotationI
 from omero.model import ProjectDatasetLinkI, ProjectI, PlateI, ScreenI
+from omero.model import ExperimenterI
 from omero.rtypes import rstring, unwrap
 from omero.api import Save
 
@@ -1178,7 +1179,6 @@ class TestChgrpTarget(lib.ITest):
             {"omero.group": "-1"})
         assert 1 == len(dils)
 
-    @pytest.mark.xfail(ticket="11539")
     @pytest.mark.parametrize("credentials", ["user", "admin"])
     def testChgrpDatasetToTargetProject(self, credentials):
         """
@@ -1190,7 +1190,8 @@ class TestChgrpTarget(lib.ITest):
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         target_grp = self.new_group([user], perms=PRIVATE)
-        client.sf.getAdminService().getEventContext()  # Reset session
+        eCtx = client.sf.getAdminService().getEventContext()  # Reset session
+        userId = eCtx.userId
         target_gid = target_grp.id.val
 
         # User creates Dataset in current group...
@@ -1209,6 +1210,7 @@ class TestChgrpTarget(lib.ITest):
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
         requests.append(chgrp)
         link = ProjectDatasetLinkI()
+        link.details.owner = ExperimenterI(userId, False)
         link.child = DatasetI(ds.id.val, False)
         link.parent = ProjectI(pr.id.val, False)
         save = Save()
