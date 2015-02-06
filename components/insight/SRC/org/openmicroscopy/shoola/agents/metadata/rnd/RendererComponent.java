@@ -625,8 +625,8 @@ class RendererComponent
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
 		try {
+		    int defaultZ = model.getDefaultZ();
 			if (bin < 0) {
-			    int defaultZ = model.getDefaultZ();
 		        int selectedT = model.getRealSelectedT();
 				if (defaultZ == z && selectedT == t) return;
 				model.setSelectedXYPlane(z, t);
@@ -645,6 +645,11 @@ class RendererComponent
 			    if (selectedT != t) {
                     firePropertyChange(T_SELECTED_PROPERTY,
                             Integer.valueOf(selectedT), Integer.valueOf(t));
+                }
+			    model.setSelectedZ(z);
+			    if (defaultZ != z) {
+                    firePropertyChange(Z_SELECTED_PROPERTY,
+                            Integer.valueOf(defaultZ), Integer.valueOf(z));
                 }
 			}
 			firePropertyChange(RENDER_PLANE_PROPERTY,

@@ -1049,6 +1049,21 @@ class RendererModel
 	}
 
 	/**
+	 * Sets the selected z-section.
+	 *
+	 * @param z The z-section to set.
+	 * @throws RenderingServiceException If an error occurred while setting
+	 *                                  the value.
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+    void setSelectedZ(int z)
+        throws RenderingServiceException, DSOutOfServiceException
+    {
+        if (rndControl == null) return;
+        if (z >= 0 && z != getDefaultZ()) rndControl.setDefaultZ(z);
+    }
+
+	/**
 	 * Turns on or off the specified channel.
 	 * 
 	 * @param index The index of the channel.
