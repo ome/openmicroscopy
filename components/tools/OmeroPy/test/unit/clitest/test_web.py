@@ -94,17 +94,17 @@ class TestWeb(object):
         if server_type.split()[0] == "nginx":
             assert lines[0] == "server {"
             assert lines[1] == "listen       %s;" % (http or 80)
-            assert lines[3] == "client_max_body_size %s;" % (
+            assert lines[5] == "client_max_body_size %s;" % (
                 max_body_size or '0')
-            assert lines[8] == "location %s {" % static_prefix[:-1]
-            assert lines[11] == "location %s {" % (prefix or "/")
+            assert lines[10] == "location %s {" % static_prefix[:-1]
+            assert lines[13] == "location %s {" % (prefix or "/")
         else:
-            assert lines[16] == "server {"
-            assert lines[17] == "listen       %s;" % (http or 8080)
-            assert lines[21] == "client_max_body_size %s;" % (
+            assert lines[13] == "server {"
+            assert lines[14] == "listen       %s;" % (http or 8080)
+            assert lines[20] == "client_max_body_size %s;" % (
                 max_body_size or '0')
-            assert lines[26] == "location %s {" % static_prefix[:-1]
-            assert lines[29] == "location %s {" % (prefix or "/")
+            assert lines[25] == "location %s {" % static_prefix[:-1]
+            assert lines[28] == "location %s {" % (prefix or "/")
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheConfig(self, prefix, capsys, monkeypatch):
