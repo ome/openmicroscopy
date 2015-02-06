@@ -61,7 +61,8 @@ Create Project
     [Return]    ${pid}
 
 Create Dataset
-    ${did}=     Create Container    dataset
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${did}=     Create Container    dataset    ${newName}
     [Return]    ${did}
 
 Create Button Should Be Enabled
