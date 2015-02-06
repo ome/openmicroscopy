@@ -1,6 +1,13 @@
 OMERO version history
 =====================
 
+5.0.8 (February 2015)
+---------------------
+
+This is a bug-fix release for one specific issue causing OMERO.insight to
+crash when trying to open the Projection tab for an image with multiple
+z-stacks.
+
 5.0.7 (February 2015)
 ---------------------
 
