@@ -216,10 +216,10 @@ class TwoKnobsSliderUI
 		g.setColor(fontColor);
 		Map labels = model.getLabels();
 		Iterator i = labels.keySet().iterator();
-		Integer key;
+		Double key;
 		int value;
 		while (i.hasNext()) {
-			key = (Integer) i.next();
+			key = (Double) i.next();
 			value = key.intValue();
 			if (model.getOrientation() == TwoKnobsSlider.HORIZONTAL) {
 				g.translate(0, labelRect.y);
