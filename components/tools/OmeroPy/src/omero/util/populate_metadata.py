@@ -422,16 +422,19 @@ class ParsingContext(object):
                     plate = self.value_resolver.target_object.id.val
                 elif ScreenI is self.value_resolver.target_class:
                     plate = columns_by_name['Plate'].values[i]
+                v = ''
                 try:
                     well = self.value_resolver.wells_by_id[plate]
                     well = well[well_column.values[i]]
                     row = well.row.val
                     col = well.column.val
+                    row = self.value_resolver.AS_ALPHA[row]
+                    v = '%s%d' % (row, col + 1)
                 except KeyError:
-                    log.error('Missing row or column for well name population!')
-                    raise
-                row = self.value_resolver.AS_ALPHA[row]
-                v = '%s%d' % (row, col + 1)
+                    log.warn(
+                        'Skipping table row %d! Missing well row or column '
+                        'for well name population!' % i, exc_info=True
+                    )
                 well_name_column.size = max(well_name_column.size, len(v))
                 well_name_column.values.append(v)
             else:
