@@ -276,6 +276,7 @@ class ValueResolver(object):
                                 (value, [o[1] for o in row]))
             plate_row = m.group(1).lower()
             plate_column = str(long(m.group(2)))
+            wells_by_location = None
             if len(self.wells_by_location) == 1:
                 wells_by_location = self.wells_by_location.values()[0]
                 log.debug('Parsed "%s" row: %s column: %s' % \
@@ -287,6 +288,10 @@ class ValueResolver(object):
                         log.debug('Parsed "%s" row: %s column: %s plate: %s' % \
                                 (value, plate_row, plate_column, plate))
                         break
+            if wells_by_location is None:
+                raise MetadataError(
+                    'Unable to locate Plate column in Row: %r' % row
+                )
             try:
                 return wells_by_location[plate_row][plate_column].id.val
             except KeyError:
