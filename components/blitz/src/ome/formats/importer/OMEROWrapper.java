@@ -1,9 +1,6 @@
 /*
- * ome.formats.importer.gui.GuiCommonElements
- *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
- *
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,9 +47,6 @@ import loci.formats.meta.MetadataStore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 import ome.formats.OMEXMLModelComparator;
 import ome.util.PixelData;

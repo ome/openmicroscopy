@@ -379,6 +379,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         BfPixelsStoreI rps;
         try {
             // FIXME ImportConfig should be injected
+            // Is this ever used? No Memoizer is active here!
+            // Perhaps better to use the PixelsService directly and
+            // omit OMEROWrapper.
             rps = new BfPixelsStoreI(path,
                     new OMEROWrapper(new ImportConfig()).getImageReader());
         } catch (Throwable t) {
