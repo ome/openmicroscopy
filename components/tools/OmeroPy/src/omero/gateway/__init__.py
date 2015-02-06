@@ -3926,6 +3926,8 @@ class _BlitzGateway (object):
         da = DoAll()
         requests = []
         saves = []
+
+        newOwnerId = self.SERVICE_OPTS.getOmeroUser() or self.getUserId()
         for obj_id in obj_ids:
             obj_id = long(obj_id)
             logger.debug('DoAll Chgrp: type: %s, id: %s, grp: %s' %
@@ -3940,6 +3942,7 @@ class _BlitzGateway (object):
                 link.child = parentLinkClasses[graph_spec][1](obj_id, False)
                 link.parent = parentLinkClasses[
                     graph_spec][2](container_id, False)
+                link.details.owner = omero.model.ExperimenterI(newOwnerId, False)
                 save = Save()
                 save.obj = link
                 saves.append(save)
