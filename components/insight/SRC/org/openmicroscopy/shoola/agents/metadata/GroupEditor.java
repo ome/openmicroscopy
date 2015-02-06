@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -131,8 +132,10 @@ public class GroupEditor
 	        handle = adminView.updateGroup(ctx, group, this);
 	        break;
 	    case CHANGE:
-	        handle = adminView.changeGroup(ctx, group, viewer.getCurrentUser(),
-	                this);
+	    	ExperimenterData exp = viewer.getCurrentUser();
+	    	if(viewer.getRefObject()!=null && viewer.getRefObject() instanceof ExperimenterData)
+	    		exp = (ExperimenterData) viewer.getRefObject();
+	        handle = adminView.changeGroup(ctx, group, exp, this);
 	    }
 	}
 	
