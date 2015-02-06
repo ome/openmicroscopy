@@ -3,7 +3,6 @@
         server_name  $hostname;
 
         sendfile on;
-        send_timeout 60s;
         client_max_body_size %(MAX_BODY_SIZE)s;
 
         # maintenance page serve from here
