@@ -1403,8 +1403,6 @@ OMERO Diagnostics %s
         cfg = config.as_map()
         config.close()  # Early close. See #9800
         self.set_db_arguments(cfg, xargs)
-        if "omero.data.dir" in cfg:
-            xargs.append("-Domero.data.dir=%s" % cfg["omero.data.dir"])
         for k, v in cfg.items():
             if k.startswith("omero.search"):
                 xargs.append("-D%s=%s" % (k, cfg[k]))

@@ -372,7 +372,7 @@ Bash examples:
 
     @with_config
     def graphreport(self, args, config):
-
+        """Generate a report of the object graph in reStructuredText format"""
         import os
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"

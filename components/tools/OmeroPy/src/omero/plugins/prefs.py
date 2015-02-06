@@ -119,12 +119,17 @@ class ConfigControl(BaseControl):
             self.ctx.die(113, str(e))
 
     def set_db_arguments(self, cfg, xargs):
+        """Set DB/binary repository arguments to be passed to Java"""
 
         # NOT passing password on command-line
         for x in ("name", "user", "host", "port"):
             key = "omero.db.%s" % x
             if key in cfg:
                 xargs.append("-D%s=%s" % (key, cfg[key]))
+
+        # Pass binary repository directory if applicable
+        if "omero.data.dir" in cfg:
+            xargs.append("-Domero.data.dir=%s" % cfg["omero.data.dir"])
 
         # Pass omero.db.pass using JAVA_OPTS environment variable
         if "omero.db.pass" in cfg:
