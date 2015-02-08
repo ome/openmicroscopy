@@ -399,7 +399,9 @@ def adjust_settings(config, template_xml,
 
     for name, StrategyType in loop:
         if name not in options:
-            raise Exception("Cannot find %s option" % name)
+            raise Exception(
+                "Cannot find %s option. Make sure templates.xml was "
+                "not copied from a 5.0.2 or older server" % name)
 
     for name, StrategyType in loop:
         specific = strip_dict(m, suffix=name)
