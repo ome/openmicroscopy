@@ -362,9 +362,16 @@ class TestAdminJvmCfg(object):
         self.cli.invoke(self.args, strict=True)
         assert os.path.exists(self.tmp_grid_dir / "generated.xml")
 
-    def testInvalidStrategy(self, monkeypatch):
+    def testInvalidStrategy(self):
         self.cli.invoke([
             "config", "--source", "%s" % (self.tmp_grid_dir / "config.xml"),
             "set", "omero.jvmcfg.strategy", "bad"], strict=True)
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testOldTemplatest(self):
+
+        old_templates = path(__file__).dirname() / ".." / "old_templates.xml"
+        old_templates.copy(self.tmp_grid_dir / "templates.xml")
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
