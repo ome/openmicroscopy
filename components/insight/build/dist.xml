@@ -473,6 +473,7 @@
       <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+      <resourcefileset dir="${app.dir}" includes="config/*.xml"/>
     </jarbundler>
 
     <property name="dist.zip.prefix.osx.106"
@@ -575,6 +576,7 @@
 	  <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
+	  <resourcefileset dir="${app.dir}" includes="config/*.xml"/>
 	  </jarbundler>
 
 	  <property name="dist.zip.prefix.importer.osx.106"
