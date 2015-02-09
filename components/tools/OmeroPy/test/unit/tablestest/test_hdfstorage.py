@@ -88,11 +88,9 @@ class TestHdfStorage(TestCase):
     def testLocking(self):
         tmp = str(self.hdfpath())
         hdf1 = omero.tables.HdfStorage(tmp, self.lock)
-        try:
+        with pytest.raises(omero.LockTimeout) as exc_info:
             omero.tables.HdfStorage(tmp, self.lock)
-            assert False, "should be locked"
-        except omero.LockTimeout:
-            pass
+        assert exc_info.value.message.startswith('Path already in HdfList: ')
         hdf1.cleanup()
         hdf3 = omero.tables.HdfStorage(tmp, self.lock)
         hdf3.cleanup()
