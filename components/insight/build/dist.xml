@@ -403,6 +403,7 @@
    *   + The install instructions, ${dist.osx.installfile}.
    *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <property name="config.dir" value="${dist.dir}/${distInsight.name}.app/Contents/Resources/config"/>
   <target name="dist-osx-appbundler"
           depends="jar,appbundler-init"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
@@ -418,10 +419,14 @@
       icon="${dist.osx.icon}"
       mainclassname="${app.mainclass}">
         <option value="-Dapple.laf.useScreenMenuBar=true"/>
-        <option value="-Duser.dir=$APP_ROOT/.."/>
+        <option value="-Duser.dir=$APP_ROOT/Contents/Resources"/>
         <classpath refid="app.libs"/>
         <classpath dir="${dist.dir}" includes="${dist.jar.file}"/>
     </appbundler>
+    <mkdir dir="${config.dir}"/>
+    <copy todir="${config.dir}">
+      <fileset dir="${app.config.dir}"/>
+    </copy>
   </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -610,6 +615,7 @@
    *   + The install instructions, ${dist.osx.installfile}.
    *   + The license file, ${base.licensefile}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <property name="importer.config.dir" value="${dist.dir}/${distImporter.name}.app/Contents/Resources/config"/>
   <target name="distImporter-osx-appbundler"
           depends="jar,appbundler-init"
           description="Build and package the app for OS X distribution using the Java Application Bundler.">
@@ -625,11 +631,15 @@
       icon="${distImporter.osx.icon}"
       mainclassname="${app.mainclass}">
         <option value="-Dapple.laf.useScreenMenuBar=true"/>
-        <option value="-Duser.dir=$APP_ROOT/.."/>
+        <option value="-Duser.dir=$APP_ROOT/Contents/Resources"/>
         <classpath refid="app.libs"/>
         <classpath dir="${dist.dir}" includes="${dist.jar.file}"/>
         <argument value="containerImporter.xml"/>
     </appbundler>
+    <mkdir dir="${importer.config.dir}"/>
+    <copy todir="${importer.config.dir}">
+      <fileset dir="${app.config.dir}"/>
+    </copy>
   </target>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
