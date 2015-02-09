@@ -1,5 +1,16 @@
 *** Keywords ***
 
+Xpath Should Have Class
+    [Arguments]         ${identifier}   ${className}
+    Page Should Contain Element    ${identifier}
+    Page Should Contain Element    ${identifier}[contains(@class, '${className}')]
+
+Xpath Should Not Have Class
+    [Arguments]         ${identifier}   ${className}
+    Page Should Contain Element        ${identifier}
+    Page Should Not Contain Element    ${identifier}[contains(@class, '${className}')]
+
+
 # All these keywords should be identical in Web and Insight
 Tree Should Be Visible
     Element Should Be Visible    dataTree

@@ -3,7 +3,7 @@
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
 #
-# Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2015 Glencoe Software, Inc. All rights reserved.
 #
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -5006,6 +5006,41 @@ class XmlAnnotationWrapper (CommentAnnotationWrapper):
 AnnotationWrapper._register(XmlAnnotationWrapper)
 
 
+from omero_model_MapAnnotationI import MapAnnotationI
+
+
+class MapAnnotationWrapper (AnnotationWrapper):
+    """
+    omero_model_MapAnnotationI class wrapper.
+    """
+    OMERO_TYPE = MapAnnotationI
+
+    def getValue(self):
+        """
+        Gets the value of the Map Annotation as a list of
+        (key, value) tuples.
+
+        :return:    List of tuples
+        :type:      String
+        """
+
+        return [(kv.name, kv.value) for kv in self._obj.getMapValue()]
+
+    def setValue(self, val):
+        """
+        Sets value of the Map Annotation where val is a list of
+        (key, value) tuples or [key, value] lists.
+
+        :param val:     List of tuples
+        :type val:      String
+        """
+
+        data = [omero.model.NamedValue(d[0], d[1]) for d in val]
+        self._obj.setMapValue(data)
+
+AnnotationWrapper._register(MapAnnotationWrapper)
+
+
 class _EnumerationWrapper (BlitzObjectWrapper):
 
     def getType(self):
@@ -9422,6 +9457,7 @@ def refreshWrappers():
                            "doubleannotation": DoubleAnnotationWrapper,
                            "termannotation": TermAnnotationWrapper,
                            "timestampannotation": TimestampAnnotationWrapper,
+                           "mapannotation": MapAnnotationWrapper,
                            # allows for getObjects("Annotation", ids)
                            "annotation": AnnotationWrapper._wrap})
 

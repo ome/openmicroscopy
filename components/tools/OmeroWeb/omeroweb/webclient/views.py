@@ -30,6 +30,7 @@ import logging
 import traceback
 import json
 import re
+import unicodedata
 
 from time import time
 
@@ -1429,6 +1430,60 @@ def annotate_comment(request, conn=None, **kwargs):
             return context
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
+
+
+@login_required()
+@render_response()
+def annotate_map(request, conn=None, **kwargs):
+    """
+        Handle adding Map Annotations to one or more objects
+        POST data "mapAnnotation" should be list of ['key':'value'] pairs.
+    """
+
+    if request.method != 'POST':
+        raise Http404("Need to POST map annotation data as list of ['key', 'value'] pairs")
+
+    oids = getObjects(request, conn)
+
+    # Use the first object we find to set context (assume all objects are in same group!)
+    # this does not aplly to share
+    if len(oids['share']) < 1:
+        for obs in oids.values():
+            if len(obs) > 0:
+                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                break
+
+    data = request.POST.get('mapAnnotation')
+    data = json.loads(data)
+
+    annId = request.POST.get('annId')
+    # Create a new annotation
+    if annId is None and len(data) > 0:
+        ann = omero.gateway.MapAnnotationWrapper(conn)
+        ann.setValue(data)
+        ann.setNs(omero.constants.metadata.NSCLIENTMAPANNOTATION)
+        ann.save()
+        for objs in oids.values():
+            for obj in objs:
+                obj.linkAnnotation(ann)
+        annId = ann.getId()
+    # Or update existing annotation
+    elif annId is not None:
+        ann = conn.getObject("MapAnnotation", annId)
+        if len(data) > 0:
+            ann.setValue(data)
+            ann.save()
+            annId = ann.getId()
+        else:
+            # Delete if no data
+            handle = conn.deleteObjects('/Annotation', [annId])
+            try:
+                conn._waitOnCmd(handle)
+            finally:
+                handle.close()
+            annId = None
+
+    return {"annId": annId}
 
 
 @login_required()
