@@ -63,7 +63,12 @@ class WebSettings(object):
             print ""
             print description
             print ""
-            print "Default: ``%s`` " % (default_value)
+            if (default_value and ',' in str(default_value) and
+                    ', ' not in str(default_value)):
+                print "Default: `%s`\n\n" % (
+                    ",\n".join(default_value.split(',')))
+            else:
+                print "Default: `%s`\n\n" % default_value
             print ""
 
 
