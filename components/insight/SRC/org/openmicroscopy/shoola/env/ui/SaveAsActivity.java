@@ -123,8 +123,7 @@ public class SaveAsActivity
 				}
 				
 				if(fa!=null && fa.isLoaded()) {
-					String name = getFileName(fa.getFileName());
-					download("", fa, new File(parameters.getFolder(), name), parameters.isDeleteWhenFinished());
+					download("", fa, new File(parameters.getFolder(), fa.getFileName()), parameters.isDeleteWhenFinished());
 					// call super method to stop busy label
 					super.endActivity(null);
 				}

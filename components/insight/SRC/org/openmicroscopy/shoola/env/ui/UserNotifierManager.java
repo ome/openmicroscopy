@@ -31,11 +31,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 //Third-party libraries
 
+
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -51,6 +54,7 @@ import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ExperimenterData;
 
 /** 
@@ -164,7 +168,7 @@ class UserNotifierManager
 		
 		boolean bug = true;
 		String error = details.getError();
-		if (error == null || error.length() == 0) bug = false;
+		if (StringUtils.isBlank(error)) bug = false;
 		String url = (String) reg.lookup(LookupNames.TOKEN_URL);
 		String appName; 
 		if (bug) 

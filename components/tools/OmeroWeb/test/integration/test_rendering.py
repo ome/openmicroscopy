@@ -25,79 +25,24 @@ working correctly.
 import omero
 import omero.clients
 
-import pytest
-import library as lib
+from weblibrary import IWebTest
+from weblibrary import _csrf_post_reponse, _get_reponse
 
-from urllib import urlencode
-from django.test import Client
 from django.core.urlresolvers import reverse
 
 
-@pytest.fixture(scope='function')
-def itest(request):
-    """
-    Returns a new L{test.integration.library.ITest} instance. With attached
-    finalizer so that pytest will clean it up.
-    """
-    o = lib.ITest()
-    o.setup_class()
-
-    def finalizer():
-        o.teardown_class()
-    request.addfinalizer(finalizer)
-    return o
-
-
-@pytest.fixture(scope='function')
-def client(request, itest):
-    """Returns a new user client in a read-only group."""
-    # Use group read-only permissions (not private) by default
-    return itest.new_client(perms='rwr---')
-
-
-@pytest.fixture(scope='function')
-def django_client(request, client):
-    """Returns a logged in Django test client."""
-    django_client = Client(enforce_csrf_checks=True)
-    login_url = reverse('weblogin')
-
-    response = django_client.get(login_url)
-    assert response.status_code == 200
-    csrf_token = django_client.cookies['csrftoken'].value
-
-    data = {
-        'server': 1,
-        'username': client.getProperty('omero.user'),
-        'password': client.getProperty('omero.pass'),
-        'csrfmiddlewaretoken': csrf_token
-    }
-    response = django_client.post(login_url, data)
-    assert response.status_code == 302
-
-    def finalizer():
-        logout_url = reverse('weblogout')
-        data = {'csrfmiddlewaretoken': csrf_token}
-        response = django_client.post(logout_url, data=data)
-        assert response.status_code == 302
-    request.addfinalizer(finalizer)
-    return django_client
-
-
-class TestCsrf(object):
+class TestCsrf(IWebTest):
     """
     Tests to ensure that Django CSRF middleware for OMERO.web is enabled and
     working correctly.
     """
 
-    def test_copy_past_rendering_settings_from_image(self, itest, client,
-                                                     django_client):
+    def test_copy_past_rendering_settings_from_image(self):
         # Create 2 images with 2 channels each
-        iid1 = itest.createTestImage(sizeC=2,
-                                     session=client.getSession()).id.val
-        iid2 = itest.createTestImage(sizeC=2,
-                                     session=client.getSession()).id.val
+        iid1 = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid2 = self.createTestImage(sizeC=2, session=self.sf).id.val
 
-        conn = omero.gateway.BlitzGateway(client_obj=client)
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
         # image1 set color model
         image1 = conn.getObject("Image", iid1)
@@ -120,27 +65,24 @@ class TestCsrf(object):
         data = {
             "fromid": iid1
         }
-        _get_reponse(django_client, request_url, data, status_code=200)
+        _get_reponse(self.django_client, request_url, data, status_code=200)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
 
-        _csrf_post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         image2 = conn.getObject("Image", iid2)
         assert False == image2.isGreyscaleRenderingModel()
 
-    def test_copy_past_rendering_settings_from_url(self, itest, client,
-                                                   django_client):
+    def test_copy_past_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
-        iid1 = itest.createTestImage(sizeC=2,
-                                     session=client.getSession()).id.val
-        iid2 = itest.createTestImage(sizeC=2,
-                                     session=client.getSession()).id.val
+        iid1 = self.createTestImage(sizeC=2, session=self.sf).id.val
+        iid2 = self.createTestImage(sizeC=2, session=self.sf).id.val
 
-        conn = omero.gateway.BlitzGateway(client_obj=client)
+        conn = omero.gateway.BlitzGateway(client_obj=self.client)
 
         # image1 set color model
         image1 = conn.getObject("Image", iid1)
@@ -186,13 +128,13 @@ class TestCsrf(object):
             "z": 1,
             "zm": 100
         }
-        _get_reponse(django_client, request_url, data, status_code=200)
+        _get_reponse(self.django_client, request_url, data, status_code=200)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
-        _csrf_post_reponse(django_client, request_url, data)
+        _csrf_post_reponse(self.django_client, request_url, data)
 
         # reload image1
         image1 = conn.getObject("Image", iid1)
@@ -209,30 +151,3 @@ class TestCsrf(object):
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
         assert False == image2.isGreyscaleRenderingModel()
-
-
-# Helpers
-def _post_reponse(django_client, request_url, data, status_code=403):
-    response = django_client.post(request_url, data=data)
-    assert response.status_code == status_code
-    return response
-
-
-def _csrf_post_reponse(django_client, request_url, data, status_code=200):
-    csrf_token = django_client.cookies['csrftoken'].value
-    data['csrfmiddlewaretoken'] = csrf_token
-    return _post_reponse(django_client, request_url, data, status_code)
-
-
-def _get_reponse(django_client, request_url, query_string, status_code=405):
-    query_string = urlencode(query_string.items())
-    response = django_client.get('%s?%s' % (request_url, query_string))
-    assert response.status_code == status_code
-    return response
-
-
-def _csrf_get_reponse(django_client, request_url, query_string,
-                      status_code=200):
-    csrf_token = django_client.cookies['csrftoken'].value
-    query_string['csrfmiddlewaretoken'] = csrf_token
-    return _get_reponse(django_client, request_url, query_string, status_code)

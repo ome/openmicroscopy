@@ -35,7 +35,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -60,11 +62,15 @@ import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
 
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
-import info.clearthought.layout.TableLayout;
-import org.apache.commons.collections.CollectionUtils;
 
+import info.clearthought.layout.TableLayout;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
@@ -368,7 +374,6 @@ public class MessengerDialog
         	copyButton = new JButton("Copy to Clipboard");
         	formatButton(copyButton, 'C', COPY_TOOLTIP, COPY);
         }
-        //getRootPane().setDefaultButton(sendButton);
         setAlwaysOnTop(true);
         if (dialogType == COMMENT_TYPE) {
 			sendButton.setEnabled(false);
@@ -460,7 +465,7 @@ public class MessengerDialog
         label.setLabelFor(emailArea);
         label.setOpaque(false);
 
-        panel.add(label, "0, 0, RIGHT, CENTER");        
+        panel.add(label, "0, 0, RIGHT, CENTER");
         panel.add(emailArea, "1, 0, FULL, CENTER");
 
         if (EMAIL_SUFFIX.length() != 0)
@@ -477,7 +482,6 @@ public class MessengerDialog
 	private JPanel buildDebugPane()
 	{
 		JPanel panel = new JPanel();
-		//panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.setOpaque(false);
         double tableSize[][] = {{TableLayout.FILL}, // columns
         						{TableLayout.FILL, 32}}; // rows
@@ -485,7 +489,6 @@ public class MessengerDialog
         panel.setLayout(layout);       
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JScrollPane pane = new JScrollPane(debugArea);
-        //pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.add(pane, "0, 0");
         panel.add(copyButton, "0, 1, CENTER, BOTTOM");
         return panel;
@@ -499,10 +502,7 @@ public class MessengerDialog
 	private JPanel buildFilesToSubmitPane(List<ImportErrorObject> toSubmit)
 	{
 		JPanel panel = new JPanel();
-		//panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.setOpaque(false);
-        
-        
         double tableSize[][] = {{TableLayout.FILL}, // columns
         						{TableLayout.FILL}}; // rows
         TableLayout layout = new TableLayout(tableSize);
@@ -510,7 +510,6 @@ public class MessengerDialog
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         table = new FileTable(toSubmit);
         JScrollPane pane = new JScrollPane(table);
-        //pane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         panel.add(pane, "0, 0");
         return panel;
 	}
@@ -524,7 +523,6 @@ public class MessengerDialog
 	private JPanel buildCommentPane(String comment)
 	{
 		JPanel commentPanel = new JPanel();
-		//commentPanel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
         int iconSpace = 0;
         double tableSize[][] =  {{iconSpace, (160 - iconSpace), 
         						TableLayout.FILL}, // columns
@@ -535,7 +533,7 @@ public class MessengerDialog
 	    				BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    commentPanel.add(buildEmailAreaPanel('E'), "0, 2, 2, 2");
 	    commentPanel.add(buildCommentAreaPanel(comment, 'W'), "0, 3, 2, 3");
-	    if (errorDescription != null && errorDescription.length() > 0) {
+	    if (StringUtils.isNotBlank(errorDescription)) {
 	    	layout.setRow(1, 30);
 	    	JPanel p = new JPanel();
 	    	p.add(UIUtilities.setTextFont(ERROR_BRIEF));
@@ -555,8 +553,6 @@ public class MessengerDialog
 	{
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false);
-        //tPane.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-       
         if (dialogType == SUBMIT_ERROR_TYPE) {
         	tPane.addTab("Comments", null, buildCommentPane(COMMENT_FIELD), 
         		"Your comments go here.");
@@ -576,19 +572,29 @@ public class MessengerDialog
     /**
      * Builds and lays out the buttons.
      * 
-     * @param submit Pass <code>true</code> to display the submit files option,
-     * 				 <code>false</code> otherwise.
+     * @param submit Collection of files to submit.
      * @return See above.
      */
-    private JPanel buildToolBar(boolean submit)
+    private JPanel buildToolBar(List<ImportErrorObject> toSubmit)
     {
     	JPanel bars = new JPanel();
     	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
-    	if (submit) {
+    	if (CollectionUtils.isNotEmpty(toSubmit)) {
+    	    boolean count = false;
+    	    Iterator<ImportErrorObject> j = toSubmit.iterator();
+    	    while (j.hasNext()) {
+                if (j.next().getFile() != null) {
+                    count = true;
+                    break;
+                }
+            }
     		JPanel row = new JPanel();
     		row.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-    		row.add(new JLabel("Submit Exceptions and: "));
-    		row.add(UIUtilities.buildComponentPanel(submitFile));
+    		if (count) {
+    		    row.add(new JLabel("Submit Exceptions and: "));
+                row.add(UIUtilities.buildComponentPanel(submitFile));
+    		}
+    		
     		JPanel p = new JPanel();
     		p.setBorder(null);
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -645,8 +651,7 @@ public class MessengerDialog
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
 		c.add(component, BorderLayout.CENTER);
-		c.add(buildToolBar(toSubmit != null && toSubmit.size() > 0), 
-				BorderLayout.SOUTH);
+		c.add(buildToolBar(toSubmit),BorderLayout.SOUTH);
 	}
 	
 	/** 

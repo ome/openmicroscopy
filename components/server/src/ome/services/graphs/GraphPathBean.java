@@ -77,7 +77,7 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.1.0
      */
-    private static class PropertyDetails {
+    /* private GraphPathReport */ static class PropertyDetails {
         final String holder;
         final List<String> path;
         final Type type;

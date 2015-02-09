@@ -1318,7 +1318,7 @@ class BaseContainer(BaseController):
         elif self.screen:
             handle = self.conn.deleteObjects("Screen", [self.screen.id], deleteChildren=child, deleteAnns=anns)
         elif self.plate:
-            handle = self.conn.deleteObjects("Plate", [self.plate.id], deleteAnns=anns)
+            handle = self.conn.deleteObjects("Plate", [self.plate.id], deleteChildren=True, deleteAnns=anns)
         elif self.comment:
             handle = self.conn.deleteObjects("Annotation", [self.comment.id], deleteAnns=anns)
         elif self.tag:

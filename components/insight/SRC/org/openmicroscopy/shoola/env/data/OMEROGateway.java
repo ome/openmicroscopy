@@ -4112,7 +4112,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx service = c.getAdminService();
+		    IAdminPrx service = c.getAdminService(true);
 			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
@@ -6215,6 +6215,9 @@ class OMEROGateway
 		map.put("IDs", omero.rtypes.rlist(ids));
 		map.put("Data_Type", omero.rtypes.rstring(type));
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+		if (!StringUtils.isEmpty(param.getBatchExportFilename()))
+			map.put("Folder_Name",
+					omero.rtypes.rstring(param.getBatchExportFilename()));
 		return runScript(ctx, id, map);
 	}
 
@@ -7940,7 +7943,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx svc = c.getAdminService();
+		    IAdminPrx svc = c.getAdminService(true);
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);

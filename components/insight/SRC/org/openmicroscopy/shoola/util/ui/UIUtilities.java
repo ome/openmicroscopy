@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -2688,4 +2688,23 @@ public class UIUtilities
         }
         return name;
     }
+    
+    /**
+     * Generates an unique filename in form 'folder'/'name'(INCREMENT).'ext', whereas
+     * INCREMENT is chosen in such a way, that the file does not exist yet.
+     * 
+     * @param folder The folder where the file is intended to be stored
+     * @param name The base name of the file
+     * @param ext The extension of the file
+     * @return The generated unique filename
+     */
+    public static File generateFileName(File folder, String name, String ext) {
+		int i = 0;
+		File file = new File(folder, name+"."+ext);
+		while(file.exists()) {
+			i++;
+			file = new File(folder, name+"("+i+")."+ext);
+		}
+		return file;
+	}
 }

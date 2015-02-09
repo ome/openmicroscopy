@@ -13,6 +13,7 @@ function datasets = getDatasets(session, varargin)
 %   datasets = getDatasets(session, ids, loaded) returns all the datasets
 %   identified by the input ids in the context of the session group. If
 %   loaded is False, the images attached to the datasets are not loaded.
+%   Default: false.
 %
 %   datasets = getDatasets(session, 'owner', owner) returns all the
 %   datasets owned by the input owner in the context of the session group.
@@ -32,7 +33,7 @@ function datasets = getDatasets(session, varargin)
 % See also: GETOBJECTS, GETPROJECTS, GETIMAGES
 
 
-% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
 % This program is free software; you can redistribute it and/or modify
@@ -52,7 +53,7 @@ function datasets = getDatasets(session, varargin)
 % Check input
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
-ip.addOptional('loaded', true, @islogical);
+ip.addOptional('loaded', false, @islogical);
 ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 

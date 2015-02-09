@@ -899,7 +899,7 @@ class ImporterUIElement
 	boolean hasImportToCancel()
 	{
 	    for (final FileImportComponent fic : components.values()) {
-	    	if (!(fic.hasImportStarted() || fic.isCancelled())) {
+	    	if (fic.hasImportToCancel()) {
 	            return true;
 	        }
 	    }

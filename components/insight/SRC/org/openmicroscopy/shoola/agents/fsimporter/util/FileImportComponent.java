@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -538,14 +538,14 @@ public class FileImportComponent
 	private void cancel(boolean fire)
 	{
 		boolean b = statusLabel.isCancellable() || getFile().isDirectory();
-		if (!isCancelled() && !hasImportFailed() && b) {
+		if (!isCancelled() && !hasImportFailed() && b &&
+		        !statusLabel.isMarkedAsDuplicate()) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();
 			cancelButton.setEnabled(false);
 			cancelButton.setVisible(false);
-			//if (fire)
-				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
+			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
 
@@ -1088,7 +1088,29 @@ public class FileImportComponent
 		}
 		return false;
 	}
-	
+
+	/**
+	 * Returns <code>true</code> if the component has imports to cancel,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    public boolean hasImportToCancel()
+    {
+        boolean b = statusLabel.isMarkedAsCancel();
+        if (b) return false;
+        if (getFile().isFile() && !hasImportStarted()) return true;
+        if (components == null) return false;
+        Iterator<FileImportComponent> i = components.values().iterator();
+        FileImportComponent fc;
+        while (i.hasNext()) {
+            fc = i.next();
+            if (!fc.isCancelled() && !fc.hasImportStarted())
+                return true;
+        }
+        return false;
+    }
+    
 	/**
 	 * Returns <code>true</code> if the file can be re-imported,
 	 * <code>false</code> otherwise.
@@ -1142,7 +1164,7 @@ public class FileImportComponent
 		}
 		return count == components.size();
 	}
-	
+
 	/**
 	 * Returns <code>true</code> the error can be submitted, <code>false</code>
 	 * otherwise.

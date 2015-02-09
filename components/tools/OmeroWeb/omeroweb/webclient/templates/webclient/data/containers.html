@@ -147,8 +147,8 @@
                 if (del_form.data("clicked_button") == "Yes") {
                     var delete_anns = $("#delete_anns").prop('checked');
                     var delete_content = true;      // $("#delete_content").prop('checked');
-                    if (delete_content) ajax_data[ajax_data.length] = 'child=on';
-                    if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
+                    if (delete_content) ajax_data[ajax_data.length] = 'child=true';
+                    if (delete_anns) ajax_data[ajax_data.length] = 'anns=true';
                     var url = '{% url 'manage_action_containers' "deletemany" %}'
                     datatree.deselect_all();
                     $.ajax({
