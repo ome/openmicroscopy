@@ -149,14 +149,21 @@ def dbg(msg):
     logging.debug(msg)
 
 
+def underline(size):
+    """Create underline for reStructuredText headings"""
+    return '^' * size
+
+
 class Property(object):
 
     def __init__(self, key=None, val=None, txt=""):
+        """Initialize new configuration property"""
         self.key = key
         self.val = val
         self.txt = txt
 
     def append(self, line):
+        """Append line to property description"""
         dbg("append:" + line)
         self.txt += line
         self.txt += "\n"
@@ -165,7 +172,7 @@ class Property(object):
         dbg("detect:" + line)
         idx = line.index("=")
         self.key = line[0:idx]
-        self.val = line[idx+1:]
+        self.val = line[idx + 1:]
 
     def cont(self, line):
         dbg("cont:  " + line)
@@ -174,9 +181,8 @@ class Property(object):
         self.val += line
 
     def __str__(self):
-        return "Property(key='%s', val='%s', txt='%s')" % (
-            self.key, self.val, self.txt
-        )
+        return ("Property(key='%s', val='%s', txt='%s')"
+                % (self.key, self.val, self.txt))
 
 
 IN_PROGRESS = "in_progress_action"
@@ -186,11 +192,13 @@ ESCAPED = "escaped_action"
 class PropertyParser(object):
 
     def __init__(self):
+        """Initialize a property set"""
         self.properties = []
         self.curr_p = None
         self.curr_a = None
 
     def parse_file(self, argv=None):
+        """Parse the properties from the input configuration file"""
         try:
             for line in fileinput.input(argv):
                 if line.endswith("\n"):
@@ -225,7 +233,7 @@ class PropertyParser(object):
 
     def cleanup(self):
         if self.curr_p is not None:
-            if self.curr_p.key is not None:  #: Handle ending '####'
+            if self.curr_p.key is not None:  # Handle ending '####'
                 self.properties.append(self.curr_p)
                 self.curr_p = None
                 self.curr_a = None
@@ -277,6 +285,7 @@ class PropertyParser(object):
         return data
 
     def parse_module(self, module='omeroweb.settings'):
+        """Parse the properties from the setting module"""
 
         os.environ['DJANGO_SETTINGS_MODULE'] = module
 
@@ -312,11 +321,13 @@ class PropertyParser(object):
         return headers
 
     def print_defaults(self):
+        """Print all keys and their default values"""
         values = ["%s=%s" % (p.key, p.val) for p in self]
         for x in sorted(values):
             print x
 
     def print_keys(self):
+        """Print all keys"""
         data = self.data()
         for k, v in sorted(data.items()):
             print "%s (%s)" % (k, len(v))
@@ -324,14 +335,13 @@ class PropertyParser(object):
                 print "\t", i
 
     def print_headers(self):
+        """Print headers and number of keys"""
         headers = self.headers()
         for k, v in sorted(headers.items()):
             print "%s (%s)" % (k, len(v))
 
-    def underline(self, size):
-        return '^' * size
-
     def print_rst(self):
+        """Print configuration in reStructuredText format"""
         print TOP
         headers = self.headers()
         for header in sorted(headers):
@@ -343,7 +353,7 @@ class PropertyParser(object):
                 properties += ".. property:: %s\n" % (p.key)
                 properties += "\n"
                 properties += "%s\n" % p.key
-                properties += "%s\n" % self.underline(len(p.key))
+                properties += "%s\n" % underline(len(p.key))
                 for line in p.txt.split("\n"):
                     if line:
                         properties += "%s\n" % (line)
