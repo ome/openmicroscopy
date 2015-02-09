@@ -123,47 +123,15 @@ public class FileUploader
 			} else {
 				//Create a zip if required
 				File f = object.getFile();
-				String[] usedFiles = object.getUsedFiles();
+				String[] usedFiles = null;
+				if (f != null) usedFiles = object.getUsedFiles();
 				long id = object.getLogFileID();
 				OmeroMetadataService svc = context.getMetadataService();
 				SecurityContext ctx = new SecurityContext(
 						object.getSecurityContext());
-				try {
-					if (object.isRetrieveFromAnnotation()) {
-						final Map<Long, List<IObject>> map =
-						svc.loadLogFiles(ctx, FilesetData.class,
-							Arrays.asList(id));
-						if (map.size() == 0) id = -1;
-						else {
-							List<IObject> l = map.get(id);
-							id = -1; //reset
-							if (CollectionUtils.isNotEmpty(l)) {
-							    Iterator<IObject> k = l.iterator();
-	                            IObject data;
-	                            while (k.hasNext()) {
-	                                data = k.next();
-	                                if (data instanceof OriginalFile) {
-	                                    id = ((OriginalFile) 
-	                                            data).getId().getValue();
-	                                    break;
-	                                }
-	                            }
-							}
-							
-						}
-					}
-				} catch (Exception ex) {
-					id = -1;
-					//Not possible to load the log file:
-					LogMessage msg = new LogMessage();
-					msg.print("Loading of Import log");
-					msg.print(e);
-					context.getLogger().error(this, msg);
-				}
-				
 				File directory = null;
 				boolean b = false;
-				if (usedFiles != null) {
+				if (usedFiles != null && f != null) {
 					if (usedFiles.length > 1) b = true;
 					if (usedFiles.length == 1) {
 						b = !f.getAbsolutePath().equals(usedFiles[0]);
@@ -177,7 +145,7 @@ public class FileUploader
 								FilenameUtils.removeExtension(f.getName()));
 						FileUtils.copyFileToDirectory(f, directory, true);
 					}
-					usedFiles = object.getUsedFiles();
+					if (f != null) usedFiles = object.getUsedFiles();
 					if (usedFiles != null) {
 						for (int i = 0; i < usedFiles.length; i++) {
 							FileUtils.copyFileToDirectory(new File(usedFiles[i]),
@@ -200,7 +168,6 @@ public class FileUploader
 							context.getLogger().error(this, msg);
 						}
 					}
-					//zip the directory.
 					f = IOUtil.zipDirectory(directory, false);
 				}
 				c.submitFilesError("",

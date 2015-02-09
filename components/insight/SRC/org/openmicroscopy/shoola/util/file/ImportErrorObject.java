@@ -83,6 +83,9 @@ public class ImportErrorObject
 		retrieveFromAnnotation = false;
 	}
 
+	/** Sets the file to submit to <code>null</code>.*/
+	public void resetFile() { file = null; }
+
 	/**
 	 * Sets to <code>true</code> if the log file needs to be retrieved
 	 * from the annotation, <code>false</code> otherwise.
