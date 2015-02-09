@@ -1015,7 +1015,9 @@ class OmeroImageServiceImpl
 			}
 			//save the tag.
 			try {
-				l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    if (l.size() > 0) {
+			        l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    }
 				Iterator<IObject> j = l.iterator();
 				Annotation a;
 				while (j.hasNext()) {
@@ -1168,6 +1170,7 @@ class OmeroImageServiceImpl
 					status.resetFile(f);
 					if (ioContainer == null) status.setNoContainer();
 					importIc = ic.getContainers().get(0);
+					importIc.setCustomAnnotationList(customAnnotationList);
 					status.setUsedFiles(importIc.getUsedFiles());
 					//Check after scanning
 					if (status.isMarkedAsCancel())
