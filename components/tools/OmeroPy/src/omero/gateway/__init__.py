@@ -2819,15 +2819,25 @@ class _BlitzGateway (object):
 
         params = omero.sys.ParametersI()
         params.addIds(imageIds)
+
         query = "select distinct(fse) from FilesetEntry as fse "\
-                "left outer join fse.fileset as fs "\
+                "left outer join fetch fse.fileset as fs "\
+                "left outer join fetch fs.annotationLinks as link "\
+                "left outer join fetch link.child as a "\
                 "left outer join fetch fse.originalFile as f "\
                 "left outer join fs.images as image where image.id in (:ids)"
         queryService = self.getQueryService()
         fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
         fsCount = len(fsinfo)
+        annNs = []
+        for fse in fsinfo:
+            for l in fse.fileset.copyAnnotationLinks():
+                annNs.append(l.child.ns.val)
         fsSize = sum([f.originalFile.getSize().val for f in fsinfo])
-        filesetFileInfo = {'count': fsCount, 'size': fsSize}
+        filesetFileInfo = {'fileset': True,
+                           'count': fsCount,
+                           'size': fsSize,
+                           'annNs': annNs}
         return filesetFileInfo
 
     def getArchivedFilesInfo(self, imageIds):
@@ -2849,7 +2859,9 @@ class _BlitzGateway (object):
         fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
         fsCount = len(fsinfo)
         fsSize = sum([f.parent.getSize().val for f in fsinfo])
-        filesetFileInfo = {'count': fsCount, 'size': fsSize}
+        filesetFileInfo = {'fileset': False,
+                           'count': fsCount,
+                           'size': fsSize}
         return filesetFileInfo
 
     ############################
@@ -8619,12 +8631,11 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Returns the number of Original 'archived' Files linked to primary
         pixels.
-        Used by :meth:`countImportedImageFiles` which also handles FS files.
         """
-        if self._archivedFileCount is None:
-            info = self._conn.getArchivedFilesInfo([self.getId()])
-            self._archivedFileCount = info['count']
-        return self._archivedFileCount
+        fsInfo = self.getImportedFilesInfo()
+        if not fsInfo['fileset']:
+            return fsInfo['count']
+        return 0
 
     def countFilesetFiles(self):
         """
@@ -8632,10 +8643,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         this image
         """
 
-        if self._filesetFileCount is None:
-            info = self._conn.getFilesetFilesInfo([self.getId()])
-            self._filesetFileCount = info['count']
-        return self._filesetFileCount
+        fsInfo = self.getImportedFilesInfo()
+        if fsInfo['fileset']:
+            return fsInfo['count']
+        return 0
 
     def getImportedFilesInfo(self):
         """
@@ -8645,10 +8656,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:        A dict of 'count' and sum 'size' of the files.
         """
         if self._importedFilesInfo is None:
-            self._importedFilesInfo = self._conn.getArchivedFilesInfo(
-                [self.getId()])
+            # Check for Filesets first...
+            self._importedFilesInfo = self._conn.getFilesetFilesInfo(
+                    [self.getId()])
             if (self._importedFilesInfo['count'] == 0):
-                self._importedFilesInfo = self._conn.getFilesetFilesInfo(
+                # If none, check Archived files
+                self._importedFilesInfo = self._conn.getArchivedFilesInfo(
                     [self.getId()])
         return self._importedFilesInfo
 
@@ -8659,10 +8672,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         This will only be 0 if the image was imported pre-FS
         and original files NOT archived
         """
-        fCount = self.countFilesetFiles()
-        if fCount > 0:
-            return fCount
-        return self.countArchivedFiles()
+        return self.getImportedFilesInfo()['count']
 
     def getArchivedFiles(self):
         """
@@ -8701,8 +8711,20 @@ class _ImageWrapper (BlitzObjectWrapper):
         Returns the Fileset linked to this Image.
         Fileset images, usedFiles and originalFiles are loaded.
         """
-        if self.countFilesetFiles() > 0:
+        if self.fileset is not None:
             return self._conn.getObject("Fileset", self.fileset.id.val)
+
+    def isInplaceImport(self):
+        """
+        Returns True if the image was imported using file transfer.
+        Uses namespace of fileset annotations to detect this.
+
+        :rtype:     Boolean
+        :return:    True if imported via in-place import
+        """
+        ns = omero.constants.namespaces.NSFILETRANSFER
+        fsInfo = self.getImportedFilesInfo()
+        return 'annNs' in fsInfo and ns in fsInfo['annNs']
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
