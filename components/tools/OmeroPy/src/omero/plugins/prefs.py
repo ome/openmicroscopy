@@ -370,7 +370,7 @@ class PrefsControl(WriteableConfigControl):
 
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
-        pp.parse(str(cfg.abspath()))
+        pp.parse_file(str(cfg.abspath()))
         pp.parse_module('omeroweb.settings')
         if args.headers:
             pp.print_headers()
