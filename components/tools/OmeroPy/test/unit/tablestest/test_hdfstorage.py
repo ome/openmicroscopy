@@ -14,9 +14,11 @@ import pytest
 import omero.columns
 import omero.tables
 import logging
+import tables
 import threading
 import Ice
 
+from omero_ext.mox import Mox
 from omero.rtypes import rint, rstring
 
 from library import TestCase
@@ -276,3 +278,55 @@ class TestHdfStorage(TestCase):
         assert 7 == test.h[1]
         assert [0 == 1, 2, 3, 4], test.bytes[1]
         hdf.cleanup()
+
+
+class TestHdfList(TestCase):
+
+    def setup_method(self, method):
+        TestCase.setup_method(self, method)
+        self.mox = Mox()
+
+    def hdfpath(self):
+        tmpdir = self.tmpdir()
+        return path(tmpdir) / "test.h5"
+
+    def testLocking(self, monkeypatch):
+        lock1 = threading.RLock()
+        hdflist2 = omero.tables.HdfList()
+        lock2 = threading.RLock()
+        tmp = str(self.hdfpath())
+
+        # Using omero.tables.HDFLIST
+        hdf1 = omero.tables.HdfStorage(tmp, lock1)
+
+        # There are multiple guards against opening the same HDF5 file
+
+        # PyTables includes a check
+        monkeypatch.setattr(omero.tables, 'HDFLIST', hdflist2)
+        with pytest.raises(ValueError) as exc_info:
+            omero.tables.HdfStorage(tmp, lock2)
+
+        assert exc_info.value.message.startswith(
+            "The file '%s' is already opened. " % tmp)
+        monkeypatch.undo()
+
+        # HdfList uses portalocker, test by mocking tables.openFile
+        self.mox.StubOutWithMock(tables, 'openFile')
+        tables.openFile(tmp, mode='w', title='OMERO HDF Measurement Storage',
+                        rootUEP='/').AndReturn(open(tmp))
+
+        self.mox.ReplayAll()
+
+        monkeypatch.setattr(omero.tables, 'HDFLIST', hdflist2)
+        with pytest.raises(omero.LockTimeout) as exc_info:
+            omero.tables.HdfStorage(tmp, lock2)
+        print exc_info.value
+        assert (exc_info.value.message ==
+                'Cannot acquire exclusive lock on: %s' % tmp)
+
+        monkeypatch.undo()
+
+        hdf1.cleanup()
+
+        self.mox.UnsetStubs()
+        self.mox.VerifyAll()
