@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1166,10 +1166,10 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#saveAs(File, int)
 	 */
-	public void saveAs(File folder, int format)
+	public void saveAs(File folder, int format, String fileName)
 	{
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
-		model.saveAs(folder, format);
+		model.saveAs(folder, format, fileName);
 	}
 	
 	/** 

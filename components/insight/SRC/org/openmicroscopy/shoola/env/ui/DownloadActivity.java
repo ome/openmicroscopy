@@ -84,6 +84,9 @@ public class DownloadActivity extends ActivityComponent {
 	/** The local name of the file. */
 	private String localFileName;
 
+	/** Overwrite if local file already exists */
+	private boolean overwrite = false;
+	
 	/** The supported file filters. */
 	private static final List<CustomizedFileFilter> FILTERS;
 
@@ -190,6 +193,8 @@ public class DownloadActivity extends ActivityComponent {
 		else
 			localFileName = folder.toString();
 		messageLabel.setText(localFileName);
+		
+		this.overwrite = parameters.isOverwrite();
 	}
 
 	/**
@@ -207,7 +212,7 @@ public class DownloadActivity extends ActivityComponent {
 		registry.getLogger().debug(this, file.getAbsolutePath());
 
 		boolean load = true;
-		if (file.exists())
+		if (file.exists() && !overwrite)
 			load = false;
 
 		switch (parameters.getIndex()) {

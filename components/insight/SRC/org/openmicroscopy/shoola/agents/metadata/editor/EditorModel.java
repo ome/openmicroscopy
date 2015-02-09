@@ -4141,7 +4141,7 @@ class EditorModel
 	 * @param folder The folder where to save the images.
 	 * @param format The format to use.
 	 */
-	void saveAs(File folder, int format)
+	void saveAs(File folder, int format, String filename)
 	{
 	    Collection l = parent.getRelatedNodes();
 	    List<DataObject> objects = new ArrayList<DataObject>();
@@ -4163,6 +4163,7 @@ class EditorModel
 	        SaveAsParam p = new SaveAsParam(folder, objects);
 	        p.setIndex(format);
 	        p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
+	        p.setBatchExportFilename(filename);
 	        p.setDeleteWhenFinished(true);
 	        UserNotifier un =
 	                MetadataViewerAgent.getRegistry().getUserNotifier();
