@@ -334,7 +334,12 @@ class PropertyParser(object):
                 v = p.val
                 if not p.val:
                     v = "[empty]"
-                properties += "Default: `%s`\n\n" % (v)
+
+                if ',' in v and ', ' not in v:
+                    properties += "Default: `%s`\n\n" % (
+                        ",\n".join(v.split(',')))
+                else:
+                    properties += "Default: `%s`\n\n" % v
 
             hline = "-" * len(header)
             m = {"header": header,
