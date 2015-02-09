@@ -39,22 +39,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
-
-
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-
-
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -129,6 +123,7 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -174,6 +169,13 @@ class EditorModel
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
+	/** Enum to distinguish between different kind of 
+	 * {@link MapAnnotationData}, see {@link #getMapAnnotations(MapAnnotationType)}
+	 */
+	public static enum MapAnnotationType {
+		USER, OTHER_USERS, OTHER
+	}
+	
 	/** The file namespaces to exclude.*/
 	private final static List<String> EXCLUDED_FILE_NS;
 	
@@ -1925,6 +1927,49 @@ class EditorModel
 		if (others != null && !others.isEmpty())
 			l.addAll(others);
 		return l;
+	}
+	
+	/**
+	 * Returns the collection of map annotations.
+	 * 
+	 * @param type The kind of map annotations to return, see {@link MapAnnotationType}
+	 * @return See above.
+	 */
+	List<MapAnnotationData> getMapAnnotations(MapAnnotationType type) {
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null)
+			return Collections.emptyList();
+
+		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
+
+		Collection<MapAnnotationData> maps = data.getMapAnnotations();
+		if (!CollectionUtils.isEmpty(maps)) {
+			for (MapAnnotationData d : maps) {
+				if ((type == MapAnnotationType.USER || type == MapAnnotationType.OTHER_USERS ) && MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())) {
+					if (type == MapAnnotationType.USER && MetadataViewerAgent.getUserDetails().getId() == d
+							.getOwner().getId())
+						result.add(d);
+					else if(type == MapAnnotationType.OTHER_USERS && MetadataViewerAgent.getUserDetails().getId() != d
+							.getOwner().getId())
+						result.add(d);
+				} else if (type == MapAnnotationType.OTHER && !MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())){
+					result.add(d);
+				}
+			}
+		}
+		
+		// Just to make sure, to always get the same order
+		Comparator<MapAnnotationData> comp = new Comparator<MapAnnotationData>() {
+			@Override
+			public int compare(MapAnnotationData o1, MapAnnotationData o2) {
+				if(o1.getId()<o2.getId())
+					return -1;
+				else
+					return 1;
+			}
+		};
+		Collections.sort(result, comp);
+		return result;
 	}
 	
 	/**
