@@ -61,6 +61,7 @@ import omero.model.Image;
 import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
+import omero.model.OriginalFile;
 import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -358,12 +359,31 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         try {
             cleanupReader();
             cleanupStore();
+
+            log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
+            /* hereafter back to normal log destination, not import log file*/
+            MDC.clear();
+            try {
+                /* requires usable session */
+                setLogFileSize();
+            } catch (ServerError se) {
+                log.error("failed to set import log file size", se);
+            }
+
             cleanupSession();
         } finally {
             autoClose();
         }
-        log.info(ClassicConstants.FINALIZE_SESSION_MARKER, "Finalizing log file.");
-        MDC.clear();
+    }
+
+    /**
+     * Set the import log file's size in the database to its current size on the filesystem.
+     * @throws ServerError if the import log's size could not be updated in the database
+     */
+    private void setLogFileSize() throws ServerError {
+        final OriginalFile logFile = (OriginalFile) sf.getQueryService().get(OriginalFile.class.getSimpleName(), logPath.getId());
+        logFile.setSize(omero.rtypes.rlong(logPath.size()));
+        sf.getUpdateService().saveObject(logFile);
     }
 
     public Object step(int step) {
