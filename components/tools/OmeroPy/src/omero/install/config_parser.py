@@ -129,7 +129,7 @@ BLACK_LIST = ("##", "versions", "omero.upgrades")
 
 STOP = "### END"
 
-
+import os
 import argparse
 import fileinput
 import logging
@@ -190,7 +190,7 @@ class PropertyParser(object):
         self.curr_p = None
         self.curr_a = None
 
-    def parse(self, argv=None):
+    def parse_file(self, argv=None):
         try:
             for line in fileinput.input(argv):
                 if line.endswith("\n"):
@@ -276,6 +276,24 @@ class PropertyParser(object):
             data[parts[0]].append(".".join(parts[1:]))
         return data
 
+    def parse_module(self, module='omeroweb.settings'):
+
+        os.environ['DJANGO_SETTINGS_MODULE'] = module
+
+        from django.conf import settings
+
+        for key, values in sorted(
+                settings.CUSTOM_SETTINGS_MAPPINGS.iteritems(),
+                key=lambda k: k):
+
+            p = Property()
+            global_name, default_value, mapping, description, config = \
+                tuple(values)
+            p.val = str(default_value)
+            p.key = key
+            p.txt = (description or "") + "\n"
+            self.properties.append(p)
+
     def headers(self):
         headers = defaultdict(list)
         for x in self:
@@ -319,8 +337,8 @@ class PropertyParser(object):
         for header in sorted(headers):
             properties = ""
             # Filter properties marked as DEVELOPMENT
-            props = [p for p in headers[header]
-                     if not p.txt.startswith('DEVELOPMENT')]
+            props = [p for p in headers[header] if
+                     not p.txt.startswith('DEVELOPMENT')]
             for p in props:
                 properties += ".. property:: %s\n" % (p.key)
                 properties += "\n"
@@ -364,7 +382,8 @@ if __name__ == "__main__":
         logging.basicConfig(level=20)
 
     pp = PropertyParser()
-    pp.parse(ns.files)
+    pp.parse_file(ns.files)
+    pp.parse_module('omeroweb.settings')
 
     if ns.dbg:
         print "Found:", len(list(pp))
