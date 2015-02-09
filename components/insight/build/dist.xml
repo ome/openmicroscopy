@@ -474,7 +474,8 @@
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}"
                	jvmversion="1.6+"
-                vmoptions="${dist.vmparameters}">
+                vmoptions="${dist.vmparameters}"
+                workingdirectory="$APP_PACKAGE/Contents/Resources">
       <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
@@ -577,7 +578,8 @@
 	        stubfile="${dist.osx.stub}"
 	        jvmversion="1.6+"
 	  	    vmoptions="${dist.vmparameters}"
-	        arguments="containerImporter.xml">
+	        arguments="containerImporter.xml"
+	        workingdirectory="$APP_PACKAGE/Contents/Resources">
 	  <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
