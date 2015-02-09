@@ -539,7 +539,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ('['
           '["Data", "webindex", {"title": "Browse Data via Projects, Tags'
           ' etc"}],'
-          '["History", "history", {"title": "History"}]'
+          '["History", "history", {"title": "History"}],'
+          '["HELP", "http://help.openmicroscopy.org/",'
+          '{"title":"HELP", "target":"new"}]'
           ']'),
          json.loads,
          ("Add links to the top header: links are ``['Link Text', 'link',"
