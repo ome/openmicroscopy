@@ -466,11 +466,11 @@
                 mainclass="${app.mainclass}"
                 version="${dist.bundle.version}"
                 infostring="${distInsight.name} Java Client, ${dist.bundle.version}"
-                screenmenu="true"
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}"
                	jvmversion="1.6+"
                 vmoptions="${dist.vmparameters}">
+      <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
     </jarbundler>
@@ -567,12 +567,12 @@
 	        mainclass="${app.mainclass}"
 	        version="${dist.bundle.version}"
 	        infostring="${distImporter.name} Java Client, ${dist.bundle.version}"
-	        screenmenu="true"
 	        icon="${distImporter.osx.icon}"
 	        stubfile="${dist.osx.stub}"
 	        jvmversion="1.6+"
 	  	    vmoptions="${dist.vmparameters}"
 	        arguments="containerImporter.xml">
+	  <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
 	  <jarfileset refid="app.libs"/>
 	  <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
 	  </jarbundler>
