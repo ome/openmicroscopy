@@ -28,10 +28,10 @@ module omero {
          * and/or specific users.
          * 
          * examples:
-         *  - omero.cmd.SendEmailRequest(subject, body, everyone)
+         *  - omero.cmd.SendEmailRequest(subject, body, everyone=True)
          *		sends message to everyone who has email set
          *		and is an active user
-         *  - omero.cmd.SendEmailRequest(subject, body, everyone, inactive)
+         *  - omero.cmd.SendEmailRequest(subject, body, everyone=True, inactive=True)
          *		sends message to everyone who has email set,
          *		even inactive users
          *  - omero.cmd.SendEmailRequest(subject, body, groupIds=[...],
