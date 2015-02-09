@@ -38,6 +38,11 @@
 {% endif %}
 
 <div style="position:relative">
+    {% if inPlace %}
+      <img title="This file in an in-place import. The data might not be located within the OMERO data directory."
+        style="position: absolute; top: 0; right: 3px"
+        src="{% static 'webclient/image/inPlace_16.png' %}"/>
+    {% endif %}
     <table style="width: 50%">
         {% if wellImageId %}
         <tr>

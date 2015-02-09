@@ -556,7 +556,7 @@
             </div>
 
             <!-- Image Name, ID, owner -->
-            {% with obj=manager.image nameText=manager.image.name %}
+            {% with obj=manager.image nameText=manager.image.name inPlace=manager.image.isInplaceImport %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
                   
