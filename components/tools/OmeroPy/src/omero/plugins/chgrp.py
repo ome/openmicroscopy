@@ -69,7 +69,7 @@ class ChgrpControl(GraphControl):
         except omero.ApiUsageException:
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
 
-        # Check session owner is member of the trarget group
+        # Check session owner is member of the target group
         uid = client.sf.getAdminService().getEventContext().userId
         ids = [x.child.id.val for x in group.copyGroupExperimenterMap()]
         if uid not in ids:
@@ -81,19 +81,6 @@ class ChgrpControl(GraphControl):
             request.grp = gid
 
         super(ChgrpControl, self)._process_request(req, args, client)
-
-    def create_error_report(self, rsp):
-        import omero.cmd
-        if isinstance(rsp, omero.cmd.GraphConstraintERR):
-            if "Fileset" in rsp.constraints:
-                fileset = rsp.constraints.get("Fileset")
-                return "You cannot move part of fileset %s; only complete" \
-                    " filesets can be moved to another group.\n" % \
-                    ", ".join(str(x) for x in fileset)
-            else:
-                return super(ChgrpControl, self).create_error_report(rsp)
-        else:
-            return super(ChgrpControl, self).create_error_report(rsp)
 
 try:
     register("chgrp", ChgrpControl, HELP)
