@@ -2731,7 +2731,12 @@ class _BlitzGateway (object):
         :return:    {'leaders': list :class:`ExperimenterWrapper`,
                      'colleagues': list :class:`ExperimenterWrapper`}
         :rtype:     dict
+        
+        ** Deprecated ** Use :meth:`ExperimenterGroupWrapper.groupSummary`.
         """
+        warnings.warn(
+            "Deprecated. Use ExperimenterGroupWrapper.groupSummary()",
+            DeprecationWarning)
 
         if gid is None:
             gid = self.getEventContext().groupId
@@ -5284,6 +5289,39 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
                  "left outer join fetch map.child e")
         return query
 
+    def groupSummary(self, exclude_self=False):
+        """
+        Returns lists of 'leaders' and 'members' of the specified group
+        (default is current group) as a dict with those keys.
+
+        :return:    {'leaders': list :class:`ExperimenterWrapper`,
+                     'colleagues': list :class:`ExperimenterWrapper`}
+        :rtype:     dict
+        """
+
+        userId = None
+        if exclude_self:
+            userId = self._conn.getUserId()
+        colleagues = []
+        leaders = []
+        if not self.isPrivate() or self._conn.isLeader(self.id) or self._conn.isAdmin():
+            for d in self.copyGroupExperimenterMap():
+                if d is None or d.child.id.val == userId:
+                    continue
+                if d.owner.val:
+                    leaders.append(ExperimenterWrapper(self._conn, d.child))
+                else:
+                    colleagues.append(ExperimenterWrapper(self._conn, d.child))
+        else:
+            if self._conn.isLeader():
+                leaders = [self._conn.getUser()]
+            else:
+                colleagues = [self._conn.getUser()]
+
+        colleagues.sort(key=lambda x: x.getLastName().lower())
+        leaders.sort(key=lambda x: x.getLastName().lower())
+
+        return (leaders, colleagues)
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 
