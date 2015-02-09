@@ -181,7 +181,7 @@ class PrefsControl(WriteableConfigControl):
         parse = parser.add(
             sub, self.parse,
             "Parse the configuration properties from the etc/omero.properties"
-            " file for readability.")
+            " file and Web properties for readability.")
         parse.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Alternative location for a Java properties file")
@@ -198,6 +198,9 @@ class PrefsControl(WriteableConfigControl):
         parse_group.add_argument(
             "--headers", action="store_true",
             help="Print all headers from omero.properties")
+        parse.add_argument(
+            "--no-web", action="store_true",
+            help="Do not parse Web properties")
 
         parser.add(sub, self.edit, "Present the properties for the current"
                    " profile in your editor. Saving them will update your"
@@ -371,7 +374,8 @@ class PrefsControl(WriteableConfigControl):
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
         pp.parse_file(str(cfg.abspath()))
-        pp.parse_module('omeroweb.settings')
+        if not args.no_web:
+            pp.parse_module('omeroweb.settings')
         if args.headers:
             pp.print_headers()
         elif args.keys:
