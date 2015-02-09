@@ -1004,12 +1004,12 @@ li.menu_back a {
 				}
 				
 				
-				#help a{
+				#send a{
 					background:url(../img/icon_help.png) 9px center no-repeat;
 				}
 				
 				
-				#help:hover a{
+				#send:hover a{
 					background:url(../img/icon_help_hover.png) 9px center no-repeat;
 				}
 				
