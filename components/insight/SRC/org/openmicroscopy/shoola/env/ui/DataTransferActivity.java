@@ -113,7 +113,7 @@ public class DataTransferActivity
 			type.setText(DESCRIPTION_ERROR);
 			GraphException ex = ((ProcessReport) result).getGraphException();
 			if (ex != null) 
-				messageLabel.setText(messageLabel.getText()+" [Details: "+ex.message+"]");
+				messageLabel.setText(messageLabel.getText()+" - "+ex.message);
 			notifyActivityError();
 		} else {
 			type.setText(DESCRIPTION_END);
