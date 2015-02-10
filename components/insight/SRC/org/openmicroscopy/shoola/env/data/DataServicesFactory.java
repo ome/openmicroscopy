@@ -24,11 +24,8 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
-import ij.IJ;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,7 +33,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -45,11 +41,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-
-//Third-party libraries
-
-
-//Application-internal dependencies
 import omero.client;
 
 import org.openmicroscopy.shoola.env.Agent;
@@ -78,7 +69,6 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -99,10 +89,6 @@ import pojos.GroupData;
  */
 public class DataServicesFactory
 {
-
-	
-	/** The name of the fs configuration file in the configuration directory. */
-	private static final String		FS_CONFIG_FILE = "fs.config";
 
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
@@ -159,37 +145,10 @@ public class DataServicesFactory
 	
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
-	
-    /** The fs properties. */
-    private Properties 					fsConfig;
 
     /** Flag indicating that we try to re-establish the connection.*/
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
 
-    /**
-	 * Reads in the specified file as a property object.
-	 * 
-	 * @param file	Absolute pathname to the file.
-	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occurred.
-	 */
-	private static Properties loadConfig(String file)
-	{
-		Properties config = new Properties();
-		InputStream fis = null;
-		try {
-			fis = IOUtil.readConfigFile(file);
-			config.load(fis);
-		} catch (Exception e) {
-			return null;
-		} finally {
-			try {
-				if (fis != null) fis.close();
-			} catch (Exception ex) {}
-		}
-		return config;
-	}
-    
 	/**
 	 * Attempts to create a new instance.
      * 
@@ -217,8 +176,6 @@ public class DataServicesFactory
         RegistryFactory.linkAdmin(admin, registry);
         RegistryFactory.linkIS(is, registry);
         
-        //fs stuff
-        fsConfig = loadConfig(c.getConfigFileRelative(FS_CONFIG_FILE));
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
         if (omeroGateway.isUpgradeRequired()) {
