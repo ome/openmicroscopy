@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.FilterGroupComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -72,13 +71,6 @@ class FilterGroupComponent
 	extends JPanel
 	implements PropertyChangeListener
 {
-	
-	/** The title displayed if the data object is a filter set. */
-	private static final String FILTER_SET= "Filter Set";
-	
-	/** The title displayed if the data object is a light path. */
-	private static final String LIGHT_PATH = "Light Path";
-	
 	/** Reference to the parent of this component. */
 	private AcquisitionDataUI	parent;
 	
@@ -257,16 +249,13 @@ class FilterGroupComponent
 	/** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	String title = FILTER_SET;
-    	if (object instanceof LightPathData) title = LIGHT_PATH;
-    	setBorder(BorderFactory.createTitledBorder(title));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setLayout(new GridBagLayout());
     	setBackground(UIUtilities.BACKGROUND_COLOR);
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.anchor = GridBagConstraints.WEST;
-		constraints.insets = new Insets(0, 2, 2, 0);
+		constraints.insets = new Insets(0, 0, 0, 0);
 		constraints.weightx = 1.0;
 		constraints.gridy = 0;
 		if (object instanceof FilterSetData) {

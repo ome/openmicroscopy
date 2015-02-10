@@ -43,6 +43,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -108,7 +109,10 @@ import omero.model.enums.UnitsLength;
  */
 public class UIUtilities
 {
-	
+	/** Defines the format how the date is shown */
+    private static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss"); //2013-04-20 18:13:43
+    
 	/** Bound property indicating that the font changes.*/
 	public static final String HINTS_PROPERTY = "awt.font.desktophints";
 	
@@ -1460,6 +1464,32 @@ public class UIUtilities
     	return DateFormat.getDateTimeInstance(
     			DateFormat.SHORT, DateFormat.SHORT,
     			Locale.getDefault()).format(time);
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Timestamp time) 
+    {
+    	if (time == null)  
+    		time = getDefaultTimestamp();
+    	return DEFAULT_DATE_FORMAT.format(time);
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Date date) 
+    {
+    	if (date == null)  
+    		return formatDefaultDate((Timestamp)null);
+    	return DEFAULT_DATE_FORMAT.format(date);
     }
     
     /**
