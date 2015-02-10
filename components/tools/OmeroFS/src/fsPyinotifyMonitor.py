@@ -87,7 +87,8 @@ class PlatformMonitor(AbstractPlatformMonitor):
         self.notifier = pyinotify.ThreadedNotifier(
             self.wm, ProcessEvent(
                 wm=self.wm, cb=self.propagateEvents, et=self.eTypes,
-                ignoreDirEvents=self.ignoreDirEvents))
+                ignoreDirEvents=self.ignoreDirEvents)
+            read_freq=1, timeout=0)
         self.wm.addBaseWatch(
             self.pathsToMonitor, (pyinotify.ALL_EVENTS), rec=recurse,
             auto_add=follow)
