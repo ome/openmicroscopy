@@ -8658,7 +8658,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         if self._importedFilesInfo is None:
             # Check for Filesets first...
             self._importedFilesInfo = self._conn.getFilesetFilesInfo(
-                    [self.getId()])
+                [self.getId()])
             if (self._importedFilesInfo['count'] == 0):
                 # If none, check Archived files
                 self._importedFilesInfo = self._conn.getArchivedFilesInfo(
