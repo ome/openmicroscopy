@@ -368,7 +368,7 @@ class TestAdminJvmCfg(object):
         source_config = "%s" % (self.tmp_grid_dir / "config.xml")
         key = "omero.jvmcfg.strategy%s" % suffix
         self.cli.invoke(
-            ["config", "--source",source_config, "set", key, "bad"],
+            ["config", "--source", source_config, "set", key, "bad"],
             strict=True)
         with pytest.raises(NonZeroReturnCode):
             self.cli.invoke(self.args, strict=True)
