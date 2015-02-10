@@ -2520,7 +2520,8 @@ CREATE FUNCTION check_params_columns() RETURNS void AS $$
 DECLARE
   pixels_id BIGINT;
   image_id  BIGINT;
-  path_name TEXT;
+  path      TEXT;
+  name      TEXT;
   params    TEXT[];
   image_no  INTEGER;
   target    TEXT;
@@ -2531,8 +2532,8 @@ BEGIN
     RAISE EXCEPTION 'data in originalfile.params which is to be dropped';
   END IF;
 
-  FOR image_id, pixels_id, path_name, params IN
-    SELECT p.image, p.id, p.path || '/' || p.name, p.params FROM pixels AS p
+  FOR image_id, pixels_id, path, name, params IN
+    SELECT p.image, p.id, p.path, p.name, p.params FROM pixels AS p
       WHERE p.params IS NOT NULL LOOP
 
     image_no := NULL;
@@ -2549,7 +2550,12 @@ BEGIN
       END CASE;
     END LOOP;
 
-    IF target IS NOT NULL AND target != path_name THEN
+    -- The pixels.path column may have Windows-style separators.
+    IF position('/' IN path) = 0 THEN
+        path := translate(path, '\', '/');
+    END IF;
+
+    IF target IS NOT NULL AND target <> (path || '/' || name) THEN
       RAISE EXCEPTION 'for pixels id=%, params target does not match path and name', pixels_id;
     END IF;
 
