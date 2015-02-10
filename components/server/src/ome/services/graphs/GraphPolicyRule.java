@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 import ome.model.IObject;
 import ome.services.graphs.GraphPolicy.Details;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

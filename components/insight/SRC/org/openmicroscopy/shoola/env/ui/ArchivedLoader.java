@@ -34,7 +34,7 @@ import java.util.Map;
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;

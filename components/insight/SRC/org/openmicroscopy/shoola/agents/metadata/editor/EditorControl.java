@@ -54,7 +54,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;

@@ -27,7 +27,7 @@ package org.openmicroscopy.shoola.svc.proxy;
 import java.io.File;
 
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ContentType;

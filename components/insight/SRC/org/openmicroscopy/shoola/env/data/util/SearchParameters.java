@@ -28,7 +28,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 import pojos.DataObject;

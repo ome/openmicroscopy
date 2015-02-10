@@ -54,7 +54,7 @@ import javax.swing.event.MenuListener;
 
 //Third-party libraries
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

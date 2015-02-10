@@ -19,7 +19,7 @@
 
 package ome.formats.importer.util;
 
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang3.time.StopWatch;
 
 /**
  * Class implementing the {@link TimeEstimator} interface. Uses the Exponential

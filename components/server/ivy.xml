@@ -34,7 +34,7 @@
     <dependency org="org.codehaus.btm" name="btm" rev="${versions.btm}"/>
     <!-- Public -->
     <dependency org="batik" name="batik-all" rev="${versions.batik}"/>
-    <dependency org="commons-lang" name="commons-lang" rev="${versions.commons-lang}"/>
+    <dependency org="org.apache.commons" name="commons-lang3" rev="${versions.commons-lang3}"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}"/>
     <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
     <dependency org="commons-pool" name="commons-pool" rev="${versions.commons-pool}"/>

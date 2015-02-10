@@ -30,7 +30,7 @@ import javax.swing.JMenu;
 
 
 //Third-party libraries
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;

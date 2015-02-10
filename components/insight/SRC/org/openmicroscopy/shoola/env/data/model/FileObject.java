@@ -34,7 +34,7 @@ import loci.formats.codec.CompressionType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Object hosting the information about the "file" to import.
