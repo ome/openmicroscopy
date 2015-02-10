@@ -35,7 +35,6 @@ import java.util.Set;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
 
 
 //Application-internal dependencies
@@ -146,8 +145,6 @@ public interface OmeroImageService
 	 * @param ctx The security context.
 	 * @param pixelsID The ID of the pixels set.
 	 * @param pd The plane to render.
-	 * @param asTexture Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @param compression The compression level.
@@ -155,8 +152,7 @@ public interface OmeroImageService
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderImage(SecurityContext ctx,
-		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage,
-		int compression)
+		long pixelsID, PlaneDef pd, boolean largeImage, int compression)
 		throws RenderingServiceException;
 
     /**
@@ -424,26 +420,6 @@ public interface OmeroImageService
 		throws RenderingServiceException, DSOutOfServiceException; 
 	
 	/**
-	 * Creates a preview projected image 
-	 * 
-	 * @param ctx The security context.
-	 * @param pixelsID The ID of the pixels set.
-	 * @param startZ The first optical section.
-	 * @param endZ The last optical section.
-	 * @param stepping The stepping used during the projection.
-	 * @param type The type of projection.
-     * @param channels The collection of channels to project.
-	 * @return The buffered image representing the projected image.
-	 * @throws RenderingServiceException If the server cannot render the image.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 */
-	public TextureData renderProjectedAsTexture(SecurityContext ctx,
-		long pixelsID, int startZ, int endZ, int stepping, int type,
-		List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException; 
-	
-	/**
 	 * Projects the specified set of pixels according to the projection's 
 	 * parameters. Adds the created image to the passed dataset.
 	 * 
@@ -640,14 +616,11 @@ public interface OmeroImageService
 	 * @param pd		The plane to render.
 	 * @param tableID	The id of the table hosting the mask.
 	 * @param overlays	The overlays to render or <code>null</code>.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @return See above.
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderOverLays(SecurityContext ctx, long pixelsID,
-		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture)
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException; 
 
 	/**

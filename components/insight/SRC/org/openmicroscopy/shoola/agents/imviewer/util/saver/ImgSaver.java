@@ -350,24 +350,6 @@ public class ImgSaver
 		}
     }
 
-    /** Invokes when the openGL flag is turned on. */
-    private void saveAsTexture()
-    {
-    	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    	try {
-    		BufferedImage img = model.createImageFromTexture(
-    				uiDelegate.getSavingType(), uiDelegate.includeROI());
-    		writeSingleImage(img, false, uiDelegate.getSelectedFilePath());
-    	} catch (Exception e) {
-    		un.notifyInfo("Saving Image", "An error occurred while saving " +
-    		"the image.");
-    		return;
-    	}
-    	notifySave(getExtendedName(uiDelegate.getSelectedFilePath(), format));
-    	if (uiDelegate.isSetDefaultFolder())
-    		UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
-    }
-    
     /**
      * Creates a new instance.
      * 
@@ -496,11 +478,6 @@ public class ImgSaver
      */
     void saveImage(boolean init)
     {
-    	if (ImViewerAgent.hasOpenGLSupport()) {
-    		saveAsTexture();
-    		return;
-    	}
-
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	if (init) createImages(uiDelegate.getSavingType());
         //Builds the image to display.

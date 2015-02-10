@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
 import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
@@ -1361,22 +1360,6 @@ class RendererModel
 	{
 	    if (rndControl == null) return null;
 	    return rndControl.render(pDef, compression);
-	}
-    
-	/**
-	 * Renders the specified plane.
-	 *
-	 * @param pDef The plane to render.
-	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
-	 * 									the value.
-	 * @throws DSOutOfServiceException If the connection is broken.
-	 */
-	TextureData renderPlaneAsTexture(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		if (rndControl == null) return null;
-		return rndControl.renderAsTexture(pDef);
 	}
 
 	/**

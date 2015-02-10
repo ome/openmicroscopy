@@ -71,22 +71,19 @@ public class ImageRenderer
      * 
      * @param pixelsID  The id of the pixels set the plane belongs to.
      * @param pd        The plane to render.
-     * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImae Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @param compression The compression level.
      * @return          The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final long pixelsID, final PlaneDef pd, 
-    		final boolean asTexture, final boolean largeImage,
-    		final int compression)
+    		final boolean largeImage, final int compression)
     {
         return new BatchCall("rendering image: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.renderImage(ctx, pixelsID, pd, asTexture,
+                result = rds.renderImage(ctx, pixelsID, pd,
                 		largeImage, compression);
             }
         };
@@ -112,19 +109,17 @@ public class ImageRenderer
      * @param ctx The security context.
      * @param pixelsID  The id of the pixels set the plane belongs to.
      * @param pd        The plane to render.
-     * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
 	 * @param largeImae Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @param compression The compression level.
      */
     public ImageRenderer(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    	boolean asTexture, boolean largeImage, int compression)
+    	boolean largeImage, int compression)
     {
     	this.ctx = ctx;
         if (pixelsID < 0)
             throw new IllegalArgumentException("ID not valid.");
-       loadCall = makeBatchCall(pixelsID, pd, asTexture, largeImage, compression);
+       loadCall = makeBatchCall(pixelsID, pd, largeImage, compression);
     }
     
 }

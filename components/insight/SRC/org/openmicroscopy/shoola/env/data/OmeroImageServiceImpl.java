@@ -48,17 +48,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-
-//Third-party libraries
 import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 
-import com.sun.opengl.util.texture.TextureData;
-
-
-//Application-internal dependencies
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RawPixelsStorePrx;
@@ -518,16 +512,15 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef,
-	 * boolean, boolean, int)
+	 * boolean, int)
 	 */
 	public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-		boolean asTexture, boolean largeImage, int compression)
+		boolean largeImage, int compression)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.render(context, ctx,
-						Long.valueOf(pixelsID), pDef, asTexture, largeImage,
-						compression);
+						Long.valueOf(pixelsID), pDef, largeImage, compression);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
@@ -842,21 +835,7 @@ class OmeroImageServiceImpl
 		return PixelsServicesFactory.renderProjected(context, pixelsID, startZ,
 				endZ, type, stepping, channels);
 	}
-	
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderProjectedAsTexture(SecurityContext, long,
-	 * int, int, int, int, List)
-	 */
-	public TextureData renderProjectedAsTexture(SecurityContext ctx,
-		long pixelsID, int startZ, int endZ, int stepping, int type,
-		List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		return PixelsServicesFactory.renderProjectedAsTexture(context, 
-				pixelsID, startZ, endZ, type, stepping, channels);
-	}
-	
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#projectImage(SecurityContext, ProjectionParam)
@@ -1578,16 +1557,15 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderOverLays(SecurityContext, long, PlaneDef,
-	 * long, Map, boolean)
+	 * long, Map)
 	 */
 	public Object renderOverLays(SecurityContext ctx, long pixelsID,
-		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture)
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.renderOverlays(context,
-					pixelsID, pd, tableID, overlays, asTexture);
+					pixelsID, pd, tableID, overlays);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}

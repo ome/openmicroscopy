@@ -52,10 +52,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
@@ -912,28 +908,19 @@ class ImViewerComponent
 			throw new IllegalStateException("This method can only be invoked " +
 			"in the LOADING_IMAGE state.");
 		if (image == null) { //no need to notify.
-			if (ImViewerAgent.hasOpenGLSupport())
-				model.setImageAsTexture(null);
-			else model.setImage(null);
+			model.setImage(null);
 			return;
 		}
-		if (!(image instanceof BufferedImage || 
-				image instanceof TextureData)) {
+		if (!(image instanceof BufferedImage)) {
 			model.setImage(null);
-			model.setImageAsTexture(null);
 			return;
 		}
 		view.removeComponentListener(controller);
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
 		Object originalImage;
-		if (ImViewerAgent.hasOpenGLSupport()) {
-			originalImage = model.getImageAsTexture();
-			model.setImageAsTexture((TextureData) image);
-		} else {
-			originalImage = model.getOriginalImage();
-			model.setImage((BufferedImage) image);
-		}
+		originalImage = model.getOriginalImage();
+        model.setImage((BufferedImage) image);
 		view.handleUnitBar();
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
@@ -1473,70 +1460,6 @@ class ImViewerComponent
 		return images;
 	}
 
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#getGridImagesAsTexture()
-	 */
-	public Map<Integer, TextureData> getGridImagesAsTexture()
-	{
-		switch (model.getState()) {
-			case NEW:
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED or NEW"+
-				" state.");
-		}
-		
-		view.createGridImage(true);
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		//if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
-		List active = model.getActiveChannels();
-		int maxC = model.getMaxC();
-		Map<Integer, TextureData> 
-			images = new HashMap<Integer, TextureData>(maxC);
-		List<ChannelData> list = getSortedChannelData();
-		Iterator<ChannelData> i = list.iterator();
-		int k;
-		Iterator w;
-		if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
-			active = view.getActiveChannelsInGrid();
-			//Iterator i = active.iterator();
-			while (i.hasNext()) {
-				k = i.next().getIndex();
-				if (active.contains(k)) {
-					for (int j = 0; j < maxC; j++) 
-						model.setChannelActive(j, j == k);
-					images.put(k, model.getSplitComponentImageAsTexture());
-				} else {
-					images.put(k, null);
-				}
-			}
-			w = active.iterator();
-			while (w.hasNext()) { //reset values.
-				model.setChannelActive((Integer) w.next(), true);
-			}
-		} else {
-			while (i.hasNext()) {
-				k = i.next().getIndex();
-				if (model.isChannelActive(k)) {
-					for (int l = 0; l < maxC; l++)
-						model.setChannelActive(l, k == l);
-
-					images.put(k, model.getSplitComponentImageAsTexture());
-					w = active.iterator();
-					while (w.hasNext()) { //reset values.
-						model.setChannelActive((Integer) w.next(), true);
-					}
-				} else {
-					images.put(k, null);
-				}
-			}
-		}
-		view.createGridImage(false);
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		return images;
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#getCombinedGridImage()
@@ -3039,28 +2962,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#createImageFromTexture(int, boolean includeROI)
-	 */
-	public BufferedImage createImageFromTexture(int type, boolean includeROI)
-	{
-		switch (model.getState()) {
-			case LOADING_IMAGE:
-			case DISCARDED:
-				return null;
-		}
-		if (!ImViewerAgent.hasOpenGLSupport()) return null;
-
-		BufferedImage img = model.getBrowser().createImageFromTexture(type);
-		if (img == null) return null;
-        
-		if (includeROI) {
-			createImageWithROI(img);
-		}
-		return img;
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isMappedImageRGB(List)
 	 */
 	public boolean isMappedImageRGB(List channels)
@@ -3230,7 +3131,6 @@ class ImViewerComponent
 	public boolean includeROI()
 	{
 		if (layers == null) return false;
-		if (ImViewerAgent.hasOpenGLSupport()) return false;
 		Iterator<JComponent> i = layers.iterator();
 		while (i.hasNext()) {
 			if (i.next() instanceof DrawingCanvasView) return true;
@@ -3545,4 +3445,5 @@ class ImViewerComponent
         model.setInterpolation(interpolation);
         refresh();
     }
+
 }
