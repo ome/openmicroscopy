@@ -541,7 +541,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           ' etc"}],'
           '["History", "history", {"title": "History"}],'
           '["Help", "http://help.openmicroscopy.org/",'
-          '{"title":"Help", "target":"new"}]'
+          '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
          json.loads,
          ("Add links to the top header: links are ``['Link Text', 'link',"
