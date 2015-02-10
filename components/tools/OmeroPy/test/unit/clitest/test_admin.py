@@ -341,13 +341,13 @@ class TestAdminJvmCfg(object):
         # # Non-temp directories
         ctxdir = path() / ".." / ".." / ".." / "dist"
         grid_dir = ctxdir / "etc" / "grid"
-        config_file = grid_dir / "config.xml"
         templates_file = grid_dir / "templates.xml"
 
         # Create temp files for backup
         self.tmp_grid_dir = create_path(folder=True)
         templates_file.copy(self.tmp_grid_dir)
-        config_file.copy(self.tmp_grid_dir)
+        config_file = self.tmp_grid_dir / "config.xml"
+        open(config_file, 'a').close()
 
         monkeypatch.setattr(AdminControl, '_get_grid_dir',
                             lambda x: self.tmp_grid_dir)
