@@ -26,8 +26,10 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import javax.swing.Icon;
 
+
+import omero.cmd.GraphException;
+
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -109,9 +111,9 @@ public class DataTransferActivity
 	{
 		if (result instanceof ProcessReport) {
 			type.setText(DESCRIPTION_ERROR);
-			String graphExMsg = getGraphExceptionMessage((ProcessReport) result);
-			if(!StringUtils.isEmpty(graphExMsg)) 
-				messageLabel.setText(messageLabel.getText()+" [Details: "+graphExMsg+"]");
+			GraphException ex = ((ProcessReport) result).getGraphException();
+			if (ex != null) 
+				messageLabel.setText(messageLabel.getText()+" [Details: "+ex.message+"]");
 			notifyActivityError();
 		} else {
 			type.setText(DESCRIPTION_END);

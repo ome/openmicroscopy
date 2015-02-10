@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ProcessException;
-import org.openmicroscopy.shoola.env.data.ProcessReport;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
@@ -963,21 +962,6 @@ public abstract class ActivityComponent
 		if (removeButton != null) removeButton.setBackground(color);
 		if (cancelButton != null) cancelButton.setBackground(color);
 		if (exceptionButton != null) exceptionButton.setBackground(color);
-	}
-	
-	/**
-	 * Extracts the GraphException message from a ProcessReport, if there is
-	 * one.
-	 * 
-	 * @param rep
-	 *            The ProcessReport
-	 * @return The GraphException message (if there is one)
-	 */
-	protected String getGraphExceptionMessage(ProcessReport rep) {
-		String st = rep.getDetails().get("stacktrace");
-		String msg = StringUtils.substringBetween(st,
-				"GraphException(message=", ")");
-		return msg;
 	}
 	
 }
