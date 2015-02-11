@@ -2169,7 +2169,7 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
     def isEditable(self):
         return self.name.lower() not in ('guest', 'user')
     
-    def groupSummary(self):
+    def loudLeadersAndMemebrs(self):
         """
         Returns lists of 'leaders' and 'members' of the specified group (default is current group)
         as a dict with those keys.
@@ -2177,18 +2177,12 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
         @return:    {'leaders': list L{ExperimenterWrapper}, 'colleagues': list L{ExperimenterWrapper}}
         @rtype:     dict
         """
-        dropdown_menu = self._conn.getDropdownMenuSettings()
-        summary = self._conn.groupSummary(self.getId())
-        if "leaders" in dropdown_menu.keys():
-            self.leaders = summary["leaders"]
-            self.leaders.sort(key=lambda x: x.getLastName().lower())
-        if "colleagues" in dropdown_menu.keys():
-            self.colleagues = summary["colleagues"]
-            self.colleagues.sort(key=lambda x: x.getLastName().lower())
+        self.leaders, self.colleagues = self.groupSummary()
+        self.leaders.sort(key=lambda x: x.getLastName().lower())
+        self.colleagues.sort(key=lambda x: x.getLastName().lower())
         # Only show 'All Members' option if configured, and we're not in a private group
-        if "everyone" in dropdown_menu:
-            if self.details.permissions.isGroupRead() or self._conn.isAdmin() or self.isOwner():
-                self.all = True
+        if self.details.permissions.isGroupRead() or self._conn.isAdmin() or self.isOwner():
+            self.all = True
 
     def getOwners(self):
         for gem in self.copyGroupExperimenterMap():
