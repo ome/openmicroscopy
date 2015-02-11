@@ -824,6 +824,10 @@ class ImViewerComponent
                 firePropertyChange(ImViewer.T_SELECTED_PROPERTY,
                         Integer.valueOf(defaultT), Integer.valueOf(t));
             }
+	        if (defaultZ != z) {
+                firePropertyChange(ImViewer.Z_SELECTED_PROPERTY,
+                        Integer.valueOf(defaultZ), Integer.valueOf(z));
+            }
 	    } else {
 	        if (defaultZ == z && defaultT == t) return;
 	        if (defaultZ != z) {

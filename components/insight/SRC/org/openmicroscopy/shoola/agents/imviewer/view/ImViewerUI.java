@@ -1357,7 +1357,10 @@ class ImViewerUI
 	            buffer.append(" (");
 	            buffer.append(UIUtilities.roundTwoDecimals(
 	                    info.getRealValue(bin)));
-	            buffer.append(info.getUnit()+")");
+	            if (StringUtils.isNotBlank(info.getUnit())) {
+	                buffer.append(info.getUnit());
+	            }
+	            buffer.append(")");
 		    }
 		}
 		setLeftStatus(buffer.toString());
