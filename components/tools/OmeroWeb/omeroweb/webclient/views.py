@@ -396,7 +396,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     myColleagues = {}
     if menu == "search":
         for g in groups:
-            g.loudLeadersAndMemebrs()
+            g.loadLeadersAndMemebrs()
             for c in g.leaders + g.colleagues:
                 myColleagues[c.id] = c
         myColleagues = myColleagues.values()
@@ -435,7 +435,7 @@ def group_user_content(request, conn=None, **kwargs):
         groups = myGroups
 
     for g in groups:
-        g.loudLeadersAndMemebrs() # load leaders / members
+        g.loadLeadersAndMemebrs() # load leaders / members
 
     context = {'template': 'webclient/base/includes/group_user_content.html',
                'groups':groups, 'myGroups':myGroups}

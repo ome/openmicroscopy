@@ -2169,7 +2169,7 @@ class ExperimenterGroupWrapper (OmeroWebObjectWrapper, omero.gateway.Experimente
     def isEditable(self):
         return self.name.lower() not in ('guest', 'user')
     
-    def loudLeadersAndMemebrs(self):
+    def loadLeadersAndMemebrs(self):
         """
         Returns lists of 'leaders' and 'members' of the specified group (default is current group)
         as a dict with those keys.
