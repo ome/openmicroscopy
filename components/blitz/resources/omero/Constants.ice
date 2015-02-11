@@ -170,6 +170,7 @@ module omero {
         const string NSAUTOCLOSE = "openmicroscopy.org/omero/import/autoClose";
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSLOGFILE = "openmicroscopy.org/omero/import/logFile";
+        const string NSLOOKUPTABLE = "openmicroscopy.org/ome/io/LUT";
         const string NSFILETRANSFER = "openmicroscopy.org/omero/import/fileTransfer";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
         const string NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
