@@ -378,7 +378,7 @@ public class FullTextBridge extends BridgeHelper {
             for (NamedValue nv : nvs) {
                 if (nv != null) {
                     add(document, nv.getName(), nv.getValue(), opts);
-                    add(document, "map.key", nv.getName(), opts);
+                    add(document, "has_key", nv.getName(), opts);
                 }
             }
         }
