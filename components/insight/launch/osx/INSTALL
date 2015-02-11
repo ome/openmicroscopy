@@ -8,9 +8,7 @@
   Extract the downloaded bundle in any directory on your local file system.
   After doing this, your directory should contain:
 
-    * A "config" directory.
     * The "OMERO.insight" application.
-    * A "LICENSE" file.
     * This install file.
 
 
