@@ -344,15 +344,18 @@
   *     ROI load & table methods
   */
 
-  var refresh_rois = function () {
+  var refresh_rois = function (theZ, theT, rois_filter) {
       // re-plots the ROIs (if currently shown) for new Z and T position
       if (viewport.viewportimg.get(0).refresh_rois) {
           var theT = viewport.getTPos();
           var theZ = viewport.getZPos();
-          viewport.viewportimg.get(0).refresh_rois(theZ, theT);
+          // avoid to clear filter when changing image (changing channels, Z or T)
+          rois_filter = (rois_filter ? rois_filter : viewport.viewportimg.get(0).get_current_rois_filter());
+          viewport.viewportimg.get(0).refresh_rois(theZ, theT, rois_filter);
       }
   }
-  var show_rois = function () {
+
+  var show_rois = function (theZ, theT, filter) {
       var theT = viewport.getTPos();
       var theZ = viewport.getZPos();
 
@@ -1207,6 +1210,18 @@
             var show_labels = ($("#toggle_shape_text").is( ":checked" ));
             viewport.viewportimg.get(0).show_labels(show_labels);
             return true;
+        } else if ($target.attr('id') == "toggle_roi_visibility") {
+            var activate_rois = ($("#toggle_roi_visibility").is(":checked"));
+            if (activate_rois) {
+                var theT = viewport.getTPos();
+                var theZ = viewport.getZPos();
+                viewport.viewportimg.get(0).show_rois(theZ, theT, undefined);
+            } else {
+                viewport.viewportimg.get(0).hide_rois();
+            }
+            $('.roi_visibility').prop('checked', activate_rois);
+            $('.shape_visibility').prop('checked', activate_rois);
+            return true;
         } else if ($target.hasClass('shape_cell')) {
             // a shape td click selects the shape.
             var $shapeRow = $target.parent();
@@ -1245,6 +1260,23 @@
             else if (nodeName == 'thead') {
                 toggle_th($tableRow.parent());
             }
+        }
+        if ($target.hasClass('roi_visibility')) {
+            var roi_id = $target.attr('roi_id');
+            var act_roi = $target.is( ":checked" );
+            if (act_roi) {
+                viewport.viewportimg.get(0).activate_roi(roi_id);
+            } else {
+                viewport.viewportimg.get(0).deactivate_roi(roi_id);
+            }
+            var theZ = viewport.getZPos();
+            var theT = viewport.getTPos();
+            viewport.viewportimg.get(0).refresh_active_rois(theZ, theT);
+            var check_group_id = '.roi_' + roi_id + '_vis';
+            $(check_group_id).prop('checked', act_roi);
+            return true;
+        } else if ($target.hasClass('shape_visibility')) {
+            return true;
         }
         return false;
     });

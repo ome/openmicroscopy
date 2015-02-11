@@ -35,7 +35,7 @@ $.fn.roi_display = function(options) {
         }
 
         var roi_json = null;          // load ROI data as json when needed
-        var active_rois = null;       // show only the active ROIs
+        var active_rois = [];       // show only the active ROIs
         this.theZ = null;
         this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
@@ -265,7 +265,6 @@ $.fn.roi_display = function(options) {
         }
 
         filter_rois = function (filter) {
-            active_rois = [];
             if (filter != undefined) {
                 for (r=0; r<roi_json.length; r++) {
                     if (filter.indexOf(roi_json[r].id) != -1 && active_rois.indexOf(roi_json[r].id) == -1) {
@@ -291,13 +290,27 @@ $.fn.roi_display = function(options) {
             return act_rois;
         }
 
+        this.get_current_rois_filter = function() {
+            if (typeof active_rois != "undefined") {
+                if (active_rois.length == 0) {
+                    return undefined;
+                } else {
+                    return active_rois;
+                }
+            } else {
+                return undefined;
+            }
+        }
+
         this.activate_roi = function (roi_id) {
+            var roi_id = parseInt(roi_id);
             if (active_rois.indexOf(roi_id) == -1) {
                 active_rois.push(roi_id);
             }
         }
 
         this.deactivate_roi = function (roi_id) {
+            var roi_id = parseInt(roi_id);
             if (active_rois.indexOf(roi_id) != -1) {
                 active_rois.splice(active_rois.indexOf(roi_id), 1);
             }
