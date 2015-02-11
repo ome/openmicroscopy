@@ -45,5 +45,5 @@
   You should not have to modify the port value. 
   Enjoy OMERO!
 
-  You can also run the importer as standalone applications by running
+  You can also run the importer as a standalone application by running
   OMEROimporter_unix.sh.
