@@ -2588,8 +2588,12 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        return self.getObjects("ExperimenterGroup",
-                               self.getEventContext().leaderOfGroups)
+        system_groups = [
+            self.getAdminService().getSecurityRoles().userGroupId]
+        for g in self.getObjects("ExperimenterGroup",
+                                 self.getEventContext().leaderOfGroups):
+            if g.getId() not in system_groups:
+                yield g
 
     def getGroupsMemberOf(self):
         """
@@ -2599,14 +2603,12 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        groups = list()
         system_groups = [
             self.getAdminService().getSecurityRoles().userGroupId]
         for g in self.getObjects("ExperimenterGroup",
                                  self.getEventContext().memberOfGroups):
             if g.getId() not in system_groups:
-                groups.append(g)
-        return groups
+                yield g
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
                     description=None, ldap=False):
@@ -2731,29 +2733,8 @@ class _BlitzGateway (object):
 
         if gid is None:
             gid = self.getEventContext().groupId
-        userId = None
-        if exclude_self:
-            userId = self.getUserId()
-        colleagues = []
-        leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or self.isLeader(gid) or self.isAdmin():
-            for d in default.copyGroupExperimenterMap():
-                if d is None or d.child.id.val == userId:
-                    continue
-                if d.owner.val:
-                    leaders.append(ExperimenterWrapper(self, d.child))
-                else:
-                    colleagues.append(ExperimenterWrapper(self, d.child))
-        else:
-            if self.isLeader():
-                leaders = [self.getUser()]
-            else:
-                colleagues = [self.getUser()]
-
-        colleagues.sort(key=lambda x: x.getLastName().lower())
-        leaders.sort(key=lambda x: x.getLastName().lower())
-
+        leaders, colleagues = default.groupSummary(exclude_self)
         return {"leaders": leaders, "colleagues": colleagues}
 
     def listStaffs(self):
@@ -5282,12 +5263,11 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
 
     def groupSummary(self, exclude_self=False):
         """
-        Returns lists of 'leaders' and 'members' of the specified group
-        (default is current group) as a dict with those keys.
+        Returns tuple of 'leaders' and 'members' of the group
 
-        :return:    {'leaders': list :class:`ExperimenterWrapper`,
-                     'colleagues': list :class:`ExperimenterWrapper`}
-        :rtype:     dict
+        :return:    (list :class:`ExperimenterWrapper`,
+                     list :class:`ExperimenterWrapper`)
+        :rtype:     tuple
         """
 
         userId = None
@@ -5309,9 +5289,6 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
                 leaders = [self._conn.getUser()]
             else:
                 colleagues = [self._conn.getUser()]
-
-        colleagues.sort(key=lambda x: x.getLastName().lower())
-        leaders.sort(key=lambda x: x.getLastName().lower())
 
         return (leaders, colleagues)
 
