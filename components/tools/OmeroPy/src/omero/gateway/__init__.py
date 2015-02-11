@@ -2588,8 +2588,8 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        return self.getObjects(
-                    "ExperimenterGroup", self.getEventContext().leaderOfGroups)
+        return self.getObjects("ExperimenterGroup",
+                               self.getEventContext().leaderOfGroups)
 
     def getGroupsMemberOf(self):
         """
@@ -2602,8 +2602,8 @@ class _BlitzGateway (object):
         groups = list()
         system_groups = [
             self.getAdminService().getSecurityRoles().userGroupId]
-        for g in self.getObjects(
-                    "ExperimenterGroup", self.getEventContext().memberOfGroups):
+        for g in self.getObjects("ExperimenterGroup",
+                                 self.getEventContext().memberOfGroups):
             if g.getId() not in system_groups:
                 groups.append(g)
         return groups
@@ -2722,7 +2722,7 @@ class _BlitzGateway (object):
         :return:    {'leaders': list :class:`ExperimenterWrapper`,
                      'colleagues': list :class:`ExperimenterWrapper`}
         :rtype:     dict
-        
+
         ** Deprecated ** Use :meth:`ExperimenterGroupWrapper.groupSummary`.
         """
         warnings.warn(
@@ -5295,7 +5295,8 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
             userId = self._conn.getUserId()
         colleagues = []
         leaders = []
-        if not self.isPrivate() or self._conn.isLeader(self.id) or self._conn.isAdmin():
+        if (not self.isPrivate() or self._conn.isLeader(self.id)
+           or self._conn.isAdmin()):
             for d in self.copyGroupExperimenterMap():
                 if d is None or d.child.id.val == userId:
                     continue
