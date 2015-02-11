@@ -2588,14 +2588,8 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a)
-                              for a in self.getEventContext().leaderOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            yield ExperimenterGroupWrapper(self, e)
+        return self.getObjects(
+                    "ExperimenterGroup", self.getEventContext().leaderOfGroups)
 
     def getGroupsMemberOf(self):
         """
@@ -2605,17 +2599,14 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a)
-                              for a in self.getEventContext().memberOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            if e.name.val == "user":
-                pass
-            else:
-                yield ExperimenterGroupWrapper(self, e)
+        groups = list()
+        system_groups = [
+            self.getAdminService().getSecurityRoles().userGroupId]
+        for g in self.getObjects(
+                    "ExperimenterGroup", self.getEventContext().memberOfGroups):
+            if g.getId() not in system_groups:
+                groups.append(g)
+        return groups
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
                     description=None, ldap=False):
