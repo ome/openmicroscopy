@@ -889,7 +889,7 @@ present, the user will enter a console""")
         try:
             rv = adjust_settings(config, template_xml)
         except Exception, e:
-            self.ctx.die(11, 'Cannot adjust memory settings in %s: %s'
+            self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
                          % (templates, e))
 
         if verbose:
