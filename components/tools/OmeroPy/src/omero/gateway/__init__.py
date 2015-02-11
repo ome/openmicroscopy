@@ -591,7 +591,7 @@ class BlitzObjectWrapper (object):
         group. Web client will only allow this for the data Owner. Admin CAN
         move other user's data, but we don't support this in Web yet.
         """
-        return self.isOwned()  # or self._conn.isAdmin() #8974
+        return self.isOwned() or self._conn.isAdmin()   # See #8974
 
     def countChildren(self):
         """
@@ -3926,6 +3926,8 @@ class _BlitzGateway (object):
         da = DoAll()
         requests = []
         saves = []
+
+        ownerId = self.SERVICE_OPTS.getOmeroUser() or self.getUserId()
         for obj_id in obj_ids:
             obj_id = long(obj_id)
             logger.debug('DoAll Chgrp: type: %s, id: %s, grp: %s' %
@@ -3940,6 +3942,7 @@ class _BlitzGateway (object):
                 link.child = parentLinkClasses[graph_spec][1](obj_id, False)
                 link.parent = parentLinkClasses[
                     graph_spec][2](container_id, False)
+                link.details.owner = omero.model.ExperimenterI(ownerId, False)
                 save = Save()
                 save.obj = link
                 saves.append(save)

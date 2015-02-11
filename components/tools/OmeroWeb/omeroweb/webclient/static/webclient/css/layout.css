@@ -707,6 +707,21 @@
         .fileset_image.extra {
             display:none;
         }
+
+        .chgrpGroup {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset {
+        	width: 100%;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset button {
+        	float: right;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset button:first-child {
+        	float: left;
+        	margin-left: 10px;
+        }
     
     
     .tooltip_title {

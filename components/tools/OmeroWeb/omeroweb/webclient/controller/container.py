@@ -678,40 +678,20 @@ class BaseContainer(BaseController):
     # Creation
     
     def createDataset(self, name, description=None, img_ids=None):
-        ds = omero.model.DatasetI()
-        ds.name = rstring(str(name))
-        if description is not None and description != "" :
-            ds.description = rstring(str(description))
+        dsId = self.conn.createDataset(name, description, img_ids)
         if self.project is not None:
             l_ds = omero.model.ProjectDatasetLinkI()
             l_ds.setParent(self.project._obj)
-            l_ds.setChild(ds)
-            ds.addProjectDatasetLink(l_ds)
-        dsid = self.conn.saveAndReturnId(ds)
-        if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
-            links = []
-            for iid in iids:
-                link = omero.model.DatasetImageLinkI()
-                link.setParent(omero.model.DatasetI(dsid, False))
-                link.setChild(omero.model.ImageI(iid, False))
-                links.append(link)
-            self.conn.saveArray(links)
-        return dsid
+            l_ds.setChild(omero.model.DatasetI(dsId, False))
+            # ds.addProjectDatasetLink(l_ds)
+            self.conn.saveAndReturnId(l_ds)
+        return dsId
         
     def createProject(self, name, description=None):
-        pr = omero.model.ProjectI()
-        pr.name = rstring(str(name))
-        if description is not None and description != "" :
-            pr.description = rstring(str(description))
-        return self.conn.saveAndReturnId(pr)
+        return self.conn.createProject(name, description)
     
     def createScreen(self, name, description=None):
-        sc = omero.model.ScreenI()
-        sc.name = rstring(str(name))
-        if description is not None and description != "" :
-            sc.description = rstring(str(description))
-        return self.conn.saveAndReturnId(sc)
+        return self.conn.createScreen(name, description)
 
 
     def checkMimetype(self, file_type):
