@@ -42,7 +42,7 @@
                 // First time we show menu, load if empty, then setup events...
                 if ($listViewPort.is(':empty')) {
                     $listViewPort.append("<h1 style='margin: 10px'>Loading Groups...</h1>");
-                    $listViewPort.load("{% url 'group_user_content' %}", function() {
+                    $listViewPort.load("{% url 'group_user_content' %}?url={{ current_url }}", function() {
                         // prepare lists for show/hide
                         $groupList = $("#groupList");
                         $usersList = $(".usersList");
