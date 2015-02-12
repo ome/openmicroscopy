@@ -1559,8 +1559,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if m.id == self.getEventContext().userId:
                 members.remove(m)
         ms = [m._obj for m in members]
-        body = "%s added new comment.\n\n%s\n\nShare URL: %s\n" % (self.getUser().getFullName(), str(comment), host)
-        sh.notifyMembersOfShare(long(share_id), "OMERO.share notification", body, False, ms)
+        sh_type = sh.getContentSize(share_id) > 0 and "share" or "discussion"
+        subject = "OMERO.%s notification" % sh_type
+        body = "%s added new comment.\n\n%s\n\n%s URL: %s\n" % (self.getUser().getFullName(), str(comment), sh_type.title(), host)
+        sh.notifyMembersOfShare(long(share_id), subject, body, False, ms)
         return CommentAnnotationWrapper(self, new_cm)
 
     def removeImage(self, share_id, image_id):
@@ -1573,8 +1575,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         items = [i._obj for i in images]
         ms = [m._obj for m in members]
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
-        body = "%s\n\nShare URL: %s\n" % (message, host)
-        sh.notifyMembersOfShare(sid, "OMERO.share notification", body, False, ms)
+        sh_type = len(images) > 0 and "share" or "discussion"
+        body = "%s\n\n%s URL: %s\n" % (message, sh_type.title(), host)
+        subject = "OMERO.%s notification" % sh_type
+        sh.notifyMembersOfShare(sid, subject, body, False, ms)
         return sid
 
     def updateShareOrDiscussion (self, host, share_id, message, add_members, rm_members, enable, expiration=None):
@@ -1582,11 +1586,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), rtime(expiration))
         sh.setActive(long(share_id), enable)
+        sh_type = sh.getContentSize(share_id) > 0 and "share" or "discussion"
         if len(add_members) > 0:
             sh.addUsers(long(share_id), add_members)
             share = self.getShare(long(share_id))
-            body = "%s\n\nShare URL: %s\n" % (share.message, host)
-            sh.notifyMembersOfShare(share_id, "OMERO.share notification", body, False, add_members)
+            body = "%s\n\n%s URL: %s\n" % (share.message, sh_type.title(), host)
+            subject = "OMERO.%s notification" % sh_type
+            sh.notifyMembersOfShare(share_id, subject, body, False, add_members)
         if len(rm_members) > 0:
             sh.removeUsers(long(share_id), rm_members)
         return share_id
