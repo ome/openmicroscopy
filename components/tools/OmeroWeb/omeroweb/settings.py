@@ -1009,27 +1009,6 @@ DEFAULT_USER = os.path.join(
 MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
 
-EMAIL_TEMPLATES = {
-    'create_share': {
-        'text_content': (
-            'Hi, I would like to share some of my data with you.'
-            ' Please find it on the %s?server=%i. /n %s')
-    },
-    'add_member_to_share': {
-        'text_content': (
-            'Hi, I would like to share some of my data with you.'
-            ' Please find it on the %s?server=%i. /n %s')
-    },
-    'remove_member_from_share': {
-        'text_content': (
-            'You were removed from the share %s?server=%i.'
-            ' This share is no longer available for you.')
-    },
-    'add_comment_to_share': {
-        'text_content': 'New comment is available on share %s?server=%i.'
-    }
-}
-
 # https://docs.djangoproject.com/en/1.6/releases/1.6/#default-session-serialization-switched-to-json
 # JSON serializer, which is now the default, cannot handle
 # omeroweb.connector.Connector object

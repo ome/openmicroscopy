@@ -1548,96 +1548,48 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sh = self.getShareService()
         return sh.getAllUsers(long(share_id))
 
-    def addComment(self, host, blitz_id, share_id, comment):
+    def addComment(self, host, share_id, comment):
         sh = self.getShareService()
         new_cm = sh.addComment(long(share_id), str(comment))
-        
+
+        share = self.getShare(long(share_id))
         members = list(self.getAllMembers(long(share_id)))
-        sh = self.getShare(long(share_id))
-        if self.getEventContext().userId != sh.owner.id.val:
-            members.append(sh.getOwner())
-        
-        handle = None
-        if sh.active and self.getEmailSettings():
-            try:
-                for m in members:
-                    try:
-                        if m.id == self.getEventContext().userId:
-                            members.remove(m)
-                    except:
-                        logger.error(traceback.format_exc())
-            except Exception:
-                logger.error(traceback.format_exc())
-            else:
-                recp = [e.id for e in members]
-                t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
-                subject = 'OMERO.web - new comment for share %i' % share_id
-                message = t['text_content'] % (host, blitz_id)
-                req = omero.cmd.SendEmailRequest(subject=subject, body=message, userIds=recp)
-                handle = self.c.sf.submit(req)
-        return CommentAnnotationWrapper(self, new_cm), handle
-                
+        members.append(share.getOwner())
+        for m in members:
+            if m.id == self.getEventContext().userId:
+                members.remove(m)
+        ms = [m._obj for m in members]
+        body = "%s added new comment.\n\n%s\n\nShare URL: %s\n" % (self.getUser().getFullName(), str(comment), host)
+        sh.notifyMembersOfShare(long(share_id), "OMERO.share notification", body, False, ms)
+        return CommentAnnotationWrapper(self, new_cm)
+
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
         img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
-            
-    def createShare(self, host, blitz_id, images, message, members, enable, expiration=None):
+
+    def createShare(self, host, images, message, members, enable, expiration=None):
         sh = self.getShareService()
         items = [i._obj for i in images]
         ms = [m._obj for m in members]
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
-        
-        handle = None
-        #send email if avtive
-        if self.getEmailSettings():
-            recp = [e.id for e in members]
-            t = settings.EMAIL_TEMPLATES["create_share"]
-            subject = 'OMERO.web - new share %i' % sid
-            message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
-            req = omero.cmd.SendEmailRequest(subject=subject, body=message, userIds=recp)
-            handle = self.c.sf.submit(req)
-        return sid, handle
+        body = "%s\n\nShare URL: %s\n" % (message, host)
+        sh.notifyMembersOfShare(sid, "OMERO.share notification", body, False, ms)
+        return sid
 
-    def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
+    def updateShareOrDiscussion (self, host, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), rtime(expiration))
         sh.setActive(long(share_id), enable)
         if len(add_members) > 0:
             sh.addUsers(long(share_id), add_members)
+            share = self.getShare(long(share_id))
+            body = "%s\n\nShare URL: %s\n" % (share.message, host)
+            sh.notifyMembersOfShare(share_id, "OMERO.share notification", body, False, add_members)
         if len(rm_members) > 0:
             sh.removeUsers(long(share_id), rm_members)
-        
-        handle = None
-        #send email if avtive
-        if len(add_members) > 0:
-            try:
-                recp = [e.id for e in add_members]
-            except Exception:
-                logger.error(traceback.format_exc())
-            else:
-                t = settings.EMAIL_TEMPLATES["add_member_to_share"]
-                message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
-                subject = 'OMERO.web - update share %i' % share_id
-
-                req = omero.cmd.SendEmailRequest(subject=subject, body=message, userIds=recp)
-                handle = self.c.sf.submit(req)
-
-        if len(rm_members) > 0:
-            try:
-                recp = [e.id for e in rm_members]
-            except Exception:
-                logger.error(traceback.format_exc())
-            else:
-                t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
-                message = t['text_content'] % (host, blitz_id)
-                subject = 'OMERO.web - update share %i' % share_id
-
-                req = omero.cmd.SendEmailRequest(subject=subject, body=message, userIds=recp)
-                handle = self.c.sf.submit(req)
-
-        return share_id, handle
+        return share_id
 
     ##############################################
     ##  History methods                        ##

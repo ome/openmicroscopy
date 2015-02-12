@@ -68,24 +68,24 @@ class BaseShare(BaseController):
         """ Same as BaseContainer. Used to create identifier E.g. share-123 in right-hand panel """
         return self.share.getId()
 
-    def createShare(self, host, blitz_id, images, message, members, enable, expiration=None):
+    def createShare(self, host, images, message, members, enable, expiration=None):
         expiration_date = None
         if expiration is not None:
             d1 = datetime.datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
             expiration_date = long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000
         image_objects = list(self.conn.getObjects("Image", images))
         member_objects = list(self.conn.getObjects("Experimenter", members))
-        return self.conn.createShare(host, int(blitz_id), image_objects, message, member_objects, enable, expiration_date)
+        return self.conn.createShare(host, image_objects, message, member_objects, enable, expiration_date)
 
-    def createDiscussion(self, host, blitz_id, message, members, enable, expiration=None):
+    def createDiscussion(self, host, message, members, enable, expiration=None):
         expiration_date = None
         if expiration is not None:
             d1 = datetime.datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         member_objects = list(self.conn.getObjects("Experimenter", members))
-        return self.conn.createShare(host, int(blitz_id), [], message, member_objects, enable, expiration_date)
+        return self.conn.createShare(host, [], message, member_objects, enable, expiration_date)
     
-    def updateShareOrDiscussion(self, host, blitz_id, message, members, enable, expiration=None):
+    def updateShareOrDiscussion(self, host, message, members, enable, expiration=None):
         expiration_date = None
         if expiration is not None:
             d1 = datetime.datetime.strptime(expiration+" 23:59:59", "%Y-%m-%d %H:%M:%S")
@@ -115,10 +115,10 @@ class BaseShare(BaseController):
             if not flag:
                 add_mem.append(ngr)
                 
-        return self.conn.updateShareOrDiscussion(host, int(blitz_id), self.share.id, message, add_mem, rm_mem, enable, expiration_date)
+        return self.conn.updateShareOrDiscussion(host, self.share.id, message, add_mem, rm_mem, enable, expiration_date)
     
-    def addComment(self, host, blitz_id, comment):
-        return self.conn.addComment(host, int(blitz_id), self.share.id, comment)
+    def addComment(self, host, comment):
+        return self.conn.addComment(host, self.share.id, comment)
 
     def getShares(self):
         sh_list = list(self.conn.getOwnShares())

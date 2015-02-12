@@ -1420,13 +1420,8 @@ def annotate_comment(request, conn=None, **kwargs):
             if oids['share'] is not None and len(oids['share']) > 0:
                 sid = oids['share'][0].id
                 manager = BaseShare(conn, sid)
-                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                textAnn, handle = manager.addComment(host, conn.server_id, content)
-                if handle is not None:
-                    request.session.modified = True
-                    request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
-                        'sid':sid, 'stype': 'share_comment', 'surl': reverse(viewname="load_template", args=['public']),
-                        'error':0, 'start_time': datetime.datetime.now()}
+                host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
+                textAnn = manager.addComment(host, content)
             else:
                 manager = BaseContainer(conn)
                 textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
@@ -1729,13 +1724,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 members = form.cleaned_data['members']
                 #guests = request.REQUEST['guests']
                 enable = toBoolean(form.cleaned_data['enable'])
-                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                sid, handle = manager.updateShareOrDiscussion(host, conn.server_id, message, members, enable, expiration)
-                if handle is not None:
-                    request.session.modified = True
-                    request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
-                        'sid':sid, 'stype': 'share', 'surl': reverse(viewname="load_template", args=['public']),
-                        'error':0, 'start_time': datetime.datetime.now()}
+                host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
+                manager.updateShareOrDiscussion(host, message, members, enable, expiration)
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
@@ -2122,8 +2112,6 @@ def basket_action (request, action=None, conn=None, **kwargs):
                         'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
     """
 
-    request.session.modified = True
-
     if action == "toshare":
         template = "webclient/basket/basket_share_action.html"
         basket = BaseBasket(conn)
@@ -2148,13 +2136,9 @@ def basket_action (request, action=None, conn=None, **kwargs):
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
             enable = toBoolean(form.cleaned_data['enable'])
-            host = request.build_absolute_uri(reverse("load_template", args=["public"]))
+            host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
-            sid, handle = share.createShare(host, conn.server_id, images, message, members, enable, expiration)
-            if handle is not None:
-                request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
-                    'sid':sid, 'stype': 'share', 'surl': reverse(viewname="load_template", args=['public']),
-                    'error':0, 'start_time': datetime.datetime.now()}
+            sid = share.createShare(host, images, message, members, enable, expiration)
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_share_action.html"
@@ -2179,13 +2163,9 @@ def basket_action (request, action=None, conn=None, **kwargs):
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
             enable = toBoolean(form.cleaned_data['enable'])
-            host = request.build_absolute_uri(reverse("load_template", args=["public"]))
+            host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
-            sid, handle = share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
-            if handle is not None:
-                request.session['callback'][str(handle)] = {'job_type': 'send_email', 'status':'in progress',
-                    'sid':sid, 'stype': 'discussion', 'surl': reverse(viewname="load_template", args=['public']),
-                    'error':0, 'start_time': datetime.datetime.now()}
+            share.createDiscussion(host, message, members, enable, expiration)
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_discussion_action.html"

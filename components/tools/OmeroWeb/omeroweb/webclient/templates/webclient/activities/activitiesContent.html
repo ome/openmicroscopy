@@ -107,29 +107,28 @@
                             </span>
                             <span class="message">
                                 {% ifequal j.status "in progress" %}
-                                    {% if j.sid %}
-                                        Sending email to members of <a href="{% url 'load_template' 'public' %}">share {{ j.sid }}</a>
-                                    {% else %}
-                                        Sending admin email...
-                                    {% endif %}
+                                    Sending admin email...
                                 {% else %}
                                     {% ifequal j.status "finished" %}
                                         Sent {{ j.rsp.success }} {% plural j.rsp.success 'email' 'emails' %} of {{ j.rsp.total }}
-                                        {% if j.sid %}
-                                        to members of <a href="{% url 'load_template' 'public' %}">share {{ j.sid }}</a>
-                                        {% endif %}
                                     {% endifequal %}
                                     {% if j.report %}
                                         <div class="chgrp_error">
                                             <a href="#" title="Click to Open in new Window"> More...</a>
                                             <div style="display:none">
                                                 <p>{{ j.report.error }}</p>
+                                                {% if j.report.invalidusers %}
+                                                <p>Invalid users:</p>
                                                 {% for u in j.report.invalidusers %}
                                                     User: {{ u }}</br>
                                                 {% endfor %}
+                                                {% endif %}
+                                                {% if j.report.invalidemails %}
+                                                <p>Invalid emails:</p>
                                                 {% for u in j.report.invalidemails %}
                                                     Email: {{ u }}</br>
                                                 {% endfor %}
+                                                {% endif %}
                                             </div>
                                         </div>
                                     {% endif %}
