@@ -351,14 +351,6 @@
   License File: jmock.txt
 
 
-  Artifacts:    jogl-*.jar and gluegen-rt.jar
-                As well as the native libraries under lib/native:
-                linux-native, linux64-native, osx-native, win-native and win64-native.
-  Project:      OpenGL Project a 2D/3D graphics API for High Performance Graphics.
-  Web Site:     http://www.opengl.org/
-  License:      No license for API
-
-
   Artifacts:    jsr107cache-*.jar
   Project:      jsr107cache, Java API for caching
   Web Site:     http://sourceforge.net/projects/jsr107cache/
