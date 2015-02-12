@@ -1197,6 +1197,40 @@
         }
     }
 
+    var check_visibility_column = function() {
+        var roi_checkboxes = $('.roi_visibility');
+        var shape_checkboxes = $('.shape_visibility');
+        for (x=0; x<roi_checkboxes.length; x++) {
+            if (roi_checkboxes[x].checked) {
+                $('#toggle_roi_visibility').prop('checked', true);
+                return;
+            }
+        }
+        for (x=0; x<shape_checkboxes.length; x++) {
+            if (shape_checkboxes[x].checked) {
+                $('#toggle_roi_visibility').prop('checked', true);
+                return;
+            }
+        }
+        $('#toggle_roi_visibility').prop('checked', false);
+    }
+
+    var check_roi_visibility_checkbox = function(roi_id) {
+        var roi_id = parseInt(roi_id);
+        var roi_checkbox_id = '#' + roi_id + '_visibility';
+        var shape_checkboxes_class = '.roi_' + roi_id + '_vis';
+        var shape_checkboxes = $(shape_checkboxes_class);
+        for (x=0; x<shape_checkboxes.length; x++) {
+            if (shape_checkboxes[x].checked) {
+                $(roi_checkbox_id).prop('checked', true);
+                $('#toggle_roi_visibility').prop('checked', true);
+                return
+            }
+        }
+        $(roi_checkbox_id).prop('checked', false);
+        check_visibility_column();
+    }
+
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
         if ($target.attr('id') == "toggle_roi_thumbs") {
@@ -1221,6 +1255,35 @@
             }
             $('.roi_visibility').prop('checked', activate_rois);
             $('.shape_visibility').prop('checked', activate_rois);
+            return true;
+        } else if ($target.hasClass('roi_visibility')) {
+            var roi_id = $target.attr('roi_id');
+            var act_roi = $target.is(':checked');
+            if (act_roi) {
+                viewport.viewportimg.get(0).activate_roi(roi_id);
+            } else {
+                viewport.viewportimg.get(0).deactivate_roi(roi_id);
+            }
+            var theZ = viewport.getZPos();
+            var theT = viewport.getTPos();
+            viewport.viewportimg.get(0).refresh_active_rois(theZ, theT);
+            var check_group_id = '.roi_' + roi_id + '_vis';
+            $(check_group_id).prop('checked', act_roi);
+            check_visibility_column();
+            return true;
+        } else if ($target.hasClass('shape_visibility')) {
+            var roi_id = $target.attr('roi_id');
+            var shape_id = $target.attr('shape_id');
+            var act_shape = $target.is(':checked');
+            if (act_shape) {
+                viewport.viewportimg.get(0).activate_shape(roi_id, shape_id);
+            } else {
+                viewport.viewportimg.get(0).deactivate_shape(roi_id, shape_id);
+            }
+            var theZ = viewport.getZPos();
+            var theT = viewport.getTPos();
+            viewport.viewportimg.get(0).refresh_active_rois(theZ, theT);
+            check_roi_visibility_checkbox(roi_id);
             return true;
         } else if ($target.hasClass('shape_cell')) {
             // a shape td click selects the shape.
@@ -1260,23 +1323,6 @@
             else if (nodeName == 'thead') {
                 toggle_th($tableRow.parent());
             }
-        }
-        if ($target.hasClass('roi_visibility')) {
-            var roi_id = $target.attr('roi_id');
-            var act_roi = $target.is( ":checked" );
-            if (act_roi) {
-                viewport.viewportimg.get(0).activate_roi(roi_id);
-            } else {
-                viewport.viewportimg.get(0).deactivate_roi(roi_id);
-            }
-            var theZ = viewport.getZPos();
-            var theT = viewport.getTPos();
-            viewport.viewportimg.get(0).refresh_active_rois(theZ, theT);
-            var check_group_id = '.roi_' + roi_id + '_vis';
-            $(check_group_id).prop('checked', act_roi);
-            return true;
-        } else if ($target.hasClass('shape_visibility')) {
-            return true;
         }
         return false;
     });

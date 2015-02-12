@@ -35,7 +35,7 @@ $.fn.roi_display = function(options) {
         }
 
         var roi_json = null;          // load ROI data as json when needed
-        var active_rois = [];       // show only the active ROIs
+        var active_rois = {};       // show only the active ROIs
         this.theZ = null;
         this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
@@ -267,24 +267,53 @@ $.fn.roi_display = function(options) {
         filter_rois = function (filter) {
             if (filter != undefined) {
                 for (r=0; r<roi_json.length; r++) {
-                    if (filter.indexOf(roi_json[r].id) != -1 && active_rois.indexOf(roi_json[r].id) == -1) {
-                        active_rois.push(roi_json[r].id);
+                    // check if ROI is in filter
+                    if (filter.hasOwnProperty(roi_json[r].id)) {
+                        if (!active_rois.hasOwnProperty(roi_json[r].id))
+                            active_rois[roi_json[r].id] = [];
+                        // check if one or more shapes of the current ROI are in filter
+                        var shapes = roi_json[r]['shapes'];
+                        for (s=0; s<shapes.length; s++) {
+                            if (filter[roi_json[r].id].indexOf(shapes[s].id) != -1 &&
+                                active_rois[roi_json[r].id].indexOf(shapes[s].id) == -1) {
+                                active_rois[roi_json[r].id].push(shapes[s].id);
+                            }
+                        }
                     }
                 }
             } else {
                 for (r=0; r<roi_json.length; r++) {
-                    if (active_rois.indexOf(roi_json[r].id) == -1) {
-                        active_rois.push(roi_json[r].id);
+                    if (!active_rois.hasOwnProperty(roi_json[r].id)) {
+                        active_rois[roi_json[r].id] = [];
+                    }
+                    var shapes = roi_json[r]['shapes'];
+                    for (s=0; s<shapes.length; s++) {
+                        if (active_rois[roi_json[r].id].indexOf(shapes[s].id) == -1);
+                            active_rois[roi_json[r].id].push(shapes[s].id);
                     }
                 }
             }
         }
 
         get_active_rois = function () {
-            act_rois = [];
+            var act_rois = [];
             for (r=0; r<roi_json.length; r++) {
-                if (active_rois.indexOf(roi_json[r].id) != -1) {
-                    act_rois.push(roi_json[r]);
+                if (active_rois.hasOwnProperty(roi_json[r].id)) {
+                    var roi = {"id": roi_json[r].id};
+                    var shapes = roi_json[r].shapes;
+                    if (active_rois[roi_json[r].id].length == 0)
+                        // No filter for the shapes, append all of them
+                        roi['shapes'] = shapes;
+                    else {
+                        roi['shapes'] = [];
+                        for (s=0; s<shapes.length; s++) {
+                            // Add only active shapes
+                            if (active_rois[roi_json[r].id].indexOf(shapes[s].id) != -1) {
+                                roi['shapes'].push(shapes[s]);
+                            }
+                        }
+                    }
+                    act_rois.push(roi);
                 }
             }
             return act_rois;
@@ -292,7 +321,7 @@ $.fn.roi_display = function(options) {
 
         this.get_current_rois_filter = function() {
             if (typeof active_rois != "undefined") {
-                if (active_rois.length == 0) {
+                if (Object.keys(active_rois).length == 0) {
                     return undefined;
                 } else {
                     return active_rois;
@@ -304,15 +333,41 @@ $.fn.roi_display = function(options) {
 
         this.activate_roi = function (roi_id) {
             var roi_id = parseInt(roi_id);
-            if (active_rois.indexOf(roi_id) == -1) {
-                active_rois.push(roi_id);
+            if (!active_rois.hasOwnProperty(roi_id)) {
+                active_rois[roi_id] = [];
             }
         }
 
         this.deactivate_roi = function (roi_id) {
             var roi_id = parseInt(roi_id);
-            if (active_rois.indexOf(roi_id) != -1) {
-                active_rois.splice(active_rois.indexOf(roi_id), 1);
+            if (active_rois.hasOwnProperty(roi_id)) {
+                delete active_rois[roi_id];
+            }
+        }
+
+        this.activate_shape = function (roi_id, shape_id) {
+            var roi_id = parseInt(roi_id);
+            var shape_id = parseInt(shape_id);
+            if (active_rois.hasOwnProperty(roi_id)) {
+                if (active_rois[roi_id].indexOf(shape_id) == -1)
+                    active_rois[roi_id].push(shape_id);
+            } else {
+                this.activate_roi(roi_id);
+                this.activate_shape(roi_id, shape_id);
+            }
+        }
+
+        this.deactivate_shape = function(roi_id, shape_id) {
+            var roi_id = parseInt(roi_id);
+            var shape_id = parseInt(shape_id);
+            if (active_rois.hasOwnProperty(roi_id)) {
+                if (active_rois[roi_id].indexOf(shape_id) != -1) {
+                    active_rois[roi_id].splice(active_rois[roi_id].indexOf(shape_id), 1);
+                }
+                // If no shape remains, delete the ROI from active_rois list
+                if (active_rois[roi_id].length == 0) {
+                    this.deactivate_roi(roi_id);
+                }
             }
         }
 
@@ -451,7 +506,7 @@ $.fn.roi_display = function(options) {
 
         // hides the ROIs from display
         this.hide_rois = function() {
-            active_rois = [];
+            active_rois = {};
             rois_displayed = false;
             this.refresh_rois();
         }
