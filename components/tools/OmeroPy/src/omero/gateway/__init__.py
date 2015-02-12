@@ -2829,15 +2829,19 @@ class _BlitzGateway (object):
         queryService = self.getQueryService()
         fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
         fsCount = len(fsinfo)
-        annNs = []
+        anns = []
         for fse in fsinfo:
             for l in fse.fileset.copyAnnotationLinks():
-                annNs.append(l.child.ns.val)
+                a = {'ns': unwrap(l.child.ns),
+                     'id': l.child.id.val}
+                if (hasattr(l.child, 'textValue')):
+                    a['value'] = unwrap(l.child.textValue)
+                anns.append(a)
         fsSize = sum([f.originalFile.getSize().val for f in fsinfo])
         filesetFileInfo = {'fileset': True,
                            'count': fsCount,
                            'size': fsSize,
-                           'annNs': annNs}
+                           'annotations': anns}
         return filesetFileInfo
 
     def getArchivedFilesInfo(self, imageIds):
@@ -8714,17 +8718,26 @@ class _ImageWrapper (BlitzObjectWrapper):
         if self.fileset is not None:
             return self._conn.getObject("Fileset", self.fileset.id.val)
 
-    def isInplaceImport(self):
+    def getInplaceImport(self):
         """
-        Returns True if the image was imported using file transfer.
-        Uses namespace of fileset annotations to detect this.
+        If the image was imported using file transfer,
+        return the type of file transfer.
+        One of:
+        'ome.formats.importer.transfers.MoveFileTransfer',
+        'ome.formats.importer.transfers.CopyFileTransfer',
+        'ome.formats.importer.transfers.CopyMoveFileTransfer',
+        'ome.formats.importer.transfers.HardlinkFileTransfer',
+        'ome.formats.importer.transfers.SymlinkFileTransfer'
 
-        :rtype:     Boolean
-        :return:    True if imported via in-place import
+        :rtype:     String or None
+        :return:    Transfer type or None
         """
         ns = omero.constants.namespaces.NSFILETRANSFER
         fsInfo = self.getImportedFilesInfo()
-        return 'annNs' in fsInfo and ns in fsInfo['annNs']
+        if 'annotations' in fsInfo:
+            for a in fsInfo['annotations']:
+                if ns == a['ns']:
+                    return a['value']
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
