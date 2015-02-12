@@ -76,6 +76,7 @@ module omero {
                 idempotent UserMap getPastConnections(long shareId) throws ServerError;
                 void invalidateConnection(long shareId, omero::model::Experimenter exp) throws ServerError;
                 idempotent IObjectList getEvents(long shareId, omero::model::Experimenter exp, omero::RTime from, omero::RTime to) throws ServerError;
+                void notifyMembersOfShare(long shareId, string subject, string message, bool html, ExperimenterList exps) throws ServerError;
             };
 
     };

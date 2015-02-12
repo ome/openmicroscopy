@@ -48,6 +48,7 @@ import ome.services.sessions.SessionManager;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.util.Executor;
+import ome.services.util.MailUtil;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.tools.hibernate.QueryBuilder;
@@ -58,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.springframework.mail.MailException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,16 +88,19 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
     final protected Executor executor;
 
+    final protected MailUtil mailUtil;
+
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IShare.class;
     }
 
     public ShareBean(LocalAdmin admin, SessionManager mgr, ShareStore store,
-            Executor executor) {
+            Executor executor, MailUtil mailUtil) {
         this.admin = admin;
         this.sessionManager = mgr;
         this.store = store;
         this.executor = executor;
+        this.mailUtil = mailUtil;
     }
 
     // ~ Service Methods
@@ -750,6 +755,35 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     @RolesAllowed("user")
     public void invalidateConnection(long shareId, Experimenter exp) {
         throw new UnsupportedOperationException();
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void notifyMembersOfShare(long shareId, String subject, String message,
+            boolean html, List<Experimenter> exps) {
+
+        String sender = mailUtil.getSender();
+        if (sender.length() < 1) {
+            log.error("omero.mail.from cannot be empty.");
+            return;
+        }
+
+        List<Long> memberIds = new ArrayList<Long>();
+        for (final Experimenter e : getAllMembers(shareId)) {
+            memberIds.add(e.getId());
+        }
+        for (final Experimenter e : exps) {
+            if (memberIds.contains(e.getId())){
+                if (e.getEmail() != null && mailUtil.validateEmail(e.getEmail())) {
+                    try {
+                        mailUtil.sendEmail(e.getEmail(), subject, message, html,
+                                null, null);
+                    } catch (MailException me) {
+                        log.error(me.getMessage());
+                    }
+                }
+            }
+        }
     }
 
     // Helpers

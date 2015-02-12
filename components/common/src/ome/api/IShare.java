@@ -426,4 +426,17 @@ public interface IShare extends ServiceInterface {
     List<Event> getEvents(@NotNull long shareId, Experimenter experimenter,
             Timestamp from, Timestamp to);
 
+    /**
+     * Notify via email selected members of share.
+     * 
+     * @param shareId
+     * @param subject
+     * @param message
+     * @param html
+     * @param exps
+     */
+    void notifyMembersOfShare(@NotNull long shareId, @NotNull String subject,
+            @NotNull String message, boolean html,
+            @Validate(Experimenter.class) List<Experimenter> exps);
+
 }
