@@ -1,5 +1,5 @@
 --
--- Copyright 2006-2014 University of Dundee. All rights reserved.
+-- Copyright 2006-2015 University of Dundee. All rights reserved.
 -- Use is subject to license terms supplied in LICENSE.txt
 --
 
@@ -1729,7 +1729,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  19,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1DEV',  20,    'OMERO5.1DEV',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2550,13 +2550,11 @@ insert into configuration values ('omero.db.uuid',uuid());
 alter  table pixels add column path text;
 alter  table pixels add column name text;
 alter  table pixels add column repo varchar(36);
-alter  table pixels add column params text[2][];
 create index pixels_repo_index on pixels (repo);
 -- No unique index on (path, repo, name) since it depends on params
 
 alter  table originalfile alter column mimetype set default 'application/octet-stream';
 alter  table originalfile add column repo varchar(36);
-alter  table originalfile add column params text[2][];
 create index originalfile_mime_index on originalfile (mimetype);
 create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
@@ -2612,19 +2610,19 @@ create trigger _fs_dir_delete
 before delete on originalfile
     for each row execute procedure _fs_dir_delete();
 
--- Prevent Directory entries in the originalfile table from having their mimetype changed.
-CREATE OR REPLACE FUNCTION _fs_directory_mimetype() RETURNS "trigger" AS $$
+-- Prevent Directory and Repository entries in the originalfile table from having their mimetype changed.
+CREATE OR REPLACE FUNCTION _fs_protected_mimetype() RETURNS "trigger" AS $$
     BEGIN
-        IF OLD.mimetype = 'Directory' AND NEW.mimetype != 'Directory' THEN
-            RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ must remain a Directory';
+        IF OLD.mimetype IN ('Directory', 'Repository') AND (NEW.mimetype IS NULL OR NEW.mimetype != OLD.mimetype) THEN
+            RAISE EXCEPTION 'cannot change media type %% of file id=%%', OLD.mimetype, OLD.id;
         END IF;
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER _fs_directory_mimetype
+CREATE TRIGGER _fs_protected_mimetype
     BEFORE UPDATE ON originalfile
-    FOR EACH ROW EXECUTE PROCEDURE _fs_directory_mimetype();
+    FOR EACH ROW EXECUTE PROCEDURE _fs_protected_mimetype();
 
 -- Prevent SQL DELETE from removing the root experimenter from the system or user group.
 CREATE FUNCTION prevent_root_deactivate_delete() RETURNS "trigger" AS $$
@@ -2709,8 +2707,7 @@ create table _fs_deletelog (
     group_id bigint not null,
     path text not null,
     name varchar(255) not null,
-    repo varchar(36) not null,
-    params text[2][]);
+    repo varchar(36) not null);
 
 create index _fs_deletelog_event on _fs_deletelog(event_id);
 create index _fs_deletelog_file on _fs_deletelog(file_id);
@@ -2723,8 +2720,8 @@ create index _fs_deletelog_repo on _fs_deletelog(repo);
 create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
     begin
         if OLD.repo is not null then
-            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo, params)
-                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo, OLD.params;
+            INSERT INTO _fs_deletelog (event_id, file_id, owner_id, group_id, "path", "name", repo)
+                SELECT _current_or_new_event(), OLD.id, OLD.owner_id, OLD.group_id, OLD."path", OLD."name", OLD.repo;
         end if;
         return OLD;
     END;
@@ -2754,6 +2751,25 @@ ALTER TABLE transmittancerange
     ALTER COLUMN cutintolerance TYPE nonnegative_float,
     ALTER COLUMN cutout TYPE positive_float,
     ALTER COLUMN cutouttolerance TYPE nonnegative_float;
+
+-- image.series should never be null
+
+ALTER TABLE image ALTER COLUMN series SET DEFAULT 0;
+ALTER TABLE image ALTER COLUMN series SET NOT NULL;
+
+CREATE FUNCTION image_series_default_zero() RETURNS "trigger" AS $$
+    BEGIN
+        IF NEW.series IS NULL THEN
+            NEW.series := 0;
+        END IF;
+
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER image_series_default_zero
+    BEFORE INSERT OR UPDATE ON image
+    FOR EACH ROW EXECUTE PROCEDURE image_series_default_zero();
 
 -- ensure that all annotation namespaces are noted in namespace table
 
@@ -2984,7 +3000,7 @@ ALTER TABLE wellsample ADD CONSTRAINT posY_unitpair
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 19 and
+        currentPatch = 20 and
         previousVersion = 'OMERO5.1DEV' and
         previousPatch = 0;
 

@@ -494,63 +494,11 @@ public interface SqlAction {
      */
     Map<Long, byte[]> getShareData(List<Long> ids);
 
-    //
-    // Previously PgArrayHelper
-    //
-
-    /**
-     * Returns only the (possibly empty) keys which are set on the given
-     * original file. If the given original file cannot be found, null is
-     * returned.
-     */
-    List<String> getPixelsParamKeys(long id) throws InternalException;
-
-    /**
-     * Loads all the (possibly empty) params for the given original file. If the
-     * id is not found, null is returned.
-     */
-    Map<String, String> getPixelsParams(final long id) throws InternalException;
-
     /**
      * Retrieves the name, path and repo for the given pixels set. If the
      * id is not found, null is returned.
      */
     List<String> getPixelsNamePathRepo(final long id) throws InternalException;
-
-    /**
-     * Resets the entire original file "params" field.
-     */
-    int setPixelsParams(final long id, Map<String, String> params);
-
-    /**
-     * Appends "{key, value}" onto the original file "params" field or replaces
-     * the value if already present.
-     */
-    int setPixelsParam(final long id, final String key, final String value);
-
-    /**
-     * Returns only the (possibly empty) keys which are set on the given
-     * original file. If the given original file cannot be found, null is
-     * returned.
-     */
-    List<String> getFileParamKeys(long id) throws InternalException;
-
-    /**
-     * Loads all the (possibly empty) params for the given original file. If the
-     * id is not found, null is returned.
-     */
-    Map<String, String> getFileParams(final long id) throws InternalException;
-
-    /**
-     * Resets the entire original file "params" field.
-     */
-    int setFileParams(final long id, Map<String, String> params);
-
-    /**
-     * Appends "{key, value}" onto the original file "params" field or replaces
-     * the value if already present.
-     */
-    int setFileParam(final long id, final String key, final String value);
 
     Set<String> currentUserNames();
 
