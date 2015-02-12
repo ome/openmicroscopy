@@ -769,7 +769,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             return;
         }
 
-        List<Long> memberIds = new ArrayList<Long>();
+        Set<Long> memberIds = new HashSet<Long>();
         for (final Experimenter e : getAllMembers(shareId)) {
             memberIds.add(e.getId());
         }
