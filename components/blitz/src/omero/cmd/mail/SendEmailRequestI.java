@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
@@ -90,15 +91,15 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
                     "ApiUsageException",
                     String.format("No recipients specified."));
         this.sender = mailUtil.getSender();
-        if (this.sender.length() < 1)
+        if (StringUtils.isBlank(this.sender))
             throw helper.cancel(new ERR(), null, "no-sender",
                     "ApiUsageException",
                     String.format("omero.mail.from cannot be empty."));
-        if (subject.length() < 1)
+        if (StringUtils.isBlank(subject))
             throw helper.cancel(new ERR(), null, "no-subject",
                     "ApiUsageException",
                     String.format("Email must contain subject."));
-        if (body.length() < 1)
+        if (StringUtils.isBlank(body))
             throw helper.cancel(new ERR(), null, "no-body",
                     "ApiUsageException",
                     String.format("Email must contain body."));

@@ -57,6 +57,7 @@ import ome.util.Filterable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.springframework.mail.MailException;
@@ -763,7 +764,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             boolean html, List<Experimenter> exps) {
 
         String sender = mailUtil.getSender();
-        if (sender.length() < 1) {
+        if (StringUtils.isBlank(sender)) {
             log.error("omero.mail.from cannot be empty.");
             return;
         }

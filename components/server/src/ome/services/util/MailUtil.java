@@ -51,8 +51,8 @@ public class MailUtil {
     }
 
     /**
-     * Main method which takes typical email fields as an arguments, to prepare
-     * and populate the given new MimeMessage instance and send.
+     * Main method which takes typical email fields as arguments, to prepare and
+     * populate the given new MimeMessage instance and send.
      * 
      * @param from
      *            email address message is sent from
@@ -98,7 +98,7 @@ public class MailUtil {
     }
 
     /**
-     * Overloaded method which takes typical email fields as an arguments, to
+     * Overloaded method which takes typical email fields as arguments, to
      * prepare and populate the given new MimeMessage instance and send. Sender
      * of the email is loaded from omero.mail.from
      * 
