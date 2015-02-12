@@ -174,15 +174,23 @@
         var deleteSelectedRows = function deleteSelectedRows() {
 
             var $selRows = $('.keyValueTable tr.ui-selected'),
-                $tbody = $selRows.parent();
+                $tbody = $selRows.parent(),
+                $nextRow = $selRows.next(":last");
+
             $selRows.remove();
-            enableToolbarButtons();
-            saveMapAnnotation($tbody.parent());
 
             // Add back a placeholder if table is empty (after saving!)
             if ($tbody.find('tr').length == 0) {
                 $lastRow.clone().appendTo($tbody);
+            } else if ($nextRow.length > 0 ) {
+                // select next row
+                $nextRow.addClass('ui-selected');
+            } else {
+                // select last row
+                $tbody.find('tr:last').addClass('ui-selected');
             }
+            enableToolbarButtons();
+            saveMapAnnotation($tbody.parent());
         }
 
         var selectRows = function selectRows($clickedRow, event) {
@@ -370,53 +378,6 @@
 
 </script>
 
-<style type="text/css">
-    .mapAnnContainer {
-        position: relative;
-        max-height: 250px;
-        overflow-y: auto;
-    }
-    .keyValueTable {
-        position: relative;
-        margin-bottom: 20px;
-        width: 98% !important;
-    }
-    .keyValueTable td, .keyValueTable th {
-        width: 50%;
-        padding: 2px 5px !important;
-        color: hsl(210,10%,30%) !important;
-        vertical-align: middle;
-    }
-    .editableKeyValueTable td, .editableKeyValueTable th {
-        height: 20px;
-    }
-    .keyValueTable input {
-        width: 96%;
-    }
-    .keyValueTable tr:hover {
-        background-color: #eee;
-    }
-    .keyValueTable tr.ui-selected {
-        background-color: #cddcfc;
-    }
-    .keyValueTable tbody tr {
-        border: solid #ddd 1px;
-    }
-    .editableKeyValueTable tbody tr {
-        background-color: #fff;
-    }
-    .mapAnnToolbar {
-        position: absolute;
-        top: -5px;
-        right: 10px;
-        z-index: 100;
-    }
-    .editableKeyValueTable tr.placeholder td {
-        font-style: italic;
-        color: #999 !important;
-    }
-</style>
-
 <div style="position: relative">
     <ul class="toolbar mapAnnToolbar">
         <!-- not really a button - just a handy place to put a spinner -->
@@ -432,6 +393,7 @@
             src="{% static "webclient/image/icon_toolbar_paste.png" %}"
             alt="Paste rows" title="Paste rows" /></li>
         <li><input class="button button-disabled" type="image"
+            style="padding-top: 8px"
             src="{% static "webclient/image/icon_basic_delete.png" %}"
             alt="Delete rows" title="Delete rows" /></li>
     </ul>
