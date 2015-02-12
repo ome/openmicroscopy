@@ -969,19 +969,19 @@ def email(request, conn=None, **kwargs):
     # Check that the appropriate web settings are available
     if (not conn.getEmailSettings()):
         return {'template': 'webadmin/noemail.html'}
+    context = {'template': 'webadmin/email.html'}
 
     # Get experimenters and groups.
-    experimenters = list(conn.getObjects("Experimenter"))
-    groups = list(conn.getObjects("ExperimenterGroup"))
+    experimenter_list = list(conn.getObjects("Experimenter"))
+    group_list = list(conn.getObjects("ExperimenterGroup"))
 
     # Sort experimenters and groups
-    experimenters.sort(key=lambda x: x.getFirstName().lower())
-    groups = list(conn.getObjects("ExperimenterGroup"))
-    groups.sort(key=lambda x: x.getName().lower())
+    experimenter_list.sort(key=lambda x: x.getFirstName().lower())
+    group_list.sort(key=lambda x: x.getName().lower())
 
     if request.method == 'POST':  # If the form has been submitted...
         # ContactForm was defined in the the previous section
-        form = EmailForm(experimenters, groups, conn, request,
+        form = EmailForm(experimenter_list, group_list, conn, request,
                          data=request.POST.copy())
         if form.is_valid():  # All validation rules pass
             subject = form.cleaned_data['subject']
@@ -1003,12 +1003,18 @@ def email(request, conn=None, **kwargs):
                     'job_type': 'send_email',
                     'status': 'in progress', 'error': 0,
                     'start_time': datetime.datetime.now()}
-            return HttpResponseRedirect(reverse("waemail"))
+            form = EmailForm(experimenter_list, group_list, conn, request)
+            context['non_field_errors'] = ("Email sent."
+                                           "Check status in activities.")
+        else:
+            context['non_field_errors'] = "Email wasn't sent."
 
     else:
-        form = EmailForm(experimenters, groups, conn, request)  # Unbound form
+        form = EmailForm(experimenter_list, group_list, conn, request)
 
-    return {'template': 'webadmin/email.html', 'form': form}
+    context['form'] = form
+
+    return context
 
 # Problem where render_response_admin was not populating required
 # admin details:

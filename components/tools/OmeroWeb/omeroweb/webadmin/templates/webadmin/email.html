@@ -75,10 +75,9 @@
     <div class="one_column_content">
       <h1>{% trans "Email Announcement" %}</h1>
 
-
       <form action="{% url 'waemail' %}" method="POST" class="standard_form settings_form">{% csrf_token %}
-        {% if form.non_field_errors %}
-          <p>{{ form.non_field_errors }}</p>
+        {% if non_field_errors %}
+          <div class="error">{{ non_field_errors }}</div>
         {% endif %}
 
         {% for field in form %}
