@@ -85,7 +85,7 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
         rsp.invalidusers = new ArrayList<Long>();
         rsp.invalidemails = new ArrayList<String>();
 
-        if (!everyone && groupIds.size() < 1 && userIds.size() < 1)
+        if (!everyone && groupIds.isEmpty() && userIds.isEmpty())
             throw helper.cancel(new ERR(), null, "no-body",
                     "ApiUsageException",
                     String.format("No recipients specified."));
