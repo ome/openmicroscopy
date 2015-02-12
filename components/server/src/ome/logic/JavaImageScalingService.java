@@ -38,7 +38,7 @@ public class JavaImageScalingService implements IScale {
      * (non-Javadoc)
      * 
      * @see ome.api.IScale#scaleBufferedImage(java.awt.image.BufferedImage,
-     *      float, float)
+     * float, float)
      */
     public BufferedImage scaleBufferedImage(BufferedImage image, float xScale,
             float yScale) {
@@ -46,23 +46,23 @@ public class JavaImageScalingService implements IScale {
         int thumbWidth = (int) (image.getWidth() * xScale);
         log.info("Scaling to: " + thumbHeight + "x" + thumbWidth);
 
-		StopWatch s1 = new Slf4JStopWatch("java-image-scaling.resampleOp");
-		BufferedImage toReturn;
-		if (thumbWidth >= 3 && thumbHeight >= 3) {
-			ResampleOp resampleOp = new ResampleOp(thumbWidth, thumbHeight);
-			// resampleOp.setNumberOfThreads(4);
-			toReturn = resampleOp.filter(image, null);
-		} else {
-			toReturn = new BufferedImage(thumbWidth, thumbHeight,
-					image.getType());
-			Graphics2D g = toReturn.createGraphics();
-			g.getRenderingHints().add(
-					new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-							RenderingHints.VALUE_ANTIALIAS_OFF));
-			g.drawImage(image, 0, 0, thumbWidth, thumbHeight, 0, 0,
-					image.getWidth(), image.getHeight(), null);
-		}
-		s1.stop();
-		return toReturn;
+        StopWatch s1 = new Slf4JStopWatch("java-image-scaling.resampleOp");
+        BufferedImage toReturn;
+        if (thumbWidth >= 3 && thumbHeight >= 3) {
+            ResampleOp resampleOp = new ResampleOp(thumbWidth, thumbHeight);
+            // resampleOp.setNumberOfThreads(4);
+            toReturn = resampleOp.filter(image, null);
+        } else {
+            toReturn = new BufferedImage(thumbWidth, thumbHeight,
+                    image.getType());
+            Graphics2D g = toReturn.createGraphics();
+            g.getRenderingHints().add(
+                    new RenderingHints(RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_OFF));
+            g.drawImage(image, 0, 0, thumbWidth, thumbHeight, 0, 0,
+                    image.getWidth(), image.getHeight(), null);
+        }
+        s1.stop();
+        return toReturn;
     }
 }
