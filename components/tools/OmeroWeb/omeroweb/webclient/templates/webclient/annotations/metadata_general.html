@@ -148,11 +148,21 @@
                     if (original_file_paths_url) {
                         $.getJSON(original_file_paths_url,
                             function(data) {
-                                $panel_title.html(data.length + " Image file" + (data.length>1 ? "s:" : ":"));
-                                $("<textarea readonly='true'></textarea")
-                                    .val(data.join("\n"))
+                                var repo = data.repo,
+                                    client = data.client;
+                                $panel_title.html(repo.length + " Image file" + (repo.length>1 ? "s:" : ":"));
+                                $panel_div.append('<p style="margin:5px">Imported from:</p>');
+                                $("<textarea readonly='true'></textarea>")
+                                    .val(client.join("\n"))
                                     .attr("cols", 150)
-                                    .attr("rows", Math.max(3, data.length))
+                                    .attr("rows", Math.max(3, client.length))
+                                    .appendTo($panel_div);
+                                $panel_div.append('<div style="clear:both">');
+                                $panel_div.append('<p style="margin:5px">Path' + (repo.length>1 ? "s" : "") + ' on server:</p>');
+                                $("<textarea readonly='true'></textarea>")
+                                    .val(repo.join("\n"))
+                                    .attr("cols", 150)
+                                    .attr("rows", Math.max(3, repo.length))
                                     .appendTo($panel_div);
                             });
                     }
