@@ -2334,6 +2334,17 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             return fsImgs
         return []
 
+    def getInplaceImportCmd(self):
+        cmds = {'ome.formats.importer.transfers.MoveFileTransfer': 'ln_rm',
+                'ome.formats.importer.transfers.CopyFileTransfer': 'cp',
+                'ome.formats.importer.transfers.CopyMoveFileTransfer': 'cp_rm',
+                'ome.formats.importer.transfers.HardlinkFileTransfer': 'ln',
+                'ome.formats.importer.transfers.SymlinkFileTransfer': 'ln_s'}
+        inplace = self.getInplaceImport()
+        if inplace and inplace in cmds:
+            return cmds[inplace]
+        return ""
+
 
 omero.gateway.ImageWrapper = ImageWrapper
 

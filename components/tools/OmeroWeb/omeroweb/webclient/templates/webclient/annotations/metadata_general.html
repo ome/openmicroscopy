@@ -122,11 +122,14 @@
                 });
 
                 // show original file path links for images
-                var original_file_paths_url;
+                var original_file_paths_url,
+                    importTransfer;
                 {% if manager.image %}
                 original_file_paths_url = "{% url 'original_file_paths' manager.image.id %}";
+                importTransfer = "{{ manager.image.getInplaceImportCmd }}";
                 {% elif manager.well.getWellSample.image %}
                 original_file_paths_url = "{% url 'original_file_paths' manager.well.getWellSample.image.id %}";
+                importTransfer = "{{ manager.well.getWellSample.image.getInplaceImportCmd }}";
                 {% endif %}
 
                 var $toolbar_info_panel = $("#toolbar_info_panel"),
@@ -149,9 +152,14 @@
                         $.getJSON(original_file_paths_url,
                             function(data) {
                                 var repo = data.repo,
-                                    client = data.client;
+                                    client = data.client,
+                                    importTitle = 'Imported from:';
                                 $panel_title.html(repo.length + " Image file" + (repo.length>1 ? "s:" : ":"));
-                                $panel_div.append('<p style="margin:5px">Imported from:</p>');
+
+                                if (importTransfer) {
+                                    importTitle = "Imported with <strong>--transfer="+ importTransfer + "</strong> from:";
+                                }
+                                $panel_div.append('<p style="margin:5px">' + importTitle + '</p>');
                                 $("<textarea readonly='true'></textarea>")
                                     .val(client.join("\n"))
                                     .attr("cols", 150)
@@ -566,7 +574,7 @@
             </div>
 
             <!-- Image Name, ID, owner -->
-            {% with obj=manager.image nameText=manager.image.name inPlace=manager.image.isInplaceImport %}
+            {% with obj=manager.image nameText=manager.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
                   
