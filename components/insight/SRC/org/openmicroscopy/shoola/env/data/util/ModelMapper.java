@@ -35,7 +35,7 @@ import java.util.Map.Entry;
 
 
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 //Application-internal dependencies

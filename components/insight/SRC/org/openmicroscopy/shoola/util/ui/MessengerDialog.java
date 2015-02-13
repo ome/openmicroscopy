@@ -70,7 +70,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 

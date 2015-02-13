@@ -34,7 +34,7 @@ import javax.swing.JFrame;
 import Glacier2.PermissionDeniedException;
 import Ice.ConnectionRefusedException;
 import Ice.DNSException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 import omero.SecurityViolation;

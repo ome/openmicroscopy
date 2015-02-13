@@ -14,7 +14,7 @@ import ome.formats.importer.ImportEvent;
 import omero.model.IObject;
 import omero.model.Pixels;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

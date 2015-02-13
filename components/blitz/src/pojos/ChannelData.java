@@ -39,7 +39,7 @@ import omero.model.LogicalChannel;
 import omero.model.StatsInfo;
 import omero.model.enums.UnitsLength;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.math.DoubleMath;
 

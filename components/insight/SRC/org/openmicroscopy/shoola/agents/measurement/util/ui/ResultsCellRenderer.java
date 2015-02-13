@@ -43,7 +43,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;

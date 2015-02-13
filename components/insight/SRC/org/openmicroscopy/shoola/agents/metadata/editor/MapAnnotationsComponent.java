@@ -54,7 +54,7 @@ import javax.swing.event.TableModelListener;
 
 import omero.model.NamedValue;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorModel.MapAnnotationType;

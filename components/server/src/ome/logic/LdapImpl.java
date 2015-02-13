@@ -50,7 +50,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

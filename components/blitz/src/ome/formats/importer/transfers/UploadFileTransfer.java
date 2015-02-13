@@ -28,7 +28,7 @@ import ome.util.checksum.ChecksumProvider;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Traditional file transfer mechanism which uploads

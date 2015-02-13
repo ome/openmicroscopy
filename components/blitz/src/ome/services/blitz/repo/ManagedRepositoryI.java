@@ -85,7 +85,7 @@ import omero.model.UploadJob;
 import omero.sys.EventContext;
 import omero.util.IceMapper;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

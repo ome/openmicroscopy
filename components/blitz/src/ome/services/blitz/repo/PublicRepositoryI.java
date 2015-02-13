@@ -45,7 +45,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;

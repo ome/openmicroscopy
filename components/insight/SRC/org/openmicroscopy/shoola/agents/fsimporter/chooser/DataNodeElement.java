@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;

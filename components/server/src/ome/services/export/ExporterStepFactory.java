@@ -25,7 +25,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 
 /**

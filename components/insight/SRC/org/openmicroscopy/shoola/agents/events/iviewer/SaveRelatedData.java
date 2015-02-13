@@ -28,7 +28,7 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 

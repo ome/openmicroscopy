@@ -44,7 +44,7 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;

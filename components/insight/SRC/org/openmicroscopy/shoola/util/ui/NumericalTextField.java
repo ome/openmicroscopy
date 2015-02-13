@@ -38,7 +38,7 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
 //Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 
