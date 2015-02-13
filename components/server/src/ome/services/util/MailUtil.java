@@ -11,6 +11,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -39,6 +40,9 @@ public class MailUtil {
     protected final JavaMailSender mailSender;
 
     public MailUtil(String sender, JavaMailSender mailSender) {
+        if (StringUtils.isBlank(sender)) {
+            log.error("omero.mail.from is empty. Email notification won't be sent.");
+        }
         this.sender = sender;
         this.mailSender = mailSender;
     }

@@ -770,7 +770,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             memberIds.add(e.getId());
         }
 
-        HashMap<Experimenter, String> errors = new HashMap<Experimenter, String>();
+        Map<Experimenter, String> errors = new HashMap<Experimenter, String>();
         for (final Experimenter e : exps) {
             if (memberIds.contains(e.getId())){
                 if (e.getEmail() != null && mailUtil.validateEmail(e.getEmail())) {
