@@ -84,7 +84,9 @@
                 viewport.viewportimg.get(0).refresh_active_rois(theZ, theT);
             } else {
                 // viewport was not initialized yet, invoke the show_rois method with roi_id as filter
-                show_rois([roi_id]);
+                var rois_filter = {};
+                rois_filter[roi_id] = [];
+                show_rois(rois_filter);
             }
         }
 
