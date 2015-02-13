@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
@@ -67,7 +68,6 @@ public class FilesetInfoDialog extends TinyDialog {
         if (set == null)
             return;
 
-        JLabel label = new JLabel();
         StringBuffer buffer = new StringBuffer();
         buffer.append("<html>");
         buffer.append(set.size() + " Image file");
@@ -109,12 +109,12 @@ public class FilesetInfoDialog extends TinyDialog {
 
         buffer.append("</html>");
 
-        label.setText(buffer.toString());
-        JPanel p = new JPanel();
-        p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.setLayout(new BorderLayout());
-        p.add(label, BorderLayout.CENTER);
-        setCanvas(new JScrollPane(label));
+        JTextPane content = new JTextPane();
+        content.setContentType("text/html");
+        content.setEditable(false);
+        content.setText(buffer.toString());
+        content.setBackground(UIUtilities.BACKGROUND_COLOR);
+        setCanvas(new JScrollPane(content));
     }
 
     /**
