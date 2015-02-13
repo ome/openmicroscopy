@@ -89,6 +89,7 @@ class PlatformMonitor(AbstractPlatformMonitor):
                 wm=self.wm, cb=self.propagateEvents, et=self.eTypes,
                 ignoreDirEvents=self.ignoreDirEvents),
             read_freq=5, timeout=0)
+        self.notifier.coalesce_events()
         self.wm.addBaseWatch(
             self.pathsToMonitor, (pyinotify.ALL_EVENTS), rec=recurse,
             auto_add=follow)
