@@ -757,6 +757,10 @@ class ToolBar
             SwingUtilities.convertPointToScreen(location, component);
             FilesetInfoDialog d = new FilesetInfoDialog();
             d.setData(model.getFileset(), model.isInplaceImport());
+            if (location != null) {
+                location = new Point(location.x - FilesetInfoDialog.DEFAULT_WIDTH,
+                        location.y + 10);
+            }
             d.open(location);
         }
         

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,8 @@
 
 package org.openmicroscopy.shoola.agents.metadata.util;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -26,9 +28,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -46,7 +49,7 @@ public class FilesetInfoDialog extends TinyDialog {
     public final static int DEFAULT_WIDTH = 400;
 
     /** This dialog's default height */
-    public final static int DEFAULT_HEIGHT = 100;
+    public final static int DEFAULT_HEIGHT = 300;
 
     /**
      * Creates a new instance
@@ -61,34 +64,57 @@ public class FilesetInfoDialog extends TinyDialog {
      * @param inPlaceImport Flag if this is an inplace import
      */
     public void setData(Set<FilesetData> set, boolean inPlaceImport) {
-        if (set == null) return;
+        if (set == null)
+            return;
+
+        JLabel label = new JLabel();
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("<html>");
+        buffer.append(set.size() + " Image file");
+        buffer.append("<hr/>");
+        buffer.append("Imported ");
+        if (inPlaceImport) {
+            buffer.append("with <b>--transfer=ln</b> ");
+        }
+        buffer.append("from:<br/>");
+
         Iterator<FilesetData> i = set.iterator();
         FilesetData data;
-        MultilineLabel label = new MultilineLabel();
-        StringBuffer buffer = new StringBuffer();
         List<String> paths;
         Iterator<String> j;
-        int n = 0;
         while (i.hasNext()) {
             data = i.next();
-            if (inPlaceImport) {
-                paths = data.getUsedFilePaths();
-            }
-            else {
-                paths = data.getAbsolutePaths();
-            }
+            paths = data.getUsedFilePaths();
             j = paths.iterator();
-            n += paths.size();
             while (j.hasNext()) {
                 buffer.append(j.next());
-                buffer.append(System.getProperty("line.separator"));
+                buffer.append("<br/>");
             }
         }
+
+        if (!inPlaceImport) {
+            buffer.append("<hr/>");
+            buffer.append("Path on server:<br/>");
+            i = set.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                paths = data.getAbsolutePaths();
+                j = paths.iterator();
+                while (j.hasNext()) {
+                    buffer.append(j.next());
+                    buffer.append("<br/>");
+                }
+            }
+        }
+
+        buffer.append("</html>");
+
         label.setText(buffer.toString());
-
+        JPanel p = new JPanel();
+        p.setBackground(UIUtilities.BACKGROUND_COLOR);
+        p.setLayout(new BorderLayout());
+        p.add(label, BorderLayout.CENTER);
         setCanvas(new JScrollPane(label));
-
-        setTitle(n+" File path(s)");
     }
 
     /**
@@ -126,7 +152,13 @@ public class FilesetInfoDialog extends TinyDialog {
         });
         setResizable(true);
         getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-        setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        pack();
+        Dimension size = getSize();
+        if (size.width > DEFAULT_WIDTH)
+            size.width = DEFAULT_WIDTH;
+        if (size.height > DEFAULT_HEIGHT)
+            size.height = DEFAULT_HEIGHT;
+        setSize(size);
         if (location != null) {
             setLocation(location);
             setVisible(true);
