@@ -43,12 +43,14 @@ import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.util.Executor;
 import ome.services.util.MailUtil;
+import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.tools.hibernate.QueryBuilder;
@@ -763,16 +765,12 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     public void notifyMembersOfShare(long shareId, String subject, String message,
             boolean html, List<Experimenter> exps) {
 
-        String sender = mailUtil.getSender();
-        if (StringUtils.isBlank(sender)) {
-            log.error("omero.mail.from cannot be empty.");
-            return;
-        }
-
         Set<Long> memberIds = new HashSet<Long>();
         for (final Experimenter e : getAllMembers(shareId)) {
             memberIds.add(e.getId());
         }
+
+        HashMap<Experimenter, String> errors = new HashMap<Experimenter, String>();
         for (final Experimenter e : exps) {
             if (memberIds.contains(e.getId())){
                 if (e.getEmail() != null && mailUtil.validateEmail(e.getEmail())) {
@@ -780,10 +778,14 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
                         mailUtil.sendEmail(e.getEmail(), subject, message, html,
                                 null, null);
                     } catch (MailException me) {
-                        log.error(me.getMessage());
+                        errors.put(e, me.getMessage());
                     }
                 }
             }
+        }
+        if (!errors.isEmpty()) {
+            ServiceHandler sh = new ServiceHandler(new CurrentDetails());
+            log.error(sh.getResultsString(errors, null));
         }
     }
 
