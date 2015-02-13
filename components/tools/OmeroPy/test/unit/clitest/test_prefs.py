@@ -335,13 +335,13 @@ class TestPrefs(object):
          "omero.a=b\nomero.c=d\nomero.e=f",
          "a (1)\n\t\nc (1)\n\t\ne (1)"),
     ))
-    def testDefaultsParsing(self, tmpdir, capsys, data):
+    def testFileParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
         cfg = tmpdir.join("test.cfg")
         cfg.write(input)
-        self.invoke("parse --file=%s" % cfg)
+        self.invoke("parse --file=%s --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=defaults)
-        self.invoke("parse --file=%s --defaults" % cfg)
+        self.invoke("parse --file=%s --defaults --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=defaults)
-        self.invoke("parse --file=%s --keys" % cfg)
+        self.invoke("parse --file=%s --keys --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=keys)
