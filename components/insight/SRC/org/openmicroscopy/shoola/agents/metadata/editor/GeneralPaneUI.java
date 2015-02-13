@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -39,7 +38,7 @@ import javax.swing.JSeparator;
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
-
+import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.util.DataToSave;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -49,6 +48,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -132,15 +132,12 @@ class GeneralPaneUI
 	
     /** Initializes the UI components. */
 	private void initComponents()
-	{
-		browserTaskPane = EditorUtil.createTaskPane("Attached to");
-		browserTaskPane.addPropertyChangeListener(controller);
-		browserTaskPane.setVisible(false);
-		 
-		if (model.getBrowser() != null && model.getRefObject() instanceof FileAnnotationData) {
-             browserTaskPane.add(model.getBrowser().getUI());
-             browserTaskPane.setVisible(true);
-        }
+	{	 
+       browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
+        if (model.getBrowser() != null)
+            browserTaskPane.add(model.getBrowser().getUI());
+       browserTaskPane.addPropertyChangeListener(controller);
+       browserTaskPane.setCollapsed(true);
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -182,9 +179,8 @@ class GeneralPaneUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		JPanel container = new JPanel();
-		container.setBackground(UIUtilities.BACKGROUND_COLOR);
-		container.setLayout(new GridBagLayout());
+		setBackground(UIUtilities.BACKGROUND_COLOR);
+		setLayout(new GridBagLayout());
 		
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
@@ -194,20 +190,18 @@ class GeneralPaneUI
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.NORTH;
 		
-		container.add(toolbar, c);
+		add(toolbar, c);
 		c.gridy++;
 		
-		container.add(propertiesTaskPane, c);
+		add(propertiesTaskPane, c);
 		c.gridy++;
 		
-		container.add(browserTaskPane, c);
+		add(annotationTaskPane, c);
 		c.gridy++;
-		
-		container.add(annotationTaskPane, c);
-		
-		setLayout(new BorderLayout());
-		setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(container, BorderLayout.NORTH);
+
+        UIUtilities.addFiller(this, c, true);
+        
+        add(browserTaskPane, c);
 	}
 
 	/**
@@ -249,31 +243,36 @@ class GeneralPaneUI
             propertiesTaskPane.setTitle(propertiesUI.getText() + DETAILS);
             
             boolean multi = model.isMultiSelection();
+            boolean showBrowser = false;
             Object refObject = model.getRefObject();
     
             if (refObject instanceof ImageData && !multi && model.getChannelData()==null) {
                 propertiesUI.onChannelDataLoading();
                 controller.loadChannelData();
+                showBrowser = true;
             }
     
             if (refObject instanceof WellSampleData && !multi) {
                 controller.loadChannelData();
+                showBrowser = true;
+            }
+            
+            if((refObject instanceof DatasetData || refObject instanceof FileAnnotationData) && !multi) {
+                showBrowser = true;
             }
     
-            browserTaskPane.setVisible(false);
-            propertiesTaskPane.setVisible(false);
-            
-            if (!multi) {
-            	propertiesTaskPane.setVisible(true);
-            	
-                if (refObject instanceof FileAnnotationData) {
-                    browserTaskPane.removeAll();
-                	browserTaskPane.add(model.getBrowser().getUI());
-                    browserTaskPane.setVisible(true);
-                    if (!browserTaskPane.isCollapsed())
-                        loadParents(true);
-                }
+            browserTaskPane.setVisible(showBrowser);
+    
+            if (showBrowser) {
+                if (refObject instanceof FileAnnotationData)
+                    browserTaskPane.setTitle("Attached to");
+                else
+                    browserTaskPane.setTitle("Located in");
+                browserTaskPane.removeAll();
+                browserTaskPane.add(model.getBrowser().getUI());
             }
+            
+            propertiesTaskPane.setVisible(!multi);
     
             revalidate();
         }
@@ -335,8 +334,9 @@ class GeneralPaneUI
 		clearData(oldObject);
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
-    	        textualAnnotationsUI.clearDisplay();
-
+    	textualAnnotationsUI.clearDisplay();
+    	browserTaskPane.setCollapsed(true);
+    	browserTaskPane.setVisible(false);
 		revalidate();
 		repaint();
 	}
