@@ -534,15 +534,10 @@ public interface Editor
 	 */
 	void setFileset(Set<FilesetData> result);
 
-	/** Loads the file set associated to the image.
-	 * 
-	 * @param trigger The action which triggered the loading,
-	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
-	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}; 
-	 * (pass -1 or any other unreserved value to load the filesets automatically
-	 *  without user trigger)
+	/** 
+	 * Loads the file set associated to the image.
 	 * */
-	void loadFileset(int trigger);
+	void loadFileset();
 
 	/**
 	 * Loads the rendering engine depending on the selected pane or component

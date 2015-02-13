@@ -428,7 +428,7 @@ class ToolBar
 		pathButton = new JButton(icons.getIcon(IconManager.FILE_PATH));
         pathButton.setToolTipText("Show file paths on server.");
         pathButton.addActionListener(controller);
-        pathButton.setActionCommand(""+EditorControl.FILE_PATH_TOOLBAR);
+        pathButton.setActionCommand(""+EditorControl.SHOW_FILE_PATHS);
         pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
         pathButton.addMouseListener(pathLocML);
         
@@ -487,18 +487,6 @@ class ToolBar
         bar.add(busyLabel);
         
     	return bar;
-    }
-    
-    /**
-     * Enables or disables the Show File path button
-     * @param b <code>true</code> enables the button; disables the button otherwise
-     */
-    public void enableFilePathButton(boolean b) {
-        if(!model.isSingleMode() || model.getImage() == null) {
-            b = false;
-        }
-        pathButton.setEnabled(b);
-        locationButton.setEnabled(b);
     }
     
     /** Builds and lays out the UI. */
@@ -673,34 +661,35 @@ class ToolBar
     /** Sets the root object. */
 	private void setRootObject()
 	{ 
-		Object ref = model.getRefObject();
-		if (ref instanceof ExperimenterData || ref instanceof GroupData) {
-			publishingButton.setEnabled(false);
-			analysisButton.setEnabled(false);
-			scriptsButton.setEnabled(false);
-			return;
-		}
-                if (!(ref instanceof ImageData)) {
-                    pathButton.setEnabled(false);
-                    locationButton.setEnabled(false);
-                }
-		viewButton.setEnabled(false);
-    	exportAsOmeTiffButton.setEnabled(false);
-    	if (pathButton != null) pathButton.setEnabled(false);
-		if (exportAsOmeTiffButton != null)
-			exportAsOmeTiffButton.setEnabled(false);
-    	if (model.isSingleMode() && model.getImage() != null) {
-    		if (exportAsOmeTiffItem != null)
-				exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
-			viewButton.setEnabled(true);
-			if (pathButton != null) pathButton.setEnabled(true);
-    	}
-    	
-		publishingButton.setEnabled(true);
-		analysisButton.setEnabled(true);
-		scriptsButton.setEnabled(true);
-		if (publishingDialog != null) publishingDialog.setRootObject();
-		if (analysisDialog != null) analysisDialog.setRootObject();
+        Object ref = model.getRefObject();
+        if (ref instanceof ExperimenterData || ref instanceof GroupData) {
+            publishingButton.setEnabled(false);
+            analysisButton.setEnabled(false);
+            scriptsButton.setEnabled(false);
+            return;
+        }
+        
+        pathButton.setEnabled(false);
+        locationButton.setEnabled(false);
+        viewButton.setEnabled(false);
+        exportAsOmeTiffButton.setEnabled(false);
+        
+        if (model.isSingleMode()) {
+            exportAsOmeTiffButton.setEnabled(model.getImage() != null
+                    && !model.isLargeImage());
+            viewButton.setEnabled(model.getImage() != null);
+            pathButton.setEnabled(model.getImage() != null);
+            locationButton.setEnabled((model.getImage() != null || model
+                    .getRefObject() instanceof DatasetData));
+        }
+
+        publishingButton.setEnabled(true);
+        analysisButton.setEnabled(true);
+        scriptsButton.setEnabled(true);
+        if (publishingDialog != null)
+            publishingDialog.setRootObject();
+        if (analysisDialog != null)
+            analysisDialog.setRootObject();
 	}
 
 	/**

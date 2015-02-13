@@ -433,22 +433,6 @@ public class PropertiesUI
     }
     
     /**
-     * Creates the action for the inplace import icon tooltip
-     * @return
-     */
-    private Action createInplaceIconAction() {
-        Action inplaceIconAction = new AbstractAction(INPLACE_IMPORT_TOOLTIP_ACTION_TEXT) {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // Just pass this on to the controller
-                controller.actionPerformed(arg0);
-            }
-        };
-        inplaceIconAction.putValue(Action.ACTION_COMMAND_KEY, ""+EditorControl.FILE_PATH_INPLACE_ICON);
-        return inplaceIconAction;
-    }
-    
-    /**
      * Formats the specified button.
      * 
      * @param button The button to handle.
@@ -1609,13 +1593,6 @@ public class PropertiesUI
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
-
-	/** Displays the file set associated to the image. */
-        void displayFileset() {
-            FilesetInfoDialog d = new FilesetInfoDialog();
-            d.setData(model.getFileset(), model.isInplaceImport());
-            d.open(null);
-        }
         
         /** 
          * Starts an asyc. call to load the number of ROIs

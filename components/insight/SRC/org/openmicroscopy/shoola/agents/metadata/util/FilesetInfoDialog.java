@@ -19,7 +19,6 @@
 
 package org.openmicroscopy.shoola.agents.metadata.util;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
@@ -28,11 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -70,43 +68,49 @@ public class FilesetInfoDialog extends TinyDialog {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("<html>");
-        buffer.append(set.size() + " Image file");
-        buffer.append("<hr/>");
-        buffer.append("Imported ");
-        if (inPlaceImport) {
-            buffer.append("with <b>--transfer=ln</b> ");
+        
+        if (CollectionUtils.isEmpty(set)) {
+            buffer.append("No information available.");
         }
-        buffer.append("from:<br/>");
-
-        Iterator<FilesetData> i = set.iterator();
-        FilesetData data;
-        List<String> paths;
-        Iterator<String> j;
-        while (i.hasNext()) {
-            data = i.next();
-            paths = data.getUsedFilePaths();
-            j = paths.iterator();
-            while (j.hasNext()) {
-                buffer.append(j.next());
-                buffer.append("<br/>");
-            }
-        }
-
-        if (!inPlaceImport) {
+        else {
+            buffer.append(set.size() + " Image file");
             buffer.append("<hr/>");
-            buffer.append("Path on server:<br/>");
-            i = set.iterator();
+            buffer.append("Imported ");
+            if (inPlaceImport) {
+                buffer.append("with <b>--transfer=ln</b> ");
+            }
+            buffer.append("from:<br/>");
+    
+            Iterator<FilesetData> i = set.iterator();
+            FilesetData data;
+            List<String> paths;
+            Iterator<String> j;
             while (i.hasNext()) {
                 data = i.next();
-                paths = data.getAbsolutePaths();
+                paths = data.getUsedFilePaths();
                 j = paths.iterator();
                 while (j.hasNext()) {
                     buffer.append(j.next());
                     buffer.append("<br/>");
                 }
             }
+    
+            if (!inPlaceImport) {
+                buffer.append("<hr/>");
+                buffer.append("Path on server:<br/>");
+                i = set.iterator();
+                while (i.hasNext()) {
+                    data = i.next();
+                    paths = data.getAbsolutePaths();
+                    j = paths.iterator();
+                    while (j.hasNext()) {
+                        buffer.append(j.next());
+                        buffer.append("<br/>");
+                    }
+                }
+            }
         }
-
+        
         buffer.append("</html>");
 
         JTextPane content = new JTextPane();
