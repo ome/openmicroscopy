@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.NumericalTextField 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
@@ -37,10 +35,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
-
-//Application-internal dependencies
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A text field containing only numerical value.

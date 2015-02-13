@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.OriginalMetadataParser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -36,10 +36,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-//Application-internal dependencies
 import omero.RType;
 import omero.cmd.OriginalMetadataResponse;
 

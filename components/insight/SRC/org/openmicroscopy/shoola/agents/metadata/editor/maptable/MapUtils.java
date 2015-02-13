@@ -22,7 +22,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import omero.model.NamedValue;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * UI utility class for dealing with MapAnnotations

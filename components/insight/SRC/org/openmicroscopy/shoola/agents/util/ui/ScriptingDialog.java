@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -61,13 +60,11 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;

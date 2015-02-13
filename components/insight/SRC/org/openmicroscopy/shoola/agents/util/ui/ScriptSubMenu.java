@@ -23,16 +23,12 @@
 package org.openmicroscopy.shoola.agents.util.ui;
 
 
-//Java imports
 import java.util.List;
 
 import javax.swing.JMenu;
 
+import org.apache.commons.lang3.text.WordUtils;
 
-//Third-party libraries
-import org.apache.commons.lang.WordUtils;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

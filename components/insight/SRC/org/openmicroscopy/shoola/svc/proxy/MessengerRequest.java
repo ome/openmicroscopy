@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.svc.proxy.MessengerRequest 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.svc.proxy;
 
-
-//Java imports
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,10 +30,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 
-//Third-party libraries
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;

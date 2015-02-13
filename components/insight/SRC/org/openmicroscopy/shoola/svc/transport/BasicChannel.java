@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.svc.transport.BasicChannel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.svc.transport;
 
-//Java imports
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
@@ -30,8 +29,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
@@ -41,8 +39,6 @@ import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-
-//Application-internal dependencies
 
 /** 
  * Creates a basic <code>HttpChannel</code>.

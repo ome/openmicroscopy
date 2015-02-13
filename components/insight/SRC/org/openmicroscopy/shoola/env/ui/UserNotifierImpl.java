@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -36,7 +35,7 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;

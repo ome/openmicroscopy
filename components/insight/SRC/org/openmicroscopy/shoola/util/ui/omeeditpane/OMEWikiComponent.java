@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -49,8 +49,8 @@ import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import org.apache.commons.lang.SystemUtils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

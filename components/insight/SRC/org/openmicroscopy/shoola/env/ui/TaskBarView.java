@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-
-//Java imports
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -52,10 +50,8 @@ import javax.swing.JToolBar;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-//Third-party libraries
+import org.apache.commons.lang3.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 

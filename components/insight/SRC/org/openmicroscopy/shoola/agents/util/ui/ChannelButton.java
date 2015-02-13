@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.ChannelButton 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -39,10 +38,8 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 
-//Third-party libraries
+import org.apache.commons.lang3.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 

@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 
-//Java imports
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -31,11 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
+import org.apache.commons.lang3.StringUtils;
 
-
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;

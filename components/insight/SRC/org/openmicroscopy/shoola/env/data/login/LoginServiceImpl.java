@@ -30,13 +30,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JFrame;
 
-//Third-party libraries
 import Glacier2.PermissionDeniedException;
 import Ice.ConnectionRefusedException;
 import Ice.DNSException;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-//Application-internal dependencies
 import omero.SecurityViolation;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;

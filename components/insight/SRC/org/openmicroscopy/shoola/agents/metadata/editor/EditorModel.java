@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -42,11 +40,9 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-//Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;

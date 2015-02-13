@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.ScriptObject 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,12 +32,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.Icon;
 
-
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
+import org.apache.commons.lang3.StringUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.RType;
 import omero.grid.JobParams;

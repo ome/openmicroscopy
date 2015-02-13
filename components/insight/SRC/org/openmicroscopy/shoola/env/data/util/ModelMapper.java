@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.ModelMapper
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -32,13 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 
-
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
-
-
-//Application-internal dependencies
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;

@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -51,12 +48,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;

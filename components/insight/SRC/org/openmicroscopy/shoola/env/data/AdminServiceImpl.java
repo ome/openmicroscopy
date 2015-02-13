@@ -36,14 +36,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-
-//Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.sys.Roles;

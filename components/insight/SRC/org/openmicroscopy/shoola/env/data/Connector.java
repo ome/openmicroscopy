@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-//Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -37,15 +36,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 
-//Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
 import omero.client;

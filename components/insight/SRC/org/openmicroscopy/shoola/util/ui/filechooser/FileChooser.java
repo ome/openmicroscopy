@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.filechooser.FileSaver 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,9 +37,8 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
-//Third-party libraries
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
