@@ -757,8 +757,9 @@ class ToolBar
             SwingUtilities.convertPointToScreen(location, component);
             FilesetInfoDialog d = new FilesetInfoDialog();
             d.setData(model.getFileset(), model.isInplaceImport());
+            d.pack();
             if (location != null) {
-                location = new Point(location.x - FilesetInfoDialog.DEFAULT_WIDTH,
+                location = new Point(location.x - d.getSize().width,
                         location.y + 10);
             }
             d.open(location);
@@ -773,30 +774,13 @@ class ToolBar
             SwingUtilities.convertPointToScreen(location, component);
             TinyDialog d = new TinyDialog(null, new JScrollPane(comp), TinyDialog.CLOSE_ONLY);
             d.getContentPane().setBackground(comp.getBackground());
+            if (location != null) {
+                location = new Point(location.x - 400,
+                        location.y + 10);
+            }
             d.setLocation(location);
             d.setSize(new Dimension(400,130));
             d.setResizable(true);
-            d.addWindowFocusListener(new WindowFocusListener() {
-
-                /**
-                 * Closes the dialog when the window loses focus.
-                 * 
-                 * @see WindowFocusListener#windowLostFocus(WindowEvent)
-                 */
-                public void windowLostFocus(WindowEvent evt) {
-                    TinyDialog d = (TinyDialog) evt.getSource();
-                    d.setClosed(true);
-                    d.closeWindow();
-                }
-
-                /**
-                 * Required by the I/F but no-operation in our case.
-                 * 
-                 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-                 */
-                public void windowGainedFocus(WindowEvent evt) {
-                }
-            });
             d.setVisible(true);
         }
 }
