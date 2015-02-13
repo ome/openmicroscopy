@@ -305,7 +305,7 @@ class DocComponent
 		}
 		
 		TinyDialog d = new TinyDialog(null, comp, TinyDialog.CLOSE_ONLY);
-		d.setModal(true);
+		d.setModal(false);
 		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		SwingUtilities.convertPointToScreen(p, invoker);
 		d.pack();
