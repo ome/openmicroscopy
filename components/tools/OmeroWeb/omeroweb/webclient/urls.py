@@ -139,11 +139,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^image_as_map/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, name='webclient_image_as_map' ), # image to map of max Size (side length)
     url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # convert image to map
     url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # image to map
-    
-    url( r'^help_search/$', TemplateView.as_view(template_name='webclient/help/help_search.html'), name="help_search" ),
-    
+
     url( r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
-    
+
     # scripting service urls
     url( r'^list_scripts/$', views.list_scripts, name="list_scripts"),  # returns html list of scripts - click to run
     url( r'^script_ui/(?P<scriptId>[0-9]+)/$', views.script_ui, name='script_ui' ), # shows a form for running a script
