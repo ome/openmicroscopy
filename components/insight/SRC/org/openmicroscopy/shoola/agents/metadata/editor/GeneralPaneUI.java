@@ -134,10 +134,7 @@ class GeneralPaneUI
 	private void initComponents()
 	{	 
        browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
-        if (model.getBrowser() != null)
-            browserTaskPane.add(model.getBrowser().getUI());
        browserTaskPane.addPropertyChangeListener(controller);
-       browserTaskPane.setCollapsed(true);
 		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
@@ -268,8 +265,6 @@ class GeneralPaneUI
                     browserTaskPane.setTitle("Attached to");
                 else
                     browserTaskPane.setTitle("Located in");
-                browserTaskPane.removeAll();
-                browserTaskPane.add(model.getBrowser().getUI());
             }
             
             propertiesTaskPane.setVisible(!multi);
@@ -335,8 +330,8 @@ class GeneralPaneUI
 		propertiesUI.clearDisplay();
 		annotationUI.clearDisplay();
     	textualAnnotationsUI.clearDisplay();
+    	browserTaskPane.removeAll();
     	browserTaskPane.setCollapsed(true);
-    	browserTaskPane.setVisible(false);
 		revalidate();
 		repaint();
 	}
@@ -419,8 +414,16 @@ class GeneralPaneUI
 	void handleTaskPaneCollapsed(JXTaskPane source)
 	{
 		if (source == null) return;
-		if  (source.equals(browserTaskPane)) 
-			loadParents(!browserTaskPane.isCollapsed());
+		if  (source.equals(browserTaskPane))  {
+		    if(browserTaskPane.isCollapsed()) {
+		        loadParents(false);
+		    }
+		    else {
+    		    browserTaskPane.removeAll();
+                browserTaskPane.add(model.getBrowser().getUI());
+    			loadParents(true);
+		    }
+		}
 	}
 
 	/**
