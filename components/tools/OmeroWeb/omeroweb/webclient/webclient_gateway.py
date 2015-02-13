@@ -1560,7 +1560,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 members.remove(m)
         ms = [m._obj for m in members]
         sh_type = sh.getContentSize(share_id) > 0 and "share" or "discussion"
-        subject = "OMERO.%s notification" % sh_type
+        subject = "OMERO.%s %s" % (sh_type, share_id)
         body = "%s added new comment.\n\n%s\n\n%s URL: %s\n" % (self.getUser().getFullName(), str(comment), sh_type.title(), host)
         sh.notifyMembersOfShare(long(share_id), subject, body, False, ms)
         return CommentAnnotationWrapper(self, new_cm)
@@ -1577,7 +1577,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
         sh_type = len(images) > 0 and "share" or "discussion"
         body = "%s\n\n%s URL: %s\n" % (message, sh_type.title(), host)
-        subject = "OMERO.%s notification" % sh_type
+        subject = "OMERO.%s %s" % (sh_type, sid)
         sh.notifyMembersOfShare(sid, subject, body, False, ms)
         return sid
 
@@ -1591,7 +1591,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sh.addUsers(long(share_id), add_members)
             share = self.getShare(long(share_id))
             body = "%s\n\n%s URL: %s\n" % (share.message, sh_type.title(), host)
-            subject = "OMERO.%s notification" % sh_type
+            subject = "OMERO.%s %s" % (sh_type, share_id)
             sh.notifyMembersOfShare(share_id, subject, body, False, add_members)
         if len(rm_members) > 0:
             sh.removeUsers(long(share_id), rm_members)
