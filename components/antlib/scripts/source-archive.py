@@ -25,16 +25,16 @@ import zipfile
 
 GITVERSION_XML = """<?xml version="1.0" encoding="utf-8"?>
 <project name="gitversion" basedir=".">
-        <property name="omero.shortversion" value="%s"/>
-        <property name="omero.plainversion" value="%s"/>
-        <property name="omero.vcs.revision" value="%s"/>
-        <property name="omero.vcs.date" value="%s"/>
+    <property name="omero.shortversion" value="%s"/>
+    <property name="omero.plainversion" value="%s"/>
+    <property name="omero.vcs.revision" value="%s"/>
+    <property name="omero.vcs.date" value="%s"/>
 
-        <!-- Properties for detecting where these properties were read from -->
-        <property name="omero.shortversion.source" value="embedded"/>
-        <property name="omero.plainversion.source" value="embedded"/>
-        <property name="omero.vcs.revision.source" value="embedded"/>
-        <property name="omero.vcs.date.source" value="embedded"/>
+    <!-- Properties for detecting where these properties were read from -->
+    <property name="omero.shortversion.source" value="embedded"/>
+    <property name="omero.plainversion.source" value="embedded"/>
+    <property name="omero.vcs.revision.source" value="embedded"/>
+    <property name="omero.vcs.date.source" value="embedded"/>
 </project>
 """
 
@@ -46,10 +46,10 @@ set(OME_VCS_DATE "%s")
 
 BF_GITVERSION_XML = """<?xml version="1.0" encoding="utf-8"?>
 <project name="gitversion" basedir=".">
-  property name="release.version" value="%s"/>
-  <property name="release.shortversion" value="%s"/>
-  <property name="vcs.revision" value="%s"/>
-  <property name="vcs.date" value="%s"/>
+    <property name="release.version" value="%s"/>
+    <property name="release.shortversion" value="%s"/>
+    <property name="vcs.revision" value="%s"/>
+    <property name="vcs.date" value="%s"/>
 </project>
 """
 
