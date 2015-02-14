@@ -35,7 +35,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /**
  * A text field containing only numerical value.
@@ -105,7 +105,7 @@ public class NumericalTextField
             if (Integer.class.equals(numberType)) {
                 int min = (int) getMinimum();
                 int max = (int) getMaximum();
-                if (StringUtils.isBlank(str)) {
+                if (CommonsLangUtils.isBlank(str)) {
                     result = "" + min;
                 }
                 int val = Integer.parseInt(str);
@@ -116,7 +116,7 @@ public class NumericalTextField
             } else if (Double.class.equals(numberType)) {
                 Double min = getMinimum();
                 Double max = getMaximum();
-                if (StringUtils.isBlank(str)) {
+                if (CommonsLangUtils.isBlank(str)) {
                     return ""+min;
                 }
                 double val = Double.parseDouble(str);
@@ -128,7 +128,7 @@ public class NumericalTextField
             } else if (Long.class.equals(numberType)) {
                 Long min = new Long((long) getMinimum());
                 Long max = new Long((long) getMaximum());
-                if (StringUtils.isBlank(str)) {
+                if (CommonsLangUtils.isBlank(str)) {
                     result = ""+min;
                 }
                 long val = Long.parseLong(str);
@@ -140,7 +140,7 @@ public class NumericalTextField
             } else if (Float.class.equals(numberType)) {
                 Float min = new Float(getMinimum());
                 Float max = new Float(getMaximum());
-                if (StringUtils.isBlank(str)) {
+                if (CommonsLangUtils.isBlank(str)) {
                     result = ""+min;
                 }
                 float val = Float.parseFloat(str);
@@ -372,7 +372,7 @@ public class NumericalTextField
     public Number getValueAsNumber()
     {
         String str = getText();
-        if (StringUtils.isBlank(str)) {
+        if (CommonsLangUtils.isBlank(str)) {
             return null;
         }
         str = checkValue();

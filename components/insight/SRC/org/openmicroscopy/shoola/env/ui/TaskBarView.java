@@ -50,7 +50,7 @@ import javax.swing.JToolBar;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -678,7 +678,7 @@ class TaskBarView
      */
 	public void openURL(String path)
 	{
-		if (StringUtils.isEmpty(path)) return;
+		if (CommonsLangUtils.isEmpty(path)) return;
 		manager.openURL(path);
 	}
 

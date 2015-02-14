@@ -34,7 +34,7 @@ import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -164,7 +164,7 @@ class UserNotifierManager
 		
 		boolean bug = true;
 		String error = details.getError();
-		if (StringUtils.isBlank(error)) bug = false;
+		if (CommonsLangUtils.isBlank(error)) bug = false;
 		String url = (String) reg.lookup(LookupNames.TOKEN_URL);
 		String appName; 
 		if (bug) 

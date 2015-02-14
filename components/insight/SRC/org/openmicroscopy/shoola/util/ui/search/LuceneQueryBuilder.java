@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /**
  * Utility class for building lucene queries<br>
@@ -87,7 +87,7 @@ public class LuceneQueryBuilder {
         if (from == null && to == null)
             return basicQuery;
 
-        if (!StringUtils.isEmpty(basicQuery))
+        if (CommonsLangUtils.isNotEmpty(basicQuery))
             result.append("(" + basicQuery + ")");
         else
             result.append(basicQuery);

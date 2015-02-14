@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.RBool;
 import omero.RDouble;
@@ -495,7 +495,7 @@ public class ModelMapper
     		annotation.setDescription(omero.rtypes.rstring(
     				((TagAnnotationData) data).getTagDescription()));
     		String ns = data.getNameSpace();
-    		if (StringUtils.isNotEmpty(ns)) {
+    		if (CommonsLangUtils.isNotEmpty(ns)) {
     			annotation.setNs(omero.rtypes.rstring(ns));
     		}
     	} else if (data instanceof BooleanAnnotationData) {
@@ -525,7 +525,7 @@ public class ModelMapper
 		} else if (data instanceof MapAnnotationData) {
 			annotation = new MapAnnotationI();
 			String ns = data.getNameSpace();
-			if (StringUtils.isNotEmpty(ns)) {
+			if (CommonsLangUtils.isNotEmpty(ns)) {
 				annotation.setNs(omero.rtypes.rstring(ns));
 			}
 			((MapAnnotation) annotation).setMapValue((List<NamedValue>) data

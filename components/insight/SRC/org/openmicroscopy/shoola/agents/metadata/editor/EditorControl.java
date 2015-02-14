@@ -50,7 +50,6 @@ import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ArrayUtils;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -393,7 +392,7 @@ class EditorControl
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 					File[] files = (File[]) evt.getNewValue();
-					if (ArrayUtils.isEmpty(files))
+					if (files == null || files.length == 0)
 						return;
 					File file = files[0];
 					if (file == null)

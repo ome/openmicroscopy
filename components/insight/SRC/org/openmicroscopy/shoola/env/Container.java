@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -209,11 +209,11 @@ public final class Container
 	private Container(String home, String configFile)
 		throws StartupException
 	{
-	    if (StringUtils.isBlank(configFile) ||
+	    if (CommonsLangUtils.isBlank(configFile) ||
 	            !FilenameUtils.isExtension(configFile, "xml"))
 			configFile = CONFIG_FILE;
 		this.configFile = configFile;
-        if (StringUtils.isBlank(FilenameUtils.getPath(home)))
+        if (CommonsLangUtils.isBlank(FilenameUtils.getPath(home)))
             home = System.getProperty("user.dir");
         File f = new File(home);
 		

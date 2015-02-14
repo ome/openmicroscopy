@@ -35,7 +35,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.RegExFileFilter;
@@ -182,7 +182,7 @@ class CustomizedFileChooser
 		if (nameArea == null) return; //should happen
 		String text = nameArea.getText();
 		originalName = text;
-		view.setControlsEnabled(!StringUtils.isEmpty(text));
+		view.setControlsEnabled(CommonsLangUtils.isNotEmpty(text));
 	}
 	
 	/**
@@ -271,7 +271,7 @@ class CustomizedFileChooser
 		File f = getSelectedFile();
 		if (f != null) {
 			String format = getExtension(getFileFilter());
-			if (StringUtils.isEmpty(format))
+			if (CommonsLangUtils.isEmpty(format))
 				return f;
 			
 			String fileName = f.getAbsolutePath();
@@ -387,7 +387,7 @@ class CustomizedFileChooser
 			return super.getSelectedFile();
 		if (nameArea == null) return super.getSelectedFile();
 		String name = nameArea.getText();
-		if (StringUtils.isEmpty(name))
+		if (CommonsLangUtils.isEmpty(name))
 			return super.getSelectedFile();
 		return new File(getCurrentDirectory().toString(), name);
 	}

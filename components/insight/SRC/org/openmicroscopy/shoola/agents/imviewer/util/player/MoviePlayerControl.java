@@ -38,7 +38,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -273,17 +273,17 @@ class MoviePlayerControl
         String startT = ""+(model.getStartT()+1);
         String endT = ""+(model.getEndT()+1);
         String startVal = view.startT.getText(), endVal = view.endT.getText();
-        if (StringUtils.isBlank(startVal) || !startVal.equals(startT))
+        if (CommonsLangUtils.isBlank(startVal) || !startVal.equals(startT))
              view.startT.setText(startT);
-        if (StringUtils.isBlank(endVal) || !endVal.equals(endT)) 
+        if (CommonsLangUtils.isBlank(endVal) || !endVal.equals(endT)) 
             view.endT.setText(endT);
         String startZ = ""+(model.getStartZ()+1);
         String endZ = ""+(model.getEndZ()+1);
         startVal = view.startZ.getText();
         endVal = view.endZ.getText();
-        if (StringUtils.isBlank(startVal) || !startVal.equals(startZ))
+        if (CommonsLangUtils.isBlank(startVal) || !startVal.equals(startZ))
             view.startZ.setText(startZ);
-        if (StringUtils.isBlank(endVal) || !endVal.equals(endZ)) 
+        if (CommonsLangUtils.isBlank(endVal) || !endVal.equals(endZ)) 
             view.endZ.setText(endZ);
     }
 

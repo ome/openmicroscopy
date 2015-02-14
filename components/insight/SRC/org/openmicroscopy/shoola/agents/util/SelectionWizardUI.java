@@ -61,7 +61,7 @@ import javax.swing.tree.TreePath;
 
 import info.clearthought.layout.TableLayout;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
@@ -317,7 +317,7 @@ public class SelectionWizardUI
         //Select the first not
         //Get the first node.
         if (CollectionUtils.isNotEmpty(availableItems) &&
-                StringUtils.isNotBlank(txt)) {
+                CommonsLangUtils.isNotBlank(txt)) {
             node = availableItems.get(0);
             TreePath path = null;
             if (node.hasChildrenDisplay() && node.getChildCount() > 0) {
@@ -488,7 +488,7 @@ public class SelectionWizardUI
             @Override
             public void focusLost(FocusEvent evt) {
                 String value = filterArea.getText();
-                if (StringUtils.isBlank(value)) {
+                if (CommonsLangUtils.isBlank(value)) {
                     setTextFieldDefault(DEFAULT_FILTER_TEXT);
                 }
             }
@@ -631,7 +631,7 @@ public class SelectionWizardUI
         } else {
             txt = EditorUtil.formatExperimenter(data.getOwner());
         }
-        if (StringUtils.isNotBlank(txt)) {
+        if (CommonsLangUtils.isNotBlank(txt)) {
             buf.append("<b>");
             buf.append("Owner: ");
             buf.append("</b>");
@@ -640,7 +640,7 @@ public class SelectionWizardUI
         }
         if (data instanceof TagAnnotationData) {
             txt = ((TagAnnotationData) data).getTagDescription();
-            if (StringUtils.isNotBlank(txt)) {
+            if (CommonsLangUtils.isNotBlank(txt)) {
                 buf.append("<b>");
                 buf.append("Description: ");
                 buf.append("</b>");
@@ -963,7 +963,7 @@ public class SelectionWizardUI
     {
         if (child == null) return false;
         String txt = filterArea.getText();
-        if (StringUtils.isBlank(txt) || DEFAULT_FILTER_TEXT.equals(txt))
+        if (CommonsLangUtils.isBlank(txt) || DEFAULT_FILTER_TEXT.equals(txt))
             return false;
         txt = txt.toLowerCase();
         Object ho = child.getUserObject();

@@ -64,7 +64,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
@@ -527,7 +527,7 @@ public class MessengerDialog
 	    				BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    commentPanel.add(buildEmailAreaPanel('E'), "0, 2, 2, 2");
 	    commentPanel.add(buildCommentAreaPanel(comment, 'W'), "0, 3, 2, 3");
-	    if (StringUtils.isNotBlank(errorDescription)) {
+	    if (CommonsLangUtils.isNotBlank(errorDescription)) {
 	    	layout.setRow(1, 30);
 	    	JPanel p = new JPanel();
 	    	p.add(UIUtilities.setTextFont(ERROR_BRIEF));

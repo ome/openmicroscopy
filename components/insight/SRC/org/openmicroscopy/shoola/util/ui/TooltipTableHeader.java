@@ -30,7 +30,7 @@ import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 
 /** 
@@ -81,7 +81,7 @@ public class TooltipTableHeader extends JTableHeader {
 		} catch (Exception ex) {
 			retStr = "";
 		}
-		if (StringUtils.isBlank(retStr))
+		if (CommonsLangUtils.isBlank(retStr))
 			retStr = super.getToolTipText(e);
 		return retStr;
 	}

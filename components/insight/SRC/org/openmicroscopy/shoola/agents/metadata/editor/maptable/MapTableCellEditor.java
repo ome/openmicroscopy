@@ -29,7 +29,7 @@ import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -105,7 +105,7 @@ public class MapTableCellEditor implements TableCellEditor {
 		if (text.equals(MapUtils.DUMMY_KEY)
 				|| text.equals(MapUtils.DUMMY_VALUE))
 			t.setText("");
-		else if(!StringUtils.isEmpty(text))
+		else if(!CommonsLangUtils.isEmpty(text))
 			t.selectAll();
 		
 		return t;

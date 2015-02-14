@@ -50,7 +50,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import info.clearthought.layout.TableLayout;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -354,7 +354,7 @@ public class EditorDialog
                     "Create a new "+typeName+".", icon);
             break;
         case EDIT_TYPE:
-        	if (StringUtils.isEmpty(typeName)) 
+        	if (CommonsLangUtils.isEmpty(typeName)) 
         		tp = new TitlePanel("Edit value", "", icon);
         	else
         		tp = new TitlePanel("Edit "+typeName, "Edit the "+typeName+".",

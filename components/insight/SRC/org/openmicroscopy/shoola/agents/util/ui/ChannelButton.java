@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -197,7 +197,7 @@ public class ChannelButton
      */
     private String parseText(String text)
     {
-        if (StringUtils.isBlank(text)) return "";
+        if (CommonsLangUtils.isBlank(text)) return "";
         String[] values = text.split("\\(");
         if (values == null || values.length == 0) return text;
         return values[0].trim();
@@ -212,7 +212,7 @@ public class ChannelButton
     {
         super.setText(parseText(text));
         List<String> l = new ArrayList<String>(2);
-        if (StringUtils.isNotBlank(text)) l.add(text);
+        if (CommonsLangUtils.isNotBlank(text)) l.add(text);
         l.add(DESCRIPTION);
         setToolTipText(UIUtilities.formatToolTipText(l));
     }
@@ -333,7 +333,7 @@ public class ChannelButton
         setTextValue(text);
         if (originalFont != null) {
             setFont(originalFont);
-            if (StringUtils.isNotBlank(text)) {
+            if (CommonsLangUtils.isNotBlank(text)) {
                 int width = getFontMetrics(getFont()).stringWidth(text);
                 if (width > DEFAULT_MAX_SIZE.width)
                     width = DEFAULT_MAX_SIZE.width;

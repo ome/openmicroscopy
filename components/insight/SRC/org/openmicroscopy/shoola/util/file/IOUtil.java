@@ -42,7 +42,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
@@ -297,7 +297,7 @@ public class IOUtil
 	        }
 	        in = new FileInputStream(f); // Stream to read file
 	        String zipName = f.getName();
-	        if (!StringUtils.isEmpty(parentDirectoryName)) {
+	        if (!CommonsLangUtils.isEmpty(parentDirectoryName)) {
 	            zipName = FilenameUtils.concat(parentDirectoryName, zipName);
 	        }
 	        out.putNextEntry(new ZipEntry(zipName)); // Store entry
@@ -325,7 +325,7 @@ public class IOUtil
         //Check if the name already has the extension
         String extension = FilenameUtils.getExtension(zip.getName());
         String name = zip.getName();
-        if (StringUtils.isEmpty(extension) ||
+        if (CommonsLangUtils.isEmpty(extension) ||
                 !ZIP_EXTENSION.equals("."+extension)) {
             name += ZIP_EXTENSION;
         }

@@ -41,7 +41,7 @@ import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -112,7 +112,7 @@ class TextualAnnotationsUI extends AnnotationUI implements DocumentListener
 		commentArea.addFocusListener(new FocusListener() {
                     
                     public void focusLost(FocusEvent arg0) {
-                        if(StringUtils.isBlank(commentArea.getText())) {
+                        if (CommonsLangUtils.isBlank(commentArea.getText())) {
                             pane.getViewport().setPreferredSize(null);
 	                    	revalidate();
 	                    	pane.revalidate();
@@ -313,8 +313,8 @@ class TextualAnnotationsUI extends AnnotationUI implements DocumentListener
 	{
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
 		String text = commentArea.getText();
-		if(!StringUtils.isBlank(text))
-				l.add(new TextualAnnotationData(text));
+		if (CommonsLangUtils.isNotBlank(text))
+			l.add(new TextualAnnotationData(text));
 		return l;
 	}
 	
@@ -326,7 +326,7 @@ class TextualAnnotationsUI extends AnnotationUI implements DocumentListener
 	protected boolean hasDataToSave()
 	{
 		String text = commentArea.getText();
-		return !StringUtils.isBlank(text);
+		return CommonsLangUtils.isNotBlank(text);
 	}
 	
 	/**

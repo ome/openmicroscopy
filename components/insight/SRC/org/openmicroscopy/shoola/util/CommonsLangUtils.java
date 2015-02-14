@@ -34,6 +34,7 @@ package org.openmicroscopy.shoola.util;
 public class CommonsLangUtils
 {
 
+    /** The line separator.*/
     public static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
     /**
@@ -55,12 +56,26 @@ public class CommonsLangUtils
         return false;
     }
 
+    /**
+     * Capitalizes the specified string.
+     *
+     * @param str The string to handle.
+     * @return See above.
+     */
     public static String capitalize(final String str)
     {
         return capitalize(str, null);
     }
 
-    public static String capitalize(final String str, final char... delimiters) {
+    /**
+     * Capitalizes the specified string.
+     *
+     * @param str The string to handle.
+     * @param delimiters The delimiters if any.
+     * @return See above.
+     */
+    public static String capitalize(final String str, final char... delimiters)
+    {
         final int delimLen = delimiters == null ? -1 : delimiters.length;
         if (isEmpty(str) || delimLen == 0) {
             return str;
@@ -79,6 +94,16 @@ public class CommonsLangUtils
         return new String(buffer);
     }
 
+    /**
+     * Wraps the specified text.
+     *
+     * @param str The string to handle.
+     * @param wrapLength The limit
+     * @param newLineStr The new line character.
+     * @param wrapLongWords Pass <code>true</code> to wrap long word,
+     *                      <code>false</code> otherwise.
+     * @return See above.
+     */
     public static String wrap(final String str, int wrapLength, 
             String newLineStr, final boolean wrapLongWords) {
         if (str == null) {
@@ -156,6 +181,12 @@ public class CommonsLangUtils
         return true;
     }
 
+    /**
+     * Returns <code>true</code> if a CharSequence is not empty.
+     *
+     * @param cs The sequence to handle.
+     * @return See above.
+     */
     public static boolean isNotBlank(final CharSequence cs)
     {
         return !isBlank(cs);
@@ -184,7 +215,13 @@ public class CommonsLangUtils
     {
         return cs == null || cs.length() == 0;
     }
-    
+
+    /**
+     * Removes the white space if any from the specified string.
+     *
+     * @param str The string to handle.
+     * @return See above.
+     */
     public static String deleteWhitespace(final String str)
     {
         if (isEmpty(str)) {
@@ -204,7 +241,15 @@ public class CommonsLangUtils
         return new String(chs, 0, count);
     }
 
-    public static boolean isNumber(final String str) {
+    /**
+     * Returns <code>true</code> if the passed string is a number,
+     * <code>false</code> otherwise.
+     *
+     * @param str The string to handle.
+     * @return See above.
+     */
+    public static boolean isNumber(final String str)
+    {
         if (isEmpty(str)) {
             return false;
         }

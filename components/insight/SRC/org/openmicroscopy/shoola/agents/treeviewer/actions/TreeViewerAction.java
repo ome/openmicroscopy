@@ -32,7 +32,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -125,7 +125,7 @@ public abstract class TreeViewerAction
      */
     public String getActionName()
     { 
-        if (StringUtils.isEmpty(name)) return (String) getValue(Action.NAME);
+        if (CommonsLangUtils.isEmpty(name)) return (String) getValue(Action.NAME);
         return name;
     }
 
@@ -136,7 +136,7 @@ public abstract class TreeViewerAction
      */
     public String getActionDescription()
     { 
-        if (StringUtils.isEmpty(description))
+        if (CommonsLangUtils.isEmpty(description))
             return (String) getValue(Action.SHORT_DESCRIPTION);
         return description;
     }

@@ -29,7 +29,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
@@ -141,8 +141,8 @@ class BasicChannel
         builder.setConnectTimeout(connTimeout);
         String proxyHost = System.getProperty(HttpChannel.PROXY_HOST);
         String proxyPort = System.getProperty(HttpChannel.PROXY_PORT);
-        if (StringUtils.isNotBlank(proxyHost) &&
-                StringUtils.isNotBlank(proxyPort)) {
+        if (CommonsLangUtils.isNotBlank(proxyHost) &&
+                CommonsLangUtils.isNotBlank(proxyPort)) {
             builder.setProxy(new HttpHost(proxyHost,
                     Integer.parseInt(proxyPort)));
         }

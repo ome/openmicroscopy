@@ -26,22 +26,22 @@ package org.openmicroscopy.shoola.env.data.util;
 import java.sql.Timestamp;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import pojos.DataObject;
 
 
 public class SearchParameters
 {
-	/** The ID for searching across all groups*/
-        public static final int ALL_GROUPS_ID = -1;
-        
-        /** Indicates that the date has to be interpreted as import date*/
-        public static final int DATE_IMPORT = 0;
-    
-    	 /** Indicates that the date has to be interpreted as acquisition date*/
-        public static final int DATE_ACQUISITION = 1;
-    
+    /** The ID for searching across all groups*/
+    public static final int ALL_GROUPS_ID = -1;
+
+    /** Indicates that the date has to be interpreted as import date*/
+    public static final int DATE_IMPORT = 0;
+
+    /** Indicates that the date has to be interpreted as acquisition date*/
+    public static final int DATE_ACQUISITION = 1;
+
 	/** Identifying the <code>Annotation</code> context. */
 	public static final int			TEXT_ANNOTATION = 0;
 	
@@ -166,7 +166,7 @@ public class SearchParameters
 	 */
 	public boolean isValid()
 	{
-		return !(StringUtils.isBlank(query) && start == null
+		return !(CommonsLangUtils.isBlank(query) && start == null
                         && end == null);
 	}
 	
@@ -178,7 +178,7 @@ public class SearchParameters
 	 */
 	public boolean hasTextToSearch()
 	{
-		return !StringUtils.isBlank(query);
+		return CommonsLangUtils.isNotBlank(query);
 	}
 
         public long getUserId() {

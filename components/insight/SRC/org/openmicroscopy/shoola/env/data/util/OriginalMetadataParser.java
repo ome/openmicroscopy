@@ -36,7 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.RType;
 import omero.cmd.OriginalMetadataResponse;
@@ -65,7 +65,7 @@ public class OriginalMetadataParser
 	private String writeMap(Map<String, RType> map, String separator)
 	{
 		if (map == null || map.size() == 0) return null;
-		if (StringUtils.isBlank(separator)) separator = " ";
+		if (CommonsLangUtils.isBlank(separator)) separator = " ";
 		TreeSet<String> sortedSet = new TreeSet<String>(map.keySet());
 		Iterator<String> j = sortedSet.iterator();
 		String key;

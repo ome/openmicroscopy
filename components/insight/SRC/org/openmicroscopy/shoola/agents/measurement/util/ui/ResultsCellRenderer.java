@@ -42,7 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementTableModel;
@@ -246,13 +246,13 @@ public class ResultsCellRenderer
 	        Length n = (Length) value;
 		    String s;
 		    if (!units.getUnit().equals(UnitsLength.PIXEL)) {
-	           	s = UIUtilities.formatValue(n, AnnotationKeys.AREA.getKey().equals(k));
+	            s = UIUtilities.formatValue(n, AnnotationKeys.AREA.getKey().equals(k));
 	            
-	            if (StringUtils.isNotBlank(s)) 
+	            if (CommonsLangUtils.isNotBlank(s)) 
 	                label.setText(s);
 		    } else {
 		        s = UIUtilities.twoDecimalPlaces(n.getValue());
-                if (StringUtils.isNotBlank(s)) {
+                if (CommonsLangUtils.isNotBlank(s)) {
                     label.setText(s);
                 }
 		    }

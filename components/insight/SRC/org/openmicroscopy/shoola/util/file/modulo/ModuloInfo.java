@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.util.file.modulo;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /**
  * Holds information about the modulo tag.
@@ -107,7 +107,7 @@ public class ModuloInfo {
      */
     ModuloInfo(String moduloAlong)
     {
-        if (StringUtils.isEmpty(moduloAlong))
+        if (CommonsLangUtils.isEmpty(moduloAlong))
             throw new IllegalArgumentException("Dimension not supported.");
         modulo = -1;
         if (MODULO_C.equals(moduloAlong))

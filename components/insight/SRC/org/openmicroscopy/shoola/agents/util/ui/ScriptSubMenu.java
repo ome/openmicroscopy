@@ -27,9 +27,8 @@ import java.util.List;
 
 import javax.swing.JMenu;
 
-import org.apache.commons.lang3.text.WordUtils;
-
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -103,7 +102,7 @@ public class ScriptSubMenu
 		unformattedText = value;
 		value = value.replace(ScriptObject.PARAMETER_SEPARATOR,
 				ScriptObject.PARAMETER_UI_SEPARATOR);
-		return WordUtils.capitalize(value);
+		return CommonsLangUtils.capitalize(value);
 	}
 
 	/**

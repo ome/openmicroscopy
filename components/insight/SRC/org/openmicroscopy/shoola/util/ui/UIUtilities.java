@@ -82,8 +82,7 @@ import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
@@ -2100,9 +2099,8 @@ public class UIUtilities
 	 */
 	public static boolean isMacOS()
 	{
-		//String osName = System.getProperty("os.name").toLowerCase();
-		//return osName.startsWith("mac os");
-		return (SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX);
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.startsWith("mac");
 	}
 	
 	/**
@@ -2113,13 +2111,8 @@ public class UIUtilities
 	 */
 	public static boolean isWindowsOS()
 	{
-		//String osName = System.getProperty("os.name").toLowerCase();
-		//return osName.startsWith("windows");
-		return (SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_WINDOWS_2000 ||
-				SystemUtils.IS_OS_WINDOWS_7 || SystemUtils.IS_OS_WINDOWS_95 || 
-				SystemUtils.IS_OS_WINDOWS_98 || SystemUtils.IS_OS_WINDOWS_ME|| 
-				SystemUtils.IS_OS_WINDOWS_NT || SystemUtils.IS_OS_WINDOWS_VISTA ||
-				SystemUtils.IS_OS_WINDOWS_XP);
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.startsWith("windows");
 	}
 	
 	/**
@@ -2130,9 +2123,9 @@ public class UIUtilities
 	 */
 	public static boolean isLinuxOS()
 	{
-		return SystemUtils.IS_OS_LINUX;
+		return !(isMacOS() || isWindowsOS());
 	}
-	
+
 	/**
      * Returns the partial name of the image's name
      * 
@@ -2378,7 +2371,7 @@ public class UIUtilities
     {
     	if (family == null) return "";
     	String value = FONTS.get(family);
-    	if (StringUtils.isBlank(value)) return "";
+    	if (CommonsLangUtils.isBlank(value)) return "";
     	return value;
     }
     

@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -843,7 +843,7 @@ class Connector
     Connector getConnector(String userName)
             throws Throwable
     {
-        if (StringUtils.isBlank(userName)) return this;
+        if (CommonsLangUtils.isBlank(userName)) return this;
         Connector c = derived.get(userName);
         if (c != null) return c;
         if (groupName == null) {

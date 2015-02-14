@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
@@ -84,7 +84,7 @@ public class ExportActivity
 					extension = "."+OMETIFFFilter.OME_TIFF;
 				break;
 		}
-		if (!StringUtils.isBlank(extension)) return path+extension;
+		if (CommonsLangUtils.isNotBlank(extension)) return path+extension;
 		return path;
     }
     

@@ -41,7 +41,7 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
@@ -773,7 +773,7 @@ class EditorModel
 				description = ws.getWellType();
 			}
 			ImageData img = ((WellSampleData) ref).getImage();
-			if (!StringUtils.isEmpty(img.getDescription()))
+			if (!CommonsLangUtils.isEmpty(img.getDescription()))
 			    description = img.getDescription();
 		} else if (ref instanceof FileData) 
 			description = null;//((FileData) ref).getDescription();

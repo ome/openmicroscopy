@@ -22,7 +22,7 @@
  */
 package org.openmicroscopy.shoola.svc.proxy;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.apache.http.client.methods.HttpUriRequest;
 
 import org.openmicroscopy.shoola.svc.transport.TransportException;
@@ -56,7 +56,7 @@ public abstract class Request
      */
     protected Request(String method)
     {
-        if (StringUtils.isBlank(method))
+        if (CommonsLangUtils.isBlank(method))
             throw new NullPointerException("No method name.");
         this.method = method;
     }

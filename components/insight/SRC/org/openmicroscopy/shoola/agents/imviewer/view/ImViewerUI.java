@@ -71,7 +71,7 @@ import javax.swing.JTabbedPane;
 
 import info.clearthought.layout.TableLayout;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.model.PlaneInfo;
 import omero.model.Length;
@@ -1357,7 +1357,7 @@ class ImViewerUI
 	            buffer.append(" (");
 	            buffer.append(UIUtilities.roundTwoDecimals(
 	                    info.getRealValue(bin)));
-	            if (StringUtils.isNotBlank(info.getUnit())) {
+	            if (CommonsLangUtils.isNotBlank(info.getUnit())) {
 	                buffer.append(info.getUnit());
 	            }
 	            buffer.append(")");
@@ -1440,7 +1440,7 @@ class ImViewerUI
 	                toolTipText += "z="+details.get(EditorUtil.POSITION_Z);
 	            tips.add(toolTipText);
 	            comp.setToolTipText(UIUtilities.formatToolTipText(tips));
-	            if (StringUtils.isEmpty(s)) s = "0s";
+	            if (CommonsLangUtils.isEmpty(s)) s = "0s";
 	            comp.setText(s);
 	            panel.add(comp);
 	        }

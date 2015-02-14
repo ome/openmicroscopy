@@ -38,7 +38,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -347,7 +347,7 @@ public class FileChooser
                     uiDelegate.getCurrentDirectory().toString());
         File f = getSelectedFile();
         String extension = FilenameUtils.getExtension(f.getName());
-        if (StringUtils.isBlank(extension)) {
+        if (CommonsLangUtils.isBlank(extension)) {
             FileFilter filter = getSelectedFilter();
             if (filter instanceof CustomizedFileFilter) {
                 extension = ((CustomizedFileFilter) filter).getExtension();
@@ -423,10 +423,10 @@ public class FileChooser
      */
     public void setSelectedFile(String name)
     {
-        if (StringUtils.isBlank(name))
+        if (CommonsLangUtils.isBlank(name))
             throw new IllegalArgumentException("File name not valid.");
         String s = FilenameUtils.getBaseName(name);
-        if (StringUtils.isBlank(s)) s = name;
+        if (CommonsLangUtils.isBlank(s)) s = name;
         uiDelegate.setSelectedFile(new File(s));
     }
 
@@ -437,7 +437,7 @@ public class FileChooser
      */
     public void setSelectedFileFull(String name)
     {
-        if (StringUtils.isBlank(name)) return;
+        if (CommonsLangUtils.isBlank(name)) return;
         uiDelegate.setSelectedFile(new File(name));
     }
 
@@ -459,7 +459,7 @@ public class FileChooser
      */
     public void setCurrentDirectory(String dir)
     {
-        if (StringUtils.isBlank(dir))
+        if (CommonsLangUtils.isBlank(dir))
             throw new IllegalArgumentException("Folder name not valid.");
         uiDelegate.setCurrentDirectory(new File(dir));
     }
@@ -548,7 +548,7 @@ public class FileChooser
      */
     public void setApproveButtonText(String text)
     {
-        if (StringUtils.isBlank(text)) return;
+        if (CommonsLangUtils.isBlank(text)) return;
         uiDelegate.setApproveButtonText(text);
     }
 
@@ -560,7 +560,7 @@ public class FileChooser
      */
     public void setApproveButtonToolTipText(String text)
     {
-        if (StringUtils.isBlank(text)) return;
+        if (CommonsLangUtils.isBlank(text)) return;
         uiDelegate.setApproveButtonToolTipText(text);
     }
 

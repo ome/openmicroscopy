@@ -44,8 +44,7 @@ import javax.swing.event.ChangeListener;
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -276,7 +275,7 @@ class ScriptComponent
      */
     void setInfo(String text)
     {
-        if (StringUtils.isBlank(text)) return;
+        if (CommonsLangUtils.isBlank(text)) return;
         info = new JLabel();
         Font f = info.getFont();
         info.setFont(f.deriveFont(Font.ITALIC, f.getSize()-2));
@@ -305,7 +304,7 @@ class ScriptComponent
      */
     void setUnit(String text)
     {
-        if (StringUtils.isBlank(text)) return;
+        if (CommonsLangUtils.isBlank(text)) return;
         if (unitLabel == null) unitLabel = new JLabel();
         unitLabel.setText(text);
     }
@@ -321,7 +320,9 @@ class ScriptComponent
     void buildUI()
     {
         int width = TAB*getTabulationLevel();
-        if (DEFAULT_TEXT.equals(name) || NumberUtils.isNumber(name)) width = 0;
+        if (DEFAULT_TEXT.equals(name) || CommonsLangUtils.isNumber(name)){
+            width = 0;
+        }
         if (CollectionUtils.isEmpty(children)) {
             double[][] size = {{width, TableLayout.PREFERRED, 5,
                 TableLayout.FILL}, {TableLayout.PREFERRED}};
@@ -388,7 +389,7 @@ class ScriptComponent
         } else if (c instanceof JTextField) {
             JTextField field = (JTextField) c;
             String value = field.getText();
-            if (StringUtils.isBlank(value))
+            if (CommonsLangUtils.isBlank(value))
                 return null;
             return value;
         } else if (c instanceof JComboBox) {

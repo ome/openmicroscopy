@@ -33,7 +33,7 @@ import javax.swing.JFrame;
 import Glacier2.PermissionDeniedException;
 import Ice.ConnectionRefusedException;
 import Ice.DNSException;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.SecurityViolation;
 import org.openmicroscopy.shoola.env.Container;
@@ -254,9 +254,9 @@ public class LoginServiceImpl
     {
         if (uc == null) return NOT_CONNECTED;
         String name = uc.getUserName();
-        if (StringUtils.isBlank(name)) return NOT_CONNECTED;
+        if (CommonsLangUtils.isBlank(name)) return NOT_CONNECTED;
         String password = uc.getPassword();
-        if (StringUtils.isBlank(password)) return NOT_CONNECTED;
+        if (CommonsLangUtils.isBlank(password)) return NOT_CONNECTED;
 
         state = ATTEMPTING_LOGIN;
         config.setCredentials(uc);

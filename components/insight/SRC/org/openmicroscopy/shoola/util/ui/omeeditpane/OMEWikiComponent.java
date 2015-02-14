@@ -49,8 +49,7 @@ import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.text.WordUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -190,7 +189,7 @@ public class OMEWikiComponent
      */
     public static String prepare(String value, boolean removeSpace)
     {
-    	String v = value.replaceAll(SystemUtils.LINE_SEPARATOR, " ");
+    	String v = value.replaceAll(CommonsLangUtils.LINE_SEPARATOR, " ");
     	if (removeSpace) return v.replaceAll(" ", "");
     	return v;
     }
@@ -513,7 +512,8 @@ public class OMEWikiComponent
 		FontMetrics fm = getFontMetrics(getFont());
 		int charWidth = fm.charWidth('m');
 		columns = (int) (1.5 * width) / charWidth;
-		setText(WordUtils.wrap(value, columns, newLineStr, false));
+		setText(CommonsLangUtils.wrap(value, columns, newLineStr, false));
+
 	}
 	
 	/**

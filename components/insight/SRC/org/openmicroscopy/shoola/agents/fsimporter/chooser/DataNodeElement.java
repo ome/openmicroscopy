@@ -23,7 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
@@ -76,7 +76,7 @@ class DataNodeElement
 	void setName(String value)
 	{
 	    name = "";
-	    if (StringUtils.isEmpty(value)) {
+	    if (CommonsLangUtils.isEmpty(value)) {
 	        if (location == null) name = NO_LOCATION;
 	        else {
 	            if (location.getDataObject() instanceof ScreenData ||

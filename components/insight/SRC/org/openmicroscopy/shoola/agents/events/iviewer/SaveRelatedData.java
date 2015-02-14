@@ -22,7 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.events.iviewer;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
@@ -74,7 +74,7 @@ public class SaveRelatedData
         if (saveEvent == null)
             throw new IllegalArgumentException("Event to post cannot be " +
                     "null.");
-        if (StringUtils.isBlank(message))
+        if (CommonsLangUtils.isBlank(message))
             throw new IllegalArgumentException("Please enter a valid message.");
         this.pixelsID = pixelsID;
         this.message = message;

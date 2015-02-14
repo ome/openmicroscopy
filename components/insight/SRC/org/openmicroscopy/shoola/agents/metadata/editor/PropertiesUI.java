@@ -72,8 +72,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 import com.google.common.base.CharMatcher;
@@ -774,7 +773,7 @@ public class PropertiesUI
     	JLabel label;
     	JLabel value;
     	String v = model.formatDate(image);
-    	if(!StringUtils.isEmpty(v)) {
+    	if(!CommonsLangUtils.isEmpty(v)) {
 	    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
 	    			Font.BOLD, size);
 	    	value = UIUtilities.createComponent(null);
@@ -1260,7 +1259,7 @@ public class PropertiesUI
         if (ownerName != null && ownerName.length() > 0)
             ownerLabel.setText(OWNER_TEXT+ownerName);
         originalDescription = model.getRefObjectDescription();
-        if (StringUtils.isEmpty(originalDescription))
+        if (CommonsLangUtils.isEmpty(originalDescription))
             originalDescription = DEFAULT_DESCRIPTION_TEXT;
         descriptionWiki.setText(originalDescription);
         expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
@@ -1396,7 +1395,8 @@ public class PropertiesUI
 			j++;
 		}
 		
-		String text = WordUtils.wrap(buffer.toString(), MAX_CHANNELNAMES_LENGTH_IN_CHARS, "<br>", true);
+		String text = CommonsLangUtils.wrap(buffer.toString(),
+		        MAX_CHANNELNAMES_LENGTH_IN_CHARS, "<br>", true);
 		channelsArea.setText("<html>"+text+"</html>");
 		channelsArea.revalidate();
 		channelsArea.repaint();
@@ -1465,7 +1465,7 @@ public class PropertiesUI
 	    namePane.getDocument().removeDocumentListener(this);
 	    descriptionWiki.removeDocumentListener(this);
 	    namePane.setText(originalName);
-	    if (StringUtils.isEmpty(originalDescription))
+	    if (CommonsLangUtils.isEmpty(originalDescription))
 	        originalDescription = DEFAULT_DESCRIPTION_TEXT;
 	    descriptionWiki.setText(originalDescription);
 	    expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
@@ -1538,7 +1538,7 @@ public class PropertiesUI
 		if (src == namePane) {
 			String text = namePane.getText();
 			editNames();
-			if (StringUtils.isBlank(text)) {
+			if (CommonsLangUtils.isBlank(text)) {
 				namePane.getDocument().removeDocumentListener(this);
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
@@ -1548,7 +1548,7 @@ public class PropertiesUI
 		} else if (src == descriptionWiki) {
 			String text = descriptionWiki.getText();
 			editNames();
-			if (StringUtils.isBlank(text)) {
+			if (CommonsLangUtils.isBlank(text)) {
 				descriptionWiki.removeDocumentListener(this);
 				descriptionWiki.setText(DEFAULT_DESCRIPTION_TEXT);
 				descriptionWiki.addDocumentListener(this);

@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 
 import org.apache.http.client.methods.HttpPost;
@@ -158,7 +158,7 @@ class MessengerRequest
             throws TransportException
     {
         //Create request.
-        if (StringUtils.isBlank(path))
+        if (CommonsLangUtils.isBlank(path))
             throw new TransportException("No path specified.");
         HttpPost request = new HttpPost(path);
         request.addHeader("Accept", "text/plain");

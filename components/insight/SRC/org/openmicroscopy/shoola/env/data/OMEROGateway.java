@@ -49,7 +49,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -979,7 +979,7 @@ class OMEROGateway
 	private List<String> formatText(List<String> terms, String field)
 	{
 		if (CollectionUtils.isEmpty(terms)) return null;
-		if (StringUtils.isBlank(field)) return terms;
+		if (CommonsLangUtils.isBlank(field)) return terms;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		Iterator<String> j = terms.iterator();
 		while (j.hasNext())
@@ -1560,7 +1560,7 @@ class OMEROGateway
 	 */
 	private boolean startWithWildCard(String value)
 	{
-		if (StringUtils.isBlank(value)) return false;
+		if (CommonsLangUtils.isBlank(value)) return false;
 		Iterator<String> i = WILD_CARDS.iterator();
 		String card = null;
 		while (i.hasNext()) {
@@ -3967,7 +3967,7 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
-		if (StringUtils.isBlank(mimeType))
+		if (CommonsLangUtils.isBlank(mimeType))
 			mimeType =  DEFAULT_MIMETYPE;
 
 		boolean fileCreated = false;
@@ -6205,9 +6205,9 @@ class OMEROGateway
 		map.put("IDs", omero.rtypes.rlist(ids));
 		map.put("Data_Type", omero.rtypes.rstring(type));
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
-		if (!StringUtils.isEmpty(param.getBatchExportFilename()))
+		if (CommonsLangUtils.isNotEmpty(param.getBatchExportFilename()))
 			map.put("Folder_Name",
-					omero.rtypes.rstring(param.getBatchExportFilename()));
+		omero.rtypes.rstring(param.getBatchExportFilename()));
 		return runScript(ctx, id, map);
 	}
 

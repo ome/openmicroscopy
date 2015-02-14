@@ -50,7 +50,7 @@ import omero.cmd.CmdCallback;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -418,7 +418,7 @@ public class StatusLabel
      */
     public void setText(String text)
     {
-        if (StringUtils.isEmpty(text)) {
+        if (CommonsLangUtils.isEmpty(text)) {
             String value = generalLabel.getText();
             if (DEFAULT_TEXT.equals(value) || SCANNING_TEXT.equals(value))
                 generalLabel.setText(text);
@@ -691,7 +691,7 @@ public class StatusLabel
                 String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft,
                         true);
                 buffer.append(s);
-                if (!StringUtils.isBlank(s)) buffer.append(" Left");
+                if (CommonsLangUtils.isNotBlank(s)) buffer.append(" Left");
                 else buffer.append("complete");
             }
             uploadBar.setString(buffer.toString());

@@ -33,7 +33,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -115,7 +115,7 @@ public class ArchivedLoader
 	 */
 	public void load()
 	{
-	    if (StringUtils.isEmpty(name)) name = image.getName();
+	    if (CommonsLangUtils.isEmpty(name)) name = image.getName();
 	    handle = mhView.loadArchivedImage(ctx, image.getId(), file, name,
 	            override, this);
 	}

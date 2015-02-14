@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
@@ -405,8 +405,8 @@ public class AdminLoader
     public AdminLoader(SecurityContext ctx, String oldPassword,
             String newPassword)
     {
-        if (StringUtils.isBlank(newPassword) ||
-                StringUtils.isBlank(oldPassword))
+        if (CommonsLangUtils.isBlank(newPassword) ||
+                CommonsLangUtils.isBlank(oldPassword))
             throw new IllegalArgumentException("Password not valid.");
         loadCall = changePassword(ctx, oldPassword, newPassword);
     }

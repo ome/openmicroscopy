@@ -43,7 +43,6 @@
     <dependency org="insight" name="commons-digester" rev="${versions.commons-digester}"/>
     <dependency org="insight" name="commons-discovery" rev="${versions.commons-discovery}"/>
     <dependency org="insight" name="commons-io" rev="${versions.commons-io}"/>
-    <dependency org="org.apache.commons" name="commons-lang3" rev="${versions.commons-lang3}"/>
     <dependency org="insight" name="commons-logging" rev="${versi:ons.commons-logging}"/>
     <dependency org="insight" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>

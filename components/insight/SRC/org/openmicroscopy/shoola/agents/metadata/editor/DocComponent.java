@@ -51,7 +51,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -456,7 +456,7 @@ class DocComponent
 		}
 		
 		String ns = annotation.getNameSpace();
-		if(!StringUtils.isEmpty(ns) && !isInternalNS(ns)) {
+		if(!CommonsLangUtils.isEmpty(ns) && !isInternalNS(ns)) {
 			buf.append("<b>");
 			buf.append("Namespace: ");
 			buf.append("</b>");
@@ -465,7 +465,7 @@ class DocComponent
 		}
 		
 		String desc = annotation.getDescription();
-		if(!StringUtils.isEmpty(desc)) {
+		if(!CommonsLangUtils.isEmpty(desc)) {
 			buf.append("<b>");
 			buf.append("Description: ");
 			buf.append("</b>");
@@ -803,7 +803,7 @@ class DocComponent
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, true, true);
-		if (StringUtils.isNotBlank(name)) 
+		if (CommonsLangUtils.isNotBlank(name)) 
 			chooser.setSelectedFileFull(name);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));

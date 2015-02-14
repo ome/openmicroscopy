@@ -63,7 +63,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -195,7 +195,7 @@ class UserProfile
             StringBuffer buf = new StringBuffer();
             buf.append(passwordNew.getPassword());
             String newPass = buf.toString();
-            if (StringUtils.isBlank(newPass)) {
+            if (CommonsLangUtils.isBlank(newPass)) {
                 un = MetadataViewerAgent.getRegistry().getUserNotifier();
                 un.notifyInfo(PASSWORD_CHANGE_TITLE,
                         "Please enter the new password.");
@@ -218,14 +218,14 @@ class UserProfile
         buf = new StringBuffer();
         buf.append(oldPassword.getPassword());
         String old = buf.toString();
-        if (StringUtils.isBlank(old)) {
+        if (CommonsLangUtils.isBlank(old)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please enter your old password.");
             oldPassword.requestFocus();
             return;
         }
-        if (StringUtils.isBlank(newPass)) {
+        if (CommonsLangUtils.isBlank(newPass)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please enter your new password.");
@@ -243,7 +243,7 @@ class UserProfile
             return;
         }
 
-        if (pass == null || StringUtils.isBlank(confirm) ||
+        if (pass == null || CommonsLangUtils.isBlank(confirm) ||
                 !pass.equals(confirm)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
@@ -788,7 +788,7 @@ class UserProfile
     private JPanel buildPasswordPanel(String ldap)
     {
         passwordPanel.removeAll();
-        if (StringUtils.isNotBlank(ldap)) {
+        if (CommonsLangUtils.isNotBlank(ldap)) {
             passwordPanel.setBorder( BorderFactory.createTitledBorder("LDAP"));
             passwordPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
             passwordPanel.add(new JLabel(ldap));
@@ -944,7 +944,7 @@ class UserProfile
     {
         saveButton.setEnabled(false);
         String text = loginArea.getText();
-        if (StringUtils.isBlank(text)) return false;
+        if (CommonsLangUtils.isBlank(text)) return false;
         text = text.trim();
         ExperimenterData original = (ExperimenterData) model.getRefObject();
         if (!text.equals(original.getUserName())) {
@@ -971,7 +971,7 @@ class UserProfile
                 field = items.get(key);
                 if (field != null) {
                     v = field.getText();
-                    if (StringUtils.isBlank(v)) {
+                    if (CommonsLangUtils.isBlank(v)) {
                         if (EditorUtil.FIRST_NAME.equals(key) ||
                                 EditorUtil.LAST_NAME.equals(key)) {
                             return false;

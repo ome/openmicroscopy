@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.svc.proxy;
 
 import java.io.File;
 
-import org.apache.commons.lang3.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ContentType;
@@ -79,7 +79,7 @@ class MessengerFileRequest
     {
         super();
         this.token = token;
-        if (StringUtils.isBlank(reader)) reader = "unknown";
+        if (CommonsLangUtils.isBlank(reader)) reader = "unknown";
         this.reader = reader;
         this.file = file;
     }
