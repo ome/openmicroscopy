@@ -37,27 +37,47 @@ GITVERSION_XML = """<?xml version="1.0" encoding="utf-8"?>
         <property name="omero.vcs.date.source" value="embedded"/>
 </project>
 """
+
 GITVERSION_CMAKE = """set(OME_VERSION "%s")
 set(OME_VERSION_SHORT "%s")
 set(OME_VCS_REVISION "%s")
 set(OME_VCS_DATE "%s")
 """
 
+BF_GITVERSION_XML = """<?xml version="1.0" encoding="utf-8"?>
+<project name="gitversion" basedir=".">
+  property name="release.version" value="%s"/>
+  <property name="release.shortversion" value="%s"/>
+  <property name="vcs.revision" value="%s"/>
+  <property name="vcs.date" value="%s"/>
+</project>
+"""
+
+BF_GITVERSION_CMAKE = """set(OME_VERSION "%s")
+set(OME_VERSION_SHORT "%s")
+set(OME_VCS_REVISION "%s")
+set(OME_VCS_DATE %s)
+set(OME_VCS_DATE_S "%s")
+"""
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 9:
+    if len(sys.argv) != 12:
         raise Exception(
             'Usage: %s releasename shortversion fullversion vcs-revision'
-            ' vcs-date versionfile cppversionfile targetdir')
+            ' vcs-date bf_shortversion bf_version bf_revision targetdir')
 
     release = sys.argv[1]
     shortversion = sys.argv[2]
     version = sys.argv[3]
     vcs_revision = sys.argv[4]
     vcs_date = sys.argv[5]
-    versionfile = sys.argv[6]
-    cppversionfile = sys.argv[7]
-    target = os.path.abspath(sys.argv[8])
+    bf_shortversion = sys.argv[6]
+    bf_version = sys.argv[7]
+    bf_vcs_revision = sys.argv[8]
+    bf_vcs_date = sys.argv[9]
+    bf_vcs_date_unix = sys.argv[10]
+    target = os.path.abspath(sys.argv[11])
     release = "%s-%s" % (release, version)
 
     if not os.path.isdir('.git'):
@@ -120,8 +140,18 @@ if __name__ == "__main__":
 
     # Embed release number
     basezip.writestr(
-        "%s/%s" % (release, versionfile),
+        "%s/components/antlib/resources/gitversion.xml" % release,
         GITVERSION_XML % (shortversion, version, vcs_revision, vcs_date))
     basezip.writestr(
-        "%s/%s" % (release, cppversionfile),
+        "%s/components/tools/OmeroCpp/cmake/GitVersion.cmake" % release,
         GITVERSION_CMAKE % (version, shortversion, vcs_revision, vcs_date))
+
+    basezip.writestr(
+        "%s/components/bioformats/ant/gitversion.xml" % (release),
+        BF_GITVERSION_XML % (bf_version, bf_shortversion, bf_vcs_revision,
+                             bf_vcs_date))
+    basezip.writestr(
+        "%s/components/bioformats/cpp/cmake/GitVersion.cmake" % (release),
+        BF_GITVERSION_CMAKE % (
+            bf_version, bf_shortversion, bf_vcs_revision, bf_vcs_date_unix,
+            bf_vcs_date))
