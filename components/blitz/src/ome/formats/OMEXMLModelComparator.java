@@ -110,7 +110,6 @@ public class OMEXMLModelComparator implements Comparator<LSID>
 
         if (klass.equals(ObjectiveSettings.class)
             || klass.equals(DetectorSettings.class)
-            || klass.equals(LightSettings.class)
             || klass.equals(LightPath.class))
         {
             return 3;
