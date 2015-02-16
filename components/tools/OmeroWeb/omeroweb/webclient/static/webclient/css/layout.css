@@ -521,21 +521,18 @@
 		
         
         
-            
-    #toolbar_info_panel textarea {
-    	width:99%;
-    	float:right;
-    	resize:none;
-    	border:none;
-    	padding:5px 0 0 0;
-    	margin:0px;
-    }
 
     #toolbar_info_panel .panel_div {
         border-top: solid #ddd 1px;
     }
     
+    #toolbar_info_panel p {
+        margin:5px
+    }
 
+    #toolbar_info_panel .show_more {
+        margin-left:10px
+    }
 
     
     

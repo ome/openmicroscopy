@@ -137,6 +137,12 @@
                         $panel_title = $("#toolbar_info_panel .panel_title"),
                         $panel_div = $("#toolbar_info_panel .panel_div");
 
+
+                $( "#toolbar_info_panel" ).on( "click", ".show_more", function() {
+                    $(this).hide().next().show();
+                    return false;
+                });
+
                 $("#show_fs_files_btn").click(function(){
 
                     // If we're already showing Image file info, toggle hide
@@ -153,25 +159,32 @@
                             function(data) {
                                 var repo = data.repo,
                                     client = data.client,
-                                    importTitle = 'Imported from:';
+                                    html = "";
                                 $panel_title.html(repo.length + " Image file" + (repo.length>1 ? "s:" : ":"));
 
                                 if (importTransfer) {
-                                    importTitle = "Imported with <strong>--transfer="+ importTransfer + "</strong> from:";
+                                    html += "<p>Imported with <strong>--transfer="+ importTransfer;
+                                    html += "</strong></p><hr/>";
                                 }
-                                $panel_div.append('<p style="margin:5px">' + importTitle + '</p>');
-                                $("<textarea readonly='true'></textarea>")
-                                    .val(client.join("\n"))
-                                    .attr("cols", 150)
-                                    .attr("rows", Math.max(3, client.length))
-                                    .appendTo($panel_div);
-                                $panel_div.append('<div style="clear:both">');
-                                $panel_div.append('<p style="margin:5px">Path' + (repo.length>1 ? "s" : "") + ' on server:</p>');
-                                $("<textarea readonly='true'></textarea>")
-                                    .val(repo.join("\n"))
-                                    .attr("cols", 150)
-                                    .attr("rows", Math.max(3, repo.length))
-                                    .appendTo($panel_div);
+
+                                html += "<p>Imported from:</p>";
+                                html += "<p class='pathlist'>" + client.slice(0,2).join("<br>") + "<br>";
+                                if (client.length > 2) {
+                                    html += "<a class='show_more' href='#'> Show more...</a>";
+                                    html += "<span style='display:none'>" + client.slice(2).join("<br>");
+                                    html += "</span>";
+                                }
+                                html += "</p><hr/>";
+
+                                html += "<p>Paths on server:</p>";
+                                html += "<p class='pathlist'>" + repo.slice(0,2).join("<br>") + "<br>";
+                                if (repo.length > 2) {
+                                    html += "<a class='show_more' href='#'> Show more...</a>";
+                                    html += "<span style='display:none'>" + repo.slice(2).join("<br>");
+                                    html += "</span>";
+                                }
+                                html += "</p>";
+                                $panel_div.append(html);
                             });
                     }
                 });
