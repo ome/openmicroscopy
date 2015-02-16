@@ -20,6 +20,8 @@
 package org.openmicroscopy.shoola.agents.metadata.util;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -27,8 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
+import javax.swing.JSeparator;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -39,8 +43,8 @@ import pojos.FilesetData;
 /**
  * A {@link TinyDialog} displaying file paths
  *
- * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  */
 public class FilesetInfoDialog extends TinyDialog {
 
@@ -59,68 +63,118 @@ public class FilesetInfoDialog extends TinyDialog {
 
     /**
      * Sets the data to display
-     * @param set The fileset which paths should be shown
-     * @param inPlaceImport Flag if this is an inplace import
+     * 
+     * @param set
+     *            The fileset which paths should be shown
+     * @param inPlaceImport
+     *            Flag if this is an inplace import
      */
     public void setData(Set<FilesetData> set, boolean inPlaceImport) {
         if (set == null)
             return;
 
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("<html>");
-        
-        if (CollectionUtils.isEmpty(set)) {
-            buffer.append("No information available.");
-        }
-        else {
-            buffer.append(set.size() + " Image file");
-            buffer.append("<hr/>");
-            buffer.append("Imported ");
-            if (inPlaceImport) {
-                buffer.append("with <b>--transfer=ln</b> ");
-            }
-            buffer.append("from:<br/>");
-    
-            Iterator<FilesetData> i = set.iterator();
-            FilesetData data;
-            List<String> paths;
-            Iterator<String> j;
-            while (i.hasNext()) {
-                data = i.next();
-                paths = data.getUsedFilePaths();
-                j = paths.iterator();
-                while (j.hasNext()) {
-                    buffer.append(j.next());
-                    buffer.append("<br/>");
-                }
-            }
-    
-            if (!inPlaceImport) {
-                buffer.append("<hr/>");
-                buffer.append("Path on server:<br/>");
-                i = set.iterator();
-                while (i.hasNext()) {
-                    data = i.next();
-                    paths = data.getAbsolutePaths();
-                    j = paths.iterator();
-                    while (j.hasNext()) {
-                        buffer.append(j.next());
-                        buffer.append("<br/>");
-                    }
-                }
-            }
-        }
-        
-        buffer.append("</html>");
-
-        JTextPane content = new JTextPane();
-        content.setContentType("text/html");
-        content.setEditable(false);
-        content.setText(buffer.toString());
+        JPanel content = new JPanel();
+        content.setLayout(new GridBagLayout());
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.NORTHEAST;
+
+        if (CollectionUtils.isEmpty(set)) {
+            JLabel l = new JLabel("No information available.");
+            l.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(l, c);
+        } else {
+            JLabel l = new JLabel(set.size() + " Image file");
+            l.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(l, c);
+            c.gridy++;
+
+            JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
+            sep.setBackground(UIUtilities.BACKGROUND_COLOR);
+            content.add(sep, c);
+            c.gridy++;
+
+            String header = inPlaceImport ? "Imported with <b>--transfer=ln</b> from:" : "Imported from:";
+            ExpandableHeaderTextPane t1 = new ExpandableHeaderTextPane(
+                    header, 2);
+            t1.setBackground(UIUtilities.BACKGROUND_COLOR);
+            t1.setText(getOriginPaths(set));
+            content.add(t1, c);
+            c.gridy++;
+
+            if (!inPlaceImport) {
+                JSeparator sep2 = new JSeparator(JSeparator.HORIZONTAL);
+                sep2.setBackground(UIUtilities.BACKGROUND_COLOR);
+                content.add(sep2, c);
+                c.gridy++;
+
+                ExpandableHeaderTextPane t2 = new ExpandableHeaderTextPane(
+                        "Path on server:", 2);
+                t2.setBackground(UIUtilities.BACKGROUND_COLOR);
+                t2.setText(getServerPaths(set));
+                content.add(t2, c);
+            }
+        }
+
         setCanvas(new JScrollPane(content));
     }
 
+    /**
+     * Get the original file paths; html formatted
+     * @param set The fileset to extract the information from
+     * @return See above
+     */
+    private String getOriginPaths(Set<FilesetData> set) {
+        StringBuilder sb = new StringBuilder();
+        
+        Iterator<FilesetData> i = set.iterator();
+        FilesetData data;
+        List<String> paths;
+        Iterator<String> j;
+        while (i.hasNext()) {
+            data = i.next();
+            paths = data.getUsedFilePaths();
+            j = paths.iterator();
+            while (j.hasNext()) {
+                sb.append(j.next());
+                sb.append("<br/>");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Get the server paths; html formatted
+     * @param set The fileset to extract the information from
+     * @return See above.
+     */
+    private String getServerPaths(Set<FilesetData> set) {
+        StringBuilder sb = new StringBuilder();
+
+        Iterator<FilesetData> i = set.iterator();
+        FilesetData data;
+        List<String> paths;
+        Iterator<String> j;
+        while (i.hasNext()) {
+            data = i.next();
+            paths = data.getAbsolutePaths();
+            j = paths.iterator();
+            while (j.hasNext()) {
+                sb.append(j.next());
+                sb.append("<br/>");
+            }
+        }
+
+        return sb.toString();
+    }
+    
     /**
      * Shows the dialog in the center of the screen
      */
@@ -130,7 +184,9 @@ public class FilesetInfoDialog extends TinyDialog {
 
     /**
      * Shows the dialog in a certain location
-     * @param location See above
+     * 
+     * @param location
+     *            See above
      */
     public void open(Point location) {
         addWindowFocusListener(new WindowFocusListener() {
@@ -157,17 +213,19 @@ public class FilesetInfoDialog extends TinyDialog {
         setResizable(true);
         getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
         pack();
-        Dimension size = getSize();
+        Dimension size = getPreferredSize();
         if (size.width > DEFAULT_WIDTH)
             size.width = DEFAULT_WIDTH;
         if (size.height > DEFAULT_HEIGHT)
             size.height = DEFAULT_HEIGHT;
+        // add some more pixels for the horiz. JScrollbar which
+        // might be shown at the bottom
+        size.height += 20;
         setSize(size);
         if (location != null) {
             setLocation(location);
             setVisible(true);
-        }
-        else {
+        } else {
             UIUtilities.centerAndShow(this);
         }
     }
