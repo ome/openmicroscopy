@@ -56,6 +56,8 @@ from omero.gateway import TagAnnotationWrapper, \
                 AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
+from omero.fs import TRANSFERS
+
 from omero.gateway import KNOWN_WRAPPERS
 
 from django.utils.encoding import smart_str
@@ -2335,14 +2337,13 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         return []
 
     def getInplaceImportCmd(self):
-        cmds = {'ome.formats.importer.transfers.MoveFileTransfer': 'ln_rm',
-                'ome.formats.importer.transfers.CopyFileTransfer': 'cp',
-                'ome.formats.importer.transfers.CopyMoveFileTransfer': 'cp_rm',
-                'ome.formats.importer.transfers.HardlinkFileTransfer': 'ln',
-                'ome.formats.importer.transfers.SymlinkFileTransfer': 'ln_s'}
+        """
+        Returns the command used to do import transfer for this image,
+        E.g. 'ln', or empty string if not in-place imported.
+        """
         inplace = self.getInplaceImport()
-        if inplace and inplace in cmds:
-            return cmds[inplace]
+        if inplace and inplace in TRANSFERS:
+            return TRANSFERS[inplace]
         return ""
 
 
