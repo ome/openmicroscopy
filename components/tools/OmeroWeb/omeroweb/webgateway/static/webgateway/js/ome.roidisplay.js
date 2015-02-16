@@ -301,9 +301,14 @@ $.fn.roi_display = function(options) {
                 if (active_rois.hasOwnProperty(roi_json[r].id)) {
                     var roi = {"id": roi_json[r].id};
                     var shapes = roi_json[r].shapes;
-                    if (active_rois[roi_json[r].id].length == 0)
+                    if (active_rois[roi_json[r].id].length == 0) {
                         // No filter for the shapes, append all of them
                         roi['shapes'] = shapes;
+                        // Update filter as well, this will make possible to selectively disable shapes
+                        for (s = 0; s < shapes.length; s++) {
+                            active_rois[roi_json[r].id].push(shapes[s].id);
+                        }
+                    }
                     else {
                         roi['shapes'] = [];
                         for (s=0; s<shapes.length; s++) {
