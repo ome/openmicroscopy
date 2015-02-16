@@ -400,7 +400,7 @@ class ToolBar
 		saveAsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
 		viewButton = new JButton("Full Viewer");
-		viewButton.setToolTipText("Open full viewer");
+		viewButton.setToolTipText("Open full viewer.");
 		if (MetadataViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 			viewButton.addMouseListener(new MouseAdapter() {
 				
@@ -433,7 +433,7 @@ class ToolBar
         pathButton.addMouseListener(pathLocML);
         
         locationButton = new JButton(icons.getIcon(IconManager.DATASET));
-        locationButton.setToolTipText("Show parent Projects & Datasets");
+        locationButton.setToolTipText("Show parent Projects & Datasets.");
         locationButton.addActionListener(controller);
         locationButton.setActionCommand(""+EditorControl.SHOW_LOCATION);
         locationButton.setEnabled(model.isSingleMode() && model.getImage() != null);
