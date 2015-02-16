@@ -85,7 +85,7 @@ module omero {
             omero::api::StringSet list(string path) throws ServerError;
 
             /**
-             * Returns an array of abstract pathanam objects denoting the
+             * Returns an array of abstract pathname objects denoting the
              * files in the directory denoted by an abstract pathname.  It
              * is expected that at a minimum the "name", "path", "size" and
              * "mtime" attributes will be present for each
