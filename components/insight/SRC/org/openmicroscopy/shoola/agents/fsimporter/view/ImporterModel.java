@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
@@ -611,57 +610,6 @@ class ImporterModel
                     saver.load();
                 }
             }
-        }
-    }
-
-    /**
-     * Saves the rois.
-     *
-     * @param object The object to handle.
-     */
-    private void saveROI(ResultsObject object)
-    {
-        List<Object> objects = object.getRefObjects();
-        if (CollectionUtils.isEmpty(objects)) return;
-        Iterator<Object> i = objects.iterator();
-        Object o;
-        FileObject file;
-        long id;
-        ROIReader reader = new ROIReader();
-        SecurityContext ctx; 
-        List<ROIData> rois;
-        ExperimenterData exp = ImporterAgent.getUserDetails();
-        while (i.hasNext()) {
-            o = i.next();
-            if (o instanceof FileObject) {
-                file = (FileObject) o;
-                id = file.getOMEROID();
-                if (id >= 0) {
-                    ctx = new SecurityContext(file.getGroupID());
-                    ImagePlus img = (ImagePlus) file.getFile();
-                    rois = reader.readImageJROI(id, img);
-                    if (CollectionUtils.isEmpty(rois)) {
-                        rois = reader.readImageJROI(id);
-                    }
-                    if (CollectionUtils.isNotEmpty(rois)) {
-                        ROISaver saver = new ROISaver(component, ctx, rois, id,
-                            exp.getId());
-                        saver.load();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Saves the results.
-     *
-     * @param object The object to handle.
-     */
-    void saveResults(ResultsObject object)
-    {
-        if (object.isROI()) {
-            saveROI(object);
         }
     }
 
