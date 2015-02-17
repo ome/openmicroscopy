@@ -410,7 +410,7 @@ class TestSearch(lib.ITest):
         try:
             for txt in (key, val,
                         "%s:%s" % (key, val),
-                        "map.key:%s" % key):
+                        "has_key:%s" % key):
                 search.byFullText(txt)
                 assert search.hasNext(), txt
                 assert proj.id.val in [
