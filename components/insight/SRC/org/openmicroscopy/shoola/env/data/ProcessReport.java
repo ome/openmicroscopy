@@ -29,8 +29,10 @@ import java.util.Map;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.cmd.ERR;
+import omero.cmd.GraphException;
 
 /** 
  * Error that occurred when moving data, deleting etc.
@@ -75,6 +77,18 @@ public class ProcessReport {
 	 * 
 	 * @return See above.
 	 */
-	public Map<String, String> getDetails() { return error.parameters; }
+	public Map<String, String> getDetails() { return error.parameters;}
+	
+	/** 
+	 * Returns the {@link GraphException} if this ProcessReport represents
+	 * a GraphException (<code>null</code> if it doesn't)
+	 * 
+	 * @return See above.
+	 */
+	public GraphException getGraphException() {
+		if(error instanceof GraphException)
+			return (GraphException) error;
+		return null;
+	}
 	
 }
