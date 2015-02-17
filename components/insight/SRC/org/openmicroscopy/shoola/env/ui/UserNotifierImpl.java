@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
@@ -434,6 +435,9 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 		} else if (activity instanceof TransferableActivityParam) {
 			TransferableActivityParam p = (TransferableActivityParam) activity;
 			comp = new DataTransferActivity(this, manager.getRegistry(), p);
+		} else if (activity instanceof ResultsObject) {
+		    ResultsObject p = (ResultsObject) activity;
+		    comp = new SaveResultsActivity(this, manager.getRegistry(), ctx, p);
 		}
 		if (comp != null) {
 			if (startActivity) {

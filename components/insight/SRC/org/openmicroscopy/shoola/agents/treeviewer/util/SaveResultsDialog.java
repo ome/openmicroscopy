@@ -46,8 +46,11 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ResultsObject;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.ExperimenterData;
 
 
 /** 
@@ -140,8 +143,11 @@ public class SaveResultsDialog
         if (images.size() == 0) return;
         result = new ResultsObject(images);
         result.setROI(roi.isSelected());
-        TreeViewerAgent.getRegistry().getEventBus().post(
-                new SaveResultsEvent(result));
+        ExperimenterData exp = TreeViewerAgent.getUserDetails();
+        SecurityContext ctx = new SecurityContext(exp.getGroupId());
+        ctx.setExperimenter(exp);
+        TreeViewerAgent.getRegistry().getUserNotifier().notifyActivity(ctx,
+                result);
         cancel();
     }
 
