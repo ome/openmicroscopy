@@ -947,8 +947,6 @@ class ImporterComponent
             List<FileObject> files = (List) object.getRefObjects();
             chooser.addImageJFiles(files);
             chooser.importFiles();
-        } else {
-           model.saveResults(object);
         }
     }
 }
