@@ -1,6 +1,20 @@
 OMERO version history
 =====================
 
+5.1.0-m4 (February 2015)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.1.0. Use at your own risk**.
+
+Changes include:
+
+-  final Database changes
+-  client bundle clean-up
+-  UI implementation of new Map annotations
+-  ImageJ plugin fixes for ROIs
+-  OMERO.matlab updates re: annotations
+
 5.0.8 (February 2015)
 ---------------------
 
