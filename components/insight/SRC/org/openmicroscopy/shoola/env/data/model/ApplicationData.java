@@ -210,6 +210,7 @@ public class ApplicationData {
 	public static String[] buildCommand(ApplicationData data, File file)
 			throws MalformedURLException {
 
+	    if (data == null && file == null) return null;
 		if (data == null)
 			return extractor.getDefaultOpenCommandFor(file.toURI().toURL());
 
@@ -220,7 +221,7 @@ public class ApplicationData {
 			commandLine.add(commandArg);
 		}
 
-		commandLine.add(file.getAbsolutePath());
+		if (file != null) commandLine.add(file.getAbsolutePath());
 
 		return commandLine.toArray(new String[0]);
 	}
