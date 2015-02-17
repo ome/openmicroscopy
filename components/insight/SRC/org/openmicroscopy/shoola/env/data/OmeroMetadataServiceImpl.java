@@ -559,12 +559,9 @@ class OmeroMetadataServiceImpl
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
 		boolean exist = false;
-		
-		//Annotation an = (Annotation) gateway.findIObject(gateway.convertPojos(
-		//		annotation.getClass()), annotation.getId());
-		//ModelMapper.unloadCollections(an);
+
 		Annotation an = annotation.asAnnotation();
-		ExperimenterData exp = getUserDetails();
+		ExperimenterData exp = data.getOwner();
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
 			//tag a tag.
