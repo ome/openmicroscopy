@@ -456,6 +456,8 @@ public class MapAnnotationsComponent extends JPanel implements
 		t.addFocusListener(new FocusListener() {
 			@Override
 			public void focusLost(FocusEvent e) {
+                if (t.getCellEditor() != null)
+                    t.getCellEditor().stopCellEditing();
 				MapTableModel m = (MapTableModel) t.getModel();
 				if (m.isDirty())
 					view.saveData(true);
