@@ -68,7 +68,6 @@
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
     <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
     <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
-    <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
     <!-- Required for annotations in Permissions.java -->
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
 
