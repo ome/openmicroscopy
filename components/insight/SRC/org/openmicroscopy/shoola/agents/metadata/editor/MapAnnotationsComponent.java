@@ -457,8 +457,6 @@ public class MapAnnotationsComponent extends JPanel implements
 		t.addFocusListener(new FocusListener() {
 			@Override
 			public void focusLost(FocusEvent e) {
-                if (t.getCellEditor() != null)
-                    t.getCellEditor().stopCellEditing();
 				MapTableModel m = (MapTableModel) t.getModel();
 				if (m.isDirty())
 					view.saveData(true);
@@ -486,6 +484,8 @@ public class MapAnnotationsComponent extends JPanel implements
 			boolean excludeEmpty) {
 		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
 		for (MapTable t : mapTables) {
+            if (t.getCellEditor() != null)
+                t.getCellEditor().stopCellEditing();
 			if ((!onlyDirty || ((MapTableModel) t.getModel()).isDirty())
 					&& !(excludeEmpty && t.isEmpty()))
 				result.add(t.getData());
