@@ -47,7 +47,6 @@
     <dependency org="commons-validator" name="commons-validator" rev="${versions.commons-validator}"/>
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
-    <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
     <dependency org="org.apache.httpcomponents" name="httpclient" rev="${versions.httpclient}"/>
     <dependency org="org.apache.httpcomponents" name="httpcore" rev="${versions.httpcore}"/>
@@ -57,10 +56,7 @@
     <dependency org="org.jfree" name="jcommon" rev="${versions.jcommon}"/>
     <dependency org="org.jfree" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
-    <dependency org="insight" name="physics" rev="${versions.physics}"/>
     <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
-    <dependency org="insight" name="processing-core" rev="${versions.processing-core}"/>
-    <dependency org="insight" name="processing-controlP5" rev="${versions.processing-controlP5}"/>
     <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}"/>
     <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>

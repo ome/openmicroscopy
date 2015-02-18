@@ -37,7 +37,6 @@ import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
-import org.openmicroscopy.shoola.agents.events.iviewer.FLIMResultsEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
@@ -448,22 +447,6 @@ public class ImViewerAgent
     }
 
     /**
-     * Displays the results of a FLIM analysis
-     *
-     * @param evt The event to handle.
-     */
-    private void handleFLIMResultsEvent(FLIMResultsEvent evt)
-    {
-        if (evt == null) return;
-        ImageData image = evt.getImage();
-        ImViewer viewer = ImViewerFactory.getImageViewer(null,
-                image.getDefaultPixels().getId());
-        if (viewer != null) {
-            viewer.displayFLIMResults(evt.getResults());
-        }
-    }
-
-    /**
      * Closes the viewer b/c the rendering engine could not be loaded.
      *
      * @param evt The event to handle.
@@ -580,7 +563,6 @@ public class ImViewerAgent
         bus.register(this, RendererUnloadedEvent.class);
         bus.register(this, DeleteObjectEvent.class);
         bus.register(this, RndSettingsSaved.class);
-        bus.register(this, FLIMResultsEvent.class);
         bus.register(this, ReloadRenderingEngine.class);
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, SelectChannel.class);
@@ -645,8 +627,6 @@ public class ImViewerAgent
             handleDeleteObjectEvent((DeleteObjectEvent) e);
         else if (e instanceof RndSettingsSaved) 
             handleRndSettingsSavedEvent((RndSettingsSaved) e);
-        else if (e instanceof FLIMResultsEvent) 
-            handleFLIMResultsEvent((FLIMResultsEvent) e);
         else if (e instanceof ReloadRenderingEngine) 
             handleReloadRenderingEngineEvent((ReloadRenderingEngine) e);
         else if (e instanceof ReconnectedEvent)
