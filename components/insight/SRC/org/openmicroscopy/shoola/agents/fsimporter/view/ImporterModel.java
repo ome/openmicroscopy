@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 
 import java.util.Collection;
@@ -589,11 +590,13 @@ class ImporterModel
             ImageData data;
             long id;
             Iterator<ImageData> i = images.iterator();
+            IJ.debugMode = true;
             while (i.hasNext()) {
                 data = i.next();
                 id = data.getId();
-                index = data.getIndex(); //to be modified when series is available.
-              //First check overlay
+                index = data.getSeries();
+                IJ.log("index:"+index);
+                //First check overlay
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
