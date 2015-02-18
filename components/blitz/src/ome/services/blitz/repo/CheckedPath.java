@@ -472,6 +472,6 @@ public class CheckedPath {
      */
     @Override
     public int hashCode() {
-        return this.fsFile.hashCode();
+        return this.fsFile.hashCode() * 98;
     }
 }
