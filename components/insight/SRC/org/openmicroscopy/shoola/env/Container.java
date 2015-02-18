@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.env;
 
-//Java imports
 import ij.IJ;
 
 import java.io.File;
@@ -31,12 +30,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-//Third-party libraries
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.config.RegistryFactory;
@@ -213,11 +209,11 @@ public final class Container
 	private Container(String home, String configFile)
 		throws StartupException
 	{
-	    if (StringUtils.isBlank(configFile) ||
+	    if (CommonsLangUtils.isBlank(configFile) ||
 	            !FilenameUtils.isExtension(configFile, "xml"))
 			configFile = CONFIG_FILE;
 		this.configFile = configFile;
-        if (StringUtils.isBlank(FilenameUtils.getPath(home)))
+        if (CommonsLangUtils.isBlank(FilenameUtils.getPath(home)))
             home = System.getProperty("user.dir");
         File f = new File(home);
 		

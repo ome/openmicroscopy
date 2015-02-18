@@ -1,8 +1,9 @@
-/**
+/*
+ *------------------------------------------------------------------------------
  *  Copyright (C) 2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -54,7 +55,7 @@ import javax.swing.event.TableModelListener;
 
 import omero.model.NamedValue;
 
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorModel.MapAnnotationType;
@@ -344,7 +345,7 @@ public class MapAnnotationsComponent extends JPanel implements
 					p.add(t, BorderLayout.CENTER);
 
 					// if the MapAnnotation has a custom namespace, display it
-					if (!StringUtils.isEmpty(ma.getNameSpace())
+					if (!CommonsLangUtils.isEmpty(ma.getNameSpace())
 							&& !MapAnnotationData.NS_CLIENT_CREATED.matches(ma
 									.getNameSpace())) {
 						JLabel ns = new JLabel(UIUtilities.formatPartialName(ma

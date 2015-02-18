@@ -1,4 +1,5 @@
 /*
+ *------------------------------------------------------------------------------
  * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
@@ -15,6 +16,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * 
+ *------------------------------------------------------------------------------
  */
 
 package org.openmicroscopy.shoola.util.ui.search;
@@ -30,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /**
  * Utility class for building lucene queries<br>
@@ -84,7 +87,7 @@ public class LuceneQueryBuilder {
         if (from == null && to == null)
             return basicQuery;
 
-        if (!StringUtils.isEmpty(basicQuery))
+        if (CommonsLangUtils.isNotEmpty(basicQuery))
             result.append("(" + basicQuery + ")");
         else
             result.append(basicQuery);

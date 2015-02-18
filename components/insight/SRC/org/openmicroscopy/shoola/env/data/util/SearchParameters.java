@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.util.SearchDataContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,28 +23,25 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 
-//Java imports
 import java.sql.Timestamp;
 import java.util.List;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import pojos.DataObject;
 
 
 public class SearchParameters
 {
-	/** The ID for searching across all groups*/
-        public static final int ALL_GROUPS_ID = -1;
-        
-        /** Indicates that the date has to be interpreted as import date*/
-        public static final int DATE_IMPORT = 0;
-    
-    	 /** Indicates that the date has to be interpreted as acquisition date*/
-        public static final int DATE_ACQUISITION = 1;
-    
+    /** The ID for searching across all groups*/
+    public static final int ALL_GROUPS_ID = -1;
+
+    /** Indicates that the date has to be interpreted as import date*/
+    public static final int DATE_IMPORT = 0;
+
+    /** Indicates that the date has to be interpreted as acquisition date*/
+    public static final int DATE_ACQUISITION = 1;
+
 	/** Identifying the <code>Annotation</code> context. */
 	public static final int			TEXT_ANNOTATION = 0;
 	
@@ -169,7 +166,7 @@ public class SearchParameters
 	 */
 	public boolean isValid()
 	{
-		return !(StringUtils.isBlank(query) && start == null
+		return !(CommonsLangUtils.isBlank(query) && start == null
                         && end == null);
 	}
 	
@@ -181,7 +178,7 @@ public class SearchParameters
 	 */
 	public boolean hasTextToSearch()
 	{
-		return !StringUtils.isBlank(query);
+		return CommonsLangUtils.isNotBlank(query);
 	}
 
         public long getUserId() {

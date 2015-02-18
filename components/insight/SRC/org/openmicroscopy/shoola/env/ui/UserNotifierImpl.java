@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.env.ui;
 
-//Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -36,7 +35,7 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -190,7 +189,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			e = new Exception(summary);
 		} else
 			e = new Exception(detail);
-		if (StringUtils.isEmpty(title))
+		if (CommonsLangUtils.isEmpty(title))
 			title = DEFAULT_ERROR_TITLE;
 		MessengerDialog d = new MessengerDialog(SHARED_FRAME, title,
 				getEmail(email), e);
@@ -245,7 +244,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 * @see UserNotifier#notifyError(String, String)
 	 */
 	public void notifyError(String title, String summary) {
-		if (StringUtils.isEmpty(title))
+		if (CommonsLangUtils.isEmpty(title))
 			title = DEFAULT_ERROR_TITLE;
 		showNotificationDialog(title, summary,
 				IconManager.getDefaultErrorIcon());
@@ -268,7 +267,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 */
 	public void notifyError(String title, String summary, String email,
 			List<ImportErrorObject> toSubmit, PropertyChangeListener listener) {
-		if (StringUtils.isEmpty(title)) title = DEFAULT_ERROR_TITLE;
+		if (CommonsLangUtils.isEmpty(title)) title = DEFAULT_ERROR_TITLE;
 		if (email == null) email = "";
 		MessengerDialog d = new MessengerDialog(SHARED_FRAME, title,
 				getEmail(email), toSubmit);
@@ -298,7 +297,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 * @see UserNotifier#notifyWarning(String, String)
 	 */
 	public void notifyWarning(String title, String message) {
-		if (StringUtils.isEmpty(title))
+		if (CommonsLangUtils.isEmpty(title))
 			title = DEFAULT_WARNING_TITLE;
 		showNotificationDialog(title, message, IconManager.getDefaultWarnIcon());
 	}
@@ -309,7 +308,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 * @see UserNotifier#notifyWarning(String, String, String)
 	 */
 	public void notifyWarning(String title, String summary, String detail) {
-		if (StringUtils.isEmpty(title))
+		if (CommonsLangUtils.isEmpty(title))
 			title = DEFAULT_WARNING_TITLE;
 		showErrorDialog(title, summary, detail, null);
 	}
@@ -330,7 +329,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 * @see UserNotifier#notifyInfo(String, String)
 	 */
 	public void notifyInfo(String title, String message) {
-		if (StringUtils.isEmpty(title))
+		if (CommonsLangUtils.isEmpty(title))
 			title = DEFAULT_INFO_TITLE;
 		showNotificationDialog(title, message, IconManager.getDefaultInfoIcon());
 	}
@@ -341,7 +340,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 	 * @see UserNotifier#notifyInfo(String, String, Icon)
 	 */
 	public void notifyInfo(String title, String message, Icon icon) {
-		if (StringUtils.isEmpty(title))
+		if (CommonsLangUtils.isEmpty(title))
 			title = DEFAULT_INFO_TITLE;
 		if (icon == null)
 			icon = IconManager.getDefaultInfoIcon();

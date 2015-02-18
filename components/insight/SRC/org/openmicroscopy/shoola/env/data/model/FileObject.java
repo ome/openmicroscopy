@@ -21,7 +21,6 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
 import ij.IJ;
 import ij.ImagePlus;
 import ij.io.FileInfo;
@@ -34,7 +33,7 @@ import loci.formats.codec.CompressionType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /**
  * Object hosting the information about the "file" to import.
@@ -161,7 +160,7 @@ public class FileObject
                 //name w/o extension
                 String baseName = FilenameUtils.getBaseName(
                         FilenameUtils.removeExtension(img.getTitle()));
-                baseName = StringUtils.deleteWhitespace(baseName);
+                baseName = CommonsLangUtils.deleteWhitespace(baseName);
                 String n = baseName+".ome.tif";
                 f = File.createTempFile(img.getTitle(), ".ome.tif");
                 File p = f.getParentFile();
