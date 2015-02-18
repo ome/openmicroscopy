@@ -244,7 +244,7 @@
 
             // Nothing selected - actions will apply to user's own table
             if ($selRows.length == 0) {
-                var canEdit = $('.editableKeyValueTable').length > 0;
+                var canEdit = $('.editableKeyValueTable:visible').length > 0;
                 enabled["Insert rows"] = canEdit;
                 enabled["Copy rows"] = false;
                 enabled["Paste rows"] = (canPaste && canEdit);
@@ -373,6 +373,16 @@
 
         $( ".keyValueTable tbody" ).on( "blur", "input", function(event) {
             saveEdit();
+        });
+
+        // When we filter annotations by 'me'/'others', need to update toolbar
+        $("#annotationFilter").change(function(){
+            // wait for annotations to be shown/hidden
+            setTimeout(function(){
+                // de-select all rows first
+                $('.keyValueTable tr').removeClass("ui-selected");
+                enableToolbarButtons();
+            }, 50);
         });
     });
 
