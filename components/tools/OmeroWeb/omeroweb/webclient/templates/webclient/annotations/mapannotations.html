@@ -178,6 +178,7 @@
                 $nextRow = $selRows.next(":last");
 
             $selRows.remove();
+            saveMapAnnotation($tbody.parent());
 
             // Add back a placeholder if table is empty (after saving!)
             if ($tbody.find('tr').length == 0) {
@@ -190,7 +191,6 @@
                 $tbody.find('tr:last').addClass('ui-selected');
             }
             enableToolbarButtons();
-            saveMapAnnotation($tbody.parent());
         }
 
         var selectRows = function selectRows($clickedRow, event) {
