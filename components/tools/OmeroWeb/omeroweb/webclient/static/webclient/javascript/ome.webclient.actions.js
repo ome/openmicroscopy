@@ -330,7 +330,7 @@ OME.filterAnnotationsAddedBy = function() {
         $this.css('width', '180px');
     }
 
-    $('.tag_annotation_wrapper, .file_ann_wrapper, .ann_comment_wrapper, #custom_annotations tr')
+    $('.tag_annotation_wrapper, .keyValueTable, .file_ann_wrapper, .ann_comment_wrapper, #custom_annotations tr')
             .each(function() {
         var $ann = $(this),
             addby = $ann.attr('data-added-by').split(",");
