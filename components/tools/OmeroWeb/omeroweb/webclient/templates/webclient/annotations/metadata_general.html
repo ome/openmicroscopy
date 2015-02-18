@@ -122,17 +122,26 @@
                 });
 
                 // show original file path links for images
-                var original_file_paths_url;
+                var original_file_paths_url,
+                    importTransfer;
                 {% if manager.image %}
                 original_file_paths_url = "{% url 'original_file_paths' manager.image.id %}";
+                importTransfer = "{{ manager.image.getInplaceImportCmd }}";
                 {% elif manager.well.getWellSample.image %}
                 original_file_paths_url = "{% url 'original_file_paths' manager.well.getWellSample.image.id %}";
+                importTransfer = "{{ manager.well.getWellSample.image.getInplaceImportCmd }}";
                 {% endif %}
 
                 var $toolbar_info_panel = $("#toolbar_info_panel"),
                         // $panel_textarea = $("#toolbar_info_panel textarea"),
                         $panel_title = $("#toolbar_info_panel .panel_title"),
                         $panel_div = $("#toolbar_info_panel .panel_div");
+
+
+                $( "#toolbar_info_panel" ).on( "click", ".show_more", function() {
+                    $(this).hide().next().show();
+                    return false;
+                });
 
                 $("#show_fs_files_btn").click(function(){
 
@@ -148,12 +157,34 @@
                     if (original_file_paths_url) {
                         $.getJSON(original_file_paths_url,
                             function(data) {
-                                $panel_title.html(data.length + " Image file" + (data.length>1 ? "s:" : ":"));
-                                $("<textarea readonly='true'></textarea")
-                                    .val(data.join("\n"))
-                                    .attr("cols", 150)
-                                    .attr("rows", Math.max(3, data.length))
-                                    .appendTo($panel_div);
+                                var repo = data.repo,
+                                    client = data.client,
+                                    html = "";
+                                $panel_title.html(repo.length + " Image file" + (repo.length>1 ? "s:" : ":"));
+
+                                if (importTransfer) {
+                                    html += "<p>Imported with <strong>--transfer="+ importTransfer;
+                                    html += "</strong></p><hr/>";
+                                }
+
+                                html += "<p>Imported from:</p>";
+                                html += "<p class='pathlist'>" + client.slice(0,2).join("<br>") + "<br>";
+                                if (client.length > 2) {
+                                    html += "<a class='show_more' href='#'> Show more...</a>";
+                                    html += "<span style='display:none'>" + client.slice(2).join("<br>");
+                                    html += "</span>";
+                                }
+                                html += "</p><hr/>";
+
+                                html += "<p>Paths on server:</p>";
+                                html += "<p class='pathlist'>" + repo.slice(0,2).join("<br>") + "<br>";
+                                if (repo.length > 2) {
+                                    html += "<a class='show_more' href='#'> Show more...</a>";
+                                    html += "<span style='display:none'>" + repo.slice(2).join("<br>");
+                                    html += "</span>";
+                                }
+                                html += "</p>";
+                                $panel_div.append(html);
                             });
                     }
                 });

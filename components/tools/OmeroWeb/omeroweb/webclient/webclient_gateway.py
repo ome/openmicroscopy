@@ -56,6 +56,8 @@ from omero.gateway import TagAnnotationWrapper, \
                 AnnotationWrapper, \
                 OmeroGatewaySafeCallWrapper, CommentAnnotationWrapper
 
+from omero.fs import TRANSFERS
+
 from omero.gateway import KNOWN_WRAPPERS
 
 from django.utils.encoding import smart_str
@@ -2383,6 +2385,16 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             fsImgs.sort(key=lambda x: x.getName().lower())
             return fsImgs
         return []
+
+    def getInplaceImportCmd(self):
+        """
+        Returns the command used to do import transfer for this image,
+        E.g. 'ln', or empty string if not in-place imported.
+        """
+        inplace = self.getInplaceImport()
+        if inplace and inplace in TRANSFERS:
+            return TRANSFERS[inplace]
+        return ""
 
 
 omero.gateway.ImageWrapper = ImageWrapper
