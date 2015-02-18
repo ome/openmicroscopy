@@ -1,6 +1,33 @@
 OMERO version history
 =====================
 
+5.1.0-m4 (February 2015)
+------------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.1.0. Use at your own risk**.
+
+Changes include:
+
+-  final Database changes - image.series is now exposed in Hibernate
+-  improved deletion performance
+-  client bundle clean-up
+-  other clean-up work including pep8 and removal of deprecated methods and
+   components
+-  new Map annotations are now included in the UI and search functionality
+-  ImageJ plugin updates which allow
+
+   * importing of images and saving ROIs to OMERO from within the plugin
+   * viewing images stored in OMERO and their ROIs generated within OMERO from
+     within the plugin
+   * updating ROIs on OMERO-stored images within the plugin and saving these
+     back to OMERO without needing to re-import the image
+
+-  OMERO.matlab updates re: annotations
+-  OMERO.tables internal HDF5 format has changed
+
+With thanks to Paul Van Schayck and Luca Lianas for their contributions.
+
 5.0.8 (February 2015)
 ---------------------
 
