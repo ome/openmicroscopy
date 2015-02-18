@@ -26,7 +26,7 @@ Changes include:
 -  OMERO.matlab updates re: annotations
 -  OMERO.tables internal HDF5 format has changed
 
-With thanks to Paul Van Schayck for his contributions.
+With thanks to Paul Van Schayck and Luca Lianas for their contributions.
 
 5.0.8 (February 2015)
 ---------------------
