@@ -416,5 +416,14 @@ class TestSearch(lib.ITest):
                 assert proj.id.val in [
                     x.id.val for x in search.results()
                 ], txt
+
+            # The value should not be found with as the key
+            # Nor the inverse v/k pair.
+            for txt in ("%s:%s" % (val, key),
+                        "%s:%s" % ("has_key", val)):
+
+                search.byFullText(txt)
+                assert not search.hasNext(), txt
+
         finally:
             search.close()
