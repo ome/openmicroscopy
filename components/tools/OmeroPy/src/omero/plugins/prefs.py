@@ -13,6 +13,7 @@
 
 """
 
+import os
 import sys
 
 from path import path
@@ -77,25 +78,76 @@ def _make_open_and_close_config(func, allow_readonly):
 
 def with_config(func):
     """
-    opens a config and passes it as the second argument.
+    Opens a config and passes it as the second argument.
     """
     return wraps(func)(_make_open_and_close_config(func, True))
 
 
 def with_rw_config(func):
     """
-    opens a config and passes it as the second argument.
+    Opens a config and passes it as the second argument.
     Requires that the returned config be writeable
     """
     return wraps(func)(_make_open_and_close_config(func, False))
 
 
-class WriteableConfigControl(BaseControl):
+class ConfigControl(BaseControl):
+    """
+    Base class for controls which need read-only access to the OMERO
+    configuration using the :func:`with_config` decorator
+    """
+
+    def open_config(self, args):
+        if args.source:
+            cfg_xml = path(args.source)
+            if not cfg_xml.exists():
+                self.ctx.die(124, "File not found: %s" % args.source)
+        else:
+            grid_dir = self.ctx.dir / "etc" / "grid"
+            if grid_dir.exists():
+                cfg_xml = grid_dir / "config.xml"
+            else:
+                userdir = path(get_user_dir())
+                usr_xml = userdir / "omero" / "config.xml"
+                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
+                cfg_xml = usr_xml
+        try:
+            return ConfigXml(str(cfg_xml))
+        except portalocker.LockException:
+            self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
+        except Exception, e:
+            self.ctx.die(113, str(e))
+
+    def set_db_arguments(self, cfg, xargs):
+        """Set DB/binary repository arguments to be passed to Java"""
+
+        # NOT passing password on command-line
+        for x in ("name", "user", "host", "port"):
+            key = "omero.db.%s" % x
+            if key in cfg:
+                xargs.append("-D%s=%s" % (key, cfg[key]))
+
+        # Pass binary repository directory if applicable
+        if "omero.data.dir" in cfg:
+            xargs.append("-Domero.data.dir=%s" % cfg["omero.data.dir"])
+
+        # Pass omero.db.pass using JAVA_OPTS environment variable
+        if "omero.db.pass" in cfg:
+            dbpassargs = "-Domero.db.pass=%s" % cfg["omero.db.pass"]
+            if "JAVA_OPTS" not in os.environ:
+                os.environ['JAVA_OPTS'] = dbpassargs
+            else:
+                os.environ['JAVA_OPTS'] = "%s %s" % (
+                    os.environ.get('JAVA_OPTS'), dbpassargs)
+
+
+class WriteableConfigControl(ConfigControl):
     """
     Base class for controls which need write access to the OMERO configuration
-    using the @with_rw_config decorator
+    using the :func:`with_rw_config` decorator
 
-    Note BaseControl should be used for read-only access using @with_config
+    Note :class:`ConfigControl` should be used for read-only access using
+    :func:`with_config`
     """
 
     def die_on_ro(self, config):
@@ -216,27 +268,6 @@ class PrefsControl(WriteableConfigControl):
         old = parser.add(sub, self.old, "Delegate to the old configuration"
                          " system using Java preferences")
         old.add_argument("target", nargs="*")
-
-    def open_config(self, args):
-        if args.source:
-            cfg_xml = path(args.source)
-            if not cfg_xml.exists():
-                self.ctx.die(124, "File not found: %s" % args.source)
-        else:
-            grid_dir = self.ctx.dir / "etc" / "grid"
-            if grid_dir.exists():
-                cfg_xml = grid_dir / "config.xml"
-            else:
-                userdir = path(get_user_dir())
-                usr_xml = userdir / "omero" / "config.xml"
-                self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
-                cfg_xml = usr_xml
-        try:
-            return ConfigXml(str(cfg_xml))
-        except portalocker.LockException:
-            self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
-        except Exception, e:
-            self.ctx.die(113, str(e))
 
     @with_config
     def all(self, args, config):

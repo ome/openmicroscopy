@@ -30,11 +30,11 @@ and tests.
 import re
 import sys
 import shlex
-import fileinput
 
-from omero_ext.argparse import SUPPRESS
-from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero_ext.argparse import FileType
+from omero.cli import CLI, ExceptionHandler
 from omero.rtypes import rlong
+from omero.plugins.prefs import ConfigControl, with_config
 
 
 class TxField(object):
@@ -268,7 +268,7 @@ class TxState(object):
         return len(self._commands)
 
 
-class ObjControl(BaseControl):
+class ObjControl(ConfigControl):
     """Create and Update OMERO objects
 
 The obj command allows inserting any objects into the OMERO
@@ -297,38 +297,60 @@ Bash examples:
 
         self.exc = ExceptionHandler()
         parser.add_login_arguments()
-        parser.add_argument(
-            "--file", help=SUPPRESS)
-        parser.add_argument(
-            "command", nargs="?",
-            choices=("new", "update"),
-            help="operation to be performed")
-        parser.add_argument(
-            "Class", nargs="?",
-            help="OMERO model object name, e.g. Project")
-        parser.add_argument(
-            "fields", nargs="*",
-            help="fields to be set, e.g. name=foo")
-        parser.set_defaults(func=self.process)
+        sub = parser.sub()
 
-    def process(self, args):
+        new = parser.add(sub, self.new, "Create a new OMERO object")
+
+        update = parser.add(
+            sub, self.update, "Update an existing OMERO object")
+
+        load = parser.add(
+            sub, self.load,
+            "Load a series of commands from a file or the stdin")
+        load.add_argument("file", nargs="*", type=FileType("r"),
+                          default=[sys.stdin])
+
+        graphreport = parser.add(
+            sub, self.graphreport,
+            help="Generate a full report of the object graph in"
+            " reStructuredText format")
+        graphreport.add_argument(
+            "--source", help="Configuration file to be used. Default:"
+            " etc/grid/config.xml")
+        graphreport.add_argument(
+            "file", help="Output file")
+
+        for x in [new, update]:
+            x.add_argument(
+                "Class", nargs="?",
+                help="OMERO model object name, e.g. Project")
+            x.add_argument(
+                "fields", nargs="*",
+                help="fields to be set, e.g. name=foo")
+
+    def new(self, args):
+        self.process('new', args)
+
+    def update(self, args):
+        self.process('update', args)
+
+    def load(self, args):
+        self.process('load', args)
+
+    def process(self, command, args):
         state = TxState(self.ctx)
         self.ctx.set("tx.state", state)
         actions = []
-        if not args.command:
-            path = "-"
-            if args.file:
-                path = args.file
-            for line in fileinput.input([path]):
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    actions.append(self.parse(state, line=line))
+        if command == 'load':
+            for f in args.file:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        actions.append(self.parse(state, line=line))
         else:
-            if args.file:
-                self.ctx.err("Ignoring %s" % args.file)
             actions.append(
                 self.parse(state,
-                           arg_list=[args.command, args.Class] +
+                           arg_list=[command, args.Class] +
                            args.fields))
 
         for action in actions:
@@ -347,6 +369,30 @@ Bash examples:
             return UpdateObjectTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
+
+    @with_config
+    def graphreport(self, args, config):
+        """Generate a report of the object graph in reStructuredText format"""
+        import os
+        import omero.java
+        server_dir = self.ctx.dir / "lib" / "server"
+        log_config_file = self.ctx.dir / "etc" / "logback-cli.xml"
+        logback = "-Dlogback.configurationFile=%s" % log_config_file
+        classpath = [file.abspath() for file in server_dir.files("*.jar")]
+        xargs = [logback, "-cp", os.pathsep.join(classpath)]
+
+        cfg = config.as_map()
+        config.close()  # Early close. See #9800
+        self.set_db_arguments(cfg, xargs)
+
+        cmd = ["ome.services.graphs.GraphPathReport", args.file]
+
+        debug = False
+        self.ctx.dbg(
+            "Launching Java: %s, debug=%s, xargs=%s" % (cmd, debug, xargs))
+        p = omero.java.run(cmd, use_exec=True, debug=debug, xargs=xargs,
+                           stdout=sys.stdout, stderr=sys.stderr)
+        self.ctx.rv = p.wait()
 
 
 try:

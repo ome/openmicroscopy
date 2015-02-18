@@ -53,7 +53,8 @@ class TestObj(CLITest):
 
     def test_create_from_file(self):
         path = self.create_script()
-        self.args.append("--file=%s" % path)
+        self.args.append("load")
+        self.args.append("%s" % path)
         self.cli.invoke(self.args, strict=True)
         state = self.cli.get("tx.state")
         assert 8 == len(state)
@@ -75,7 +76,8 @@ class TestObj(CLITest):
             new Dataset name=bar
             new ProjectDatasetLink parent@=0 child@=1
             """)
-        self.args.append("--file=%s" % path)
+        self.args.append("load")
+        self.args.append("%s" % path)
         state = self.go()
         assert 3 == len(state)
         assert state.get_row(0).startswith("Project")
@@ -91,7 +93,8 @@ class TestObj(CLITest):
             bar = new Dataset name=bar
             new ProjectDatasetLink parent@=foo child@=bar
             """)
-        self.args.append("--file=%s" % path)
+        self.args.append("load")
+        self.args.append("%s" % path)
         state = self.go()
         assert 3 == len(state)
         assert state.get_row(0).startswith("Project")
@@ -118,7 +121,8 @@ class TestObj(CLITest):
             new CommentAnnotation ns=test textValue=foo
             new DatasetAnnotationLink parent@=0 child@=1
             """)
-        self.args.append("--file=%s" % path)
+        self.args.append("load")
+        self.args.append("%s" % path)
         state = self.go()
         assert 3 == len(state)
         assert state.get_row(0).startswith("Dataset")
