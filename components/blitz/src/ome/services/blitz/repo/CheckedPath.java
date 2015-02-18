@@ -454,4 +454,24 @@ public class CheckedPath {
         return ofile;
     }
 
+    /**
+     * {@inheritDoc}
+     * Instances are equal if their string representations match.
+     */
+    @Override
+    public boolean equals(Object object) {
+        if (this == object)
+            return true;
+        if (!(object instanceof CheckedPath))
+            return false;
+        return this.fsFile.equals(((CheckedPath) object).fsFile);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return this.fsFile.hashCode();
+    }
 }
