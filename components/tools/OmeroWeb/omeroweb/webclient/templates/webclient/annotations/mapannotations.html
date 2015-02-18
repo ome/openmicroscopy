@@ -92,7 +92,7 @@
                     k = rowData[0],
                     v = rowData[1];
                 // Don't add empty rows
-                if (k == "" && v =="") return;
+                if ((k == "" || k == "Add Key") && (v == "" || v == "Add Value")) return;
                 tableData.push(rowData);
             });
             // If we are editing a saved map annotation...
