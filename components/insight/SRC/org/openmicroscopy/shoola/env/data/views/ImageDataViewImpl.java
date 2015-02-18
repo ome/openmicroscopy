@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -33,12 +33,16 @@ import java.util.Map;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
+
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -58,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlaneInfoLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ROILoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ResultsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.SaveAsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptRunner;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptUploader;
@@ -482,6 +487,17 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new RenderingControlLoader(ctx, pixelsID,
 				RenderingControlLoader.SHUTDOWN);
         return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see ImageDataView#saveResults(SecurityContext, ResultsObject, AgentEventListener)
+	 */
+	public CallHandle saveResults(SecurityContext ctx,
+	        ResultsObject results, AgentEventListener observer)
+	{
+	    BatchCallTree cmd = new ResultsSaver(ctx, results);
+	    return cmd.exec(observer);
 	}
 
 }

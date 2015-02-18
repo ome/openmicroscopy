@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -68,6 +69,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -83,6 +85,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GroupItem;
 import org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem;
+import org.openmicroscopy.shoola.agents.treeviewer.util.SaveResultsDialog;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
@@ -611,9 +614,11 @@ class ToolBar
         JButton b = new JButton(controller.getAction(TreeViewerControl.BROWSE));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        boolean ij = false;
         switch (TreeViewerAgent.runAsPlugin()) {
         case LookupNames.IMAGE_J:
         case LookupNames.IMAGE_J_IMPORT:
+            ij = true;
             b = UIUtilities.formatButtonFromAction(
                     controller.getAction(TreeViewerControl.VIEW));
             UIUtilities.unifiedButtonLookAndFeel(b);
@@ -636,8 +641,7 @@ class ToolBar
             UIUtilities.unifiedButtonLookAndFeel(b);
             bar.add(b);
         }
-
-
+        bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));
         //Now register the agent if any
         TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
@@ -701,6 +705,12 @@ class ToolBar
         menuButton.addMouseListener(adapter);
         bar.add(menuButton);
         setPermissions();
+        if (ij) {
+            b = new JButton(a = controller.getAction(
+                    TreeViewerControl.SAVE_TO_OMERO));
+            bar.add(Box.createHorizontalStrut(5));
+            bar.add(b);
+        }
         return bar;
     }
 
