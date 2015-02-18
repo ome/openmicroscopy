@@ -772,7 +772,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             levels.put(parents.get(i), checked.get(i));
         }
 
-        for (CheckedPath parent : levels.keys()) {
+        for (CheckedPath parent : levels.keySet()) {
             List<CheckedPath> level = levels.get(parent);
             List<String> basenames = new ArrayList<String>(checked.size());
             for (CheckedPath path: level) {
