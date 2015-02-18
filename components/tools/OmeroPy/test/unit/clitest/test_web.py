@@ -42,14 +42,18 @@ class TestWeb(object):
                             lambda x: dist_dir / "etc" / "templates")
 
     def add_prefix(self, prefix, monkeypatch):
+
+        def _get_default_value(x):
+            return settings.CUSTOM_SETTINGS_MAPPINGS[x][1]
         if prefix:
-            monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', prefix,
-                                raising=False)
             static_prefix = prefix + '-static/'
-            monkeypatch.setattr(settings, 'STATIC_URL', static_prefix,
-                                raising=False)
         else:
-            static_prefix = settings.STATIC_URL
+            prefix = _get_default_value('omero.web.prefix')
+            static_prefix = _get_default_value('omero.web.static_url')
+        monkeypatch.setattr(settings, 'STATIC_URL', static_prefix,
+                            raising=False)
+        monkeypatch.setattr(settings, 'FORCE_SCRIPT_NAME', prefix,
+                            raising=False)
         return static_prefix
 
     def clean_generated_file(self, txt):
@@ -67,34 +71,40 @@ class TestWeb(object):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
-    @pytest.mark.parametrize('system', [True, False])
+    @pytest.mark.parametrize('max_body_size', [None, '0', '1m'])
+    @pytest.mark.parametrize('server_type', [
+        "nginx", "nginx-development", "nginx --system"])
     @pytest.mark.parametrize('http', [False, 8081])
     @pytest.mark.parametrize('prefix', [None, '/test'])
-    def testNginxConfig(self, system, http, prefix, capsys, monkeypatch):
+    def testNginxConfig(self, server_type, http, prefix, capsys, monkeypatch,
+                        max_body_size):
 
         static_prefix = self.add_prefix(prefix, monkeypatch)
         self.args += ["config"]
-        if system:
-            self.args += ["nginx"]
-        else:
-            self.args += ["nginx-development"]
+        self.args += server_type.split()
         if http:
             self.args += ["--http", str(http)]
+        if max_body_size:
+            self.args += ["--max-body-size", max_body_size]
         self.set_templates_dir(monkeypatch)
         self.cli.invoke(self.args, strict=True)
         o, e = capsys.readouterr()
         lines = self.clean_generated_file(o)
 
-        if system:
+        if server_type.split()[0] == "nginx":
             assert lines[0] == "server {"
-            assert lines[1] == "listen       %s;" % (http or 8080)
-            assert lines[7] == "location %s {" % static_prefix[:-1]
-            assert lines[10] == "location %s {" % (prefix or "/")
+            assert lines[1] == "listen       %s;" % (http or 80)
+            assert lines[4] == "client_max_body_size %s;" % (
+                max_body_size or '0')
+            assert lines[9] == "location %s {" % static_prefix[:-1]
+            assert lines[12] == "location %s {" % (prefix or "/")
         else:
-            assert lines[16] == "server {"
-            assert lines[17] == "listen       %s;" % (http or 8080)
-            assert lines[25] == "location %s {" % static_prefix[:-1]
-            assert lines[28] == "location %s {" % (prefix or "/")
+            assert lines[13] == "server {"
+            assert lines[14] == "listen       %s;" % (http or 8080)
+            assert lines[19] == "client_max_body_size %s;" % (
+                max_body_size or '0')
+            assert lines[24] == "location %s {" % static_prefix[:-1]
+            assert lines[27] == "location %s {" % (prefix or "/")
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheConfig(self, prefix, capsys, monkeypatch):

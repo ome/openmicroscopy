@@ -350,7 +350,7 @@ public abstract class ActivityComponent
 		Font f = l.getFont();
 		l.setForeground(UIUtilities.LIGHT_GREY.darker());
 		l.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
-		String s = UIUtilities.formatShortDateTime(null);
+		String s = UIUtilities.formatDefaultDate(null);
 		String[] values = s.split(" ");
 		if (values.length > 1) {
 			String v = values[1];
@@ -619,6 +619,7 @@ public abstract class ActivityComponent
 			activity.setUIRegister(true);
 			if (fa != null && deleteWhenFinished)
 				activity.setToDelete(fa);
+			activity.setOverwrite(true);
 			viewer.notifyActivity(ctx, activity);
 			return;
 		}

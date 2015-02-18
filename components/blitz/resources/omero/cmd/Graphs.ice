@@ -330,6 +330,19 @@ module omero {
              **/
             GraphModify2 request;
         };
+
+        /**
+         * Returned when specifically a ome.services.graphs.GraphException
+         * is thrown. The contents of that internal exception are passed in
+         * this instance.
+         **/
+        class GraphException extends ERR {
+
+            /**
+             * The message of the GraphException.
+             **/
+             string message;
+        };
     };
 };
 

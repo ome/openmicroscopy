@@ -562,6 +562,10 @@ present, the user will enter a console""")
         else:
             return "master"
 
+    def _get_grid_dir(self):
+        """Return path to grid directory containing configuration files"""
+        return self.ctx.dir / "etc" / "grid"
+
     def _cmd(self, *command_arguments):
         """
         Used to generate an icegridadmin command line argument list
@@ -585,7 +589,7 @@ present, the user will enter a console""")
             __d__ = "default.xml"
             if self._isWindows():
                 __d__ = "windefault.xml"
-            descript = self.ctx.dir / "etc" / "grid" / __d__
+            descript = self._get_grid_dir() / __d__
             self.ctx.err("No descriptor given. Using %s"
                          % os.path.sep.join(["etc", "grid", __d__]))
         return descript
@@ -876,13 +880,18 @@ present, the user will enter a console""")
     def jvmcfg(self, args, config, verbose=True):
         from xml.etree.ElementTree import XML
         from omero.install.jvmcfg import adjust_settings
-        templates = self.ctx.dir / "etc" / "grid" / "templates.xml"
-        generated = self.ctx.dir / "etc" / "grid" / "generated.xml"
+        templates = self._get_grid_dir() / "templates.xml"
+        generated = self._get_grid_dir() / "generated.xml"
         if generated.exists():
             generated.remove()
         config2 = omero.config.ConfigXml(str(generated))
         template_xml = XML(templates.text())
-        rv = adjust_settings(config, template_xml)
+        try:
+            rv = adjust_settings(config, template_xml)
+        except Exception, e:
+            self.ctx.die(11, 'Cannot adjust memory settings in %s.\n%s'
+                         % (templates, e))
+
         if verbose:
             self.ctx.out("JVM Settings:")
             self.ctx.out("============")
@@ -1353,9 +1362,9 @@ OMERO Diagnostics %s
         Callers are responsible for closing the
         returned ConfigXml object.
         """
-        cfg_xml = self.ctx.dir / "etc" / "grid" / "config.xml"
-        cfg_tmp = self.ctx.dir / "etc" / "grid" / "config.xml.tmp"
-        grid_dir = self.ctx.dir / "etc" / "grid"
+        cfg_xml = self._get_grid_dir() / "config.xml"
+        cfg_tmp = self._get_grid_dir() / "config.xml.tmp"
+        grid_dir = self._get_grid_dir()
         if not cfg_xml.exists() and self.can_access(grid_dir):
             if cfg_tmp.exists() and self.can_access(cfg_tmp):
                 self.ctx.dbg("Removing old config.xml.tmp")

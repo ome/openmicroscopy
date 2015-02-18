@@ -4,7 +4,7 @@
 {% load common_tags %}
 {% comment %}
 <!--
-  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2015 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -901,6 +901,16 @@
                             {% include "webclient/annotations/fileanns.html" %}
                         {% endwith %}
                     </ul>
+
+            </div>
+
+
+            <hr/>
+
+            <!-- MAP ANNOTATIONS -->
+            <div class="annotations_section">
+
+                {% include "webclient/annotations/mapannotations.html" %}
 
             </div>
 

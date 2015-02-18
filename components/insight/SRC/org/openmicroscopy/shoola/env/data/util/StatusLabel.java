@@ -707,9 +707,6 @@ public class StatusLabel
                 processingBar.setString(STEPS.get(step));
             }
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-            ImportEvent.METADATA_IMPORTED e =
-                    (ImportEvent.METADATA_IMPORTED) event;
-            if (e.logFileId != null) logFileID = e.logFileId;
             step = 2;
             processingBar.setValue(step);
             processingBar.setString(STEPS.get(step));
@@ -737,6 +734,12 @@ public class StatusLabel
             firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
         } else if (event instanceof ImportEvent.FILESET_UPLOAD_PREPARATION) {
             generalLabel.setText("Preparing upload...");
+        } else if (event instanceof ImportEvent.IMPORT_STARTED) {
+            ImportEvent.IMPORT_STARTED e =
+                    (ImportEvent.IMPORT_STARTED) event;
+            if (e.logFileId != null) {
+                logFileID = e.logFileId;
+            }
         }
     }
 

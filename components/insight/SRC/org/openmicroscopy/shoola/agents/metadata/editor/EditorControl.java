@@ -54,7 +54,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -97,6 +97,8 @@ import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
+import org.openmicroscopy.shoola.util.filter.file.ZipFilter;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
@@ -374,27 +376,19 @@ class EditorControl
 	void saveAs(final int format)
 	{
 		String v = FigureParam.FORMATS.get(format);
-		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		final JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		List<FileFilter> filters = new ArrayList<FileFilter>();
-		switch (format) {
-			case FigureParam.JPEG:
-				filters.add(new JPEGFilter());
-				break;
-			case FigureParam.PNG:
-				filters.add(new PNGFilter());
-				break;
-			case FigureParam.TIFF:
-				filters.add(new TIFFFilter());
-		}
-		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
+		filters.add(new ZipFilter());
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Save As", "Select where to save locally the images as "+v,
 				filters);
 		try {
 			File file = UIUtilities.getDefaultFolder();
-			if (file != null) chooser.setCurrentDirectory(file);
+			if (file != null) 
+				chooser.setCurrentDirectory(file);
+			chooser.setSelectedFile(UIUtilities.generateFileName(file,
+					"Batch_Image_Export", "zip"));
 		} catch (Exception ex) {}
-		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
-		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);
 		chooser.setApproveButtonText("Save");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.SAVE_AS_48));
@@ -403,22 +397,35 @@ class EditorControl
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					String value = (String) evt.getNewValue();
-					File folder = null;
-					if (StringUtils.isEmpty(value))
-						folder = UIUtilities.getDefaultFolder();
-					else folder = new File(value);
+					File[] files = (File[]) evt.getNewValue();
+					if (ArrayUtils.isEmpty(files))
+						return;
+					File file = files[0];
+					if (file == null)
+						file = UIUtilities.generateFileName(
+								UIUtilities.getDefaultFolder(),
+								"Batch_Image_Export", "zip");
+					if (file.exists()) {
+						MessageBox msg = new MessageBox(f, "File Exists",
+								"Do you want to overwrite the file?");
+						int option = msg.centerMsgBox();
+						if (option == MessageBox.NO_OPTION) {
+							return;
+						}
+					}
 					Object src = evt.getSource();
 					if (src instanceof FileChooser) {
 						((FileChooser) src).setVisible(false);
 						((FileChooser) src).dispose();
 					}
-					model.saveAs(folder, format);
+					model.saveAs(file.getParentFile(), format,
+							UIUtilities.removeFileExtension(file.getName()));
 				}
 			}
 		});
 		chooser.centerDialog();
 	}
+	
 	
 	/** Brings up the folder chooser. */
 	private void export()
@@ -591,8 +598,10 @@ class EditorControl
 			Boolean b = (Boolean) evt.getNewValue();
 			view.saveData(b.booleanValue());
 		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name) ||
-				MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name) ||
 				MetadataViewer.ADMIN_UPDATED_PROPERTY.equals(name)) {
+			view.clearData();
+		} else if (MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name)
+				&& evt.getNewValue() == view.getRefObject()) {
 			view.clearData();
 		} else if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
 			view.handleTaskPaneCollapsed((JXTaskPane) evt.getSource());

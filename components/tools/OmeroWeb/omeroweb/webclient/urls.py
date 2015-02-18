@@ -67,6 +67,9 @@ urlpatterns = patterns('django.views.generic.simple',
     
     # loading data    
     url( r'^load_data/(?:(?P<o1_type>((?i)project|dataset|image|screen|plate|well|orphaned))/)?(?:(?P<o1_id>[0-9]+)/)?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)?(?:(?P<o2_id>[0-9]+)/)?(?:(?P<o3_type>((?i)image|well))/)?(?:(?P<o3_id>[0-9]+)/)?$', views.load_data, name="load_data" ),    
+
+    # chgrp. Load potential target groups, then load target P/D within chosen group
+    url( r'^load_chgrp_groups/$', views.load_chgrp_groups, name="load_chgrp_groups"),  # Query E.g. ?Image=1,2&Dataset=3
     url( r'^load_chgrp_target/(?P<group_id>[0-9]+)/(?P<target_type>((?i)project|dataset|screen))/$', views.load_chgrp_target, name="load_chgrp_target"),
     
     # load history
@@ -121,6 +124,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^annotate_rating/$', views.annotate_rating, name="annotate_rating" ),
     url( r'^annotate_comment/$', views.annotate_comment, name="annotate_comment" ),
     url( r'^annotate_file/$', views.annotate_file, name="annotate_file" ),
+    url( r'^annotate_map/$', views.annotate_map, name="annotate_map" ),
     url( r'^annotation/(?P<annId>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
     url( r'^load_original_metadata/(?P<imageId>[0-9]+)/$', views.load_original_metadata, name="load_original_metadata" ),
     url( r'^download_orig_metadata/(?P<imageId>[0-9]+)/$', views.download_orig_metadata, name="download_orig_metadata" ),
@@ -135,11 +139,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^image_as_map/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, name='webclient_image_as_map' ), # image to map of max Size (side length)
     url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # convert image to map
     url( r'^image_as_map/8bit/(?P<imageId>[0-9]+)/(?P<maxSize>[0-9]+)\.map$', views.image_as_map, {'8bit':True}, name='webclient_image_as_map_8bit' ), # image to map
-    
-    url( r'^help_search/$', TemplateView.as_view(template_name='webclient/help/help_search.html'), name="help_search" ),
-    
+
     url( r'^avatar/(?P<oid>[0-9]+)/$', views.avatar, name="avatar"),
-    
+
     # scripting service urls
     url( r'^list_scripts/$', views.list_scripts, name="list_scripts"),  # returns html list of scripts - click to run
     url( r'^script_ui/(?P<scriptId>[0-9]+)/$', views.script_ui, name='script_ui' ), # shows a form for running a script

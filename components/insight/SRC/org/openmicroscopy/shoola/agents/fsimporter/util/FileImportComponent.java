@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -538,14 +538,14 @@ public class FileImportComponent
 	private void cancel(boolean fire)
 	{
 		boolean b = statusLabel.isCancellable() || getFile().isDirectory();
-		if (!isCancelled() && !hasImportFailed() && b) {
+		if (!isCancelled() && !hasImportFailed() && b &&
+		        !statusLabel.isMarkedAsDuplicate()) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();
 			cancelButton.setEnabled(false);
 			cancelButton.setVisible(false);
-			//if (fire)
-				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
+			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
 

@@ -31,6 +31,7 @@ import pytest
 from omero.model import DatasetI, DatasetImageLinkI, ExperimenterGroupI, ImageI
 from omero.model import FileAnnotationI, ImageAnnotationLinkI, TagAnnotationI
 from omero.model import ProjectDatasetLinkI, ProjectI, PlateI, ScreenI
+from omero.model import ExperimenterI
 from omero.rtypes import rstring, unwrap
 from omero.api import Save
 
@@ -1177,3 +1178,55 @@ class TestChgrpTarget(lib.ITest):
             omero.sys.ParametersI().addId(images[0].id.val),
             {"omero.group": "-1"})
         assert 1 == len(dils)
+
+    @pytest.mark.parametrize("credentials", ["user", "admin"])
+    def testChgrpDatasetToTargetProject(self, credentials):
+        """
+        Tests that an Admin can move a user's Dataset to a private
+        group and link it to an existing user's Project there.
+        Also tests that the user can do the same chgrp themselves.
+        """
+
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        target_grp = self.new_group([user], perms=PRIVATE)
+        eCtx = client.sf.getAdminService().getEventContext()  # Reset session
+        userId = eCtx.userId
+        target_gid = target_grp.id.val
+
+        # User creates Dataset in current group...
+        update = client.sf.getUpdateService()
+        ds = DatasetI()
+        ds.name = rstring(self.uuid())
+        ds = update.saveAndReturnObject(ds)
+        # ...and Project in target group
+        ctx = {'omero.group': str(target_gid)}
+        pr = ProjectI()
+        pr.name = rstring(self.uuid())
+        pr = update.saveAndReturnObject(pr, ctx)
+
+        requests = []
+        saves = []
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        requests.append(chgrp)
+        link = ProjectDatasetLinkI()
+        link.details.owner = ExperimenterI(userId, False)
+        link.child = DatasetI(ds.id.val, False)
+        link.parent = ProjectI(pr.id.val, False)
+        save = Save()
+        save.obj = link
+        saves.append(save)
+        requests.extend(saves)
+
+        if credentials == "user":
+            c = client
+        else:
+            c = self.root
+        self.doAllSubmit(requests, c, omero_group=target_gid)
+
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': '-1'}  # query across groups
+        dataset = queryService.get('Dataset', ds.id.val, ctx)
+        ds_gid = dataset.details.group.id.val
+        assert target_gid == ds_gid,\
+            "Dataset should be in group: %s, NOT %s" % (target_gid, ds_gid)

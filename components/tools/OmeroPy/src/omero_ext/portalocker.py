@@ -85,8 +85,9 @@ else:
     raise RuntimeError, "PortaLocker only defined for nt and posix platforms"
 
 if os.name == 'nt':
-    def lock(file, flags):
-        hfile = win32file._get_osfhandle(file.fileno())
+
+    def lockno(fileno, flags):
+        hfile = win32file._get_osfhandle(fileno)
         try:
             win32file.LockFileEx(hfile, flags, 0, -0x10000, __overlapped)
         except pywintypes.error, exc_value:
@@ -96,9 +97,9 @@ if os.name == 'nt':
             else:
                 # Q:  Are there exceptions/codes we should be dealing with here?
                 raise
-    
-    def unlock(file):
-        hfile = win32file._get_osfhandle(file.fileno())
+
+    def unlockno(fileno):
+        hfile = win32file._get_osfhandle(fileno)
         try:
             win32file.UnlockFileEx(hfile, 0, -0x10000, __overlapped)
         except pywintypes.error, exc_value:
@@ -111,9 +112,9 @@ if os.name == 'nt':
                 raise
 
 elif os.name == 'posix':
-    def lock(file, flags):
+    def lockno(fileno, flags):
         try:
-            fcntl.flock(file.fileno(), flags)
+            fcntl.flock(fileno, flags)
         except IOError, exc_value:
             #  IOError: [Errno 11] Resource temporarily unavailable
             #  Following added by Glencoe Software, Inc. using LOCK_NB|LOCK_EX on Mac 10.4
@@ -122,10 +123,17 @@ elif os.name == 'posix':
                 raise LockException(LockException.LOCK_FAILED, exc_value[1])
             else:
                 raise
-    
-    def unlock(file):
-        fcntl.flock(file.fileno(), fcntl.LOCK_UN)
 
+    def unlockno(fileno):
+        fcntl.flock(fileno, fcntl.LOCK_UN)
+
+
+def lock(file, flags):
+    lockno(file.fileno(), flags)
+
+
+def unlock(file):
+    unlockno(file.fileno())
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.ToolBar
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -803,6 +804,11 @@ class ToolBar
         final JTextField searchField = new JTextField(SEARCHFIELD_WIDTH);
         searchField.setText(SEARCHFIELD_TEXT);
         
+        final Font defaultFont = searchField.getFont();
+        final Font italicFont = searchField.getFont().deriveFont(Font.ITALIC);
+        searchField.setFont(italicFont);
+        searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+        
         searchField.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
@@ -818,6 +824,8 @@ class ToolBar
             public void focusLost(FocusEvent e) {
                 if (searchField.getText().trim().equals("")) {
                     searchField.setText(SEARCHFIELD_TEXT);
+                    searchField.setFont(italicFont);
+                    searchField.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
                 }
             }
             
@@ -829,6 +837,8 @@ class ToolBar
                 else {
                     searchField.selectAll();
                 }
+                searchField.setFont(defaultFont);
+                searchField.setForeground(Color.BLACK);
             }
         });
         

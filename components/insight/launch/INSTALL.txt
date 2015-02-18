@@ -24,7 +24,6 @@
   and check that the startup scripts are executable:
     OMEROinsight_unix.sh
     OMEROimporter_unix.sh
-    OMEROeditor_unix.sh
 
   If you are connecting to the internet through a web proxy, make sure you edit
   the startup scripts accordingly (example configuration is provided within
@@ -46,7 +45,5 @@
   You should not have to modify the port value. 
   Enjoy OMERO!
 
-  You can also run the importer and editor as standalone applications by
-  running OMEROimporter_unix.sh or OMEROeditor_unix.sh.
-  
-  
+  You can also run the importer as a standalone application by running
+  OMEROimporter_unix.sh.
