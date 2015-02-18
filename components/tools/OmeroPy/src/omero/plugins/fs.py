@@ -278,6 +278,10 @@ class FsControl(CmdControl):
             "--report", action="store_true",
             help="Print detailed breakdown of disk usage")
         usage.add_argument(
+            "--sum_by", nargs="+", choices=("user", "group", "component"),
+            help=("Breakdown of disk usage by a combination of "
+                  "user, group and component"))
+        usage.add_argument(
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
         usage.add_argument(
@@ -793,20 +797,46 @@ Examples:
 
     def _detailed_usage_report(self, req, rsp, status, args):
         """
-        Print a breakdown of disk usage in table form, including user
-        and group information.
+        Print a breakdown of disk usage in table form, including user,
+        group and component information according to the args.
         """
         from omero.util.text import TableBuilder
-        tb = TableBuilder(
-            "user", "group", "component", "size (bytes)", "files")
+
+        sum_by = allCols = ("user", "group", "component")
+        if args.sum_by is not None:
+            sum_by = args.sum_by
+
+        cols = []
+        for col in allCols:
+            if col in sum_by:
+                cols.append(col)
+        cols.extend(["size (bytes)", "files"])
+        tb = TableBuilder(*cols)
         if args.style:
             tb.set_style(args.style)
 
+        subtotals = {}
         for userGroup in rsp.bytesUsedByReferer.keys():
             for (element, size) in rsp.bytesUsedByReferer[userGroup].items():
-                row = [userGroup.first, userGroup.second, element, size,
-                       rsp.fileCountByReferer[userGroup][element]]
-                tb.row(*tuple(row))
+                keyList = []
+                if "user" in sum_by:
+                    keyList.append(userGroup.first)
+                if "group" in sum_by:
+                    keyList.append(userGroup.second)
+                if "component" in sum_by:
+                    keyList.append(element)
+                key=tuple(keyList)
+                if key in subtotals.keys():
+                    subtotals[key][0] += size
+                    subtotals[key][1] += rsp.fileCountByReferer[userGroup][element]
+                else:
+                    subtotals[key] = [size, rsp.fileCountByReferer[userGroup][element]]
+
+        for key in subtotals.keys():
+            row = list(key)
+            row.extend(subtotals[key])
+            tb.row(*tuple(row))
+
         self.ctx.out(str(tb.build()))
 
 try:
