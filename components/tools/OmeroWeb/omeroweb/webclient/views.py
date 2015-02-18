@@ -2585,7 +2585,9 @@ def activities(request, conn=None, **kwargs):
                                     #except:
                                     #    pass
                                 if v.isLoaded() and hasattr(v, "name"):  # E.g Image, OriginalFile etc
-                                    obj_data['name'] = v.name.val
+                                    name = unwrap(v.name)
+                                    if name is not None:                # E.g. FileAnnotation has null name
+                                        obj_data['name'] = name
                                 rMap[key] = obj_data
                             else:
                                 rMap[key] = v
