@@ -213,10 +213,10 @@ def identity(x):
     return x
 
 
-def remove_slash(s):
-    if s is not None and len(s) > 0:
-        if s.endswith("/"):
-            s = s[:-1]
+def str_slash(s):
+    s = str(s)
+    if not s.endswith("/"):
+        s += "/"
     return s
 
 
@@ -310,7 +310,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_url":
         ["STATIC_URL",
          "/static/",
-         str,
+         str_slash,
          ("URL to use when referring to static files. Example: ``'/static/'``"
           " or ``'http://static.example.com/'``. Used as the base path for"
           " asset  definitions (the Media class) and the staticfiles app. It"
