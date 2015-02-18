@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.Connector 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -479,11 +479,24 @@ class Connector
     IAdminPrx getAdminService()
             throws DSOutOfServiceException
     {
-        return IAdminPrxHelper.uncheckedCast(
-                get(omero.constants.ADMINSERVICE.value,
-                        unsecureClient == null));
+        return getAdminService(unsecureClient == null);
     }
 
+
+    /**
+     * Returns the {@link IAdminPrx} service.
+     *
+     * @param secure Pass <code>true</code> to have a secure admin service,
+     *               <code>false</code> otherwise.
+     * @return See above.
+     * @throws Throwable Thrown if the service cannot be initialized.
+     */
+    IAdminPrx getAdminService(boolean secure)
+            throws DSOutOfServiceException
+    {
+        return IAdminPrxHelper.uncheckedCast(
+                get(omero.constants.ADMINSERVICE.value, secure));
+    }
 
     //
     // Irregular service lookups
@@ -644,7 +657,8 @@ class Connector
         shutdownStateful();
         shutdownImports();
         if (!rendering) return;
-        for (Long pixelsId : reServices.keySet()) {
+        Set<Long> tmp = new HashSet<Long>(reServices.keySet());
+        for (Long pixelsId : tmp) {
             shutDownRenderingEngine(pixelsId);
         }
     }

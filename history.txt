@@ -1,6 +1,25 @@
 OMERO version history
 =====================
 
+5.0.8 (February 2015)
+---------------------
+
+This is a bug-fix release for one specific issue causing OMERO.insight to
+crash when trying to open the Projection tab for an image with multiple
+z-stacks.
+
+5.0.7 (February 2015)
+---------------------
+
+This is a bug-fix release covering a number of issues:
+
+-  rendering improvements including 32-bit and float support
+-  vast improvements in Mac launching (separate clients for your Java version)
+-  faster import of complex plates
+-  OMERO.dropbox improvements
+-  ROI and measurement tool fixes
+-  OMERO.matlab updates
+
 5.1.0-m3 (December 2014)
 ------------------------
 

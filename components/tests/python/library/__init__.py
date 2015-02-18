@@ -125,12 +125,14 @@ class ITest(object):
         return str(_uuid.uuid4())
 
     @classmethod
-    def login_args(self, key=None):
+    def login_args(self, client=None):
         p = self.client.ic.getProperties()
         host = p.getProperty("omero.host")
         port = p.getProperty("omero.port")
-        if not key:
+        if not client:
             key = self.sf.ice_getIdentity().name
+        else:
+            key = client.sf.ice_getIdentity().name
         return ["-s", host, "-k", key, "-p", port]
 
     @classmethod
@@ -875,3 +877,88 @@ class ITest(object):
             commands.append(Chgrp(t, id=i.id.val, grp=target))
 
         self.doAllSubmit(commands, client)
+
+
+class ProjectionFixture(object):
+    """
+    Used to test the return values from:
+        'select x.permissions from Object x'
+    """
+
+    def __init__(self, perms, writer, reader,
+                 canRead,
+                 canAnnotate=False, canDelete=False,
+                 canEdit=False, canLink=False):
+        self.perms = perms
+        self.writer = writer
+        self.reader = reader
+
+        self.canRead = canRead
+        self.canAnnotate = canAnnotate
+        self.canDelete = canDelete
+        self.canEdit = canEdit
+        self.canLink = canLink
+
+    def get_name(self):
+        name = self.perms
+        for e in [self.writer, self.reader]:
+            name += "-"
+            if "admin" in e:
+                name += "admin"
+            elif "owner" in e:
+                name += "owner"
+            else:
+                name += "member"
+        return name
+
+PF = ProjectionFixture
+PFS = (
+    # Private group as root
+    PF("rw----", "system-admin", "system-admin", 1, 0, 1, 1, 0),
+    PF("rw----", "system-admin", "group-owner", 1, 0, 1, 1, 0),
+    PF("rw----", "system-admin", "member2", 0),
+    # Private group as group-owner
+    PF("rw----", "group-owner", "system-admin", 1, 0, 1, 1, 0),
+    PF("rw----", "group-owner", "group-owner", 1, 0, 1, 1, 0),
+    PF("rw----", "group-owner", "member2", 0),
+    # Private group as member
+    PF("rw----", "member1", "system-admin", 1, 0, 1, 1, 0),
+    PF("rw----", "member1", "group-owner", 1, 0, 1, 1, 0),
+    PF("rw----", "member1", "member2", 0),
+    # Read-only group as root
+    PF("rwr---", "system-admin", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwr---", "system-admin", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwr---", "system-admin", "member2", 1, 0, 0, 0, 0),
+    # Read-only group as group-owner
+    PF("rwr---", "group-owner", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwr---", "group-owner", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwr---", "group-owner", "member2", 1, 0, 0, 0, 0),
+    # Read-only group as member
+    PF("rwr---", "member1", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwr---", "member1", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwr---", "member1", "member2", 1, 0, 0, 0, 0),
+    # Read-annotate group as root
+    PF("rwra--", "system-admin", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwra--", "system-admin", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwra--", "system-admin", "member2", 1, 1, 0, 0, 0),
+    # Read-annotate group as group-owner
+    PF("rwra--", "group-owner", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwra--", "group-owner", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwra--", "group-owner", "member2", 1, 1, 0, 0, 0),
+    # Read-annotate group as member
+    PF("rwra--", "member1", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwra--", "member1", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwra--", "member1", "member2", 1, 1, 0, 0, 0),
+    # Read-write group as root
+    PF("rwrw--", "system-admin", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwrw--", "system-admin", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwrw--", "system-admin", "member2", 1, 1, 1, 1, 1),
+    # Read-write group as group-owner
+    PF("rwrw--", "group-owner", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwrw--", "group-owner", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwrw--", "group-owner", "member2", 1, 1, 1, 1, 1),
+    # Read-write group as member
+    PF("rwrw--", "member1", "system-admin", 1, 1, 1, 1, 1),
+    PF("rwrw--", "member1", "group-owner", 1, 1, 1, 1, 1),
+    PF("rwrw--", "member1", "member2", 1, 1, 1, 1, 1),
+)

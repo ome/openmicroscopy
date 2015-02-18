@@ -37,6 +37,8 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.security.CodeSource;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -48,11 +50,15 @@ import javax.swing.WindowConstants;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
+
+
 //Third-party libraries
 import ij.IJ;
 import ij.ImageJ;
 import ij.plugin.BrowserLauncher;
 import ij.plugin.PlugIn;
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
@@ -176,7 +182,7 @@ implements PlugIn
                 onImageJClosing();
             }
         });
-        if (view.getMenuBar().getMenuCount() > 0) {
+        if (view.getMenuBar() != null && view.getMenuBar().getMenuCount() > 0) {
             Menu menu = view.getMenuBar().getMenu(0);
             int count  = menu.getItemCount();
             if (count > 0) {
@@ -227,10 +233,21 @@ implements PlugIn
         }
         String home = "";
         String configFile = null;
+        int index = LookupNames.IMAGE_J;
         if (args != null) {
             String[] values = args.split(" ");
-            if (values.length > 0) configFile = values[0];
-            if (values.length > 1) home = values[1];
+            List<String> l = new ArrayList<String>();
+            for (int i = 0; i < values.length; i++) {
+                String v = values[i];
+                if (v.startsWith("imageJ")) {
+                    String[] k = v.split("=");
+                    if (k.length == 2 && k[1].equals("import")) {
+                        index = LookupNames.IMAGE_J_IMPORT;
+                    }
+                } else l.add(v);
+            }
+            if (l.size() > 0) configFile = l.get(0);
+            if (l.size() > 1) home = l.get(1);
         }
         CodeSource src =
                 MainIJPlugin.class.getProtectionDomain().getCodeSource();
@@ -242,8 +259,7 @@ implements PlugIn
             } catch (Exception e) {}
         }
         try {
-            container = Container.startupInPluginMode(home, configFile,
-                    LookupNames.IMAGE_J);
+            container = Container.startupInPluginMode(home, configFile, index);
             attachListeners();
         } catch (StartupException e) {
             showMessage(e.getPlugin());

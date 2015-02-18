@@ -4,7 +4,7 @@
 {% load common_tags %}
 {% comment %}
 <!--
-  Copyright (C) 2011-2014 University of Dundee & Open Microscopy Environment.
+  Copyright (C) 2011-2015 University of Dundee & Open Microscopy Environment.
   All rights reserved.
 
   This program is free software: you can redistribute it and/or modify
@@ -322,7 +322,7 @@
                     },
                     error: function(data){
                         $("#fileann_spinner").hide();
-                        alert(data.response);
+                        alert("Upload failed [" + data.status + " " + data.statusText + "]");
                     }
                 });
                 // prepare dialog for choosing file to attach...
@@ -476,6 +476,48 @@
 
             {% endif %}
 
+                // --- Rating ----
+                $("#add_rating").click(function(){
+                    $(".myRating").toggle();
+                });
+
+                $("#rating_annotations").on("click", ".myRating img", function(event){
+                    var $rating = $(this),
+                        clickX = event.pageX - $rating.offset().left;
+                    var r = (clickX/ $rating.width()) * 5;
+                    r = parseInt(Math.ceil(r));
+                    setRating(r, $rating);
+                });
+
+                $("#rating_annotations").on("click", ".removeRating", function(event){
+                    var $liMyRating = $(this).parent(),
+                        $ratingimg = $liMyRating.find('img');
+                    $liMyRating.hide();
+                    setRating(0, $ratingimg);
+                });
+
+                var setRating = function(rating, $rating) {
+                    // update rating
+                    if ($rating) {
+                        var rating_src = "{% static 'webclient/image/rating0.png' %}".replace("0.png", rating+".png");
+                        $rating.attr('src', rating_src);
+                    }
+                    // hide the [+] button if we have set a rating
+                    if (rating > 0) {
+                        $("#add_rating").hide()
+                    } else {
+                        $("#add_rating").show()
+                    }
+                    // update rating annotation
+                    var rating_url = "{% url 'annotate_rating' %}?{{manager.obj_type}}={{ manager.obj_id }}&index={{ index }}"
+                    rating_url += "&rating=" + rating;
+                    $.post(rating_url, function(data) {
+                        // update summary
+                        $("#ratingsAverage").text(data.average);
+                        $("#ratingsCount").text(data.count);
+                        $("#ratingsSummary").show();
+                    });
+                }
             });
             
     </script>
@@ -768,30 +810,46 @@
 
             <!-- RATING -->
       
-                    <h2>{% trans "Rating" %}</h2>
-                    <div style="clear:both"></div>
-                    {% if manager.rating_annotations %}
-                    <div class="lntags">
-                
-                    {% for rating in manager.rating_annotations %}
-                
-                        {% ifequal rating.getValue 0 %}<img src="{% static "webclient/image/rating0.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 1 %}<img src="{% static "webclient/image/rating1.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 2 %}<img src="{% static "webclient/image/rating2.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 3 %}<img src="{% static "webclient/image/rating3.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 4 %}<img src="{% static "webclient/image/rating4.png" %}">{% endifequal %}
-                        {% ifequal rating.getValue 5 %}<img src="{% static "webclient/image/rating5.png" %}">{% endifequal %}
-                       
-                       
-                        {{ rating.getDetails.getOwner.getNameWithInitial }}
-                        
-                    {% endfor %}
-                       
+                <h2>{% trans "Rating" %}</h2>
+
+                {% with ratings=manager.getGroupedRatings %}
+
+                {% if manager.canAnnotate %}
+                    <div>
+                        <a id="add_rating" href="#" class="btn silver btn_add"
+                            {% if ratings.myRating %}style="display: none"{% endif %}
+                        ><span></span></a>
                     </div>
-                    {% else %}
-                        {% trans "No ratings" %}
-                    {% endif %}
-             
+                {% endif %}
+
+                <div style="clear:both"></div>
+
+                <ul id="rating_annotations" class="lnfiles">
+
+                    <li class="rating myRating" style="position: relative {% if not ratings.myRating %}; display:none{% endif %}">
+                        <a><img
+                        {% if ratings.myRating %}
+                        {% ifequal ratings.myRating 1 %} src="{% static "webclient/image/rating1.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 2 %} src="{% static "webclient/image/rating2.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 3 %} src="{% static "webclient/image/rating3.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 4 %} src="{% static "webclient/image/rating4.png" %}"{% endifequal %}
+                        {% ifequal ratings.myRating 5 %} src="{% static "webclient/image/rating5.png" %}"{% endifequal %}
+
+                        {% else %}
+                            src="{% static "webclient/image/rating0.png" %}"
+                        {% endif %}
+                        />
+                        </a>
+                        <a href="#" class="removeRating removeTag" title="Delete rating">X</a>
+                    </li>
+                </ul>
+                <div id="ratingsSummary" {% if not ratings.average %}style="display:none"{% endif %}>
+                    (avg:
+                    <span id="ratingsAverage">{{ ratings.average }}</span>
+                    / <span id="ratingsCount">{{ ratings.count }}</span>
+                    votes)
+                </div>
+                {% endwith %}
              </div>
             
             
@@ -843,6 +901,16 @@
                             {% include "webclient/annotations/fileanns.html" %}
                         {% endwith %}
                     </ul>
+
+            </div>
+
+
+            <hr/>
+
+            <!-- MAP ANNOTATIONS -->
+            <div class="annotations_section">
+
+                {% include "webclient/annotations/mapannotations.html" %}
 
             </div>
 

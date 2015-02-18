@@ -94,6 +94,24 @@ class TestPrefs(object):
         self.invoke("keys")
         self.assertStdoutStderr(capsys)
 
+    def testGetHidePassword(self, capsys):
+        self.invoke("set omero.X.pass shortpass")
+        self.cli.invoke(self.args + ["set", "omero.Y.pass", ""], strict=True)
+        self.invoke("set omero.Y.password long_password")
+        self.invoke("set omero.Z val")
+        self.invoke("get")
+        self.assertStdoutStderr(capsys, out=(
+            'omero.X.pass=shortpass\n'
+            'omero.Y.pass=\n'
+            'omero.Y.password=long_password\n'
+            'omero.Z=val'))
+        self.invoke("get --hide-password")
+        self.assertStdoutStderr(capsys, out=(
+            'omero.X.pass=********\n'
+            'omero.Y.pass=\n'
+            'omero.Y.password=********\n'
+            'omero.Z=val'))
+
     def testSetFails(self, capsys):
         self.invoke("set A=B")
         self.assertStdoutStderr(
@@ -317,13 +335,13 @@ class TestPrefs(object):
          "omero.a=b\nomero.c=d\nomero.e=f",
          "a (1)\n\t\nc (1)\n\t\ne (1)"),
     ))
-    def testDefaultsParsing(self, tmpdir, capsys, data):
+    def testFileParsing(self, tmpdir, capsys, data):
         input, defaults, keys = data
         cfg = tmpdir.join("test.cfg")
         cfg.write(input)
-        self.invoke("parse --file=%s" % cfg)
+        self.invoke("parse --file=%s --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=defaults)
-        self.invoke("parse --file=%s --defaults" % cfg)
+        self.invoke("parse --file=%s --defaults --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=defaults)
-        self.invoke("parse --file=%s --keys" % cfg)
+        self.invoke("parse --file=%s --keys --no-web" % cfg)
         self.assertStdoutStderr(capsys, out=keys)

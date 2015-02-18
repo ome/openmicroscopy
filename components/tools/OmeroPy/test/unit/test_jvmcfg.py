@@ -228,6 +228,17 @@ class TestAdjustStrategy(object):
         finally:
             config.close()
 
+    @pytest.mark.parametrize("fixture", AFS, ids=[x.name for x in AFS])
+    def test_12527(self, fixture, monkeypatch):
+        monkeypatch.setattr(Strategy, '_system_memory_mb_java',
+                            lambda x: (2000, 4000))
+        p = write_config(fixture.input)
+        old_templates = path(__file__).dirname() / "old_templates.xml"
+        xml = XML(old_templates.abspath().text())
+        config = ConfigXml(filename=str(p), env_config="default")
+        with pytest.raises(Exception):
+            adjust_settings(config, xml, **fixture.kwargs)
+
 
 class TestChart(object):
 

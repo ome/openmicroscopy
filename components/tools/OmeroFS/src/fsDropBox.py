@@ -65,7 +65,10 @@ class DropBox(Ice.Application):
         # if not there's no point starting the FSDropBox client
         import fsUtil
         try:
-            fsUtil.monitorPackage()
+            checkString = props.getPropertyWithDefault(
+                "omero.fs.platformCheck", "True")
+            platformCheck = not (checkString == "False")
+            fsUtil.monitorPackage(platformCheck)
         except:
             log.exception("System requirements not met: \n")
             log.error("Quitting")
@@ -196,6 +199,7 @@ class DropBox(Ice.Application):
                         monitorParameters[user]['blockSize'],
                         monitorParameters[user]['ignoreSysFiles'],
                         monitorParameters[user]['ignoreDirEvents'],
+                        platformCheck,
                         mClientProxy)
 
                     log.info(

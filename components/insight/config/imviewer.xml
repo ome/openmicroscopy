@@ -21,10 +21,6 @@
        </structuredEntry>
      </fonts>
    </resources>
- <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * Information indicating to use or not openGL. 
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-    <entry name="/library/opengl" type="boolean">false</entry>
 <!-- maximum size of a plane default is 512x512 -->
  <entry name="/services/RE/planeSize" type="integer">262144</entry>
 </agent>

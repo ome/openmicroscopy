@@ -1,11 +1,11 @@
 /*
- * $Id$
- *
- *  Copyright 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright 2006-2015 University of Dundee. All rights reserved.
  *  Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
+import static omero.rtypes.rint;
 import static omero.rtypes.rstring;
 
 import java.awt.image.BufferedImage;
@@ -198,6 +198,7 @@ public class ModelMockFactory {
         String uniqueDesc = String.format("test-desc:%s", uuidAsString);
         img.setName(rstring(uniqueName));
         img.setDescription(rstring(uniqueDesc));
+        img.setSeries(rint(0));
         return img;
     }
 
@@ -798,7 +799,6 @@ public class ModelMockFactory {
         for (int z = 0; z < sizeZ; z++) {
             for (int t = 0; t < sizeT; t++) {
                 for (int c = 0; c < sizeC; c++) {
-                    PlaneInfo info = new PlaneInfoI();
                     pixels.addPlaneInfo(createPlaneInfo(z, t, c));
                 }
             }
@@ -1038,8 +1038,8 @@ public class ModelMockFactory {
      *             Thrown if an error occurred while encoding the image.
      */
     public void createImageFile(File file, String format) throws Exception {
-        Iterator writers = ImageIO.getImageWritersByFormatName(format);
-        ImageWriter writer = (ImageWriter) writers.next();
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format);
+        ImageWriter writer = writers.next();
         ImageOutputStream ios = ImageIO.createImageOutputStream(file);
         writer.setOutput(ios);
         writer.write(new BufferedImage(WIDTH, HEIGHT,

@@ -1,5 +1,16 @@
 *** Keywords ***
 
+Xpath Should Have Class
+    [Arguments]         ${identifier}   ${className}
+    Page Should Contain Element    ${identifier}
+    Page Should Contain Element    ${identifier}[contains(@class, '${className}')]
+
+Xpath Should Not Have Class
+    [Arguments]         ${identifier}   ${className}
+    Page Should Contain Element        ${identifier}
+    Page Should Not Contain Element    ${identifier}[contains(@class, '${className}')]
+
+
 # All these keywords should be identical in Web and Insight
 Tree Should Be Visible
     Element Should Be Visible    dataTree
@@ -61,7 +72,8 @@ Create Project
     [Return]    ${pid}
 
 Create Dataset
-    ${did}=     Create Container    dataset
+    [Arguments]     ${newName}=testCreateContainerRobot
+    ${did}=     Create Container    dataset    ${newName}
     [Return]    ${did}
 
 Create Button Should Be Enabled
@@ -79,7 +91,8 @@ Create Container
     Click Button                add${dType}Button
     Element Should Be Visible   new-container-form
     Input Text                  name    ${newName}
-    Click Button                OK
+    # Make sure we pick 'OK' button from visible dialog
+    Click Element               xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
     Set Selenium Speed          1
     Wait Until Page Contains Element    css=tr.data_heading_id
     Set Selenium Speed                  ${DELAY}

@@ -410,6 +410,22 @@ public class ImportEvent {
     // These extra PROGRESS_EVENT classes are added to allow some meaningful
     // event reporting under FS rather than abusing the ones above
 
+    public static class IMPORT_STARTED extends POST_UPLOAD_EVENT {
+        public IMPORT_STARTED(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, filename, target, pixId, series, size, numDone, total, fsId);
+        }
+
+        @Override
+        public String toLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(getClass().getSimpleName());
+            sb.append(String.format(" Logfile: %d", logFileId));
+            return sb.toString();
+        }
+    }
+
     public static class METADATA_IMPORTED extends POST_UPLOAD_EVENT {
         public METADATA_IMPORTED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size,

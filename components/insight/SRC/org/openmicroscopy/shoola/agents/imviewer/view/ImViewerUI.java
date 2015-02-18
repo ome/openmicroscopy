@@ -69,13 +69,10 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
-import com.sun.opengl.util.texture.TextureData;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
-//Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.model.Length;
 import omero.model.LengthI;
@@ -1360,7 +1357,10 @@ class ImViewerUI
 	            buffer.append(" (");
 	            buffer.append(UIUtilities.roundTwoDecimals(
 	                    info.getRealValue(bin)));
-	            buffer.append(info.getUnit()+")");
+	            if (StringUtils.isNotBlank(info.getUnit())) {
+	                buffer.append(info.getUnit());
+	            }
+	            buffer.append(")");
 		    }
 		}
 		setLeftStatus(buffer.toString());
@@ -1577,8 +1577,7 @@ class ImViewerUI
 		if (lens == null) {
 			if (b) {
 				firstTime = true;
-				lens = new LensComponent(this, 
-						ImViewerAgent.hasOpenGLSupport());
+				lens = new LensComponent(this);
 				lens.setImageName(model.getImageName());
 				lens.setXYPixelMicron(model.getPixelsSizeX(), 
 						model.getPixelsSizeY());
@@ -1651,44 +1650,21 @@ class ImViewerUI
 					}
 			}
 		}
-		if (ImViewerAgent.hasOpenGLSupport()) {
-			TextureData image;
-			
-			switch (index) {
-				case ImViewer.VIEW_INDEX:
-				default:
-					f = (float) model.getZoomFactor();
-					image = model.getImageAsTexture();
-					//img = model.getOriginalImage();
-					break;
-				case ImViewer.PROJECTION_INDEX:
-					f = (float) model.getZoomFactor();
-					image = model.getProjectedImageAsTexture();
-					//img = model.getProjectedImage();
-					break;
-				case ImViewer.GRID_INDEX:
-					//img = model.getGridImage();
-					image = null;
-			}
-			if (image != null)
-				lens.resetLensAsTexture(image, f, lensX, lensY);  
-		} else {
-			BufferedImage img;
-			switch (index) {
-				case ImViewer.VIEW_INDEX:
-				default:
-					f = (float) model.getZoomFactor();
-					img = model.getOriginalImage();
-					break;
-				case ImViewer.PROJECTION_INDEX:
-					f = (float) model.getZoomFactor();
-					img = model.getProjectedImage();
-					break;
-				case ImViewer.GRID_INDEX:
-					img = model.getGridImage();
-			}
-			if (img != null) lens.resetLens(img, f, lensX, lensY);  
-		}
+		BufferedImage img;
+        switch (index) {
+            case ImViewer.VIEW_INDEX:
+            default:
+                f = (float) model.getZoomFactor();
+                img = model.getOriginalImage();
+                break;
+            case ImViewer.PROJECTION_INDEX:
+                f = (float) model.getZoomFactor();
+                img = model.getProjectedImage();
+                break;
+            case ImViewer.GRID_INDEX:
+                img = model.getGridImage();
+        }
+        if (img != null) lens.resetLens(img, f, lensX, lensY);
 		model.getBrowser().addComponent(c, index, true);
 		scrollLens();
 		UIUtilities.setLocationRelativeTo(this, lens.getZoomWindow());

@@ -174,6 +174,10 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             default:
                 throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
             }
+        } catch (GraphException ge) {
+            final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
+            graphERR.message = ge.message;
+            throw helper.cancel(graphERR, ge, "model object graph operation failed");
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "model object graph operation failed");
         }

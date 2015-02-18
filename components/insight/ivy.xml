@@ -33,6 +33,7 @@
         <exclude ext="pom"/>
     </dependency>
     <!-- For build -->
+    <dependency org="ome" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
     <dependency org="insight" name="jarbundler" rev="${versions.jarbundler}" conf="build->default"/>
     <!-- From classpath -->
     <dependency org="insight" name="ai_path" rev="${versions.ai_path}"/>
@@ -48,7 +49,6 @@
     <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
     <dependency org="insight" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
-    <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
     <dependency org="insight" name="httpclient" rev="${versions.httpclient}"/>
     <dependency org="insight" name="httpcore" rev="${versions.httpcore}"/>
@@ -58,7 +58,6 @@
     <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
     <dependency org="insight" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
-    <dependency org="insight" name="jogl" rev="${versions.jogl}"/>
     <dependency org="insight" name="ols-client" rev="${versions.ols-client}"/>
     <dependency org="insight" name="physics" rev="${versions.physics}"/>
     <dependency org="insight" name="poi" rev="${versions.poi}"/>

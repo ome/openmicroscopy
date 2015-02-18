@@ -71,7 +71,11 @@ public class FileTableNode
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(status);
 		add(new JSeparator(JSeparator.VERTICAL));
-		add(new JLabel(failure.getFile().getName()));
+		if (failure.getFile() != null) {
+		    add(new JLabel(failure.getFile().getName()));
+		} else {
+		    add(new JLabel("Log File ID:"+failure.getLogFileID()));
+		}
 		add(Box.createHorizontalStrut(15));
 	}
 	

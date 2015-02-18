@@ -2,7 +2,7 @@
  * ome.formats.OMEROMetadataStoreClient
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -1624,47 +1624,21 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Sets extended the properties on a pixel set.
-     * @param pixelsId The pixels set identifier.
-     * @param series The series number to populate.
-     * @param target The <code>setId()</code> target.
-     * @param prefix Prefix within the binary repository for all files.
+     * Sets the path, name and repo in the pixels table.
+     * @param pixelsId the ID of the Pixels object
+     * @param file the file's filename, with path in the repository
+     * @param repo the file's repository's UUID
+     * @throws ServerError in the event of a server error
      */
-    public void setPixelsParams(long pixelsId, int series, String targetName)
-    {
-        setPixelsParams(pixelsId, series, targetName, null);
-    }
-
-    /**
-     * Sets extended the properties on a pixel set including the repository
-     * which the object is to be found in. In general, this should <em>not</em>
-     * be here, but rather the repository itself should be responsible for these
-     * actions. However, as a workaround for the current state of import before
-     * another major refactoring, permit setting the value here.
-     *s
-     * @param pixelsId The pixels set identifier.
-     * @param series The series number to populate.
-     * @param target The <code>setId()</code> target.
-     * @param prefix Prefix within the binary repository for all files.
-     */
-    public void setPixelsParams(long pixelsId, int series, String targetName,
-            String repoUuid)
-    {
-
+    public void setPixelsFile(long pixelsId, String file, String repo) throws ServerError {
         try
         {
-            Map<String, String> params = new HashMap<String, String>();
-            if (repoUuid != null) {
-                params.put("repo", repoUuid);
-            }
-            params.put("image_no", Integer.toString(series));
-            params.put("target", targetName);
-            delegate.setPixelsParams(pixelsId, true, params);
+            delegate.setPixelsFile(pixelsId, file, repo);
         }
         catch (Exception e)
         {
             log.error("Server error setting extended properties for Pixels:" +
-                      pixelsId + " Target file:" + targetName);
+                      pixelsId + " Target file:" + file);
         }
     }
 
@@ -2348,10 +2322,11 @@ public class OMEROMetadataStoreClient
             List<IObject> objectList = new ArrayList<IObject>(pixelsList.size());
             for (Pixels pixels : pixelsList)
             {
-                pixels.unloadCollections();
+                pixels.unloadPixelsFileMaps();
+                pixels.unloadPlaneInfo();
+                pixels.unloadSettings();
+                pixels.unloadThumbnails();
                 pixels.unloadDetails();
-                //unloadedImage = new ImageI(pixels.getImage().getId(), false);
-                //pixels.setImage(unloadedImage);
                 objectList.add(pixels);
             }
             iUpdate.saveArray(objectList);
@@ -6808,16 +6783,6 @@ public class OMEROMetadataStoreClient
      */
     @Override
     public void setRoot(MetadataRoot root)
-    {
-        ignoreUnneeded("setRoot", root);
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRoot(MetadataRoot)
-     */
-    @Deprecated
-    @Override
-    public void setRoot(Object root)
     {
         ignoreUnneeded("setRoot", root);
     }

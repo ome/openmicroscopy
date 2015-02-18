@@ -144,11 +144,9 @@ public class ProjectionSaver
     {
         switch (index) {
 			case PREVIEW:
-				boolean b = ImViewerAgent.hasOpenGLSupport();
 				handle = ivView.renderProjected(ctx, ref.getPixelsID(),
 						ref.getStartZ(), ref.getEndZ(), ref.getStepping(),
-						ref.getAlgorithm(), ref.getChannels(), b,
-						this);
+						ref.getAlgorithm(), ref.getChannels(), this);
 				break;
 			case PROJECTION:
 				handle = ivView.projectImage(ctx, ref, this);

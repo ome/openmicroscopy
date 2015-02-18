@@ -176,6 +176,9 @@ public class FullTextBridge extends BridgeHelper {
             for (Annotation annotation : list) {
                 String at = annotationTypeString(annotation);
                 add(document, "annotation.type", at, opts);
+                if (annotation.getName() != null) {
+                    add(document, "annotation.name", annotation.getName(), opts);
+                }
                 if (annotation.getNs() != null) {
                     add(document, "annotation.ns", annotation.getNs(), opts);
                 }

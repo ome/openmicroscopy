@@ -66,8 +66,8 @@ try
     
     % Retrieve a dataset specified by an input identifier
     % If the dataset contains images, the images will be loaded
-    disp('Listing images')
-    dataset = getDatasets(session, datasetId);
+    disp('Reading dataset with loaded images');
+    dataset = getDatasets(session, datasetId, true);
     assert(~isempty(dataset), 'OMERO:ReadData', 'Dataset Id not valid');
     images = toMatlabList(dataset.linkedImageList); % The images in the dataset.
     fprintf(1, 'Found %g images in dataset %g using getDatasets()\n',...

@@ -565,6 +565,48 @@
         border-top: solid 1px hsl(210,10%,90%);
     }
     
+    /* Rating */
+    #rating_annotations {
+        border-color: transparent;
+    }
+    .rating {
+        float: left;
+        border: solid 1px hsl(210,20%,85%);
+        margin: 2px;
+        border-radius: 5px;
+        border-top: solid 1px hsl(210,20%,85%) !important;
+        border-bottom: solid 1px hsl(210,20%,85%) !important;
+    }
+    .lnfiles:empty {
+        display: none;
+    }
+    .myRating img, .addRating img{
+        cursor: pointer;
+    }
+    .addRating .removeRating {
+        display: none;
+    }
+    #rating_annotations a {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .removeRating {
+    	padding: 0px !important;
+    	top: 2px;
+    	right: 2px;
+    }
+    .rating .removeRating {
+    	visibility: hidden;
+    }
+    .rating:hover .removeRating {
+    	visibility: visible;
+    }
+    .rating img {
+    	opacity: 0.65;
+    }
+    .myRating img {
+    	opacity: 1.0;
+    }
         
         
     /* Tables */
@@ -664,6 +706,21 @@
         }
         .fileset_image.extra {
             display:none;
+        }
+
+        .chgrpGroup {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset {
+        	width: 100%;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset button {
+        	float: right;
+        }
+        .chgrp_confirm_dialog .ui-dialog-buttonset button:first-child {
+        	float: left;
+        	margin-left: 10px;
         }
     
     
@@ -921,15 +978,52 @@
         
     
     
-    
-    
-    
-    
-    /* Modal Dialog */
-    
-   
-    
-           
+    /* Map Annotations */
+
+    .mapAnnContainer {
+        position: relative;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+    .keyValueTable {
+        position: relative;
+        margin-bottom: 20px;
+        width: 98% !important;
+    }
+    .keyValueTable td, .keyValueTable th {
+        width: 50%;
+        padding: 2px 5px !important;
+        color: hsl(210,10%,30%) !important;
+        vertical-align: middle;
+    }
+    .editableKeyValueTable td, .editableKeyValueTable th {
+        height: 20px;
+    }
+    .keyValueTable input {
+        width: 96%;
+    }
+    .keyValueTable tr:hover {
+        background-color: #eee;
+    }
+    .keyValueTable tr.ui-selected {
+        background-color: #cddcfc;
+    }
+    .keyValueTable tbody tr {
+        border: solid #ddd 1px;
+    }
+    .editableKeyValueTable tbody tr {
+        background-color: #fff;
+    }
+    .mapAnnToolbar {
+        position: absolute;
+        top: -5px;
+        right: 15px;
+        z-index: 100;
+    }
+    .editableKeyValueTable tr.placeholder td {
+        font-style: italic;
+        color: #999 !important;
+    }      
     
 	
 	/* Comments */

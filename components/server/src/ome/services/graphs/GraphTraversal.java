@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -495,7 +495,7 @@ public class GraphTraversal {
         /* note the object instances for processing */
         final SetMultimap<String, Long> objectsToQuery = HashMultimap.create();
         for (final IObject instance : objectInstances) {
-            if (instance.isLoaded()) {
+            if (instance.isLoaded() && instance.getDetails() != null) {
                 final CI object = new CI(instance);
                 noteDetails(object, instance.getDetails());
                 targetSet.add(object);
@@ -787,6 +787,47 @@ public class GraphTraversal {
     }
 
     /**
+     * Load a specific link property's object relationships into the various cache fields of {@link Planning}.
+     * @param linkProperty the link property being processed
+     * @param query the HQL to query the property's object relationships
+     * @param ids the IDs of the related objects
+     * @return which linker objects are related to which linked objects by the given property
+     * @throws GraphException if the objects could not be converted to unloaded instances
+     */
+    private List<Entry<CI,CI>> getLinksToCache(CP linkProperty, String query, Collection<Long> ids) throws GraphException {
+        final String linkedClassName = getLinkedClass(linkProperty);
+        final boolean propertyIsAccessible = model.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
+        final SetMultimap<Long, Long> linkerToLinked = HashMultimap.create();
+        for (final List<Long> idsBatch : Iterables.partition(ids, BATCH_SIZE)) {
+            for (final Object[] result : (List<Object[]>) session.createQuery(query).setParameterList("ids", idsBatch).list()) {
+                linkerToLinked.put((Long) result[0], (Long) result[1]);
+            }
+        }
+        final List<Entry<CI,CI>> linkerLinked = new ArrayList<Entry<CI,CI>>();
+        final Map<Long, CI> linkersById = findObjectDetails(linkProperty.className, linkerToLinked.keySet());
+        final Map<Long, CI> linkedsById = findObjectDetails(linkedClassName, new HashSet<Long>(linkerToLinked.values()));
+        for (final Entry<Long, Long> linkerIdLinkedId : linkerToLinked.entries()) {
+            final CI linker = linkersById.get(linkerIdLinkedId.getKey());
+            final CI linked = linkedsById.get(linkerIdLinkedId.getValue());
+            if (!planning.detailsNoted.containsKey(linker)) {
+                log.warn("failed to query for " + linker);
+            } else if (!planning.detailsNoted.containsKey(linked)) {
+                log.warn("failed to query for " + linked);
+            } else {
+                linkerLinked.add(Maps.immutableEntry(linker, linked));
+                if (propertyIsAccessible) {
+                    planning.befores.put(linked, linker);
+                    planning.afters.put(linker, linked);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
+                }
+            }
+        }
+        return linkerLinked;
+    }
+
+    /**
      * Load object instances and their links into the various cache fields of {@link Planning}.
      * @param session a Hibernate session
      * @param toCache the objects to cache
@@ -811,57 +852,19 @@ public class GraphTraversal {
         /* query and cache forward links */
         for (final Entry<CP, Collection<Long>> forwardLink : forwardLinksWanted.asMap().entrySet()) {
             final CP linkProperty = forwardLink.getKey();
-            final String linkedClassName = getLinkedClass(linkProperty);
-            final boolean propertyIsAccessible = model.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
             final String query = "SELECT linker.id, linked.id FROM " + linkProperty.className + " AS linker " +
                     "JOIN linker." + linkProperty.propertyName + " AS linked WHERE linker.id IN (:ids)";
-            final SetMultimap<Long, Long> linkerToLinked = HashMultimap.create();
-            for (final List<Long> idsBatch : Iterables.partition(forwardLink.getValue(), BATCH_SIZE)) {
-                for (final Object[] result : (List<Object[]>) session.createQuery(query).setParameterList("ids", idsBatch).list()) {
-                    linkerToLinked.put((Long) result[0], (Long) result[1]);
-                }
-            }
-            final Map<Long, CI> linkersById = findObjectDetails(linkProperty.className, linkerToLinked.keySet());
-            final Map<Long, CI> linkedsById = findObjectDetails(linkedClassName, new HashSet<Long>(linkerToLinked.values()));
-            for (final Entry<Long, Long> linkerIdLinkedId : linkerToLinked.entries()) {
-                final CI linker = linkersById.get(linkerIdLinkedId.getKey());
-                final CI linked = linkedsById.get(linkerIdLinkedId.getValue());
-                planning.forwardLinksCached.put(linkProperty.toCPI(linker.id), linked);
-                if (propertyIsAccessible) {
-                    planning.befores.put(linked, linker);
-                    planning.afters.put(linker, linked);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
-                }
+            for (final Entry<CI, CI> linkerLinked : getLinksToCache(linkProperty, query, forwardLink.getValue())) {
+                planning.forwardLinksCached.put(linkProperty.toCPI(linkerLinked.getKey().id), linkerLinked.getValue());
             }
         }
         /* query and cache backward links */
         for (final Entry<CP, Collection<Long>> backwardLink : backwardLinksWanted.asMap().entrySet()) {
             final CP linkProperty = backwardLink.getKey();
-            final String linkedClassName = getLinkedClass(linkProperty);
-            final boolean propertyIsAccessible = model.isPropertyAccessible(linkProperty.className, linkProperty.propertyName);
             final String query = "SELECT linker.id, linked.id FROM " + linkProperty.className + " AS linker " +
                     "JOIN linker." + linkProperty.propertyName + " AS linked WHERE linked.id IN (:ids)";
-            final SetMultimap<Long, Long> linkerToLinked = HashMultimap.create();
-            for (final List<Long> idsBatch : Iterables.partition(backwardLink.getValue(), BATCH_SIZE)) {
-                for (final Object[] result : (List<Object[]>) session.createQuery(query).setParameterList("ids", idsBatch).list()) {
-                    linkerToLinked.put((Long) result[0], (Long) result[1]);
-                }
-            }
-            final Map<Long, CI> linkersById = findObjectDetails(linkProperty.className, linkerToLinked.keySet());
-            final Map<Long, CI> linkedsById = findObjectDetails(linkedClassName, new HashSet<Long>(linkerToLinked.values()));
-            for (final Entry<Long, Long> linkerIdLinkedId : linkerToLinked.entries()) {
-                final CI linker = linkersById.get(linkerIdLinkedId.getKey());
-                final CI linked = linkedsById.get(linkerIdLinkedId.getValue());
-                planning.backwardLinksCached.put(linkProperty.toCPI(linked.id), linker);
-                if (propertyIsAccessible) {
-                    planning.befores.put(linked, linker);
-                    planning.afters.put(linker, linked);
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug(linkProperty.toCPI(linker.id) + " links to " + linked);
-                }
+            for (final Entry<CI, CI> linkerLinked : getLinksToCache(linkProperty, query, backwardLink.getValue())) {
+                planning.backwardLinksCached.put(linkProperty.toCPI(linkerLinked.getValue().id), linkerLinked.getKey());
             }
         }
         /* note cached objects for further processing */

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.DocComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -304,7 +305,7 @@ class DocComponent
 		}
 		
 		TinyDialog d = new TinyDialog(null, comp, TinyDialog.CLOSE_ONLY);
-		d.setModal(true);
+		d.setModal(false);
 		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		SwingUtilities.convertPointToScreen(p, invoker);
 		d.pack();
@@ -439,7 +440,6 @@ class DocComponent
 			return buf.toString();
 		}
 		
-		ExperimenterData exp = null;
 		if (name != null) {
 			buf.append("<b>");
 			buf.append("Name: ");
@@ -447,9 +447,37 @@ class DocComponent
 			buf.append(name);
 			buf.append("<br>");
 		}
-		if (annotation.getId() > 0)
+		
+		ExperimenterData exp = null;
+		
+		if(annotation.getId()>0) {
 			exp = model.getOwner(annotation);
-		if (exp != null) {
+			buf.append("<b>");
+			buf.append("ID: ");
+			buf.append("</b>");
+			buf.append(annotation.getId());
+			buf.append("<br>");
+		}
+		
+		String ns = annotation.getNameSpace();
+		if(!StringUtils.isEmpty(ns) && !isInternalNS(ns)) {
+			buf.append("<b>");
+			buf.append("Namespace: ");
+			buf.append("</b>");
+			buf.append(ns);
+			buf.append("<br>");
+		}
+		
+		String desc = annotation.getDescription();
+		if(!StringUtils.isEmpty(desc)) {
+			buf.append("<b>");
+			buf.append("Description: ");
+			buf.append("</b>");
+			buf.append(desc);
+			buf.append("<br>");
+		}
+		
+		if(exp!=null) {
 			buf.append("<b>");
 			buf.append("Owner: ");
 			buf.append("</b>");
@@ -457,14 +485,16 @@ class DocComponent
 			buf.append("<br>");
 		}
 		
+		Timestamp created = annotation.getCreated();
+		if(created !=null) {
+			buf.append("<b>");
+			buf.append("Date: ");
+			buf.append("</b>");
+			buf.append(UIUtilities.formatShortDateTime(created));
+			buf.append("<br>");
+		}
+		
 		if (data instanceof FileAnnotationData) {
-			String ns = ((FileAnnotationData) data).getNameSpace();
-			if (annotation.getId() > 0) {
-				buf.append("<b>");
-				buf.append("Annotation ID: ");
-				buf.append("</b>");
-				buf.append(annotation.getId());
-				buf.append("<br>");
 				buf.append("<b>");
 				buf.append("File ID: ");
 				buf.append("</b>");
@@ -472,14 +502,6 @@ class DocComponent
 				buf.append(fa.getFileID());
 				buf.append("<br>");
 				buf.append("<b>");
-				buf.append("Date Added: ");
-				buf.append("</b>");
-				buf.append(UIUtilities.formatWDMYDate(
-						annotation.getLastModified()));
-				buf.append("<br>");
-				buf.append("<b>");
-			}
-			
 			buf.append("Size: ");
 			buf.append("</b>");
 			//size not kb
@@ -487,13 +509,6 @@ class DocComponent
 			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
-			if (!StringUtils.isBlank(ns)) {
-			    buf.append("<b>");
-			    buf.append("Namespace: ");
-			    buf.append("</b>");
-			    buf.append(ns);
-			    buf.append("<br>");
-			}
 		} else if (data instanceof TagAnnotationData || data instanceof
 				XMLAnnotationData || data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
@@ -505,6 +520,17 @@ class DocComponent
 		return buf.toString();
 	}
 
+	/**
+	 * Checks if the given namespace is an internal one.
+	 * 
+	 * @param ns
+	 *            The namespace to check
+	 * @return See above
+	 */
+	private boolean isInternalNS(String ns) {
+		return ns.startsWith("openmicroscopy.org") || ns.startsWith("omero.");
+	}
+	
 	/** Initializes the various buttons. */
 	private void initButtons()
 	{

@@ -863,7 +863,7 @@ public class FigureDialog
 			}
 			int rw = (int) roiBox.getWidth();
 			int rh = (int) roiBox.getHeight();
-			lens = new LensComponent((JFrame) getOwner(), false, rw, rh);
+			lens = new LensComponent((JFrame) getOwner(), rw, rh);
 			lens.setLensLocation((int) roiBox.getX(), (int) roiBox.getY());
 			setFactor();
 			canvasView.setDrawing(drawing);

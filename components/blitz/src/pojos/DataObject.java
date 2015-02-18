@@ -1,7 +1,7 @@
 /*
  * pojos.DataObject
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -286,7 +286,8 @@ public abstract class DataObject {
      */
     public ExperimenterData getOwner() {
         if (owner == null) {
-            owner = new ExperimenterData(asIObject().getDetails().getOwner());
+			Experimenter experimenter = asIObject().getDetails().getOwner();
+			owner = experimenter != null ? new ExperimenterData(experimenter) : null;
         }
         return owner;
     }
@@ -351,7 +352,7 @@ public abstract class DataObject {
 
     protected Timestamp timeOfEvent(Event event) {
         if (event == null || !event.isLoaded() || event.getTime() == null) {
-            throw new IllegalStateException("Event does not contain timestamp.");
+            return null;
         }
         return new Timestamp(event.getTime().getValue());
     }

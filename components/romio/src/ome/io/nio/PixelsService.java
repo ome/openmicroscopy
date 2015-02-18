@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import loci.common.lut.AbstractLutSource;
 import loci.common.lut.LutSource;
 import loci.common.lut.ij.ImageJLutSource;
 import loci.formats.ChannelFiller;
@@ -28,6 +26,7 @@ import loci.formats.ImageReader;
 import loci.formats.Memoizer;
 import loci.formats.MinMaxCalculator;
 import loci.formats.meta.IMinMaxStore;
+import ome.api.IQuery;
 import ome.conditions.LockTimeout;
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
@@ -37,6 +36,7 @@ import ome.io.messages.MissingPyramidMessage;
 import ome.io.messages.MissingStatsInfoMessage;
 import ome.model.core.Pixels;
 import ome.model.stats.StatsInfo;
+import ome.parameters.Parameters;
 import ome.system.metrics.Metrics;
 import ome.system.metrics.Timer;
 import ome.util.PixelData;
@@ -96,6 +96,8 @@ public class PixelsService extends AbstractFileSystemService
 	private Timer tileTimes;
 
 	private Timer minmaxTimes;
+	
+	private IQuery iQuery;
 
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
@@ -114,7 +116,7 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelsService(String path)
     {
-        this(path, null, new SimpleBackOff(), new ConfiguredTileSizes());
+        this(path, null, new SimpleBackOff(), new ConfiguredTileSizes(), null);
     }
 
     /**
@@ -124,7 +126,7 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelsService(String path, FilePathResolver resolver)
     {
-        this(path, resolver, new SimpleBackOff(), new ConfiguredTileSizes());
+        this(path, resolver, new SimpleBackOff(), new ConfiguredTileSizes(), null);
     }
 
     /**
@@ -133,10 +135,10 @@ public class PixelsService extends AbstractFileSystemService
      * <code>/OMERO/Pixels</code>).
      * @param resolver Original file path resolver for pixels sets.
      */
-    public PixelsService(String path, FilePathResolver resolver, BackOff backOff, TileSizes sizes)
+    public PixelsService(String path, FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery)
     {
         this(path, new File(new File(path), "BioFormatsCache"), resolver,
-                backOff, sizes);
+                backOff, sizes, iQuery);
     }
 
     /**
@@ -144,9 +146,9 @@ public class PixelsService extends AbstractFileSystemService
      * with {@link #MEMOIZER_WAIT}.
      */
     public PixelsService(String path, long memoizerWait,
-            FilePathResolver resolver, BackOff backOff, TileSizes sizes) {
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
         this(path, new File(new File(path), "BioFormatsCache"),
-                memoizerWait, resolver, backOff, sizes);
+                memoizerWait, resolver, backOff, sizes, iQuery);
     }
 
     /**
@@ -154,12 +156,12 @@ public class PixelsService extends AbstractFileSystemService
      * with {@link #MEMOIZER_WAIT}.
      */
     public PixelsService(String path, File memoizerDirectory,
-            FilePathResolver resolver, BackOff backOff, TileSizes sizes) {
-        this(path, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes);
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery) {
+        this(path, memoizerDirectory, MEMOIZER_WAIT, resolver, backOff, sizes, iQuery);
     }
 
     public PixelsService(String path, File memoizerDirectory, long memoizerWait,
-            FilePathResolver resolver, BackOff backOff, TileSizes sizes)
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes, IQuery iQuery)
     {
         super(path);
         this.resolver = resolver;
@@ -181,6 +183,7 @@ public class PixelsService extends AbstractFileSystemService
                      path + ", resolver=" + resolver + ", backoff=" + backOff +
                      ", sizes=" + sizes + ")");
         }
+        this.iQuery = iQuery;
     }
 
     public void setMetrics(Metrics metrics) {
@@ -632,15 +635,11 @@ public class PixelsService extends AbstractFileSystemService
      */
     protected int getSeries(Pixels pixels)
     {
-        Map<String, String> params = resolver.getPixelsParams(pixels);
-        return getSeries(params);
-    }
-
-    protected int getSeries(Map<String, String> params)
-    {
         try
         {
-            return Integer.valueOf(params.get("image_no"));
+            final String query = "SELECT image.series FROM Pixels WHERE id = :id";
+            final List<Object[]> results = iQuery.projection(query, new Parameters().addId(pixels.getId()));
+            return (Integer) results.get(0)[0];
         }
         catch (Exception e)  // NumberFormatException, NullPointerException
         {
@@ -812,8 +811,7 @@ public class PixelsService extends AbstractFileSystemService
     public IFormatReader getBfReader(Pixels pixels) throws FormatException, IOException {
         // from getPixelBuffer
         final String originalFilePath = getOriginalFilePath(pixels);
-        final Map<String, String> params = resolver.getPixelsParams(pixels);
-        final int series = getSeries(params);
+        final int series = getSeries(pixels);
         final LutSource source = getLutSource(pixels);
         final Colorizer reader = createBfReader(source);
         reader.setId(originalFilePath); // Called by BfPixelsBuffer elsewhere.

@@ -19,3 +19,7 @@ class TestSimple(lib.ITest):
         admin = self.client.sf.getAdminService()
         ec = admin.getEventContext()
         assert ec
+
+    def testImport(self):
+        image = self.importSingleImage()
+        assert image.id.val

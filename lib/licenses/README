@@ -95,6 +95,13 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    appbundler-*.jar
+  Project:      Packages a Java application as a Mac app bundle.
+  Web Site:     https://java.net/projects/appbundler
+  License:      General Public License (GPL), Version 2
+  License File: gpl.txt
+
+
   Artifacts:    axis-client-*.jar
   Project:      Apache Axis is an implementation of the SOAP
                 ("Simple Object Access Protocol") submission to W3C.
@@ -342,14 +349,6 @@
   Web Site:     http://jmock.org
   License:      BSD
   License File: jmock.txt
-
-
-  Artifacts:    jogl-*.jar and gluegen-rt.jar
-                As well as the native libraries under lib/native:
-                linux-native, linux64-native, osx-native, win-native and win64-native.
-  Project:      OpenGL Project a 2D/3D graphics API for High Performance Graphics.
-  Web Site:     http://www.opengl.org/
-  License:      No license for API
 
 
   Artifacts:    jsr107cache-*.jar

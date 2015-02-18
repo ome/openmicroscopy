@@ -64,6 +64,11 @@ public class LookupNames
     public static final int IMAGE_J = 1;
 
     /** 
+     * Field associated to the <code>ImageJ</code> plugin.
+     */
+    public static final int IMAGE_J_IMPORT = 3;
+
+    /** 
      * Field associated to the <code>Knime</code> plugin.
      */
     public static final int KNIME = 2;

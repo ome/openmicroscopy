@@ -398,6 +398,9 @@ class BaseContainer(BaseController):
         self.long_annotations = list()
         self.term_annotations = list()
         self.time_annotations = list()
+        self.my_client_map_annotations = list() # 'should' only be 1
+        self.client_map_annotations = list()
+        self.map_annotations = list()
         self.companion_files =  list()
         
         annTypes = {omero.model.CommentAnnotationI: self.text_annotations,
@@ -408,7 +411,8 @@ class BaseContainer(BaseController):
                     omero.model.BooleanAnnotationI: self.boolean_annotations,
                     omero.model.DoubleAnnotationI: self.double_annotations,
                     omero.model.TermAnnotationI: self.term_annotations,
-                    omero.model.TimestampAnnotationI: self.time_annotations}
+                    omero.model.TimestampAnnotationI: self.time_annotations,
+                    omero.model.MapAnnotationI: self.map_annotations}
         
         aList = list()
         if self.image is not None:
@@ -434,6 +438,11 @@ class BaseContainer(BaseController):
                 elif ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
                     if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
                         self.companion_files.append(ann)
+                elif ann.ns == omero.constants.metadata.NSCLIENTMAPANNOTATION:
+                    if ann.getDetails().getOwner().id == self.conn.getUserId():
+                        self.my_client_map_annotations.append(ann)
+                    else:
+                        self.client_map_annotations.append(ann)
                 else:
                     annTypes[annClass].append(ann)
 
@@ -441,10 +450,56 @@ class BaseContainer(BaseController):
         self.file_annotations.sort(key=lambda x: x.creationEventDate())
         self.rating_annotations.sort(key=lambda x: x.creationEventDate())
         self.tag_annotations.sort(key=lambda x: x.textValue)
+        self.map_annotations.sort(key=lambda x: x.creationEventDate())
         
         self.txannSize = len(self.text_annotations)
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
+
+
+    def getGroupedRatings(self, rating_annotations=None):
+        """
+        Groups ratings in preparation for display. Picks out the user's rating
+        and groups the remaining ones by value.
+        NB: This should be called after annotationList() has loaded annotations.
+        """
+        if rating_annotations is None:
+            rating_annotations = self.rating_annotations
+        userId = self.conn.getUserId()
+        myRating = None
+        ratingsByValue = {}
+        for r in range(1, 6):
+            ratingsByValue[r] = []
+        for rating in rating_annotations:
+            if rating.getDetails().getOwner().id == userId:
+                myRating = rating
+            else:
+                rVal = rating.getValue()
+                if rVal in ratingsByValue:
+                    ratingsByValue[rVal].append(rating)
+
+        avgRating = 0
+        if (len(rating_annotations) > 0):
+            sumRating = sum([r.getValue() for r in rating_annotations])
+            avgRating = float(sumRating)/len(rating_annotations)
+            avgRating = int(round(avgRating))
+
+        # Experimental display of ratings as in PR #3322
+        # groupedRatings = []
+        # for r in range(5,0, -1):
+        #     ratings = ratingsByValue[r]
+        #     if len(ratings) > 0:
+        #         groupedRatings.append({
+        #             'value': r,
+        #             'count': len(ratings),
+        #             'owners': ", ".join([str(r.getDetails().getOwner().getNameWithInitial()) for r in ratings])
+        #             })
+
+        myRating = myRating is not None and myRating.getValue() or 0
+        # NB: this should be json serializable as used in views.annotate_rating
+        return {'myRating': myRating,
+            'average': avgRating, 'count': len(rating_annotations)}
+
 
     def canUseOthersAnns(self):
         """
@@ -490,6 +545,8 @@ class BaseContainer(BaseController):
         
         # return, E.g {"Tag": {AnnId: {'ann': ObjWrapper, 'parents': [ImageWrapper, etc] } }, etc...}
         rv = {}
+        rv["UserRatings"] = {}
+        rv["OtherRatings"] = {}
         # populate empty return map
         for key, value in batchAnns.items():
             rv[value] = {}
@@ -512,13 +569,17 @@ class BaseContainer(BaseController):
                 objType = 'PlateAcquisition'
             for annLink in self.conn.getAnnotationLinks(objType, parent_ids=parent_ids, ann_ids=ann_ids, params=params):
                 ann = annLink.getAnnotation()
-                if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
-                    continue    # TODO: Handle ratings
                 if ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
                     continue
                 annClass = ann._obj.__class__
                 if annClass in batchAnns:
-                    annotationsMap = rv[ batchAnns[annClass] ]      # E.g. map for 'Tags'
+                    if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
+                        if ann.getDetails().owner.id.val == self.conn.getUserId():
+                            annotationsMap = rv["UserRatings"]
+                        else:
+                            annotationsMap = rv["OtherRatings"]
+                    else:
+                        annotationsMap = rv[ batchAnns[annClass] ]      # E.g. map for 'Tags'
                     if ann.getId() not in annotationsMap:
                         annotationsMap[ann.getId()] = {
                             'ann': ann,
@@ -617,40 +678,20 @@ class BaseContainer(BaseController):
     # Creation
     
     def createDataset(self, name, description=None, img_ids=None):
-        ds = omero.model.DatasetI()
-        ds.name = rstring(str(name))
-        if description is not None and description != "" :
-            ds.description = rstring(str(description))
+        dsId = self.conn.createDataset(name, description, img_ids)
         if self.project is not None:
             l_ds = omero.model.ProjectDatasetLinkI()
             l_ds.setParent(self.project._obj)
-            l_ds.setChild(ds)
-            ds.addProjectDatasetLink(l_ds)
-        dsid = self.conn.saveAndReturnId(ds)
-        if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
-            links = []
-            for iid in iids:
-                link = omero.model.DatasetImageLinkI()
-                link.setParent(omero.model.DatasetI(dsid, False))
-                link.setChild(omero.model.ImageI(iid, False))
-                links.append(link)
-            self.conn.saveArray(links)
-        return dsid
+            l_ds.setChild(omero.model.DatasetI(dsId, False))
+            # ds.addProjectDatasetLink(l_ds)
+            self.conn.saveAndReturnId(l_ds)
+        return dsId
         
     def createProject(self, name, description=None):
-        pr = omero.model.ProjectI()
-        pr.name = rstring(str(name))
-        if description is not None and description != "" :
-            pr.description = rstring(str(description))
-        return self.conn.saveAndReturnId(pr)
+        return self.conn.createProject(name, description)
     
     def createScreen(self, name, description=None):
-        sc = omero.model.ScreenI()
-        sc.name = rstring(str(name))
-        if description is not None and description != "" :
-            sc.description = rstring(str(description))
-        return self.conn.saveAndReturnId(sc)
+        return self.conn.createScreen(name, description)
 
 
     def checkMimetype(self, file_type):
@@ -1267,7 +1308,7 @@ class BaseContainer(BaseController):
         elif self.screen:
             handle = self.conn.deleteObjects("Screen", [self.screen.id], deleteChildren=child, deleteAnns=anns)
         elif self.plate:
-            handle = self.conn.deleteObjects("Plate", [self.plate.id], deleteAnns=anns)
+            handle = self.conn.deleteObjects("Plate", [self.plate.id], deleteChildren=True, deleteAnns=anns)
         elif self.comment:
             handle = self.conn.deleteObjects("Annotation", [self.comment.id], deleteAnns=anns)
         elif self.tag:

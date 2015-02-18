@@ -37,7 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,8 +49,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -100,7 +97,6 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-import ome.parameters.Filter;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -168,11 +164,9 @@ import omero.grid.WellColumn;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
@@ -182,7 +176,6 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
@@ -194,6 +187,7 @@ import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -217,11 +211,7 @@ import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
-import omero.model.TermAnnotationI;
-import omero.model.TimestampAnnotation;
-import omero.model.TimestampAnnotationI;
 import omero.model.Well;
-import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
@@ -244,6 +234,7 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
@@ -1694,6 +1685,8 @@ class OMEROGateway
 			return XmlAnnotation.class;
 		else if (FilesetData.class.equals(nodeType))
 			return Fileset.class;
+		else if (MapAnnotationData.class.equals(nodeType))
+			return MapAnnotation.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -1721,7 +1714,8 @@ class OMEROGateway
 		else if (TagAnnotationData.class.getName().equals(data) ||
 				TermAnnotationData.class.getName().equals(data) ||
 				FileAnnotationData.class.getName().equals(data) ||
-				TextualAnnotationData.class.getName().equals(data))
+				TextualAnnotationData.class.getName().equals(data) ||
+				MapAnnotationData.class.getName().equals(data))
 			return REF_ANNOTATION;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
@@ -4112,7 +4106,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx service = c.getAdminService();
+		    IAdminPrx service = c.getAdminService(true);
 			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
@@ -6215,6 +6209,9 @@ class OMEROGateway
 		map.put("IDs", omero.rtypes.rlist(ids));
 		map.put("Data_Type", omero.rtypes.rstring(type));
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+		if (!StringUtils.isEmpty(param.getBatchExportFilename()))
+			map.put("Folder_Name",
+					omero.rtypes.rstring(param.getBatchExportFilename()));
 		return runScript(ctx, id, map);
 	}
 
@@ -7940,7 +7937,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx svc = c.getAdminService();
+		    IAdminPrx svc = c.getAdminService(true);
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);

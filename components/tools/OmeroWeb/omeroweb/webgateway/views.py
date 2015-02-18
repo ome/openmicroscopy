@@ -1827,8 +1827,7 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         if fromid is None:
             # if we have rdef, save to source image, then use that image as
             # 'fromId', then revert.
-            if request.session.get('rdef') is not None and len(toids) > 0:
-                rdef = request.session.get('rdef')
+            if rdef is not None and len(toids) > 0:
                 fromImage = conn.getObject("Image", rdef['imageId'])
                 if fromImage is not None:
                     # copy orig settings
