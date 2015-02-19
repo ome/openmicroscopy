@@ -279,8 +279,9 @@ def is_empty_dir(repo, directory, to_delete, dry_run):
         if entry.mimetype is not None and \
            entry.mimetype.val == 'Directory' and \
            is_empty_dir(repo, subdirectory, empty_subdirs, dry_run):
-            # note empty subdirectories
-            empty_subdirs.append(subdirectory)
+            if entry.details.permissions.canDelete():
+                # note empty subdirectories that can be deleted
+                empty_subdirs.append(subdirectory)
         else:
             is_empty = False
 
