@@ -609,6 +609,8 @@ public class MapAnnotationsComponent extends JPanel implements
 		MapTable t = getSelectedTable();
 		if (t == null)
 			t = getUserTable();
+		if (t == null) // no user table and nothing selected, don't know where to paste 
+		    return;
 		MapTableModel m = (MapTableModel) t.getModel();
 		int index = t.getSelectedRow() + 1;
 		m.addEntries(deepCopy(copiedValues), index);
