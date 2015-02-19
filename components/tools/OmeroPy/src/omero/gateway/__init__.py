@@ -2720,8 +2720,8 @@ class _BlitzGateway (object):
 
     def groupSummary(self, gid=None, exclude_self=False):
         """
-        Returns lists of 'leaders' and 'members' of the specified group
-        (default is current group) as a dict with those keys.
+        Returns unsorted lists of 'leaders' and 'members' of the specified
+        group (default is current group) as a dict with those keys.
 
         :return:    {'leaders': list :class:`ExperimenterWrapper`,
                      'colleagues': list :class:`ExperimenterWrapper`}
@@ -5304,7 +5304,8 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
 
     def groupSummary(self, exclude_self=False):
         """
-        Returns tuple of 'leaders' and 'members' of the group
+        Returns tuple of unsorted lists of 'leaders' and 'members' of
+        the group.
 
         :return:    (list :class:`ExperimenterWrapper`,
                      list :class:`ExperimenterWrapper`)
