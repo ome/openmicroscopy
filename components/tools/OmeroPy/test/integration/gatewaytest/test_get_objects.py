@@ -632,6 +632,7 @@ class TestGetObject (object):
         finally:
             handle.close()
 
+
 class TestLeaderAndMemberOfGroup(object):
 
     @pytest.fixture(autouse=True)
@@ -674,7 +675,7 @@ class TestLeaderAndMemberOfGroup(object):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
         assert not gatewaywrapper.gateway.isLeader()
         with pytest.raises(StopIteration):
-             gatewaywrapper.gateway.getGroupsLeaderOf().next()
+            gatewaywrapper.gateway.getGroupsLeaderOf().next()
 
     def testGetGroupsMemberOf(self, gatewaywrapper):
         gatewaywrapper.doLogin(dbhelpers.USERS['group_member'])
