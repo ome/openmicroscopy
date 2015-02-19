@@ -535,13 +535,15 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     sw.stop("omero.repo.save_fileset.register");
 
                     sw = new Slf4JStopWatch();
-                    try {
-                        for (int i = 0; i < size; i++) {
-                            CheckedPath checked = paths.get(i);
-                            ome.model.core.OriginalFile of = ofs.get(i);
-                            fs.getFilesetEntry(i).setOriginalFile(of);
-                        }
+                    for (int i = 0; i < size; i++) {
+                        CheckedPath checked = paths.get(i);
+                        ome.model.core.OriginalFile of = ofs.get(i);
+                        fs.getFilesetEntry(i).setOriginalFile(of);
+                    }
+                    sw.stop("omero.repo.save_fileset.update_fileset_entries");
 
+                    sw = new Slf4JStopWatch();
+                    try {
                         return sf.getUpdateService().saveAndReturnObject(fs);
                     } finally {
                         sw.stop("omero.repo.save_fileset.save");
