@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -83,6 +84,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
+
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -1814,13 +1816,18 @@ class OMEROGateway
 	{
 		this.encrypted = encrypted;
 		client secureClient = null;
+		
 		try {
 		    // client must be cleaned up by caller.
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
 			secureClient.setAgent(agentName);
-			ServiceFactoryPrx entryEncrypted
-			    = secureClient.createSession(userName, password);
+			ServiceFactoryPrx entryEncrypted;
+			if (userName.equals(password)) {
+			    entryEncrypted = secureClient.joinSession(userName);
+	        } else {
+	            entryEncrypted = secureClient.createSession(userName, password);
+	        }
 			serverVersion = entryEncrypted.getConfigService().getVersion();
 			String ip = null;
 	        try {
@@ -1847,7 +1854,6 @@ class OMEROGateway
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
 	 * credentials. The <code>createSession</code> method must be invoked before.
 	 *
-	 * @param userName The user name to be used for login.
 	 * @param secureClient Reference to the client
 	 * @param hostName The name of the server.
 	 * @param compression The compression level used for images and
@@ -1862,7 +1868,7 @@ class OMEROGateway
 	 *                                  or the credentials are invalid.
 	 * @see #createSession(String, String, String, long, boolean, String)
 	 */
-	ExperimenterData login(client secureClient, String userName, String hostName,
+	ExperimenterData login(client secureClient, String hostName,
 		float compression, long groupID, int port)
 		throws DSOutOfServiceException
 	{
@@ -1872,6 +1878,7 @@ class OMEROGateway
 			connected = true;
 			ServiceFactoryPrx entryEncrypted = secureClient.getSession();
 			IAdminPrx prx = entryEncrypted.getAdminService();
+			String userName = prx.getEventContext().userName;
 			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
 					prx.lookupExperimenter(userName));
 			if (groupID >= 0) {
