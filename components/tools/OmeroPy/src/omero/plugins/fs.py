@@ -785,7 +785,8 @@ Examples:
             else:
                 files = sum(rsp.totalFileCount.values())
                 if args.units:
-                    size = "%d %siB" % (self._to_units(size, args.units), args.units)
+                    size = ("%d %siB"
+                            % (self._to_units(size, args.units), args.units))
                 elif args.pretty:
                     size = filesizeformat(size)
                 self.ctx.out(
@@ -821,6 +822,7 @@ Examples:
         subtotals = {}
         for userGroup in rsp.bytesUsedByReferer.keys():
             for (element, size) in rsp.bytesUsedByReferer[userGroup].items():
+                files = rsp.fileCountByReferer[userGroup][element]
                 keyList = []
                 if "user" in sum_by:
                     keyList.append(userGroup.first)
@@ -828,12 +830,12 @@ Examples:
                     keyList.append(userGroup.second)
                 if "component" in sum_by:
                     keyList.append(element)
-                key=tuple(keyList)
+                key = tuple(keyList)
                 if key in subtotals.keys():
                     subtotals[key][0] += size
-                    subtotals[key][1] += rsp.fileCountByReferer[userGroup][element]
+                    subtotals[key][1] += files
                 else:
-                    subtotals[key] = [size, rsp.fileCountByReferer[userGroup][element]]
+                    subtotals[key] = [size, files]
 
         for key in subtotals.keys():
             row = list(key)
