@@ -825,10 +825,10 @@ public class PixelsService extends AbstractFileSystemService
      */
     private IFormatReader createBfReader(LutSource source) {
         IFormatReader reader = new ImageReader();
+        reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader = new Colorizer(reader, source);
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
-        reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader.setFlattenedResolutions(false);
         reader.setMetadataFiltered(true);
         return reader;
