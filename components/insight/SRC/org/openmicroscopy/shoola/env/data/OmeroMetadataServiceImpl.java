@@ -561,20 +561,21 @@ class OmeroMetadataServiceImpl
 		boolean exist = false;
 
 		Annotation an = annotation.asAnnotation();
-		ExperimenterData exp = data.getOwner();
+        long[] expIds = new long[] { data.getOwner().getId(),
+                getUserDetails().getId() };
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
 			//tag a tag.
 			if (TagAnnotationData.class.equals(data.getClass())) {
-				link = gateway.findAnnotationLink(ctx,
+				link = findAnnotationLink(ctx,
 						AnnotationData.class, tag.getId(),
-						ho.getId().getValue(), exp.getId());
+						ho.getId().getValue(), expIds);
 				if (link == null) 
 					link = ModelMapper.linkAnnotation(an, (Annotation) ho);
 				else exist = true;
 			} else {
-				link = gateway.findAnnotationLink(ctx, ho.getClass(),
-						ho.getId().getValue(), tag.getId(), exp.getId());
+				link = findAnnotationLink(ctx, ho.getClass(),
+						ho.getId().getValue(), tag.getId(), expIds);
 				if (link == null)
 					link = ModelMapper.linkAnnotation(ho, an);
 				else {
@@ -585,8 +586,8 @@ class OmeroMetadataServiceImpl
 		}
 		else if (annotation instanceof MapAnnotationData) {
 			MapAnnotationData map = (MapAnnotationData) annotation;
-			link = gateway.findAnnotationLink(ctx, ho.getClass(),
-					ho.getId().getValue(), map.getId(), exp.getId());
+			link = findAnnotationLink(ctx, ho.getClass(),
+					ho.getId().getValue(), map.getId(), expIds);
 			if (link == null)
 				link = ModelMapper.linkAnnotation(ho, an);
 			else {
@@ -604,6 +605,30 @@ class OmeroMetadataServiceImpl
 		if (link != null && !exist) 
 			gateway.createObject(ctx, link);
 	}
+	
+	/**
+	 * Calls {@link OMEROGateway#findAnnotationLink(SecurityContext, Class, long, long, long)}
+	 * for multiple {@link ExperimenterData} ids.
+	 * @param ctx The {@link SecurityContext}
+	 * @param type The class
+	 * @param parentID The parent Id
+	 * @param childID The child Id
+	 * @param userIDs Array of {@link ExperimenterData} ids
+	 * @return The link (if found, <code>null</code> otherwise)
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+    private IObject findAnnotationLink(SecurityContext ctx, Class type,
+            long parentID, long childID, long[] userIDs)
+            throws DSOutOfServiceException, DSAccessException {
+        for (long userID : userIDs) {
+            IObject obj = gateway.findAnnotationLink(ctx, type, parentID,
+                    childID, userID);
+            if (obj != null)
+                return obj;
+        }
+        return null;
+    }
 	
 	/**
 	 * Updates the passed annotation.
