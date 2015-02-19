@@ -2590,10 +2590,11 @@ class _BlitzGateway (object):
 
         system_groups = [
             self.getAdminService().getSecurityRoles().userGroupId]
-        for g in self.getObjects("ExperimenterGroup",
-                                 self.getEventContext().leaderOfGroups):
-            if g.getId() not in system_groups:
-                yield g
+        if len(self.getEventContext().leaderOfGroups) > 0:
+            for g in self.getObjects("ExperimenterGroup",
+                                     self.getEventContext().leaderOfGroups):
+                if g.getId() not in system_groups:
+                    yield g
 
     def getGroupsMemberOf(self):
         """
@@ -2605,10 +2606,11 @@ class _BlitzGateway (object):
 
         system_groups = [
             self.getAdminService().getSecurityRoles().userGroupId]
-        for g in self.getObjects("ExperimenterGroup",
-                                 self.getEventContext().memberOfGroups):
-            if g.getId() not in system_groups:
-                yield g
+        if len(self.getEventContext().memberOfGroups) > 0:
+            for g in self.getObjects("ExperimenterGroup",
+                                     self.getEventContext().memberOfGroups):
+                if g.getId() not in system_groups:
+                    yield g
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
                     description=None, ldap=False):
