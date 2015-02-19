@@ -39,6 +39,7 @@ from omero.rtypes import rstring
 from omero.rtypes import unwrap
 from omero.sys import Principal
 from omero.util.temp_files import create_path
+from omero.util.text import filesizeformat
 from omero.fs import TRANSFERS
 
 
@@ -285,6 +286,9 @@ class FsControl(CmdControl):
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
         usage.add_argument(
+            "--pretty", action="store_true",
+            help="Use most appropriate units")
+        usage.add_argument(
             "--groups",  action="store_true",
             help="Print size for all current user's groups")
         usage.add_argument(
@@ -308,7 +312,6 @@ class FsControl(CmdControl):
     def _extended_info(self, client, row, values):
 
         from omero.cmd import ManageImageBinaries
-        from omero.util.text import filesizeformat
 
         rsp = None
         try:
@@ -354,7 +357,6 @@ Examples:
 
         from omero.rtypes import unwrap
         from omero.sys import ParametersI
-        from omero.util.text import filesizeformat
 
         select = (
             "select i.id, i.name, fs.id,"
@@ -810,7 +812,10 @@ Examples:
         for col in allCols:
             if col in sum_by:
                 cols.append(col)
-        cols.extend(["size (bytes)", "files"])
+        if args.pretty:
+            cols.extend(["size", "files"])
+        else:
+            cols.extend(["size (bytes)", "files"])
         tb = TableBuilder(*cols)
         if args.style:
             tb.set_style(args.style)
@@ -834,6 +839,8 @@ Examples:
 
         for key in subtotals.keys():
             row = list(key)
+            if args.pretty:
+                subtotals[key][0] = filesizeformat(subtotals[key][0])
             row.extend(subtotals[key])
             tb.row(*tuple(row))
 
