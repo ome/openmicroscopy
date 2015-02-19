@@ -2054,4 +2054,53 @@ public class PojosServiceTest extends AbstractServerTest {
             }
         }
     }
+    
+	/**
+	 * Checks if the creation date is loaded for all container {@link IObject}s
+	 * 
+	 * @throws Exception
+	 *             Thrown if an error occurred.
+	 */
+	@Test
+	public void testContainerCreationDateLoaded() throws Exception {
+		Project p = (Project) iUpdate.saveAndReturnObject(mmFactory
+				.simpleProjectData().asIObject());
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(p.getId().getValue());
+		p = (Project) iContainer
+				.loadContainerHierarchy(Project.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(p.getDetails().getCreationEvent().isLoaded());
+
+		Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
+				.simpleDatasetData().asIObject());
+		ids = new ArrayList<Long>();
+		ids.add(d.getId().getValue());
+		d = (Dataset) iContainer
+				.loadContainerHierarchy(Dataset.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(d.getDetails().getCreationEvent().isLoaded());
+
+		Screen s = (Screen) iUpdate.saveAndReturnObject(mmFactory
+				.simpleScreenData().asIObject());
+		ids = new ArrayList<Long>();
+		ids.add(s.getId().getValue());
+		s = (Screen) iContainer
+				.loadContainerHierarchy(Screen.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(s.getDetails().getCreationEvent().isLoaded());
+
+		Plate pl = (Plate) iUpdate.saveAndReturnObject(mmFactory
+				.simplePlateData().asIObject());
+		ids = new ArrayList<Long>();
+		ids.add(pl.getId().getValue());
+		pl = (Plate) iContainer
+				.loadContainerHierarchy(Plate.class.getName(), ids, null)
+				.iterator().next();
+
+		assertTrue(pl.getDetails().getCreationEvent().isLoaded());
+	}
 }

@@ -108,9 +108,7 @@ public class TileLoader
      */
     public void load()
     {
-    	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-    	handle = ivView.loadTiles(ctx, pixelsID, pDef, proxy, tiles,
-    			asTexture, this);
+    	handle = ivView.loadTiles(ctx, pixelsID, pDef, proxy, tiles, this);
     }
     
     /**

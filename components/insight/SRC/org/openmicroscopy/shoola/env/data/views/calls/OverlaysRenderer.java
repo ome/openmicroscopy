@@ -70,20 +70,16 @@ public class OverlaysRenderer
      * @param pd        The plane to render. 
      * @param tableID	The id of the table.
      * @param overlays	The overlays to render.
-     * @param asTexture Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
      * @return          The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final long pixelsID, final PlaneDef pd,
-    		final long tableID, final Map<Long, Integer> overlays, final
-    		boolean asTexture)
+    		final long tableID, final Map<Long, Integer> overlays)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.renderOverLays(ctx, pixelsID, pd, tableID, overlays,
-                		asTexture);
+                result = rds.renderOverLays(ctx, pixelsID, pd, tableID, overlays);
             }
         };
     } 
@@ -114,12 +110,12 @@ public class OverlaysRenderer
 	 * 					<code>false</code> to return a buffered image.
      */
     public OverlaysRenderer(SecurityContext ctx, long pixelsID, PlaneDef pd,
-    	long tableID, Map<Long, Integer> overlays, boolean asTexture)
+    	long tableID, Map<Long, Integer> overlays)
     {
     	if (pixelsID < 0)
     		throw new IllegalArgumentException("ID not valid.");
 		this.ctx = ctx;
-    	loadCall = makeBatchCall(pixelsID, pd, tableID, overlays, asTexture);
+    	loadCall = makeBatchCall(pixelsID, pd, tableID, overlays);
     }
     
 }

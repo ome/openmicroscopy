@@ -445,7 +445,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 serverReply = messenger.executePost();
                 if (sendFiles || sendLogs) {
                     onSending(i);
-                    log.info(errorContainer.getSelectedFile().getAbsolutePath());
+                    log.info("Sending File(s)...");
                     errorContainer.setToken(serverReply);
                     fileUploader = new FileUploader(
                             messenger.getCommunicationLink(

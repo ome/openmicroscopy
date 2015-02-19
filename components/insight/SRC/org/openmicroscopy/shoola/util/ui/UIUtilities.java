@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -108,7 +109,10 @@ import omero.model.enums.UnitsLength;
  */
 public class UIUtilities
 {
-	
+	/** Defines the format how the date is shown */
+    private static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss"); //2013-04-20 18:13:43
+    
 	/** Bound property indicating that the font changes.*/
 	public static final String HINTS_PROPERTY = "awt.font.desktophints";
 	
@@ -1463,6 +1467,32 @@ public class UIUtilities
     }
     
     /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Timestamp time) 
+    {
+    	if (time == null)  
+    		time = getDefaultTimestamp();
+    	return DEFAULT_DATE_FORMAT.format(time);
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Date date) 
+    {
+    	if (date == null)  
+    		return formatDefaultDate((Timestamp)null);
+    	return DEFAULT_DATE_FORMAT.format(date);
+    }
+    
+    /**
      * Formats as a <code>String</code> the specified time.
      * format: E dd MMM yyyy, HH:mm:ss
      * 
@@ -2688,4 +2718,23 @@ public class UIUtilities
         }
         return name;
     }
+    
+    /**
+     * Generates an unique filename in form 'folder'/'name'(INCREMENT).'ext', whereas
+     * INCREMENT is chosen in such a way, that the file does not exist yet.
+     * 
+     * @param folder The folder where the file is intended to be stored
+     * @param name The base name of the file
+     * @param ext The extension of the file
+     * @return The generated unique filename
+     */
+    public static File generateFileName(File folder, String name, String ext) {
+		int i = 0;
+		File file = new File(folder, name+"."+ext);
+		while(file.exists()) {
+			i++;
+			file = new File(folder, name+"("+i+")."+ext);
+		}
+		return file;
+	}
 }

@@ -68,14 +68,15 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Is for ISession a cache and will be kept there in sync? OR Factors out the
  * logic from ISession and SessionManagerI
- * 
+ *
  * Therefore either called directly, or via synchronous messages.
- * 
+ *
  * Uses the name of a Principal as the key to the session. We may need to limit
  * user names to prevent this. (Strictly alphanumeric)
  *
@@ -190,6 +191,8 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final Session session = executeInternalSession();
             internalSession = new InternalSessionContext(session, roles);
             cache.putSession(internal_uuid, internalSession);
+        } catch (UncategorizedSQLException uncat) {
+            log.warn("Assuming that this is read-only");
         } catch (DataAccessException dataAccess) {
             throw new RuntimeException(
                     "          "
@@ -403,7 +406,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         }
 
         final Session orig = ctx.getSession();
-        
+
         // TODO // FIXME
         // =====================================================
         // This needs to get smarter
@@ -1134,7 +1137,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
 
     /**
      * Added as an attempt to cure ticket:1176
-     * 
+     *
      * @return
      */
     private Long executeNextSessionId() {

@@ -3,7 +3,7 @@
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
 #
-# Copyright (c) 2007-2014 Glencoe Software, Inc. All rights reserved.
+# Copyright (c) 2007-2015 Glencoe Software, Inc. All rights reserved.
 #
 # This software is distributed under the terms described by the LICENCE file
 # you can find at the root of the distribution bundle, which states you are
@@ -591,7 +591,7 @@ class BlitzObjectWrapper (object):
         group. Web client will only allow this for the data Owner. Admin CAN
         move other user's data, but we don't support this in Web yet.
         """
-        return self.isOwned()  # or self._conn.isAdmin() #8974
+        return self.isOwned() or self._conn.isAdmin()   # See #8974
 
     def countChildren(self):
         """
@@ -3246,6 +3246,7 @@ class _BlitzGateway (object):
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
+                img._obj.setSeries(rint(0))
                 updateService.saveObject(img._obj, self.SERVICE_OPTS)
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_,
@@ -3903,6 +3904,8 @@ class _BlitzGateway (object):
         da = DoAll()
         requests = []
         saves = []
+
+        ownerId = self.SERVICE_OPTS.getOmeroUser() or self.getUserId()
         for obj_id in obj_ids:
             obj_id = long(obj_id)
             logger.debug('DoAll Chgrp: type: %s, id: %s, grp: %s' %
@@ -3917,6 +3920,7 @@ class _BlitzGateway (object):
                 link.child = parentLinkClasses[graph_spec][1](obj_id, False)
                 link.parent = parentLinkClasses[
                     graph_spec][2](container_id, False)
+                link.details.owner = omero.model.ExperimenterI(ownerId, False)
                 save = Save()
                 save.obj = link
                 saves.append(save)
@@ -4981,6 +4985,41 @@ class XmlAnnotationWrapper (CommentAnnotationWrapper):
     OMERO_TYPE = XmlAnnotationI
 
 AnnotationWrapper._register(XmlAnnotationWrapper)
+
+
+from omero_model_MapAnnotationI import MapAnnotationI
+
+
+class MapAnnotationWrapper (AnnotationWrapper):
+    """
+    omero_model_MapAnnotationI class wrapper.
+    """
+    OMERO_TYPE = MapAnnotationI
+
+    def getValue(self):
+        """
+        Gets the value of the Map Annotation as a list of
+        (key, value) tuples.
+
+        :return:    List of tuples
+        :type:      String
+        """
+
+        return [(kv.name, kv.value) for kv in self._obj.getMapValue()]
+
+    def setValue(self, val):
+        """
+        Sets value of the Map Annotation where val is a list of
+        (key, value) tuples or [key, value] lists.
+
+        :param val:     List of tuples
+        :type val:      String
+        """
+
+        data = [omero.model.NamedValue(d[0], d[1]) for d in val]
+        self._obj.setMapValue(data)
+
+AnnotationWrapper._register(MapAnnotationWrapper)
 
 
 class _EnumerationWrapper (BlitzObjectWrapper):
@@ -9429,6 +9468,7 @@ def refreshWrappers():
                            "doubleannotation": DoubleAnnotationWrapper,
                            "termannotation": TermAnnotationWrapper,
                            "timestampannotation": TimestampAnnotationWrapper,
+                           "mapannotation": MapAnnotationWrapper,
                            # allows for getObjects("Annotation", ids)
                            "annotation": AnnotationWrapper._wrap})
 

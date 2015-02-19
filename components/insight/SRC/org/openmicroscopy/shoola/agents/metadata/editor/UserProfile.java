@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.UserProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -378,6 +380,12 @@ class UserProfile
         }
         groupsBox.setModel(m);
         if (selected != null) groupsBox.setSelectedItem(selected);
+        groupsBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				hasDataToSave();
+			}
+		});
         permissionsPane = new PermissionsPane(defaultGroup.getPermissions(),
                 UIUtilities.BACKGROUND_COLOR);
         permissionsPane.disablePermissions();
@@ -947,6 +955,10 @@ class UserProfile
             saveButton.setEnabled(true);
             return true;
         }
+		if (original.getDefaultGroup().getId() != getSelectedGroup().getId()) {
+			saveButton.setEnabled(true);
+			return true;
+		}
         //if (selectedIndex != originalIndex) return true;
         if (details == null) return false;
         Entry<String, String> entry;

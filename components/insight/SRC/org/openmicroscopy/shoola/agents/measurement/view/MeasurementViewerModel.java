@@ -40,17 +40,12 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
@@ -1595,11 +1590,6 @@ class MeasurementViewerModel
 	{
 		if (rndImage instanceof BufferedImage)
 			return (BufferedImage) rndImage;
-		else if (rndImage instanceof TextureData) {
-			TextureData data = (TextureData) rndImage;
-			data.getBuffer();
-			return null;
-		}
 		return null;
 	}
 

@@ -83,8 +83,8 @@
                                         });
                                         $('#save-'+field_id).prop("disabled", false);  // re-enable for re-submit
                                     } else {
-                                        // If we're editing imagename...
-                                        if (field_id.slice(0, 9) == "imagename") {
+                                        // If we're editing name...
+                                        if (field_id.indexOf("name") > -1) {
                                             var $this = $("#id_name");
                                             if ($this.attr('name')!=null && $this.attr('name')!=""){
                                                 var new_name = $this.attr('value');

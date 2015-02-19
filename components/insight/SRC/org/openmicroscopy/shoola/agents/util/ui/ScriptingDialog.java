@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -574,7 +574,7 @@ public class ScriptingDialog
             l = childrenMap.get(grouping);
             childrenMap.remove(grouping);
             if (l != null)
-                key.setChildren(sorter.sort(l));
+               key.setChildren(sorter.sort(l));
         }
         if (childrenMap != null && childrenMap.size() > 0) {
             Iterator<String> j = childrenMap.keySet().iterator();
@@ -584,6 +584,9 @@ public class ScriptingDialog
                 sc = new ScriptComponent();
                 sc.setGrouping(parent);
                 sc.setNameLabel(parent);
+                if (StringUtils.isBlank(sc.getName())) {
+                    sc.setParameterName(parent);
+                }
                 sc.setChildren(sorter.sort(childrenMap.get(parent)));
                 results.add(sc);
             }

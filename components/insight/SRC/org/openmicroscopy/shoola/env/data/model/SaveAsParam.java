@@ -70,6 +70,9 @@ public class SaveAsParam
     /** Flag to indicate to delete the file after downloading */
     private boolean deleteWhenFinished = false;
     
+    /** Filename for the batch export */
+    private String batchExportFilename;
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -161,6 +164,24 @@ public class SaveAsParam
 	public void setDeleteWhenFinished(boolean deleteWhenFinished) {
 		this.deleteWhenFinished = deleteWhenFinished;
 	}
-	
+
+	/**
+	 * Get the filename to use for the batch export file
+	 * 
+	 * @return See above.
+	 */
+	public String getBatchExportFilename() {
+		return batchExportFilename;
+	}
+
+	/**
+	 * Set the filename to use for the batch export file
+	 * 
+	 * @param batchExportFilename
+	 *            The filename
+	 */
+	public void setBatchExportFilename(String batchExportFilename) {
+		this.batchExportFilename = batchExportFilename;
+	}
 	
 }

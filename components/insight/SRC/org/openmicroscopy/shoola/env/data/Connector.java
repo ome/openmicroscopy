@@ -657,7 +657,8 @@ class Connector
         shutdownStateful();
         shutdownImports();
         if (!rendering) return;
-        for (Long pixelsId : reServices.keySet()) {
+        Set<Long> tmp = new HashSet<Long>(reServices.keySet());
+        for (Long pixelsId : tmp) {
             shutDownRenderingEngine(pixelsId);
         }
     }

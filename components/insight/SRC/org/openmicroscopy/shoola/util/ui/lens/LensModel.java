@@ -37,13 +37,7 @@ import java.awt.image.Raster;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.sun.opengl.util.texture.TextureData;
 
 /** 
  * The Lens model controls the manipulation of the lens, creating the zoomed 
@@ -112,9 +106,6 @@ class LensModel
 	/** plane image. */
 	private BufferedImage  	planeImage;
 	
-	/** The plane image as texture. */
-	private TextureData  	planeImageAsTexture;
-	
 	/** Pre-allocated buffer storing image data */
 	private DataBuffer     zoomedDataBuffer;
 	
@@ -126,9 +117,6 @@ class LensModel
 
 	/** The background color. */
 	private Color			background;
-	
-	/** Flag indicating if we support openGL or not. */
-	private boolean			openGLSupport;
 	
 	/** The name of the image.*/
 	private String			imageName;
@@ -230,15 +218,11 @@ class LensModel
 	/**
 	 * Creates a new instance. 
 	 * 
-	 * @param planeImage 	The image to handle.
-	 *@param openGLSupport 	Pass <code>true</code> to indicate that the 
-     * 						component supports openGL, <code>false</code>
-     * 						otherwise.
+	 * @param planeImage The image to handle.
 	 */
-	LensModel(BufferedImage planeImage, boolean openGLSupport)
+	LensModel(BufferedImage planeImage)
 	{
 		this.planeImage = planeImage;
-		this.openGLSupport = openGLSupport;
 		x = 0;
 		y = 0;
 		width = LensComponent.LENS_DEFAULT_WIDTH;
@@ -247,28 +231,13 @@ class LensModel
 		zoomedDataBufferSize = DEFAULT_SIZE;
 	}
 
-	/**
-	 * Returns <code>true</code> to indicate that the 
-     * 						component supports openGL, <code>false</code>
-     * 						otherwise.
-	 * @return See above.
-	 */
-	boolean hasOpenGLSupport() { return openGLSupport; }
-	
 	/** 
 	 * Sets the plane image to a new image.
 	 *  
 	 * @param img new PlaneImage.
 	 */
 	void setPlaneImage(BufferedImage img) { planeImage = img; }
-	
-	/** 
-	 * Sets the plane image to a new image.
-	 *  
-	 * @param img new PlaneImage.
-	 */
-	void setPlaneImageAsTexture(TextureData img) { planeImageAsTexture = img; }
-	
+
 	/**
 	 * Returns the width of the plane Image.
 	 * 
@@ -276,12 +245,7 @@ class LensModel
 	 */
 	int	getImageWidth()
 	{
-		if (hasOpenGLSupport()) {
-			if (planeImageAsTexture != null) 
-				return planeImageAsTexture.getWidth();
-		} else {
-			if (planeImage != null) return planeImage.getWidth();
-		}
+	    if (planeImage != null) return planeImage.getWidth();
 		return 0;
 	}
 	
@@ -312,12 +276,7 @@ class LensModel
 	 */
 	int	getImageHeight()
 	{
-		if (hasOpenGLSupport()) {
-			if (planeImageAsTexture != null) 
-				return planeImageAsTexture.getHeight();
-		} else {
-			if (planeImage != null) return planeImage.getHeight();
-		}
+	    if (planeImage != null) return planeImage.getHeight();
 		return 0;
 	}
 
@@ -580,13 +539,6 @@ class LensModel
     	zoomedDataBuffer = null; 
     	zoomedDataBufferSize = DEFAULT_SIZE;
     }
-    
-    /**
-     * Returns the image.
-     * 
-     * @return See above.
-     */
-    TextureData getImageAsTexture() { return planeImageAsTexture; }
 
     /**
      * Returns the background.

@@ -20,7 +20,6 @@
 ''' Helper functions for views that handle object trees '''
 
 import omero
-from omero.sys import ParametersI
 
 from datetime import datetime
 
@@ -36,7 +35,7 @@ def get_perms(conn, object_type, object_id, object_owner_id, object_group_id,
     # If no cache, query an object to get the permissions for this group and
     # object ownership
     if perms is None:
-        params = ParametersI()
+        params = omero.sys.ParametersI()
         params.addId(object_id)
         q = '''
             select obj from %s obj where obj.id = :id
@@ -74,7 +73,7 @@ def parse_permissions_css(permissions, ownerid, conn):
     '''
     restrictions = ('canEdit', 'canAnnotate', 'canLink', 'canDelete')
     permissionsCss = [r for r in restrictions if permissions.get(r)]
-    if ownerid == conn.getUserId():
+    if ownerid == conn.getUserId() or conn.isAdmin():
         permissionsCss.append("canChgrp")
     return ' '.join(permissionsCss)
 

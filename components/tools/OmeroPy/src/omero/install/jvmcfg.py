@@ -398,6 +398,12 @@ def adjust_settings(config, template_xml,
             ("pixeldata", pixeldata), ("repository", repository))
 
     for name, StrategyType in loop:
+        if name not in options:
+            raise Exception(
+                "Cannot find %s option. Make sure templates.xml was "
+                "not copied from an older server" % name)
+
+    for name, StrategyType in loop:
         specific = strip_dict(m, suffix=name)
         defaults = strip_dict(m)
         settings = Settings(specific, defaults)

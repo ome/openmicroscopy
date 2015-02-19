@@ -398,6 +398,9 @@ class BaseContainer(BaseController):
         self.long_annotations = list()
         self.term_annotations = list()
         self.time_annotations = list()
+        self.my_client_map_annotations = list() # 'should' only be 1
+        self.client_map_annotations = list()
+        self.map_annotations = list()
         self.companion_files =  list()
         
         annTypes = {omero.model.CommentAnnotationI: self.text_annotations,
@@ -408,7 +411,8 @@ class BaseContainer(BaseController):
                     omero.model.BooleanAnnotationI: self.boolean_annotations,
                     omero.model.DoubleAnnotationI: self.double_annotations,
                     omero.model.TermAnnotationI: self.term_annotations,
-                    omero.model.TimestampAnnotationI: self.time_annotations}
+                    omero.model.TimestampAnnotationI: self.time_annotations,
+                    omero.model.MapAnnotationI: self.map_annotations}
         
         aList = list()
         if self.image is not None:
@@ -434,6 +438,11 @@ class BaseContainer(BaseController):
                 elif ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
                     if ann.getFileName() != omero.constants.annotation.file.ORIGINALMETADATA:
                         self.companion_files.append(ann)
+                elif ann.ns == omero.constants.metadata.NSCLIENTMAPANNOTATION:
+                    if ann.getDetails().getOwner().id == self.conn.getUserId():
+                        self.my_client_map_annotations.append(ann)
+                    else:
+                        self.client_map_annotations.append(ann)
                 else:
                     annTypes[annClass].append(ann)
 
@@ -441,6 +450,7 @@ class BaseContainer(BaseController):
         self.file_annotations.sort(key=lambda x: x.creationEventDate())
         self.rating_annotations.sort(key=lambda x: x.creationEventDate())
         self.tag_annotations.sort(key=lambda x: x.textValue)
+        self.map_annotations.sort(key=lambda x: x.creationEventDate())
         
         self.txannSize = len(self.text_annotations)
         self.fileannSize = len(self.file_annotations)
@@ -668,40 +678,20 @@ class BaseContainer(BaseController):
     # Creation
     
     def createDataset(self, name, description=None, img_ids=None):
-        ds = omero.model.DatasetI()
-        ds.name = rstring(str(name))
-        if description is not None and description != "" :
-            ds.description = rstring(str(description))
+        dsId = self.conn.createDataset(name, description, img_ids)
         if self.project is not None:
             l_ds = omero.model.ProjectDatasetLinkI()
             l_ds.setParent(self.project._obj)
-            l_ds.setChild(ds)
-            ds.addProjectDatasetLink(l_ds)
-        dsid = self.conn.saveAndReturnId(ds)
-        if img_ids is not None:
-            iids = [int(i) for i in img_ids.split(",")]
-            links = []
-            for iid in iids:
-                link = omero.model.DatasetImageLinkI()
-                link.setParent(omero.model.DatasetI(dsid, False))
-                link.setChild(omero.model.ImageI(iid, False))
-                links.append(link)
-            self.conn.saveArray(links)
-        return dsid
+            l_ds.setChild(omero.model.DatasetI(dsId, False))
+            # ds.addProjectDatasetLink(l_ds)
+            self.conn.saveAndReturnId(l_ds)
+        return dsId
         
     def createProject(self, name, description=None):
-        pr = omero.model.ProjectI()
-        pr.name = rstring(str(name))
-        if description is not None and description != "" :
-            pr.description = rstring(str(description))
-        return self.conn.saveAndReturnId(pr)
+        return self.conn.createProject(name, description)
     
     def createScreen(self, name, description=None):
-        sc = omero.model.ScreenI()
-        sc.name = rstring(str(name))
-        if description is not None and description != "" :
-            sc.description = rstring(str(description))
-        return self.conn.saveAndReturnId(sc)
+        return self.conn.createScreen(name, description)
 
 
     def checkMimetype(self, file_type):
@@ -1318,7 +1308,7 @@ class BaseContainer(BaseController):
         elif self.screen:
             handle = self.conn.deleteObjects("Screen", [self.screen.id], deleteChildren=child, deleteAnns=anns)
         elif self.plate:
-            handle = self.conn.deleteObjects("Plate", [self.plate.id], deleteAnns=anns)
+            handle = self.conn.deleteObjects("Plate", [self.plate.id], deleteChildren=True, deleteAnns=anns)
         elif self.comment:
             handle = self.conn.deleteObjects("Annotation", [self.comment.id], deleteAnns=anns)
         elif self.tag:

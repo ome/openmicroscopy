@@ -224,8 +224,6 @@ public class FileUploader implements IObservable
             } catch (Exception ex) {}
             if (file != null && files.length > 1) file.delete();
         }
-        
-
     }
 
     // Observable methods

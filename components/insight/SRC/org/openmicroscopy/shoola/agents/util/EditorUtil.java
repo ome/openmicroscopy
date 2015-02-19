@@ -709,8 +709,7 @@ public class EditorUtil
 			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
 			l = data.getPixelSizeZ(UnitsLength.MICROMETER);
 			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
-			details.put(PIXEL_TYPE,
-					PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
+			details.put(PIXEL_TYPE, data.getPixelType());
         }
         details.put(EMISSION+" "+WAVELENGTH+"s", "");
         return details;
@@ -2341,7 +2340,7 @@ public class EditorUtil
         else if (object instanceof ImageData)
             time = getAcquisitionTime((ImageData) object);
         else time = object.getCreated();
-        if (time != null) date = UIUtilities.formatShortDateTime(time);
+        if (time != null) date = UIUtilities.formatDefaultDate(time);
         return date;
     }
 
@@ -2404,7 +2403,7 @@ public class EditorUtil
         l.add(v);
         try {
             v = "<b>"+IMPORTED_DATE+": </b>"+
-                    UIUtilities.formatShortDateTime(img.getInserted());
+                    UIUtilities.formatDefaultDate(img.getInserted());
             l.add(v);
         } catch (Exception e) {}
         PixelsData data = null;

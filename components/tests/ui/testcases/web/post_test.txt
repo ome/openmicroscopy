@@ -25,6 +25,30 @@ Test Delete Project
     Page Should Not Contain Element         id=project-${pid}
 
 
+Test Delete Project Dataset
+    [Documentation]     Create and Delete a Project containing a Dataset
+
+    # Clear any activities from earlier tests etc.
+    Click Element                           id=launch_activities
+    Click Element                           id=clear_activities
+    Select Experimenter
+    ${pid}=                                 Create project      robot test delete
+    ${did}=                                 Create Dataset      robot test deleteChildren
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=project-${pid}
+    Click Element                           css=#project-${pid}>a
+    Click Element                           id=deleteButton
+    Wait Until Page Contains Element        id=delete-dialog-form
+    Click Element                           xpath=//button/span[contains(text(),'Yes')]
+    # Wait for activities to show job done, then refresh tree...
+    Wait Until Page Contains Element        xpath=//span[@id='jobstatus'][contains(text(),'1')]     20
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
+    Page Should Not Contain Element         id=project-${pid}
+    # Dataset should be Deleted too
+    Page Should Not Contain Element         id=dataset-${did}
+
+
 Test Edit Project
     [Documentation]     Create a Project and edit its name and description
 
@@ -108,9 +132,11 @@ Test Chgrp
     Wait Until Page Contains Element        id=project-${pid}
     Open Context Menu                       xpath=//li[@id='project-${pid}']/a
     Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='chgrp']
-    # Click Element                           css=#vakata-contextmenu li[4] li   # first visible submenu item
-    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[4]//li/a
-    Wait Until Page Contains Element        id=chgrp-form
+    Click Element                           xpath=//div[@id='vakata-contextmenu']//li[4]/a[contains(text(), 'Move to Group')]
+    Wait Until Page Contains Element        id=group_chooser
+    Wait Until Page Contains Element        xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
+    # Simply click first target group option
+    Click Element                           xpath=//div[@id='group_chooser']/div[contains(@class, 'chgrpGroup')]
     Submit Form                             id=chgrp-form
     Click Element                           id=launch_activities
     Wait Until Page Contains                Project moved to Group              60

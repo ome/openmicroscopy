@@ -90,6 +90,7 @@ import pojos.ExperimenterData;
 import pojos.FileData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.MapAnnotationData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -162,6 +163,10 @@ class MetadataViewerComponent
 	private void deleteAnnotations(List<AnnotationData> toDelete)
 	{
 		if (toDelete == null || toDelete.size() == 0) return;
+
+		// don't popup the activity dialog when a MapAnnotation is deleted
+		boolean silent = containsMapAnnotationsOnly(toDelete);
+
 		//Should only be annotation so content is false;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
 		Iterator<AnnotationData> j = toDelete.iterator();
@@ -171,9 +176,32 @@ class MetadataViewerComponent
 		DeleteActivityParam p = new DeleteActivityParam(
 				icons.getIcon(IconManager.APPLY_22), l);
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		p.setUIRegister(!silent);
 		UserNotifier un = 
 			TreeViewerAgent.getRegistry().getUserNotifier();
 		un.notifyActivity(model.getSecurityContext(), p);
+	}
+	
+	/**
+	 * Checks if a list contains only MapAnnotations 
+	 * 
+	 * @param list
+	 *            The list to check
+	 * @return <code>true</code> if there are only MapAnnotations in the list;
+	 *         <code>false</code> otherwise or if list is <code>null</code>
+	 */
+	private boolean containsMapAnnotationsOnly(List<AnnotationData> list) {
+		if (list == null)
+			return false;
+
+		boolean mapAnnosOnly = true;
+		for (AnnotationData d : list) {
+			if (!(d instanceof MapAnnotationData)) {
+				mapAnnosOnly = false;
+				break;
+			}
+		}
+		return mapAnnosOnly;
 	}
 	
 	/**

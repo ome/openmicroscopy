@@ -558,7 +558,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
      * Repo uuid to null.
      */
     protected void unregister(final Long old, SqlAction sqlAction) {
-        sqlAction.setFileRepo(old, null);
+        sqlAction.setFileRepo(Collections.singleton(old), null);
     }
 
     public OriginalFile update(final RepoFile repoFile, final Long id,
@@ -600,7 +600,7 @@ public class ScriptRepoHelper extends OnContextRefreshedEventListener {
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
         setMimetype(ofile);
 
-        sqlAction.setFileRepo(ofile.getId(), uuid);
+        sqlAction.setFileRepo(Collections.singleton(ofile.getId()), uuid);
 
         return ofile;
     }
