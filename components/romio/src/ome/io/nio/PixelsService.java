@@ -813,7 +813,7 @@ public class PixelsService extends AbstractFileSystemService
         final String originalFilePath = getOriginalFilePath(pixels);
         final int series = getSeries(pixels);
         final LutSource source = getLutSource(pixels);
-        final Colorizer reader = createBfReader(source);
+        final IFormatReader reader = createBfReader(source);
         reader.setId(originalFilePath); // Called by BfPixelsBuffer elsewhere.
         reader.setSeries(series);
         return reader;
@@ -823,14 +823,15 @@ public class PixelsService extends AbstractFileSystemService
      * Create an {@link IFormatReader} with the appropriate {@link loci.formats.ReaderWrapper}
      * instances and {@link IFormatReader#setFlattenedResolutions(boolean)} set to false.
      */
-    private Colorizer createBfReader(LutSource source) {
+    private IFormatReader createBfReader(LutSource source) {
         IFormatReader reader = new ImageReader();
+        reader = new Colorizer(reader, source);
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
         reader = new Memoizer(reader, getMemoizerWait(), getMemoizerDirectory());
         reader.setFlattenedResolutions(false);
         reader.setMetadataFiltered(true);
-        return new Colorizer(reader, source);
+        return reader;
     }
 
     /**
@@ -846,7 +847,7 @@ public class PixelsService extends AbstractFileSystemService
         {
             // Used by RenderingEngine
             LutSource source = getLutSource(pixels);
-            Colorizer reader = createBfReader(source);
+            IFormatReader reader = createBfReader(source);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
