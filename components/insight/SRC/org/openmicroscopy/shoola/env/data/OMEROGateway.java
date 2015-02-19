@@ -1823,11 +1823,28 @@ class OMEROGateway
 			else secureClient = new client(hostName);
 			secureClient.setAgent(agentName);
 			ServiceFactoryPrx entryEncrypted;
+
 			if (userName.equals(password)) {
-			    entryEncrypted = secureClient.joinSession(userName);
-	        } else {
-	            entryEncrypted = secureClient.createSession(userName, password);
-	        }
+			    ServiceFactoryPrx guestSession = secureClient.createSession("guest", "");
+			    boolean session = false;
+			    try {
+			        IAdminPrx prx = guestSession.getAdminService();
+		            ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
+		                    prx.lookupExperimenter(userName));
+		            session = exp == null;
+                } catch (Exception e) {
+                    session = true;
+                } finally {
+                    secureClient.closeSession();
+                }
+			    if (session) {
+			        entryEncrypted = secureClient.joinSession(userName);
+			    } else {
+			        entryEncrypted = secureClient.createSession(userName, password);
+			    }
+			} else {
+			    entryEncrypted = secureClient.createSession(userName, password);
+			}
 			serverVersion = entryEncrypted.getConfigService().getVersion();
 			String ip = null;
 	        try {
