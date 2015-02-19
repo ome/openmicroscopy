@@ -16,29 +16,28 @@ Test Open Viewer
     Select And Expand Project
     Select And Expand Dataset
     Select And Expand Image
-    Wait Until Page Contains Element    xpath=//div[contains(@class, 'data_heading')]//h1/span
+    Wait Until Page Contains Element    xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
     ${imageName}=                       Get Text         xpath=//div[contains(@class, 'data_heading')]//h1/span
     ${imageId}=                         Get Text         xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
     # Open Image Viewer 3 different ways and check
-    Double Click Element                css=#image-${imageId}>a
-    Check And Close Image Viewer        ${imageName}
-    Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
-    Check And Close Image Viewer        ${imageName}
     Click Element                       xpath=//button[@title='Open full image viewer in new window']
-    Check And Close Image Viewer        ${imageName}
+    Check Image Viewer                  ${imageName}    2
+    Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
+    Check Image Viewer                  ${imageName}    3
+    Double Click Element                css=#image-${imageId}>a
+    Check Image Viewer                  ${imageName}    4
 
 
 *** Keywords ***
 
-Check And Close Image Viewer
-    [Arguments]          ${title}
+Check Image Viewer
+    [Arguments]          ${title}       ${windowCount}
     # Should have 2 windows open
     ${windowIds}=                       Get Window Identifiers
-    Length Should Be                    ${windowIds}        2
+    Length Should Be                    ${windowIds}        ${windowCount}
     # Image Viewer title is the image name.
     Select Window                       title=${imageName}
     # Loading of image within viewport indicates all is OK
     Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     30
-    # Close popup and select parent window
-    Close Window
-    Select Window
+    # Select parent window #(closing fails on Chrome)
+    Select Window                       title=Webclient
