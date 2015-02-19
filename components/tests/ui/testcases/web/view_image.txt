@@ -6,7 +6,7 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
-# Suite Teardown      Close all browsers 
+Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
@@ -21,21 +21,24 @@ Test Open Viewer
     ${imageId}=                         Get Text         xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
     # Open Image Viewer 3 different ways and check
     Double Click Element                css=#image-${imageId}>a
-    Check Image Viewer                  ${imageName}        2
+    Check And Close Image Viewer        ${imageName}
     Double Click Element                xpath=//li[@id='image_icon-${imageId}']//img
-    Check Image Viewer                  ${imageName}        3
+    Check And Close Image Viewer        ${imageName}
+    Click Element                       xpath=//button[@title='Open full image viewer in new window']
+    Check And Close Image Viewer        ${imageName}
 
 
 *** Keywords ***
 
-Check Image Viewer
-    [Arguments]          ${title}       ${windowCount}
+Check And Close Image Viewer
+    [Arguments]          ${title}
     # Should have 2 windows open
     ${windowIds}=                       Get Window Identifiers
-    Length Should Be                    ${windowIds}        ${windowCount}
+    Length Should Be                    ${windowIds}        2
     # Image Viewer title is the image name.
     Select Window                       title=${imageName}
     # Loading of image within viewport indicates all is OK
     Wait Until Page Contains Element    xpath=//img[@id='weblitz-viewport-img']     30
-    # Closing Window causes problems, 
+    # Close popup and select parent window
+    Close Window
     Select Window
