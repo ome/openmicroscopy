@@ -214,9 +214,10 @@ def identity(x):
 
 
 def str_slash(s):
-    s = str(s)
-    if not s.endswith("/"):
-        s += "/"
+    if s is not None:
+        s = str(s)
+        if not s.endswith("/"):
+            s += "/"
     return s
 
 
