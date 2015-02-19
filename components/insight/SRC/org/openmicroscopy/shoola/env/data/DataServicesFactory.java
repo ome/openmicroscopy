@@ -562,7 +562,10 @@ public class DataServicesFactory
     	String clientVersion = "";
     	if (v != null && v instanceof String)
     		clientVersion = (String) v;
-    	
+    	if (uc.getUserName().equals(client.getSessionId())) {
+    	    container.getRegistry().bind(LookupNames.SESSION_KEY, Boolean.TRUE);
+    	}
+    	;
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
         Boolean check = checkClientServerCompatibility(version, clientVersion);

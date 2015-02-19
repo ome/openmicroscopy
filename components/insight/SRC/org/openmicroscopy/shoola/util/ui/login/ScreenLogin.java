@@ -895,7 +895,7 @@ public class ScreenLogin
 	 * 
 	 * @param name The name to set.
 	 */
-	private void setUserName(String  name)
+	public void setUserName(String  name)
 	{
 		if (name == null) return;
 		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
