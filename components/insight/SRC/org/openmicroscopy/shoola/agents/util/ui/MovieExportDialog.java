@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,10 +23,10 @@
 package org.openmicroscopy.shoola.agents.util.ui;
 
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -60,11 +61,6 @@ import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.util.ui.ColorListRenderer;
@@ -390,72 +386,47 @@ public class MovieExportDialog
 	private JPanel buildBody()
 	{
 		JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-        			TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
-        				TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				5, TableLayout.PREFERRED, TableLayout.PREFERRED,
-        				5, TableLayout.PREFERRED, 
-        				TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
-        				TableLayout.PREFERRED, TableLayout.PREFERRED, 10}}; //rows
-        TableLayout layout = new TableLayout(tl);
-        content.setLayout(layout);
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-       
-        int i = 0;
-        content.add(UIUtilities.setTextFont("Name"), "0, "+i+"");
-        content.add(nameField, "1, "+i+", 2, "+i);
-        i = i+2;
-        content.add(UIUtilities.setTextFont("Format"), "0, "+i+"");
-        content.add(formats, "1, "+i);
-        i = i+2;
-        content.add(UIUtilities.setTextFont("Frame Rate"), "0, "+i+"");
-        content.add(fps, "1, "+i);
-        content.add(new JLabel("fps"), "2, "+i);
-        i = i+2;
-        //
-        content.add(UIUtilities.setTextFont("Channels selection"), "0, "+i+"");
         JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(UIUtilities.setTextFont("Name"));
+        p.add(nameField);
+        content.add(p);
+        p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(UIUtilities.setTextFont("Format"));
+        p.add(formats);
+        p.add(UIUtilities.setTextFont("Frame Rate"));
+        p.add(fps);
+        content.add(p);
+        p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(UIUtilities.setTextFont("Channels selection"));
         Iterator<JComponent> k = buttons.values().iterator();
         while (k.hasNext()) {
-			p.add(k.next());
-		}
-        content.add(p, "1, "+i);
-        i = i+2;
-        content.add(timeInterval, "0, "+i+", l, t");
-        content.add(UIUtilities.buildComponentPanel(timeRange), 
-        		"1, "+i+", 2, "+i);
-        i = i+1;
-        JLabel l = new JLabel();
+            p.add(k.next());
+        }
+        content.add(p);
         p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(UIUtilities.setTextFont("If interval not selected, " +
-        		"select the time-point", Font.ITALIC, 
-        		l.getFont().getSize()-2));
-        p.add(tSpinner);
-        content.add(UIUtilities.buildComponentPanel(p), "0, "+i+", 2, "+i);
-        i = i+2;
-        content.add(zInterval, "0, "+i+", l, t");
-        content.add(UIUtilities.buildComponentPanel(zRange), 
-        		"1, "+i+", 2, "+i);
-        i = i+1;
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(timeInterval);
+        p.add(UIUtilities.buildComponentPanel(timeRange));
+        content.add(p);
         p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-        p.add(UIUtilities.setTextFont("If interval not selected, " +
-        		"select the z-section", Font.ITALIC, 
-        		l.getFont().getSize()-2));
-        p.add(zSpinner);
-        content.add(UIUtilities.buildComponentPanel(p), "0, "+i+", 2, "+i);
-        i = i+2;
-        content.add(showScaleBar, "0, "+i);
-        content.add(scaleBar, "1, "+i);
-        content.add(new JLabel("microns"), "2, "+i);
-        i = i+2;
-        content.add(UIUtilities.buildComponentPanel(colorBox), "1, "+i);
-        i = i+2;
-        content.add(labelVisible, "0, "+i);
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(zInterval);
+        p.add(zRange);
+        content.add(p);
+        p = new JPanel();
+        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.add(showScaleBar);
+        p.add(scaleBar);
+        p.add(new JLabel("microns"));
+        p.add(colorBox);
+        content.add(p);
+        content.add(UIUtilities.buildComponentPanel(labelVisible));
+        content.add(Box.createVerticalStrut(5));
         return content;
 	}
 	
