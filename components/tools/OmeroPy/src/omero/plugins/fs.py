@@ -808,14 +808,18 @@ Examples:
             sum_by = args.sum_by
 
         cols = []
+        align = ''
         for col in allCols:
             if col in sum_by:
                 cols.append(col)
+                align += 'l'
         if args.pretty:
             cols.extend(["size", "files"])
         else:
             cols.extend(["size (bytes)", "files"])
+        align += 'rr'
         tb = TableBuilder(*cols)
+        tb.set_align(align)
         if args.style:
             tb.set_style(args.style)
 
