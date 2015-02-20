@@ -96,6 +96,22 @@ class ShellControl(BaseControl):
             ipshell = IPShellEmbed(args.arg)
             ipshell(local_ns=ns)
 
+HELP_USAGE = """usage: %(program_name)s <command> [options] args
+See 'help <command>' or '<command> -h' for more information on syntax
+Type 'quit' to exit
+
+Available commands:
+%(commands)s
+
+Other help topics:
+%(topics)s
+
+For additional information, see:
+http://www.openmicroscopy.org/site/support/omero5/users/\
+command-line-interface.html
+Report bugs to <ome-users@lists.openmicroscopy.org.uk>
+"""
+
 
 class HelpControl(BaseControl):
     """
@@ -144,33 +160,20 @@ class HelpControl(BaseControl):
             commands, topics = [
                 self.__parser__._format_list(x) for x in
                 [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
-            key_list = {"program_name": sys.argv[0], "version": VERSION,
-                        "commands": commands, "topics": topics}
-            print """usage: %(program_name)s <command> [options] args
-See 'help <command>' or '<command> -h' for more information on syntax
-Type 'quit' to exit
-
-Available commands:
-%(commands)s
-
-Other help topics:
-%(topics)s
-
-For additional information, see:
-http://www.openmicroscopy.org/site/support/omero5/users/\
-command-line-interface.html
-Report bugs to <ome-users@lists.openmicroscopy.org.uk>
-""" % key_list
+            key_list = {
+                "program_name": sys.argv[0],
+                "version": VERSION,
+                "commands": commands,
+                "topics": topics}
+            print HELP_USAGE % key_list
 
         else:
-            try:
+            if args.topic in self.ctx.controls:
                 self.ctx.controls[args.topic]
-                self.ctx.invoke("%s -h" % args.topic)
-            except KeyError:
-                try:
-                    self.ctx.out(self.ctx.topics[args.topic])
-                except KeyError:
-                    self.ctx.err("Unknown help topic: %s" % args.topic)
+            elif args.topic in self.ctx.topics:
+                self.ctx.out(self.ctx.topics[args.topic])
+            else:
+                self.ctx.err("Unknown help topic or command: %s" % args.topic)
 
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),
