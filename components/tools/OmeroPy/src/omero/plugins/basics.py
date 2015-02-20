@@ -106,9 +106,10 @@ class HelpControl(BaseControl):
     def _configure(self, parser):
         self.__parser__ = parser  # For formatting later
         parser.set_defaults(func=self.__call__)
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument(
             "--all", action="store_true", help="Print help for all topics")
-        parser.add_argument(
+        group.add_argument(
             "topic", nargs="?", help="Topic for more information")
 
     def _complete(self, text, line, begidx, endidx):
@@ -133,6 +134,9 @@ class HelpControl(BaseControl):
             for control in sorted(self.ctx.controls):
                 self.ctx.out("*" * 80)
                 self.ctx.out(control)
+                # print self.ctx.controls[control].HELP
+                #     print self.ctx.controls[control].get_subcommands()
+                #     c['db'].parser.description
                 self.ctx.out("*" * 80)
                 self.ctx.invoke([control, "-h"])
                 self.ctx.out("\n")
@@ -164,7 +168,6 @@ Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 
         else:
             try:
-                print 1
                 self.ctx.controls[args.topic]
                 self.ctx.invoke("%s -h" % args.topic)
             except KeyError:
