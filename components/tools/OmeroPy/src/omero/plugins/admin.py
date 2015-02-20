@@ -313,9 +313,9 @@ Examples:
 
         cleanse = Action("cleanse", """Remove binary data files from OMERO
 
-Deleting an object from OMERO currently does not remove the binary data. Use
-this command either manually or in a cron job periodically to remove Pixels
-and other data.
+Deleting an object from OMERO currently may not remove all the binary data.
+Use this command either manually or in a cron job periodically to remove
+Pixels, empty directories, and other data.
 
 This is done by checking that for all the files in the given directory, a
 matching entry exists on the server. THE /OMERO DIRECTORY MUST MATCH THE
