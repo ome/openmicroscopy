@@ -824,16 +824,31 @@ Examples:
             tb.set_style(args.style)
 
         subtotals = {}
-        for userGroup in rsp.bytesUsedByReferer.keys():
-            for (element, size) in rsp.bytesUsedByReferer[userGroup].items():
-                files = rsp.fileCountByReferer[userGroup][element]
+        if "component" in sum_by:
+            for userGroup in rsp.bytesUsedByReferer.keys():
+                for (element, size) in rsp.bytesUsedByReferer[userGroup].items():
+                    files = rsp.fileCountByReferer[userGroup][element]
+                    keyList = []
+                    if "user" in sum_by:
+                        keyList.append(userGroup.first)
+                    if "group" in sum_by:
+                        keyList.append(userGroup.second)
+                    keyList.append(element)
+                    key = tuple(keyList)
+                    if key in subtotals.keys():
+                        subtotals[key][0] += size
+                        subtotals[key][1] += files
+                    else:
+                        subtotals[key] = [size, files]
+        else:
+            for userGroup in rsp.totalBytesUsed.keys():
+                size = rsp.totalBytesUsed[userGroup]
+                files = rsp.totalFileCount[userGroup]
                 keyList = []
                 if "user" in sum_by:
                     keyList.append(userGroup.first)
                 if "group" in sum_by:
                     keyList.append(userGroup.second)
-                if "component" in sum_by:
-                    keyList.append(element)
                 key = tuple(keyList)
                 if key in subtotals.keys():
                     subtotals[key][0] += size
