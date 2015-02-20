@@ -134,7 +134,9 @@ def imageMarshal(image, key=None):
 
     # big images
     tiles = image._re.requiresPixelsPyramid()
-    width, height = image._re.getTileSize()
+    width, height = 256, 256
+    if (tiles):
+        width, height = image._re.getTileSize()
     levels = image._re.getResolutionLevels()
     zoomLevelScaling = image.getZoomLevelScaling()
     nominalMagnification = image.getObjectiveSettings() is not None \
