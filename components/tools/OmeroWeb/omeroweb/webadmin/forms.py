@@ -155,9 +155,8 @@ class ExperimenterForm(NonASCIIForm):
         max_length=250,
         widget=forms.TextInput(attrs={'size': 30, 'autocomplete': 'off'}),
         required=False)
-    administrator = forms.CharField(
-        widget=forms.CheckboxInput(), required=False)
-    active = forms.CharField(widget=forms.CheckboxInput(), required=False)
+    administrator = forms.BooleanField(required=False)
+    active = forms.BooleanField(required=False)
 
     def clean_confirmation(self):
         if (self.cleaned_data.get('password') or
