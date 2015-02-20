@@ -2715,7 +2715,7 @@ def list_scripts (request, conn=None, **kwargs):
         # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
 
         ul = scriptMenu
-        dirs = fullpath.split("/");
+        dirs = fullpath.split(os.path.sep);
         for l, d in enumerate(dirs):
             if len(d) == 0:
                 continue
