@@ -30,11 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import loci.common.lut.ij.ImageJLutSource;
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
-import loci.formats.Colorizer;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
@@ -64,7 +62,6 @@ public class OMEROWrapper extends MinMaxCalculator {
     @SuppressWarnings("unused")
     private final static Logger log = LoggerFactory.getLogger(OMEROWrapper.class);
 
-    private Colorizer colorizer;
     private ChannelSeparator separator;
     private ChannelFiller filler;
     private Memoizer memoizer;
@@ -102,8 +99,7 @@ public class OMEROWrapper extends MinMaxCalculator {
                 return k;
             }
         };
-        colorizer = new Colorizer(memoizer, new ImageJLutSource("grays"));
-        filler = new ChannelFiller(colorizer);
+        filler = new ChannelFiller(memoizer);
         separator  = new ChannelSeparator(filler);
         reader = separator;
 
