@@ -422,6 +422,7 @@ public class ImportCandidates extends DirectoryWalker
                         file, null, null,
                         readerClassName, usedFiles, isSPW);
                 ic.setDoThumbnails(config.doThumbnails.get());
+                ic.setNoStatsInfo(config.noStatsInfo.get());
                 String configImageName = config.userSpecifiedName.get();
                 if (configImageName == null)
                 {

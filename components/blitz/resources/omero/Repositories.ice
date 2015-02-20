@@ -286,6 +286,11 @@ module omero {
              omero::RBool doThumbnails;
 
              /**
+              * Whether we are to disable StatsInfo population.
+              **/
+             omero::RBool noStatsInfo;
+
+             /**
               * User choice of checksum algorithm for verifying upload.
               **/
              omero::model::ChecksumAlgorithm checksumAlgorithm;

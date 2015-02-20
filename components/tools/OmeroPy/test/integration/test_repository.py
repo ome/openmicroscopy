@@ -200,6 +200,7 @@ class AbstractRepoTest(lib.ITest):
     def create_settings(self):
         settings = omero.grid.ImportSettings()
         settings.doThumbnails = rbool(True)
+        settings.noStatsInfo = rbool(False)
         settings.userSpecifiedTarget = None
         settings.userSpecifiedName = None
         settings.userSpecifiedDescription = None
