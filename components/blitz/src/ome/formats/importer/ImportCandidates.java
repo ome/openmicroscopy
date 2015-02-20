@@ -484,33 +484,6 @@ public class ImportCandidates extends DirectoryWalker
     }
 
     /**
-     * Creates a Pixels object populated with the dimensions for each image
-     * that Bio-Formats has detected.
-     * @return A list of Pixels objects, in the order of <i>series</i>
-     * populated with dimensions X, Y, Z, C and T.
-     */
-    private List<Pixels> getPixelsWithDimensions()
-    {
-        List<Pixels> toReturn = new ArrayList<Pixels>();
-        for (int i = 0; i < reader.getSeriesCount(); i++)
-        {
-            reader.setSeries(i);
-            Pixels pixels = new PixelsI();
-            PixelsType pixelsType = new PixelsTypeI();
-            pixelsType.setValue(rstring(
-                    FormatTools.getPixelTypeString(reader.getPixelType())));
-            pixels.setSizeX(rint(reader.getSizeX()));
-            pixels.setSizeY(rint(reader.getSizeY()));
-            pixels.setSizeZ(rint(reader.getSizeZ()));
-            pixels.setSizeC(rint(reader.getSizeC()));
-            pixels.setSizeT(rint(reader.getSizeT()));
-            pixels.setPixelsType(pixelsType);
-            toReturn.add(pixels);
-        }
-        return toReturn;
-    }
-
-    /**
      * This method uses the {@link FileInfo#usedToInitialize} flag to re-order
      * used files. All files which can be used to initialize a fileset are
      * returned first.

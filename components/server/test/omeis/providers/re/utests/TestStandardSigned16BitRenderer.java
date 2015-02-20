@@ -58,6 +58,7 @@ public class TestStandardSigned16BitRenderer extends BaseRenderingTest
     {
         PixelsType pixelsType = new PixelsType();
         pixelsType.setValue("int16");
+        pixelsType.setBitSize(16);
         return pixelsType;
     }
 
@@ -65,7 +66,7 @@ public class TestStandardSigned16BitRenderer extends BaseRenderingTest
     public void testPixelValues() throws Exception
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
+                settings.getQuantization(), pixels);
         int n = data.size();
         for (int i = 0; i < n/2; i++) {
             assertEquals(qs.getPixelsTypeMin(), data.getPixelValue(i));
@@ -86,7 +87,7 @@ public class TestStandardSigned16BitRenderer extends BaseRenderingTest
     public void testPixelValuesRange() throws Exception
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
+                settings.getQuantization(), pixels);
         assertEquals(-Math.pow(2, 16)/2, qs.getPixelsTypeMin());
         assertEquals(Math.pow(2, 16)/2-1, qs.getPixelsTypeMax());
     }

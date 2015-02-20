@@ -12,8 +12,8 @@ package omeis.providers.re.quantum;
 // Third-party libraries
 
 // Application-internal dependencies
+import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
 
 /**
  * Quantization process. In charge of building a look-up table for each active
@@ -285,10 +285,10 @@ public class Quantization_8_16_bit extends QuantumStrategy {
      * @param qd
      *            Quantum definition object, contained mapping data.
      * @param type
-     *            The pixel type;
+     *            The pixels
      */
-    public Quantization_8_16_bit(QuantumDef qd, PixelsType type) {
-        super(qd, type);
+    public Quantization_8_16_bit(QuantumDef qd, Pixels pixels) {
+        super(qd, pixels);
     }
 
     /**
