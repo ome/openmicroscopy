@@ -397,7 +397,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     myColleagues = {}
     if menu == "search":
         for g in groups:
-            g.groupSummary()
+            g.loadLeadersAndMembers()
             for c in g.leaders + g.colleagues:
                 myColleagues[c.id] = c
         myColleagues = myColleagues.values()
@@ -427,13 +427,16 @@ def group_user_content(request, url=None, conn=None, **kwargs):
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
     if conn.isAdmin():  # Admin can see all groups
-        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
+        system_groups = [
+            conn.getAdminService().getSecurityRoles().userGroupId,
+            conn.getAdminService().getSecurityRoles().guestGroupId]
+        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getId() not in system_groups]
         groups.sort(key=lambda x: x.getName().lower())
     else:
         groups = myGroups
 
     for g in groups:
-        g.groupSummary()    # load leaders / members
+        g.loadLeadersAndMembers() # load leaders / members
 
     context = {'template': 'webclient/base/includes/group_user_content.html',
                'current_url':url,
@@ -2622,7 +2625,9 @@ def activities(request, conn=None, **kwargs):
                                     #except:
                                     #    pass
                                 if v.isLoaded() and hasattr(v, "name"):  # E.g Image, OriginalFile etc
-                                    obj_data['name'] = v.name.val
+                                    name = unwrap(v.name)
+                                    if name is not None:                # E.g. FileAnnotation has null name
+                                        obj_data['name'] = name
                                 rMap[key] = obj_data
                             else:
                                 rMap[key] = v

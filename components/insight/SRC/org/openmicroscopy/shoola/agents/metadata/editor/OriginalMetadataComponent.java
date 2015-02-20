@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.OriginalMetadataComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -53,16 +53,14 @@ import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -309,7 +307,7 @@ class OriginalMetadataComponent
      */
     private int getStart(String line)
     {
-        if (StringUtils.isBlank(line)) return 0;
+        if (CommonsLangUtils.isBlank(line)) return 0;
         if (line.startsWith("[")) return 1;
         return 0;
     }
@@ -372,7 +370,7 @@ class OriginalMetadataComponent
                 int start = 0;
                 while ((line = input.readLine()) != null) {
                     if (line.contains("=")) {
-                        if (!StringUtils.isBlank(key)) {
+                        if (CommonsLangUtils.isNotBlank(key)) {
                             l = components.get(key);
                             if (l != null) l.add(line);
                         }
@@ -381,7 +379,7 @@ class OriginalMetadataComponent
                         if (line.length() > 0) {
                             start = getStart(line);
                             key = line.substring(start, line.length()-1);
-                            if (!StringUtils.isBlank(key))
+                            if (CommonsLangUtils.isNotBlank(key))
                                 components.put(key, new ArrayList<String>());
                         }
                     }

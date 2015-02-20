@@ -58,7 +58,10 @@ import com.google.common.collect.SetMultimap;
  * @see ome.api.IDelete
  * @see ome.services.blitz.impl.DeleteHandleI
  * @see omero.cmd.graphs.DeleteI
+ * @deprecated all except setup and {@link #deleteFiles(SetMultimap)} will be removed in OMERO 5.2, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
 public class Deletion {
 
     /**

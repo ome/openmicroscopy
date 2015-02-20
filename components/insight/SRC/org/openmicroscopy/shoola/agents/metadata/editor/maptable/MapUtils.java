@@ -22,7 +22,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor.maptable;
 
 import omero.model.NamedValue;
 
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 /**
  * UI utility class for dealing with MapAnnotations
@@ -51,8 +51,8 @@ public class MapUtils {
 	 */
 	static boolean isEmpty(NamedValue nv) {
 		return nv == null
-				|| (StringUtils.isEmpty(nv.name) || DUMMY_KEY.equals(nv.name))
-				&& (StringUtils.isEmpty(nv.value) || DUMMY_VALUE
+				|| (CommonsLangUtils.isEmpty(nv.name) || DUMMY_KEY.equals(nv.name))
+				&& (CommonsLangUtils.isEmpty(nv.value) || DUMMY_VALUE
 						.equals(nv.value));
 	}
 }

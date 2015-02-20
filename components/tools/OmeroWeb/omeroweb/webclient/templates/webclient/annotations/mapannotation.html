@@ -22,6 +22,7 @@
 
 
     <table {% if ma %}data-annId="{{ ma.id }}"{% endif %}
+            data-added-by="{% if ma %}{{ ma.getOwner.id }}{% else %}{{ ome.user.id }}{% endif %}"
             class="keyValueTable{% if canEdit %} editableKeyValueTable{% endif %}">
         <thead>
           <tr>

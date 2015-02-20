@@ -41,10 +41,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Icon;
+
+
 
 //Third-party libraries
 import ij.IJ;
+import ij.ImagePlus;
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
@@ -69,6 +74,7 @@ import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
@@ -344,6 +350,10 @@ public class TaskBarManager
 			buffer.append(id);
 			buffer.append("]");
 			IJ.runPlugIn("loci.plugins.LociImporter", buffer.toString());
+			ImagePlus img = IJ.getImage();
+			img.setTitle(img.getTitle() + "--" + "OMERO ID:" + id);
+			img.setProperty(FileObject.OMERO_ID, id);
+			img.setProperty(FileObject.OMERO_GROUP, ctx.getGroupID());
 		} catch (Exception e) {
 			LogMessage message = new LogMessage();
 			message.println("Opening in image J");

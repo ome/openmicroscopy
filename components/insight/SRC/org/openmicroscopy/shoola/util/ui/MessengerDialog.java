@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.MessengerDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.util.ui;
 
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -61,17 +59,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
-
-
-
-//Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
 /** 
@@ -533,7 +527,7 @@ public class MessengerDialog
 	    				BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    commentPanel.add(buildEmailAreaPanel('E'), "0, 2, 2, 2");
 	    commentPanel.add(buildCommentAreaPanel(comment, 'W'), "0, 3, 2, 3");
-	    if (StringUtils.isNotBlank(errorDescription)) {
+	    if (CommonsLangUtils.isNotBlank(errorDescription)) {
 	    	layout.setRow(1, 30);
 	    	JPanel p = new JPanel();
 	    	p.add(UIUtilities.setTextFont(ERROR_BRIEF));

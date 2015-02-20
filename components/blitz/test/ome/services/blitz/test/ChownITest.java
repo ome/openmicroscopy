@@ -63,6 +63,7 @@ import org.testng.annotations.Test;
 /**
  */
 @Test(groups = { "integration", "chown" })
+@SuppressWarnings("deprecation")
 public class ChownITest extends AbstractGraphTest {
 
     long newUserId = 0L;

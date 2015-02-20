@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -57,7 +57,7 @@ import javax.swing.JToolBar;
 
 import omero.model.OriginalFile;
 
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -496,9 +496,9 @@ public abstract class ActivityComponent
 			}
 		}
         if (!exist) return original;
-        if (StringUtils.isEmpty(fileName)) return original;
+        if (CommonsLangUtils.isEmpty(fileName)) return original;
     	
-    	if (!StringUtils.isEmpty(extension)) {
+    	if (CommonsLangUtils.isNotEmpty(extension)) {
     		int n = fileName.lastIndexOf(extension);
     		String v = fileName.substring(0, n)+"_("+index+")"+extension;
     		index++;

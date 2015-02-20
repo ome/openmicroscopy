@@ -35,6 +35,7 @@ $.fn.roi_display = function(options) {
         }
 
         var roi_json = null;          // load ROI data as json when needed
+        var active_rois = {};       // show only the active ROIs
         this.theZ = null;
         this.theT = null;
         var rois_displayed = false;   // flag to toggle visability.
@@ -248,7 +249,7 @@ $.fn.roi_display = function(options) {
         }
 
         // load the ROIs from json call and display
-        load_rois = function(display_rois) {
+        load_rois = function(display_rois, filter) {
             if (json_url == undefined) return;
             
             $.getJSON(json_url+'?callback=?', function(data) {
@@ -257,10 +258,147 @@ $.fn.roi_display = function(options) {
                 // plot the rois
                 if (display_rois) {
                   rois_displayed = true;
-                  refresh_rois();
+                  refresh_rois(undefined, undefined, filter);
                 }
                 $viewportimg.trigger("rois_loaded");
             });
+        }
+
+        /*
+        If filter is not 'undefined' use the given ROI and shape IDs to build the list of active
+        elements that will be shown by the web viewer.
+        Filter is an associative array like
+          {
+           12: [1,2,3],
+           13: []
+          }
+        where keys are the ID of the ROIs and values lists with IDs of the selected shapes for
+        the given ROIs. If the value of a key is an empty list, all shapes related to that ROI
+        will be considered as active.
+        If the filter is 'undefined' set all ROIs and shapes coming from the DB as active.
+        The active_rois object will be used to determinate which shapes will be displayed by the
+        user interface when a change on the viewport occurs (like changing the Z or the T value).
+         */
+        filter_rois = function (filter) {
+            if (filter != undefined) {
+                for (r=0; r<roi_json.length; r++) {
+                    // check if ROI is in filter
+                    if (filter.hasOwnProperty(roi_json[r].id)) {
+                        if (!active_rois.hasOwnProperty(roi_json[r].id))
+                            active_rois[roi_json[r].id] = [];
+                        // check if one or more shapes of the current ROI are in filter
+                        var shapes = roi_json[r]['shapes'];
+                        for (s=0; s<shapes.length; s++) {
+                            if (filter[roi_json[r].id].indexOf(shapes[s].id) != -1 &&
+                                active_rois[roi_json[r].id].indexOf(shapes[s].id) == -1) {
+                                active_rois[roi_json[r].id].push(shapes[s].id);
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (r=0; r<roi_json.length; r++) {
+                    if (!active_rois.hasOwnProperty(roi_json[r].id)) {
+                        active_rois[roi_json[r].id] = [];
+                    }
+                    var shapes = roi_json[r]['shapes'];
+                    for (s=0; s<shapes.length; s++) {
+                        if (active_rois[roi_json[r].id].indexOf(shapes[s].id) == -1);
+                            active_rois[roi_json[r].id].push(shapes[s].id);
+                    }
+                }
+            }
+        }
+
+        /*
+        Use active_rois to actually filter and retrieve ROIs and shapes that are going to be
+        visualized in the viewport from the list of ROIs retrieved from the server.
+        The list of ROIs coming from the server, referenced as 'roi_json', won't be modified.
+         */
+        get_active_rois = function () {
+            var act_rois = [];
+            for (r=0; r<roi_json.length; r++) {
+                if (active_rois.hasOwnProperty(roi_json[r].id)) {
+                    var roi = {"id": roi_json[r].id};
+                    var shapes = roi_json[r].shapes;
+                    if (active_rois[roi_json[r].id].length == 0) {
+                        // No filter for the shapes, append all of them
+                        roi['shapes'] = shapes;
+                        // Update filter as well, this will make possible to selectively disable shapes
+                        for (s = 0; s < shapes.length; s++) {
+                            active_rois[roi_json[r].id].push(shapes[s].id);
+                        }
+                    }
+                    else {
+                        roi['shapes'] = [];
+                        for (s=0; s<shapes.length; s++) {
+                            // Add only active shapes
+                            if (active_rois[roi_json[r].id].indexOf(shapes[s].id) != -1) {
+                                roi['shapes'].push(shapes[s]);
+                            }
+                        }
+                    }
+                    act_rois.push(roi);
+                }
+            }
+            return act_rois;
+        }
+
+        // get the filter that describes currently active ROIs and shapes
+        this.get_current_rois_filter = function() {
+            if (typeof active_rois != "undefined") {
+                if (Object.keys(active_rois).length == 0) {
+                    return undefined;
+                } else {
+                    return active_rois;
+                }
+            } else {
+                return undefined;
+            }
+        }
+
+        // activate ROI with ID 'roi_id' and its related shapes
+        this.activate_roi = function (roi_id) {
+            var roi_id = parseInt(roi_id);
+            if (!active_rois.hasOwnProperty(roi_id)) {
+                active_rois[roi_id] = [];
+            }
+        }
+
+        // deactivate ROI with ID 'roi_id' and its related shapes
+        this.deactivate_roi = function (roi_id) {
+            var roi_id = parseInt(roi_id);
+            if (active_rois.hasOwnProperty(roi_id)) {
+                delete active_rois[roi_id];
+            }
+        }
+
+        // activate shape with ID 'shape_id' related to ROI with ID 'roi_id'
+        this.activate_shape = function (roi_id, shape_id) {
+            var roi_id = parseInt(roi_id);
+            var shape_id = parseInt(shape_id);
+            if (active_rois.hasOwnProperty(roi_id)) {
+                if (active_rois[roi_id].indexOf(shape_id) == -1)
+                    active_rois[roi_id].push(shape_id);
+            } else {
+                this.activate_roi(roi_id);
+                this.activate_shape(roi_id, shape_id);
+            }
+        }
+
+        // deactivate shape with ID 'shape_id' related to ROI with ID 'roi_id'
+        this.deactivate_shape = function(roi_id, shape_id) {
+            var roi_id = parseInt(roi_id);
+            var shape_id = parseInt(shape_id);
+            if (active_rois.hasOwnProperty(roi_id)) {
+                if (active_rois[roi_id].indexOf(shape_id) != -1) {
+                    active_rois[roi_id].splice(active_rois[roi_id].indexOf(shape_id), 1);
+                }
+                // If no shape remains, delete the ROI from active_rois list
+                if (active_rois[roi_id].length == 0) {
+                    this.deactivate_roi(roi_id);
+                }
+            }
         }
 
         // returns the ROI data as json. May be null if not yet loaded! 
@@ -268,8 +406,11 @@ $.fn.roi_display = function(options) {
             return roi_json;
         }
 
-        // clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based. 
-        this.refresh_rois = function(theZ, theT) {
+        /*
+        Clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based.
+        Only shapes in 'active_rois' are going to be displayed.
+        */
+        this.refresh_rois = function(theZ, theT, rois_filter) {
 
             if (typeof theZ != 'undefined') this.theZ = theZ;
             if (typeof theT != 'undefined') this.theT = theT;
@@ -277,11 +418,14 @@ $.fn.roi_display = function(options) {
             paper.clear();
             shape_objects.length = 0;
             if (!rois_displayed) return;
-            if (roi_json == null) return;
-            
+            // build the filter for active ROIs and shapes
+            filter_rois(rois_filter);
+            // apply the filter and get the description of ROIs and shapes that will be displayed
+            rois = get_active_rois();
+            if (rois == null) return;
 
-            for (var r=0; r<roi_json.length; r++) {
-                var roi = roi_json[r];
+            for (var r=0; r<rois.length; r++) {
+                var roi = rois[r];
                 var shapes = roi['shapes'];
                 var shape = null;
                 for (var s=0; s<shapes.length; s++) {
@@ -378,29 +522,34 @@ $.fn.roi_display = function(options) {
             display_selected();
         }
 
+        // refresh the viewport using 'active_rois' as filter
+        this.refresh_active_rois = function (theZ, theT) {
+            rois_displayed = true;
+            refresh_rois(theZ, theT, active_rois);
+        }
 
         // loads the ROIs if needed and displays them
-        this.show_rois = function(theZ, theT) {
-            this.theZ = theZ
-            this.theT = theT
+        this.show_rois = function(theZ, theT, filter) {
+            this.theZ = theZ;
+            this.theT = theT;
           if (roi_json == null) {
-              load_rois(true);      // load and display
+              load_rois(true, filter);      // load and display
           } else {
               rois_displayed = true;
-              this.refresh_rois();
+              this.refresh_rois(undefined, undefined, filter);
           }
         }
-        
 
         // hides the ROIs from display
         this.hide_rois = function() {
+            active_rois = {};
             rois_displayed = false;
             this.refresh_rois();
         }
         
-        this.show_labels = function(visible) {
+        this.show_labels = function(visible, filter) {
             roi_label_displayed = visible;
-            this.refresh_rois();
+            this.refresh_rois(undefined, undefined, filter);
         }
 
         // sets the Zoom of the ROI paper (canvas)

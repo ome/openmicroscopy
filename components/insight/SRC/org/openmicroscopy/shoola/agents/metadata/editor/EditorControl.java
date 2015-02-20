@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-
-//Java imports
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -51,12 +48,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -398,7 +392,7 @@ class EditorControl
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 					File[] files = (File[]) evt.getNewValue();
-					if (ArrayUtils.isEmpty(files))
+					if (files == null || files.length == 0)
 						return;
 					File file = files[0];
 					if (file == null)

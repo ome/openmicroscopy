@@ -75,7 +75,6 @@ import omero.sys.Parameters;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -1462,11 +1461,11 @@ class OmeroImageServiceImpl
 		OutputStream out = null;
 		File tmp = null;
 		try {
-			File inputXML = File.createTempFile(RandomStringUtils.random(10),
+			File inputXML = File.createTempFile(""+Math.random(),
 					ext);
 			files.add(inputXML);
 			if (index == EXPORT_AS_OMETIFF) {
-				tmp = File.createTempFile(RandomStringUtils.random(10),
+				tmp = File.createTempFile(""+Math.random(),
 						"."+OMETIFFFilter.OME_TIFF);
 				files.add(tmp);
 				FileUtils.copyFile(f, tmp);
@@ -1478,7 +1477,7 @@ class OmeroImageServiceImpl
 			while (i.hasNext()) {
 				factory = TransformerFactory.newInstance();
 				stream = i.next();
-				output = File.createTempFile(RandomStringUtils.random(10), ext);
+				output = File.createTempFile(""+Math.random(), ext);
 				transformer = factory.newTransformer(new StreamSource(stream));
 				out = new FileOutputStream(output);
 				in =  new FileInputStream(inputXML);

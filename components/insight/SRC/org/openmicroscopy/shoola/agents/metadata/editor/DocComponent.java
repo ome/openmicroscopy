@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -53,10 +51,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -460,7 +456,7 @@ class DocComponent
 		}
 		
 		String ns = annotation.getNameSpace();
-		if(!StringUtils.isEmpty(ns) && !isInternalNS(ns)) {
+		if(!CommonsLangUtils.isEmpty(ns) && !isInternalNS(ns)) {
 			buf.append("<b>");
 			buf.append("Namespace: ");
 			buf.append("</b>");
@@ -469,7 +465,7 @@ class DocComponent
 		}
 		
 		String desc = annotation.getDescription();
-		if(!StringUtils.isEmpty(desc)) {
+		if(!CommonsLangUtils.isEmpty(desc)) {
 			buf.append("<b>");
 			buf.append("Description: ");
 			buf.append("</b>");
@@ -807,7 +803,7 @@ class DocComponent
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, true, true);
-		if (StringUtils.isNotBlank(name)) 
+		if (CommonsLangUtils.isNotBlank(name)) 
 			chooser.setSelectedFileFull(name);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));

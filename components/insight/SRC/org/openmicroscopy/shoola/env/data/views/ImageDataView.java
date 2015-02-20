@@ -5,7 +5,7 @@
  *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -33,12 +33,15 @@ import java.util.Map;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
+
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.ResultsObject;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -486,4 +489,14 @@ public interface ImageDataView
 		PlaneDef pDef, RenderingControl proxy, Collection<Tile> tiles,
 		 AgentEventListener observer);
 
+	/**
+	 * Saves the ImageJ results back to OMERO.
+	 *
+	 * @param ctx The security context.
+	 * @param results The results to save.
+	 * @param observer Call-back handler.
+     * @return See above.
+	 */
+	public CallHandle saveResults(SecurityContext ctx,
+            ResultsObject results, AgentEventListener observer);
 }

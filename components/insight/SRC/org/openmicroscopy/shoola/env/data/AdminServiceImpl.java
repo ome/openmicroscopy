@@ -36,14 +36,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-
-//Application-internal dependencies
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.sys.Roles;
@@ -207,7 +202,7 @@ class AdminServiceImpl
 			String newPassword) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		if (StringUtils.isBlank(newPassword))
+		if (CommonsLangUtils.isBlank(newPassword))
 			throw new IllegalArgumentException("Password not valid.");
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
@@ -620,7 +615,7 @@ class AdminServiceImpl
 				//check that the user is not ldap
 				String ldap = gateway.lookupLdapAuthExperimenter(ctx,
 						exp.getId());
-				if (StringUtils.isNotBlank(ldap)) l.add(exp);
+				if (CommonsLangUtils.isNotBlank(ldap)) l.add(exp);
 				else 
 					gateway.resetPassword(ctx, exp.getUserName(), exp.getId(), 
 						uc.getPassword());

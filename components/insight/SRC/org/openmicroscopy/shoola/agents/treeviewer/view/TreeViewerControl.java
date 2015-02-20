@@ -96,6 +96,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNod
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveGroupNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RunScriptAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchGroup;
@@ -379,7 +380,10 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Display Group</code> in the menu. */
 	static final Integer    DISPLAY_GROUP = Integer.valueOf(76);
-	
+
+	/** Identifies the <code>Save OMERO</code> in the menu. */
+	static final Integer SAVE_TO_OMERO = Integer.valueOf(77);
+
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -575,6 +579,8 @@ class TreeViewerControl
 				LookupNames.GROUP_DISPLAY));
 		actionsMap.put(DISPLAY_EXPERIMENTER, new DisplayModeAction(model,
 				LookupNames.EXPERIMENTER_DISPLAY));
+        actionsMap.put(SAVE_TO_OMERO, new SaveResultsAction(model,
+                LookupNames.IMAGE_J));
 	}
 
 	/** 

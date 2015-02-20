@@ -2588,14 +2588,13 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a)
-                              for a in self.getEventContext().leaderOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            yield ExperimenterGroupWrapper(self, e)
+        system_groups = [
+            self.getAdminService().getSecurityRoles().userGroupId]
+        if len(self.getEventContext().leaderOfGroups) > 0:
+            for g in self.getObjects("ExperimenterGroup",
+                                     self.getEventContext().leaderOfGroups):
+                if g.getId() not in system_groups:
+                    yield g
 
     def getGroupsMemberOf(self):
         """
@@ -2605,17 +2604,13 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a)
-                              for a in self.getEventContext().memberOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            if e.name.val == "user":
-                pass
-            else:
-                yield ExperimenterGroupWrapper(self, e)
+        system_groups = [
+            self.getAdminService().getSecurityRoles().userGroupId]
+        if len(self.getEventContext().memberOfGroups) > 0:
+            for g in self.getObjects("ExperimenterGroup",
+                                     self.getEventContext().memberOfGroups):
+                if g.getId() not in system_groups:
+                    yield g
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
                     description=None, ldap=False):
@@ -2725,39 +2720,23 @@ class _BlitzGateway (object):
 
     def groupSummary(self, gid=None, exclude_self=False):
         """
-        Returns lists of 'leaders' and 'members' of the specified group
-        (default is current group) as a dict with those keys.
+        Returns unsorted lists of 'leaders' and 'members' of the specified
+        group (default is current group) as a dict with those keys.
 
         :return:    {'leaders': list :class:`ExperimenterWrapper`,
                      'colleagues': list :class:`ExperimenterWrapper`}
         :rtype:     dict
+
+        ** Deprecated ** Use :meth:`ExperimenterGroupWrapper.groupSummary`.
         """
+        warnings.warn(
+            "Deprecated. Use ExperimenterGroupWrapper.groupSummary()",
+            DeprecationWarning)
 
         if gid is None:
             gid = self.getEventContext().groupId
-        userId = None
-        if exclude_self:
-            userId = self.getUserId()
-        colleagues = []
-        leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or self.isLeader(gid) or self.isAdmin():
-            for d in default.copyGroupExperimenterMap():
-                if d is None or d.child.id.val == userId:
-                    continue
-                if d.owner.val:
-                    leaders.append(ExperimenterWrapper(self, d.child))
-                else:
-                    colleagues.append(ExperimenterWrapper(self, d.child))
-        else:
-            if self.isLeader():
-                leaders = [self.getUser()]
-            else:
-                colleagues = [self.getUser()]
-
-        colleagues.sort(key=lambda x: x.getLastName().lower())
-        leaders.sort(key=lambda x: x.getLastName().lower())
-
+        leaders, colleagues = default.groupSummary(exclude_self)
         return {"leaders": leaders, "colleagues": colleagues}
 
     def listStaffs(self):
@@ -2819,15 +2798,29 @@ class _BlitzGateway (object):
 
         params = omero.sys.ParametersI()
         params.addIds(imageIds)
+
         query = "select distinct(fse) from FilesetEntry as fse "\
-                "left outer join fse.fileset as fs "\
+                "left outer join fetch fse.fileset as fs "\
+                "left outer join fetch fs.annotationLinks as link "\
+                "left outer join fetch link.child as a "\
                 "left outer join fetch fse.originalFile as f "\
                 "left outer join fs.images as image where image.id in (:ids)"
         queryService = self.getQueryService()
         fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
         fsCount = len(fsinfo)
+        anns = []
+        for fse in fsinfo:
+            for l in fse.fileset.copyAnnotationLinks():
+                a = {'ns': unwrap(l.child.ns),
+                     'id': l.child.id.val}
+                if (hasattr(l.child, 'textValue')):
+                    a['value'] = unwrap(l.child.textValue)
+                anns.append(a)
         fsSize = sum([f.originalFile.getSize().val for f in fsinfo])
-        filesetFileInfo = {'count': fsCount, 'size': fsSize}
+        filesetFileInfo = {'fileset': True,
+                           'count': fsCount,
+                           'size': fsSize,
+                           'annotations': anns}
         return filesetFileInfo
 
     def getArchivedFilesInfo(self, imageIds):
@@ -2849,7 +2842,9 @@ class _BlitzGateway (object):
         fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
         fsCount = len(fsinfo)
         fsSize = sum([f.parent.getSize().val for f in fsinfo])
-        filesetFileInfo = {'count': fsCount, 'size': fsSize}
+        filesetFileInfo = {'fileset': False,
+                           'count': fsCount,
+                           'size': fsSize}
         return filesetFileInfo
 
     ############################
@@ -5323,6 +5318,37 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
                  "left outer join fetch map.child e")
         return query
 
+    def groupSummary(self, exclude_self=False):
+        """
+        Returns tuple of unsorted lists of 'leaders' and 'members' of
+        the group.
+
+        :return:    (list :class:`ExperimenterWrapper`,
+                     list :class:`ExperimenterWrapper`)
+        :rtype:     tuple
+        """
+
+        userId = None
+        if exclude_self:
+            userId = self._conn.getUserId()
+        colleagues = []
+        leaders = []
+        if (not self.isPrivate() or self._conn.isLeader(self.id)
+           or self._conn.isAdmin()):
+            for d in self.copyGroupExperimenterMap():
+                if d is None or d.child.id.val == userId:
+                    continue
+                if d.owner.val:
+                    leaders.append(ExperimenterWrapper(self._conn, d.child))
+                else:
+                    colleagues.append(ExperimenterWrapper(self._conn, d.child))
+        else:
+            if self._conn.isLeader():
+                leaders = [self._conn.getUser()]
+            else:
+                colleagues = [self._conn.getUser()]
+
+        return (leaders, colleagues)
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 
@@ -8658,12 +8684,11 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         Returns the number of Original 'archived' Files linked to primary
         pixels.
-        Used by :meth:`countImportedImageFiles` which also handles FS files.
         """
-        if self._archivedFileCount is None:
-            info = self._conn.getArchivedFilesInfo([self.getId()])
-            self._archivedFileCount = info['count']
-        return self._archivedFileCount
+        fsInfo = self.getImportedFilesInfo()
+        if not fsInfo['fileset']:
+            return fsInfo['count']
+        return 0
 
     def countFilesetFiles(self):
         """
@@ -8671,10 +8696,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         this image
         """
 
-        if self._filesetFileCount is None:
-            info = self._conn.getFilesetFilesInfo([self.getId()])
-            self._filesetFileCount = info['count']
-        return self._filesetFileCount
+        fsInfo = self.getImportedFilesInfo()
+        if fsInfo['fileset']:
+            return fsInfo['count']
+        return 0
 
     def getImportedFilesInfo(self):
         """
@@ -8684,10 +8709,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         :return:        A dict of 'count' and sum 'size' of the files.
         """
         if self._importedFilesInfo is None:
-            self._importedFilesInfo = self._conn.getArchivedFilesInfo(
+            # Check for Filesets first...
+            self._importedFilesInfo = self._conn.getFilesetFilesInfo(
                 [self.getId()])
             if (self._importedFilesInfo['count'] == 0):
-                self._importedFilesInfo = self._conn.getFilesetFilesInfo(
+                # If none, check Archived files
+                self._importedFilesInfo = self._conn.getArchivedFilesInfo(
                     [self.getId()])
         return self._importedFilesInfo
 
@@ -8698,10 +8725,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         This will only be 0 if the image was imported pre-FS
         and original files NOT archived
         """
-        fCount = self.countFilesetFiles()
-        if fCount > 0:
-            return fCount
-        return self.countArchivedFiles()
+        return self.getImportedFilesInfo()['count']
 
     def getArchivedFiles(self):
         """
@@ -8740,8 +8764,29 @@ class _ImageWrapper (BlitzObjectWrapper):
         Returns the Fileset linked to this Image.
         Fileset images, usedFiles and originalFiles are loaded.
         """
-        if self.countFilesetFiles() > 0:
+        if self.fileset is not None:
             return self._conn.getObject("Fileset", self.fileset.id.val)
+
+    def getInplaceImport(self):
+        """
+        If the image was imported using file transfer,
+        return the type of file transfer.
+        One of:
+        'ome.formats.importer.transfers.MoveFileTransfer',
+        'ome.formats.importer.transfers.CopyFileTransfer',
+        'ome.formats.importer.transfers.CopyMoveFileTransfer',
+        'ome.formats.importer.transfers.HardlinkFileTransfer',
+        'ome.formats.importer.transfers.SymlinkFileTransfer'
+
+        :rtype:     String or None
+        :return:    Transfer type or None
+        """
+        ns = omero.constants.namespaces.NSFILETRANSFER
+        fsInfo = self.getImportedFilesInfo()
+        if 'annotations' in fsInfo:
+            for a in fsInfo['annotations']:
+                if ns == a['ns']:
+                    return a['value']
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """

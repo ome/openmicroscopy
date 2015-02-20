@@ -92,7 +92,7 @@
                     k = rowData[0],
                     v = rowData[1];
                 // Don't add empty rows
-                if (k == "" && v =="") return;
+                if ((k == "" || k == "Add Key") && (v == "" || v == "Add Value")) return;
                 tableData.push(rowData);
             });
             // If we are editing a saved map annotation...
@@ -178,6 +178,7 @@
                 $nextRow = $selRows.next(":last");
 
             $selRows.remove();
+            saveMapAnnotation($tbody.parent());
 
             // Add back a placeholder if table is empty (after saving!)
             if ($tbody.find('tr').length == 0) {
@@ -190,7 +191,6 @@
                 $tbody.find('tr:last').addClass('ui-selected');
             }
             enableToolbarButtons();
-            saveMapAnnotation($tbody.parent());
         }
 
         var selectRows = function selectRows($clickedRow, event) {
@@ -244,7 +244,7 @@
 
             // Nothing selected - actions will apply to user's own table
             if ($selRows.length == 0) {
-                var canEdit = $('.editableKeyValueTable').length > 0;
+                var canEdit = $('.editableKeyValueTable:visible').length > 0;
                 enabled["Insert rows"] = canEdit;
                 enabled["Copy rows"] = false;
                 enabled["Paste rows"] = (canPaste && canEdit);
@@ -373,6 +373,16 @@
 
         $( ".keyValueTable tbody" ).on( "blur", "input", function(event) {
             saveEdit();
+        });
+
+        // When we filter annotations by 'me'/'others', need to update toolbar
+        $("#annotationFilter").change(function(){
+            // wait for annotations to be shown/hidden
+            setTimeout(function(){
+                // de-select all rows first
+                $('.keyValueTable tr').removeClass("ui-selected");
+                enableToolbarButtons();
+            }, 50);
         });
     });
 

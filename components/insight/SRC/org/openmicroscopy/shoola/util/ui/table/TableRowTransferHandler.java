@@ -83,6 +83,8 @@ public class TableRowTransferHandler extends TransferHandler {
 
 	@Override
 	public boolean importData(TransferHandler.TransferSupport info) {
+	    if (!info.isDrop())
+	        return false;
 		JTable target = (JTable) info.getComponent();
 		JTable.DropLocation dl = (JTable.DropLocation) info.getDropLocation();
 		int index = dl.getRow();

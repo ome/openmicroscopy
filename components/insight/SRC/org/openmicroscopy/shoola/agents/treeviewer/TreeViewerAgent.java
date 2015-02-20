@@ -25,15 +25,21 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 
 //Third-party libraries
+
+
+
+
 
 
 
@@ -51,6 +57,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.MoveToEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchSelectionEvent;
@@ -69,6 +76,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.SaveEvent;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 
@@ -484,7 +492,21 @@ public class TreeViewerAgent
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         viewer.handleSearchSelectionEvent(evt);
     }
-    
+
+    /** Display the save dialog when used in plugin mode.*/
+    private void handleSaveEvent(SaveEvent evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) 
+            return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        SaveResultsAction a = new SaveResultsAction(viewer, LookupNames.IMAGE_J);
+        a.actionPerformed(
+                new ActionEvent(new JButton(), ActionEvent.ACTION_PERFORMED, ""));
+    }
+
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -551,10 +573,11 @@ public class TreeViewerAgent
         bus.register(this, AnnotatedEvent.class);
         bus.register(this, SearchEvent.class);
         bus.register(this, SearchSelectionEvent.class);
+        bus.register(this, SaveEvent.class);
     }
 
     /**
-     * Implemented as specified by {@link Agent}. 
+     * Implemented as specified by {@link Agent}.
      * @see Agent#canTerminate()
      */
     public boolean canTerminate()
@@ -609,10 +632,12 @@ public class TreeViewerAgent
 			handleMoveToEvent((MoveToEvent) e);
 		else if (e instanceof AnnotatedEvent)
 			handleAnnotatedEvent((AnnotatedEvent) e);
-		else if (e instanceof SearchEvent) 
-		        handleSearchEvent((SearchEvent) e); 
+		else if (e instanceof SearchEvent)
+		    handleSearchEvent((SearchEvent) e);
 		else if (e instanceof SearchSelectionEvent) 
-                    handleSearchSelectionEvent((SearchSelectionEvent) e); 
+            handleSearchSelectionEvent((SearchSelectionEvent) e);
+		else if (e instanceof SaveEvent) 
+            handleSaveEvent((SaveEvent) e);
 	}
 
 }

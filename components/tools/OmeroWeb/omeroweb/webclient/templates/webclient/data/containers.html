@@ -908,9 +908,13 @@
                     
                 })
                 .delegate("a", "dblclick", function(e) {
-                    var obj_rel = $(this).parent().attr('rel');
+                    var $this = $(this),
+                        obj_rel = $this.parent().attr('rel'),
+                        ob_id = $this.parent().attr('id'),
+                        iid;
                     if ((obj_rel=='image') || (obj_rel=='image-locked')) {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
+                        iid = ob_id.split("-")[1];
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/" + iid + "/"));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {

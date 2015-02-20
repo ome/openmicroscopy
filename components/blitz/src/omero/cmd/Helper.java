@@ -365,6 +365,7 @@ public class Helper {
         return ec;
     }
 
+    @Deprecated
     public Cancel graphException(GraphException ge, long step, long id) {
         ERR err = new ERR();
         if (ge instanceof GraphConstraintException) {
