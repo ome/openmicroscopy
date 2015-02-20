@@ -87,7 +87,9 @@ class render_response_admin(omeroweb.webclient.decorators.render_response):
                     ' group') % (reverse(viewname="wamanagegroupid",
                                          args=["new"]))
             context['ome']['message'] = msg
-        context['ome']['email'] = conn.getEmailSettings()
+        context['ome']['email'] = request.session \
+                                         .get('server_settings', False) \
+                                         .get('email', False)
 
 ##############################################################################
 # utils
@@ -967,7 +969,8 @@ def email(request, conn=None, **kwargs):
     """
 
     # Check that the appropriate web settings are available
-    if (not conn.getEmailSettings()):
+    if (not request.session.get('server_settings', False)
+                           .get('email', False)):
         return {'template': 'webadmin/noemail.html'}
     context = {'template': 'webadmin/email.html'}
 
