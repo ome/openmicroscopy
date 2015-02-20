@@ -126,7 +126,7 @@ class HelpControl(BaseControl):
         group.add_argument(
             "--all", action="store_true", help="Print help for all topics")
         group.add_argument(
-            "topic", nargs="?", help="Topic for more information")
+            "topic", nargs="?", help="Command or topic for more information")
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -136,26 +136,26 @@ class HelpControl(BaseControl):
         """
         return self.ctx.completenames(text, line, begidx, endidx)
 
+    def format_title(self, command):
+        self.ctx.out("*" * 80)
+        self.ctx.out(command)
+        self.ctx.out("*" * 80)
+
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
 
         if args.all:
             for control in sorted(self.ctx.controls):
-                self.ctx.out("*" * 80)
-                self.ctx.out(control)
-                # print self.ctx.controls[control].HELP
-                #     print self.ctx.controls[control].get_subcommands()
-                #     c['db'].parser.description
-                self.ctx.out("*" * 80)
+                self.format_title(control)
                 self.ctx.invoke([control, "-h"])
                 self.ctx.out("\n")
+
             for topic in sorted(self.ctx.topics):
-                self.ctx.out("*" * 80)
-                self.ctx.out(topic)
-                self.ctx.out("*" * 80)
+                self.format_title(topic)
                 self.ctx.out(self.ctx.topics[topic])
                 self.ctx.out("\n")
+
         elif not args.topic:
             commands, topics = [
                 self.__parser__._format_list(x) for x in
@@ -166,10 +166,9 @@ class HelpControl(BaseControl):
                 "commands": commands,
                 "topics": topics}
             print HELP_USAGE % key_list
-
         else:
             if args.topic in self.ctx.controls:
-                self.ctx.controls[args.topic]
+                self.ctx.invoke([args.topic, "-h"])
             elif args.topic in self.ctx.topics:
                 self.ctx.out(self.ctx.topics[args.topic])
             else:
