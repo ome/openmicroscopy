@@ -26,6 +26,8 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.exclusions.AbstractFileExclusion;
+import ome.formats.importer.exclusions.FileExclusion;
 import ome.formats.importer.transfers.AbstractFileTransfer;
 import ome.formats.importer.transfers.CleanupFailure;
 import ome.formats.importer.transfers.FileTransfer;
@@ -70,6 +72,9 @@ public class CommandLineImporter {
     /** {@link FileTransfer} mechanism to be used for uploading */
     public final FileTransfer transfer;
 
+    /** {@link FileExclusion} mechanisms for skipping candidates */
+    public final List<FileExclusion> exclusions = new ArrayList<FileExclusion>();
+
     /** Base importer library, this is what we actually use to import. */
     public final ImportLibrary library;
 
@@ -97,10 +102,20 @@ public class CommandLineImporter {
     }
 
     /**
-     * Main entry class for the application.
+     * Legacy constructor without any file exclusions.
      */
     public CommandLineImporter(final ImportConfig config, String[] paths,
             boolean getUsedFiles, FileTransfer transfer, int minutesToWait)
+                    throws Exception {
+        this(config, paths, getUsedFiles, new UploadFileTransfer(), null, DEFAULT_WAIT);
+    }
+
+    /**
+     * Main entry class for the application.
+     */
+    public CommandLineImporter(final ImportConfig config, String[] paths,
+            boolean getUsedFiles, FileTransfer transfer,
+            List<FileExclusion> exclusions, int minutesToWait)
                     throws Exception {
 
         this.config = config;
@@ -110,6 +125,9 @@ public class CommandLineImporter {
         this.reader = new OMEROWrapper(config);
         this.handler = new ErrorHandler(config);
         this.transfer = transfer;
+        if (exclusions != null) {
+            this.exclusions.addAll(exclusions);
+        }
         candidates = new ImportCandidates(reader, paths, handler);
 
         if (paths == null || paths.length == 0 || getUsedFiles) {
@@ -130,7 +148,9 @@ public class CommandLineImporter {
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
                     new DefaultMetadataOptions(MetadataLevel.ALL));
-            library = new ImportLibrary(store, reader, transfer, minutesToWait);
+
+            library = new ImportLibrary(store, reader,
+                    transfer, exclusions, minutesToWait);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -213,7 +233,9 @@ public class CommandLineImporter {
             library.addObserver(new LoggingImportMonitor());
             // error handler has been configured in constructor from main args
             library.addObserver(this.handler);
+
             successful = library.importCandidates(config, candidates);
+
             try {
                 List<String> paths = new ArrayList<String>();
                 for (ImportContainer ic : candidates.getContainers()) {
@@ -363,6 +385,13 @@ public class CommandLineImporter {
             + "       $ ./importer-cli --minutes_wait=0 some_directory/\n"
             + "       $ ./importer-cli --wait_completed # Waits on all 3 imports.\n"
             + "\n"
+            + "  File exclusion:\n"
+            + "  ---------------\n\n"
+            + "    --exclude=filename      \tExclude files based on filename.\n\n"
+            + "\n"
+            + "  e.g. $ bin/omero import -- --exclude=filename foo.tiff # First-time imports\n"
+            + "       $ bin/omero import -- --exclude=filename foo.tiff # Second-time skips\n"
+            + "\n"
             + "  Import speed:\n"
             + "  -------------\n\n"
             + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption,\n"
@@ -480,15 +509,17 @@ public class CommandLineImporter {
                 new LongOpt("wait_completed", LongOpt.NO_ARGUMENT, null, 18);
         LongOpt autoClose =
                 new LongOpt("auto_close", LongOpt.NO_ARGUMENT, null, 19);
+        LongOpt exclude =
+                new LongOpt("exclude", LongOpt.REQUIRED_ARGUMENT, null, 20);
 
         LongOpt qaBaseURL = new LongOpt(
-                "qa_baseurl", LongOpt.REQUIRED_ARGUMENT, null, 20);
+                "qa_baseurl", LongOpt.REQUIRED_ARGUMENT, null, 21);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
-                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 21);
+                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 22);
         LongOpt plateDescription = new LongOpt(
-                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 22);
+                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 23);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
@@ -497,6 +528,7 @@ public class CommandLineImporter {
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
+                                exclude,
                                 qaBaseURL, plateName, plateDescription});
         int a;
 
@@ -513,6 +545,7 @@ public class CommandLineImporter {
         List<String> annotationNamespaces = new ArrayList<String>();
         List<String> textAnnotations = new ArrayList<String>();
         List<Long> annotationIds = new ArrayList<Long>();
+        List<FileExclusion> exclusions = new ArrayList<FileExclusion>();
         while ((a = g.getopt()) != -1) {
             switch (a) {
             case 1: {
@@ -608,12 +641,21 @@ public class CommandLineImporter {
                 break;
             }
             case 20: {
+                String arg = g.getOptarg();
+                log.info("Adding exclusion: {}", arg);
+                FileExclusion exclusion = AbstractFileExclusion.createExclusion(arg);
+                if (exclusion != null) {
+                    exclusions.add(exclusion);
+                }
+                break;
+            }
+            case 21: {
                 config.qaBaseURL.set(g.getOptarg());
                 break;
             }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
-            case 21: {
+            case 22: {
                 if (userSpecifiedNameAlreadySet) {
                     usage();
                 }
@@ -621,7 +663,7 @@ public class CommandLineImporter {
                 userSpecifiedNameAlreadySet = true;
                 break;
             }
-            case 22: {
+            case 23: {
                 if (userSpecifiedDescriptionAlreadySet) {
                     usage();
                 }
@@ -748,7 +790,7 @@ public class CommandLineImporter {
                 rest = stdin();
             }
             c = new CommandLineImporter(config, rest, getUsedFiles,
-                    transfer, minutesToWait);
+                    transfer, exclusions, minutesToWait);
             rc = c.start();
         } catch (Throwable t) {
             log.error("Error during import process.", t);
