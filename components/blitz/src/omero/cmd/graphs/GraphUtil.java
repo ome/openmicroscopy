@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,41 +55,21 @@ public class GraphUtil {
     }
 
     /**
-     * Count how many objects are listed in a {@code IdListMap}.
-     * @param idListMap lists of object IDs indexed by type name
-     * @return how many objects are listed in given {@code IdListMap}
-     * @deprecated because facade classes are deprecated
-     */
-    @Deprecated
-    static int getIdListMapSize(Map<?, long[]> idListMap) {
-        int size = 0;
-        for (final long[] ids : idListMap.values()) {
-            size += ids.length;
-        }
-        return size;
-    }
-
-    /**
-     * Copy the given collection of IDs to an array of native {@code long}s.
-     * @param ids a collection of IDs, none of which may be {@code null}
-     * @return the same IDs in a new array
-     */
-    static long[] idsToArray(Collection<Long> ids) {
-        final long[] idArray = new long[ids.size()];
-        int index = 0;
-        for (final long id : ids) {
-            idArray[index++] = id;
-        }
-        return idArray;
-    }
-
-    /**
      * Copy the {@link GraphModify2} fields of one request to another.
      * @param requestFrom the source of the field copy
      * @param requestTo the target of the field copy
      */
     static void copyFields(GraphModify2 requestFrom, GraphModify2 requestTo) {
-        requestTo.targetObjects = requestFrom.targetObjects == null ? null : new HashMap<String, long[]>(requestFrom.targetObjects);
+        if (requestFrom.targetObjects == null) {
+            requestTo.targetObjects = null;
+        } else {
+            requestTo.targetObjects = new HashMap<String, List<Long>>();
+            for (final Map.Entry<String, List<Long>> targetObjectsOneClass : requestFrom.targetObjects.entrySet()) {
+                final String targetClass = targetObjectsOneClass.getKey();
+                final List<Long> targetIds = targetObjectsOneClass.getValue();
+                requestTo.targetObjects.put(targetClass, new ArrayList<Long>(targetIds));
+            }
+        }
         if (requestFrom.childOptions == null) {
             requestTo.childOptions = null;
         } else {
