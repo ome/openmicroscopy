@@ -61,10 +61,10 @@ Test Channel Rename
     Wait Until Page Contains Element            id=editChannelNames
     Click Element                               id=editChannelNames
     ${chName}=                                  Get Time    epoch
-    Input Text                                  channel0    ${chName}
+    Input Text                                  channel0    ch${chName}
     Submit Form                                 channel_names_edit
     Wait Until Keyword Succeeds                 5 sec   1 sec   Element Should Not Be Visible     channel0
-    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), ${chName})]
+    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), "ch${chName}")]    10
 
 
 Test Basket Share
