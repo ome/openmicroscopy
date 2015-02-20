@@ -135,12 +135,24 @@ class TableBuilder(object):
         self.headers = list(headers)
         self.results = [[] for x in self.headers]
         self.page_info = None
+        self.align = None
 
     def page(self, offset, limit, total):
         self.page_info = (offset, limit, total)
 
     def set_style(self, style):
         self.style = find_style(style)
+
+    def set_align(self, align):
+        """
+        Set column alignments using alignments string, one char for each
+        column. 'r' for right-aligned columns, the default, anything else,
+        is left-aligned. If the argument list in too short it will be padded
+        with the default.
+        """
+        self.align = list(align)
+        if len(self.align) < len(self.headers):
+            self.align.extend(['l'] * (len(self.headers) - len(self.align)))
 
     def col(self, name):
         """
@@ -183,7 +195,11 @@ class TableBuilder(object):
     def build(self):
         columns = []
         for i, x in enumerate(self.headers):
-            columns.append(Column(x, self.results[i], style=self.style))
+            align = ALIGN.LEFT
+            if self.align and self.align[i] == 'r':
+                align = ALIGN.RIGHT
+            columns.append(
+                Column(x, self.results[i], align=align, style=self.style))
         table = Table(*columns)
         if self.page_info:
             table.page(*self.page_info)
