@@ -70,6 +70,7 @@ public class LuceneQueryBuilder {
     static {
         NO_BREAK.add("_");
         NO_BREAK.add("-");
+        NO_BREAK.add(":");
     }
 
     /**
