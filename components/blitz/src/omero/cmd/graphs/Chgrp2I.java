@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -154,7 +154,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             case 0:
                 /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
                 final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, long[]> oneClassToTarget : targetObjects.entrySet()) {
+                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
                     String className = oneClassToTarget.getKey();
                     if (className.lastIndexOf('.') < 0) {
                         className = graphPathBean.getClassForSimpleName(className).getName();
@@ -201,21 +201,19 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                     helper.cancel(new ERR(), e, "file deletion error");
                 }
             }
-            final Map<String, long[]> movedObjects = new HashMap<String, long[]>();
-            final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
+            final Map<String, List<Long>> movedObjects = new HashMap<String, List<Long>>();
+            final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
             for (final Entry<String, Collection<Long>> oneMovedClass : result.getKey().asMap().entrySet()) {
                 final String className = oneMovedClass.getKey();
                 final Collection<Long> ids = oneMovedClass.getValue();
-                final long[] idArray = GraphUtil.idsToArray(ids);
-                movedObjectCount += idArray.length;
-                movedObjects.put(className, idArray);
+                movedObjectCount += ids.size();
+                movedObjects.put(className, new ArrayList<Long>(ids));
             }
             for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
                 final String className = oneDeletedClass.getKey();
                 final Collection<Long> ids = oneDeletedClass.getValue();
-                final long[] idArray = GraphUtil.idsToArray(ids);
-                deletedObjectCount += idArray.length;
-                deletedObjects.put(className, idArray);
+                deletedObjectCount += ids.size();
+                deletedObjects.put(className, new ArrayList<Long>(ids));
             }
             final Chgrp2Response response = new Chgrp2Response(movedObjects, deletedObjects);
             helper.setResponseIfNull(response);
@@ -250,7 +248,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
     }
 
     @Override
-    public Map<String, long[]> getStartFrom(Response response) {
+    public Map<String, List<Long>> getStartFrom(Response response) {
         return ((Chgrp2Response) response).includedObjects;
     }
 

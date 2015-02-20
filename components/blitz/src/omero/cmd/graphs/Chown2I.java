@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -152,7 +152,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             case 0:
                 /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
                 final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, long[]> oneClassToTarget : targetObjects.entrySet()) {
+                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
                     String className = oneClassToTarget.getKey();
                     if (className.lastIndexOf('.') < 0) {
                         className = graphPathBean.getClassForSimpleName(className).getName();
@@ -199,21 +199,19 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                     helper.cancel(new ERR(), e, "file deletion error");
                 }
             }
-            final Map<String, long[]> givenObjects = new HashMap<String, long[]>();
-            final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
+            final Map<String, List<Long>> givenObjects = new HashMap<String, List<Long>>();
+            final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
             for (final Entry<String, Collection<Long>> oneGivenClass : result.getKey().asMap().entrySet()) {
                 final String className = oneGivenClass.getKey();
                 final Collection<Long> ids = oneGivenClass.getValue();
-                final long[] idArray = GraphUtil.idsToArray(ids);
-                givenObjectCount += idArray.length;
-                givenObjects.put(className, idArray);
+                givenObjectCount += ids.size();
+                givenObjects.put(className, new ArrayList<Long>(ids));
             }
             for (final Entry<String, Collection<Long>> oneDeletedClass : result.getValue().asMap().entrySet()) {
                 final String className = oneDeletedClass.getKey();
                 final Collection<Long> ids = oneDeletedClass.getValue();
-                final long[] idArray = GraphUtil.idsToArray(ids);
-                deletedObjectCount += idArray.length;
-                deletedObjects.put(className, idArray);
+                deletedObjectCount += ids.size();
+                deletedObjects.put(className, new ArrayList<Long>(ids));
             }
             final Chown2Response response = new Chown2Response(givenObjects, deletedObjects);
             helper.setResponseIfNull(response);
@@ -248,7 +246,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
     }
 
     @Override
-    public Map<String, long[]> getStartFrom(Response response) {
+    public Map<String, List<Long>> getStartFrom(Response response) {
         return ((Chown2Response) response).includedObjects;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -162,8 +162,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
                     ((IRequest) graphRequestSkip).buildResponse(i, graphRequestSkipObjects.get(i));
                 }
                 final Response response = ((IRequest) graphRequestSkip).getResponse();
-                final Map<String, long[]> allTargetedObjects = ((WrappableRequest<?>) graphRequestSkip).getStartFrom(response);
-                graphRequestPerform.targetObjects = new HashMap<String, long[]>();
+                final Map<String, List<Long>> allTargetedObjects = ((WrappableRequest<?>) graphRequestSkip).getStartFrom(response);
+                graphRequestPerform.targetObjects = new HashMap<String, List<Long>>();
                 /* pick out the model objects matching the startFrom classes */
                 for (String startFromClassName : startFrom) {
                     final int lastDot = startFromClassName.lastIndexOf('.');
@@ -171,7 +171,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
                         startFromClassName = startFromClassName.substring(lastDot + 1);
                     }
                     final Class<? extends IObject> startFromClass = graphPathBean.getClassForSimpleName(startFromClassName);
-                    for (final Map.Entry<String, long[]> targetedObjectsByClass : allTargetedObjects.entrySet()) {
+                    for (final Map.Entry<String, List<Long>> targetedObjectsByClass : allTargetedObjects.entrySet()) {
                         final String targetedClassName = targetedObjectsByClass.getKey();
                         final Class<? extends IObject> targetedClass;
                         try {
@@ -181,7 +181,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
                                     "response from " + graphRequestSkip.getClass() + " refers to class " + targetedClassName);
                         }
                         if (startFromClass.isAssignableFrom(targetedClass)) {
-                            final long[] ids = targetedObjectsByClass.getValue();
+                            final List<Long> ids = targetedObjectsByClass.getValue();
                             graphRequestPerform.targetObjects.put(targetedClassName, ids);
                         }
                     }
