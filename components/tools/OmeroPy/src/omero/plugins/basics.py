@@ -123,12 +123,6 @@ class HelpControl(BaseControl):
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
-        # commands = "\n".join([" %s" % name for name in
-        # sorted(self.ctx.controls)])
-        # topics = "\n".join([" %s" % topic for topic in self.ctx.topics])
-        commands, topics = [
-            self.__parser__._format_list(x) for x in
-            [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
 
         if args.all:
             for control in sorted(self.ctx.controls):
@@ -147,7 +141,9 @@ class HelpControl(BaseControl):
                 self.ctx.out(self.ctx.topics[topic])
                 self.ctx.out("\n")
         elif not args.topic:
-            # self.ctx.invoke("-h")
+            commands, topics = [
+                self.__parser__._format_list(x) for x in
+                [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
             key_list = {"program_name": sys.argv[0], "version": VERSION,
                         "commands": commands, "topics": topics}
             print """usage: %(program_name)s <command> [options] args
