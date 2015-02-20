@@ -323,8 +323,9 @@ public class MovieExportDialog
 			cols[index] = new Object[]{entry.getKey(), entry.getValue()};
 			index++;
 		}
-		colorBox.setModel(new DefaultComboBoxModel(cols));	
+		colorBox.setModel(new DefaultComboBoxModel(cols));
 		colorBox.setRenderer(new ColorListRenderer());
+        colorBox.setSelectedIndex(cols.length-1);
 	}
 	
 	/** Enables or not the controls. */
