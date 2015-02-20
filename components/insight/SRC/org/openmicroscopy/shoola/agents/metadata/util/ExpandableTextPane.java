@@ -21,7 +21,8 @@
 package org.openmicroscopy.shoola.agents.metadata.util;
 
 import javax.swing.JTextPane;
-
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 /**
  * A {@link JTextPane} which can be expanded/collapsed
@@ -48,12 +49,38 @@ public class ExpandableTextPane extends JTextPane {
     /** Flag if component is shown in expanded state */
     private boolean expanded = false;
 
+    /** Flag to show 'show more/less' links */
+    private boolean showMoreLink = true;
+
     /**
      * Creates a new instance with {@link #DEFAULT_LINES} of line number shown
      * in collapsed state
      */
     public ExpandableTextPane() {
-        this(DEFAULT_LINES);
+        this(DEFAULT_LINES, true);
+    }
+
+    /**
+     * Creates a new instance with {@link #DEFAULT_LINES} of line number shown
+     * in collapsed state
+     * 
+     * @param showMoreLink
+     *            Pass <code>true</code> to show a 'show more/less' link to
+     *            expand/collapse the component
+     */
+    public ExpandableTextPane(boolean showMoreLink) {
+        this(DEFAULT_LINES, showMoreLink);
+    }
+
+    /**
+     * Creates a new instance with {@link #DEFAULT_LINES} of line number shown
+     * in collapsed state
+     * 
+     * @param showLines
+     *            Number of lines shown in collapsed state
+     */
+    public ExpandableTextPane(int showLines) {
+        this(showLines, true);
     }
 
     /**
@@ -61,11 +88,27 @@ public class ExpandableTextPane extends JTextPane {
      * collapsed state
      * 
      * @param showLines
+     *            Number of lines shown in collapsed state
+     * @param showMoreLink
+     *            Pass <code>true</code> to show a 'show more/less' link to
+     *            expand/collapse the component
      */
-    public ExpandableTextPane(int showLines) {
+    public ExpandableTextPane(int showLines, boolean showMoreLink) {
         setContentType("text/html");
         setEditable(false);
         this.showLines = showLines;
+        this.showMoreLink = showMoreLink;
+
+        if (showMoreLink) {
+            addHyperlinkListener(new HyperlinkListener() {
+                @Override
+                public void hyperlinkUpdate(HyperlinkEvent e) {
+                    if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                        setExpanded(!isExpanded());
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -146,8 +189,14 @@ public class ExpandableTextPane extends JTextPane {
             result.append("<br/>");
         }
 
-        if (i < lines.length)
-            result.append("...");
+        if (i < lines.length) {
+            if (showMoreLink)
+                result.append("<a href=\"/\">Show more...</a>");
+            else
+                result.append("...");
+        } else if (showMoreLink && isExpanded()) {
+            result.append("<a href=\"/\">Show less...</a>");
+        }
 
         result.append("</html>");
 

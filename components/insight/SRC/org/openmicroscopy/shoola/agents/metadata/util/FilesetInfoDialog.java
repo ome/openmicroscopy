@@ -101,10 +101,9 @@ public class FilesetInfoDialog extends TinyDialog {
             c.gridy++;
 
             String header = inPlaceImport ? "Imported with <b>--transfer=ln</b> from:" : "Imported from:";
-            ExpandableHeaderTextPane t1 = new ExpandableHeaderTextPane(
-                    header, 2);
+            ExpandableTextPane t1 = new ExpandableTextPane();
             t1.setBackground(UIUtilities.BACKGROUND_COLOR);
-            t1.setText(getOriginPaths(set));
+            t1.setText(header+"<br/>"+getOriginPaths(set));
             content.add(t1, c);
             c.gridy++;
 
@@ -114,10 +113,9 @@ public class FilesetInfoDialog extends TinyDialog {
                 content.add(sep2, c);
                 c.gridy++;
 
-                ExpandableHeaderTextPane t2 = new ExpandableHeaderTextPane(
-                        "Path on server:", 2);
+                ExpandableTextPane t2 = new ExpandableTextPane();
                 t2.setBackground(UIUtilities.BACKGROUND_COLOR);
-                t2.setText(getServerPaths(set));
+                t2.setText("Path on server:<br/>"+getServerPaths(set));
                 content.add(t2, c);
             }
         }
