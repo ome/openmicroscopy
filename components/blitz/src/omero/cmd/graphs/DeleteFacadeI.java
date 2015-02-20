@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,9 +19,11 @@
 
 package omero.cmd.graphs;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.HashMultimap;
@@ -88,9 +90,9 @@ public class DeleteFacadeI extends Delete implements IRequest {
         final Delete2I actualDelete = (Delete2I) deleteRequest;
         /* set target object then review options */
         addToTargets(type, id);
-        actualDelete.targetObjects = new HashMap<String, long[]>();
+        actualDelete.targetObjects = new HashMap<String, List<Long>>();
         for (final Map.Entry<String, Collection<Long>> oneClassToTarget : targetObjects.asMap().entrySet()) {
-            actualDelete.targetObjects.put(oneClassToTarget.getKey(), GraphUtil.idsToArray(oneClassToTarget.getValue()));
+            actualDelete.targetObjects.put(oneClassToTarget.getKey(), new ArrayList<Long>(oneClassToTarget.getValue()));
         }
         targetObjects.clear();
         try {
@@ -145,11 +147,11 @@ public class DeleteFacadeI extends Delete implements IRequest {
         facadeResponse.undeletedFiles = new HashMap<String, long[]>();
 
         if (actualResponse == null) {
-            facadeResponse.scheduledDeletes = GraphUtil.getIdListMapSize(((GraphModify2) deleteRequest).targetObjects);
+            facadeResponse.scheduledDeletes = ((GraphModify2) deleteRequest).targetObjects.size();
             facadeResponse.actualDeletes = 0;
         } else {
             facadeResponse.scheduledDeletes = 0;
-            facadeResponse.actualDeletes = GraphUtil.getIdListMapSize(actualResponse.deletedObjects);
+            facadeResponse.actualDeletes = actualResponse.deletedObjects.size();
         }
 
         return facadeResponse;
