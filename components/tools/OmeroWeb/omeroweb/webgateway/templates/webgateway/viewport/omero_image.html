@@ -415,7 +415,7 @@
       roi_html += "<th>Z</th>"; // no Z for ROI
       roi_html += "<th>T</th>"; // no T for ROI
       roi_html += "<th>" + toggle_shape_text + " Text</th>";
-      roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
+      roi_html += "<th title='Pick color of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
       roi_html += "<th>" + toggle_roi_visibility + " Visibility</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
@@ -665,15 +665,15 @@
 {% comment %}
       <h2>Setting the Default Image Display Settings:</h2>
       <p>You can use the "Rendering Details" dialog box to change the default settings for viewing this image.</p>
-      <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top.  Hex color codes can be input in the text box.  Preset colors can be selected at the bottom.  Changes take effect when you click "Apply".</p>
-      <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right.  This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
-      <p>Once the image is displayed correctly, click "Save Settings". The image thumbnail, the image in the "Mini Viewer", and the image in the "Full Viewer" will now use these display settings.  Clicking the "Reset" button will reset the display settings to the most recently saved settings.</p>
+      <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top. Hex color codes can be input in the text box. Preset colors can be selected at the bottom. Changes take effect when you click "Apply".</p>
+      <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right. This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
+      <p>Once the image is displayed correctly, click "Save Settings". The image thumbnail, the image in the "Mini Viewer", and the image in the "Full Viewer" will now use these display settings. Clicking the "Reset" button will reset the display settings to the most recently saved settings.</p>
       <p>Viewers will be able to adjust display settings for viewing images, but not save them.</p>
       {% endcomment %}
-      <h2>Changing  the Image Display Settings:</h2>
+      <h2>Changing the Image Display Settings:</h2>
       <p>You can use the "Rendering Details" dialog box to change the settings for viewing this image.</p>
-      <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top.  Hex color codes can be input in the text box.  Preset colors can be selected at the bottom.  Changes take effect when you click "Apply".</p>
-      <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right.  This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
+      <p>To change the color displayed for a channel, click on the color box at the right, which opens the "Choose Color" dialog box. You can choose the color using the interactive features at the top. Hex color codes can be input in the text box.  Preset colors can be selected at the bottom. Changes take effect when you click "Apply".</p>
+      <p>To change the color intensity, drag the slider buttons for the individual channels to the left or right. This changes the values that are used for the minimum and maximum displays settings. Changes take effect when you click "Apply".</p>
     </div>
 
     <!-- Floating boxes come on top -->
@@ -760,7 +760,7 @@
           <li>
             <button id="rdef-setdef-btn" class="toolbar-btn" disabled='true'
                 {% if manager.image.canAnnotate %}
-                  title="Saves the current settings."
+                  title="Save the current settings."
                 {% else %}
                 title="You don't have permission to save settings."
                 {% endif %}
@@ -917,7 +917,7 @@
           </div>
           {% if image.getPixelSizeX %}
           <div class="odd row">
-            <label for="wblitz-scalebar">Scalebar</label>
+            <label for="wblitz-scalebar">Scale bar</label>
             <input id="wblitz-scalebar" type="checkbox" disabled/>
           </div>
           {% endif %}
