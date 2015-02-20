@@ -1797,11 +1797,8 @@ class OMEROGateway
 	 * @param userName The user name to be used for login.
 	 * @param password The password to be used for login.
 	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and
-	 * 					  thumbnails depending on the connection speed.
-	 * @param groupID The id of the group or <code>-1</code>.
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
-     * 					<code>false</code> otherwise.
+     *                  <code>false</code> otherwise.
      * @param agentName The name to register with the server.
      * @param port The port to use.
 	 * @return The user's details.
@@ -1819,32 +1816,26 @@ class OMEROGateway
 		
 		try {
 		    // client must be cleaned up by caller.
-			if (port > 0) secureClient = new client(hostName, port);
-			else secureClient = new client(hostName);
-			secureClient.setAgent(agentName);
-			ServiceFactoryPrx entryEncrypted;
-
-			if (userName.equals(password)) {
-			    ServiceFactoryPrx guestSession = secureClient.createSession("guest", "");
-			    boolean session = false;
-			    try {
-			        IAdminPrx prx = guestSession.getAdminService();
-		            ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
-		                    prx.lookupExperimenter(userName));
-		            session = exp == null;
-                } catch (Exception e) {
-                    session = true;
-                } finally {
-                    secureClient.closeSession();
-                }
-			    if (session) {
-			        entryEncrypted = secureClient.joinSession(userName);
-			    } else {
-			        entryEncrypted = secureClient.createSession(userName, password);
-			    }
-			} else {
-			    entryEncrypted = secureClient.createSession(userName, password);
-			}
+		    if (port > 0) secureClient = new client(hostName, port);
+		    else secureClient = new client(hostName);
+		    secureClient.setAgent(agentName);
+		    ServiceFactoryPrx entryEncrypted;
+		    boolean session = true;
+		    try {
+		        //Check if it is a session first
+		        ServiceFactoryPrx guestSession = secureClient.createSession("guest", "guest");
+		        guestSession.getSessionService().getSession(userName);
+		    } catch (Exception e) {
+		        //thrown if it is not a session or session has experied.
+		        session = false;
+		    } finally {
+		        secureClient.closeSession();
+		    }
+		    if (session) {
+		        entryEncrypted = secureClient.joinSession(userName);
+		    } else {
+		        entryEncrypted = secureClient.createSession(userName, password);
+		    }
 			serverVersion = entryEncrypted.getConfigService().getVersion();
 			String ip = null;
 	        try {
