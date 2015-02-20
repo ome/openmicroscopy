@@ -2588,14 +2588,13 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a)
-                              for a in self.getEventContext().leaderOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            yield ExperimenterGroupWrapper(self, e)
+        system_groups = [
+            self.getAdminService().getSecurityRoles().userGroupId]
+        if len(self.getEventContext().leaderOfGroups) > 0:
+            for g in self.getObjects("ExperimenterGroup",
+                                     self.getEventContext().leaderOfGroups):
+                if g.getId() not in system_groups:
+                    yield g
 
     def getGroupsMemberOf(self):
         """
@@ -2605,17 +2604,13 @@ class _BlitzGateway (object):
         :rtype:         :class:`ExperimenterGroupWrapper` generator
         """
 
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a)
-                              for a in self.getEventContext().memberOfGroups])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p, self.SERVICE_OPTS):
-            if e.name.val == "user":
-                pass
-            else:
-                yield ExperimenterGroupWrapper(self, e)
+        system_groups = [
+            self.getAdminService().getSecurityRoles().userGroupId]
+        if len(self.getEventContext().memberOfGroups) > 0:
+            for g in self.getObjects("ExperimenterGroup",
+                                     self.getEventContext().memberOfGroups):
+                if g.getId() not in system_groups:
+                    yield g
 
     def createGroup(self, name, owner_Ids=None, member_Ids=None, perms=None,
                     description=None, ldap=False):
@@ -2725,39 +2720,23 @@ class _BlitzGateway (object):
 
     def groupSummary(self, gid=None, exclude_self=False):
         """
-        Returns lists of 'leaders' and 'members' of the specified group
-        (default is current group) as a dict with those keys.
+        Returns unsorted lists of 'leaders' and 'members' of the specified
+        group (default is current group) as a dict with those keys.
 
         :return:    {'leaders': list :class:`ExperimenterWrapper`,
                      'colleagues': list :class:`ExperimenterWrapper`}
         :rtype:     dict
+
+        ** Deprecated ** Use :meth:`ExperimenterGroupWrapper.groupSummary`.
         """
+        warnings.warn(
+            "Deprecated. Use ExperimenterGroupWrapper.groupSummary()",
+            DeprecationWarning)
 
         if gid is None:
             gid = self.getEventContext().groupId
-        userId = None
-        if exclude_self:
-            userId = self.getUserId()
-        colleagues = []
-        leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or self.isLeader(gid) or self.isAdmin():
-            for d in default.copyGroupExperimenterMap():
-                if d is None or d.child.id.val == userId:
-                    continue
-                if d.owner.val:
-                    leaders.append(ExperimenterWrapper(self, d.child))
-                else:
-                    colleagues.append(ExperimenterWrapper(self, d.child))
-        else:
-            if self.isLeader():
-                leaders = [self.getUser()]
-            else:
-                colleagues = [self.getUser()]
-
-        colleagues.sort(key=lambda x: x.getLastName().lower())
-        leaders.sort(key=lambda x: x.getLastName().lower())
-
+        leaders, colleagues = default.groupSummary(exclude_self)
         return {"leaders": leaders, "colleagues": colleagues}
 
     def listStaffs(self):
@@ -5339,6 +5318,37 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
                  "left outer join fetch map.child e")
         return query
 
+    def groupSummary(self, exclude_self=False):
+        """
+        Returns tuple of unsorted lists of 'leaders' and 'members' of
+        the group.
+
+        :return:    (list :class:`ExperimenterWrapper`,
+                     list :class:`ExperimenterWrapper`)
+        :rtype:     tuple
+        """
+
+        userId = None
+        if exclude_self:
+            userId = self._conn.getUserId()
+        colleagues = []
+        leaders = []
+        if (not self.isPrivate() or self._conn.isLeader(self.id)
+           or self._conn.isAdmin()):
+            for d in self.copyGroupExperimenterMap():
+                if d is None or d.child.id.val == userId:
+                    continue
+                if d.owner.val:
+                    leaders.append(ExperimenterWrapper(self._conn, d.child))
+                else:
+                    colleagues.append(ExperimenterWrapper(self._conn, d.child))
+        else:
+            if self._conn.isLeader():
+                leaders = [self._conn.getUser()]
+            else:
+                colleagues = [self._conn.getUser()]
+
+        return (leaders, colleagues)
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 

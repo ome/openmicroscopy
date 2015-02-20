@@ -85,7 +85,7 @@
                     </li>
                 {% endif %}
                 
-                {% if grp.leaders %}
+                {% if ui.dropdown_menu.leaders and grp.leaders %}
                     <li class="non_selectable"><strong>{{ ui.dropdown_menu.leaders }}</strong></li>
                     {% for user in grp.leaders %}
                         <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
@@ -102,7 +102,7 @@
                     {% endfor %}
                 {% endif %}
                 
-                {% if grp.colleagues %}
+                {% if ui.dropdown_menu.colleagues and grp.colleagues %}
                     <li class="non_selectable"><strong>{{ ui.dropdown_menu.colleagues }}</strong></li>
                     {% for user in grp.colleagues %}
                         <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
