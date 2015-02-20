@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.StatusLabel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -50,8 +50,9 @@ import omero.cmd.CmdCallback;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -245,7 +246,7 @@ public class StatusLabel
     private boolean uploadStarted;
 
     /** The file or folder this component is for.*/
-    private File sourceFile;
+    private FileObject sourceFile;
 
     /** 
      * Formats the size of the uploaded data.
@@ -337,7 +338,7 @@ public class StatusLabel
      * 
      * @param sourceFile The file associated to that label.
      */
-    public StatusLabel(File sourceFile)
+    public StatusLabel(FileObject sourceFile)
     {
         this.sourceFile = sourceFile;
         initialize();
@@ -417,7 +418,7 @@ public class StatusLabel
      */
     public void setText(String text)
     {
-        if (StringUtils.isEmpty(text)) {
+        if (CommonsLangUtils.isEmpty(text)) {
             String value = generalLabel.getText();
             if (DEFAULT_TEXT.equals(value) || SCANNING_TEXT.equals(value))
                 generalLabel.setText(text);
@@ -690,7 +691,7 @@ public class StatusLabel
                 String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft,
                         true);
                 buffer.append(s);
-                if (!StringUtils.isBlank(s)) buffer.append(" Left");
+                if (CommonsLangUtils.isNotBlank(s)) buffer.append(" Left");
                 else buffer.append("complete");
             }
             uploadBar.setString(buffer.toString());
@@ -706,9 +707,6 @@ public class StatusLabel
                 processingBar.setString(STEPS.get(step));
             }
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-            ImportEvent.METADATA_IMPORTED e =
-                    (ImportEvent.METADATA_IMPORTED) event;
-            logFileID = e.logFileId;
             step = 2;
             processingBar.setValue(step);
             processingBar.setString(STEPS.get(step));
@@ -736,6 +734,12 @@ public class StatusLabel
             firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
         } else if (event instanceof ImportEvent.FILESET_UPLOAD_PREPARATION) {
             generalLabel.setText("Preparing upload...");
+        } else if (event instanceof ImportEvent.IMPORT_STARTED) {
+            ImportEvent.IMPORT_STARTED e =
+                    (ImportEvent.IMPORT_STARTED) event;
+            if (e.logFileId != null) {
+                logFileID = e.logFileId;
+            }
         }
     }
 

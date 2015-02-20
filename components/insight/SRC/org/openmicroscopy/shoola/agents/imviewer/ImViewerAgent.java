@@ -114,18 +114,6 @@ public class ImViewerAgent
     public static Registry getRegistry() { return registry; }
 
     /**
-     * Returns <code>true</code> if the openGL flag is turned on,
-     * <code>false</code> otherwise.
-     *
-     * @return See above.
-     */
-    public static boolean hasOpenGLSupport()
-    {
-        Boolean support = (Boolean) getRegistry().lookup("/library/opengl");
-        return support.booleanValue();
-    }
-
-    /**
      * Helper method returning the current user's details.
      *
      * @return See above.

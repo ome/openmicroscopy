@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -483,14 +483,19 @@ public interface Editor
 	void analysisResultsLoaded(AnalysisResultsItem analysis);
 
 	/**
-	 * Saves the selected images as <code>JPEG</code>, <code>PNG</code>
-	 * or <code>TIFF</code>.
+	 * Saves the selected images as <code>JPEG</code>, <code>PNG</code> or
+	 * <code>TIFF</code>.
 	 * 
-	 * @param folder The folder to save.
-	 * @param format The format to use.
+	 * @param folder
+	 *            The folder to save.
+	 * @param format
+	 *            The format to use.
+	 * @param filename
+	 *            The filename to use for the batch export file (without
+	 *            extension)
 	 * @see org.openmicroscopy.shoola.env.data.model.FigureParam
 	 */
-	public void saveAs(File folder, int format);
+	public void saveAs(File folder, int format, String filename);
 
 	/** 
 	 * Invokes when the user has switched group.

@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,18 +48,14 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -100,7 +93,6 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-import ome.parameters.Filter;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -168,11 +160,9 @@ import omero.grid.WellColumn;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
@@ -182,7 +172,6 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
@@ -194,6 +183,7 @@ import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -217,11 +207,7 @@ import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
-import omero.model.TermAnnotationI;
-import omero.model.TimestampAnnotation;
-import omero.model.TimestampAnnotationI;
 import omero.model.Well;
-import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
@@ -244,6 +230,7 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
@@ -992,7 +979,7 @@ class OMEROGateway
 	private List<String> formatText(List<String> terms, String field)
 	{
 		if (CollectionUtils.isEmpty(terms)) return null;
-		if (StringUtils.isBlank(field)) return terms;
+		if (CommonsLangUtils.isBlank(field)) return terms;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		Iterator<String> j = terms.iterator();
 		while (j.hasNext())
@@ -1573,7 +1560,7 @@ class OMEROGateway
 	 */
 	private boolean startWithWildCard(String value)
 	{
-		if (StringUtils.isBlank(value)) return false;
+		if (CommonsLangUtils.isBlank(value)) return false;
 		Iterator<String> i = WILD_CARDS.iterator();
 		String card = null;
 		while (i.hasNext()) {
@@ -1694,6 +1681,8 @@ class OMEROGateway
 			return XmlAnnotation.class;
 		else if (FilesetData.class.equals(nodeType))
 			return Fileset.class;
+		else if (MapAnnotationData.class.equals(nodeType))
+			return MapAnnotation.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -1721,7 +1710,8 @@ class OMEROGateway
 		else if (TagAnnotationData.class.getName().equals(data) ||
 				TermAnnotationData.class.getName().equals(data) ||
 				FileAnnotationData.class.getName().equals(data) ||
-				TextualAnnotationData.class.getName().equals(data))
+				TextualAnnotationData.class.getName().equals(data) ||
+				MapAnnotationData.class.getName().equals(data))
 			return REF_ANNOTATION;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
@@ -3977,7 +3967,7 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
-		if (StringUtils.isBlank(mimeType))
+		if (CommonsLangUtils.isBlank(mimeType))
 			mimeType =  DEFAULT_MIMETYPE;
 
 		boolean fileCreated = false;
@@ -4112,7 +4102,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx service = c.getAdminService();
+		    IAdminPrx service = c.getAdminService(true);
 			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
@@ -6215,6 +6205,9 @@ class OMEROGateway
 		map.put("IDs", omero.rtypes.rlist(ids));
 		map.put("Data_Type", omero.rtypes.rstring(type));
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+		if (CommonsLangUtils.isNotEmpty(param.getBatchExportFilename()))
+			map.put("Folder_Name",
+		omero.rtypes.rstring(param.getBatchExportFilename()));
 		return runScript(ctx, id, map);
 	}
 
@@ -7940,7 +7933,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx svc = c.getAdminService();
+		    IAdminPrx svc = c.getAdminService(true);
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);

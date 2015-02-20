@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.ui.ChannelButton 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-//Java imports
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -39,10 +38,8 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 
-//Third-party libraries
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.ColouredButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -200,7 +197,7 @@ public class ChannelButton
      */
     private String parseText(String text)
     {
-        if (StringUtils.isBlank(text)) return "";
+        if (CommonsLangUtils.isBlank(text)) return "";
         String[] values = text.split("\\(");
         if (values == null || values.length == 0) return text;
         return values[0].trim();
@@ -215,7 +212,7 @@ public class ChannelButton
     {
         super.setText(parseText(text));
         List<String> l = new ArrayList<String>(2);
-        if (StringUtils.isNotBlank(text)) l.add(text);
+        if (CommonsLangUtils.isNotBlank(text)) l.add(text);
         l.add(DESCRIPTION);
         setToolTipText(UIUtilities.formatToolTipText(l));
     }
@@ -336,7 +333,7 @@ public class ChannelButton
         setTextValue(text);
         if (originalFont != null) {
             setFont(originalFont);
-            if (StringUtils.isNotBlank(text)) {
+            if (CommonsLangUtils.isNotBlank(text)) {
                 int width = getFontMetrics(getFont()).stringWidth(text);
                 if (width > DEFAULT_MAX_SIZE.width)
                     width = DEFAULT_MAX_SIZE.width;

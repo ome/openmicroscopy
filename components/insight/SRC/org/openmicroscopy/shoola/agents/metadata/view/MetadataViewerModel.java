@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -994,9 +994,12 @@ class MetadataViewerModel
 	{
 	    if (viewedBy == null) return;
 		ImageData image = null;
-		if (refObject instanceof ImageData) image = (ImageData) refObject;
+		if (refObject instanceof ImageData) 
+			image = (ImageData) refObject;
 		else if (refObject instanceof WellSampleData)
 			image = ((WellSampleData) refObject).getImage();
+		if (image == null)
+			return;
 		Set experimenters = viewedBy.keySet();
 		Set<Long> ids = new HashSet<Long>();
 		Iterator i = experimenters.iterator();

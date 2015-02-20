@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.ui;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -61,13 +60,11 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.model.ParamData;
@@ -295,7 +292,7 @@ public class ScriptingDialog
                 value = c.getValue();
                 if (value != null) {
                     if (value instanceof String) {
-                        if (StringUtils.isNotBlank((String) value)) valueSet++;
+                        if (CommonsLangUtils.isNotBlank((String) value)) valueSet++;
                     } else if (value instanceof List) {
                         List<Object> l = (List<Object>) value;
                         if (l.size() > 0) valueSet++;
@@ -574,7 +571,7 @@ public class ScriptingDialog
             l = childrenMap.get(grouping);
             childrenMap.remove(grouping);
             if (l != null)
-                key.setChildren(sorter.sort(l));
+               key.setChildren(sorter.sort(l));
         }
         if (childrenMap != null && childrenMap.size() > 0) {
             Iterator<String> j = childrenMap.keySet().iterator();
@@ -584,6 +581,9 @@ public class ScriptingDialog
                 sc = new ScriptComponent();
                 sc.setGrouping(parent);
                 sc.setNameLabel(parent);
+                if (CommonsLangUtils.isBlank(sc.getName())) {
+                    sc.setParameterName(parent);
+                }
                 sc.setChildren(sorter.sort(childrenMap.get(parent)));
                 results.add(sc);
             }
@@ -634,7 +634,7 @@ public class ScriptingDialog
     private JComponent buildDescriptionPane()
     {
         String description = script.getDescription();
-        if (StringUtils.isBlank(description))
+        if (CommonsLangUtils.isBlank(description))
             return  null;
         OMEWikiComponent area = new OMEWikiComponent(false);
         area.setEnabled(false);
@@ -689,7 +689,7 @@ public class ScriptingDialog
             p.add(l, "2,"+row);
             row++;
         }
-        if (StringUtils.isNotBlank(contact)) {
+        if (CommonsLangUtils.isNotBlank(contact)) {
             l = UIUtilities.setTextFont("Contact:");
             layout.insertRow(row, TableLayout.PREFERRED);
             p.add(l, "0,"+row);
@@ -698,7 +698,7 @@ public class ScriptingDialog
             p.add(l, "2,"+row);
             row++;
         }
-        if (StringUtils.isNotBlank(version)) {
+        if (CommonsLangUtils.isNotBlank(version)) {
             l = UIUtilities.setTextFont("Version:");
             layout.insertRow(row, TableLayout.PREFERRED);
             p.add(l, "0,"+row);

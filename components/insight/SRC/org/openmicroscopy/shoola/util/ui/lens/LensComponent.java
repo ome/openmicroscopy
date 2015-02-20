@@ -40,10 +40,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
@@ -195,15 +191,11 @@ public class LensComponent
 	 * Creates a new instance which is the container for the lens 
 	 * infrastructure.
 	 * 
-     * @param parent 		The parent of the Dialog.
-     * @param openGLSupport Pass <code>true</code> to indicate that the 
-     * 						component supports openGL, <code>false</code>
-     * 						otherwise.
+     * @param parent The parent of the Dialog.
 	 */
-	public LensComponent(JFrame parent, boolean openGLSupport, int lensWidth,
-			int lensHeight)
+	public LensComponent(JFrame parent, int lensWidth, int lensHeight)
 	{ 
-		lensModel = new LensModel(null, openGLSupport);
+		lensModel = new LensModel(null);
 		zoomWindow = new ZoomWindow(parent, this, lensModel);
 		lens = new LensUI(this, lensWidth, lensHeight);
 		lensController = new LensController(lensModel, lens, zoomWindow);
@@ -223,14 +215,11 @@ public class LensComponent
 	 * Creates a new instance which is the container for the lens 
 	 * infrastructure.
 	 * 
-     * @param parent 		The parent of the Dialog.
-     * @param openGLSupport Pass <code>true</code> to indicate that the 
-     * 						component supports openGL, <code>false</code>
-     * 						otherwise.
+     * @param parent The parent of the Dialog.
 	 */
-	public LensComponent(JFrame parent, boolean openGLSupport)
+	public LensComponent(JFrame parent)
 	{ 
-		this(parent, openGLSupport, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
+		this(parent, LENS_DEFAULT_WIDTH, LENS_DEFAULT_WIDTH);
 	}
 	
 	/** Saves the image as <code>JPEG</code>, <code>PNG</code> etc.*/
@@ -513,32 +502,7 @@ public class LensComponent
 		if (!zoomWindow.isVisible())
 			zoomWindow.setSize(ZoomWindow.DEFAULT_SIZE);
 	}
-	
-	/**
-	 * Sets the image to be magnified and the location of the lens.
-	 * 
-	 * @param image	The image to magnify.
-	 * @param f		The amount of zooming that has occurred on the image. 
-	 * @param x		The x-coordinate of the lens.
-	 * @param y		The y-coordinate of the lens.
-	 */
-	public void resetLensAsTexture(TextureData image, float f, int x, int y)
-	{
-		lensModel.setImageZoomFactor(f);
-		//lensModel.setPlaneImage(image);
-		lensModel.setPlaneImageAsTexture(image);
-		lensModel.setLensLocation(x, y);
-		//from ZoomFactor
-		lens.setImageZoomFactor();
-		//from PlaneImage
-		lensController.setLensLocation(x, y);
-		//zoomWindow.setZoomImage(lensModel.getZoomedImage());
-		setLensSize(lensModel.getWidth(), lensModel.getHeight());
-		zoomWindow.paintImage();
-		if (!zoomWindow.isVisible())
-			zoomWindow.setSize(ZoomWindow.DEFAULT_SIZE);
-	}
-	
+
 	/** Indicates to reset the zoomed buffer to <code>null</code>*/
 	public void resetDataBuffered() { lensModel.resetDataBuffer(); }
 	

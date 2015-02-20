@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-
-//Java imports
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -39,22 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-
-
-//Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
-
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationChecker;
@@ -129,6 +119,7 @@ import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -174,6 +165,13 @@ class EditorModel
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
 
+	/** Enum to distinguish between different kind of 
+	 * {@link MapAnnotationData}, see {@link #getMapAnnotations(MapAnnotationType)}
+	 */
+	public static enum MapAnnotationType {
+		USER, OTHER_USERS, OTHER
+	}
+	
 	/** The file namespaces to exclude.*/
 	private final static List<String> EXCLUDED_FILE_NS;
 	
@@ -775,7 +773,7 @@ class EditorModel
 				description = ws.getWellType();
 			}
 			ImageData img = ((WellSampleData) ref).getImage();
-			if (!StringUtils.isEmpty(img.getDescription()))
+			if (!CommonsLangUtils.isEmpty(img.getDescription()))
 			    description = img.getDescription();
 		} else if (ref instanceof FileData) 
 			description = null;//((FileData) ref).getDescription();
@@ -1925,6 +1923,49 @@ class EditorModel
 		if (others != null && !others.isEmpty())
 			l.addAll(others);
 		return l;
+	}
+	
+	/**
+	 * Returns the collection of map annotations.
+	 * 
+	 * @param type The kind of map annotations to return, see {@link MapAnnotationType}
+	 * @return See above.
+	 */
+	List<MapAnnotationData> getMapAnnotations(MapAnnotationType type) {
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null)
+			return Collections.emptyList();
+
+		List<MapAnnotationData> result = new ArrayList<MapAnnotationData>();
+
+		Collection<MapAnnotationData> maps = data.getMapAnnotations();
+		if (!CollectionUtils.isEmpty(maps)) {
+			for (MapAnnotationData d : maps) {
+				if ((type == MapAnnotationType.USER || type == MapAnnotationType.OTHER_USERS ) && MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())) {
+					if (type == MapAnnotationType.USER && MetadataViewerAgent.getUserDetails().getId() == d
+							.getOwner().getId())
+						result.add(d);
+					else if(type == MapAnnotationType.OTHER_USERS && MetadataViewerAgent.getUserDetails().getId() != d
+							.getOwner().getId())
+						result.add(d);
+				} else if (type == MapAnnotationType.OTHER && !MapAnnotationData.NS_CLIENT_CREATED.equals(d.getNameSpace())){
+					result.add(d);
+				}
+			}
+		}
+		
+		// Just to make sure, to always get the same order
+		Comparator<MapAnnotationData> comp = new Comparator<MapAnnotationData>() {
+			@Override
+			public int compare(MapAnnotationData o1, MapAnnotationData o2) {
+				if(o1.getId()<o2.getId())
+					return -1;
+				else
+					return 1;
+			}
+		};
+		Collections.sort(result, comp);
+		return result;
 	}
 	
 	/**
@@ -4141,7 +4182,7 @@ class EditorModel
 	 * @param folder The folder where to save the images.
 	 * @param format The format to use.
 	 */
-	void saveAs(File folder, int format)
+	void saveAs(File folder, int format, String filename)
 	{
 	    Collection l = parent.getRelatedNodes();
 	    List<DataObject> objects = new ArrayList<DataObject>();
@@ -4163,6 +4204,7 @@ class EditorModel
 	        SaveAsParam p = new SaveAsParam(folder, objects);
 	        p.setIndex(format);
 	        p.setIcon(icons.getIcon(IconManager.SAVE_AS_22));
+	        p.setBatchExportFilename(filename);
 	        p.setDeleteWhenFinished(true);
 	        UserNotifier un =
 	                MetadataViewerAgent.getRegistry().getUserNotifier();

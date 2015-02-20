@@ -422,6 +422,8 @@ public class EllipseTextFigure
 	{
 		EllipseTextFigure that = (EllipseTextFigure) super.clone();
 		that.setText(this.getText());
+		that.editable = true;
+		that.fromTransformUpdate = true;
 		return that;
 	}
 	

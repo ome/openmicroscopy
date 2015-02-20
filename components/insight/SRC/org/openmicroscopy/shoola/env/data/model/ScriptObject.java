@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.ScriptObject 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
-//Java imports
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,15 +30,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Icon;
 
-
-//Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import omero.RType;
 import omero.grid.JobParams;
 import omero.grid.Param;
@@ -336,7 +333,7 @@ public class ScriptObject
      */
     public String getFolder()
     { 
-        if (StringUtils.isEmpty(folder)) return getPath();
+        if (CommonsLangUtils.isEmpty(folder)) return getPath();
         return File.separator+folder+File.separator+name;
     }
 
@@ -625,7 +622,7 @@ public class ScriptObject
      */
     public boolean isIdentifier(String key)
     {
-        if (StringUtils.isBlank(key)) return false;
+        if (CommonsLangUtils.isBlank(key)) return false;
         key = key.trim().toLowerCase();
         return IDENTIFIER_KEYS.contains(key);
     }
@@ -650,7 +647,7 @@ public class ScriptObject
      */
     public boolean isSupportedType(pojos.DataObject data, String key)
     {
-        if (data == null || StringUtils.isBlank(key)) return false;
+        if (data == null || CommonsLangUtils.isBlank(key)) return false;
         if (key.contains("_")) {
             String[] values = key.split("_");
             Class<?> type = convertDataType(values[0]);

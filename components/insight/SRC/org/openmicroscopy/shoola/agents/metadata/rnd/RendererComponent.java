@@ -34,18 +34,14 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import omero.romio.PlaneDef;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -59,6 +55,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -621,8 +618,8 @@ class RendererComponent
 	public void setSelectedXYPlane(int z, int t, int bin)
 	{
 		try {
+		    int defaultZ = model.getDefaultZ();
 			if (bin < 0) {
-			    int defaultZ = model.getDefaultZ();
 		        int selectedT = model.getRealSelectedT();
 				if (defaultZ == z && selectedT == t) return;
 				model.setSelectedXYPlane(z, t);
@@ -641,6 +638,11 @@ class RendererComponent
 			    if (selectedT != t) {
                     firePropertyChange(T_SELECTED_PROPERTY,
                             Integer.valueOf(selectedT), Integer.valueOf(t));
+                }
+			    model.setSelectedZ(z);
+			    if (defaultZ != z) {
+                    firePropertyChange(Z_SELECTED_PROPERTY,
+                            Integer.valueOf(defaultZ), Integer.valueOf(z));
                 }
 			}
 			firePropertyChange(RENDER_PLANE_PROPERTY,
@@ -1056,21 +1058,6 @@ class RendererComponent
 
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#renderPlaneAsTexture(PlaneDef)
-     */
-	public TextureData renderPlaneAsTexture(PlaneDef pDef)
-	{
-		if (pDef == null) return null;
-		try {
-			return model.renderPlaneAsTexture(pDef);
-		} catch (Throwable e) {
-			handleException(e, false);
-		}
-		return null;
-	}
-
-	/** 
-     * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setRangeAllChannels(boolean)
      */
 	public void setRangeAllChannels(boolean absolute)
@@ -1267,9 +1254,9 @@ class RendererComponent
 		ImageData image = model.getRefImage();
 		if (image == null) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		if (MetadataViewerAgent.runAsPlugin() == MetadataViewer.IMAGE_J) {
+		if (MetadataViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 			bus.post(new ViewInPluginEvent(model.getSecurityContext(),
-					image, MetadataViewer.IMAGE_J));
+					image, LookupNames.IMAGE_J));
 		} else {
 			bus.post(new ViewImage(model.getSecurityContext(),
 					new ViewImageObject(image), null));

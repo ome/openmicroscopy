@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.editor.PropertiesUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Iterator;
@@ -50,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -61,6 +64,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
@@ -68,9 +72,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
+
 import com.google.common.base.CharMatcher;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -94,6 +98,7 @@ import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
 import pojos.AnnotationData;
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileData;
@@ -134,6 +139,9 @@ public class PropertiesUI
     
     /** The text for the id. */
     private static final String ID_TEXT = "ID: ";
+    
+    /** The text for the creation date. */
+    private static final String CREATIONDATE_TEXT = "Creation Date: ";
     
     /** The text for the owner. */
     private static final String OWNER_TEXT = "Owner: ";
@@ -194,7 +202,7 @@ public class PropertiesUI
     private JPanel				descriptionPanel;
     
     /** The component hosting the id of the <code>DataObject</code>. */
-    private JLabel				idLabel;
+    private JTextField				idLabel;
     
     /** The component hosting the icon for inplace imported images */
     private JLabel 				inplaceIcon;
@@ -243,7 +251,7 @@ public class PropertiesUI
 	
 	/** The label showing the ROI count */
 	private JLabel roiCountLabel;
-
+	
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
 	{
@@ -323,8 +331,10 @@ public class PropertiesUI
        	wellLabel.setFont(newFont);
        	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
        	
-       	idLabel = UIUtilities.setTextFont("");
-       	idLabel.setName("ID label");
+       	idLabel = new JTextField();
+       	idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
+       	idLabel.setEditable(false);
+       	idLabel.setBorder(BorderFactory.createEmptyBorder());
        	inplaceIcon = new JLabel(IconManager.getInstance().getIcon(IconManager.INPLACE_IMPORT));
        	ClickableTooltip inplaceIconTooltip = new ClickableTooltip(INPLACE_IMPORT_TOOLTIP_TEXT, createInplaceIconAction());
         inplaceIconTooltip.attach(inplaceIcon);
@@ -679,7 +689,7 @@ public class PropertiesUI
     	Length z = (Length) details.get(EditorUtil.PIXEL_SIZE_Z);
     	Double dx = null, dy = null, dz = null;
     	boolean number = true;
-    	NumberFormat nf = NumberFormat.getInstance();
+    	NumberFormat nf = new DecimalFormat("0.00");
     	String units = null;
     	try {
     		x = UIUtilities.transformSize(x);
@@ -760,21 +770,26 @@ public class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
-    			Font.BOLD, size);
-    	JLabel value = UIUtilities.createComponent(null);
+    	JLabel label;
+    	JLabel value;
     	String v = model.formatDate(image);
-    	value.setText(v);
-    	content.add(label, c);
-    	c.gridx++;
-    	content.add(value, c);
-    	c.gridy++;
-    	c.gridx = 0;
+    	if(!CommonsLangUtils.isEmpty(v)) {
+	    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE+":",
+	    			Font.BOLD, size);
+	    	value = UIUtilities.createComponent(null);
+	    	value.setText(v);
+	    	content.add(label, c);
+	    	c.gridx++;
+	    	content.add(value, c);
+	    	c.gridy++;
+	    	c.gridx = 0;
+    	}
+    	
     	try { //just to be on the save side
     		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE+":",
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
-        	v =  UIUtilities.formatShortDateTime(image.getInserted());
+        	v =  UIUtilities.formatDefaultDate(image.getInserted());
         	value.setText(v);
         	content.add(label, c);
         	c.gridx++;
@@ -1057,9 +1072,32 @@ public class PropertiesUI
         	add(Box.createVerticalStrut(5));
         	add(layoutScreenContent((ScreenData) refObject));
         }
-        if (data == null) return;
-        add(Box.createVerticalStrut(5));
-    	add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
+        
+		add(Box.createVerticalStrut(5));
+		
+		if (data != null) {
+			add(buildContentPanel(EditorUtil.transformPixelsData(data), img));
+		} else if (refObject instanceof DatasetData
+				|| refObject instanceof ProjectData
+				|| refObject instanceof PlateData
+				|| refObject instanceof ScreenData) {
+			DataObject dob = (DataObject) refObject;
+			
+			Timestamp crDate = dob.getCreated();
+			if (crDate != null) {
+				JLabel createDateLabel = new JLabel();
+				createDateLabel.setFont((new JLabel()).getFont().deriveFont(
+						Font.BOLD));
+				createDateLabel.setText(CREATIONDATE_TEXT
+						+ UIUtilities.formatDefaultDate(crDate));
+
+				JPanel p = UIUtilities.buildComponentPanel(createDateLabel, 0,
+						0);
+				p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+				p.setBackground(UIUtilities.BACKGROUND_COLOR);
+				add(p);
+			}
+		}
     }
 
 	/**
@@ -1221,7 +1259,7 @@ public class PropertiesUI
         if (ownerName != null && ownerName.length() > 0)
             ownerLabel.setText(OWNER_TEXT+ownerName);
         originalDescription = model.getRefObjectDescription();
-        if (StringUtils.isEmpty(originalDescription))
+        if (CommonsLangUtils.isEmpty(originalDescription))
             originalDescription = DEFAULT_DESCRIPTION_TEXT;
         descriptionWiki.setText(originalDescription);
         expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
@@ -1357,7 +1395,8 @@ public class PropertiesUI
 			j++;
 		}
 		
-		String text = WordUtils.wrap(buffer.toString(), MAX_CHANNELNAMES_LENGTH_IN_CHARS, "<br>", true);
+		String text = CommonsLangUtils.wrap(buffer.toString(),
+		        MAX_CHANNELNAMES_LENGTH_IN_CHARS, "<br>", true);
 		channelsArea.setText("<html>"+text+"</html>");
 		channelsArea.revalidate();
 		channelsArea.repaint();
@@ -1426,7 +1465,7 @@ public class PropertiesUI
 	    namePane.getDocument().removeDocumentListener(this);
 	    descriptionWiki.removeDocumentListener(this);
 	    namePane.setText(originalName);
-	    if (StringUtils.isEmpty(originalDescription))
+	    if (CommonsLangUtils.isEmpty(originalDescription))
 	        originalDescription = DEFAULT_DESCRIPTION_TEXT;
 	    descriptionWiki.setText(originalDescription);
 	    expandDescriptionField(!originalDescription.equals(DEFAULT_DESCRIPTION_TEXT));
@@ -1499,7 +1538,7 @@ public class PropertiesUI
 		if (src == namePane) {
 			String text = namePane.getText();
 			editNames();
-			if (StringUtils.isBlank(text)) {
+			if (CommonsLangUtils.isBlank(text)) {
 				namePane.getDocument().removeDocumentListener(this);
 				namePane.setText(modifiedName);
 				namePane.getDocument().addDocumentListener(this);
@@ -1509,7 +1548,7 @@ public class PropertiesUI
 		} else if (src == descriptionWiki) {
 			String text = descriptionWiki.getText();
 			editNames();
-			if (StringUtils.isBlank(text)) {
+			if (CommonsLangUtils.isBlank(text)) {
 				descriptionWiki.removeDocumentListener(this);
 				descriptionWiki.setText(DEFAULT_DESCRIPTION_TEXT);
 				descriptionWiki.addDocumentListener(this);

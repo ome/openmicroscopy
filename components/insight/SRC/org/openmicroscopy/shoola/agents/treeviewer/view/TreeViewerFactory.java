@@ -404,6 +404,7 @@ public class TreeViewerFactory
 		comparator = new StringComparator();
 	}
 
+	/** Shuts donw the components.*/
 	private void shutDown()
 	{
 		Set<TreeViewer> viewers = singleton.viewers;
@@ -412,8 +413,6 @@ public class TreeViewerFactory
 		while (i.hasNext()) {
 			viewer = i.next();
 			((TreeViewerComponent) viewer).shutDown();
-			//viewer.removeChangeListener(this);
-			//viewer.discard();
 		}
 		viewers.clear();
 	}

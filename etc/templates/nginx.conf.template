@@ -2,6 +2,8 @@
         listen       %(HTTPPORT)d;
         server_name  $hostname;
 
+        sendfile on;
+        client_max_body_size %(MAX_BODY_SIZE)s;
 
         # maintenance page serve from here
         location @maintenance {

@@ -33,7 +33,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 //Third-party libraries
@@ -384,28 +383,29 @@ public class ImportableObject
 		if (file == null) return null;
 		Class klass = type;
 		if (hcs) klass = ScreenData.class;
-		File f = file.getFile();
-		//if (f.isFile()) return null;
+		FileObject f = file.getFile();
+		if (!(f.getFile() instanceof File)) return null;
+		File ff = (File) f.getFile();
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
 		File parentFile;
 		if (DatasetData.class.equals(klass)) {
 			DatasetData dataset = new DatasetData();
-			if (f.isFile()) {
-				parentFile = f.getParentFile();
+			if (ff.isFile()) {
+				parentFile = ff.getParentFile();
 				if (parentFile == null)
 					return null;
 				dataset.setName(parentFile.getName());
-			} else dataset.setName(f.getName());
+			} else dataset.setName(ff.getName());
 			return dataset;
 		} else if (ScreenData.class.equals(klass)) {
 			ScreenData screen = new ScreenData();
-			if (f.isFile()) {
-				parentFile = f.getParentFile();
+			if (ff.isFile()) {
+				parentFile = ff.getParentFile();
 				if (parentFile == null)
 					return null;
 				screen.setName(parentFile.getName());
-			} else screen.setName(f.getName());
+			} else screen.setName(ff.getName());
 			return screen;
 		}
 		return null;
@@ -494,7 +494,7 @@ public class ImportableObject
 	 * @param f The file to handle.
 	 * @return See above.
 	 */
-	public static boolean isHCSFile(File f)
+	public static boolean isHCSFile(FileObject f)
 	{
 		if (f == null) return false;
 		return isHCSFile(f.getAbsolutePath());

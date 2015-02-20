@@ -1827,8 +1827,7 @@ def copy_image_rdef_json(request, conn=None, **kwargs):
         if fromid is None:
             # if we have rdef, save to source image, then use that image as
             # 'fromId', then revert.
-            if request.session.get('rdef') is not None and len(toids) > 0:
-                rdef = request.session.get('rdef')
+            if rdef is not None and len(toids) > 0:
                 fromImage = conn.getObject("Image", rdef['imageId'])
                 if fromImage is not None:
                     # copy orig settings
@@ -2134,21 +2133,36 @@ def original_file_paths(request, iid, conn=None, **kwargs):
     image
     """
 
-    image = conn.getObject("Image", iid)
-    if image is None:
-        logger.debug(
-            "Cannot get original file paths becuase Image does not exist.")
-        return HttpResponseServerError(
-            "Cannot get original file paths becuase Image does not exist"
-            " (id:%s)." % (iid))
+    qs = conn.getQueryService()
+    params = omero.sys.ParametersI()
+    params.addLong("iid", iid)
+    query = "select fse from FilesetEntry fse join fetch fse.fileset as fs "\
+            "left outer join fetch fs.usedFiles as usedFile " \
+            "join fetch usedFile.originalFile " \
+            "left outer join fs.images as image where image.id=:iid"
 
-    files = list(image.getImportedImageFiles())
+    result = qs.findAllByQuery(query, params, conn.SERVICE_OPTS)
 
-    if len(files) == 0:
-        return HttpResponseServerError("This image has no Original Files.")
+    fileNames = []
+    clientPaths = []
+    if len(result) > 0:
+        fileset = result[0].fileset
+        for f in fileset.copyUsedFiles():
+            path = unwrap(f.originalFile.path)
+            name = unwrap(f.originalFile.name)
+            fileNames.append("%s%s" % (path, name))
 
-    fileNames = [f.getPath() + f.getName() for f in files]
-    return fileNames
+        for fse in result:
+            clientPaths.append(unwrap(fse.clientPath))
+
+    else:
+        # Images with No Fileset, check for any Archived Origina files
+        image = conn.getObject("Image", iid)
+        if image is not None:
+            files = list(image.getImportedImageFiles())
+            fileNames = [f.getPath() + f.getName() for f in files]
+
+    return {'repo': fileNames, 'client': clientPaths}
 
 
 @login_required()

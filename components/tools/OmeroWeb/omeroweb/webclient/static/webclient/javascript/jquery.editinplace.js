@@ -83,10 +83,12 @@
                                         });
                                         $('#save-'+field_id).prop("disabled", false);  // re-enable for re-submit
                                     } else {
-                                        $("#form-"+field_id).find('input').each( function( ) {
-                                            if ($(this).attr('name')!=null && $(this).attr('name')!=""){
-                                                var new_name = $(this).attr('value');
-                                                $("#"+field_id+"-"+$(this).attr('name')).text(new_name);
+                                        // If we're editing name...
+                                        if (field_id.indexOf("name") > -1) {
+                                            var $this = $("#id_name");
+                                            if ($this.attr('name')!=null && $this.attr('name')!=""){
+                                                var new_name = $this.attr('value');
+                                                $("#"+field_id+"-"+$this.attr('name')).text(new_name);
                                                 if (data.o_type != "well") {
                                                     // Check we have a jsTree (not in Search or History page etc)
                                                     if ($.jstree && $("#dataTree").jstree) {
@@ -111,7 +113,7 @@
                                                     }
                                                 }
                                             }
-                                        }); // this.each
+                                        }
                                         $("#form-"+field_id).find('textarea').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
                                                 var processed_val = opt.post_save($('<div/>').text($(this).val()).html());

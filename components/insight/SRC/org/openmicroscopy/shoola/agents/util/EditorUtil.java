@@ -39,7 +39,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 import ome.formats.model.UnitsFactory;
@@ -709,8 +709,7 @@ public class EditorUtil
 			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
 			l = data.getPixelSizeZ(UnitsLength.MICROMETER);
 			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
-			details.put(PIXEL_TYPE,
-					PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
+			details.put(PIXEL_TYPE, data.getPixelType());
         }
         details.put(EMISSION+" "+WAVELENGTH+"s", "");
         return details;
@@ -1202,7 +1201,7 @@ public class EditorUtil
             return details;
         }
         String s = data.getName();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
 
@@ -1256,20 +1255,20 @@ public class EditorUtil
         }
 
         s = data.getFluor();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(FLUOR);
         details.put(FLUOR, s);
         s = data.getIllumination();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(ILLUMINATION);
         details.put(ILLUMINATION, s);
         s = data.getContrastMethod();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(CONTRAST_METHOD);
         details.put(CONTRAST_METHOD, s);
         s = data.getMode();
 
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODE);
         details.put(MODE, s);
         int i = data.getPockelCell();
@@ -1307,19 +1306,19 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         details.put(NOT_SET, notSet);
@@ -1353,23 +1352,23 @@ public class EditorUtil
             return details;
         }
         String s = data.getMicroscopeModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getMicroscopeManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getMicroscopeSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getMicroscopeLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         s = data.getMicroscopeType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
         details.put(TYPE, s);
         details.put(NOT_SET, notSet);
@@ -1419,20 +1418,20 @@ public class EditorUtil
         }
         details.put(IRIS, o);
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
 
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         double f = data.getNominalMagnification();
@@ -1454,11 +1453,11 @@ public class EditorUtil
         }
         details.put(LENSNA, f);
         s = data.getImmersion();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(IMMERSION);
         details.put(IMMERSION, s);
         s = data.getCorrection();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
         Length wd = data.getWorkingDistance(null);
@@ -1510,7 +1509,7 @@ public class EditorUtil
         }
         details.put(CORRECTION_COLLAR, f);
         String s = data.getMedium();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MEDIUM);
         details.put(MEDIUM, s);
         f = data.getRefractiveIndex();
@@ -1610,7 +1609,7 @@ public class EditorUtil
             return details;
         }
         String s = data.getLabelName();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
         Length p = data.getPositionX(UnitsLength.REFERENCEFRAME);
@@ -1664,19 +1663,19 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         details.put(NOT_SET, notSet);
@@ -1722,27 +1721,27 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
         s = data.getType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
         details.put(TYPE, s);
         s = data.getFilterWheel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
         Length wl = data.getCutIn(null);
@@ -1875,19 +1874,19 @@ public class EditorUtil
             return details;
         }
         String s = data.getLightSourceModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
 
@@ -1903,7 +1902,7 @@ public class EditorUtil
         	details.put(POWER, f+NONBRSPACE+p.getSymbol());
         }
         s = data.getType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
         details.put(TYPE, s);
         s = data.getKind();
@@ -1912,21 +1911,21 @@ public class EditorUtil
             if (pump != null) {
                 String value = getLightSourceType(pump.getKind());
                 s = pump.getLightSourceModel();
-                if (StringUtils.isBlank(s)) {
+                if (CommonsLangUtils.isBlank(s)) {
                     s = pump.getManufacturer();
-                    if (StringUtils.isBlank(s)) {
+                    if (CommonsLangUtils.isBlank(s)) {
                         s = pump.getSerialNumber();
-                        if (StringUtils.isBlank(s)) {
+                        if (CommonsLangUtils.isBlank(s)) {
                             s = pump.getLotNumber();
                         }
-                        if (StringUtils.isBlank(s))
+                        if (CommonsLangUtils.isBlank(s))
                             s = ""+pump.getId();
                     }
                 }
                 details.put(PUMP, value+": "+s);
             } else notSet.add(PUMP);
             s = data.getLaserMedium();
-            if (StringUtils.isBlank(s))
+            if (CommonsLangUtils.isBlank(s))
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
@@ -1954,7 +1953,7 @@ public class EditorUtil
             details.put(TUNEABLE, o);
 
             s = data.getLaserPulse();
-            if (StringUtils.isBlank(s))
+            if (CommonsLangUtils.isBlank(s))
                 notSet.add(PULSE);
             details.put(PULSE, s);
             Frequency freq = data.getLaserRepetitionRate(null);
@@ -2013,19 +2012,19 @@ public class EditorUtil
             return details;
         }
         String s = data.getModel();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MODEL);
         details.put(MODEL, s);
         s = data.getManufacturer();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(MANUFACTURER);
         details.put(MANUFACTURER, s);
         s = data.getSerialNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(SERIAL_NUMBER);
         details.put(SERIAL_NUMBER, s);
         s = data.getLotNumber();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(LOT_NUMBER);
         details.put(LOT_NUMBER, s);
 
@@ -2067,7 +2066,7 @@ public class EditorUtil
         	 details.put(AMPLIFICATION, v);
         }
         s = data.getType();
-        if (StringUtils.isBlank(s))
+        if (CommonsLangUtils.isBlank(s))
             notSet.add(TYPE);
         else
         	details.put(TYPE, s);
@@ -2132,7 +2131,7 @@ public class EditorUtil
         	details.put(READ_OUT_RATE, v+NONBRSPACE+freq.getSymbol());
         }
         String s = data.getDetectorSettingsBinning();
-        if (StringUtils.isBlank(s)) {
+        if (CommonsLangUtils.isBlank(s)) {
             notSet.add(BINNING);
         }
         details.put(BINNING, s);
@@ -2341,7 +2340,7 @@ public class EditorUtil
         else if (object instanceof ImageData)
             time = getAcquisitionTime((ImageData) object);
         else time = object.getCreated();
-        if (time != null) date = UIUtilities.formatShortDateTime(time);
+        if (time != null) date = UIUtilities.formatDefaultDate(time);
         return date;
     }
 
@@ -2404,7 +2403,7 @@ public class EditorUtil
         l.add(v);
         try {
             v = "<b>"+IMPORTED_DATE+": </b>"+
-                    UIUtilities.formatShortDateTime(img.getInserted());
+                    UIUtilities.formatDefaultDate(img.getInserted());
             l.add(v);
         } catch (Exception e) {}
         PixelsData data = null;

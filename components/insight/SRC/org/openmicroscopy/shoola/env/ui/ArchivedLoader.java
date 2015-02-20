@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.ArchivedLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,12 +31,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -117,7 +115,7 @@ public class ArchivedLoader
 	 */
 	public void load()
 	{
-	    if (StringUtils.isEmpty(name)) name = image.getName();
+	    if (CommonsLangUtils.isEmpty(name)) name = image.getName();
 	    handle = mhView.loadArchivedImage(ctx, image.getId(), file, name,
 	            override, this);
 	}

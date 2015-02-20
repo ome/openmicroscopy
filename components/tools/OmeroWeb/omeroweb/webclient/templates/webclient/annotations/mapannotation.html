@@ -1,0 +1,60 @@
+
+{% load common_filters %}
+{% comment %}
+<!--
+  Copyright (C) 2015 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+    <table {% if ma %}data-annId="{{ ma.id }}"{% endif %}
+            data-added-by="{% if ma %}{{ ma.getOwner.id }}{% else %}{{ ome.user.id }}{% endif %}"
+            class="keyValueTable{% if canEdit %} editableKeyValueTable{% endif %}">
+        <thead>
+          <tr>
+              <th colspan="2">
+                {% if ma %} Added by: {{ ma.getOwner.getFullName }} {% endif %}
+              </th>
+            </tr>
+          {% if showTableHead %}
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+          {% endif %}
+          {% if showNs and ma.ns %}
+            <tr title="{{ ma.ns|escape }}">
+                <th colspan="2">{{ ma.ns|escape|truncateafter:"50" }}</th>
+            </tr>
+          {% endif %}
+        </thead>
+
+        <!-- Last row always has empty key & value fields -->
+        {% if ma %}
+        {% for row in ma.getValue %}
+        <tr>
+            <td>{{ row.0|escape }}</td>
+            <td>{{ row.1|escape }}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+          <tr class="placeholder">
+              <td>Add Key</td>
+              <td>Add Value</td>
+          </tr>
+        {% endif %}
+    </table>

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.SelectionWizardUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -61,13 +59,10 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-
-//Third-party libraries
 import info.clearthought.layout.TableLayout;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
@@ -322,7 +317,7 @@ public class SelectionWizardUI
         //Select the first not
         //Get the first node.
         if (CollectionUtils.isNotEmpty(availableItems) &&
-                StringUtils.isNotBlank(txt)) {
+                CommonsLangUtils.isNotBlank(txt)) {
             node = availableItems.get(0);
             TreePath path = null;
             if (node.hasChildrenDisplay() && node.getChildCount() > 0) {
@@ -493,7 +488,7 @@ public class SelectionWizardUI
             @Override
             public void focusLost(FocusEvent evt) {
                 String value = filterArea.getText();
-                if (StringUtils.isBlank(value)) {
+                if (CommonsLangUtils.isBlank(value)) {
                     setTextFieldDefault(DEFAULT_FILTER_TEXT);
                 }
             }
@@ -636,7 +631,7 @@ public class SelectionWizardUI
         } else {
             txt = EditorUtil.formatExperimenter(data.getOwner());
         }
-        if (StringUtils.isNotBlank(txt)) {
+        if (CommonsLangUtils.isNotBlank(txt)) {
             buf.append("<b>");
             buf.append("Owner: ");
             buf.append("</b>");
@@ -645,7 +640,7 @@ public class SelectionWizardUI
         }
         if (data instanceof TagAnnotationData) {
             txt = ((TagAnnotationData) data).getTagDescription();
-            if (StringUtils.isNotBlank(txt)) {
+            if (CommonsLangUtils.isNotBlank(txt)) {
                 buf.append("<b>");
                 buf.append("Description: ");
                 buf.append("</b>");
@@ -968,7 +963,7 @@ public class SelectionWizardUI
     {
         if (child == null) return false;
         String txt = filterArea.getText();
-        if (StringUtils.isBlank(txt) || DEFAULT_FILTER_TEXT.equals(txt))
+        if (CommonsLangUtils.isBlank(txt) || DEFAULT_FILTER_TEXT.equals(txt))
             return false;
         txt = txt.toLowerCase();
         Object ho = child.getUserObject();

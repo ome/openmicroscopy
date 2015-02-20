@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.TooltipTableHeader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.util.ui;
 
-//Java imports
 import java.awt.event.MouseEvent;
 import java.util.List;
 
@@ -31,10 +30,8 @@ import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
-//Third-party libraries
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 
 /** 
  * Creates a table header with tool tip.
@@ -84,7 +81,7 @@ public class TooltipTableHeader extends JTableHeader {
 		} catch (Exception ex) {
 			retStr = "";
 		}
-		if (StringUtils.isBlank(retStr))
+		if (CommonsLangUtils.isBlank(retStr))
 			retStr = super.getToolTipText(e);
 		return retStr;
 	}

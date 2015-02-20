@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,7 +23,6 @@
 
 package org.openmicroscopy.shoola.util.ui;
 
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -43,6 +42,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,8 +82,7 @@ import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
@@ -108,7 +107,10 @@ import omero.model.enums.UnitsLength;
  */
 public class UIUtilities
 {
-	
+	/** Defines the format how the date is shown */
+    private static final DateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss"); //2013-04-20 18:13:43
+    
 	/** Bound property indicating that the font changes.*/
 	public static final String HINTS_PROPERTY = "awt.font.desktophints";
 	
@@ -1463,6 +1465,32 @@ public class UIUtilities
     }
     
     /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Timestamp time) 
+    {
+    	if (time == null)  
+    		time = getDefaultTimestamp();
+    	return DEFAULT_DATE_FORMAT.format(time);
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time,
+     * using the default date format: yyyy-MM-dd HH:mm:ss
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDefaultDate(Date date) 
+    {
+    	if (date == null)  
+    		return formatDefaultDate((Timestamp)null);
+    	return DEFAULT_DATE_FORMAT.format(date);
+    }
+    
+    /**
      * Formats as a <code>String</code> the specified time.
      * format: E dd MMM yyyy, HH:mm:ss
      * 
@@ -2071,9 +2099,8 @@ public class UIUtilities
 	 */
 	public static boolean isMacOS()
 	{
-		//String osName = System.getProperty("os.name").toLowerCase();
-		//return osName.startsWith("mac os");
-		return (SystemUtils.IS_OS_MAC || SystemUtils.IS_OS_MAC_OSX);
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.startsWith("mac");
 	}
 	
 	/**
@@ -2084,13 +2111,8 @@ public class UIUtilities
 	 */
 	public static boolean isWindowsOS()
 	{
-		//String osName = System.getProperty("os.name").toLowerCase();
-		//return osName.startsWith("windows");
-		return (SystemUtils.IS_OS_WINDOWS || SystemUtils.IS_OS_WINDOWS_2000 ||
-				SystemUtils.IS_OS_WINDOWS_7 || SystemUtils.IS_OS_WINDOWS_95 || 
-				SystemUtils.IS_OS_WINDOWS_98 || SystemUtils.IS_OS_WINDOWS_ME|| 
-				SystemUtils.IS_OS_WINDOWS_NT || SystemUtils.IS_OS_WINDOWS_VISTA ||
-				SystemUtils.IS_OS_WINDOWS_XP);
+		String osName = System.getProperty("os.name").toLowerCase();
+		return osName.startsWith("windows");
 	}
 	
 	/**
@@ -2101,9 +2123,9 @@ public class UIUtilities
 	 */
 	public static boolean isLinuxOS()
 	{
-		return SystemUtils.IS_OS_LINUX;
+		return !(isMacOS() || isWindowsOS());
 	}
-	
+
 	/**
      * Returns the partial name of the image's name
      * 
@@ -2349,7 +2371,7 @@ public class UIUtilities
     {
     	if (family == null) return "";
     	String value = FONTS.get(family);
-    	if (StringUtils.isBlank(value)) return "";
+    	if (CommonsLangUtils.isBlank(value)) return "";
     	return value;
     }
     
@@ -2688,4 +2710,23 @@ public class UIUtilities
         }
         return name;
     }
+    
+    /**
+     * Generates an unique filename in form 'folder'/'name'(INCREMENT).'ext', whereas
+     * INCREMENT is chosen in such a way, that the file does not exist yet.
+     * 
+     * @param folder The folder where the file is intended to be stored
+     * @param name The base name of the file
+     * @param ext The extension of the file
+     * @return The generated unique filename
+     */
+    public static File generateFileName(File folder, String name, String ext) {
+		int i = 0;
+		File file = new File(folder, name+"."+ext);
+		while(file.exists()) {
+			i++;
+			file = new File(folder, name+"("+i+")."+ext);
+		}
+		return file;
+	}
 }

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,17 +23,20 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import ij.ImagePlus;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.swing.filechooser.FileFilter;
 
-//Third-party libraries
+import omero.model.ImageI;
 
-//Application-internal dependencies
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
@@ -41,16 +44,22 @@ import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImportResultLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.ROISaver;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.ScreenData;
 
 /** 
@@ -542,6 +551,81 @@ class ImporterModel
     Collection<GroupData> getAvailableGroups()
     {
         return ImporterAgent.getAvailableUserGroups();
+    }
+
+    /**
+     * Saves the roi if any associated to the image.
+     *
+     * @param c The component to handle.
+     * @param images The images to handle.
+     */
+    void saveROI(FileImportComponent c, List<ImageData> images)
+    {
+        FileObject object = c.getOriginalFile();
+        if (object.isImagePlus() && CollectionUtils.isNotEmpty(images)) {
+            ROIReader reader = new ROIReader();
+            SecurityContext ctx = new SecurityContext(c.getGroupID());
+            ImagePlus img = (ImagePlus) object.getFile();
+            List<FileObject> files = object.getAssociatedFiles();
+            List<ROIData> rois;
+            Map<Integer, List<ROIData>> indexes =
+                new HashMap<Integer, List<ROIData>>();
+            int index;
+            if (CollectionUtils.isNotEmpty(files)) {
+                Iterator<FileObject> j = files.iterator();
+                FileObject o;
+                while (j.hasNext()) {
+                    o = j.next();
+                    if (o.isImagePlus()) {
+                        index = o.getIndex();
+                        rois = reader.readImageJROI(-1, (ImagePlus) o.getFile());
+                        indexes.put(index, rois);
+                    }
+                }
+            }
+
+            //convert rois from manager.
+            //rois from manager so we need to link them to all the images
+            ImageData data;
+            long id;
+            Iterator<ImageData> i = images.iterator();
+            while (i.hasNext()) {
+                data = i.next();
+                id = data.getId();
+                index = data.getIndex(); //to be modified when series is available.
+              //First check overlay
+                if (indexes.containsKey(index)) {
+                   rois = indexes.get(index);
+                   linkRoisToImage(id, rois);
+                } else {
+                   rois = reader.readImageJROI(id, img);
+                }
+                //check roi manager
+                if (CollectionUtils.isEmpty(rois)) {
+                    rois = reader.readImageJROI(id);
+                }
+                if (CollectionUtils.isNotEmpty(rois)) {
+                    ROISaver saver = new ROISaver(component, ctx, rois, id,
+                        c.getExperimenterID());
+                    saver.load();
+                }
+            }
+        }
+    }
+
+    /**
+     * Links the rois to the image.
+     *
+     * @param imageID The image's id.
+     * @param rois The rois to link to the image.
+     */
+    private void linkRoisToImage(long imageID, List<ROIData> rois)
+    {
+        if (CollectionUtils.isEmpty(rois)) return;
+        Iterator<ROIData> i = rois.iterator();
+        while (i.hasNext()) {
+            i.next().setImage(new ImageI(imageID, false));
+        }
     }
 
 }

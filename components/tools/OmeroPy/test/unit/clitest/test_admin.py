@@ -332,3 +332,53 @@ class TestAdminPorts(object):
         self.cli.invoke(self.args, strict=True)
 
         self.check_ice_config(**kwargs)
+
+
+class TestAdminJvmCfg(object):
+
+    @classmethod
+    def setup_class(cls):
+        # Other setup
+        cls.cli = CLI()
+        cls.cli.register("admin", AdminControl, "TEST")
+        cls.cli.register("config", PrefsControl, "TEST")
+        cls.args = ["admin", "jvmcfg"]
+
+    @pytest.fixture
+    def tmp_grid_dir(self, monkeypatch):
+        # # Non-temp directories
+        ctxdir = path() / ".." / ".." / ".." / "dist"
+        grid_dir = ctxdir / "etc" / "grid"
+        templates_file = grid_dir / "templates.xml"
+
+        # Create temp files for backup
+        self.tmp_grid_dir = create_path(folder=True)
+        templates_file.copy(self.tmp_grid_dir)
+        config_file = self.tmp_grid_dir / "config.xml"
+        open(config_file, 'a').close()
+
+        monkeypatch.setattr(AdminControl, '_get_grid_dir',
+                            lambda x: self.tmp_grid_dir)
+
+    def testDefault(self, tmp_grid_dir):
+
+        self.cli.invoke(self.args, strict=True)
+        assert os.path.exists(self.tmp_grid_dir / "generated.xml")
+
+    @pytest.mark.parametrize(
+        'suffix', ['', '.blitz', '.indexer', '.pixeldata', '.repository'])
+    def testInvalidStrategy(self, suffix, tmp_grid_dir):
+        source_config = "%s" % (self.tmp_grid_dir / "config.xml")
+        key = "omero.jvmcfg.strategy%s" % suffix
+        self.cli.invoke(
+            ["config", "--source", source_config, "set", key, "bad"],
+            strict=True)
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
+
+    def testOldTemplates(self, tmp_grid_dir):
+
+        old_templates = path(__file__).dirname() / ".." / "old_templates.xml"
+        old_templates.copy(self.tmp_grid_dir / "templates.xml")
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)

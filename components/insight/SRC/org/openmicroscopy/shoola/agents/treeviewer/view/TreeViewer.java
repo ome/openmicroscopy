@@ -105,12 +105,6 @@ public interface TreeViewer
 	/** Indicates to display the data per group.*/
 	public static final int GROUP_DISPLAY = LookupNames.GROUP_DISPLAY;
 
-	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
-	public static final int		IMAGE_J = LookupNames.IMAGE_J;
-	
-	/** Indicates to run the application as an <code>Knime</code> plugin.*/
-	public static final int		KNIME = LookupNames.KNIME;
-	
 	/** 
 	 * Indicates that the {@link TreeViewer} displayed the various explorers.
 	 */

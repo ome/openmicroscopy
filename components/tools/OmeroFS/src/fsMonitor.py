@@ -10,37 +10,34 @@
 import logging
 import threading
 
-# Now try to import the correct MonitorServer package
-import fsUtil
-try:
-    PlatformMonitor = __import__(fsUtil.monitorPackage())
-except:
-    raise
-
+__import__("omero.all")
 import omero.grid.monitors as monitors
 
 
 class MonitorFactory(object):
 
     @staticmethod
-    def createMonitor(mType, eTypes, pMode, pathString,
-                      whitelist, blacklist, timeout, blockSize,
-                      ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+    def createMonitor(mType, eTypes, pMode, pathString, whitelist, blacklist,
+                      timeout, blockSize, ignoreSysFiles, ignoreDirEvents,
+                      platformCheck, proxy, monitorId):
 
         if str(mType) == 'Persistent':
             return PersistentMonitor(
                 eTypes, pMode, pathString, whitelist, blacklist, timeout,
-                blockSize, ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+                blockSize, ignoreSysFiles, ignoreDirEvents, platformCheck,
+                proxy, monitorId)
 
         elif str(mType) == 'OneShot':
             return OneShotMonitor(
                 eTypes, pMode, pathString, whitelist, blacklist, timeout,
-                ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+                ignoreSysFiles, ignoreDirEvents, platformCheck, proxy,
+                monitorId)
 
         elif str(mType) == 'Inactivity':
             return InactivityMonitor(
                 eTypes, pMode, pathString, whitelist, blacklist, timeout,
-                ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+                ignoreSysFiles, ignoreDirEvents, platformCheck, proxy,
+                monitorId)
 
         else:
             raise Exception("Unknown monitor type: %s", str(mType))
@@ -57,12 +54,18 @@ class AbstractMonitor(object):
     """
 
     def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
-                 ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+                 ignoreSysFiles, ignoreDirEvents, platformCheck, proxy,
+                 monitorId):
         """
             Initialise Monitor.
 
         """
         self.log = logging.getLogger("fsclient." + __name__)
+
+        # Now try to import the correct MonitorServer package
+        import fsUtil
+        PlatformMonitor = __import__(fsUtil.monitorPackage(platformCheck))
+
         self.proxy = proxy
         self.monitorId = monitorId
         self.pMonitor = PlatformMonitor.PlatformMonitor(
@@ -122,15 +125,15 @@ class PersistentMonitor(AbstractMonitor):
     """
 
     def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
-                 timeout, blockSize, ignoreSysFiles, ignoreDirEvents, proxy,
-                 monitorId):
+                 timeout, blockSize, ignoreSysFiles, ignoreDirEvents,
+                 platformCheck, proxy, monitorId):
         """
             Initialise Monitor.
 
         """
         AbstractMonitor.__init__(
             self, eventTypes, pathMode, pathString, whitelist, blacklist,
-            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+            ignoreSysFiles, ignoreDirEvents, platformCheck, proxy, monitorId)
 
         self.notifier = NotificationScheduler(
             self.proxy, self.monitorId, timeout, blockSize)
@@ -180,14 +183,15 @@ class InactivityMonitor(AbstractMonitor):
     """
 
     def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
-                 timeout, ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+                 timeout, ignoreSysFiles, ignoreDirEvents, platformCheck,
+                 proxy, monitorId):
         """
             Initialise Monitor.
 
         """
         AbstractMonitor.__init__(
             self, eventTypes, pathMode, pathString, whitelist, blacklist,
-            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+            ignoreSysFiles, ignoreDirEvents, platformCheck, proxy, monitorId)
         self.timer = threading.Timer(timeout, self.inactive)
         self.log.info('Inactivity monitor created. Timer: %s', str(self.timer))
 
@@ -253,14 +257,15 @@ class OneShotMonitor(AbstractMonitor):
     """
 
     def __init__(self, eventTypes, pathMode, pathString, whitelist, blacklist,
-                 timeout, ignoreSysFiles, ignoreDirEvents, proxy, monitorId):
+                 timeout, ignoreSysFiles, ignoreDirEvents, platformCheck,
+                 proxy, monitorId):
         """
             Initialise Monitor.
 
         """
         AbstractMonitor.__init__(
             self, eventTypes, pathMode, pathString, whitelist, blacklist,
-            ignoreSysFiles, ignoreDirEvents, proxy, monitorId)
+            ignoreSysFiles, ignoreDirEvents, platformCheck, proxy, monitorId)
         self.timer = threading.Timer(timeout, self.inactive)
         self.log.info('OneShot monitor created. Timer: %s', str(self.timer))
 

@@ -53,17 +53,18 @@ Test Channel Rename
     ...                 whether the toolbar/right-click menu options for
     ...                 creating various containers are enabled.
 
-    Set Selenium Speed                          1 seconds
+    Set Selenium Speed                          0.5 seconds
     Tree Should Be Visible
     Select And Expand Project
     Select And Expand Dataset
     ${imageId}=                                 Select And Expand Image
     Wait Until Page Contains Element            id=editChannelNames
     Click Element                               id=editChannelNames
-    Input Text                                  channel0    renameTest
+    ${chName}=                                  Get Time    epoch
+    Input Text                                  channel0    ${chName}
     Submit Form                                 channel_names_edit
     Wait Until Keyword Succeeds                 5 sec   1 sec   Element Should Not Be Visible     channel0
-    Page Should Contain                         renameTest
+    Wait Until Page Contains Element            xpath=//div[@id='channel_names_display']/span[contains(text(), ${chName})]
 
 
 Test Basket Share
@@ -139,7 +140,7 @@ Test Annotate
 
     # Comment Form
     Input Text                                  comment     test add comment
-    Click Button                                Add Comment
+    Submit Form                                 add_comment_form
     Wait Until Page Contains                    test add comment
 
     # Tags

@@ -458,17 +458,23 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-src-git" description="Package the git source tree (git)"
             depends="check-git" if="git.exists">
         <mkdir dir="${target.dir}"/>
+        <ant antfile="build.xml" dir="components/bioformats" target="store-version" inheritAll="false"/>
+        <property file="components/bioformats/artifacts/bioformats.properties"/>
         <exec executable="python" failonerror="true">
-            <arg value="${omero.home}/components/antlib/scripts/source-archive"/>
+            <arg value="${omero.home}/components/antlib/scripts/source-archive.py"/>
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
             <arg value="${omero.vcs.revision}"/>
             <arg value="${omero.vcs.date}"/>
-            <arg value="components/antlib/resources/gitversion.xml"/>
-            <arg value="components/tools/OmeroCpp/cmake/GitVersion.cmake"/>
+            <arg value="${release.shortversion}"/>
+            <arg value="${release.version}"/>
+            <arg value="${vcs.revision}"/>
+            <arg value="${vcs.date}"/>
+            <arg value="${vcs.date_unix}"/>
             <arg value="${target.dir}"/>
         </exec>
+
     </target>
 
     <target name="release-src" description="Package the git source tree into openmicroscopy-${omero.plainversion}.zip"
@@ -513,11 +519,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer-${omero.version}\1.zip"/>
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
-
-        <apply executable="python" dir="${target.dir}" failonerror="true">
-           <env key="OMERO_VERSION" value="${omero.version}"/>
-           <fileset dir="${omero.home}/lib" includes="composite.py"/>
-       </apply>
     </target>
 
     <target name="release-tar" description="Tar the dist directory into ${product-name}-${omero.version}.tar.bz2">

@@ -960,6 +960,7 @@ class TreeViewerComponent
 		if (mv != null) mv.onRndSettingsCopied(imageIds);
 	}
 	
+	/** Shuts down the component.*/
 	void shutDown()
 	{
 		view.setVisible(false);
@@ -3439,8 +3440,9 @@ class TreeViewerComponent
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				model.browseTag(node);
 		} else if (uo instanceof ImageData) {
-			if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
-				actionCmd = new ViewInPluginCmd(this, TreeViewer.IMAGE_J);
+			if (TreeViewerAgent.runAsPlugin() == LookupNames.IMAGE_J ||
+			        TreeViewerAgent.runAsPlugin() == LookupNames.IMAGE_J_IMPORT) {
+				actionCmd = new ViewInPluginCmd(this, LookupNames.IMAGE_J);
 			} else {
 				actionCmd = new ViewCmd(this, true);
 			}

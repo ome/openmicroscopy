@@ -43,6 +43,7 @@ import org.testng.annotations.Test;
  * @see ticket:3628
  */
 @Test(groups = "broken")
+@SuppressWarnings("deprecation")
 public class GraphStateUnitTest extends MockGraphTest {
 
     private Mock sessionMock;
