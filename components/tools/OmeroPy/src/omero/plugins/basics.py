@@ -44,6 +44,26 @@ class VersionControl(BaseControl):
     def __call__(self, args):
         self.ctx.out(VERSION)
 
+LOAD_HELP = """Load file as if it were sent on standard in.
+
+This can be used as the #! header of a file to make standand-alone script.
+
+Examples:
+    #!/usr/bin/env omero load
+    login -C root@localhost
+    group add new_group
+    user add foo some user new_group
+
+ or
+
+    $ bin/omero login       # login can't take place in HERE-document
+    $ bin/omero load <<EOF
+    user list
+    group list
+    EOF
+
+"""
+
 
 class LoadControl(BaseControl):
 
@@ -196,26 +216,7 @@ controls = {
 All arguments not understood vi %(prog)s will be passed to the shell.
 Use "--" to end parsing, e.g. '%(prog)s -- --help' for IPython help"""),
     "version": (VersionControl, "Version number"),
-    "load": (LoadControl, """Load file as if it were sent on standard in.
-
-This can be used as the #! header of a file to make standand-alone script.
-
-Examples:
-    #!/usr/bin/env omero load
-    login -C root@localhost
-    group add new_group
-    user add foo some user new_group
-
- or
-
-    $ bin/omero login       # login can't take place in HERE-document
-    $ bin/omero load <<EOF
-    user list
-    group list
-    EOF
-
-""")
-}
+    "load": (LoadControl, LOAD_HELP)}
 
 try:
     for k, v in controls.items():
