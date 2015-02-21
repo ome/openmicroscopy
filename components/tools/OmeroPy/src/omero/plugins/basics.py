@@ -164,10 +164,10 @@ class HelpControl(BaseControl):
         """
         return self.ctx.completenames(text, line, begidx, endidx)
 
-    def format_title(self, command):
-        self.ctx.out("*" * 80)
-        self.ctx.out(command)
-        self.ctx.out("*" * 80)
+    def format_title(self, command, sep="-"):
+        """Create heading for command or topic help"""
+        self.ctx.out("\n" + command)
+        self.ctx.out(sep * len(command) + "\n")
 
     def __call__(self, args):
 
@@ -177,18 +177,15 @@ class HelpControl(BaseControl):
             for control in sorted(self.ctx.controls):
                 self.format_title(control)
                 self.ctx.invoke([control, "-h"])
-                self.ctx.out("\n")
                 if args.recursive:
                     subcommands = self.ctx.controls[control].get_subcommands()
                     for subcommand in subcommands:
-                        self.format_title(control + " " + subcommand)
+                        self.format_title(control + " " + subcommand, sep="^")
                         self.ctx.invoke([control, subcommand, "-h"])
-                        self.ctx.out("\n")
 
             for topic in sorted(self.ctx.topics):
                 self.format_title(topic)
                 self.ctx.out(self.ctx.topics[topic])
-                self.ctx.out("\n")
 
         elif not args.topic:
             commands, topics = [
