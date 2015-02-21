@@ -148,13 +148,15 @@ class HelpControl(BaseControl):
     def _configure(self, parser):
         self.__parser__ = parser  # For formatting later
         parser.set_defaults(func=self.__call__)
+        parser.add_argument(
+            "--recursive", action="store_true",
+            help="Also print help for all subcommands")
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
-            "--all", action="store_true", help="Print help for all topics")
+            "--all", action="store_true",
+            help="Print help for all commands and topics")
         group.add_argument(
             "topic", nargs="?", help="Command or topic for more information")
-        parser.add_argument(
-            "--recursive", action="store_true", help="Also list subcommands")
 
     def _complete(self, text, line, begidx, endidx):
         """
