@@ -29,11 +29,17 @@ from omero.cli import VERSION
 
 class QuitControl(BaseControl):
 
+    def _configure(self, parser):
+        return
+
     def __call__(self, args):
         self.ctx.exit("", newline=False)
 
 
 class VersionControl(BaseControl):
+
+    def _configure(self, parser):
+        return
 
     def __call__(self, args):
         self.ctx.out(VERSION)
@@ -127,6 +133,8 @@ class HelpControl(BaseControl):
             "--all", action="store_true", help="Print help for all topics")
         group.add_argument(
             "topic", nargs="?", help="Command or topic for more information")
+        parser.add_argument(
+            "--recursive", action="store_true", help="Also list subcommands")
 
     def _complete(self, text, line, begidx, endidx):
         """
@@ -150,6 +158,12 @@ class HelpControl(BaseControl):
                 self.format_title(control)
                 self.ctx.invoke([control, "-h"])
                 self.ctx.out("\n")
+                if args.recursive:
+                    subcommands = self.ctx.controls[control].get_subcommands()
+                    for subcommand in subcommands:
+                        self.format_title(control + " " + subcommand)
+                        self.ctx.invoke([control, subcommand, "-h"])
+                        self.ctx.out("\n")
 
             for topic in sorted(self.ctx.topics):
                 self.format_title(topic)
