@@ -171,6 +171,15 @@ class HelpControl(BaseControl):
         self.ctx.out("\n" + command)
         self.ctx.out(sep * len(command) + "\n")
 
+    def print_command_help(self, control, args):
+        """Print help for a single command and optionally its subcommand"""
+        self.ctx.invoke([control, "-h"])
+        if args.recursive:
+            subcommands = self.ctx.controls[control].get_subcommands()
+            for subcommand in subcommands:
+                self.format_title(control + " " + subcommand, sep="^")
+                self.ctx.invoke([control, subcommand, "-h"])
+
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
@@ -178,12 +187,7 @@ class HelpControl(BaseControl):
         if args.all:
             for control in sorted(self.ctx.controls):
                 self.format_title(control)
-                self.ctx.invoke([control, "-h"])
-                if args.recursive:
-                    subcommands = self.ctx.controls[control].get_subcommands()
-                    for subcommand in subcommands:
-                        self.format_title(control + " " + subcommand, sep="^")
-                        self.ctx.invoke([control, subcommand, "-h"])
+                self.print_command_help(control, args)
 
             for topic in sorted(self.ctx.topics):
                 self.format_title(topic)
@@ -201,7 +205,7 @@ class HelpControl(BaseControl):
             print HELP_USAGE % key_list
         else:
             if args.topic in self.ctx.controls:
-                self.ctx.invoke([args.topic, "-h"])
+                self.print_command_help(args.topic, args)
             elif args.topic in self.ctx.topics:
                 self.ctx.out(self.ctx.topics[args.topic])
             else:
