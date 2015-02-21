@@ -21,7 +21,7 @@
 
 
 import pytest
-from omero.cli import CLI, NonZeroReturnCode
+from omero.cli import CLI
 
 cli = CLI()
 cli.loadplugins()
