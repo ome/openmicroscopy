@@ -826,7 +826,8 @@ Examples:
         subtotals = {}
         if "component" in sum_by:
             for userGroup in rsp.bytesUsedByReferer.keys():
-                for (element, size) in rsp.bytesUsedByReferer[userGroup].items():
+                for (element, size) in rsp.bytesUsedByReferer[
+                        userGroup].items():
                     files = rsp.fileCountByReferer[userGroup][element]
                     keyList = []
                     if "user" in sum_by:
