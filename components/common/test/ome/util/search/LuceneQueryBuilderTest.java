@@ -88,7 +88,7 @@ public class LuceneQueryBuilderTest extends TestCase{
         raw = "test AND dv";  expected = "((test) AND (dv))";
         checkQuery(fields, raw, expected);
        
-        raw = "has_key:foo"; expected = "has_key foo";
+        raw = "has_key:foo"; expected = "has_key:foo";
         checkQuery(fields, raw, expected);
         
         
