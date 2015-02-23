@@ -486,7 +486,7 @@ public class PressureI extends Pressure implements ModelBased {
         s.put(UnitsPressure.FEMTOPASCAL, "fPa");
         s.put(UnitsPressure.GIGAPASCAL, "GPa");
         s.put(UnitsPressure.HECTOPASCAL, "hPa");
-        s.put(UnitsPressure.KILOBAR, "kBar");
+        s.put(UnitsPressure.KILOBAR, "kbar");
         s.put(UnitsPressure.KILOPASCAL, "kPa");
         s.put(UnitsPressure.MEGABAR, "Mbar");
         s.put(UnitsPressure.MEGAPASCAL, "MPa");

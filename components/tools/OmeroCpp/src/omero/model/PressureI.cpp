@@ -40,7 +40,7 @@ namespace omero {
             s[omero::model::enums::FEMTOPASCAL] = "fPa";
             s[omero::model::enums::GIGAPASCAL] = "GPa";
             s[omero::model::enums::HECTOPASCAL] = "hPa";
-            s[omero::model::enums::KILOBAR] = "kBar";
+            s[omero::model::enums::KILOBAR] = "kbar";
             s[omero::model::enums::KILOPASCAL] = "kPa";
             s[omero::model::enums::MEGABAR] = "Mbar";
             s[omero::model::enums::MEGAPASCAL] = "MPa";
