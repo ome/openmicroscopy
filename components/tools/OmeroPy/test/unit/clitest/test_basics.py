@@ -29,35 +29,35 @@ commands = cli.controls.keys()
 topics = cli.topics.keys()
 
 
-class TestHelp(object):
-
-    def setup_method(self, method):
-        self.args = ["help"]
+class TestBasics(object):
 
     def testHelp(self):
-        self.args += ["-h"]
+        self.args = ["help", "-h"]
         cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize('recursive', [None, "--recursive"])
-    def testAll(self, recursive):
-        self.args += ["--all"]
+    def testHelpAll(self, recursive):
+        self.args = ["help", "--all"]
         if recursive:
             self.args.append(recursive)
         cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize('recursive', [None, "--recursive"])
     @pytest.mark.parametrize('command', commands)
-    def testCommand(self, command, recursive):
-        self.args += [command]
+    def testHelpCommand(self, command, recursive):
+        self.args = ["help", command]
         if recursive:
             self.args.append(recursive)
         cli.invoke(self.args, strict=True)
 
     @pytest.mark.parametrize('topic', topics)
-    def testTopic(self, topic):
-        self.args += [topic, "-h"]
+    def testHelpTopic(self, topic):
+        self.args = ["help", topic, "-h"]
         cli.invoke(self.args, strict=True)
 
-    def testList(self):
-        self.args += ["list", "-h"]
+    def testHelpList(self):
+        self.args = ["help", "list"]
         cli.invoke(self.args, strict=True)
+
+    def testVersion(object):
+        cli.invoke(["version"], strict=True)
