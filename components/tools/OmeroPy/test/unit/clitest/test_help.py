@@ -57,3 +57,7 @@ class TestHelp(object):
     def testTopic(self, topic):
         self.args += [topic, "-h"]
         cli.invoke(self.args, strict=True)
+
+    def testList(self):
+        self.args += ["list", "-h"]
+        cli.invoke(self.args, strict=True)

@@ -156,6 +156,9 @@ class HelpControl(BaseControl):
             "--all", action="store_true",
             help="Print help for all commands and topics")
         group.add_argument(
+            "--list", action="store_true",
+            help="Print list of all commands")
+        group.add_argument(
             "topic", nargs="?", help="Command or topic for more information")
 
     def _complete(self, text, line, begidx, endidx):
@@ -211,17 +214,31 @@ class HelpControl(BaseControl):
             self.format_title(topic)
             self.ctx.out(self.ctx.topics[topic])
 
+    def print_commands_list(self, args):
+        """Print a list of all commands"""
+
+        for control in sorted(self.ctx.controls):
+            subcommands = self.ctx.controls[control].get_subcommands()
+            if subcommands:
+                self.ctx.out("%s (%s)" % (control, len(subcommands)))
+                for subcommand in subcommands:
+                    self.ctx.out("\t%s" % subcommand)
+            else:
+                self.ctx.out("%s" % control)
+
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
 
         # Fail-fast and print usage if no arg is passed
-        if not args.all and not args.topic:
+        if not args.all and not args.list and not args.topic:
             self.print_usage()
 
         if args.all:
             self.print_all_commands_and_topics(args)
-        else:
+        elif args.list:
+            self.print_commands_list(args)
+        elif args.topic:
             self.print_single_command_or_topic(args)
 
 controls = {
