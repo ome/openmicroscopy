@@ -25,6 +25,7 @@
 
 import datetime
 import time
+import omero
 
 from omero.rtypes import rtime
 from webclient.controller import BaseController
@@ -97,10 +98,11 @@ class BaseSearch(BaseController):
                     self.containers[dt] = doSearch(dt)
                     resultCount += len(self.containers[dt])
         except Exception, x:
-            msg = x.message
-            if "TooManyClauses" in msg:
-                self.searchError = "Please try to narrow down your query. The wildcard matched too many terms."
+            if isinstance(x, omero.ServerError):
+                if "TooManyClauses" in x.message:
+                    self.searchError = "Please try to narrow down your query. The wildcard matched too many terms."
+                else:
+                    self.searchError = "Your query for '%s' caused an error: %s." % (query, x.message)
             else:
-                self.searchError = "Your query for '%s' caused an error: %s." % (query, msg)
-
+                self.searchError = "Your query for '%s' caused an error: %s." % (query, str(x))
         self.c_size = resultCount
