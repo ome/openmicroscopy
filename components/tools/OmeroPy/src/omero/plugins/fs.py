@@ -282,10 +282,11 @@ class FsControl(CmdControl):
             "--sum_by", nargs="+", choices=("user", "group", "component"),
             help=("Breakdown of disk usage by a combination of "
                   "user, group and component"))
-        usage.add_argument(
+        unit_group = usage.add_mutually_exclusive_group()
+        unit_group.add_argument(
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
-        usage.add_argument(
+        unit_group.add_argument(
             "--human_readable", action="store_true",
             help="Use most appropriate units")
         usage.add_argument(
