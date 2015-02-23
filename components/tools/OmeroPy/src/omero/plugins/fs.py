@@ -767,7 +767,7 @@ Examples:
         oneK = 1024.0
         powers = {'K': 1, 'M': 2, 'G': 3, 'T': 4, 'P': 5}
         if units in powers.keys():
-            return round(size/oneK**powers[units], 2)
+            return round(size/oneK**powers[units], 1)
         else:
             raise ValueError("Unrecognized units: ", units)
 
@@ -786,7 +786,7 @@ Examples:
             else:
                 files = sum(rsp.totalFileCount.values())
                 if args.units:
-                    size = ("%d %siB"
+                    size = ("%s %siB"
                             % (self._to_units(size, args.units), args.units))
                 elif args.human_readable:
                     size = filesizeformat(size)
