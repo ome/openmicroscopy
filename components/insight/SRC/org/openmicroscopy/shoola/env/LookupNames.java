@@ -350,5 +350,4 @@ public class LookupNames
     /** Lookup name of the orphaned images folder */
     public static final String ORPHANED_IMAGE_NAME = "omero.client.ui.tree.orphans.name";
 
-    // TODO: Add and make use of all the other properties
 }
