@@ -300,7 +300,7 @@ public class DiskUsageTest extends AbstractServerTest {
 
             final ChildOption option = new ChildOption();
             option.excludeType = Collections.singletonList("Image");
-            request.childOptions = new ChildOption[] {option};
+            request.childOptions = Collections.singletonList(option);
 
             doChange(request);
         }
