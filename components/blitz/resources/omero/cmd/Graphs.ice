@@ -201,6 +201,7 @@ module omero {
              * specific kinds of children.
              * Only the first applicable option takes effect.
              **/
+            ["java:type:java.util.ArrayList<omero.cmd.graphs.ChildOption>:java.util.List<omero.cmd.graphs.ChildOption>"]
             sequence<ChildOption> ChildOptions;
         };
 
