@@ -59,5 +59,8 @@ class TestBasics(object):
         self.args = ["help", "list"]
         cli.invoke(self.args, strict=True)
 
+    def testQuit(object):
+        cli.invoke(["quit"], strict=True)
+
     def testVersion(object):
         cli.invoke(["version"], strict=True)
