@@ -107,12 +107,15 @@ public class MovieExportDialog
 	
 	/** Action id indicating to allow the modification of the scale bar. */
 	private static final int 		T_INTERVAL = 4;
-	
+
+	/** Action id indicating to view the script used. */
+    public static final int VIEW = 5;
+    
 	/** The title of the dialog. */
-	private static final String		TITLE = "Movie Creation";
+	private static final String TITLE = "Movie Creation";
 	
 	/** The default value for the scale bar. */
-	private static final int		DEFAULT_SCALE = 5;
+	private static final int DEFAULT_SCALE = 5;
 	
 	/** Button to close the dialog. */
 	private JButton					closeButton;
@@ -173,7 +176,10 @@ public class MovieExportDialog
 	
 	/** The collection of channels.*/
 	private Map<Object, JComponent>	buttons;
-	
+
+	/** Button to view the script.*/
+	private JButton viewScript;
+
 	/** 
 	 * Creates the components composing the display. 
 	 * 
@@ -224,6 +230,9 @@ public class MovieExportDialog
 				buttons.put(i, box);
 			}
 		}
+		viewScript = new JButton("View script");
+		viewScript.setActionCommand(""+VIEW);
+		viewScript.addActionListener(this);
 		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
 				"Close the window."));
@@ -355,16 +364,21 @@ public class MovieExportDialog
 	 */
 	private JPanel buildToolBar()
 	{
-		JPanel bar = new JPanel();
-		bar.add(closeButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(saveButton);
-		bar.add(Box.createHorizontalStrut(20));
-		JPanel p = UIUtilities.buildComponentPanelRight(bar);
-		p.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		return p;
+	    JPanel bar = new JPanel();
+	    bar.add(closeButton);
+	    bar.add(Box.createHorizontalStrut(5));
+	    bar.add(saveButton);
+	    bar.add(Box.createHorizontalStrut(20));
+	    JPanel p = new JPanel();
+	    p.add(viewScript);
+	    JPanel all = new JPanel();
+	    all.setLayout(new BoxLayout(all, BoxLayout.X_AXIS));
+	    all.add(UIUtilities.buildComponentPanel(p));
+	    all.add(UIUtilities.buildComponentPanelRight(bar));
+	    all.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+	    return all;
 	}
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -637,21 +651,26 @@ public class MovieExportDialog
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case CLOSE:
-				close();
-				break;
-			case SAVE:
-				save();
-				break;
-			case SCALE_BAR:
-				scaleBar.setEnabled(showScaleBar.isSelected());
-				break;
-			case T_INTERVAL:
-			case Z_INTERVAL:
-				 enabledControls();
-		}
+	    int index = Integer.parseInt(e.getActionCommand());
+	    switch (index) {
+	        case CLOSE:
+	            close();
+	            break;
+	        case SAVE:
+	            save();
+	            break;
+	        case SCALE_BAR:
+	            scaleBar.setEnabled(showScaleBar.isSelected());
+	            break;
+	        case T_INTERVAL:
+	        case Z_INTERVAL:
+	            enabledControls();
+	            break;
+	        case VIEW:
+	            firePropertyChange(
+                        ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY, null,
+                        MovieExportParam.MOVIE_SCRIPT);
+	    }
 	}
 
 	/**

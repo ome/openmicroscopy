@@ -42,6 +42,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -1267,5 +1268,14 @@ class EditorComponent
                 view.setLDAPDetails(result);
             }
         }
+    }
+
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#getScriptFromName(String)
+     */
+    public ScriptObject getScriptFromName(String name)
+    {
+        return model.getScriptFromName(name);
     }
 }
