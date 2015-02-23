@@ -661,7 +661,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 store.setChannelGlobalMinMax(
                         c, minMax[0], minMax[1], series);
             }
-            return null;
+            if (pixelType != FormatTools.FLOAT &&
+                pixelType != FormatTools.DOUBLE) {
+                return null;
+            }
         }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
         MessageDigest md;
