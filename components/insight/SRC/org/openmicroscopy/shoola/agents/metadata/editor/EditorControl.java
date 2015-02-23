@@ -204,17 +204,17 @@ class EditorControl
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE_IN_IJ = 23;
 
-	/** Action ID to load the file path triggered by click on toolbar popup.*/
-	static final int FILE_PATH_TOOLBAR = 24;
+	/** Action ID to load the file paths.*/
+	static final int   SHOW_FILE_PATHS = 24;
 
 	/** Action id indicating to remove other annotations. */
 	static final int REMOVE_OTHER_ANNOTATIONS = 25;
-
-	/** Action ID to load the file path triggered by click on inplace import icon.*/
-        static final int FILE_PATH_INPLACE_ICON = 27;
-        
-        /** Action ID to load the file path triggered by click on inplace import icon.*/
-        static final int SHOW_LOCATION = 28;
+	
+    /**
+     * Action ID to load the file path triggered by click on inplace import
+     * icon.
+     */
+    static final int SHOW_LOCATION = 26;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -554,13 +554,10 @@ class EditorControl
 	 */
 	FigureDialog getFigureDialog() { return figureDialog; }
 	
-	/** Loads the file set linked to the image.
-	 *
-	 * @param trigger The action which triggered the loading,
-	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
-	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}
+	/** 
+	 * Loads the file set linked to the image.
 	 * */
-	void loadFileset(int trigger) { model.loadFileset(trigger); }
+	void loadFileset() { model.loadFileset(); }
 	
 	/**
 	 * Reacts to state changes in the {@link ImViewer}.
@@ -851,13 +848,12 @@ class EditorControl
 					MetadataViewerAgent.getRegistry().getEventBus().post(event);
 				}
 				break;
-			case FILE_PATH_TOOLBAR:
-			case FILE_PATH_INPLACE_ICON:
+			case SHOW_FILE_PATHS:
 				if (view.getFileset() != null) {
-				    view.displayFileset(index);
+				    view.displayFileset();
 				} 
 				else {
-				    loadFileset(index);
+				    loadFileset();
 				}
 				break;
 			case SHOW_LOCATION:

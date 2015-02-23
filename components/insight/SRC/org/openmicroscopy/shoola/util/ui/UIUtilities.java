@@ -32,6 +32,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -55,6 +57,7 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -2729,4 +2732,47 @@ public class UIUtilities
 		}
 		return file;
 	}
+    
+    /**
+     * Adds an empty JPanel to component which takes up excessive space, a bit
+     * like {@link Box#createHorizontalGlue()} and {@link Box#createVerticalGlue()}
+     * just for {@link GridBagLayout}
+     * 
+     * @param component
+     *            The component to add the filler to
+     * @param c
+     *            The last used GridBagConstraints (c.gridx, respectively c.gridy
+     *            will be incremented)
+     * @param vertical
+     *            Add a vertical (<code>true</code>) or horizontal (
+     *            <code>false</code>) filler
+     */
+    public static void addFiller(JComponent component, GridBagConstraints c,
+            boolean vertical) {
+        if (!(component.getLayout() instanceof GridBagLayout)) {
+            throw new IllegalArgumentException(
+                    "Component does not use GridBagLayout!");
+        }
+
+        double weightx = c.weightx;
+        double weighty = c.weighty;
+        int fill = c.fill;
+
+        c.weightx = vertical ? c.weightx : 1;
+        c.weighty = vertical ? 1 : c.weighty;
+        c.fill = GridBagConstraints.BOTH;
+
+        JPanel filler = new JPanel();
+        filler.setBackground(BACKGROUND_COLOR);
+        component.add(filler, c);
+
+        c.weightx = weightx;
+        c.weighty = weighty;
+        c.fill = fill;
+        if (vertical)
+            c.gridy++;
+        else
+            c.gridx++;
+    }
+    
 }
