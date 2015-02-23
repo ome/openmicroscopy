@@ -247,7 +247,7 @@ def delete_empty_dirs(repo, root, client, dry_run):
     to_delete = []
 
     # find the empty subdirectories
-    is_empty_dir(repo, '/', to_delete, dry_run)
+    is_empty_dir(repo, '/', False, to_delete, dry_run)
 
     if dry_run:
         for directory in to_delete:
@@ -270,22 +270,24 @@ def delete_empty_dirs(repo, root, client, dry_run):
                     raise Exception("failed: " + ce.err.name)
 
 
-def is_empty_dir(repo, directory, to_delete, dry_run):
+def is_empty_dir(repo, directory, may_delete_dir, to_delete, dry_run):
     empty_subdirs = []
     is_empty = True
 
     for entry in repo.listFiles(directory):
         subdirectory = directory + entry.name.val + '/'
+        may_delete_subdir = entry.details.permissions.canDelete()
         if entry.mimetype is not None and \
            entry.mimetype.val == 'Directory' and \
-           is_empty_dir(repo, subdirectory, empty_subdirs, dry_run):
-            if entry.details.permissions.canDelete():
+           is_empty_dir(repo, subdirectory, may_delete_subdir, empty_subdirs,
+                        dry_run):
+            if may_delete_subdir:
                 # note empty subdirectories that can be deleted
                 empty_subdirs.append(subdirectory)
         else:
             is_empty = False
 
-    if not is_empty:
+    if not (may_delete_dir and is_empty):
         # cannot delete this directory, so note empty subdirectories
         to_delete.extend(empty_subdirs)
 
