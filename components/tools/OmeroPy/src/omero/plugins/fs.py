@@ -286,7 +286,7 @@ class FsControl(CmdControl):
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
         usage.add_argument(
-            "--pretty", action="store_true",
+            "--human_readable", action="store_true",
             help="Use most appropriate units")
         usage.add_argument(
             "--groups",  action="store_true",
@@ -787,7 +787,7 @@ Examples:
                 if args.units:
                     size = ("%d %siB"
                             % (self._to_units(size, args.units), args.units))
-                elif args.pretty:
+                elif args.human_readable:
                     size = filesizeformat(size)
                 self.ctx.out(
                     "Total disk usage: %s bytes in %d files"
@@ -813,7 +813,7 @@ Examples:
             if col in sum_by:
                 cols.append(col)
                 align += 'l'
-        if args.pretty:
+        if args.human_readable:
             cols.extend(["size", "files"])
         else:
             cols.extend(["size (bytes)", "files"])
@@ -859,7 +859,7 @@ Examples:
 
         for key in subtotals.keys():
             row = list(key)
-            if args.pretty:
+            if args.human_readable:
                 subtotals[key][0] = filesizeformat(subtotals[key][0])
             row.extend(subtotals[key])
             tb.row(*tuple(row))
