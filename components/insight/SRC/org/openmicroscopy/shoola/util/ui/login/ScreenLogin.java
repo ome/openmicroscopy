@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -69,6 +70,8 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
+
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.StringComparator;
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -280,11 +283,9 @@ public class ScreenLogin
 		requestFocusOnField();
 		StringBuffer buf = new StringBuffer();
 		buf.append(pass.getPassword());
-		String usr = user.getText().trim(), psw = buf.toString();
+		String usr = user.getText(), psw = buf.toString();
 		String s = serverText.getText();
-		if (usr == null || usr.length() == 0 ||
-				psw == null || psw.length() == 0 ||
-				s == null || s.trim().length() == 0 ||
+		if (CommonsLangUtils.isBlank(usr) || CommonsLangUtils.isBlank(s) ||
 				s.trim().equals(DEFAULT_SERVER)) {
 			requestFocusOnField();
 			return;
@@ -829,20 +830,13 @@ public class ScreenLogin
 		String s = serverText.getText();
 		char[] name = pass.getPassword();
 		String usr = user.getText().trim();
-		usr = usr.trim();
-		if (s == null || usr == null || name == null) {
+		if (CommonsLangUtils.isBlank(s) || CommonsLangUtils.isBlank(usr)) {
 			enabled = false;
 		} else {
 			s = s.trim();
-			if (login != null) {
-				if (DEFAULT_SERVER.equals(s)) {
-					enabled = false;
-				} else {
-					if (usr.length() == 0 || name.length == 0) {
-						enabled = false;
-					}
-				}
-			}
+			if (DEFAULT_SERVER.equals(s)) {
+                enabled = false;
+            }
 		}
 		login.setEnabled(enabled);
 		if (enabled) {
