@@ -30,7 +30,7 @@ from omero.cli import VERSION
 class QuitControl(BaseControl):
 
     def _configure(self, parser):
-        return
+        parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
         self.ctx.exit("", newline=False)
@@ -39,7 +39,7 @@ class QuitControl(BaseControl):
 class VersionControl(BaseControl):
 
     def _configure(self, parser):
-        return
+        parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
         self.ctx.out(VERSION)
