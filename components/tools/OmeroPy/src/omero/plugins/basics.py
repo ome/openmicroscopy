@@ -180,36 +180,49 @@ class HelpControl(BaseControl):
                 self.format_title(control + " " + subcommand, sep="^")
                 self.ctx.invoke([control, subcommand, "-h"])
 
+    def print_usage(self):
+        commands, topics = [
+            self.__parser__._format_list(x) for x in
+            [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
+        key_list = {
+            "program_name": sys.argv[0],
+            "version": VERSION,
+            "commands": commands,
+            "topics": topics}
+        print HELP_USAGE % key_list
+
+    def print_single_command_or_topic(self, args):
+        """Print the help for a command or a topic"""
+        if args.topic in self.ctx.controls:
+            self.print_command_help(args.topic, args)
+        elif args.topic in self.ctx.topics:
+            self.ctx.out(self.ctx.topics[args.topic])
+        else:
+            self.ctx.err("Unknown help topic or command: %s" % args.topic)
+
+    def print_all_commands_and_topics(self, args):
+        """Print the help for all commands and topics"""
+
+        for control in sorted(self.ctx.controls):
+            self.format_title(control)
+            self.print_command_help(control, args)
+
+        for topic in sorted(self.ctx.topics):
+            self.format_title(topic)
+            self.ctx.out(self.ctx.topics[topic])
+
     def __call__(self, args):
 
         self.ctx.waitForPlugins()
 
+        # Fail-fast and print usage if no arg is passed
+        if not args.all and not args.topic:
+            self.print_usage()
+
         if args.all:
-            for control in sorted(self.ctx.controls):
-                self.format_title(control)
-                self.print_command_help(control, args)
-
-            for topic in sorted(self.ctx.topics):
-                self.format_title(topic)
-                self.ctx.out(self.ctx.topics[topic])
-
-        elif not args.topic:
-            commands, topics = [
-                self.__parser__._format_list(x) for x in
-                [sorted(self.ctx.controls), sorted(self.ctx.topics)]]
-            key_list = {
-                "program_name": sys.argv[0],
-                "version": VERSION,
-                "commands": commands,
-                "topics": topics}
-            print HELP_USAGE % key_list
+            self.print_all_commands_and_topics(args)
         else:
-            if args.topic in self.ctx.controls:
-                self.print_command_help(args.topic, args)
-            elif args.topic in self.ctx.topics:
-                self.ctx.out(self.ctx.topics[args.topic])
-            else:
-                self.ctx.err("Unknown help topic or command: %s" % args.topic)
+            self.print_single_command_or_topic(args)
 
 controls = {
     "help": (HelpControl, "Syntax help for all commands"),
