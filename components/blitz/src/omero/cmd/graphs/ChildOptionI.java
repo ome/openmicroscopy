@@ -20,6 +20,8 @@
 package omero.cmd.graphs;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 
@@ -193,14 +195,15 @@ public class ChildOptionI extends ChildOption {
      * @param childOptions an array of {@code ChildOption} which may all be casted to {@code ChildOptionI}, may be {@code null}
      * @return an array of {@code ChildOptionI}, may be {@code null}
      */
-    public static ChildOptionI[] castChildOptions(ChildOption[] childOptions) {
+    public static List<ChildOptionI> castChildOptions(Collection<ChildOption> childOptions) {
         if (childOptions == null) {
             return null;
         } else {
-            final ChildOptionI[] childOptionsI = new ChildOptionI[childOptions.length];
-            for (int index = 0; index < childOptions.length; index++) {
-                childOptionsI[index] = (ChildOptionI) childOptions[index];
+            final List<ChildOptionI> childOptionsI = new ArrayList<ChildOptionI>(childOptions.size());
+            for (final ChildOption childOption : childOptions) {
+                childOptionsI.add((ChildOptionI) childOption);
             }
+
             return childOptionsI;
         }
     }

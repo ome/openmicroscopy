@@ -73,10 +73,7 @@ public class GraphUtil {
         if (requestFrom.childOptions == null) {
             requestTo.childOptions = null;
         } else {
-            requestTo.childOptions = new ChildOption[requestFrom.childOptions.length];
-            for (int index = 0; index < requestFrom.childOptions.length; index++) {
-                requestTo.childOptions[index] = new ChildOptionI((ChildOptionI) requestFrom.childOptions[index]);
-            }
+            requestTo.childOptions = new ArrayList<ChildOption>(requestFrom.childOptions);
         }
         requestTo.dryRun = requestFrom.dryRun;
     }
@@ -131,7 +128,7 @@ public class GraphUtil {
                 childOptions.add(childOption);
             }
         }
-        request.childOptions = childOptions.isEmpty() ? null : childOptions.toArray(new ChildOption[childOptions.size()]);
+        request.childOptions = childOptions.isEmpty() ? null : childOptions;
     }
 
     /**

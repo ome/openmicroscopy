@@ -107,7 +107,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
         final EventContext eventContext = helper.getEventContext();
 
-        final ChildOptionI[] childOptions = ChildOptionI.castChildOptions(this.childOptions);
+        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
 
         if (childOptions != null) {
             for (final ChildOptionI childOption : childOptions) {

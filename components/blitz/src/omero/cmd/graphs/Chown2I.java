@@ -122,7 +122,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
             acceptableGroups = ImmutableSet.copyOf(iAdmin.getMemberOfGroupIds(new Experimenter(userId, false)));
         }
 
-        final ChildOptionI[] childOptions = ChildOptionI.castChildOptions(this.childOptions);
+        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
 
         if (childOptions != null) {
             for (final ChildOptionI childOption : childOptions) {

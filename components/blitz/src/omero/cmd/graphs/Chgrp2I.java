@@ -116,7 +116,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
             throw helper.cancel(new ERR(), new IllegalArgumentException(), "not a member of the chgrp destination group");
         }
 
-        final ChildOptionI[] childOptions = ChildOptionI.castChildOptions(this.childOptions);
+        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
 
         if (childOptions != null) {
             for (final ChildOptionI childOption : childOptions) {
