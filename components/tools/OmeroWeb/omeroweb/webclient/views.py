@@ -1591,22 +1591,25 @@ def annotate_tags(request, conn=None, **kwargs):
             manager = BaseShare(conn, o_id)
 
         manager.annotationList()
-        selected_tags = [(tag.id,
-                          unwrap(tag.link.details.owner.id),
-                          "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
-                          unwrap(tag.link.details.getPermissions().canDelete()),
-                          str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000)),
-                          self_id == unwrap(tag.link.details.owner.id),
-                          )
-                         for tag in manager.tag_annotations]
+        tags = manager.tag_annotations
+
     else:
         manager = BaseContainer(conn)
-        selected_tags = []
+        tags = []
         # Use the first object we find to set context (assume all objects are in same group!)
         for obs in oids.values():
             if len(obs) > 0:
                 conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
                 break
+
+    selected_tags = []
+    for tag in tags:
+        ownerId = unwrap(tag.link.details.owner.id)
+        ownerName = "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName))
+        canDelete = unwrap(tag.link.details.getPermissions().canDelete())
+        created = str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000))
+        owned = self_id == unwrap(tag.link.details.owner.id)
+        selected_tags.append((tag.id, ownerId, ownerName, canDelete, created, owned))
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
