@@ -39,6 +39,86 @@ import omero.cmd.graphs.ChildOption;
 public class Requests {
 
     /**
+     * Create a new {@link ChildOption} instance.
+     * @param includeType the child type to include in the request's operation
+     * @param excludeType the child type to exclude from the request's operation
+     * @return the new instance
+     */
+    public static ChildOption option(String includeType, String excludeType) {
+        final List<String> includeTypeList = includeType == null ? null : Collections.singletonList(includeType);
+        final List<String> excludeTypeList = excludeType == null ? null : Collections.singletonList(excludeType);
+        return new ChildOption(includeTypeList, excludeTypeList, null, null);
+    }
+
+    /**
+     * Create a new {@link ChildOption} instance.
+     * @param includeType the child types to include in the request's operation
+     * @param excludeType the child types to exclude from the request's operation
+     * @return the new instance
+     */
+    public static ChildOption option(List<String> includeType, List<String> excludeType) {
+        return new ChildOption(includeType, excludeType, null, null);
+    }
+
+    /**
+     * Create a new {@link ChildOption} instance.
+     * @param includeType the child type to include in the request's operation
+     * @param excludeType the child type to exclude from the request's operation
+     * @param includeNs the annotation namespace to which this option applies
+     * @param excludeNs the annotation namespace to which this option does not apply
+     * @return the new instance
+     */
+    public static ChildOption option(String includeType, String excludeType, String includeNs, String excludeNs) {
+        final List<String> includeTypeList = includeType == null ? null : Collections.singletonList(includeType);
+        final List<String> excludeTypeList = excludeType == null ? null : Collections.singletonList(excludeType);
+        final List<String> includeNsList = includeNs == null ? null : Collections.singletonList(includeNs);
+        final List<String> excludeNsList = excludeNs == null ? null : Collections.singletonList(excludeNs);
+        return new ChildOption(includeTypeList, excludeTypeList, includeNsList, excludeNsList);
+    }
+
+    /**
+     * Create a new {@link ChildOption} instance.
+     * @param includeType the child type to include in the request's operation
+     * @param excludeType the child type to exclude from the request's operation
+     * @param includeNs the annotation namespaces to which this option applies
+     * @param excludeNs the annotation namespaces to which this option does not apply
+     * @return the new instance
+     */
+    public static ChildOption option(String includeType, String excludeType, List<String> includeNs,
+            List<String> excludeNs) {
+        final List<String> includeTypeList = includeType == null ? null : Collections.singletonList(includeType);
+        final List<String> excludeTypeList = excludeType == null ? null : Collections.singletonList(excludeType);
+        return new ChildOption(includeTypeList, excludeTypeList, includeNs, excludeNs);
+    }
+
+    /**
+     * Create a new {@link ChildOption} instance.
+     * @param includeType the child types to include in the request's operation
+     * @param excludeType the child types to exclude from the request's operation
+     * @param includeNs the annotation namespace to which this option applies
+     * @param excludeNs the annotation namespace to which this option does not apply
+     * @return the new instance
+     */
+    public static ChildOption option(List<String> includeType, List<String> excludeType, String includeNs, String excludeNs) {
+        final List<String> includeNsList = includeNs == null ? null : Collections.singletonList(includeNs);
+        final List<String> excludeNsList = excludeNs == null ? null : Collections.singletonList(excludeNs);
+        return new ChildOption(includeType, excludeType, includeNsList, excludeNsList);
+    }
+
+    /**
+     * Create a new {@link ChildOption} instance.
+     * @param includeType the child types to include in the request's operation
+     * @param excludeType the child types to exclude from the request's operation
+     * @param includeNs the annotation namespaces to which this option applies
+     * @param excludeNs the annotation namespaces to which this option does not apply
+     * @return the new instance
+     */
+    public static ChildOption option(List<String> includeType, List<String> excludeType, List<String> includeNs,
+            List<String> excludeNs) {
+        return new ChildOption(includeType, excludeType, includeNs, excludeNs);
+    }
+
+    /**
      * Create a new {@link Chgrp2} request.
      * @param targetClass the target object class
      * @param targetId the target object ID
