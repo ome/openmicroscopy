@@ -813,10 +813,13 @@ Examples:
             if col in sum_by:
                 cols.append(col)
                 align += 'l'
-        if args.human_readable:
-            cols.extend(["size", "files"])
+        if args.units:
+            cols.append("size (%siB)" % args.units)
+        elif args.human_readable:
+            cols.append("size")
         else:
-            cols.extend(["size (bytes)", "files"])
+            cols.append("size (bytes)")
+        cols.append("files")
         align += 'rr'
         tb = TableBuilder(*cols)
         tb.set_align(align)
@@ -859,7 +862,10 @@ Examples:
 
         for key in subtotals.keys():
             row = list(key)
-            if args.human_readable:
+            if args.units:
+                subtotals[key][0] = self._to_units(
+                    subtotals[key][0], args.units)
+            elif args.human_readable:
                 subtotals[key][0] = filesizeformat(subtotals[key][0])
             row.extend(subtotals[key])
             tb.row(*tuple(row))
