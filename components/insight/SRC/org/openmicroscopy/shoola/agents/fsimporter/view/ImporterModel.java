@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
-import ij.IJ;
 import ij.ImagePlus;
 
 import java.util.Collection;
@@ -603,6 +602,7 @@ class ImporterModel
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {
+                    
                     rois = reader.readImageJROI(id);
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {
