@@ -40,7 +40,7 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
-SELECT assert_db_server_prerequisites(84000);
+SELECT assert_db_server_prerequisites(90200);
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
 
