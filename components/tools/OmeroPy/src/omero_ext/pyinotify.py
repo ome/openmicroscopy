@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # pyinotify.py - python interface to inotify
-# Copyright (c) 2010 Sebastien Martini <seb@dbzteam.org>
+# Copyright (c) 2005-2015 Sebastien Martini <seb@dbzteam.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,24 +42,13 @@ class UnsupportedPythonVersionError(PyinotifyError):
         @param version: Current Python version
         @type version: string
         """
-        PyinotifyError.__init__(self,
-                                ('Python %s is unsupported, requires '
-                                 'at least Python 2.4') % version)
-
-
-class UnsupportedLibcVersionError(PyinotifyError):
-    """
-    Raised when libc couldn't be loaded or when inotify functions werent
-    provided.
-    """
-    def __init__(self):
-        err = 'libc does not provide required inotify support'
-        PyinotifyError.__init__(self, err)
+        err = 'Python %s is unsupported, requires at least Python 2.4'
+        PyinotifyError.__init__(self, err % version)
 
 
 # Check Python version
 import sys
-if sys.version < '2.4':
+if sys.version_info < (2, 4):
     raise UnsupportedPythonVersionError(sys.version)
 
 
@@ -78,21 +66,36 @@ import atexit
 from collections import deque
 from datetime import datetime, timedelta
 import time
-import fnmatch
 import re
-import ctypes
-import ctypes.util
 import asyncore
-import glob
+import subprocess
 
 try:
     from functools import reduce
 except ImportError:
     pass  # Will fail on Python 2.4 which has reduce() builtin anyway.
 
+try:
+    from glob import iglob as glob
+except ImportError:
+    # Python 2.4 does not have glob.iglob().
+    from glob import glob as glob
+
+try:
+    import ctypes
+    import ctypes.util
+except ImportError:
+    ctypes = None
+
+try:
+    import inotify_syscalls
+except ImportError:
+    inotify_syscalls = None
+
+
 __author__ = "seb@dbzteam.org (Sebastien Martini)"
 
-__version__ = "0.9.1"
+__version__ = "0.9.5"
 
 __metaclass__ = type  # Use new-style classes by default
 
@@ -103,93 +106,166 @@ __metaclass__ = type  # Use new-style classes by default
 COMPATIBILITY_MODE = False
 
 
-# Load libc
-LIBC = None
-strerrno = None
-
-def load_libc():
-    global strerrno
-    global LIBC
-
-    libc = None
-    try:
-        libc = ctypes.util.find_library('c')
-    except (OSError, IOError):
-        pass  # Will attemp to load it with None anyway.
-
-    if sys.version_info[0] >= 2 and sys.version_info[1] >= 6:
-        LIBC = ctypes.CDLL(libc, use_errno=True)
-        def _strerrno():
-            code = ctypes.get_errno()
-            return ' Errno=%s (%s)' % (os.strerror(code), errno.errorcode[code])
-        strerrno = _strerrno
-    else:
-        LIBC = ctypes.CDLL(libc)
-        strerrno = lambda : ''
-
-    # Check that libc has needed functions inside.
-    if (not hasattr(LIBC, 'inotify_init') or
-        not hasattr(LIBC, 'inotify_add_watch') or
-        not hasattr(LIBC, 'inotify_rm_watch')):
-        raise UnsupportedLibcVersionError()
-
-load_libc()
-
-
-class PyinotifyLogger(logging.Logger):
+class InotifyBindingNotFoundError(PyinotifyError):
     """
-    Pyinotify logger used for logging unicode strings.
+    Raised when no inotify support couldn't be found.
     """
-    def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None,
-                   extra=None):
-        rv = UnicodeLogRecord(name, level, fn, lno, msg, args, exc_info, func)
-        if extra is not None:
-            for key in extra:
-                if (key in ["message", "asctime"]) or (key in rv.__dict__):
-                    raise KeyError("Attempt to overwrite %r in LogRecord" % key)
-                rv.__dict__[key] = extra[key]
-        return rv
+    def __init__(self):
+        err = "Couldn't find any inotify binding"
+        PyinotifyError.__init__(self, err)
 
 
-class UnicodeLogRecord(logging.LogRecord):
-    def __init__(self, name, level, pathname, lineno,
-                 msg, args, exc_info, func=None):
-        py_version = sys.version_info
-        # func argument was added in Python 2.5, just ignore it otherwise.
-        if py_version[0] >= 2 and py_version[1] >= 5:
-            logging.LogRecord.__init__(self, name, level, pathname, lineno,
-                                       msg, args, exc_info, func)
+class INotifyWrapper:
+    """
+    Abstract class wrapping access to inotify's functions. This is an
+    internal class.
+    """
+    @staticmethod
+    def create():
+        # First, try to use ctypes.
+        if ctypes:
+            inotify = _CtypesLibcINotifyWrapper()
+            if inotify.init():
+                return inotify
+        # Second, see if C extension is compiled.
+        if inotify_syscalls:
+            inotify = _INotifySyscallsWrapper()
+            if inotify.init():
+                return inotify
+
+    def get_errno(self):
+        """
+        Return None is no errno code is available.
+        """
+        return self._get_errno()
+
+    def str_errno(self):
+        code = self.get_errno()
+        if code is None:
+            return 'Errno: no errno support'
+        return 'Errno=%s (%s)' % (os.strerror(code), errno.errorcode[code])
+
+    def inotify_init(self):
+        return self._inotify_init()
+
+    def inotify_add_watch(self, fd, pathname, mask):
+        # Unicode strings must be encoded to string prior to calling this
+        # method.
+        assert isinstance(pathname, str)
+        return self._inotify_add_watch(fd, pathname, mask)
+
+    def inotify_rm_watch(self, fd, wd):
+        return self._inotify_rm_watch(fd, wd)
+
+
+class _INotifySyscallsWrapper(INotifyWrapper):
+    def __init__(self):
+        # Stores the last errno value.
+        self._last_errno = None
+
+    def init(self):
+        assert inotify_syscalls
+        return True
+
+    def _get_errno(self):
+        return self._last_errno
+
+    def _inotify_init(self):
+        try:
+            fd = inotify_syscalls.inotify_init()
+        except IOError, err:
+            self._last_errno = err.errno
+            return -1
+        return fd
+
+    def _inotify_add_watch(self, fd, pathname, mask):
+        try:
+            wd = inotify_syscalls.inotify_add_watch(fd, pathname, mask)
+        except IOError, err:
+            self._last_errno = err.errno
+            return -1
+        return wd
+
+    def _inotify_rm_watch(self, fd, wd):
+        try:
+            ret = inotify_syscalls.inotify_rm_watch(fd, wd)
+        except IOError, err:
+            self._last_errno = err.errno
+            return -1
+        return ret
+
+
+class _CtypesLibcINotifyWrapper(INotifyWrapper):
+    def __init__(self):
+        self._libc = None
+        self._get_errno_func = None
+
+    def init(self):
+        assert ctypes
+
+        try_libc_name = 'c'
+        if sys.platform.startswith('freebsd'):
+            try_libc_name = 'inotify'
+
+        libc_name = None
+        try:
+            libc_name = ctypes.util.find_library(try_libc_name)
+        except (OSError, IOError):
+            pass  # Will attemp to load it with None anyway.
+
+        if sys.version_info >= (2, 6):
+            self._libc = ctypes.CDLL(libc_name, use_errno=True)
+            self._get_errno_func = ctypes.get_errno
         else:
-            logging.LogRecord.__init__(self, name, level, pathname, lineno,
-                                       msg, args, exc_info)
-
-    def getMessage(self):
-        msg = self.msg
-        if not isinstance(msg, (unicode, str)):
+            self._libc = ctypes.CDLL(libc_name)
             try:
-                msg = str(self.msg)
-            except UnicodeError:
+                location = self._libc.__errno_location
+                location.restype = ctypes.POINTER(ctypes.c_int)
+                self._get_errno_func = lambda: location().contents.value
+            except AttributeError:
                 pass
-        if self.args:
-            if isinstance(self.args, tuple):
-                def str_to_unicode(s):
-                    """Return unicode string."""
-                    if not isinstance(s, str):
-                        return s
-                    return unicode(s, sys.getfilesystemencoding())
-                args = tuple([str_to_unicode(m) for m in self.args])
-            else:
-                args = self.args
-            msg = msg % args
-        if not isinstance(msg, unicode):
-            msg = unicode(msg, sys.getfilesystemencoding())
-        return msg
+
+        # Eventually check that libc has needed inotify bindings.
+        if (not hasattr(self._libc, 'inotify_init') or
+            not hasattr(self._libc, 'inotify_add_watch') or
+            not hasattr(self._libc, 'inotify_rm_watch')):
+            return False
+
+        self._libc.inotify_init.argtypes = []
+        self._libc.inotify_init.restype = ctypes.c_int
+        self._libc.inotify_add_watch.argtypes = [ctypes.c_int, ctypes.c_char_p,
+                                                 ctypes.c_uint32]
+        self._libc.inotify_add_watch.restype = ctypes.c_int
+        self._libc.inotify_rm_watch.argtypes = [ctypes.c_int, ctypes.c_int]
+        self._libc.inotify_rm_watch.restype = ctypes.c_int
+        return True
+
+    def _get_errno(self):
+        if self._get_errno_func is not None:
+            return self._get_errno_func()
+        return None
+
+    def _inotify_init(self):
+        assert self._libc is not None
+        return self._libc.inotify_init()
+
+    def _inotify_add_watch(self, fd, pathname, mask):
+        assert self._libc is not None
+        pathname = ctypes.create_string_buffer(pathname)
+        return self._libc.inotify_add_watch(fd, pathname, mask)
+
+    def _inotify_rm_watch(self, fd, wd):
+        assert self._libc is not None
+        return self._libc.inotify_rm_watch(fd, wd)
+
+    def _sysctl(self, *args):
+        assert self._libc is not None
+        return self._libc.sysctl(*args)
 
 
 # Logging
 def logger_init():
     """Initialize logger instance."""
-    logging.setLoggerClass(PyinotifyLogger)
     log = logging.getLogger("pyinotify")
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(
@@ -216,29 +292,49 @@ class SysCtlINotify:
                      'max_user_watches': 2,
                      'max_queued_events': 3}
 
-    def __init__(self, attrname):
-        sino = ctypes.c_int * 3
+    def __init__(self, attrname, inotify_wrapper):
+        # FIXME: right now only supporting ctypes
+        assert ctypes
         self._attrname = attrname
+        self._inotify_wrapper = inotify_wrapper
+        sino = ctypes.c_int * 3
         self._attr = sino(5, 20, SysCtlINotify.inotify_attrs[attrname])
+
+    @staticmethod
+    def create(attrname):
+        """
+        Factory method instanciating and returning the right wrapper.
+        """
+        # FIXME: right now only supporting ctypes
+        if ctypes is None:
+            return None
+        inotify_wrapper = _CtypesLibcINotifyWrapper()
+        if not inotify_wrapper.init():
+            return None
+        return SysCtlINotify(attrname, inotify_wrapper)
 
     def get_val(self):
         """
-        Gets attribute's value.
+        Gets attribute's value. Raises OSError if the operation failed.
 
         @return: stored value.
         @rtype: int
         """
         oldv = ctypes.c_int(0)
         size = ctypes.c_int(ctypes.sizeof(oldv))
-        LIBC.sysctl(self._attr, 3,
-                    ctypes.c_voidp(ctypes.addressof(oldv)),
-                    ctypes.addressof(size),
-                    None, 0)
+        sysctl = self._inotify_wrapper._sysctl
+        res = sysctl(self._attr, 3,
+                     ctypes.c_voidp(ctypes.addressof(oldv)),
+                     ctypes.addressof(size),
+                     None, 0)
+        if res == -1:
+            raise OSError(self._inotify_wrapper.get_errno(),
+                          self._inotify_wrapper.str_errno())
         return oldv.value
 
     def set_val(self, nval):
         """
-        Sets new attribute's value.
+        Sets new attribute's value. Raises OSError if the operation failed.
 
         @param nval: replaces current value by nval.
         @type nval: int
@@ -247,11 +343,15 @@ class SysCtlINotify:
         sizeo = ctypes.c_int(ctypes.sizeof(oldv))
         newv = ctypes.c_int(nval)
         sizen = ctypes.c_int(ctypes.sizeof(newv))
-        LIBC.sysctl(self._attr, 3,
-                    ctypes.c_voidp(ctypes.addressof(oldv)),
-                    ctypes.addressof(sizeo),
-                    ctypes.c_voidp(ctypes.addressof(newv)),
-                    ctypes.addressof(sizen))
+        sysctl = self._inotify_wrapper._sysctl
+        res = sysctl(self._attr, 3,
+                     ctypes.c_voidp(ctypes.addressof(oldv)),
+                     ctypes.addressof(sizeo),
+                     ctypes.c_voidp(ctypes.addressof(newv)),
+                     sizen)
+        if res == -1:
+            raise OSError(self._inotify_wrapper.get_errno(),
+                          self._inotify_wrapper.str_errno())
 
     value = property(get_val, set_val)
 
@@ -259,13 +359,16 @@ class SysCtlINotify:
         return '<%s=%d>' % (self._attrname, self.get_val())
 
 
-# Singleton instances
+# Inotify's variables
+#
+# FIXME: currently these variables are only accessible when ctypes is used,
+#        otherwise there are set to None.
 #
 # read: myvar = max_queued_events.value
 # update: max_queued_events.value = 42
 #
 for attrname in ('max_queued_events', 'max_user_instances', 'max_user_watches'):
-    globals()[attrname] = SysCtlINotify(attrname)
+    globals()[attrname] = SysCtlINotify.create(attrname)
 
 
 class EventsCodes:
@@ -311,6 +414,10 @@ class EventsCodes:
                           IN_ONLYDIR we can make sure that we don't watch
                           the target of symlinks.
     @type IN_DONT_FOLLOW: int
+    @cvar IN_EXCL_UNLINK: Events are not generated for children after they
+                          have been unlinked from the watched directory.
+                          (new in kernel 2.6.36).
+    @type IN_EXCL_UNLINK: int
     @cvar IN_MASK_ADD: add to the mask of an already existing watch (new
                        in kernel 2.6.14).
     @type IN_MASK_ADD: int
@@ -349,6 +456,7 @@ class EventsCodes:
         'IN_ONLYDIR'       : 0x01000000,  # only watch the path if it is a
                                           # directory
         'IN_DONT_FOLLOW'   : 0x02000000,  # don't follow a symlink
+        'IN_EXCL_UNLINK'   : 0x04000000,  # exclude events on unlinked objects
         'IN_MASK_ADD'      : 0x20000000,  # add to the mask of an already
                                           # existing watch
         'IN_ISDIR'         : 0x40000000,  # event occurred against dir
@@ -635,22 +743,33 @@ class _SysProcessEvent(_ProcessEvent):
                                 rec=False, auto_add=watch_.auto_add,
                                 exclude_filter=watch_.exclude_filter)
 
-                # Trick to handle mkdir -p /t1/t2/t3 where t1 is watched and
-                # t2 and t3 are created.
-                # Since the directory is new, then everything inside it
-                # must also be new.
+                # Trick to handle mkdir -p /d1/d2/t3 where d1 is watched and
+                # d2 and t3 (directory or file) are created.
+                # Since the directory d2 is new, then everything inside it must
+                # also be new.
                 created_dir_wd = addw_ret.get(created_dir)
-                if (created_dir_wd is not None) and created_dir_wd > 0:
-                    for name in os.listdir(created_dir):
-                        inner = os.path.join(created_dir, name)
-                        if (os.path.isdir(inner) and
-                            self._watch_manager.get_wd(inner) is None):
-                            # Generate (simulate) creation event for sub
-                            # directories.
-                            rawevent = _RawEvent(created_dir_wd,
-                                                 IN_CREATE | IN_ISDIR,
-                                                 0, name)
+                if ((created_dir_wd is not None) and (created_dir_wd > 0) and
+                    os.path.isdir(created_dir)):
+                    try:
+                        for name in os.listdir(created_dir):
+                            inner = os.path.join(created_dir, name)
+                            if self._watch_manager.get_wd(inner) is not None:
+                                continue
+                            # Generate (simulate) creation events for sub-
+                            # directories and files.
+                            if os.path.isfile(inner):
+                                # symlinks are handled as files.
+                                flags = IN_CREATE
+                            elif os.path.isdir(inner):
+                                flags = IN_CREATE | IN_ISDIR
+                            else:
+                                # This path should not be taken.
+                                continue
+                            rawevent = _RawEvent(created_dir_wd, flags, 0, name)
                             self._notifier.append_event(rawevent)
+                    except OSError, err:
+                        msg = "process_IN_CREATE, invalid directory %s: %s"
+                        log.debug(msg % (created_dir, str(err)))
         return self.process_default(raw_event)
 
     def process_IN_MOVED_FROM(self, raw_event):
@@ -781,7 +900,7 @@ class _SysProcessEvent(_ProcessEvent):
 class ProcessEvent(_ProcessEvent):
     """
     Process events objects, can be specialized via subclassing, thus its
-    behavior can be overridden:
+    behavior can be overriden:
 
     Note: you should not override __init__ in your subclass instead define
     a my_init() method, this method will be called automatically from the
@@ -1043,7 +1162,7 @@ class Notifier:
                           At least with read_freq set you might sleep.
         @type threshold: int
         @param timeout:
-            http://docs.python.org/lib/poll-objects.html#poll-objects
+            https://docs.python.org/3/library/select.html#polling-objects
         @type timeout: int
         """
         # Watch Manager instance
@@ -1183,13 +1302,17 @@ class Notifier:
         """
         while self._eventq:
             raw_event = self._eventq.popleft()  # pop next event
+            if self._watch_manager.ignore_events:
+                log.debug("Event ignored: %s" % repr(raw_event))
+                continue
             watch_ = self._watch_manager.get_watch(raw_event.wd)
-            if watch_ is None:
-                # Not really sure how we ended up here, nor how we should
-                # handle these types of events and if it is appropriate to
-                # completly skip them (like we are doing here).
-                log.warning("Unable to retrieve Watch object associated to %s",
-                            repr(raw_event))
+            if (watch_ is None) and not (raw_event.mask & IN_Q_OVERFLOW):
+                if not (raw_event.mask & IN_IGNORED):
+                    # Not really sure how we ended up here, nor how we should
+                    # handle these types of events and if it is appropriate to
+                    # completly skip them (like we are doing here).
+                    log.warning("Unable to retrieve Watch object associated to %s",
+                                repr(raw_event))
                 continue
             revent = self._sys_proc_fun(raw_event)  # system processings
             if watch_ and watch_.proc_fun:
@@ -1203,10 +1326,13 @@ class Notifier:
     def __daemonize(self, pid_file=None, stdin=os.devnull, stdout=os.devnull,
                     stderr=os.devnull):
         """
-        pid_file: file where the pid will be written. If pid_file=None the pid
-                  is written to /var/run/<sys.argv[0]|pyinotify>.pid, if
-                  pid_file=False no pid_file is written.
-        stdin, stdout, stderr: files associated to common streams.
+        @param pid_file: file where the pid will be written. If pid_file=None
+                         the pid is written to
+                         /var/run/<sys.argv[0]|pyinotify>.pid, if pid_file=False
+                         no pid_file is written.
+        @param stdin:
+        @param stdout:
+        @param stderr: files associated to common streams.
         """
         if pid_file is None:
             dirname = '/var/run/'
@@ -1255,7 +1381,6 @@ class Notifier:
             # Register unlink function
             atexit.register(lambda : os.unlink(pid_file))
 
-
     def _sleep(self, ref_time):
         # Only consider sleeping if read_freq is > 0
         if self._read_freq > 0:
@@ -1264,7 +1389,6 @@ class Notifier:
             if sleep_amount > 0:
                 log.debug('Now sleeping %d seconds', sleep_amount)
                 time.sleep(sleep_amount)
-
 
     def loop(self, callback=None, daemonize=False, **args):
         """
@@ -1312,7 +1436,6 @@ class Notifier:
         # Close internals
         self.stop()
 
-
     def stop(self):
         """
         Close inotify's instance (close its file descriptor).
@@ -1321,6 +1444,7 @@ class Notifier:
         """
         self._pollobj.unregister(self._fd)
         os.close(self._fd)
+        self._sys_proc_fun = None
 
 
 class ThreadedNotifier(threading.Thread, Notifier):
@@ -1355,7 +1479,7 @@ class ThreadedNotifier(threading.Thread, Notifier):
                           least with read_freq you might sleep.
         @type threshold: int
         @param timeout:
-           see http://docs.python.org/lib/poll-objects.html#poll-objects
+            https://docs.python.org/3/library/select.html#polling-objects
         @type timeout: int
         """
         # Init threading base class
@@ -1440,11 +1564,93 @@ class AsyncNotifier(asyncore.file_dispatcher, Notifier):
         self.process_events()
 
 
+class TornadoAsyncNotifier(Notifier):
+    """
+    Tornado ioloop adapter.
+
+    """
+    def __init__(self, watch_manager, ioloop, callback=None,
+                 default_proc_fun=None, read_freq=0, threshold=0, timeout=None,
+                 channel_map=None):
+        """
+        Note that if later you must call ioloop.close() be sure to let the
+        default parameter to all_fds=False.
+
+        See example tornado_notifier.py for an example using this notifier.
+
+        @param ioloop: Tornado's IO loop.
+        @type ioloop: tornado.ioloop.IOLoop instance.
+        @param callback: Functor called at the end of each call to handle_read
+                         (IOLoop's read handler). Expects to receive the
+                         notifier object (self) as single parameter.
+        @type callback: callable object or function
+        """
+        self.io_loop = ioloop
+        self.handle_read_callback = callback
+        Notifier.__init__(self, watch_manager, default_proc_fun, read_freq,
+                          threshold, timeout)
+        ioloop.add_handler(self._fd, self.handle_read, ioloop.READ)
+
+    def stop(self):
+        self.io_loop.remove_handler(self._fd)
+        Notifier.stop(self)
+
+    def handle_read(self, *args, **kwargs):
+        """
+        See comment in AsyncNotifier.
+
+        """
+        self.read_events()
+        self.process_events()
+        if self.handle_read_callback is not None:
+            self.handle_read_callback(self)
+
+
+class AsyncioNotifier(Notifier):
+    """
+
+    asyncio/trollius event loop adapter.
+
+    """
+    def __init__(self, watch_manager, loop, callback=None,
+                 default_proc_fun=None, read_freq=0, threshold=0, timeout=None):
+        """
+
+        See examples/asyncio_notifier.py for an example usage.
+
+        @param loop: asyncio or trollius event loop instance.
+        @type loop: asyncio.BaseEventLoop or trollius.BaseEventLoop instance.
+        @param callback: Functor called at the end of each call to handle_read.
+                         Expects to receive the notifier object (self) as
+                         single parameter.
+        @type callback: callable object or function
+
+        """
+        self.loop = loop
+        self.handle_read_callback = callback
+        Notifier.__init__(self, watch_manager, default_proc_fun, read_freq,
+                          threshold, timeout)
+        loop.add_reader(self._fd, self.handle_read)
+
+    def stop(self):
+        self.loop.remove_reader(self._fd)
+        Notifier.stop(self)
+
+    def handle_read(self, *args, **kwargs):
+        self.read_events()
+        self.process_events()
+        if self.handle_read_callback is not None:
+            self.handle_read_callback(self)
+
+
 class Watch:
     """
     Represent a watch, i.e. a file or directory being watched.
 
     """
+    __slots__ = ('wd', 'path', 'mask', 'proc_fun', 'auto_add',
+                 'exclude_filter', 'dir')
+
     def __init__(self, wd, path, mask, proc_fun, auto_add, exclude_filter):
         """
         Initializations.
@@ -1481,7 +1687,7 @@ class Watch:
                                   output_format.punctuation('='),
                                   output_format.field_value(getattr(self,
                                                                     attr))) \
-                      for attr in self.__dict__ if not attr.startswith('_')])
+                      for attr in self.__slots__ if not attr.startswith('_')])
 
         s = '%s%s %s %s' % (output_format.punctuation('<'),
                             output_format.class_name(self.__class__.__name__),
@@ -1493,15 +1699,20 @@ class Watch:
 class ExcludeFilter:
     """
     ExcludeFilter is an exclusion filter.
+
     """
     def __init__(self, arg_lst):
         """
         Examples:
-          ef1 = ExcludeFilter(["^/etc/rc.*", "^/etc/hostname"])
+          ef1 = ExcludeFilter(["/etc/rc.*", "/etc/hostname"])
           ef2 = ExcludeFilter("/my/path/exclude.lst")
           Where exclude.lst contains:
-          ^/etc/rc.*
-          ^/etc/hostname
+          /etc/rc.*
+          /etc/hostname
+
+        Note: it is not possible to exclude a file if its encapsulating
+              directory is itself watched. See this issue for more details
+              https://github.com/seb-m/pyinotify/issues/31
 
         @param arg_lst: is either a list of patterns or a filename from which
                         patterns will be loaded.
@@ -1578,7 +1789,9 @@ class WatchManager:
     def __init__(self, exclude_filter=lambda path: False):
         """
         Initialization: init inotify, init watch manager dictionary.
-        Raise OSError if initialization fails.
+        Raise OSError if initialization fails, raise InotifyBindingNotFoundError
+        if no inotify binding was found (through ctypes or from direct access to
+        syscalls).
 
         @param exclude_filter: boolean function, returns True if current
                                path must be excluded from being watched.
@@ -1586,12 +1799,18 @@ class WatchManager:
                                filter for every call to add_watch.
         @type exclude_filter: callable object
         """
+        self._ignore_events = False
         self._exclude_filter = exclude_filter
         self._wmd = {}  # watch dict key: watch descriptor, value: watch
-        self._fd = LIBC.inotify_init() # inotify's init, file descriptor
+
+        self._inotify_wrapper = INotifyWrapper.create()
+        if self._inotify_wrapper is None:
+            raise InotifyBindingNotFoundError()
+
+        self._fd = self._inotify_wrapper.inotify_init() # file descriptor
         if self._fd < 0:
-            err = 'Cannot initialize new instance of inotify%s' % strerrno()
-            raise OSError(err)
+            err = 'Cannot initialize new instance of inotify, %s'
+            raise OSError(err % self._inotify_wrapper.str_errno())
 
     def close(self):
         """
@@ -1633,7 +1852,7 @@ class WatchManager:
         try:
             del self._wmd[wd]
         except KeyError, err:
-            log.error(str(err))
+            log.error('Cannot delete unknown watch descriptor %s' % str(err))
 
     @property
     def watches(self):
@@ -1649,8 +1868,8 @@ class WatchManager:
         """
         Format path to its internal (stored in watch manager) representation.
         """
-        # Unicode strings are converted to byte strings, it seems to be
-        # required because LIBC.inotify_add_watch does not work well when
+        # Unicode strings are converted back to strings, because it seems
+        # that inotify_add_watch from ctypes does not work well when
         # it receives an ctypes.create_unicode_buffer instance as argument.
         # Therefore even wd are indexed with bytes string and not with
         # unicode paths.
@@ -1663,21 +1882,21 @@ class WatchManager:
         Add a watch on path, build a Watch object and insert it in the
         watch manager dictionary. Return the wd value.
         """
-        byte_path = self.__format_path(path)
-        wd_ = LIBC.inotify_add_watch(self._fd,
-                                     ctypes.create_string_buffer(byte_path),
-                                     mask)
-        if wd_ < 0:
-            return wd_
-        watch_ = Watch(wd=wd_, path=byte_path, mask=mask, proc_fun=proc_fun,
-                       auto_add=auto_add, exclude_filter=exclude_filter)
-        self._wmd[wd_] = watch_
-        log.debug('New %s', watch_)
-        return wd_
+        path = self.__format_path(path)
+        if auto_add and not mask & IN_CREATE:
+            mask |= IN_CREATE
+        wd = self._inotify_wrapper.inotify_add_watch(self._fd, path, mask)
+        if wd < 0:
+            return wd
+        watch = Watch(wd=wd, path=path, mask=mask, proc_fun=proc_fun,
+                      auto_add=auto_add, exclude_filter=exclude_filter)
+        self._wmd[wd] = watch
+        log.debug('New %s', watch)
+        return wd
 
     def __glob(self, path, do_glob):
         if do_glob:
-            return glob.iglob(path)
+            return glob(path)
         else:
             return [path]
 
@@ -1710,6 +1929,8 @@ class WatchManager:
         @type rec: bool
         @param auto_add: Automatically add watches on newly created
                          directories in watched parent |path| directory.
+                         If |auto_add| is True, IN_CREATE is ored with |mask|
+                         when the watch is added.
         @type auto_add: bool
         @param do_glob: Do globbing on pathname (see standard globbing
                         module for more informations).
@@ -1741,19 +1962,15 @@ class WatchManager:
             for apath in self.__glob(npath, do_glob):
                 # recursively list subdirs according to rec param
                 for rpath in self.__walk_rec(apath, rec):
-                    if self.get_wd(rpath) is not None:
-                        # We decide to ignore paths already inserted into
-                        # the watch manager. Need to be removed with rm_watch()
-                        # first. Or simply call update_watch() to update it.
-                        continue
                     if not exclude_filter(rpath):
                         wd = ret_[rpath] = self.__add_watch(rpath, mask,
                                                             proc_fun,
                                                             auto_add,
                                                             exclude_filter)
                         if wd < 0:
-                            err = 'add_watch: cannot watch %s WD=%d%s'
-                            err = err % (rpath, wd, strerrno())
+                            err = ('add_watch: cannot watch %s WD=%d, %s' % \
+                                       (rpath, wd,
+                                        self._inotify_wrapper.str_errno()))
                             if quiet:
                                 log.error(err)
                             else:
@@ -1818,8 +2035,9 @@ class WatchManager:
                     subdirectories contained into |wd| directory.
         @type rec: bool
         @param auto_add: Automatically adds watches on newly created
-                         directories in the watch's path corresponding to
-                         |wd|.
+                         directories in the watch's path corresponding to |wd|.
+                         If |auto_add| is True, IN_CREATE is ored with |mask|
+                         when the watch is updated.
         @type auto_add: bool
         @param quiet: If False raises a WatchManagerError exception on
                       error. See example not_quiet.py
@@ -1844,12 +2062,12 @@ class WatchManager:
                 raise WatchManagerError(err, ret_)
 
             if mask:
-                addw = LIBC.inotify_add_watch
-                wd_ = addw(self._fd, ctypes.create_string_buffer(apath), mask)
+                wd_ = self._inotify_wrapper.inotify_add_watch(self._fd, apath,
+                                                              mask)
                 if wd_ < 0:
                     ret_[awd] = False
-                    err = 'update_watch: cannot update %s WD=%d%s'
-                    err = err % (apath, wd_, strerrno())
+                    err = ('update_watch: cannot update %s WD=%d, %s' % \
+                               (apath, wd_, self._inotify_wrapper.str_errno()))
                     if quiet:
                         log.error(err)
                         continue
@@ -1955,10 +2173,11 @@ class WatchManager:
         ret_ = {}  # return {wd: bool, ...}
         for awd in lwd:
             # remove watch
-            wd_ = LIBC.inotify_rm_watch(self._fd, awd)
+            wd_ = self._inotify_wrapper.inotify_rm_watch(self._fd, awd)
             if wd_ < 0:
                 ret_[awd] = False
-                err = 'rm_watch: cannot remove WD=%d%s' % (awd, strerrno())
+                err = ('rm_watch: cannot remove WD=%d, %s' % \
+                           (awd, self._inotify_wrapper.str_errno()))
                 if quiet:
                     log.error(err)
                     continue
@@ -2012,6 +2231,16 @@ class WatchManager:
                               rec=False,
                               auto_add=False, do_glob=False,
                               exclude_filter=lambda path: False)
+
+    def get_ignore_events(self):
+        return self._ignore_events
+
+    def set_ignore_events(self, nval):
+        self._ignore_events = nval
+
+    ignore_events = property(get_ignore_events, set_ignore_events,
+                             "Make watch manager ignoring new events.")
+
 
 
 class RawOutputFormat:
@@ -2100,6 +2329,9 @@ def command_line():
     parser.add_option("-a", "--auto_add", action="store_true",
                       dest="auto_add",
                       help="Automatically add watches on new directories")
+    parser.add_option("-g", "--glob", action="store_true",
+                      dest="glob",
+                      help="Treat paths as globs")
     parser.add_option("-e", "--events-list", metavar="EVENT[,...]",
                       dest="events_list",
                       help=("A comma-separated list of events to watch for - "
@@ -2113,6 +2345,9 @@ def command_line():
     parser.add_option("-f", "--raw-format", action="store_true",
                       dest="raw_format",
                       help="Disable enhanced output format.")
+    parser.add_option("-c", "--command", action="store",
+                      dest="command",
+                      help="Shell command to run upon event")
 
     (options, args) = parser.parse_args()
 
@@ -2164,9 +2399,15 @@ def command_line():
             sys.stdout.flush()
         cb_fun = cb
 
+    # External command
+    if options.command:
+        def cb(s):
+            subprocess.Popen(options.command, shell=True)
+        cb_fun = cb
+
     log.debug('Start monitoring %s, (press c^c to halt pyinotify)' % path)
 
-    wm.add_watch(path, mask, rec=options.recursive, auto_add=options.auto_add)
+    wm.add_watch(path, mask, rec=options.recursive, auto_add=options.auto_add, do_glob=options.glob)
     # Loop forever (until sigint signal get caught)
     notifier.loop(callback=cb_fun)
 
