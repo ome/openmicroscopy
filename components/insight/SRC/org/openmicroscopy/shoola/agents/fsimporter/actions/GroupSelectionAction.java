@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
