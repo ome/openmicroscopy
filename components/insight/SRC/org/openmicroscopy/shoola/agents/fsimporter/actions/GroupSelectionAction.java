@@ -123,7 +123,7 @@ public class GroupSelectionAction
 	}
 	
 	/**
-	 * Sets the default group for the currently logged in user.
+	 * Sets the active group for the currently logged in user.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
     public void actionPerformed(ActionEvent e) { model.setUserGroup(group); }

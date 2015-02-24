@@ -527,7 +527,7 @@ public class TreeViewerAgent
             try {
                 gp = exp.getActiveGroup();
             } catch (Exception ex) {
-                //No default group
+                //No active group
             }
             long id = -1;
             if (gp != null) id = gp.getId();

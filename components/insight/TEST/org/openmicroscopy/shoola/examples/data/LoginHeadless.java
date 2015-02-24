@@ -105,7 +105,7 @@ implements AgentEventListener
 			//All the groups the user is member of 
 			Collection<GroupData> groups = adminSvc.getAvailableUserGroups();
 			System.err.println(groups);
-			//The user is logged into his/her default group. 
+			//The user is logged into his/her active group. 
 			//Security Context is mainly for now only using the group
 			// idea is to support multi-server.
 			long groupId = exp.getActiveGroup().getId();

@@ -203,7 +203,7 @@ public class AdminLoader
     private BatchCall changeGroup(final SecurityContext ctx,
             final GroupData group, final ExperimenterData experimenter)
     {
-        return new BatchCall("Change the default group") {
+        return new BatchCall("Change the active group") {
             public void doCall() throws Exception
             {
                 AdminService os = context.getAdminService();
@@ -465,7 +465,7 @@ public class AdminLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-     * @param group The default group to set.
+     * @param group The active group to set.
      * @param experimenters The experimenters to update.
      * 						Mustn't be <code>null</code>.
      */
@@ -481,8 +481,8 @@ public class AdminLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-     * @param group The default group to set.
-     * @param experimenter The experimenter to update the default group.
+     * @param group The active group to set.
+     * @param experimenter The experimenter to update the active group.
      */
     public AdminLoader(SecurityContext ctx, GroupData group,
             ExperimenterData experimenter)

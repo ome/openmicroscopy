@@ -248,12 +248,12 @@ public interface AdminView
 			AgentEventListener observer);
 	
 	/**
-     * Changes the default group of the specified user or <code>null</code>.
+     * Changes the active group of the specified user or <code>null</code>.
      * 
      * @param ctx The security context.
      * @param group The group to update. Mustn't be <code>null</code>.
      * @param experimenter The user to handle or <code>null</code> to modify
-     * the default group of the logged in user.
+     * the active group of the logged in user.
      * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
@@ -261,7 +261,7 @@ public interface AdminView
             ExperimenterData experimenter, AgentEventListener observer);
 
     /**
-     * Changes the default group of the specified user or <code>null</code>.
+     * Changes the active group of the specified user or <code>null</code>.
      * 
      * @param ctx The security context.
      * @param userID The identifier of the user to handle.

@@ -343,7 +343,7 @@ public interface AdminService
      * experimenter that cannot be updated and whose values are the exception.
      * 
      * @param ctx The security context.
-     * @param group The default group.
+     * @param group The active group.
      * @param experimenters The experimenters to update.
      * @return See above
      * @throws DSOutOfServiceException If the connection is broken, or logged in

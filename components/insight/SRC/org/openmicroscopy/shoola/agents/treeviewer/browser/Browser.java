@@ -853,7 +853,7 @@ public interface Browser
 	void paste(TreeImageDisplay[] parents);
 	
 	/**
-	 * Returns the node hosting the default group when in group display mode.
+	 * Returns the node hosting the active group when in group display mode.
 	 * 
 	 * @return See above.
 	 */

@@ -1964,7 +1964,7 @@ class OMEROGateway
 	}
 
 	/**
-	 * Changes the default group of the currently logged in user.
+	 * Changes the active group of the currently logged in user.
 	 *
 	 * @param ctx The security context.
 	 * @param exp The experimenter to handle

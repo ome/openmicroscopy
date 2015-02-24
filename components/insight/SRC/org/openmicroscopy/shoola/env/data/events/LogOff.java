@@ -50,7 +50,7 @@ public class LogOff
 	 */
 	private boolean askQuestion;
 
-	/** The security context to use to modify the default group.*/
+	/** The security context to use to modify the active group.*/
 	private SecurityContext ctx;
 	
     /** Creates a new instance. */

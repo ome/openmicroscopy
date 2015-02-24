@@ -489,11 +489,11 @@ class UserProfile
                 groupsBox.addActionListener(new ActionListener() {
 
                     /**
-                     * Listens to the change of default group.
+                     * Listens to the change of active group.
                      */
                     public void actionPerformed(ActionEvent evt) {
                         GroupData g = getSelectedGroup();
-                        //update the default group
+                        //update the active group
                         permissionsPane.resetPermissions(g.getPermissions());
                         permissionsPane.disablePermissions();
                         setGroupOwner(g);
@@ -706,7 +706,7 @@ class UserProfile
         }
         c.gridx = 0;
         c.gridy++;
-        label = EditorUtil.getLabel(EditorUtil.DEFAULT_GROUP, false);
+        label = EditorUtil.getLabel(EditorUtil.ACTIVE_GROUP, false);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;//reset to default
         c.weightx = 0.0;  

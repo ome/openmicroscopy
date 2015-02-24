@@ -902,10 +902,10 @@ class BrowserUI
     /**
      * Creates the group nodes.
      * 
-     * @param defaultGroup The default group
+     * @param activeGroup The active group
      * @return See above.
      */
-    private List<TreeImageSet> createGroups(GroupData defaultGroup)
+    private List<TreeImageSet> createGroups(GroupData activeGroup)
     {
     	TreeImageDisplay root = getTreeRoot();
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
@@ -917,14 +917,14 @@ class BrowserUI
     	//sort the group first.
     	Iterator i = groups.iterator();
     	GroupData group;
-    	TreeImageSet n = new TreeImageSet(defaultGroup);
+    	TreeImageSet n = new TreeImageSet(activeGroup);
     	TreeViewerTranslator.formatToolTipFor(n);
     	l.add(n);
     	root.addChildDisplay(n);
     	tm.insertNodeInto(n, root, root.getChildCount());
     	while (i.hasNext()) {
 			group = (GroupData) i.next();
-			if (group.getId() != defaultGroup.getId()) {
+			if (group.getId() != activeGroup.getId()) {
 				n = new TreeImageSet(group);
 				TreeViewerTranslator.formatToolTipFor(n);
 				l.add(n);

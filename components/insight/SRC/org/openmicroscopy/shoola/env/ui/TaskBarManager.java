@@ -584,7 +584,7 @@ public class TaskBarManager
 	 * 
 	 * @param askQuestion Pass <code>true</code> to pop up a message before
 	 * 						quitting, <code>false</code> otherwise.
-	 * @param ctx The security context so the default group can be set or
+	 * @param ctx The security context so the active group can be set or
 	 * <code>null</code>.
 	 */
 	private void doExit(boolean askQuestion, SecurityContext ctx)
