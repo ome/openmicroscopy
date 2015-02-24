@@ -35,2259 +35,2001 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsLength
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.model.conversions import Add
+from omero.model.conversions import Int
+from omero.model.conversions import Mul
+from omero.model.conversions import Pow
+from omero.model.conversions import Rat
+from omero.model.conversions import Sym
 
 
 class LengthI(_omero_model.Length, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["ANGSTROM:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("ANGSTROM", "ASTRONOMICALUNIT")
+    CONVERSIONS["ANGSTROM:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 12)), Sym("ang"))
     CONVERSIONS["ANGSTROM:ATTOMETER"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("ang"))
     CONVERSIONS["ANGSTROM:CENTIMETER"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("ang"))
     CONVERSIONS["ANGSTROM:DECAMETER"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("ang"))
     CONVERSIONS["ANGSTROM:DECIMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("ang"))
     CONVERSIONS["ANGSTROM:EXAMETER"] = \
-        lambda value: (10 ** -28) * value
+        Mul(Pow(10, 28), Sym("ang"))
     CONVERSIONS["ANGSTROM:FEMTOMETER"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["ANGSTROM:FT"] = \
-        lambda: noconversion("ANGSTROM", "FT")
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("ang"))
+    CONVERSIONS["ANGSTROM:FOOT"] = \
+        Mul(Mul(Int(3048), Pow(10, 6)), Sym("ang"))
     CONVERSIONS["ANGSTROM:GIGAMETER"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("ang"))
     CONVERSIONS["ANGSTROM:HECTOMETER"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ANGSTROM:IN"] = \
-        lambda: noconversion("ANGSTROM", "IN")
+        Mul(Pow(10, 12), Sym("ang"))
+    CONVERSIONS["ANGSTROM:INCH"] = \
+        Mul(Mul(Int(254), Pow(10, 6)), Sym("ang"))
     CONVERSIONS["ANGSTROM:KILOMETER"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["ANGSTROM:LI"] = \
-        lambda: noconversion("ANGSTROM", "LI")
+        Mul(Pow(10, 13), Sym("ang"))
     CONVERSIONS["ANGSTROM:LIGHTYEAR"] = \
-        lambda: noconversion("ANGSTROM", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 12)), Sym("ang"))
+    CONVERSIONS["ANGSTROM:LINE"] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 5)), Int(3)), Sym("ang"))
     CONVERSIONS["ANGSTROM:MEGAMETER"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("ang"))
     CONVERSIONS["ANGSTROM:METER"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["ANGSTROM:MI"] = \
-        lambda: noconversion("ANGSTROM", "MI")
+        Mul(Pow(10, 10), Sym("ang"))
     CONVERSIONS["ANGSTROM:MICROMETER"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("ang"))
+    CONVERSIONS["ANGSTROM:MILE"] = \
+        Mul(Mul(Int(1609344), Pow(10, 7)), Sym("ang"))
     CONVERSIONS["ANGSTROM:MILLIMETER"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("ang"))
     CONVERSIONS["ANGSTROM:NANOMETER"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("ang"))
     CONVERSIONS["ANGSTROM:PARSEC"] = \
-        lambda: noconversion("ANGSTROM", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 19)), Sym("ang"))
     CONVERSIONS["ANGSTROM:PETAMETER"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("ang"))
     CONVERSIONS["ANGSTROM:PICOMETER"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["ANGSTROM:PIXEL"] = \
-        lambda: noconversion("ANGSTROM", "PIXEL")
-    CONVERSIONS["ANGSTROM:PT"] = \
-        lambda: noconversion("ANGSTROM", "PT")
-    CONVERSIONS["ANGSTROM:REFERENCEFRAME"] = \
-        lambda: noconversion("ANGSTROM", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Int(100)), Sym("ang"))
+    CONVERSIONS["ANGSTROM:POINT"] = \
+        Mul(Rat(Mul(Int(3175), Pow(10, 4)), Int(9)), Sym("ang"))
     CONVERSIONS["ANGSTROM:TERAMETER"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("ang"))
     CONVERSIONS["ANGSTROM:THOU"] = \
-        lambda: noconversion("ANGSTROM", "THOU")
-    CONVERSIONS["ANGSTROM:YD"] = \
-        lambda: noconversion("ANGSTROM", "YD")
+        Mul(Int(254000), Sym("ang"))
+    CONVERSIONS["ANGSTROM:YARD"] = \
+        Mul(Mul(Int(9144), Pow(10, 6)), Sym("ang"))
     CONVERSIONS["ANGSTROM:YOCTOMETER"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("ang"))
     CONVERSIONS["ANGSTROM:YOTTAMETER"] = \
-        lambda value: (10 ** -34) * value
+        Mul(Pow(10, 34), Sym("ang"))
     CONVERSIONS["ANGSTROM:ZEPTOMETER"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("ang"))
     CONVERSIONS["ANGSTROM:ZETTAMETER"] = \
-        lambda value: (10 ** -31) * value
-    CONVERSIONS["ASTRONOMICALUNIT:ANGSTROM"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "ANGSTROM")
-    CONVERSIONS["ASTRONOMICALUNIT:ATTOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "ATTOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:CENTIMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "CENTIMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:DECAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "DECAMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:DECIMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "DECIMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:EXAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "EXAMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:FEMTOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "FEMTOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:FT"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "FT")
-    CONVERSIONS["ASTRONOMICALUNIT:GIGAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "GIGAMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:HECTOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "HECTOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:IN"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "IN")
-    CONVERSIONS["ASTRONOMICALUNIT:KILOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "KILOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:LI"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "LI")
-    CONVERSIONS["ASTRONOMICALUNIT:LIGHTYEAR"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "LIGHTYEAR")
-    CONVERSIONS["ASTRONOMICALUNIT:MEGAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "MEGAMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:METER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "METER")
-    CONVERSIONS["ASTRONOMICALUNIT:MI"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "MI")
-    CONVERSIONS["ASTRONOMICALUNIT:MICROMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "MICROMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:MILLIMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "MILLIMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:NANOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "NANOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:PARSEC"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "PARSEC")
-    CONVERSIONS["ASTRONOMICALUNIT:PETAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "PETAMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:PICOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "PICOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:PIXEL"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "PIXEL")
-    CONVERSIONS["ASTRONOMICALUNIT:PT"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "PT")
-    CONVERSIONS["ASTRONOMICALUNIT:REFERENCEFRAME"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "REFERENCEFRAME")
-    CONVERSIONS["ASTRONOMICALUNIT:TERAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "TERAMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:THOU"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "THOU")
-    CONVERSIONS["ASTRONOMICALUNIT:YD"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "YD")
-    CONVERSIONS["ASTRONOMICALUNIT:YOCTOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "YOCTOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:YOTTAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "YOTTAMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:ZEPTOMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "ZEPTOMETER")
-    CONVERSIONS["ASTRONOMICALUNIT:ZETTAMETER"] = \
-        lambda: noconversion("ASTRONOMICALUNIT", "ZETTAMETER")
+        Mul(Pow(10, 31), Sym("ang"))
+    CONVERSIONS["ASTRONMICALUNIT:ANGSTROM"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 12))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:ATTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 20))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:CENTIMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 4))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:DECAMETER"] = \
+        Mul(Rat(Int(1), Int("14959787070")), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:DECIMETER"] = \
+        Mul(Rat(Int(1), Int("1495978707000")), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:EXAMETER"] = \
+        Mul(Rat(Pow(10, 16), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:FEMTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 17))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:FOOT"] = \
+        Mul(Rat(Int(127), Int("62332446125000")), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:GIGAMETER"] = \
+        Mul(Rat(Pow(10, 7), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:HECTOMETER"] = \
+        Mul(Rat(Int(1), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 5))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:KILOMETER"] = \
+        Mul(Rat(Int(10), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:LIGHTYEAR"] = \
+        Mul(Rat(Int("431996825232"), Int(6830953)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int("8975872242"), Pow(10, 6))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:MEGAMETER"] = \
+        Mul(Rat(Pow(10, 4), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:METER"] = \
+        Mul(Rat(Int(1), Int("149597870700")), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:MICROMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 8))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:MILE"] = \
+        Mul(Rat(Int(16764), Int("1558311153125")), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:MILLIMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 5))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:NANOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 11))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:PARSEC"] = \
+        Mul(Rat(Mul(Int(10285592), Pow(10, 7)), Int(498659569)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:PETAMETER"] = \
+        Mul(Rat(Pow(10, 13), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:PICOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 14))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int("53855233452"), Pow(10, 6))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:TERAMETER"] = \
+        Mul(Rat(Pow(10, 10), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:THOU"] = \
+        Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 8))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:YARD"] = \
+        Mul(Rat(Int(381), Int("62332446125000")), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:YOCTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 26))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:YOTTAMETER"] = \
+        Mul(Rat(Pow(10, 22), Int(1495978707)), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:ZEPTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 23))), Sym("ua"))
+    CONVERSIONS["ASTRONMICALUNIT:ZETTAMETER"] = \
+        Mul(Rat(Pow(10, 19), Int(1495978707)), Sym("ua"))
     CONVERSIONS["ATTOMETER:ANGSTROM"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["ATTOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("ATTOMETER", "ASTRONOMICALUNIT")
+        Mul(Pow(10, 8), Sym("attom"))
+    CONVERSIONS["ATTOMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 20)), Sym("attom"))
     CONVERSIONS["ATTOMETER:CENTIMETER"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("attom"))
     CONVERSIONS["ATTOMETER:DECAMETER"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("attom"))
     CONVERSIONS["ATTOMETER:DECIMETER"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("attom"))
     CONVERSIONS["ATTOMETER:EXAMETER"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("attom"))
     CONVERSIONS["ATTOMETER:FEMTOMETER"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ATTOMETER:FT"] = \
-        lambda: noconversion("ATTOMETER", "FT")
+        Mul(Int(1000), Sym("attom"))
+    CONVERSIONS["ATTOMETER:FOOT"] = \
+        Mul(Mul(Int(3048), Pow(10, 14)), Sym("attom"))
     CONVERSIONS["ATTOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("attom"))
     CONVERSIONS["ATTOMETER:HECTOMETER"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ATTOMETER:IN"] = \
-        lambda: noconversion("ATTOMETER", "IN")
+        Mul(Pow(10, 20), Sym("attom"))
+    CONVERSIONS["ATTOMETER:INCH"] = \
+        Mul(Mul(Int(254), Pow(10, 14)), Sym("attom"))
     CONVERSIONS["ATTOMETER:KILOMETER"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ATTOMETER:LI"] = \
-        lambda: noconversion("ATTOMETER", "LI")
+        Mul(Pow(10, 21), Sym("attom"))
     CONVERSIONS["ATTOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("ATTOMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 20)), Sym("attom"))
+    CONVERSIONS["ATTOMETER:LINE"] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 13)), Int(3)), Sym("attom"))
     CONVERSIONS["ATTOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("attom"))
     CONVERSIONS["ATTOMETER:METER"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ATTOMETER:MI"] = \
-        lambda: noconversion("ATTOMETER", "MI")
+        Mul(Pow(10, 18), Sym("attom"))
     CONVERSIONS["ATTOMETER:MICROMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("attom"))
+    CONVERSIONS["ATTOMETER:MILE"] = \
+        Mul(Mul(Int(1609344), Pow(10, 15)), Sym("attom"))
     CONVERSIONS["ATTOMETER:MILLIMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("attom"))
     CONVERSIONS["ATTOMETER:NANOMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("attom"))
     CONVERSIONS["ATTOMETER:PARSEC"] = \
-        lambda: noconversion("ATTOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 27)), Sym("attom"))
     CONVERSIONS["ATTOMETER:PETAMETER"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("attom"))
     CONVERSIONS["ATTOMETER:PICOMETER"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ATTOMETER:PIXEL"] = \
-        lambda: noconversion("ATTOMETER", "PIXEL")
-    CONVERSIONS["ATTOMETER:PT"] = \
-        lambda: noconversion("ATTOMETER", "PT")
-    CONVERSIONS["ATTOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("ATTOMETER", "REFERENCEFRAME")
+        Mul(Pow(10, 6), Sym("attom"))
+    CONVERSIONS["ATTOMETER:POINT"] = \
+        Mul(Rat(Mul(Int(3175), Pow(10, 12)), Int(9)), Sym("attom"))
     CONVERSIONS["ATTOMETER:TERAMETER"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("attom"))
     CONVERSIONS["ATTOMETER:THOU"] = \
-        lambda: noconversion("ATTOMETER", "THOU")
-    CONVERSIONS["ATTOMETER:YD"] = \
-        lambda: noconversion("ATTOMETER", "YD")
+        Mul(Mul(Int(254), Pow(10, 11)), Sym("attom"))
+    CONVERSIONS["ATTOMETER:YARD"] = \
+        Mul(Mul(Int(9144), Pow(10, 14)), Sym("attom"))
     CONVERSIONS["ATTOMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("attom"))
     CONVERSIONS["ATTOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("attom"))
     CONVERSIONS["ATTOMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("attom"))
     CONVERSIONS["ATTOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("attom"))
     CONVERSIONS["CENTIMETER:ANGSTROM"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["CENTIMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("CENTIMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("centim"))
+    CONVERSIONS["CENTIMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 4)), Sym("centim"))
     CONVERSIONS["CENTIMETER:ATTOMETER"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("centim"))
     CONVERSIONS["CENTIMETER:DECAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("centim"))
     CONVERSIONS["CENTIMETER:DECIMETER"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("centim"))
     CONVERSIONS["CENTIMETER:EXAMETER"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("centim"))
     CONVERSIONS["CENTIMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["CENTIMETER:FT"] = \
-        lambda: noconversion("CENTIMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("centim"))
+    CONVERSIONS["CENTIMETER:FOOT"] = \
+        Mul(Rat(Int(762), Int(25)), Sym("centim"))
     CONVERSIONS["CENTIMETER:GIGAMETER"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("centim"))
     CONVERSIONS["CENTIMETER:HECTOMETER"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["CENTIMETER:IN"] = \
-        lambda: noconversion("CENTIMETER", "IN")
+        Mul(Pow(10, 4), Sym("centim"))
+    CONVERSIONS["CENTIMETER:INCH"] = \
+        Mul(Rat(Int(127), Int(50)), Sym("centim"))
     CONVERSIONS["CENTIMETER:KILOMETER"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["CENTIMETER:LI"] = \
-        lambda: noconversion("CENTIMETER", "LI")
+        Mul(Pow(10, 5), Sym("centim"))
     CONVERSIONS["CENTIMETER:LIGHTYEAR"] = \
-        lambda: noconversion("CENTIMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 4)), Sym("centim"))
+    CONVERSIONS["CENTIMETER:LINE"] = \
+        Mul(Rat(Int(127), Int(600)), Sym("centim"))
     CONVERSIONS["CENTIMETER:MEGAMETER"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("centim"))
     CONVERSIONS["CENTIMETER:METER"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["CENTIMETER:MI"] = \
-        lambda: noconversion("CENTIMETER", "MI")
+        Mul(Int(100), Sym("centim"))
     CONVERSIONS["CENTIMETER:MICROMETER"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("centim"))
+    CONVERSIONS["CENTIMETER:MILE"] = \
+        Mul(Rat(Int(804672), Int(5)), Sym("centim"))
     CONVERSIONS["CENTIMETER:MILLIMETER"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("centim"))
     CONVERSIONS["CENTIMETER:NANOMETER"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("centim"))
     CONVERSIONS["CENTIMETER:PARSEC"] = \
-        lambda: noconversion("CENTIMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 11)), Sym("centim"))
     CONVERSIONS["CENTIMETER:PETAMETER"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("centim"))
     CONVERSIONS["CENTIMETER:PICOMETER"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["CENTIMETER:PIXEL"] = \
-        lambda: noconversion("CENTIMETER", "PIXEL")
-    CONVERSIONS["CENTIMETER:PT"] = \
-        lambda: noconversion("CENTIMETER", "PT")
-    CONVERSIONS["CENTIMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("CENTIMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("centim"))
+    CONVERSIONS["CENTIMETER:POINT"] = \
+        Mul(Rat(Int(127), Int(3600)), Sym("centim"))
     CONVERSIONS["CENTIMETER:TERAMETER"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("centim"))
     CONVERSIONS["CENTIMETER:THOU"] = \
-        lambda: noconversion("CENTIMETER", "THOU")
-    CONVERSIONS["CENTIMETER:YD"] = \
-        lambda: noconversion("CENTIMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 4))), Sym("centim"))
+    CONVERSIONS["CENTIMETER:YARD"] = \
+        Mul(Rat(Int(2286), Int(25)), Sym("centim"))
     CONVERSIONS["CENTIMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("centim"))
     CONVERSIONS["CENTIMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("centim"))
     CONVERSIONS["CENTIMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("centim"))
     CONVERSIONS["CENTIMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("centim"))
     CONVERSIONS["DECAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["DECAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("DECAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("decam"))
+    CONVERSIONS["DECAMETER:ASTRONMICALUNIT"] = \
+        Mul(Int("14959787070"), Sym("decam"))
     CONVERSIONS["DECAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("decam"))
     CONVERSIONS["DECAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("decam"))
     CONVERSIONS["DECAMETER:DECIMETER"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decam"))
     CONVERSIONS["DECAMETER:EXAMETER"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("decam"))
     CONVERSIONS["DECAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DECAMETER:FT"] = \
-        lambda: noconversion("DECAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("decam"))
+    CONVERSIONS["DECAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Int(12500)), Sym("decam"))
     CONVERSIONS["DECAMETER:GIGAMETER"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("decam"))
     CONVERSIONS["DECAMETER:HECTOMETER"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DECAMETER:IN"] = \
-        lambda: noconversion("DECAMETER", "IN")
+        Mul(Int(10), Sym("decam"))
+    CONVERSIONS["DECAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 4))), Sym("decam"))
     CONVERSIONS["DECAMETER:KILOMETER"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DECAMETER:LI"] = \
-        lambda: noconversion("DECAMETER", "LI")
+        Mul(Int(100), Sym("decam"))
     CONVERSIONS["DECAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("DECAMETER", "LIGHTYEAR")
+        Mul(Int("946073047258080"), Sym("decam"))
+    CONVERSIONS["DECAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 5))), Sym("decam"))
     CONVERSIONS["DECAMETER:MEGAMETER"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("decam"))
     CONVERSIONS["DECAMETER:METER"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DECAMETER:MI"] = \
-        lambda: noconversion("DECAMETER", "MI")
+        Mul(Rat(Int(1), Int(10)), Sym("decam"))
     CONVERSIONS["DECAMETER:MICROMETER"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("decam"))
+    CONVERSIONS["DECAMETER:MILE"] = \
+        Mul(Rat(Int(100584), Int(625)), Sym("decam"))
     CONVERSIONS["DECAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("decam"))
     CONVERSIONS["DECAMETER:NANOMETER"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("decam"))
     CONVERSIONS["DECAMETER:PARSEC"] = \
-        lambda: noconversion("DECAMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 8)), Sym("decam"))
     CONVERSIONS["DECAMETER:PETAMETER"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("decam"))
     CONVERSIONS["DECAMETER:PICOMETER"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DECAMETER:PIXEL"] = \
-        lambda: noconversion("DECAMETER", "PIXEL")
-    CONVERSIONS["DECAMETER:PT"] = \
-        lambda: noconversion("DECAMETER", "PT")
-    CONVERSIONS["DECAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("DECAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("decam"))
+    CONVERSIONS["DECAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 5))), Sym("decam"))
     CONVERSIONS["DECAMETER:TERAMETER"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("decam"))
     CONVERSIONS["DECAMETER:THOU"] = \
-        lambda: noconversion("DECAMETER", "THOU")
-    CONVERSIONS["DECAMETER:YD"] = \
-        lambda: noconversion("DECAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 7))), Sym("decam"))
+    CONVERSIONS["DECAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Int(12500)), Sym("decam"))
     CONVERSIONS["DECAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("decam"))
     CONVERSIONS["DECAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("decam"))
     CONVERSIONS["DECAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("decam"))
     CONVERSIONS["DECAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("decam"))
     CONVERSIONS["DECIMETER:ANGSTROM"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["DECIMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("DECIMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("decim"))
+    CONVERSIONS["DECIMETER:ASTRONMICALUNIT"] = \
+        Mul(Int("1495978707000"), Sym("decim"))
     CONVERSIONS["DECIMETER:ATTOMETER"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("decim"))
     CONVERSIONS["DECIMETER:CENTIMETER"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("decim"))
     CONVERSIONS["DECIMETER:DECAMETER"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("decim"))
     CONVERSIONS["DECIMETER:EXAMETER"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("decim"))
     CONVERSIONS["DECIMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["DECIMETER:FT"] = \
-        lambda: noconversion("DECIMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("decim"))
+    CONVERSIONS["DECIMETER:FOOT"] = \
+        Mul(Rat(Int(381), Int(125)), Sym("decim"))
     CONVERSIONS["DECIMETER:GIGAMETER"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("decim"))
     CONVERSIONS["DECIMETER:HECTOMETER"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["DECIMETER:IN"] = \
-        lambda: noconversion("DECIMETER", "IN")
+        Mul(Int(1000), Sym("decim"))
+    CONVERSIONS["DECIMETER:INCH"] = \
+        Mul(Rat(Int(127), Int(500)), Sym("decim"))
     CONVERSIONS["DECIMETER:KILOMETER"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["DECIMETER:LI"] = \
-        lambda: noconversion("DECIMETER", "LI")
+        Mul(Pow(10, 4), Sym("decim"))
     CONVERSIONS["DECIMETER:LIGHTYEAR"] = \
-        lambda: noconversion("DECIMETER", "LIGHTYEAR")
+        Mul(Int("94607304725808000"), Sym("decim"))
+    CONVERSIONS["DECIMETER:LINE"] = \
+        Mul(Rat(Int(127), Int(6000)), Sym("decim"))
     CONVERSIONS["DECIMETER:MEGAMETER"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("decim"))
     CONVERSIONS["DECIMETER:METER"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DECIMETER:MI"] = \
-        lambda: noconversion("DECIMETER", "MI")
+        Mul(Int(10), Sym("decim"))
     CONVERSIONS["DECIMETER:MICROMETER"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("decim"))
+    CONVERSIONS["DECIMETER:MILE"] = \
+        Mul(Rat(Int(402336), Int(25)), Sym("decim"))
     CONVERSIONS["DECIMETER:MILLIMETER"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decim"))
     CONVERSIONS["DECIMETER:NANOMETER"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("decim"))
     CONVERSIONS["DECIMETER:PARSEC"] = \
-        lambda: noconversion("DECIMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 10)), Sym("decim"))
     CONVERSIONS["DECIMETER:PETAMETER"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("decim"))
     CONVERSIONS["DECIMETER:PICOMETER"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["DECIMETER:PIXEL"] = \
-        lambda: noconversion("DECIMETER", "PIXEL")
-    CONVERSIONS["DECIMETER:PT"] = \
-        lambda: noconversion("DECIMETER", "PT")
-    CONVERSIONS["DECIMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("DECIMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("decim"))
+    CONVERSIONS["DECIMETER:POINT"] = \
+        Mul(Rat(Int(127), Int(36000)), Sym("decim"))
     CONVERSIONS["DECIMETER:TERAMETER"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("decim"))
     CONVERSIONS["DECIMETER:THOU"] = \
-        lambda: noconversion("DECIMETER", "THOU")
-    CONVERSIONS["DECIMETER:YD"] = \
-        lambda: noconversion("DECIMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 5))), Sym("decim"))
+    CONVERSIONS["DECIMETER:YARD"] = \
+        Mul(Rat(Int(1143), Int(125)), Sym("decim"))
     CONVERSIONS["DECIMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("decim"))
     CONVERSIONS["DECIMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("decim"))
     CONVERSIONS["DECIMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("decim"))
     CONVERSIONS["DECIMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("decim"))
     CONVERSIONS["EXAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 28) * value
-    CONVERSIONS["EXAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("EXAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 28)), Sym("exam"))
+    CONVERSIONS["EXAMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Pow(10, 16)), Sym("exam"))
     CONVERSIONS["EXAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("exam"))
     CONVERSIONS["EXAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("exam"))
     CONVERSIONS["EXAMETER:DECAMETER"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("exam"))
     CONVERSIONS["EXAMETER:DECIMETER"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("exam"))
     CONVERSIONS["EXAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["EXAMETER:FT"] = \
-        lambda: noconversion("EXAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("exam"))
+    CONVERSIONS["EXAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 19))), Sym("exam"))
     CONVERSIONS["EXAMETER:GIGAMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("exam"))
     CONVERSIONS["EXAMETER:HECTOMETER"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["EXAMETER:IN"] = \
-        lambda: noconversion("EXAMETER", "IN")
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("exam"))
+    CONVERSIONS["EXAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 21))), Sym("exam"))
     CONVERSIONS["EXAMETER:KILOMETER"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["EXAMETER:LI"] = \
-        lambda: noconversion("EXAMETER", "LI")
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("exam"))
     CONVERSIONS["EXAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("EXAMETER", "LIGHTYEAR")
+        Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 12))), Sym("exam"))
+    CONVERSIONS["EXAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 22))), Sym("exam"))
     CONVERSIONS["EXAMETER:MEGAMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("exam"))
     CONVERSIONS["EXAMETER:METER"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["EXAMETER:MI"] = \
-        lambda: noconversion("EXAMETER", "MI")
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("exam"))
     CONVERSIONS["EXAMETER:MICROMETER"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("exam"))
+    CONVERSIONS["EXAMETER:MILE"] = \
+        Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 14))), Sym("exam"))
     CONVERSIONS["EXAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("exam"))
     CONVERSIONS["EXAMETER:NANOMETER"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("exam"))
     CONVERSIONS["EXAMETER:PARSEC"] = \
-        lambda: noconversion("EXAMETER", "PARSEC")
+        Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 6))), Sym("exam"))
     CONVERSIONS["EXAMETER:PETAMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("exam"))
     CONVERSIONS["EXAMETER:PICOMETER"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["EXAMETER:PIXEL"] = \
-        lambda: noconversion("EXAMETER", "PIXEL")
-    CONVERSIONS["EXAMETER:PT"] = \
-        lambda: noconversion("EXAMETER", "PT")
-    CONVERSIONS["EXAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("EXAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("exam"))
+    CONVERSIONS["EXAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 22))), Sym("exam"))
     CONVERSIONS["EXAMETER:TERAMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("exam"))
     CONVERSIONS["EXAMETER:THOU"] = \
-        lambda: noconversion("EXAMETER", "THOU")
-    CONVERSIONS["EXAMETER:YD"] = \
-        lambda: noconversion("EXAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 24))), Sym("exam"))
+    CONVERSIONS["EXAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 19))), Sym("exam"))
     CONVERSIONS["EXAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("exam"))
     CONVERSIONS["EXAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("exam"))
     CONVERSIONS["EXAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("exam"))
     CONVERSIONS["EXAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("exam"))
     CONVERSIONS["FEMTOMETER:ANGSTROM"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["FEMTOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("FEMTOMETER", "ASTRONOMICALUNIT")
+        Mul(Pow(10, 5), Sym("femtom"))
+    CONVERSIONS["FEMTOMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 17)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:ATTOMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:CENTIMETER"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:DECAMETER"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:DECIMETER"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:EXAMETER"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["FEMTOMETER:FT"] = \
-        lambda: noconversion("FEMTOMETER", "FT")
+        Mul(Pow(10, 33), Sym("femtom"))
+    CONVERSIONS["FEMTOMETER:FOOT"] = \
+        Mul(Mul(Int(3048), Pow(10, 11)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:HECTOMETER"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["FEMTOMETER:IN"] = \
-        lambda: noconversion("FEMTOMETER", "IN")
+        Mul(Pow(10, 17), Sym("femtom"))
+    CONVERSIONS["FEMTOMETER:INCH"] = \
+        Mul(Mul(Int(254), Pow(10, 11)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:KILOMETER"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["FEMTOMETER:LI"] = \
-        lambda: noconversion("FEMTOMETER", "LI")
+        Mul(Pow(10, 18), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("FEMTOMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 17)), Sym("femtom"))
+    CONVERSIONS["FEMTOMETER:LINE"] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 10)), Int(3)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:METER"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["FEMTOMETER:MI"] = \
-        lambda: noconversion("FEMTOMETER", "MI")
+        Mul(Pow(10, 15), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:MICROMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("femtom"))
+    CONVERSIONS["FEMTOMETER:MILE"] = \
+        Mul(Mul(Int(1609344), Pow(10, 12)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:MILLIMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:NANOMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:PARSEC"] = \
-        lambda: noconversion("FEMTOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 24)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:PETAMETER"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:PICOMETER"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["FEMTOMETER:PIXEL"] = \
-        lambda: noconversion("FEMTOMETER", "PIXEL")
-    CONVERSIONS["FEMTOMETER:PT"] = \
-        lambda: noconversion("FEMTOMETER", "PT")
-    CONVERSIONS["FEMTOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("FEMTOMETER", "REFERENCEFRAME")
+        Mul(Int(1000), Sym("femtom"))
+    CONVERSIONS["FEMTOMETER:POINT"] = \
+        Mul(Rat(Mul(Int(3175), Pow(10, 9)), Int(9)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:TERAMETER"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:THOU"] = \
-        lambda: noconversion("FEMTOMETER", "THOU")
-    CONVERSIONS["FEMTOMETER:YD"] = \
-        lambda: noconversion("FEMTOMETER", "YD")
+        Mul(Mul(Int(254), Pow(10, 8)), Sym("femtom"))
+    CONVERSIONS["FEMTOMETER:YARD"] = \
+        Mul(Mul(Int(9144), Pow(10, 11)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("femtom"))
     CONVERSIONS["FEMTOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["FT:ANGSTROM"] = \
-        lambda: noconversion("FT", "ANGSTROM")
-    CONVERSIONS["FT:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("FT", "ASTRONOMICALUNIT")
-    CONVERSIONS["FT:ATTOMETER"] = \
-        lambda: noconversion("FT", "ATTOMETER")
-    CONVERSIONS["FT:CENTIMETER"] = \
-        lambda: noconversion("FT", "CENTIMETER")
-    CONVERSIONS["FT:DECAMETER"] = \
-        lambda: noconversion("FT", "DECAMETER")
-    CONVERSIONS["FT:DECIMETER"] = \
-        lambda: noconversion("FT", "DECIMETER")
-    CONVERSIONS["FT:EXAMETER"] = \
-        lambda: noconversion("FT", "EXAMETER")
-    CONVERSIONS["FT:FEMTOMETER"] = \
-        lambda: noconversion("FT", "FEMTOMETER")
-    CONVERSIONS["FT:GIGAMETER"] = \
-        lambda: noconversion("FT", "GIGAMETER")
-    CONVERSIONS["FT:HECTOMETER"] = \
-        lambda: noconversion("FT", "HECTOMETER")
-    CONVERSIONS["FT:IN"] = \
-        lambda: noconversion("FT", "IN")
-    CONVERSIONS["FT:KILOMETER"] = \
-        lambda: noconversion("FT", "KILOMETER")
-    CONVERSIONS["FT:LI"] = \
-        lambda: noconversion("FT", "LI")
-    CONVERSIONS["FT:LIGHTYEAR"] = \
-        lambda: noconversion("FT", "LIGHTYEAR")
-    CONVERSIONS["FT:MEGAMETER"] = \
-        lambda: noconversion("FT", "MEGAMETER")
-    CONVERSIONS["FT:METER"] = \
-        lambda: noconversion("FT", "METER")
-    CONVERSIONS["FT:MI"] = \
-        lambda: noconversion("FT", "MI")
-    CONVERSIONS["FT:MICROMETER"] = \
-        lambda: noconversion("FT", "MICROMETER")
-    CONVERSIONS["FT:MILLIMETER"] = \
-        lambda: noconversion("FT", "MILLIMETER")
-    CONVERSIONS["FT:NANOMETER"] = \
-        lambda: noconversion("FT", "NANOMETER")
-    CONVERSIONS["FT:PARSEC"] = \
-        lambda: noconversion("FT", "PARSEC")
-    CONVERSIONS["FT:PETAMETER"] = \
-        lambda: noconversion("FT", "PETAMETER")
-    CONVERSIONS["FT:PICOMETER"] = \
-        lambda: noconversion("FT", "PICOMETER")
-    CONVERSIONS["FT:PIXEL"] = \
-        lambda: noconversion("FT", "PIXEL")
-    CONVERSIONS["FT:PT"] = \
-        lambda: noconversion("FT", "PT")
-    CONVERSIONS["FT:REFERENCEFRAME"] = \
-        lambda: noconversion("FT", "REFERENCEFRAME")
-    CONVERSIONS["FT:TERAMETER"] = \
-        lambda: noconversion("FT", "TERAMETER")
-    CONVERSIONS["FT:THOU"] = \
-        lambda: noconversion("FT", "THOU")
-    CONVERSIONS["FT:YD"] = \
-        lambda: noconversion("FT", "YD")
-    CONVERSIONS["FT:YOCTOMETER"] = \
-        lambda: noconversion("FT", "YOCTOMETER")
-    CONVERSIONS["FT:YOTTAMETER"] = \
-        lambda: noconversion("FT", "YOTTAMETER")
-    CONVERSIONS["FT:ZEPTOMETER"] = \
-        lambda: noconversion("FT", "ZEPTOMETER")
-    CONVERSIONS["FT:ZETTAMETER"] = \
-        lambda: noconversion("FT", "ZETTAMETER")
+        Mul(Pow(10, 36), Sym("femtom"))
+    CONVERSIONS["FOOT:ANGSTROM"] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 6))), Sym("ft"))
+    CONVERSIONS["FOOT:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int("62332446125000"), Int(127)), Sym("ft"))
+    CONVERSIONS["FOOT:ATTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 14))), Sym("ft"))
+    CONVERSIONS["FOOT:CENTIMETER"] = \
+        Mul(Rat(Int(25), Int(762)), Sym("ft"))
+    CONVERSIONS["FOOT:DECAMETER"] = \
+        Mul(Rat(Int(12500), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:DECIMETER"] = \
+        Mul(Rat(Int(125), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:EXAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 19)), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:FEMTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 11))), Sym("ft"))
+    CONVERSIONS["FOOT:GIGAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 10)), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:HECTOMETER"] = \
+        Mul(Rat(Int(125000), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:INCH"] = \
+        Mul(Rat(Int(1), Int(12)), Sym("ft"))
+    CONVERSIONS["FOOT:KILOMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 4)), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:LIGHTYEAR"] = \
+        Mul(Rat(Mul(Int("3941971030242"), Pow(10, 6)), Int(127)), Sym("ft"))
+    CONVERSIONS["FOOT:LINE"] = \
+        Mul(Rat(Int(1), Int(144)), Sym("ft"))
+    CONVERSIONS["FOOT:MEGAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 7)), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:METER"] = \
+        Mul(Rat(Int(1250), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:MICROMETER"] = \
+        Mul(Rat(Int(1), Int(304800)), Sym("ft"))
+    CONVERSIONS["FOOT:MILE"] = \
+        Mul(Int(5280), Sym("ft"))
+    CONVERSIONS["FOOT:MILLIMETER"] = \
+        Mul(Rat(Int(5), Int(1524)), Sym("ft"))
+    CONVERSIONS["FOOT:NANOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 5))), Sym("ft"))
+    CONVERSIONS["FOOT:PARSEC"] = \
+        Mul(Rat(Mul(Int(1285699), Pow(10, 13)), Int(127)), Sym("ft"))
+    CONVERSIONS["FOOT:PETAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 16)), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:PICOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 8))), Sym("ft"))
+    CONVERSIONS["FOOT:POINT"] = \
+        Mul(Rat(Int(1), Int(864)), Sym("ft"))
+    CONVERSIONS["FOOT:TERAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 13)), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:THOU"] = \
+        Mul(Rat(Int(1), Int(12000)), Sym("ft"))
+    CONVERSIONS["FOOT:YARD"] = \
+        Mul(Int(3), Sym("ft"))
+    CONVERSIONS["FOOT:YOCTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 20))), Sym("ft"))
+    CONVERSIONS["FOOT:YOTTAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 25)), Int(381)), Sym("ft"))
+    CONVERSIONS["FOOT:ZEPTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 17))), Sym("ft"))
+    CONVERSIONS["FOOT:ZETTAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(381)), Sym("ft"))
     CONVERSIONS["GIGAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["GIGAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("GIGAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("gigam"))
+    CONVERSIONS["GIGAMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Pow(10, 7)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:DECAMETER"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:DECIMETER"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:EXAMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("gigam"))
     CONVERSIONS["GIGAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["GIGAMETER:FT"] = \
-        lambda: noconversion("GIGAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("gigam"))
+    CONVERSIONS["GIGAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 10))), Sym("gigam"))
     CONVERSIONS["GIGAMETER:HECTOMETER"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["GIGAMETER:IN"] = \
-        lambda: noconversion("GIGAMETER", "IN")
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("gigam"))
+    CONVERSIONS["GIGAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 12))), Sym("gigam"))
     CONVERSIONS["GIGAMETER:KILOMETER"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAMETER:LI"] = \
-        lambda: noconversion("GIGAMETER", "LI")
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("GIGAMETER", "LIGHTYEAR")
+        Mul(Rat(Int("5912956545363"), Int(625000)), Sym("gigam"))
+    CONVERSIONS["GIGAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 13))), Sym("gigam"))
     CONVERSIONS["GIGAMETER:MEGAMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:METER"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["GIGAMETER:MI"] = \
-        lambda: noconversion("GIGAMETER", "MI")
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:MICROMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("gigam"))
+    CONVERSIONS["GIGAMETER:MILE"] = \
+        Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 5))), Sym("gigam"))
     CONVERSIONS["GIGAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:NANOMETER"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:PARSEC"] = \
-        lambda: noconversion("GIGAMETER", "PARSEC")
+        Mul(Int(30856776), Sym("gigam"))
     CONVERSIONS["GIGAMETER:PETAMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("gigam"))
     CONVERSIONS["GIGAMETER:PICOMETER"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["GIGAMETER:PIXEL"] = \
-        lambda: noconversion("GIGAMETER", "PIXEL")
-    CONVERSIONS["GIGAMETER:PT"] = \
-        lambda: noconversion("GIGAMETER", "PT")
-    CONVERSIONS["GIGAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("GIGAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("gigam"))
+    CONVERSIONS["GIGAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 13))), Sym("gigam"))
     CONVERSIONS["GIGAMETER:TERAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("gigam"))
     CONVERSIONS["GIGAMETER:THOU"] = \
-        lambda: noconversion("GIGAMETER", "THOU")
-    CONVERSIONS["GIGAMETER:YD"] = \
-        lambda: noconversion("GIGAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 15))), Sym("gigam"))
+    CONVERSIONS["GIGAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 10))), Sym("gigam"))
     CONVERSIONS["GIGAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("gigam"))
     CONVERSIONS["GIGAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("gigam"))
     CONVERSIONS["GIGAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("gigam"))
     CONVERSIONS["HECTOMETER:ANGSTROM"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["HECTOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("HECTOMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("hectom"))
+    CONVERSIONS["HECTOMETER:ASTRONMICALUNIT"] = \
+        Mul(Int(1495978707), Sym("hectom"))
     CONVERSIONS["HECTOMETER:ATTOMETER"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:CENTIMETER"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:DECAMETER"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:DECIMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:EXAMETER"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("hectom"))
     CONVERSIONS["HECTOMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["HECTOMETER:FT"] = \
-        lambda: noconversion("HECTOMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("hectom"))
+    CONVERSIONS["HECTOMETER:FOOT"] = \
+        Mul(Rat(Int(381), Int(125000)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["HECTOMETER:IN"] = \
-        lambda: noconversion("HECTOMETER", "IN")
+        Mul(Pow(10, 7), Sym("hectom"))
+    CONVERSIONS["HECTOMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 5))), Sym("hectom"))
     CONVERSIONS["HECTOMETER:KILOMETER"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["HECTOMETER:LI"] = \
-        lambda: noconversion("HECTOMETER", "LI")
+        Mul(Int(10), Sym("hectom"))
     CONVERSIONS["HECTOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("HECTOMETER", "LIGHTYEAR")
+        Mul(Int("94607304725808"), Sym("hectom"))
+    CONVERSIONS["HECTOMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 6))), Sym("hectom"))
     CONVERSIONS["HECTOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("hectom"))
     CONVERSIONS["HECTOMETER:METER"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["HECTOMETER:MI"] = \
-        lambda: noconversion("HECTOMETER", "MI")
+        Mul(Rat(Int(1), Int(100)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:MICROMETER"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("hectom"))
+    CONVERSIONS["HECTOMETER:MILE"] = \
+        Mul(Rat(Int(50292), Int(3125)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:MILLIMETER"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:NANOMETER"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:PARSEC"] = \
-        lambda: noconversion("HECTOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 7)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:PETAMETER"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("hectom"))
     CONVERSIONS["HECTOMETER:PICOMETER"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["HECTOMETER:PIXEL"] = \
-        lambda: noconversion("HECTOMETER", "PIXEL")
-    CONVERSIONS["HECTOMETER:PT"] = \
-        lambda: noconversion("HECTOMETER", "PT")
-    CONVERSIONS["HECTOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("HECTOMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("hectom"))
+    CONVERSIONS["HECTOMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 6))), Sym("hectom"))
     CONVERSIONS["HECTOMETER:TERAMETER"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("hectom"))
     CONVERSIONS["HECTOMETER:THOU"] = \
-        lambda: noconversion("HECTOMETER", "THOU")
-    CONVERSIONS["HECTOMETER:YD"] = \
-        lambda: noconversion("HECTOMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 8))), Sym("hectom"))
+    CONVERSIONS["HECTOMETER:YARD"] = \
+        Mul(Rat(Int(1143), Int(125000)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("hectom"))
     CONVERSIONS["HECTOMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("hectom"))
     CONVERSIONS["HECTOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["IN:ANGSTROM"] = \
-        lambda: noconversion("IN", "ANGSTROM")
-    CONVERSIONS["IN:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("IN", "ASTRONOMICALUNIT")
-    CONVERSIONS["IN:ATTOMETER"] = \
-        lambda: noconversion("IN", "ATTOMETER")
-    CONVERSIONS["IN:CENTIMETER"] = \
-        lambda: noconversion("IN", "CENTIMETER")
-    CONVERSIONS["IN:DECAMETER"] = \
-        lambda: noconversion("IN", "DECAMETER")
-    CONVERSIONS["IN:DECIMETER"] = \
-        lambda: noconversion("IN", "DECIMETER")
-    CONVERSIONS["IN:EXAMETER"] = \
-        lambda: noconversion("IN", "EXAMETER")
-    CONVERSIONS["IN:FEMTOMETER"] = \
-        lambda: noconversion("IN", "FEMTOMETER")
-    CONVERSIONS["IN:FT"] = \
-        lambda: noconversion("IN", "FT")
-    CONVERSIONS["IN:GIGAMETER"] = \
-        lambda: noconversion("IN", "GIGAMETER")
-    CONVERSIONS["IN:HECTOMETER"] = \
-        lambda: noconversion("IN", "HECTOMETER")
-    CONVERSIONS["IN:KILOMETER"] = \
-        lambda: noconversion("IN", "KILOMETER")
-    CONVERSIONS["IN:LI"] = \
-        lambda: noconversion("IN", "LI")
-    CONVERSIONS["IN:LIGHTYEAR"] = \
-        lambda: noconversion("IN", "LIGHTYEAR")
-    CONVERSIONS["IN:MEGAMETER"] = \
-        lambda: noconversion("IN", "MEGAMETER")
-    CONVERSIONS["IN:METER"] = \
-        lambda: noconversion("IN", "METER")
-    CONVERSIONS["IN:MI"] = \
-        lambda: noconversion("IN", "MI")
-    CONVERSIONS["IN:MICROMETER"] = \
-        lambda: noconversion("IN", "MICROMETER")
-    CONVERSIONS["IN:MILLIMETER"] = \
-        lambda: noconversion("IN", "MILLIMETER")
-    CONVERSIONS["IN:NANOMETER"] = \
-        lambda: noconversion("IN", "NANOMETER")
-    CONVERSIONS["IN:PARSEC"] = \
-        lambda: noconversion("IN", "PARSEC")
-    CONVERSIONS["IN:PETAMETER"] = \
-        lambda: noconversion("IN", "PETAMETER")
-    CONVERSIONS["IN:PICOMETER"] = \
-        lambda: noconversion("IN", "PICOMETER")
-    CONVERSIONS["IN:PIXEL"] = \
-        lambda: noconversion("IN", "PIXEL")
-    CONVERSIONS["IN:PT"] = \
-        lambda: noconversion("IN", "PT")
-    CONVERSIONS["IN:REFERENCEFRAME"] = \
-        lambda: noconversion("IN", "REFERENCEFRAME")
-    CONVERSIONS["IN:TERAMETER"] = \
-        lambda: noconversion("IN", "TERAMETER")
-    CONVERSIONS["IN:THOU"] = \
-        lambda: noconversion("IN", "THOU")
-    CONVERSIONS["IN:YD"] = \
-        lambda: noconversion("IN", "YD")
-    CONVERSIONS["IN:YOCTOMETER"] = \
-        lambda: noconversion("IN", "YOCTOMETER")
-    CONVERSIONS["IN:YOTTAMETER"] = \
-        lambda: noconversion("IN", "YOTTAMETER")
-    CONVERSIONS["IN:ZEPTOMETER"] = \
-        lambda: noconversion("IN", "ZEPTOMETER")
-    CONVERSIONS["IN:ZETTAMETER"] = \
-        lambda: noconversion("IN", "ZETTAMETER")
+        Mul(Pow(10, 19), Sym("hectom"))
+    CONVERSIONS["INCH:ANGSTROM"] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 6))), Sym("in"))
+    CONVERSIONS["INCH:ASTRONMICALUNIT"] = \
+        Mul(Rat(Mul(Int("7479893535"), Pow(10, 5)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:ATTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("in"))
+    CONVERSIONS["INCH:CENTIMETER"] = \
+        Mul(Rat(Int(50), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:DECAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:DECIMETER"] = \
+        Mul(Rat(Int(500), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:EXAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 21)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:FEMTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("in"))
+    CONVERSIONS["INCH:FOOT"] = \
+        Mul(Int(12), Sym("in"))
+    CONVERSIONS["INCH:GIGAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 12)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:HECTOMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 5)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:KILOMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 6)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:LIGHTYEAR"] = \
+        Mul(Rat(Mul(Int("47303652362904"), Pow(10, 6)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:LINE"] = \
+        Mul(Rat(Int(1), Int(12)), Sym("in"))
+    CONVERSIONS["INCH:MEGAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 9)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:METER"] = \
+        Mul(Rat(Int(5000), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:MICROMETER"] = \
+        Mul(Rat(Int(1), Int(25400)), Sym("in"))
+    CONVERSIONS["INCH:MILE"] = \
+        Mul(Int(63360), Sym("in"))
+    CONVERSIONS["INCH:MILLIMETER"] = \
+        Mul(Rat(Int(5), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:NANOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 5))), Sym("in"))
+    CONVERSIONS["INCH:PARSEC"] = \
+        Mul(Rat(Mul(Int(15428388), Pow(10, 13)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:PETAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 18)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:PICOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 8))), Sym("in"))
+    CONVERSIONS["INCH:POINT"] = \
+        Mul(Rat(Int(1), Int(72)), Sym("in"))
+    CONVERSIONS["INCH:TERAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 15)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:THOU"] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("in"))
+    CONVERSIONS["INCH:YARD"] = \
+        Mul(Int(36), Sym("in"))
+    CONVERSIONS["INCH:YOCTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 20))), Sym("in"))
+    CONVERSIONS["INCH:YOTTAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("in"))
+    CONVERSIONS["INCH:ZEPTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 17))), Sym("in"))
+    CONVERSIONS["INCH:ZETTAMETER"] = \
+        Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("in"))
     CONVERSIONS["KILOMETER:ANGSTROM"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["KILOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("KILOMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("kilom"))
+    CONVERSIONS["KILOMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Int(10)), Sym("kilom"))
     CONVERSIONS["KILOMETER:ATTOMETER"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("kilom"))
     CONVERSIONS["KILOMETER:CENTIMETER"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kilom"))
     CONVERSIONS["KILOMETER:DECAMETER"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("kilom"))
     CONVERSIONS["KILOMETER:DECIMETER"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("kilom"))
     CONVERSIONS["KILOMETER:EXAMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("kilom"))
     CONVERSIONS["KILOMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["KILOMETER:FT"] = \
-        lambda: noconversion("KILOMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("kilom"))
+    CONVERSIONS["KILOMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 4))), Sym("kilom"))
     CONVERSIONS["KILOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("kilom"))
     CONVERSIONS["KILOMETER:HECTOMETER"] = \
-        lambda value: 10 * value
-    CONVERSIONS["KILOMETER:IN"] = \
-        lambda: noconversion("KILOMETER", "IN")
-    CONVERSIONS["KILOMETER:LI"] = \
-        lambda: noconversion("KILOMETER", "LI")
+        Mul(Rat(Int(1), Int(10)), Sym("kilom"))
+    CONVERSIONS["KILOMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 6))), Sym("kilom"))
     CONVERSIONS["KILOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("KILOMETER", "LIGHTYEAR")
+        Mul(Rat(Int("47303652362904"), Int(5)), Sym("kilom"))
+    CONVERSIONS["KILOMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 7))), Sym("kilom"))
     CONVERSIONS["KILOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("kilom"))
     CONVERSIONS["KILOMETER:METER"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["KILOMETER:MI"] = \
-        lambda: noconversion("KILOMETER", "MI")
+        Mul(Rat(Int(1), Int(1000)), Sym("kilom"))
     CONVERSIONS["KILOMETER:MICROMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("kilom"))
+    CONVERSIONS["KILOMETER:MILE"] = \
+        Mul(Rat(Int(25146), Int(15625)), Sym("kilom"))
     CONVERSIONS["KILOMETER:MILLIMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kilom"))
     CONVERSIONS["KILOMETER:NANOMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("kilom"))
     CONVERSIONS["KILOMETER:PARSEC"] = \
-        lambda: noconversion("KILOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 6)), Sym("kilom"))
     CONVERSIONS["KILOMETER:PETAMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("kilom"))
     CONVERSIONS["KILOMETER:PICOMETER"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["KILOMETER:PIXEL"] = \
-        lambda: noconversion("KILOMETER", "PIXEL")
-    CONVERSIONS["KILOMETER:PT"] = \
-        lambda: noconversion("KILOMETER", "PT")
-    CONVERSIONS["KILOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("KILOMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("kilom"))
+    CONVERSIONS["KILOMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 7))), Sym("kilom"))
     CONVERSIONS["KILOMETER:TERAMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("kilom"))
     CONVERSIONS["KILOMETER:THOU"] = \
-        lambda: noconversion("KILOMETER", "THOU")
-    CONVERSIONS["KILOMETER:YD"] = \
-        lambda: noconversion("KILOMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 9))), Sym("kilom"))
+    CONVERSIONS["KILOMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 4))), Sym("kilom"))
     CONVERSIONS["KILOMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("kilom"))
     CONVERSIONS["KILOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("kilom"))
     CONVERSIONS["KILOMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("kilom"))
     CONVERSIONS["KILOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["LI:ANGSTROM"] = \
-        lambda: noconversion("LI", "ANGSTROM")
-    CONVERSIONS["LI:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("LI", "ASTRONOMICALUNIT")
-    CONVERSIONS["LI:ATTOMETER"] = \
-        lambda: noconversion("LI", "ATTOMETER")
-    CONVERSIONS["LI:CENTIMETER"] = \
-        lambda: noconversion("LI", "CENTIMETER")
-    CONVERSIONS["LI:DECAMETER"] = \
-        lambda: noconversion("LI", "DECAMETER")
-    CONVERSIONS["LI:DECIMETER"] = \
-        lambda: noconversion("LI", "DECIMETER")
-    CONVERSIONS["LI:EXAMETER"] = \
-        lambda: noconversion("LI", "EXAMETER")
-    CONVERSIONS["LI:FEMTOMETER"] = \
-        lambda: noconversion("LI", "FEMTOMETER")
-    CONVERSIONS["LI:FT"] = \
-        lambda: noconversion("LI", "FT")
-    CONVERSIONS["LI:GIGAMETER"] = \
-        lambda: noconversion("LI", "GIGAMETER")
-    CONVERSIONS["LI:HECTOMETER"] = \
-        lambda: noconversion("LI", "HECTOMETER")
-    CONVERSIONS["LI:IN"] = \
-        lambda: noconversion("LI", "IN")
-    CONVERSIONS["LI:KILOMETER"] = \
-        lambda: noconversion("LI", "KILOMETER")
-    CONVERSIONS["LI:LIGHTYEAR"] = \
-        lambda: noconversion("LI", "LIGHTYEAR")
-    CONVERSIONS["LI:MEGAMETER"] = \
-        lambda: noconversion("LI", "MEGAMETER")
-    CONVERSIONS["LI:METER"] = \
-        lambda: noconversion("LI", "METER")
-    CONVERSIONS["LI:MI"] = \
-        lambda: noconversion("LI", "MI")
-    CONVERSIONS["LI:MICROMETER"] = \
-        lambda: noconversion("LI", "MICROMETER")
-    CONVERSIONS["LI:MILLIMETER"] = \
-        lambda: noconversion("LI", "MILLIMETER")
-    CONVERSIONS["LI:NANOMETER"] = \
-        lambda: noconversion("LI", "NANOMETER")
-    CONVERSIONS["LI:PARSEC"] = \
-        lambda: noconversion("LI", "PARSEC")
-    CONVERSIONS["LI:PETAMETER"] = \
-        lambda: noconversion("LI", "PETAMETER")
-    CONVERSIONS["LI:PICOMETER"] = \
-        lambda: noconversion("LI", "PICOMETER")
-    CONVERSIONS["LI:PIXEL"] = \
-        lambda: noconversion("LI", "PIXEL")
-    CONVERSIONS["LI:PT"] = \
-        lambda: noconversion("LI", "PT")
-    CONVERSIONS["LI:REFERENCEFRAME"] = \
-        lambda: noconversion("LI", "REFERENCEFRAME")
-    CONVERSIONS["LI:TERAMETER"] = \
-        lambda: noconversion("LI", "TERAMETER")
-    CONVERSIONS["LI:THOU"] = \
-        lambda: noconversion("LI", "THOU")
-    CONVERSIONS["LI:YD"] = \
-        lambda: noconversion("LI", "YD")
-    CONVERSIONS["LI:YOCTOMETER"] = \
-        lambda: noconversion("LI", "YOCTOMETER")
-    CONVERSIONS["LI:YOTTAMETER"] = \
-        lambda: noconversion("LI", "YOTTAMETER")
-    CONVERSIONS["LI:ZEPTOMETER"] = \
-        lambda: noconversion("LI", "ZEPTOMETER")
-    CONVERSIONS["LI:ZETTAMETER"] = \
-        lambda: noconversion("LI", "ZETTAMETER")
+        Mul(Pow(10, 18), Sym("kilom"))
     CONVERSIONS["LIGHTYEAR:ANGSTROM"] = \
-        lambda: noconversion("LIGHTYEAR", "ANGSTROM")
-    CONVERSIONS["LIGHTYEAR:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("LIGHTYEAR", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 12))), Sym("ly"))
+    CONVERSIONS["LIGHTYEAR:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(6830953), Int("431996825232")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:ATTOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "ATTOMETER")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 20))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:CENTIMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "CENTIMETER")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 4))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:DECAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "DECAMETER")
+        Mul(Rat(Int(1), Int("946073047258080")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:DECIMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "DECIMETER")
+        Mul(Rat(Int(1), Int("94607304725808000")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:EXAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "EXAMETER")
+        Mul(Rat(Mul(Int(625), Pow(10, 12)), Int("5912956545363")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:FEMTOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "FEMTOMETER")
-    CONVERSIONS["LIGHTYEAR:FT"] = \
-        lambda: noconversion("LIGHTYEAR", "FT")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 17))), Sym("ly"))
+    CONVERSIONS["LIGHTYEAR:FOOT"] = \
+        Mul(Rat(Int(127), Mul(Int("3941971030242"), Pow(10, 6))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:GIGAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "GIGAMETER")
+        Mul(Rat(Int(625000), Int("5912956545363")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:HECTOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "HECTOMETER")
-    CONVERSIONS["LIGHTYEAR:IN"] = \
-        lambda: noconversion("LIGHTYEAR", "IN")
+        Mul(Rat(Int(1), Int("94607304725808")), Sym("ly"))
+    CONVERSIONS["LIGHTYEAR:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int("47303652362904"), Pow(10, 6))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:KILOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "KILOMETER")
-    CONVERSIONS["LIGHTYEAR:LI"] = \
-        lambda: noconversion("LIGHTYEAR", "LI")
+        Mul(Rat(Int(5), Int("47303652362904")), Sym("ly"))
+    CONVERSIONS["LIGHTYEAR:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int("567643828354848"), Pow(10, 6))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:MEGAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "MEGAMETER")
+        Mul(Rat(Int(625), Int("5912956545363")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:METER"] = \
-        lambda: noconversion("LIGHTYEAR", "METER")
-    CONVERSIONS["LIGHTYEAR:MI"] = \
-        lambda: noconversion("LIGHTYEAR", "MI")
+        Mul(Rat(Int(1), Int("9460730472580800")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:MICROMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "MICROMETER")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 8))), Sym("ly"))
+    CONVERSIONS["LIGHTYEAR:MILE"] = \
+        Mul(Rat(Int(1397), Int("8212439646337500")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:MILLIMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "MILLIMETER")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 5))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:NANOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "NANOMETER")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 11))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:PARSEC"] = \
-        lambda: noconversion("LIGHTYEAR", "PARSEC")
+        Mul(Rat(Mul(Int(6428495), Pow(10, 6)), Int("1970985515121")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:PETAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "PETAMETER")
+        Mul(Rat(Mul(Int(625), Pow(10, 9)), Int("5912956545363")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:PICOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "PICOMETER")
-    CONVERSIONS["LIGHTYEAR:PIXEL"] = \
-        lambda: noconversion("LIGHTYEAR", "PIXEL")
-    CONVERSIONS["LIGHTYEAR:PT"] = \
-        lambda: noconversion("LIGHTYEAR", "PT")
-    CONVERSIONS["LIGHTYEAR:REFERENCEFRAME"] = \
-        lambda: noconversion("LIGHTYEAR", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 14))), Sym("ly"))
+    CONVERSIONS["LIGHTYEAR:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int("3405862970129088"), Pow(10, 6))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:TERAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "TERAMETER")
+        Mul(Rat(Mul(Int(625), Pow(10, 6)), Int("5912956545363")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:THOU"] = \
-        lambda: noconversion("LIGHTYEAR", "THOU")
-    CONVERSIONS["LIGHTYEAR:YD"] = \
-        lambda: noconversion("LIGHTYEAR", "YD")
+        Mul(Rat(Int(127), Mul(Int("47303652362904"), Pow(10, 9))), Sym("ly"))
+    CONVERSIONS["LIGHTYEAR:YARD"] = \
+        Mul(Rat(Int(127), Mul(Int("1313990343414"), Pow(10, 6))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:YOCTOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "YOCTOMETER")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 26))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:YOTTAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "YOTTAMETER")
+        Mul(Rat(Mul(Int(625), Pow(10, 18)), Int("5912956545363")), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:ZEPTOMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "ZEPTOMETER")
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 23))), Sym("ly"))
     CONVERSIONS["LIGHTYEAR:ZETTAMETER"] = \
-        lambda: noconversion("LIGHTYEAR", "ZETTAMETER")
+        Mul(Rat(Mul(Int(625), Pow(10, 15)), Int("5912956545363")), Sym("ly"))
+    CONVERSIONS["LINE:ANGSTROM"] = \
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 5))), Sym("li"))
+    CONVERSIONS["LINE:ASTRONMICALUNIT"] = \
+        Mul(Rat(Mul(Int("8975872242"), Pow(10, 6)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:ATTOMETER"] = \
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 13))), Sym("li"))
+    CONVERSIONS["LINE:CENTIMETER"] = \
+        Mul(Rat(Int(600), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:DECAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 5)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:DECIMETER"] = \
+        Mul(Rat(Int(6000), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:EXAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 22)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:FEMTOMETER"] = \
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 10))), Sym("li"))
+    CONVERSIONS["LINE:FOOT"] = \
+        Mul(Int(144), Sym("li"))
+    CONVERSIONS["LINE:GIGAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 13)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:HECTOMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 6)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:INCH"] = \
+        Mul(Int(12), Sym("li"))
+    CONVERSIONS["LINE:KILOMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 7)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:LIGHTYEAR"] = \
+        Mul(Rat(Mul(Int("567643828354848"), Pow(10, 6)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:MEGAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 10)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:METER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 4)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:MICROMETER"] = \
+        Mul(Rat(Int(3), Int(6350)), Sym("li"))
+    CONVERSIONS["LINE:MILE"] = \
+        Mul(Int(760320), Sym("li"))
+    CONVERSIONS["LINE:MILLIMETER"] = \
+        Mul(Rat(Int(60), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:NANOMETER"] = \
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 4))), Sym("li"))
+    CONVERSIONS["LINE:PARSEC"] = \
+        Mul(Rat(Mul(Int(185140656), Pow(10, 13)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:PETAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 19)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:PICOMETER"] = \
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 7))), Sym("li"))
+    CONVERSIONS["LINE:POINT"] = \
+        Mul(Rat(Int(1), Int(6)), Sym("li"))
+    CONVERSIONS["LINE:TERAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 16)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:THOU"] = \
+        Mul(Rat(Int(3), Int(250)), Sym("li"))
+    CONVERSIONS["LINE:YARD"] = \
+        Mul(Int(432), Sym("li"))
+    CONVERSIONS["LINE:YOCTOMETER"] = \
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 19))), Sym("li"))
+    CONVERSIONS["LINE:YOTTAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 28)), Int(127)), Sym("li"))
+    CONVERSIONS["LINE:ZEPTOMETER"] = \
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 16))), Sym("li"))
+    CONVERSIONS["LINE:ZETTAMETER"] = \
+        Mul(Rat(Mul(Int(6), Pow(10, 25)), Int(127)), Sym("li"))
     CONVERSIONS["MEGAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["MEGAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("MEGAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("megam"))
+    CONVERSIONS["MEGAMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Pow(10, 4)), Sym("megam"))
     CONVERSIONS["MEGAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("megam"))
     CONVERSIONS["MEGAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megam"))
     CONVERSIONS["MEGAMETER:DECAMETER"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("megam"))
     CONVERSIONS["MEGAMETER:DECIMETER"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("megam"))
     CONVERSIONS["MEGAMETER:EXAMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("megam"))
     CONVERSIONS["MEGAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAMETER:FT"] = \
-        lambda: noconversion("MEGAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("megam"))
+    CONVERSIONS["MEGAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 7))), Sym("megam"))
     CONVERSIONS["MEGAMETER:GIGAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("megam"))
     CONVERSIONS["MEGAMETER:HECTOMETER"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["MEGAMETER:IN"] = \
-        lambda: noconversion("MEGAMETER", "IN")
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("megam"))
+    CONVERSIONS["MEGAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 9))), Sym("megam"))
     CONVERSIONS["MEGAMETER:KILOMETER"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["MEGAMETER:LI"] = \
-        lambda: noconversion("MEGAMETER", "LI")
+        Mul(Rat(Int(1), Int(1000)), Sym("megam"))
     CONVERSIONS["MEGAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("MEGAMETER", "LIGHTYEAR")
+        Mul(Rat(Int("5912956545363"), Int(625)), Sym("megam"))
+    CONVERSIONS["MEGAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 10))), Sym("megam"))
     CONVERSIONS["MEGAMETER:METER"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MEGAMETER:MI"] = \
-        lambda: noconversion("MEGAMETER", "MI")
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("megam"))
     CONVERSIONS["MEGAMETER:MICROMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("megam"))
+    CONVERSIONS["MEGAMETER:MILE"] = \
+        Mul(Rat(Int(12573), Int(7812500)), Sym("megam"))
     CONVERSIONS["MEGAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megam"))
     CONVERSIONS["MEGAMETER:NANOMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("megam"))
     CONVERSIONS["MEGAMETER:PARSEC"] = \
-        lambda: noconversion("MEGAMETER", "PARSEC")
+        Mul(Int("30856776000"), Sym("megam"))
     CONVERSIONS["MEGAMETER:PETAMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("megam"))
     CONVERSIONS["MEGAMETER:PICOMETER"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["MEGAMETER:PIXEL"] = \
-        lambda: noconversion("MEGAMETER", "PIXEL")
-    CONVERSIONS["MEGAMETER:PT"] = \
-        lambda: noconversion("MEGAMETER", "PT")
-    CONVERSIONS["MEGAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("MEGAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("megam"))
+    CONVERSIONS["MEGAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 10))), Sym("megam"))
     CONVERSIONS["MEGAMETER:TERAMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("megam"))
     CONVERSIONS["MEGAMETER:THOU"] = \
-        lambda: noconversion("MEGAMETER", "THOU")
-    CONVERSIONS["MEGAMETER:YD"] = \
-        lambda: noconversion("MEGAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 12))), Sym("megam"))
+    CONVERSIONS["MEGAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 7))), Sym("megam"))
     CONVERSIONS["MEGAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("megam"))
     CONVERSIONS["MEGAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("megam"))
     CONVERSIONS["MEGAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("megam"))
     CONVERSIONS["MEGAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("megam"))
     CONVERSIONS["METER:ANGSTROM"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["METER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("METER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("m"))
+    CONVERSIONS["METER:ASTRONMICALUNIT"] = \
+        Mul(Int("149597870700"), Sym("m"))
     CONVERSIONS["METER:ATTOMETER"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("m"))
     CONVERSIONS["METER:CENTIMETER"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("m"))
     CONVERSIONS["METER:DECAMETER"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("m"))
     CONVERSIONS["METER:DECIMETER"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("m"))
     CONVERSIONS["METER:EXAMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("m"))
     CONVERSIONS["METER:FEMTOMETER"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["METER:FT"] = \
-        lambda: noconversion("METER", "FT")
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("m"))
+    CONVERSIONS["METER:FOOT"] = \
+        Mul(Rat(Int(381), Int(1250)), Sym("m"))
     CONVERSIONS["METER:GIGAMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("m"))
     CONVERSIONS["METER:HECTOMETER"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["METER:IN"] = \
-        lambda: noconversion("METER", "IN")
+        Mul(Int(100), Sym("m"))
+    CONVERSIONS["METER:INCH"] = \
+        Mul(Rat(Int(127), Int(5000)), Sym("m"))
     CONVERSIONS["METER:KILOMETER"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["METER:LI"] = \
-        lambda: noconversion("METER", "LI")
+        Mul(Int(1000), Sym("m"))
     CONVERSIONS["METER:LIGHTYEAR"] = \
-        lambda: noconversion("METER", "LIGHTYEAR")
+        Mul(Int("9460730472580800"), Sym("m"))
+    CONVERSIONS["METER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 4))), Sym("m"))
     CONVERSIONS["METER:MEGAMETER"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["METER:MI"] = \
-        lambda: noconversion("METER", "MI")
+        Mul(Pow(10, 6), Sym("m"))
     CONVERSIONS["METER:MICROMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("m"))
+    CONVERSIONS["METER:MILE"] = \
+        Mul(Rat(Int(201168), Int(125)), Sym("m"))
     CONVERSIONS["METER:MILLIMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("m"))
     CONVERSIONS["METER:NANOMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("m"))
     CONVERSIONS["METER:PARSEC"] = \
-        lambda: noconversion("METER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 9)), Sym("m"))
     CONVERSIONS["METER:PETAMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("m"))
     CONVERSIONS["METER:PICOMETER"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["METER:PIXEL"] = \
-        lambda: noconversion("METER", "PIXEL")
-    CONVERSIONS["METER:PT"] = \
-        lambda: noconversion("METER", "PT")
-    CONVERSIONS["METER:REFERENCEFRAME"] = \
-        lambda: noconversion("METER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("m"))
+    CONVERSIONS["METER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 4))), Sym("m"))
     CONVERSIONS["METER:TERAMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("m"))
     CONVERSIONS["METER:THOU"] = \
-        lambda: noconversion("METER", "THOU")
-    CONVERSIONS["METER:YD"] = \
-        lambda: noconversion("METER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 6))), Sym("m"))
+    CONVERSIONS["METER:YARD"] = \
+        Mul(Rat(Int(1143), Int(1250)), Sym("m"))
     CONVERSIONS["METER:YOCTOMETER"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("m"))
     CONVERSIONS["METER:YOTTAMETER"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("m"))
     CONVERSIONS["METER:ZEPTOMETER"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("m"))
     CONVERSIONS["METER:ZETTAMETER"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["MI:ANGSTROM"] = \
-        lambda: noconversion("MI", "ANGSTROM")
-    CONVERSIONS["MI:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("MI", "ASTRONOMICALUNIT")
-    CONVERSIONS["MI:ATTOMETER"] = \
-        lambda: noconversion("MI", "ATTOMETER")
-    CONVERSIONS["MI:CENTIMETER"] = \
-        lambda: noconversion("MI", "CENTIMETER")
-    CONVERSIONS["MI:DECAMETER"] = \
-        lambda: noconversion("MI", "DECAMETER")
-    CONVERSIONS["MI:DECIMETER"] = \
-        lambda: noconversion("MI", "DECIMETER")
-    CONVERSIONS["MI:EXAMETER"] = \
-        lambda: noconversion("MI", "EXAMETER")
-    CONVERSIONS["MI:FEMTOMETER"] = \
-        lambda: noconversion("MI", "FEMTOMETER")
-    CONVERSIONS["MI:FT"] = \
-        lambda: noconversion("MI", "FT")
-    CONVERSIONS["MI:GIGAMETER"] = \
-        lambda: noconversion("MI", "GIGAMETER")
-    CONVERSIONS["MI:HECTOMETER"] = \
-        lambda: noconversion("MI", "HECTOMETER")
-    CONVERSIONS["MI:IN"] = \
-        lambda: noconversion("MI", "IN")
-    CONVERSIONS["MI:KILOMETER"] = \
-        lambda: noconversion("MI", "KILOMETER")
-    CONVERSIONS["MI:LI"] = \
-        lambda: noconversion("MI", "LI")
-    CONVERSIONS["MI:LIGHTYEAR"] = \
-        lambda: noconversion("MI", "LIGHTYEAR")
-    CONVERSIONS["MI:MEGAMETER"] = \
-        lambda: noconversion("MI", "MEGAMETER")
-    CONVERSIONS["MI:METER"] = \
-        lambda: noconversion("MI", "METER")
-    CONVERSIONS["MI:MICROMETER"] = \
-        lambda: noconversion("MI", "MICROMETER")
-    CONVERSIONS["MI:MILLIMETER"] = \
-        lambda: noconversion("MI", "MILLIMETER")
-    CONVERSIONS["MI:NANOMETER"] = \
-        lambda: noconversion("MI", "NANOMETER")
-    CONVERSIONS["MI:PARSEC"] = \
-        lambda: noconversion("MI", "PARSEC")
-    CONVERSIONS["MI:PETAMETER"] = \
-        lambda: noconversion("MI", "PETAMETER")
-    CONVERSIONS["MI:PICOMETER"] = \
-        lambda: noconversion("MI", "PICOMETER")
-    CONVERSIONS["MI:PIXEL"] = \
-        lambda: noconversion("MI", "PIXEL")
-    CONVERSIONS["MI:PT"] = \
-        lambda: noconversion("MI", "PT")
-    CONVERSIONS["MI:REFERENCEFRAME"] = \
-        lambda: noconversion("MI", "REFERENCEFRAME")
-    CONVERSIONS["MI:TERAMETER"] = \
-        lambda: noconversion("MI", "TERAMETER")
-    CONVERSIONS["MI:THOU"] = \
-        lambda: noconversion("MI", "THOU")
-    CONVERSIONS["MI:YD"] = \
-        lambda: noconversion("MI", "YD")
-    CONVERSIONS["MI:YOCTOMETER"] = \
-        lambda: noconversion("MI", "YOCTOMETER")
-    CONVERSIONS["MI:YOTTAMETER"] = \
-        lambda: noconversion("MI", "YOTTAMETER")
-    CONVERSIONS["MI:ZEPTOMETER"] = \
-        lambda: noconversion("MI", "ZEPTOMETER")
-    CONVERSIONS["MI:ZETTAMETER"] = \
-        lambda: noconversion("MI", "ZETTAMETER")
+        Mul(Pow(10, 21), Sym("m"))
     CONVERSIONS["MICROMETER:ANGSTROM"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["MICROMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("MICROMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("microm"))
+    CONVERSIONS["MICROMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 8)), Sym("microm"))
     CONVERSIONS["MICROMETER:ATTOMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("microm"))
     CONVERSIONS["MICROMETER:CENTIMETER"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("microm"))
     CONVERSIONS["MICROMETER:DECAMETER"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("microm"))
     CONVERSIONS["MICROMETER:DECIMETER"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("microm"))
     CONVERSIONS["MICROMETER:EXAMETER"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("microm"))
     CONVERSIONS["MICROMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MICROMETER:FT"] = \
-        lambda: noconversion("MICROMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("microm"))
+    CONVERSIONS["MICROMETER:FOOT"] = \
+        Mul(Int(304800), Sym("microm"))
     CONVERSIONS["MICROMETER:GIGAMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("microm"))
     CONVERSIONS["MICROMETER:HECTOMETER"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["MICROMETER:IN"] = \
-        lambda: noconversion("MICROMETER", "IN")
+        Mul(Pow(10, 8), Sym("microm"))
+    CONVERSIONS["MICROMETER:INCH"] = \
+        Mul(Int(25400), Sym("microm"))
     CONVERSIONS["MICROMETER:KILOMETER"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["MICROMETER:LI"] = \
-        lambda: noconversion("MICROMETER", "LI")
+        Mul(Pow(10, 9), Sym("microm"))
     CONVERSIONS["MICROMETER:LIGHTYEAR"] = \
-        lambda: noconversion("MICROMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 8)), Sym("microm"))
+    CONVERSIONS["MICROMETER:LINE"] = \
+        Mul(Rat(Int(6350), Int(3)), Sym("microm"))
     CONVERSIONS["MICROMETER:MEGAMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("microm"))
     CONVERSIONS["MICROMETER:METER"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MICROMETER:MI"] = \
-        lambda: noconversion("MICROMETER", "MI")
+        Mul(Pow(10, 6), Sym("microm"))
+    CONVERSIONS["MICROMETER:MILE"] = \
+        Mul(Int(1609344000), Sym("microm"))
     CONVERSIONS["MICROMETER:MILLIMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("microm"))
     CONVERSIONS["MICROMETER:NANOMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("microm"))
     CONVERSIONS["MICROMETER:PARSEC"] = \
-        lambda: noconversion("MICROMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 15)), Sym("microm"))
     CONVERSIONS["MICROMETER:PETAMETER"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("microm"))
     CONVERSIONS["MICROMETER:PICOMETER"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MICROMETER:PIXEL"] = \
-        lambda: noconversion("MICROMETER", "PIXEL")
-    CONVERSIONS["MICROMETER:PT"] = \
-        lambda: noconversion("MICROMETER", "PT")
-    CONVERSIONS["MICROMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("MICROMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("microm"))
+    CONVERSIONS["MICROMETER:POINT"] = \
+        Mul(Rat(Int(3175), Int(9)), Sym("microm"))
     CONVERSIONS["MICROMETER:TERAMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("microm"))
     CONVERSIONS["MICROMETER:THOU"] = \
-        lambda: noconversion("MICROMETER", "THOU")
-    CONVERSIONS["MICROMETER:YD"] = \
-        lambda: noconversion("MICROMETER", "YD")
+        Mul(Rat(Int(127), Int(5)), Sym("microm"))
+    CONVERSIONS["MICROMETER:YARD"] = \
+        Mul(Int(914400), Sym("microm"))
     CONVERSIONS["MICROMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("microm"))
     CONVERSIONS["MICROMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("microm"))
     CONVERSIONS["MICROMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("microm"))
     CONVERSIONS["MICROMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("microm"))
+    CONVERSIONS["MILE:ANGSTROM"] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 7))), Sym("mi"))
+    CONVERSIONS["MILE:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int("1558311153125"), Int(16764)), Sym("mi"))
+    CONVERSIONS["MILE:ATTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 15))), Sym("mi"))
+    CONVERSIONS["MILE:CENTIMETER"] = \
+        Mul(Rat(Int(5), Int(804672)), Sym("mi"))
+    CONVERSIONS["MILE:DECAMETER"] = \
+        Mul(Rat(Int(625), Int(100584)), Sym("mi"))
+    CONVERSIONS["MILE:DECIMETER"] = \
+        Mul(Rat(Int(25), Int(402336)), Sym("mi"))
+    CONVERSIONS["MILE:EXAMETER"] = \
+        Mul(Rat(Mul(Int(78125), Pow(10, 14)), Int(12573)), Sym("mi"))
+    CONVERSIONS["MILE:FEMTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 12))), Sym("mi"))
+    CONVERSIONS["MILE:FOOT"] = \
+        Mul(Rat(Int(1), Int(5280)), Sym("mi"))
+    CONVERSIONS["MILE:GIGAMETER"] = \
+        Mul(Rat(Mul(Int(78125), Pow(10, 5)), Int(12573)), Sym("mi"))
+    CONVERSIONS["MILE:HECTOMETER"] = \
+        Mul(Rat(Int(3125), Int(50292)), Sym("mi"))
+    CONVERSIONS["MILE:INCH"] = \
+        Mul(Rat(Int(1), Int(63360)), Sym("mi"))
+    CONVERSIONS["MILE:KILOMETER"] = \
+        Mul(Rat(Int(15625), Int(25146)), Sym("mi"))
+    CONVERSIONS["MILE:LIGHTYEAR"] = \
+        Mul(Rat(Int("8212439646337500"), Int(1397)), Sym("mi"))
+    CONVERSIONS["MILE:LINE"] = \
+        Mul(Rat(Int(1), Int(760320)), Sym("mi"))
+    CONVERSIONS["MILE:MEGAMETER"] = \
+        Mul(Rat(Int(7812500), Int(12573)), Sym("mi"))
+    CONVERSIONS["MILE:METER"] = \
+        Mul(Rat(Int(125), Int(201168)), Sym("mi"))
+    CONVERSIONS["MILE:MICROMETER"] = \
+        Mul(Rat(Int(1), Int(1609344000)), Sym("mi"))
+    CONVERSIONS["MILE:MILLIMETER"] = \
+        Mul(Rat(Int(1), Int(1609344)), Sym("mi"))
+    CONVERSIONS["MILE:NANOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 6))), Sym("mi"))
+    CONVERSIONS["MILE:PARSEC"] = \
+        Mul(Rat(Mul(Int(803561875), Pow(10, 8)), Int(4191)), Sym("mi"))
+    CONVERSIONS["MILE:PETAMETER"] = \
+        Mul(Rat(Mul(Int(78125), Pow(10, 11)), Int(12573)), Sym("mi"))
+    CONVERSIONS["MILE:PICOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 9))), Sym("mi"))
+    CONVERSIONS["MILE:POINT"] = \
+        Mul(Rat(Int(1), Int(4561920)), Sym("mi"))
+    CONVERSIONS["MILE:TERAMETER"] = \
+        Mul(Rat(Mul(Int(78125), Pow(10, 8)), Int(12573)), Sym("mi"))
+    CONVERSIONS["MILE:THOU"] = \
+        Mul(Rat(Int(1), Mul(Int(6336), Pow(10, 4))), Sym("mi"))
+    CONVERSIONS["MILE:YARD"] = \
+        Mul(Rat(Int(1), Int(1760)), Sym("mi"))
+    CONVERSIONS["MILE:YOCTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 21))), Sym("mi"))
+    CONVERSIONS["MILE:YOTTAMETER"] = \
+        Mul(Rat(Mul(Int(78125), Pow(10, 20)), Int(12573)), Sym("mi"))
+    CONVERSIONS["MILE:ZEPTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 18))), Sym("mi"))
+    CONVERSIONS["MILE:ZETTAMETER"] = \
+        Mul(Rat(Mul(Int(78125), Pow(10, 17)), Int(12573)), Sym("mi"))
     CONVERSIONS["MILLIMETER:ANGSTROM"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["MILLIMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("MILLIMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("millim"))
+    CONVERSIONS["MILLIMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 5)), Sym("millim"))
     CONVERSIONS["MILLIMETER:ATTOMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("millim"))
     CONVERSIONS["MILLIMETER:CENTIMETER"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("millim"))
     CONVERSIONS["MILLIMETER:DECAMETER"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("millim"))
     CONVERSIONS["MILLIMETER:DECIMETER"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("millim"))
     CONVERSIONS["MILLIMETER:EXAMETER"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("millim"))
     CONVERSIONS["MILLIMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MILLIMETER:FT"] = \
-        lambda: noconversion("MILLIMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("millim"))
+    CONVERSIONS["MILLIMETER:FOOT"] = \
+        Mul(Rat(Int(1524), Int(5)), Sym("millim"))
     CONVERSIONS["MILLIMETER:GIGAMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("millim"))
     CONVERSIONS["MILLIMETER:HECTOMETER"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MILLIMETER:IN"] = \
-        lambda: noconversion("MILLIMETER", "IN")
+        Mul(Pow(10, 5), Sym("millim"))
+    CONVERSIONS["MILLIMETER:INCH"] = \
+        Mul(Rat(Int(127), Int(5)), Sym("millim"))
     CONVERSIONS["MILLIMETER:KILOMETER"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MILLIMETER:LI"] = \
-        lambda: noconversion("MILLIMETER", "LI")
+        Mul(Pow(10, 6), Sym("millim"))
     CONVERSIONS["MILLIMETER:LIGHTYEAR"] = \
-        lambda: noconversion("MILLIMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 5)), Sym("millim"))
+    CONVERSIONS["MILLIMETER:LINE"] = \
+        Mul(Rat(Int(127), Int(60)), Sym("millim"))
     CONVERSIONS["MILLIMETER:MEGAMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("millim"))
     CONVERSIONS["MILLIMETER:METER"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MILLIMETER:MI"] = \
-        lambda: noconversion("MILLIMETER", "MI")
+        Mul(Int(1000), Sym("millim"))
     CONVERSIONS["MILLIMETER:MICROMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("millim"))
+    CONVERSIONS["MILLIMETER:MILE"] = \
+        Mul(Int(1609344), Sym("millim"))
     CONVERSIONS["MILLIMETER:NANOMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("millim"))
     CONVERSIONS["MILLIMETER:PARSEC"] = \
-        lambda: noconversion("MILLIMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 12)), Sym("millim"))
     CONVERSIONS["MILLIMETER:PETAMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("millim"))
     CONVERSIONS["MILLIMETER:PICOMETER"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MILLIMETER:PIXEL"] = \
-        lambda: noconversion("MILLIMETER", "PIXEL")
-    CONVERSIONS["MILLIMETER:PT"] = \
-        lambda: noconversion("MILLIMETER", "PT")
-    CONVERSIONS["MILLIMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("MILLIMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("millim"))
+    CONVERSIONS["MILLIMETER:POINT"] = \
+        Mul(Rat(Int(127), Int(360)), Sym("millim"))
     CONVERSIONS["MILLIMETER:TERAMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("millim"))
     CONVERSIONS["MILLIMETER:THOU"] = \
-        lambda: noconversion("MILLIMETER", "THOU")
-    CONVERSIONS["MILLIMETER:YD"] = \
-        lambda: noconversion("MILLIMETER", "YD")
+        Mul(Rat(Int(127), Int(5000)), Sym("millim"))
+    CONVERSIONS["MILLIMETER:YARD"] = \
+        Mul(Rat(Int(4572), Int(5)), Sym("millim"))
     CONVERSIONS["MILLIMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("millim"))
     CONVERSIONS["MILLIMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("millim"))
     CONVERSIONS["MILLIMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("millim"))
     CONVERSIONS["MILLIMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("millim"))
     CONVERSIONS["NANOMETER:ANGSTROM"] = \
-        lambda value: 10 * value
-    CONVERSIONS["NANOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("NANOMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Int(10)), Sym("nanom"))
+    CONVERSIONS["NANOMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 11)), Sym("nanom"))
     CONVERSIONS["NANOMETER:ATTOMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("nanom"))
     CONVERSIONS["NANOMETER:CENTIMETER"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("nanom"))
     CONVERSIONS["NANOMETER:DECAMETER"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("nanom"))
     CONVERSIONS["NANOMETER:DECIMETER"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("nanom"))
     CONVERSIONS["NANOMETER:EXAMETER"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("nanom"))
     CONVERSIONS["NANOMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["NANOMETER:FT"] = \
-        lambda: noconversion("NANOMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("nanom"))
+    CONVERSIONS["NANOMETER:FOOT"] = \
+        Mul(Mul(Int(3048), Pow(10, 5)), Sym("nanom"))
     CONVERSIONS["NANOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("nanom"))
     CONVERSIONS["NANOMETER:HECTOMETER"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["NANOMETER:IN"] = \
-        lambda: noconversion("NANOMETER", "IN")
+        Mul(Pow(10, 11), Sym("nanom"))
+    CONVERSIONS["NANOMETER:INCH"] = \
+        Mul(Mul(Int(254), Pow(10, 5)), Sym("nanom"))
     CONVERSIONS["NANOMETER:KILOMETER"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["NANOMETER:LI"] = \
-        lambda: noconversion("NANOMETER", "LI")
+        Mul(Pow(10, 12), Sym("nanom"))
     CONVERSIONS["NANOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("NANOMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 11)), Sym("nanom"))
+    CONVERSIONS["NANOMETER:LINE"] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 4)), Int(3)), Sym("nanom"))
     CONVERSIONS["NANOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("nanom"))
     CONVERSIONS["NANOMETER:METER"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["NANOMETER:MI"] = \
-        lambda: noconversion("NANOMETER", "MI")
+        Mul(Pow(10, 9), Sym("nanom"))
     CONVERSIONS["NANOMETER:MICROMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("nanom"))
+    CONVERSIONS["NANOMETER:MILE"] = \
+        Mul(Mul(Int(1609344), Pow(10, 6)), Sym("nanom"))
     CONVERSIONS["NANOMETER:MILLIMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("nanom"))
     CONVERSIONS["NANOMETER:PARSEC"] = \
-        lambda: noconversion("NANOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 18)), Sym("nanom"))
     CONVERSIONS["NANOMETER:PETAMETER"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("nanom"))
     CONVERSIONS["NANOMETER:PICOMETER"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["NANOMETER:PIXEL"] = \
-        lambda: noconversion("NANOMETER", "PIXEL")
-    CONVERSIONS["NANOMETER:PT"] = \
-        lambda: noconversion("NANOMETER", "PT")
-    CONVERSIONS["NANOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("NANOMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Int(1000)), Sym("nanom"))
+    CONVERSIONS["NANOMETER:POINT"] = \
+        Mul(Rat(Int(3175000), Int(9)), Sym("nanom"))
     CONVERSIONS["NANOMETER:TERAMETER"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("nanom"))
     CONVERSIONS["NANOMETER:THOU"] = \
-        lambda: noconversion("NANOMETER", "THOU")
-    CONVERSIONS["NANOMETER:YD"] = \
-        lambda: noconversion("NANOMETER", "YD")
+        Mul(Int(25400), Sym("nanom"))
+    CONVERSIONS["NANOMETER:YARD"] = \
+        Mul(Mul(Int(9144), Pow(10, 5)), Sym("nanom"))
     CONVERSIONS["NANOMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("nanom"))
     CONVERSIONS["NANOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("nanom"))
     CONVERSIONS["NANOMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("nanom"))
     CONVERSIONS["NANOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("nanom"))
     CONVERSIONS["PARSEC:ANGSTROM"] = \
-        lambda: noconversion("PARSEC", "ANGSTROM")
-    CONVERSIONS["PARSEC:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("PARSEC", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 19))), Sym("pc"))
+    CONVERSIONS["PARSEC:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(498659569), Mul(Int(10285592), Pow(10, 7))), Sym("pc"))
     CONVERSIONS["PARSEC:ATTOMETER"] = \
-        lambda: noconversion("PARSEC", "ATTOMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 27))), Sym("pc"))
     CONVERSIONS["PARSEC:CENTIMETER"] = \
-        lambda: noconversion("PARSEC", "CENTIMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 11))), Sym("pc"))
     CONVERSIONS["PARSEC:DECAMETER"] = \
-        lambda: noconversion("PARSEC", "DECAMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 8))), Sym("pc"))
     CONVERSIONS["PARSEC:DECIMETER"] = \
-        lambda: noconversion("PARSEC", "DECIMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 10))), Sym("pc"))
     CONVERSIONS["PARSEC:EXAMETER"] = \
-        lambda: noconversion("PARSEC", "EXAMETER")
+        Mul(Rat(Mul(Int(125), Pow(10, 6)), Int(3857097)), Sym("pc"))
     CONVERSIONS["PARSEC:FEMTOMETER"] = \
-        lambda: noconversion("PARSEC", "FEMTOMETER")
-    CONVERSIONS["PARSEC:FT"] = \
-        lambda: noconversion("PARSEC", "FT")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 24))), Sym("pc"))
+    CONVERSIONS["PARSEC:FOOT"] = \
+        Mul(Rat(Int(127), Mul(Int(1285699), Pow(10, 13))), Sym("pc"))
     CONVERSIONS["PARSEC:GIGAMETER"] = \
-        lambda: noconversion("PARSEC", "GIGAMETER")
+        Mul(Rat(Int(1), Int(30856776)), Sym("pc"))
     CONVERSIONS["PARSEC:HECTOMETER"] = \
-        lambda: noconversion("PARSEC", "HECTOMETER")
-    CONVERSIONS["PARSEC:IN"] = \
-        lambda: noconversion("PARSEC", "IN")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 7))), Sym("pc"))
+    CONVERSIONS["PARSEC:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(15428388), Pow(10, 13))), Sym("pc"))
     CONVERSIONS["PARSEC:KILOMETER"] = \
-        lambda: noconversion("PARSEC", "KILOMETER")
-    CONVERSIONS["PARSEC:LI"] = \
-        lambda: noconversion("PARSEC", "LI")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 6))), Sym("pc"))
     CONVERSIONS["PARSEC:LIGHTYEAR"] = \
-        lambda: noconversion("PARSEC", "LIGHTYEAR")
+        Mul(Rat(Int("1970985515121"), Mul(Int(6428495), Pow(10, 6))), Sym("pc"))
+    CONVERSIONS["PARSEC:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(185140656), Pow(10, 13))), Sym("pc"))
     CONVERSIONS["PARSEC:MEGAMETER"] = \
-        lambda: noconversion("PARSEC", "MEGAMETER")
+        Mul(Rat(Int(1), Int("30856776000")), Sym("pc"))
     CONVERSIONS["PARSEC:METER"] = \
-        lambda: noconversion("PARSEC", "METER")
-    CONVERSIONS["PARSEC:MI"] = \
-        lambda: noconversion("PARSEC", "MI")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 9))), Sym("pc"))
     CONVERSIONS["PARSEC:MICROMETER"] = \
-        lambda: noconversion("PARSEC", "MICROMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 15))), Sym("pc"))
+    CONVERSIONS["PARSEC:MILE"] = \
+        Mul(Rat(Int(4191), Mul(Int(803561875), Pow(10, 8))), Sym("pc"))
     CONVERSIONS["PARSEC:MILLIMETER"] = \
-        lambda: noconversion("PARSEC", "MILLIMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 12))), Sym("pc"))
     CONVERSIONS["PARSEC:NANOMETER"] = \
-        lambda: noconversion("PARSEC", "NANOMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 18))), Sym("pc"))
     CONVERSIONS["PARSEC:PETAMETER"] = \
-        lambda: noconversion("PARSEC", "PETAMETER")
+        Mul(Rat(Int(125000), Int(3857097)), Sym("pc"))
     CONVERSIONS["PARSEC:PICOMETER"] = \
-        lambda: noconversion("PARSEC", "PICOMETER")
-    CONVERSIONS["PARSEC:PIXEL"] = \
-        lambda: noconversion("PARSEC", "PIXEL")
-    CONVERSIONS["PARSEC:PT"] = \
-        lambda: noconversion("PARSEC", "PT")
-    CONVERSIONS["PARSEC:REFERENCEFRAME"] = \
-        lambda: noconversion("PARSEC", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 21))), Sym("pc"))
+    CONVERSIONS["PARSEC:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(1110843936), Pow(10, 13))), Sym("pc"))
     CONVERSIONS["PARSEC:TERAMETER"] = \
-        lambda: noconversion("PARSEC", "TERAMETER")
+        Mul(Rat(Int(125), Int(3857097)), Sym("pc"))
     CONVERSIONS["PARSEC:THOU"] = \
-        lambda: noconversion("PARSEC", "THOU")
-    CONVERSIONS["PARSEC:YD"] = \
-        lambda: noconversion("PARSEC", "YD")
+        Mul(Rat(Int(127), Mul(Int(15428388), Pow(10, 16))), Sym("pc"))
+    CONVERSIONS["PARSEC:YARD"] = \
+        Mul(Rat(Int(381), Mul(Int(1285699), Pow(10, 13))), Sym("pc"))
     CONVERSIONS["PARSEC:YOCTOMETER"] = \
-        lambda: noconversion("PARSEC", "YOCTOMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 33))), Sym("pc"))
     CONVERSIONS["PARSEC:YOTTAMETER"] = \
-        lambda: noconversion("PARSEC", "YOTTAMETER")
+        Mul(Rat(Mul(Int(125), Pow(10, 12)), Int(3857097)), Sym("pc"))
     CONVERSIONS["PARSEC:ZEPTOMETER"] = \
-        lambda: noconversion("PARSEC", "ZEPTOMETER")
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 30))), Sym("pc"))
     CONVERSIONS["PARSEC:ZETTAMETER"] = \
-        lambda: noconversion("PARSEC", "ZETTAMETER")
+        Mul(Rat(Mul(Int(125), Pow(10, 9)), Int(3857097)), Sym("pc"))
     CONVERSIONS["PETAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["PETAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("PETAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("petam"))
+    CONVERSIONS["PETAMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Pow(10, 13)), Sym("petam"))
     CONVERSIONS["PETAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("petam"))
     CONVERSIONS["PETAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("petam"))
     CONVERSIONS["PETAMETER:DECAMETER"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("petam"))
     CONVERSIONS["PETAMETER:DECIMETER"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("petam"))
     CONVERSIONS["PETAMETER:EXAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("petam"))
     CONVERSIONS["PETAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["PETAMETER:FT"] = \
-        lambda: noconversion("PETAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("petam"))
+    CONVERSIONS["PETAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 16))), Sym("petam"))
     CONVERSIONS["PETAMETER:GIGAMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("petam"))
     CONVERSIONS["PETAMETER:HECTOMETER"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["PETAMETER:IN"] = \
-        lambda: noconversion("PETAMETER", "IN")
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("petam"))
+    CONVERSIONS["PETAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 18))), Sym("petam"))
     CONVERSIONS["PETAMETER:KILOMETER"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAMETER:LI"] = \
-        lambda: noconversion("PETAMETER", "LI")
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("petam"))
     CONVERSIONS["PETAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("PETAMETER", "LIGHTYEAR")
+        Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 9))), Sym("petam"))
+    CONVERSIONS["PETAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 19))), Sym("petam"))
     CONVERSIONS["PETAMETER:MEGAMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("petam"))
     CONVERSIONS["PETAMETER:METER"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["PETAMETER:MI"] = \
-        lambda: noconversion("PETAMETER", "MI")
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("petam"))
     CONVERSIONS["PETAMETER:MICROMETER"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("petam"))
+    CONVERSIONS["PETAMETER:MILE"] = \
+        Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 11))), Sym("petam"))
     CONVERSIONS["PETAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("petam"))
     CONVERSIONS["PETAMETER:NANOMETER"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("petam"))
     CONVERSIONS["PETAMETER:PARSEC"] = \
-        lambda: noconversion("PETAMETER", "PARSEC")
+        Mul(Rat(Int(3857097), Int(125000)), Sym("petam"))
     CONVERSIONS["PETAMETER:PICOMETER"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["PETAMETER:PIXEL"] = \
-        lambda: noconversion("PETAMETER", "PIXEL")
-    CONVERSIONS["PETAMETER:PT"] = \
-        lambda: noconversion("PETAMETER", "PT")
-    CONVERSIONS["PETAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("PETAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("petam"))
+    CONVERSIONS["PETAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 19))), Sym("petam"))
     CONVERSIONS["PETAMETER:TERAMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("petam"))
     CONVERSIONS["PETAMETER:THOU"] = \
-        lambda: noconversion("PETAMETER", "THOU")
-    CONVERSIONS["PETAMETER:YD"] = \
-        lambda: noconversion("PETAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 21))), Sym("petam"))
+    CONVERSIONS["PETAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 16))), Sym("petam"))
     CONVERSIONS["PETAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("petam"))
     CONVERSIONS["PETAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("petam"))
     CONVERSIONS["PETAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("petam"))
     CONVERSIONS["PETAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("petam"))
     CONVERSIONS["PICOMETER:ANGSTROM"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["PICOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("PICOMETER", "ASTRONOMICALUNIT")
+        Mul(Int(100), Sym("picom"))
+    CONVERSIONS["PICOMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 14)), Sym("picom"))
     CONVERSIONS["PICOMETER:ATTOMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("picom"))
     CONVERSIONS["PICOMETER:CENTIMETER"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("picom"))
     CONVERSIONS["PICOMETER:DECAMETER"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("picom"))
     CONVERSIONS["PICOMETER:DECIMETER"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("picom"))
     CONVERSIONS["PICOMETER:EXAMETER"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("picom"))
     CONVERSIONS["PICOMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PICOMETER:FT"] = \
-        lambda: noconversion("PICOMETER", "FT")
+        Mul(Rat(Int(1), Int(1000)), Sym("picom"))
+    CONVERSIONS["PICOMETER:FOOT"] = \
+        Mul(Mul(Int(3048), Pow(10, 8)), Sym("picom"))
     CONVERSIONS["PICOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("picom"))
     CONVERSIONS["PICOMETER:HECTOMETER"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["PICOMETER:IN"] = \
-        lambda: noconversion("PICOMETER", "IN")
+        Mul(Pow(10, 14), Sym("picom"))
+    CONVERSIONS["PICOMETER:INCH"] = \
+        Mul(Mul(Int(254), Pow(10, 8)), Sym("picom"))
     CONVERSIONS["PICOMETER:KILOMETER"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["PICOMETER:LI"] = \
-        lambda: noconversion("PICOMETER", "LI")
+        Mul(Pow(10, 15), Sym("picom"))
     CONVERSIONS["PICOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("PICOMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 14)), Sym("picom"))
+    CONVERSIONS["PICOMETER:LINE"] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 7)), Int(3)), Sym("picom"))
     CONVERSIONS["PICOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("picom"))
     CONVERSIONS["PICOMETER:METER"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["PICOMETER:MI"] = \
-        lambda: noconversion("PICOMETER", "MI")
+        Mul(Pow(10, 12), Sym("picom"))
     CONVERSIONS["PICOMETER:MICROMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("picom"))
+    CONVERSIONS["PICOMETER:MILE"] = \
+        Mul(Mul(Int(1609344), Pow(10, 9)), Sym("picom"))
     CONVERSIONS["PICOMETER:MILLIMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("picom"))
     CONVERSIONS["PICOMETER:NANOMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("picom"))
     CONVERSIONS["PICOMETER:PARSEC"] = \
-        lambda: noconversion("PICOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 21)), Sym("picom"))
     CONVERSIONS["PICOMETER:PETAMETER"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["PICOMETER:PIXEL"] = \
-        lambda: noconversion("PICOMETER", "PIXEL")
-    CONVERSIONS["PICOMETER:PT"] = \
-        lambda: noconversion("PICOMETER", "PT")
-    CONVERSIONS["PICOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("PICOMETER", "REFERENCEFRAME")
+        Mul(Pow(10, 27), Sym("picom"))
+    CONVERSIONS["PICOMETER:POINT"] = \
+        Mul(Rat(Mul(Int(3175), Pow(10, 6)), Int(9)), Sym("picom"))
     CONVERSIONS["PICOMETER:TERAMETER"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("picom"))
     CONVERSIONS["PICOMETER:THOU"] = \
-        lambda: noconversion("PICOMETER", "THOU")
-    CONVERSIONS["PICOMETER:YD"] = \
-        lambda: noconversion("PICOMETER", "YD")
+        Mul(Mul(Int(254), Pow(10, 5)), Sym("picom"))
+    CONVERSIONS["PICOMETER:YARD"] = \
+        Mul(Mul(Int(9144), Pow(10, 8)), Sym("picom"))
     CONVERSIONS["PICOMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("picom"))
     CONVERSIONS["PICOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("picom"))
     CONVERSIONS["PICOMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("picom"))
     CONVERSIONS["PICOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["PIXEL:ANGSTROM"] = \
-        lambda: noconversion("PIXEL", "ANGSTROM")
-    CONVERSIONS["PIXEL:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("PIXEL", "ASTRONOMICALUNIT")
-    CONVERSIONS["PIXEL:ATTOMETER"] = \
-        lambda: noconversion("PIXEL", "ATTOMETER")
-    CONVERSIONS["PIXEL:CENTIMETER"] = \
-        lambda: noconversion("PIXEL", "CENTIMETER")
-    CONVERSIONS["PIXEL:DECAMETER"] = \
-        lambda: noconversion("PIXEL", "DECAMETER")
-    CONVERSIONS["PIXEL:DECIMETER"] = \
-        lambda: noconversion("PIXEL", "DECIMETER")
-    CONVERSIONS["PIXEL:EXAMETER"] = \
-        lambda: noconversion("PIXEL", "EXAMETER")
-    CONVERSIONS["PIXEL:FEMTOMETER"] = \
-        lambda: noconversion("PIXEL", "FEMTOMETER")
-    CONVERSIONS["PIXEL:FT"] = \
-        lambda: noconversion("PIXEL", "FT")
-    CONVERSIONS["PIXEL:GIGAMETER"] = \
-        lambda: noconversion("PIXEL", "GIGAMETER")
-    CONVERSIONS["PIXEL:HECTOMETER"] = \
-        lambda: noconversion("PIXEL", "HECTOMETER")
-    CONVERSIONS["PIXEL:IN"] = \
-        lambda: noconversion("PIXEL", "IN")
-    CONVERSIONS["PIXEL:KILOMETER"] = \
-        lambda: noconversion("PIXEL", "KILOMETER")
-    CONVERSIONS["PIXEL:LI"] = \
-        lambda: noconversion("PIXEL", "LI")
-    CONVERSIONS["PIXEL:LIGHTYEAR"] = \
-        lambda: noconversion("PIXEL", "LIGHTYEAR")
-    CONVERSIONS["PIXEL:MEGAMETER"] = \
-        lambda: noconversion("PIXEL", "MEGAMETER")
-    CONVERSIONS["PIXEL:METER"] = \
-        lambda: noconversion("PIXEL", "METER")
-    CONVERSIONS["PIXEL:MI"] = \
-        lambda: noconversion("PIXEL", "MI")
-    CONVERSIONS["PIXEL:MICROMETER"] = \
-        lambda: noconversion("PIXEL", "MICROMETER")
-    CONVERSIONS["PIXEL:MILLIMETER"] = \
-        lambda: noconversion("PIXEL", "MILLIMETER")
-    CONVERSIONS["PIXEL:NANOMETER"] = \
-        lambda: noconversion("PIXEL", "NANOMETER")
-    CONVERSIONS["PIXEL:PARSEC"] = \
-        lambda: noconversion("PIXEL", "PARSEC")
-    CONVERSIONS["PIXEL:PETAMETER"] = \
-        lambda: noconversion("PIXEL", "PETAMETER")
-    CONVERSIONS["PIXEL:PICOMETER"] = \
-        lambda: noconversion("PIXEL", "PICOMETER")
-    CONVERSIONS["PIXEL:PT"] = \
-        lambda: noconversion("PIXEL", "PT")
-    CONVERSIONS["PIXEL:REFERENCEFRAME"] = \
-        lambda: noconversion("PIXEL", "REFERENCEFRAME")
-    CONVERSIONS["PIXEL:TERAMETER"] = \
-        lambda: noconversion("PIXEL", "TERAMETER")
-    CONVERSIONS["PIXEL:THOU"] = \
-        lambda: noconversion("PIXEL", "THOU")
-    CONVERSIONS["PIXEL:YD"] = \
-        lambda: noconversion("PIXEL", "YD")
-    CONVERSIONS["PIXEL:YOCTOMETER"] = \
-        lambda: noconversion("PIXEL", "YOCTOMETER")
-    CONVERSIONS["PIXEL:YOTTAMETER"] = \
-        lambda: noconversion("PIXEL", "YOTTAMETER")
-    CONVERSIONS["PIXEL:ZEPTOMETER"] = \
-        lambda: noconversion("PIXEL", "ZEPTOMETER")
-    CONVERSIONS["PIXEL:ZETTAMETER"] = \
-        lambda: noconversion("PIXEL", "ZETTAMETER")
-    CONVERSIONS["PT:ANGSTROM"] = \
-        lambda: noconversion("PT", "ANGSTROM")
-    CONVERSIONS["PT:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("PT", "ASTRONOMICALUNIT")
-    CONVERSIONS["PT:ATTOMETER"] = \
-        lambda: noconversion("PT", "ATTOMETER")
-    CONVERSIONS["PT:CENTIMETER"] = \
-        lambda: noconversion("PT", "CENTIMETER")
-    CONVERSIONS["PT:DECAMETER"] = \
-        lambda: noconversion("PT", "DECAMETER")
-    CONVERSIONS["PT:DECIMETER"] = \
-        lambda: noconversion("PT", "DECIMETER")
-    CONVERSIONS["PT:EXAMETER"] = \
-        lambda: noconversion("PT", "EXAMETER")
-    CONVERSIONS["PT:FEMTOMETER"] = \
-        lambda: noconversion("PT", "FEMTOMETER")
-    CONVERSIONS["PT:FT"] = \
-        lambda: noconversion("PT", "FT")
-    CONVERSIONS["PT:GIGAMETER"] = \
-        lambda: noconversion("PT", "GIGAMETER")
-    CONVERSIONS["PT:HECTOMETER"] = \
-        lambda: noconversion("PT", "HECTOMETER")
-    CONVERSIONS["PT:IN"] = \
-        lambda: noconversion("PT", "IN")
-    CONVERSIONS["PT:KILOMETER"] = \
-        lambda: noconversion("PT", "KILOMETER")
-    CONVERSIONS["PT:LI"] = \
-        lambda: noconversion("PT", "LI")
-    CONVERSIONS["PT:LIGHTYEAR"] = \
-        lambda: noconversion("PT", "LIGHTYEAR")
-    CONVERSIONS["PT:MEGAMETER"] = \
-        lambda: noconversion("PT", "MEGAMETER")
-    CONVERSIONS["PT:METER"] = \
-        lambda: noconversion("PT", "METER")
-    CONVERSIONS["PT:MI"] = \
-        lambda: noconversion("PT", "MI")
-    CONVERSIONS["PT:MICROMETER"] = \
-        lambda: noconversion("PT", "MICROMETER")
-    CONVERSIONS["PT:MILLIMETER"] = \
-        lambda: noconversion("PT", "MILLIMETER")
-    CONVERSIONS["PT:NANOMETER"] = \
-        lambda: noconversion("PT", "NANOMETER")
-    CONVERSIONS["PT:PARSEC"] = \
-        lambda: noconversion("PT", "PARSEC")
-    CONVERSIONS["PT:PETAMETER"] = \
-        lambda: noconversion("PT", "PETAMETER")
-    CONVERSIONS["PT:PICOMETER"] = \
-        lambda: noconversion("PT", "PICOMETER")
-    CONVERSIONS["PT:PIXEL"] = \
-        lambda: noconversion("PT", "PIXEL")
-    CONVERSIONS["PT:REFERENCEFRAME"] = \
-        lambda: noconversion("PT", "REFERENCEFRAME")
-    CONVERSIONS["PT:TERAMETER"] = \
-        lambda: noconversion("PT", "TERAMETER")
-    CONVERSIONS["PT:THOU"] = \
-        lambda: noconversion("PT", "THOU")
-    CONVERSIONS["PT:YD"] = \
-        lambda: noconversion("PT", "YD")
-    CONVERSIONS["PT:YOCTOMETER"] = \
-        lambda: noconversion("PT", "YOCTOMETER")
-    CONVERSIONS["PT:YOTTAMETER"] = \
-        lambda: noconversion("PT", "YOTTAMETER")
-    CONVERSIONS["PT:ZEPTOMETER"] = \
-        lambda: noconversion("PT", "ZEPTOMETER")
-    CONVERSIONS["PT:ZETTAMETER"] = \
-        lambda: noconversion("PT", "ZETTAMETER")
-    CONVERSIONS["REFERENCEFRAME:ANGSTROM"] = \
-        lambda: noconversion("REFERENCEFRAME", "ANGSTROM")
-    CONVERSIONS["REFERENCEFRAME:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("REFERENCEFRAME", "ASTRONOMICALUNIT")
-    CONVERSIONS["REFERENCEFRAME:ATTOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "ATTOMETER")
-    CONVERSIONS["REFERENCEFRAME:CENTIMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "CENTIMETER")
-    CONVERSIONS["REFERENCEFRAME:DECAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "DECAMETER")
-    CONVERSIONS["REFERENCEFRAME:DECIMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "DECIMETER")
-    CONVERSIONS["REFERENCEFRAME:EXAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "EXAMETER")
-    CONVERSIONS["REFERENCEFRAME:FEMTOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "FEMTOMETER")
-    CONVERSIONS["REFERENCEFRAME:FT"] = \
-        lambda: noconversion("REFERENCEFRAME", "FT")
-    CONVERSIONS["REFERENCEFRAME:GIGAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "GIGAMETER")
-    CONVERSIONS["REFERENCEFRAME:HECTOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "HECTOMETER")
-    CONVERSIONS["REFERENCEFRAME:IN"] = \
-        lambda: noconversion("REFERENCEFRAME", "IN")
-    CONVERSIONS["REFERENCEFRAME:KILOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "KILOMETER")
-    CONVERSIONS["REFERENCEFRAME:LI"] = \
-        lambda: noconversion("REFERENCEFRAME", "LI")
-    CONVERSIONS["REFERENCEFRAME:LIGHTYEAR"] = \
-        lambda: noconversion("REFERENCEFRAME", "LIGHTYEAR")
-    CONVERSIONS["REFERENCEFRAME:MEGAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "MEGAMETER")
-    CONVERSIONS["REFERENCEFRAME:METER"] = \
-        lambda: noconversion("REFERENCEFRAME", "METER")
-    CONVERSIONS["REFERENCEFRAME:MI"] = \
-        lambda: noconversion("REFERENCEFRAME", "MI")
-    CONVERSIONS["REFERENCEFRAME:MICROMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "MICROMETER")
-    CONVERSIONS["REFERENCEFRAME:MILLIMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "MILLIMETER")
-    CONVERSIONS["REFERENCEFRAME:NANOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "NANOMETER")
-    CONVERSIONS["REFERENCEFRAME:PARSEC"] = \
-        lambda: noconversion("REFERENCEFRAME", "PARSEC")
-    CONVERSIONS["REFERENCEFRAME:PETAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "PETAMETER")
-    CONVERSIONS["REFERENCEFRAME:PICOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "PICOMETER")
-    CONVERSIONS["REFERENCEFRAME:PIXEL"] = \
-        lambda: noconversion("REFERENCEFRAME", "PIXEL")
-    CONVERSIONS["REFERENCEFRAME:PT"] = \
-        lambda: noconversion("REFERENCEFRAME", "PT")
-    CONVERSIONS["REFERENCEFRAME:TERAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "TERAMETER")
-    CONVERSIONS["REFERENCEFRAME:THOU"] = \
-        lambda: noconversion("REFERENCEFRAME", "THOU")
-    CONVERSIONS["REFERENCEFRAME:YD"] = \
-        lambda: noconversion("REFERENCEFRAME", "YD")
-    CONVERSIONS["REFERENCEFRAME:YOCTOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "YOCTOMETER")
-    CONVERSIONS["REFERENCEFRAME:YOTTAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "YOTTAMETER")
-    CONVERSIONS["REFERENCEFRAME:ZEPTOMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "ZEPTOMETER")
-    CONVERSIONS["REFERENCEFRAME:ZETTAMETER"] = \
-        lambda: noconversion("REFERENCEFRAME", "ZETTAMETER")
+        Mul(Pow(10, 33), Sym("picom"))
+    CONVERSIONS["POINT:ANGSTROM"] = \
+        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 4))), Sym("pt"))
+    CONVERSIONS["POINT:ASTRONMICALUNIT"] = \
+        Mul(Rat(Mul(Int("53855233452"), Pow(10, 6)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:ATTOMETER"] = \
+        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 12))), Sym("pt"))
+    CONVERSIONS["POINT:CENTIMETER"] = \
+        Mul(Rat(Int(3600), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:DECAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 5)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:DECIMETER"] = \
+        Mul(Rat(Int(36000), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:EXAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 22)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:FEMTOMETER"] = \
+        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 9))), Sym("pt"))
+    CONVERSIONS["POINT:FOOT"] = \
+        Mul(Int(864), Sym("pt"))
+    CONVERSIONS["POINT:GIGAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 13)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:HECTOMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 6)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:INCH"] = \
+        Mul(Int(72), Sym("pt"))
+    CONVERSIONS["POINT:KILOMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 7)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:LIGHTYEAR"] = \
+        Mul(Rat(Mul(Int("3405862970129088"), Pow(10, 6)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:LINE"] = \
+        Mul(Int(6), Sym("pt"))
+    CONVERSIONS["POINT:MEGAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 10)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:METER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 4)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:MICROMETER"] = \
+        Mul(Rat(Int(9), Int(3175)), Sym("pt"))
+    CONVERSIONS["POINT:MILE"] = \
+        Mul(Int(4561920), Sym("pt"))
+    CONVERSIONS["POINT:MILLIMETER"] = \
+        Mul(Rat(Int(360), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:NANOMETER"] = \
+        Mul(Rat(Int(9), Int(3175000)), Sym("pt"))
+    CONVERSIONS["POINT:PARSEC"] = \
+        Mul(Rat(Mul(Int(1110843936), Pow(10, 13)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:PETAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 19)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:PICOMETER"] = \
+        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 6))), Sym("pt"))
+    CONVERSIONS["POINT:TERAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 16)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:THOU"] = \
+        Mul(Rat(Int(9), Int(125)), Sym("pt"))
+    CONVERSIONS["POINT:YARD"] = \
+        Mul(Int(2592), Sym("pt"))
+    CONVERSIONS["POINT:YOCTOMETER"] = \
+        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 18))), Sym("pt"))
+    CONVERSIONS["POINT:YOTTAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 28)), Int(127)), Sym("pt"))
+    CONVERSIONS["POINT:ZEPTOMETER"] = \
+        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 15))), Sym("pt"))
+    CONVERSIONS["POINT:ZETTAMETER"] = \
+        Mul(Rat(Mul(Int(36), Pow(10, 25)), Int(127)), Sym("pt"))
     CONVERSIONS["TERAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["TERAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("TERAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("teram"))
+    CONVERSIONS["TERAMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Pow(10, 10)), Sym("teram"))
     CONVERSIONS["TERAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("teram"))
     CONVERSIONS["TERAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("teram"))
     CONVERSIONS["TERAMETER:DECAMETER"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("teram"))
     CONVERSIONS["TERAMETER:DECIMETER"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("teram"))
     CONVERSIONS["TERAMETER:EXAMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("teram"))
     CONVERSIONS["TERAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["TERAMETER:FT"] = \
-        lambda: noconversion("TERAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("teram"))
+    CONVERSIONS["TERAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 13))), Sym("teram"))
     CONVERSIONS["TERAMETER:GIGAMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("teram"))
     CONVERSIONS["TERAMETER:HECTOMETER"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["TERAMETER:IN"] = \
-        lambda: noconversion("TERAMETER", "IN")
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("teram"))
+    CONVERSIONS["TERAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 15))), Sym("teram"))
     CONVERSIONS["TERAMETER:KILOMETER"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAMETER:LI"] = \
-        lambda: noconversion("TERAMETER", "LI")
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("teram"))
     CONVERSIONS["TERAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("TERAMETER", "LIGHTYEAR")
+        Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 6))), Sym("teram"))
+    CONVERSIONS["TERAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 16))), Sym("teram"))
     CONVERSIONS["TERAMETER:MEGAMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("teram"))
     CONVERSIONS["TERAMETER:METER"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["TERAMETER:MI"] = \
-        lambda: noconversion("TERAMETER", "MI")
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("teram"))
     CONVERSIONS["TERAMETER:MICROMETER"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("teram"))
+    CONVERSIONS["TERAMETER:MILE"] = \
+        Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 8))), Sym("teram"))
     CONVERSIONS["TERAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("teram"))
     CONVERSIONS["TERAMETER:NANOMETER"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("teram"))
     CONVERSIONS["TERAMETER:PARSEC"] = \
-        lambda: noconversion("TERAMETER", "PARSEC")
+        Mul(Rat(Int(3857097), Int(125)), Sym("teram"))
     CONVERSIONS["TERAMETER:PETAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("teram"))
     CONVERSIONS["TERAMETER:PICOMETER"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["TERAMETER:PIXEL"] = \
-        lambda: noconversion("TERAMETER", "PIXEL")
-    CONVERSIONS["TERAMETER:PT"] = \
-        lambda: noconversion("TERAMETER", "PT")
-    CONVERSIONS["TERAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("TERAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("teram"))
+    CONVERSIONS["TERAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 16))), Sym("teram"))
     CONVERSIONS["TERAMETER:THOU"] = \
-        lambda: noconversion("TERAMETER", "THOU")
-    CONVERSIONS["TERAMETER:YD"] = \
-        lambda: noconversion("TERAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 18))), Sym("teram"))
+    CONVERSIONS["TERAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 13))), Sym("teram"))
     CONVERSIONS["TERAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("teram"))
     CONVERSIONS["TERAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("teram"))
     CONVERSIONS["TERAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("teram"))
     CONVERSIONS["TERAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("teram"))
     CONVERSIONS["THOU:ANGSTROM"] = \
-        lambda: noconversion("THOU", "ANGSTROM")
-    CONVERSIONS["THOU:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("THOU", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Int(254000)), Sym("thou"))
+    CONVERSIONS["THOU:ASTRONMICALUNIT"] = \
+        Mul(Rat(Mul(Int("7479893535"), Pow(10, 8)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:ATTOMETER"] = \
-        lambda: noconversion("THOU", "ATTOMETER")
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("thou"))
     CONVERSIONS["THOU:CENTIMETER"] = \
-        lambda: noconversion("THOU", "CENTIMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:DECAMETER"] = \
-        lambda: noconversion("THOU", "DECAMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 7)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:DECIMETER"] = \
-        lambda: noconversion("THOU", "DECIMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 5)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:EXAMETER"] = \
-        lambda: noconversion("THOU", "EXAMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:FEMTOMETER"] = \
-        lambda: noconversion("THOU", "FEMTOMETER")
-    CONVERSIONS["THOU:FT"] = \
-        lambda: noconversion("THOU", "FT")
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 8))), Sym("thou"))
+    CONVERSIONS["THOU:FOOT"] = \
+        Mul(Int(12000), Sym("thou"))
     CONVERSIONS["THOU:GIGAMETER"] = \
-        lambda: noconversion("THOU", "GIGAMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 15)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:HECTOMETER"] = \
-        lambda: noconversion("THOU", "HECTOMETER")
-    CONVERSIONS["THOU:IN"] = \
-        lambda: noconversion("THOU", "IN")
+        Mul(Rat(Mul(Int(5), Pow(10, 8)), Int(127)), Sym("thou"))
+    CONVERSIONS["THOU:INCH"] = \
+        Mul(Int(1000), Sym("thou"))
     CONVERSIONS["THOU:KILOMETER"] = \
-        lambda: noconversion("THOU", "KILOMETER")
-    CONVERSIONS["THOU:LI"] = \
-        lambda: noconversion("THOU", "LI")
+        Mul(Rat(Mul(Int(5), Pow(10, 9)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:LIGHTYEAR"] = \
-        lambda: noconversion("THOU", "LIGHTYEAR")
+        Mul(Rat(Mul(Int("47303652362904"), Pow(10, 9)), Int(127)), Sym("thou"))
+    CONVERSIONS["THOU:LINE"] = \
+        Mul(Rat(Int(250), Int(3)), Sym("thou"))
     CONVERSIONS["THOU:MEGAMETER"] = \
-        lambda: noconversion("THOU", "MEGAMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 12)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:METER"] = \
-        lambda: noconversion("THOU", "METER")
-    CONVERSIONS["THOU:MI"] = \
-        lambda: noconversion("THOU", "MI")
+        Mul(Rat(Mul(Int(5), Pow(10, 6)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:MICROMETER"] = \
-        lambda: noconversion("THOU", "MICROMETER")
+        Mul(Rat(Int(5), Int(127)), Sym("thou"))
+    CONVERSIONS["THOU:MILE"] = \
+        Mul(Mul(Int(6336), Pow(10, 4)), Sym("thou"))
     CONVERSIONS["THOU:MILLIMETER"] = \
-        lambda: noconversion("THOU", "MILLIMETER")
+        Mul(Rat(Int(5000), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:NANOMETER"] = \
-        lambda: noconversion("THOU", "NANOMETER")
+        Mul(Rat(Int(1), Int(25400)), Sym("thou"))
     CONVERSIONS["THOU:PARSEC"] = \
-        lambda: noconversion("THOU", "PARSEC")
+        Mul(Rat(Mul(Int(15428388), Pow(10, 16)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:PETAMETER"] = \
-        lambda: noconversion("THOU", "PETAMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 21)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:PICOMETER"] = \
-        lambda: noconversion("THOU", "PICOMETER")
-    CONVERSIONS["THOU:PIXEL"] = \
-        lambda: noconversion("THOU", "PIXEL")
-    CONVERSIONS["THOU:PT"] = \
-        lambda: noconversion("THOU", "PT")
-    CONVERSIONS["THOU:REFERENCEFRAME"] = \
-        lambda: noconversion("THOU", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 5))), Sym("thou"))
+    CONVERSIONS["THOU:POINT"] = \
+        Mul(Rat(Int(125), Int(9)), Sym("thou"))
     CONVERSIONS["THOU:TERAMETER"] = \
-        lambda: noconversion("THOU", "TERAMETER")
-    CONVERSIONS["THOU:YD"] = \
-        lambda: noconversion("THOU", "YD")
+        Mul(Rat(Mul(Int(5), Pow(10, 18)), Int(127)), Sym("thou"))
+    CONVERSIONS["THOU:YARD"] = \
+        Mul(Int(36000), Sym("thou"))
     CONVERSIONS["THOU:YOCTOMETER"] = \
-        lambda: noconversion("THOU", "YOCTOMETER")
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 17))), Sym("thou"))
     CONVERSIONS["THOU:YOTTAMETER"] = \
-        lambda: noconversion("THOU", "YOTTAMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 30)), Int(127)), Sym("thou"))
     CONVERSIONS["THOU:ZEPTOMETER"] = \
-        lambda: noconversion("THOU", "ZEPTOMETER")
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("thou"))
     CONVERSIONS["THOU:ZETTAMETER"] = \
-        lambda: noconversion("THOU", "ZETTAMETER")
-    CONVERSIONS["YD:ANGSTROM"] = \
-        lambda: noconversion("YD", "ANGSTROM")
-    CONVERSIONS["YD:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("YD", "ASTRONOMICALUNIT")
-    CONVERSIONS["YD:ATTOMETER"] = \
-        lambda: noconversion("YD", "ATTOMETER")
-    CONVERSIONS["YD:CENTIMETER"] = \
-        lambda: noconversion("YD", "CENTIMETER")
-    CONVERSIONS["YD:DECAMETER"] = \
-        lambda: noconversion("YD", "DECAMETER")
-    CONVERSIONS["YD:DECIMETER"] = \
-        lambda: noconversion("YD", "DECIMETER")
-    CONVERSIONS["YD:EXAMETER"] = \
-        lambda: noconversion("YD", "EXAMETER")
-    CONVERSIONS["YD:FEMTOMETER"] = \
-        lambda: noconversion("YD", "FEMTOMETER")
-    CONVERSIONS["YD:FT"] = \
-        lambda: noconversion("YD", "FT")
-    CONVERSIONS["YD:GIGAMETER"] = \
-        lambda: noconversion("YD", "GIGAMETER")
-    CONVERSIONS["YD:HECTOMETER"] = \
-        lambda: noconversion("YD", "HECTOMETER")
-    CONVERSIONS["YD:IN"] = \
-        lambda: noconversion("YD", "IN")
-    CONVERSIONS["YD:KILOMETER"] = \
-        lambda: noconversion("YD", "KILOMETER")
-    CONVERSIONS["YD:LI"] = \
-        lambda: noconversion("YD", "LI")
-    CONVERSIONS["YD:LIGHTYEAR"] = \
-        lambda: noconversion("YD", "LIGHTYEAR")
-    CONVERSIONS["YD:MEGAMETER"] = \
-        lambda: noconversion("YD", "MEGAMETER")
-    CONVERSIONS["YD:METER"] = \
-        lambda: noconversion("YD", "METER")
-    CONVERSIONS["YD:MI"] = \
-        lambda: noconversion("YD", "MI")
-    CONVERSIONS["YD:MICROMETER"] = \
-        lambda: noconversion("YD", "MICROMETER")
-    CONVERSIONS["YD:MILLIMETER"] = \
-        lambda: noconversion("YD", "MILLIMETER")
-    CONVERSIONS["YD:NANOMETER"] = \
-        lambda: noconversion("YD", "NANOMETER")
-    CONVERSIONS["YD:PARSEC"] = \
-        lambda: noconversion("YD", "PARSEC")
-    CONVERSIONS["YD:PETAMETER"] = \
-        lambda: noconversion("YD", "PETAMETER")
-    CONVERSIONS["YD:PICOMETER"] = \
-        lambda: noconversion("YD", "PICOMETER")
-    CONVERSIONS["YD:PIXEL"] = \
-        lambda: noconversion("YD", "PIXEL")
-    CONVERSIONS["YD:PT"] = \
-        lambda: noconversion("YD", "PT")
-    CONVERSIONS["YD:REFERENCEFRAME"] = \
-        lambda: noconversion("YD", "REFERENCEFRAME")
-    CONVERSIONS["YD:TERAMETER"] = \
-        lambda: noconversion("YD", "TERAMETER")
-    CONVERSIONS["YD:THOU"] = \
-        lambda: noconversion("YD", "THOU")
-    CONVERSIONS["YD:YOCTOMETER"] = \
-        lambda: noconversion("YD", "YOCTOMETER")
-    CONVERSIONS["YD:YOTTAMETER"] = \
-        lambda: noconversion("YD", "YOTTAMETER")
-    CONVERSIONS["YD:ZEPTOMETER"] = \
-        lambda: noconversion("YD", "ZEPTOMETER")
-    CONVERSIONS["YD:ZETTAMETER"] = \
-        lambda: noconversion("YD", "ZETTAMETER")
+        Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("thou"))
+    CONVERSIONS["YARD:ANGSTROM"] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 6))), Sym("yd"))
+    CONVERSIONS["YARD:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int("62332446125000"), Int(381)), Sym("yd"))
+    CONVERSIONS["YARD:ATTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 14))), Sym("yd"))
+    CONVERSIONS["YARD:CENTIMETER"] = \
+        Mul(Rat(Int(25), Int(2286)), Sym("yd"))
+    CONVERSIONS["YARD:DECAMETER"] = \
+        Mul(Rat(Int(12500), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:DECIMETER"] = \
+        Mul(Rat(Int(125), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:EXAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 19)), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:FEMTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 11))), Sym("yd"))
+    CONVERSIONS["YARD:FOOT"] = \
+        Mul(Rat(Int(1), Int(3)), Sym("yd"))
+    CONVERSIONS["YARD:GIGAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 10)), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:HECTOMETER"] = \
+        Mul(Rat(Int(125000), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:INCH"] = \
+        Mul(Rat(Int(1), Int(36)), Sym("yd"))
+    CONVERSIONS["YARD:KILOMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 4)), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:LIGHTYEAR"] = \
+        Mul(Rat(Mul(Int("1313990343414"), Pow(10, 6)), Int(127)), Sym("yd"))
+    CONVERSIONS["YARD:LINE"] = \
+        Mul(Rat(Int(1), Int(432)), Sym("yd"))
+    CONVERSIONS["YARD:MEGAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 7)), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:METER"] = \
+        Mul(Rat(Int(1250), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:MICROMETER"] = \
+        Mul(Rat(Int(1), Int(914400)), Sym("yd"))
+    CONVERSIONS["YARD:MILE"] = \
+        Mul(Int(1760), Sym("yd"))
+    CONVERSIONS["YARD:MILLIMETER"] = \
+        Mul(Rat(Int(5), Int(4572)), Sym("yd"))
+    CONVERSIONS["YARD:NANOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 5))), Sym("yd"))
+    CONVERSIONS["YARD:PARSEC"] = \
+        Mul(Rat(Mul(Int(1285699), Pow(10, 13)), Int(381)), Sym("yd"))
+    CONVERSIONS["YARD:PETAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 16)), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:PICOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 8))), Sym("yd"))
+    CONVERSIONS["YARD:POINT"] = \
+        Mul(Rat(Int(1), Int(2592)), Sym("yd"))
+    CONVERSIONS["YARD:TERAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 13)), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:THOU"] = \
+        Mul(Rat(Int(1), Int(36000)), Sym("yd"))
+    CONVERSIONS["YARD:YOCTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 20))), Sym("yd"))
+    CONVERSIONS["YARD:YOTTAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 25)), Int(1143)), Sym("yd"))
+    CONVERSIONS["YARD:ZEPTOMETER"] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 17))), Sym("yd"))
+    CONVERSIONS["YARD:ZETTAMETER"] = \
+        Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(1143)), Sym("yd"))
     CONVERSIONS["YOCTOMETER:ANGSTROM"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["YOCTOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("YOCTOMETER", "ASTRONOMICALUNIT")
+        Mul(Pow(10, 14), Sym("yoctom"))
+    CONVERSIONS["YOCTOMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 26)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:ATTOMETER"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:CENTIMETER"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:DECAMETER"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:DECIMETER"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:EXAMETER"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:FEMTOMETER"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["YOCTOMETER:FT"] = \
-        lambda: noconversion("YOCTOMETER", "FT")
+        Mul(Pow(10, 9), Sym("yoctom"))
+    CONVERSIONS["YOCTOMETER:FOOT"] = \
+        Mul(Mul(Int(3048), Pow(10, 20)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:HECTOMETER"] = \
-        lambda value: (10 ** -26) * value
-    CONVERSIONS["YOCTOMETER:IN"] = \
-        lambda: noconversion("YOCTOMETER", "IN")
+        Mul(Pow(10, 26), Sym("yoctom"))
+    CONVERSIONS["YOCTOMETER:INCH"] = \
+        Mul(Mul(Int(254), Pow(10, 20)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:KILOMETER"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["YOCTOMETER:LI"] = \
-        lambda: noconversion("YOCTOMETER", "LI")
+        Mul(Pow(10, 27), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("YOCTOMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 26)), Sym("yoctom"))
+    CONVERSIONS["YOCTOMETER:LINE"] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 19)), Int(3)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:METER"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["YOCTOMETER:MI"] = \
-        lambda: noconversion("YOCTOMETER", "MI")
+        Mul(Pow(10, 24), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:MICROMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("yoctom"))
+    CONVERSIONS["YOCTOMETER:MILE"] = \
+        Mul(Mul(Int(1609344), Pow(10, 21)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:MILLIMETER"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:NANOMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:PARSEC"] = \
-        lambda: noconversion("YOCTOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 33)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:PETAMETER"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:PICOMETER"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["YOCTOMETER:PIXEL"] = \
-        lambda: noconversion("YOCTOMETER", "PIXEL")
-    CONVERSIONS["YOCTOMETER:PT"] = \
-        lambda: noconversion("YOCTOMETER", "PT")
-    CONVERSIONS["YOCTOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("YOCTOMETER", "REFERENCEFRAME")
+        Mul(Pow(10, 12), Sym("yoctom"))
+    CONVERSIONS["YOCTOMETER:POINT"] = \
+        Mul(Rat(Mul(Int(3175), Pow(10, 18)), Int(9)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:TERAMETER"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:THOU"] = \
-        lambda: noconversion("YOCTOMETER", "THOU")
-    CONVERSIONS["YOCTOMETER:YD"] = \
-        lambda: noconversion("YOCTOMETER", "YD")
+        Mul(Mul(Int(254), Pow(10, 17)), Sym("yoctom"))
+    CONVERSIONS["YOCTOMETER:YARD"] = \
+        Mul(Mul(Int(9144), Pow(10, 20)), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -48) * value
+        Mul(Pow(10, 48), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("yoctom"))
     CONVERSIONS["YOCTOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("yoctom"))
     CONVERSIONS["YOTTAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 34) * value
-    CONVERSIONS["YOTTAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("YOTTAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 34)), Sym("yottam"))
+    CONVERSIONS["YOTTAMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Pow(10, 22)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:DECAMETER"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:DECIMETER"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:EXAMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["YOTTAMETER:FT"] = \
-        lambda: noconversion("YOTTAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("yottam"))
+    CONVERSIONS["YOTTAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 25))), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:GIGAMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:HECTOMETER"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["YOTTAMETER:IN"] = \
-        lambda: noconversion("YOTTAMETER", "IN")
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("yottam"))
+    CONVERSIONS["YOTTAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 27))), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:KILOMETER"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAMETER:LI"] = \
-        lambda: noconversion("YOTTAMETER", "LI")
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("YOTTAMETER", "LIGHTYEAR")
+        Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 18))), Sym("yottam"))
+    CONVERSIONS["YOTTAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 28))), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:MEGAMETER"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:METER"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["YOTTAMETER:MI"] = \
-        lambda: noconversion("YOTTAMETER", "MI")
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:MICROMETER"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("yottam"))
+    CONVERSIONS["YOTTAMETER:MILE"] = \
+        Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 20))), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:NANOMETER"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:PARSEC"] = \
-        lambda: noconversion("YOTTAMETER", "PARSEC")
+        Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 12))), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:PETAMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:PICOMETER"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["YOTTAMETER:PIXEL"] = \
-        lambda: noconversion("YOTTAMETER", "PIXEL")
-    CONVERSIONS["YOTTAMETER:PT"] = \
-        lambda: noconversion("YOTTAMETER", "PT")
-    CONVERSIONS["YOTTAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("YOTTAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("yottam"))
+    CONVERSIONS["YOTTAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 28))), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:TERAMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:THOU"] = \
-        lambda: noconversion("YOTTAMETER", "THOU")
-    CONVERSIONS["YOTTAMETER:YD"] = \
-        lambda: noconversion("YOTTAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 30))), Sym("yottam"))
+    CONVERSIONS["YOTTAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 25))), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 48) * value
+        Mul(Rat(Int(1), Pow(10, 48)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("yottam"))
     CONVERSIONS["YOTTAMETER:ZETTAMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("yottam"))
     CONVERSIONS["ZEPTOMETER:ANGSTROM"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["ZEPTOMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("ZEPTOMETER", "ASTRONOMICALUNIT")
+        Mul(Pow(10, 11), Sym("zeptom"))
+    CONVERSIONS["ZEPTOMETER:ASTRONMICALUNIT"] = \
+        Mul(Mul(Int(1495978707), Pow(10, 23)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:ATTOMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:CENTIMETER"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:DECAMETER"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:DECIMETER"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:EXAMETER"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:FEMTOMETER"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ZEPTOMETER:FT"] = \
-        lambda: noconversion("ZEPTOMETER", "FT")
+        Mul(Pow(10, 6), Sym("zeptom"))
+    CONVERSIONS["ZEPTOMETER:FOOT"] = \
+        Mul(Mul(Int(3048), Pow(10, 17)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:GIGAMETER"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:HECTOMETER"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["ZEPTOMETER:IN"] = \
-        lambda: noconversion("ZEPTOMETER", "IN")
+        Mul(Pow(10, 23), Sym("zeptom"))
+    CONVERSIONS["ZEPTOMETER:INCH"] = \
+        Mul(Mul(Int(254), Pow(10, 17)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:KILOMETER"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ZEPTOMETER:LI"] = \
-        lambda: noconversion("ZEPTOMETER", "LI")
+        Mul(Pow(10, 24), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:LIGHTYEAR"] = \
-        lambda: noconversion("ZEPTOMETER", "LIGHTYEAR")
+        Mul(Mul(Int("94607304725808"), Pow(10, 23)), Sym("zeptom"))
+    CONVERSIONS["ZEPTOMETER:LINE"] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 16)), Int(3)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:MEGAMETER"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:METER"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ZEPTOMETER:MI"] = \
-        lambda: noconversion("ZEPTOMETER", "MI")
+        Mul(Pow(10, 21), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:MICROMETER"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("zeptom"))
+    CONVERSIONS["ZEPTOMETER:MILE"] = \
+        Mul(Mul(Int(1609344), Pow(10, 18)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:MILLIMETER"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:NANOMETER"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:PARSEC"] = \
-        lambda: noconversion("ZEPTOMETER", "PARSEC")
+        Mul(Mul(Int(30856776), Pow(10, 30)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:PETAMETER"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:PICOMETER"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ZEPTOMETER:PIXEL"] = \
-        lambda: noconversion("ZEPTOMETER", "PIXEL")
-    CONVERSIONS["ZEPTOMETER:PT"] = \
-        lambda: noconversion("ZEPTOMETER", "PT")
-    CONVERSIONS["ZEPTOMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("ZEPTOMETER", "REFERENCEFRAME")
+        Mul(Pow(10, 9), Sym("zeptom"))
+    CONVERSIONS["ZEPTOMETER:POINT"] = \
+        Mul(Rat(Mul(Int(3175), Pow(10, 15)), Int(9)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:TERAMETER"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:THOU"] = \
-        lambda: noconversion("ZEPTOMETER", "THOU")
-    CONVERSIONS["ZEPTOMETER:YD"] = \
-        lambda: noconversion("ZEPTOMETER", "YD")
+        Mul(Mul(Int(254), Pow(10, 14)), Sym("zeptom"))
+    CONVERSIONS["ZEPTOMETER:YARD"] = \
+        Mul(Mul(Int(9144), Pow(10, 17)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("zeptom"))
     CONVERSIONS["ZEPTOMETER:ZETTAMETER"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("zeptom"))
     CONVERSIONS["ZETTAMETER:ANGSTROM"] = \
-        lambda value: (10 ** 31) * value
-    CONVERSIONS["ZETTAMETER:ASTRONOMICALUNIT"] = \
-        lambda: noconversion("ZETTAMETER", "ASTRONOMICALUNIT")
+        Mul(Rat(Int(1), Pow(10, 31)), Sym("zettam"))
+    CONVERSIONS["ZETTAMETER:ASTRONMICALUNIT"] = \
+        Mul(Rat(Int(1495978707), Pow(10, 19)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:ATTOMETER"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:CENTIMETER"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:DECAMETER"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:DECIMETER"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:EXAMETER"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:FEMTOMETER"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["ZETTAMETER:FT"] = \
-        lambda: noconversion("ZETTAMETER", "FT")
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("zettam"))
+    CONVERSIONS["ZETTAMETER:FOOT"] = \
+        Mul(Rat(Int(381), Mul(Int(125), Pow(10, 22))), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:GIGAMETER"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:HECTOMETER"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["ZETTAMETER:IN"] = \
-        lambda: noconversion("ZETTAMETER", "IN")
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("zettam"))
+    CONVERSIONS["ZETTAMETER:INCH"] = \
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 24))), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:KILOMETER"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["ZETTAMETER:LI"] = \
-        lambda: noconversion("ZETTAMETER", "LI")
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:LIGHTYEAR"] = \
-        lambda: noconversion("ZETTAMETER", "LIGHTYEAR")
+        Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 15))), Sym("zettam"))
+    CONVERSIONS["ZETTAMETER:LINE"] = \
+        Mul(Rat(Int(127), Mul(Int(6), Pow(10, 25))), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:MEGAMETER"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:METER"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["ZETTAMETER:MI"] = \
-        lambda: noconversion("ZETTAMETER", "MI")
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:MICROMETER"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("zettam"))
+    CONVERSIONS["ZETTAMETER:MILE"] = \
+        Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 17))), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:MILLIMETER"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:NANOMETER"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:PARSEC"] = \
-        lambda: noconversion("ZETTAMETER", "PARSEC")
+        Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 9))), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:PETAMETER"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:PICOMETER"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["ZETTAMETER:PIXEL"] = \
-        lambda: noconversion("ZETTAMETER", "PIXEL")
-    CONVERSIONS["ZETTAMETER:PT"] = \
-        lambda: noconversion("ZETTAMETER", "PT")
-    CONVERSIONS["ZETTAMETER:REFERENCEFRAME"] = \
-        lambda: noconversion("ZETTAMETER", "REFERENCEFRAME")
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("zettam"))
+    CONVERSIONS["ZETTAMETER:POINT"] = \
+        Mul(Rat(Int(127), Mul(Int(36), Pow(10, 25))), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:TERAMETER"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:THOU"] = \
-        lambda: noconversion("ZETTAMETER", "THOU")
-    CONVERSIONS["ZETTAMETER:YD"] = \
-        lambda: noconversion("ZETTAMETER", "YD")
+        Mul(Rat(Int(127), Mul(Int(5), Pow(10, 27))), Sym("zettam"))
+    CONVERSIONS["ZETTAMETER:YARD"] = \
+        Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 22))), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:YOCTOMETER"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:YOTTAMETER"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zettam"))
     CONVERSIONS["ZETTAMETER:ZEPTOMETER"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("zettam"))
 
     SYMBOLS = dict()
     SYMBOLS["ANGSTROM"] = "Å"

@@ -35,1119 +35,1121 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsTime
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.model.conversions import Add
+from omero.model.conversions import Int
+from omero.model.conversions import Mul
+from omero.model.conversions import Pow
+from omero.model.conversions import Rat
+from omero.model.conversions import Sym
 
 
 class TimeI(_omero_model.Time, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["ATOOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["ATOOSECOND:DAY"] = \
-        lambda: noconversion("ATOOSECOND", "DAY")
-    CONVERSIONS["ATOOSECOND:DECASECOND"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["ATOOSECOND:DECISECOND"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["ATOOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["ATOOSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ATOOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["ATOOSECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ATOOSECOND:HOUR"] = \
-        lambda: noconversion("ATOOSECOND", "HOUR")
-    CONVERSIONS["ATOOSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ATOOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ATOOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ATOOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["ATOOSECOND:MINUTE"] = \
-        lambda: noconversion("ATOOSECOND", "MINUTE")
-    CONVERSIONS["ATOOSECOND:NANOSECOND"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ATOOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["ATOOSECOND:PICOSECOND"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ATOOSECOND:SECOND"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ATOOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["ATOOSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ATOOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["ATOOSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ATOOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["CENTISECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 16) * value
+    CONVERSIONS["ATTOSECOND:CENTISECOND"] = \
+        Mul(Pow(10, 16), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:DAY"] = \
+        Mul(Mul(Int(864), Pow(10, 20)), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:DECASECOND"] = \
+        Mul(Pow(10, 19), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:DECISECOND"] = \
+        Mul(Pow(10, 17), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:EXASECOND"] = \
+        Mul(Pow(10, 36), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:FEMTOSECOND"] = \
+        Mul(Int(1000), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:GIGASECOND"] = \
+        Mul(Pow(10, 27), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:HECTOSECOND"] = \
+        Mul(Pow(10, 20), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:HOUR"] = \
+        Mul(Mul(Int(36), Pow(10, 20)), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:KILOSECOND"] = \
+        Mul(Pow(10, 21), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:MEGASECOND"] = \
+        Mul(Pow(10, 24), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:MICROSECOND"] = \
+        Mul(Pow(10, 12), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:MILLISECOND"] = \
+        Mul(Pow(10, 15), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:MINUTE"] = \
+        Mul(Mul(Int(6), Pow(10, 19)), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:NANOSECOND"] = \
+        Mul(Pow(10, 9), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:PETASECOND"] = \
+        Mul(Pow(10, 33), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:PICOSECOND"] = \
+        Mul(Pow(10, 6), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:SECOND"] = \
+        Mul(Pow(10, 18), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:TERASECOND"] = \
+        Mul(Pow(10, 30), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:YOCTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:YOTTASECOND"] = \
+        Mul(Pow(10, 42), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:ZEPTOSECOND"] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("attos"))
+    CONVERSIONS["ATTOSECOND:ZETTASECOND"] = \
+        Mul(Pow(10, 39), Sym("attos"))
+    CONVERSIONS["CENTISECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("centis"))
     CONVERSIONS["CENTISECOND:DAY"] = \
-        lambda: noconversion("CENTISECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 4)), Sym("centis"))
     CONVERSIONS["CENTISECOND:DECASECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("centis"))
     CONVERSIONS["CENTISECOND:DECISECOND"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("centis"))
     CONVERSIONS["CENTISECOND:EXASECOND"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("centis"))
     CONVERSIONS["CENTISECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("centis"))
     CONVERSIONS["CENTISECOND:GIGASECOND"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("centis"))
     CONVERSIONS["CENTISECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("centis"))
     CONVERSIONS["CENTISECOND:HOUR"] = \
-        lambda: noconversion("CENTISECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 4)), Sym("centis"))
     CONVERSIONS["CENTISECOND:KILOSECOND"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("centis"))
     CONVERSIONS["CENTISECOND:MEGASECOND"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("centis"))
     CONVERSIONS["CENTISECOND:MICROSECOND"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("centis"))
     CONVERSIONS["CENTISECOND:MILLISECOND"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("centis"))
     CONVERSIONS["CENTISECOND:MINUTE"] = \
-        lambda: noconversion("CENTISECOND", "MINUTE")
+        Mul(Int(6000), Sym("centis"))
     CONVERSIONS["CENTISECOND:NANOSECOND"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("centis"))
     CONVERSIONS["CENTISECOND:PETASECOND"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("centis"))
     CONVERSIONS["CENTISECOND:PICOSECOND"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("centis"))
     CONVERSIONS["CENTISECOND:SECOND"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("centis"))
     CONVERSIONS["CENTISECOND:TERASECOND"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("centis"))
     CONVERSIONS["CENTISECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("centis"))
     CONVERSIONS["CENTISECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("centis"))
     CONVERSIONS["CENTISECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("centis"))
     CONVERSIONS["CENTISECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DAY:ATOOSECOND"] = \
-        lambda: noconversion("DAY", "ATOOSECOND")
+        Mul(Pow(10, 23), Sym("centis"))
+    CONVERSIONS["DAY:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 20))), Sym("d"))
     CONVERSIONS["DAY:CENTISECOND"] = \
-        lambda: noconversion("DAY", "CENTISECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 4))), Sym("d"))
     CONVERSIONS["DAY:DECASECOND"] = \
-        lambda: noconversion("DAY", "DECASECOND")
+        Mul(Rat(Int(1), Int(8640)), Sym("d"))
     CONVERSIONS["DAY:DECISECOND"] = \
-        lambda: noconversion("DAY", "DECISECOND")
+        Mul(Rat(Int(1), Int(864000)), Sym("d"))
     CONVERSIONS["DAY:EXASECOND"] = \
-        lambda: noconversion("DAY", "EXASECOND")
+        Mul(Rat(Mul(Int(3125), Pow(10, 11)), Int(27)), Sym("d"))
     CONVERSIONS["DAY:FEMTOSECOND"] = \
-        lambda: noconversion("DAY", "FEMTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 17))), Sym("d"))
     CONVERSIONS["DAY:GIGASECOND"] = \
-        lambda: noconversion("DAY", "GIGASECOND")
+        Mul(Rat(Int(312500), Int(27)), Sym("d"))
     CONVERSIONS["DAY:HECTOSECOND"] = \
-        lambda: noconversion("DAY", "HECTOSECOND")
+        Mul(Rat(Int(1), Int(864)), Sym("d"))
     CONVERSIONS["DAY:HOUR"] = \
-        lambda: noconversion("DAY", "HOUR")
+        Mul(Rat(Int(1), Int(24)), Sym("d"))
     CONVERSIONS["DAY:KILOSECOND"] = \
-        lambda: noconversion("DAY", "KILOSECOND")
+        Mul(Rat(Int(5), Int(432)), Sym("d"))
     CONVERSIONS["DAY:MEGASECOND"] = \
-        lambda: noconversion("DAY", "MEGASECOND")
+        Mul(Rat(Int(625), Int(54)), Sym("d"))
     CONVERSIONS["DAY:MICROSECOND"] = \
-        lambda: noconversion("DAY", "MICROSECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 8))), Sym("d"))
     CONVERSIONS["DAY:MILLISECOND"] = \
-        lambda: noconversion("DAY", "MILLISECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 5))), Sym("d"))
     CONVERSIONS["DAY:MINUTE"] = \
-        lambda: noconversion("DAY", "MINUTE")
+        Mul(Rat(Int(1), Int(1440)), Sym("d"))
     CONVERSIONS["DAY:NANOSECOND"] = \
-        lambda: noconversion("DAY", "NANOSECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 11))), Sym("d"))
     CONVERSIONS["DAY:PETASECOND"] = \
-        lambda: noconversion("DAY", "PETASECOND")
+        Mul(Rat(Mul(Int(3125), Pow(10, 8)), Int(27)), Sym("d"))
     CONVERSIONS["DAY:PICOSECOND"] = \
-        lambda: noconversion("DAY", "PICOSECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 14))), Sym("d"))
     CONVERSIONS["DAY:SECOND"] = \
-        lambda: noconversion("DAY", "SECOND")
+        Mul(Rat(Int(1), Int(86400)), Sym("d"))
     CONVERSIONS["DAY:TERASECOND"] = \
-        lambda: noconversion("DAY", "TERASECOND")
+        Mul(Rat(Mul(Int(3125), Pow(10, 5)), Int(27)), Sym("d"))
     CONVERSIONS["DAY:YOCTOSECOND"] = \
-        lambda: noconversion("DAY", "YOCTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 26))), Sym("d"))
     CONVERSIONS["DAY:YOTTASECOND"] = \
-        lambda: noconversion("DAY", "YOTTASECOND")
+        Mul(Rat(Mul(Int(3125), Pow(10, 17)), Int(27)), Sym("d"))
     CONVERSIONS["DAY:ZEPTOSECOND"] = \
-        lambda: noconversion("DAY", "ZEPTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(864), Pow(10, 23))), Sym("d"))
     CONVERSIONS["DAY:ZETTASECOND"] = \
-        lambda: noconversion("DAY", "ZETTASECOND")
-    CONVERSIONS["DECASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Mul(Int(3125), Pow(10, 14)), Int(27)), Sym("d"))
+    CONVERSIONS["DECASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("decas"))
     CONVERSIONS["DECASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("decas"))
     CONVERSIONS["DECASECOND:DAY"] = \
-        lambda: noconversion("DECASECOND", "DAY")
+        Mul(Int(8640), Sym("decas"))
     CONVERSIONS["DECASECOND:DECISECOND"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decas"))
     CONVERSIONS["DECASECOND:EXASECOND"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("decas"))
     CONVERSIONS["DECASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("decas"))
     CONVERSIONS["DECASECOND:GIGASECOND"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("decas"))
     CONVERSIONS["DECASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("decas"))
     CONVERSIONS["DECASECOND:HOUR"] = \
-        lambda: noconversion("DECASECOND", "HOUR")
+        Mul(Int(360), Sym("decas"))
     CONVERSIONS["DECASECOND:KILOSECOND"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("decas"))
     CONVERSIONS["DECASECOND:MEGASECOND"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("decas"))
     CONVERSIONS["DECASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("decas"))
     CONVERSIONS["DECASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("decas"))
     CONVERSIONS["DECASECOND:MINUTE"] = \
-        lambda: noconversion("DECASECOND", "MINUTE")
+        Mul(Int(6), Sym("decas"))
     CONVERSIONS["DECASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("decas"))
     CONVERSIONS["DECASECOND:PETASECOND"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("decas"))
     CONVERSIONS["DECASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("decas"))
     CONVERSIONS["DECASECOND:SECOND"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("decas"))
     CONVERSIONS["DECASECOND:TERASECOND"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("decas"))
     CONVERSIONS["DECASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("decas"))
     CONVERSIONS["DECASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("decas"))
     CONVERSIONS["DECASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("decas"))
     CONVERSIONS["DECASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["DECISECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Pow(10, 20), Sym("decas"))
+    CONVERSIONS["DECISECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("decis"))
     CONVERSIONS["DECISECOND:CENTISECOND"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("decis"))
     CONVERSIONS["DECISECOND:DAY"] = \
-        lambda: noconversion("DECISECOND", "DAY")
+        Mul(Int(864000), Sym("decis"))
     CONVERSIONS["DECISECOND:DECASECOND"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("decis"))
     CONVERSIONS["DECISECOND:EXASECOND"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("decis"))
     CONVERSIONS["DECISECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("decis"))
     CONVERSIONS["DECISECOND:GIGASECOND"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("decis"))
     CONVERSIONS["DECISECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("decis"))
     CONVERSIONS["DECISECOND:HOUR"] = \
-        lambda: noconversion("DECISECOND", "HOUR")
+        Mul(Int(36000), Sym("decis"))
     CONVERSIONS["DECISECOND:KILOSECOND"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("decis"))
     CONVERSIONS["DECISECOND:MEGASECOND"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("decis"))
     CONVERSIONS["DECISECOND:MICROSECOND"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("decis"))
     CONVERSIONS["DECISECOND:MILLISECOND"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decis"))
     CONVERSIONS["DECISECOND:MINUTE"] = \
-        lambda: noconversion("DECISECOND", "MINUTE")
+        Mul(Int(600), Sym("decis"))
     CONVERSIONS["DECISECOND:NANOSECOND"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("decis"))
     CONVERSIONS["DECISECOND:PETASECOND"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("decis"))
     CONVERSIONS["DECISECOND:PICOSECOND"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("decis"))
     CONVERSIONS["DECISECOND:SECOND"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("decis"))
     CONVERSIONS["DECISECOND:TERASECOND"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("decis"))
     CONVERSIONS["DECISECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("decis"))
     CONVERSIONS["DECISECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("decis"))
     CONVERSIONS["DECISECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("decis"))
     CONVERSIONS["DECISECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["EXASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Pow(10, 22), Sym("decis"))
+    CONVERSIONS["EXASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("exas"))
     CONVERSIONS["EXASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("exas"))
     CONVERSIONS["EXASECOND:DAY"] = \
-        lambda: noconversion("EXASECOND", "DAY")
+        Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 11))), Sym("exas"))
     CONVERSIONS["EXASECOND:DECASECOND"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("exas"))
     CONVERSIONS["EXASECOND:DECISECOND"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("exas"))
     CONVERSIONS["EXASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("exas"))
     CONVERSIONS["EXASECOND:GIGASECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("exas"))
     CONVERSIONS["EXASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("exas"))
     CONVERSIONS["EXASECOND:HOUR"] = \
-        lambda: noconversion("EXASECOND", "HOUR")
+        Mul(Rat(Int(9), Mul(Int(25), Pow(10, 14))), Sym("exas"))
     CONVERSIONS["EXASECOND:KILOSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("exas"))
     CONVERSIONS["EXASECOND:MEGASECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("exas"))
     CONVERSIONS["EXASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("exas"))
     CONVERSIONS["EXASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("exas"))
     CONVERSIONS["EXASECOND:MINUTE"] = \
-        lambda: noconversion("EXASECOND", "MINUTE")
+        Mul(Rat(Int(3), Mul(Int(5), Pow(10, 16))), Sym("exas"))
     CONVERSIONS["EXASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("exas"))
     CONVERSIONS["EXASECOND:PETASECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("exas"))
     CONVERSIONS["EXASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("exas"))
     CONVERSIONS["EXASECOND:SECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("exas"))
     CONVERSIONS["EXASECOND:TERASECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("exas"))
     CONVERSIONS["EXASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("exas"))
     CONVERSIONS["EXASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("exas"))
     CONVERSIONS["EXASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("exas"))
     CONVERSIONS["EXASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["FEMTOSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Int(1000), Sym("exas"))
+    CONVERSIONS["FEMTOSECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:DAY"] = \
-        lambda: noconversion("FEMTOSECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 17)), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:DECASECOND"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:DECISECOND"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:HOUR"] = \
-        lambda: noconversion("FEMTOSECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 17)), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:MINUTE"] = \
-        lambda: noconversion("FEMTOSECOND", "MINUTE")
+        Mul(Mul(Int(6), Pow(10, 16)), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:NANOSECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:PICOSECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:SECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("femtos"))
     CONVERSIONS["FEMTOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["GIGASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Pow(10, 36), Sym("femtos"))
+    CONVERSIONS["GIGASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:DAY"] = \
-        lambda: noconversion("GIGASECOND", "DAY")
+        Mul(Rat(Int(27), Int(312500)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:DECASECOND"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:DECISECOND"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:EXASECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("gigas"))
     CONVERSIONS["GIGASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:HOUR"] = \
-        lambda: noconversion("GIGASECOND", "HOUR")
+        Mul(Rat(Int(9), Mul(Int(25), Pow(10, 5))), Sym("gigas"))
     CONVERSIONS["GIGASECOND:KILOSECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:MEGASECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:MINUTE"] = \
-        lambda: noconversion("GIGASECOND", "MINUTE")
+        Mul(Rat(Int(3), Mul(Int(5), Pow(10, 7))), Sym("gigas"))
     CONVERSIONS["GIGASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:PETASECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("gigas"))
     CONVERSIONS["GIGASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:SECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:TERASECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("gigas"))
     CONVERSIONS["GIGASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("gigas"))
     CONVERSIONS["GIGASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("gigas"))
     CONVERSIONS["GIGASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["HECTOSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Pow(10, 12), Sym("gigas"))
+    CONVERSIONS["HECTOSECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:DAY"] = \
-        lambda: noconversion("HECTOSECOND", "DAY")
+        Mul(Int(864), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:DECASECOND"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:DECISECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:HOUR"] = \
-        lambda: noconversion("HECTOSECOND", "HOUR")
+        Mul(Int(36), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:MINUTE"] = \
-        lambda: noconversion("HECTOSECOND", "MINUTE")
+        Mul(Rat(Int(3), Int(5)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:NANOSECOND"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:PICOSECOND"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:SECOND"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("hectos"))
     CONVERSIONS["HECTOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["HOUR:ATOOSECOND"] = \
-        lambda: noconversion("HOUR", "ATOOSECOND")
+        Mul(Pow(10, 19), Sym("hectos"))
+    CONVERSIONS["HOUR:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 20))), Sym("h"))
     CONVERSIONS["HOUR:CENTISECOND"] = \
-        lambda: noconversion("HOUR", "CENTISECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 4))), Sym("h"))
     CONVERSIONS["HOUR:DAY"] = \
-        lambda: noconversion("HOUR", "DAY")
+        Mul(Int(24), Sym("h"))
     CONVERSIONS["HOUR:DECASECOND"] = \
-        lambda: noconversion("HOUR", "DECASECOND")
+        Mul(Rat(Int(1), Int(360)), Sym("h"))
     CONVERSIONS["HOUR:DECISECOND"] = \
-        lambda: noconversion("HOUR", "DECISECOND")
+        Mul(Rat(Int(1), Int(36000)), Sym("h"))
     CONVERSIONS["HOUR:EXASECOND"] = \
-        lambda: noconversion("HOUR", "EXASECOND")
+        Mul(Rat(Mul(Int(25), Pow(10, 14)), Int(9)), Sym("h"))
     CONVERSIONS["HOUR:FEMTOSECOND"] = \
-        lambda: noconversion("HOUR", "FEMTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 17))), Sym("h"))
     CONVERSIONS["HOUR:GIGASECOND"] = \
-        lambda: noconversion("HOUR", "GIGASECOND")
+        Mul(Rat(Mul(Int(25), Pow(10, 5)), Int(9)), Sym("h"))
     CONVERSIONS["HOUR:HECTOSECOND"] = \
-        lambda: noconversion("HOUR", "HECTOSECOND")
+        Mul(Rat(Int(1), Int(36)), Sym("h"))
     CONVERSIONS["HOUR:KILOSECOND"] = \
-        lambda: noconversion("HOUR", "KILOSECOND")
+        Mul(Rat(Int(5), Int(18)), Sym("h"))
     CONVERSIONS["HOUR:MEGASECOND"] = \
-        lambda: noconversion("HOUR", "MEGASECOND")
+        Mul(Rat(Int(2500), Int(9)), Sym("h"))
     CONVERSIONS["HOUR:MICROSECOND"] = \
-        lambda: noconversion("HOUR", "MICROSECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 8))), Sym("h"))
     CONVERSIONS["HOUR:MILLISECOND"] = \
-        lambda: noconversion("HOUR", "MILLISECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 5))), Sym("h"))
     CONVERSIONS["HOUR:MINUTE"] = \
-        lambda: noconversion("HOUR", "MINUTE")
+        Mul(Rat(Int(1), Int(60)), Sym("h"))
     CONVERSIONS["HOUR:NANOSECOND"] = \
-        lambda: noconversion("HOUR", "NANOSECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 11))), Sym("h"))
     CONVERSIONS["HOUR:PETASECOND"] = \
-        lambda: noconversion("HOUR", "PETASECOND")
+        Mul(Rat(Mul(Int(25), Pow(10, 11)), Int(9)), Sym("h"))
     CONVERSIONS["HOUR:PICOSECOND"] = \
-        lambda: noconversion("HOUR", "PICOSECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 14))), Sym("h"))
     CONVERSIONS["HOUR:SECOND"] = \
-        lambda: noconversion("HOUR", "SECOND")
+        Mul(Rat(Int(1), Int(3600)), Sym("h"))
     CONVERSIONS["HOUR:TERASECOND"] = \
-        lambda: noconversion("HOUR", "TERASECOND")
+        Mul(Rat(Mul(Int(25), Pow(10, 8)), Int(9)), Sym("h"))
     CONVERSIONS["HOUR:YOCTOSECOND"] = \
-        lambda: noconversion("HOUR", "YOCTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 26))), Sym("h"))
     CONVERSIONS["HOUR:YOTTASECOND"] = \
-        lambda: noconversion("HOUR", "YOTTASECOND")
+        Mul(Rat(Mul(Int(25), Pow(10, 20)), Int(9)), Sym("h"))
     CONVERSIONS["HOUR:ZEPTOSECOND"] = \
-        lambda: noconversion("HOUR", "ZEPTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(36), Pow(10, 23))), Sym("h"))
     CONVERSIONS["HOUR:ZETTASECOND"] = \
-        lambda: noconversion("HOUR", "ZETTASECOND")
-    CONVERSIONS["KILOSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Mul(Int(25), Pow(10, 17)), Int(9)), Sym("h"))
+    CONVERSIONS["KILOSECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:DAY"] = \
-        lambda: noconversion("KILOSECOND", "DAY")
+        Mul(Rat(Int(432), Int(5)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:DECASECOND"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:DECISECOND"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("kilos"))
     CONVERSIONS["KILOSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("kilos"))
     CONVERSIONS["KILOSECOND:HECTOSECOND"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:HOUR"] = \
-        lambda: noconversion("KILOSECOND", "HOUR")
+        Mul(Rat(Int(18), Int(5)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("kilos"))
     CONVERSIONS["KILOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:MINUTE"] = \
-        lambda: noconversion("KILOSECOND", "MINUTE")
+        Mul(Rat(Int(3), Int(50)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:NANOSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("kilos"))
     CONVERSIONS["KILOSECOND:PICOSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:SECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("kilos"))
     CONVERSIONS["KILOSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("kilos"))
     CONVERSIONS["KILOSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("kilos"))
     CONVERSIONS["KILOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Pow(10, 18), Sym("kilos"))
+    CONVERSIONS["MEGASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("megas"))
     CONVERSIONS["MEGASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megas"))
     CONVERSIONS["MEGASECOND:DAY"] = \
-        lambda: noconversion("MEGASECOND", "DAY")
+        Mul(Rat(Int(54), Int(625)), Sym("megas"))
     CONVERSIONS["MEGASECOND:DECASECOND"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("megas"))
     CONVERSIONS["MEGASECOND:DECISECOND"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("megas"))
     CONVERSIONS["MEGASECOND:EXASECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("megas"))
     CONVERSIONS["MEGASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("megas"))
     CONVERSIONS["MEGASECOND:GIGASECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("megas"))
     CONVERSIONS["MEGASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("megas"))
     CONVERSIONS["MEGASECOND:HOUR"] = \
-        lambda: noconversion("MEGASECOND", "HOUR")
+        Mul(Rat(Int(9), Int(2500)), Sym("megas"))
     CONVERSIONS["MEGASECOND:KILOSECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("megas"))
     CONVERSIONS["MEGASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("megas"))
     CONVERSIONS["MEGASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megas"))
     CONVERSIONS["MEGASECOND:MINUTE"] = \
-        lambda: noconversion("MEGASECOND", "MINUTE")
+        Mul(Rat(Int(3), Mul(Int(5), Pow(10, 4))), Sym("megas"))
     CONVERSIONS["MEGASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("megas"))
     CONVERSIONS["MEGASECOND:PETASECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("megas"))
     CONVERSIONS["MEGASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("megas"))
     CONVERSIONS["MEGASECOND:SECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("megas"))
     CONVERSIONS["MEGASECOND:TERASECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("megas"))
     CONVERSIONS["MEGASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("megas"))
     CONVERSIONS["MEGASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("megas"))
     CONVERSIONS["MEGASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("megas"))
     CONVERSIONS["MEGASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Pow(10, 15), Sym("megas"))
+    CONVERSIONS["MICROSECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("micros"))
     CONVERSIONS["MICROSECOND:CENTISECOND"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("micros"))
     CONVERSIONS["MICROSECOND:DAY"] = \
-        lambda: noconversion("MICROSECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 8)), Sym("micros"))
     CONVERSIONS["MICROSECOND:DECASECOND"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("micros"))
     CONVERSIONS["MICROSECOND:DECISECOND"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("micros"))
     CONVERSIONS["MICROSECOND:EXASECOND"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("micros"))
     CONVERSIONS["MICROSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("micros"))
     CONVERSIONS["MICROSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("micros"))
     CONVERSIONS["MICROSECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("micros"))
     CONVERSIONS["MICROSECOND:HOUR"] = \
-        lambda: noconversion("MICROSECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 8)), Sym("micros"))
     CONVERSIONS["MICROSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("micros"))
     CONVERSIONS["MICROSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("micros"))
     CONVERSIONS["MICROSECOND:MILLISECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("micros"))
     CONVERSIONS["MICROSECOND:MINUTE"] = \
-        lambda: noconversion("MICROSECOND", "MINUTE")
+        Mul(Mul(Int(6), Pow(10, 7)), Sym("micros"))
     CONVERSIONS["MICROSECOND:NANOSECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("micros"))
     CONVERSIONS["MICROSECOND:PETASECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("micros"))
     CONVERSIONS["MICROSECOND:PICOSECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("micros"))
     CONVERSIONS["MICROSECOND:SECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("micros"))
     CONVERSIONS["MICROSECOND:TERASECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("micros"))
     CONVERSIONS["MICROSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("micros"))
     CONVERSIONS["MICROSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("micros"))
     CONVERSIONS["MICROSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("micros"))
     CONVERSIONS["MICROSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MILLISECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Pow(10, 27), Sym("micros"))
+    CONVERSIONS["MILLISECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("millis"))
     CONVERSIONS["MILLISECOND:CENTISECOND"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("millis"))
     CONVERSIONS["MILLISECOND:DAY"] = \
-        lambda: noconversion("MILLISECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 5)), Sym("millis"))
     CONVERSIONS["MILLISECOND:DECASECOND"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("millis"))
     CONVERSIONS["MILLISECOND:DECISECOND"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("millis"))
     CONVERSIONS["MILLISECOND:EXASECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("millis"))
     CONVERSIONS["MILLISECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("millis"))
     CONVERSIONS["MILLISECOND:GIGASECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("millis"))
     CONVERSIONS["MILLISECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("millis"))
     CONVERSIONS["MILLISECOND:HOUR"] = \
-        lambda: noconversion("MILLISECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 5)), Sym("millis"))
     CONVERSIONS["MILLISECOND:KILOSECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("millis"))
     CONVERSIONS["MILLISECOND:MEGASECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("millis"))
     CONVERSIONS["MILLISECOND:MICROSECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("millis"))
     CONVERSIONS["MILLISECOND:MINUTE"] = \
-        lambda: noconversion("MILLISECOND", "MINUTE")
+        Mul(Mul(Int(6), Pow(10, 4)), Sym("millis"))
     CONVERSIONS["MILLISECOND:NANOSECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("millis"))
     CONVERSIONS["MILLISECOND:PETASECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("millis"))
     CONVERSIONS["MILLISECOND:PICOSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("millis"))
     CONVERSIONS["MILLISECOND:SECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("millis"))
     CONVERSIONS["MILLISECOND:TERASECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("millis"))
     CONVERSIONS["MILLISECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("millis"))
     CONVERSIONS["MILLISECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("millis"))
     CONVERSIONS["MILLISECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("millis"))
     CONVERSIONS["MILLISECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MINUTE:ATOOSECOND"] = \
-        lambda: noconversion("MINUTE", "ATOOSECOND")
+        Mul(Pow(10, 24), Sym("millis"))
+    CONVERSIONS["MINUTE:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 19))), Sym("m"))
     CONVERSIONS["MINUTE:CENTISECOND"] = \
-        lambda: noconversion("MINUTE", "CENTISECOND")
+        Mul(Rat(Int(1), Int(6000)), Sym("m"))
     CONVERSIONS["MINUTE:DAY"] = \
-        lambda: noconversion("MINUTE", "DAY")
+        Mul(Int(1440), Sym("m"))
     CONVERSIONS["MINUTE:DECASECOND"] = \
-        lambda: noconversion("MINUTE", "DECASECOND")
+        Mul(Rat(Int(1), Int(6)), Sym("m"))
     CONVERSIONS["MINUTE:DECISECOND"] = \
-        lambda: noconversion("MINUTE", "DECISECOND")
+        Mul(Rat(Int(1), Int(600)), Sym("m"))
     CONVERSIONS["MINUTE:EXASECOND"] = \
-        lambda: noconversion("MINUTE", "EXASECOND")
+        Mul(Rat(Mul(Int(5), Pow(10, 16)), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:FEMTOSECOND"] = \
-        lambda: noconversion("MINUTE", "FEMTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 16))), Sym("m"))
     CONVERSIONS["MINUTE:GIGASECOND"] = \
-        lambda: noconversion("MINUTE", "GIGASECOND")
+        Mul(Rat(Mul(Int(5), Pow(10, 7)), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:HECTOSECOND"] = \
-        lambda: noconversion("MINUTE", "HECTOSECOND")
+        Mul(Rat(Int(5), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:HOUR"] = \
-        lambda: noconversion("MINUTE", "HOUR")
+        Mul(Int(60), Sym("m"))
     CONVERSIONS["MINUTE:KILOSECOND"] = \
-        lambda: noconversion("MINUTE", "KILOSECOND")
+        Mul(Rat(Int(50), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:MEGASECOND"] = \
-        lambda: noconversion("MINUTE", "MEGASECOND")
+        Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:MICROSECOND"] = \
-        lambda: noconversion("MINUTE", "MICROSECOND")
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 7))), Sym("m"))
     CONVERSIONS["MINUTE:MILLISECOND"] = \
-        lambda: noconversion("MINUTE", "MILLISECOND")
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 4))), Sym("m"))
     CONVERSIONS["MINUTE:NANOSECOND"] = \
-        lambda: noconversion("MINUTE", "NANOSECOND")
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 10))), Sym("m"))
     CONVERSIONS["MINUTE:PETASECOND"] = \
-        lambda: noconversion("MINUTE", "PETASECOND")
+        Mul(Rat(Mul(Int(5), Pow(10, 13)), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:PICOSECOND"] = \
-        lambda: noconversion("MINUTE", "PICOSECOND")
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 13))), Sym("m"))
     CONVERSIONS["MINUTE:SECOND"] = \
-        lambda: noconversion("MINUTE", "SECOND")
+        Mul(Rat(Int(1), Int(60)), Sym("m"))
     CONVERSIONS["MINUTE:TERASECOND"] = \
-        lambda: noconversion("MINUTE", "TERASECOND")
+        Mul(Rat(Mul(Int(5), Pow(10, 10)), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:YOCTOSECOND"] = \
-        lambda: noconversion("MINUTE", "YOCTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 25))), Sym("m"))
     CONVERSIONS["MINUTE:YOTTASECOND"] = \
-        lambda: noconversion("MINUTE", "YOTTASECOND")
+        Mul(Rat(Mul(Int(5), Pow(10, 22)), Int(3)), Sym("m"))
     CONVERSIONS["MINUTE:ZEPTOSECOND"] = \
-        lambda: noconversion("MINUTE", "ZEPTOSECOND")
+        Mul(Rat(Int(1), Mul(Int(6), Pow(10, 22))), Sym("m"))
     CONVERSIONS["MINUTE:ZETTASECOND"] = \
-        lambda: noconversion("MINUTE", "ZETTASECOND")
-    CONVERSIONS["NANOSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Mul(Int(5), Pow(10, 19)), Int(3)), Sym("m"))
+    CONVERSIONS["NANOSECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("nanos"))
     CONVERSIONS["NANOSECOND:DAY"] = \
-        lambda: noconversion("NANOSECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 11)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:DECASECOND"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("nanos"))
     CONVERSIONS["NANOSECOND:DECISECOND"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("nanos"))
     CONVERSIONS["NANOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("nanos"))
     CONVERSIONS["NANOSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("nanos"))
     CONVERSIONS["NANOSECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("nanos"))
     CONVERSIONS["NANOSECOND:HOUR"] = \
-        lambda: noconversion("NANOSECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 11)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("nanos"))
     CONVERSIONS["NANOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("nanos"))
     CONVERSIONS["NANOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("nanos"))
     CONVERSIONS["NANOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("nanos"))
     CONVERSIONS["NANOSECOND:MINUTE"] = \
-        lambda: noconversion("NANOSECOND", "MINUTE")
+        Mul(Mul(Int(6), Pow(10, 10)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("nanos"))
     CONVERSIONS["NANOSECOND:PICOSECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:SECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("nanos"))
     CONVERSIONS["NANOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("nanos"))
     CONVERSIONS["NANOSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("nanos"))
     CONVERSIONS["NANOSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("nanos"))
     CONVERSIONS["NANOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["PETASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Pow(10, 30), Sym("nanos"))
+    CONVERSIONS["PETASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("petas"))
     CONVERSIONS["PETASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("petas"))
     CONVERSIONS["PETASECOND:DAY"] = \
-        lambda: noconversion("PETASECOND", "DAY")
+        Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 8))), Sym("petas"))
     CONVERSIONS["PETASECOND:DECASECOND"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("petas"))
     CONVERSIONS["PETASECOND:DECISECOND"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("petas"))
     CONVERSIONS["PETASECOND:EXASECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("petas"))
     CONVERSIONS["PETASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("petas"))
     CONVERSIONS["PETASECOND:GIGASECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("petas"))
     CONVERSIONS["PETASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("petas"))
     CONVERSIONS["PETASECOND:HOUR"] = \
-        lambda: noconversion("PETASECOND", "HOUR")
+        Mul(Rat(Int(9), Mul(Int(25), Pow(10, 11))), Sym("petas"))
     CONVERSIONS["PETASECOND:KILOSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("petas"))
     CONVERSIONS["PETASECOND:MEGASECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("petas"))
     CONVERSIONS["PETASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("petas"))
     CONVERSIONS["PETASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("petas"))
     CONVERSIONS["PETASECOND:MINUTE"] = \
-        lambda: noconversion("PETASECOND", "MINUTE")
+        Mul(Rat(Int(3), Mul(Int(5), Pow(10, 13))), Sym("petas"))
     CONVERSIONS["PETASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("petas"))
     CONVERSIONS["PETASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("petas"))
     CONVERSIONS["PETASECOND:SECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("petas"))
     CONVERSIONS["PETASECOND:TERASECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("petas"))
     CONVERSIONS["PETASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("petas"))
     CONVERSIONS["PETASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("petas"))
     CONVERSIONS["PETASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("petas"))
     CONVERSIONS["PETASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PICOSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Pow(10, 6), Sym("petas"))
+    CONVERSIONS["PICOSECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("picos"))
     CONVERSIONS["PICOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("picos"))
     CONVERSIONS["PICOSECOND:DAY"] = \
-        lambda: noconversion("PICOSECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 14)), Sym("picos"))
     CONVERSIONS["PICOSECOND:DECASECOND"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("picos"))
     CONVERSIONS["PICOSECOND:DECISECOND"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("picos"))
     CONVERSIONS["PICOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("picos"))
     CONVERSIONS["PICOSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("picos"))
     CONVERSIONS["PICOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("picos"))
     CONVERSIONS["PICOSECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("picos"))
     CONVERSIONS["PICOSECOND:HOUR"] = \
-        lambda: noconversion("PICOSECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 14)), Sym("picos"))
     CONVERSIONS["PICOSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("picos"))
     CONVERSIONS["PICOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("picos"))
     CONVERSIONS["PICOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("picos"))
     CONVERSIONS["PICOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("picos"))
     CONVERSIONS["PICOSECOND:MINUTE"] = \
-        lambda: noconversion("PICOSECOND", "MINUTE")
+        Mul(Mul(Int(6), Pow(10, 13)), Sym("picos"))
     CONVERSIONS["PICOSECOND:NANOSECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("picos"))
     CONVERSIONS["PICOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("picos"))
     CONVERSIONS["PICOSECOND:SECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("picos"))
     CONVERSIONS["PICOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("picos"))
     CONVERSIONS["PICOSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("picos"))
     CONVERSIONS["PICOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("picos"))
     CONVERSIONS["PICOSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("picos"))
     CONVERSIONS["PICOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["SECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Pow(10, 33), Sym("picos"))
+    CONVERSIONS["SECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("s"))
     CONVERSIONS["SECOND:CENTISECOND"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("s"))
     CONVERSIONS["SECOND:DAY"] = \
-        lambda: noconversion("SECOND", "DAY")
+        Mul(Int(86400), Sym("s"))
     CONVERSIONS["SECOND:DECASECOND"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("s"))
     CONVERSIONS["SECOND:DECISECOND"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("s"))
     CONVERSIONS["SECOND:EXASECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("s"))
     CONVERSIONS["SECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("s"))
     CONVERSIONS["SECOND:GIGASECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("s"))
     CONVERSIONS["SECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("s"))
     CONVERSIONS["SECOND:HOUR"] = \
-        lambda: noconversion("SECOND", "HOUR")
+        Mul(Int(3600), Sym("s"))
     CONVERSIONS["SECOND:KILOSECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("s"))
     CONVERSIONS["SECOND:MEGASECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("s"))
     CONVERSIONS["SECOND:MICROSECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("s"))
     CONVERSIONS["SECOND:MILLISECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("s"))
     CONVERSIONS["SECOND:MINUTE"] = \
-        lambda: noconversion("SECOND", "MINUTE")
+        Mul(Int(60), Sym("s"))
     CONVERSIONS["SECOND:NANOSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("s"))
     CONVERSIONS["SECOND:PETASECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("s"))
     CONVERSIONS["SECOND:PICOSECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("s"))
     CONVERSIONS["SECOND:TERASECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("s"))
     CONVERSIONS["SECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("s"))
     CONVERSIONS["SECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("s"))
     CONVERSIONS["SECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("s"))
     CONVERSIONS["SECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["TERASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Pow(10, 21), Sym("s"))
+    CONVERSIONS["TERASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("teras"))
     CONVERSIONS["TERASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("teras"))
     CONVERSIONS["TERASECOND:DAY"] = \
-        lambda: noconversion("TERASECOND", "DAY")
+        Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 5))), Sym("teras"))
     CONVERSIONS["TERASECOND:DECASECOND"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("teras"))
     CONVERSIONS["TERASECOND:DECISECOND"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("teras"))
     CONVERSIONS["TERASECOND:EXASECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("teras"))
     CONVERSIONS["TERASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("teras"))
     CONVERSIONS["TERASECOND:GIGASECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("teras"))
     CONVERSIONS["TERASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("teras"))
     CONVERSIONS["TERASECOND:HOUR"] = \
-        lambda: noconversion("TERASECOND", "HOUR")
+        Mul(Rat(Int(9), Mul(Int(25), Pow(10, 8))), Sym("teras"))
     CONVERSIONS["TERASECOND:KILOSECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("teras"))
     CONVERSIONS["TERASECOND:MEGASECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("teras"))
     CONVERSIONS["TERASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("teras"))
     CONVERSIONS["TERASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("teras"))
     CONVERSIONS["TERASECOND:MINUTE"] = \
-        lambda: noconversion("TERASECOND", "MINUTE")
+        Mul(Rat(Int(3), Mul(Int(5), Pow(10, 10))), Sym("teras"))
     CONVERSIONS["TERASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("teras"))
     CONVERSIONS["TERASECOND:PETASECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("teras"))
     CONVERSIONS["TERASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("teras"))
     CONVERSIONS["TERASECOND:SECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("teras"))
     CONVERSIONS["TERASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("teras"))
     CONVERSIONS["TERASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("teras"))
     CONVERSIONS["TERASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("teras"))
     CONVERSIONS["TERASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["YOCTOSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 9), Sym("teras"))
+    CONVERSIONS["YOCTOSECOND:ATTOSECOND"] = \
+        Mul(Pow(10, 6), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:DAY"] = \
-        lambda: noconversion("YOCTOSECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 26)), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:DECASECOND"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:DECISECOND"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:HOUR"] = \
-        lambda: noconversion("YOCTOSECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 26)), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:MINUTE"] = \
-        lambda: noconversion("YOCTOSECOND", "MINUTE")
+        Mul(Mul(Int(6), Pow(10, 25)), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:NANOSECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:PICOSECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:SECOND"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -48) * value
+        Mul(Pow(10, 48), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("yoctos"))
     CONVERSIONS["YOCTOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["YOTTASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Pow(10, 45), Sym("yoctos"))
+    CONVERSIONS["YOTTASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:DAY"] = \
-        lambda: noconversion("YOTTASECOND", "DAY")
+        Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 17))), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:DECASECOND"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:DECISECOND"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:EXASECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:GIGASECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:HOUR"] = \
-        lambda: noconversion("YOTTASECOND", "HOUR")
+        Mul(Rat(Int(9), Mul(Int(25), Pow(10, 20))), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:KILOSECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:MEGASECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:MINUTE"] = \
-        lambda: noconversion("YOTTASECOND", "MINUTE")
+        Mul(Rat(Int(3), Mul(Int(5), Pow(10, 22))), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:PETASECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:SECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:TERASECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 48) * value
+        Mul(Rat(Int(1), Pow(10, 48)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("yottas"))
     CONVERSIONS["YOTTASECOND:ZETTASECOND"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZEPTOSECOND:ATOOSECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("yottas"))
+    CONVERSIONS["ZEPTOSECOND:ATTOSECOND"] = \
+        Mul(Int(1000), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:CENTISECOND"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:DAY"] = \
-        lambda: noconversion("ZEPTOSECOND", "DAY")
+        Mul(Mul(Int(864), Pow(10, 23)), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:DECASECOND"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:DECISECOND"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:EXASECOND"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:GIGASECOND"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:HECTOSECOND"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:HOUR"] = \
-        lambda: noconversion("ZEPTOSECOND", "HOUR")
+        Mul(Mul(Int(36), Pow(10, 23)), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:KILOSECOND"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:MEGASECOND"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:MICROSECOND"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:MILLISECOND"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:MINUTE"] = \
-        lambda: noconversion("ZEPTOSECOND", "MINUTE")
+        Mul(Mul(Int(6), Pow(10, 22)), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:NANOSECOND"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:PETASECOND"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:PICOSECOND"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:SECOND"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:TERASECOND"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("zeptos"))
     CONVERSIONS["ZEPTOSECOND:ZETTASECOND"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["ZETTASECOND:ATOOSECOND"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Pow(10, 42), Sym("zeptos"))
+    CONVERSIONS["ZETTASECOND:ATTOSECOND"] = \
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:CENTISECOND"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:DAY"] = \
-        lambda: noconversion("ZETTASECOND", "DAY")
+        Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 14))), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:DECASECOND"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:DECISECOND"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:EXASECOND"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:FEMTOSECOND"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:GIGASECOND"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:HECTOSECOND"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:HOUR"] = \
-        lambda: noconversion("ZETTASECOND", "HOUR")
+        Mul(Rat(Int(9), Mul(Int(25), Pow(10, 17))), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:KILOSECOND"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:MEGASECOND"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:MICROSECOND"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:MILLISECOND"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:MINUTE"] = \
-        lambda: noconversion("ZETTASECOND", "MINUTE")
+        Mul(Rat(Int(3), Mul(Int(5), Pow(10, 19))), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:NANOSECOND"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:PETASECOND"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:PICOSECOND"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:SECOND"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:TERASECOND"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:YOCTOSECOND"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:YOTTASECOND"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zettas"))
     CONVERSIONS["ZETTASECOND:ZEPTOSECOND"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("zettas"))
 
     SYMBOLS = dict()
     SYMBOLS["ATOOSECOND"] = "as"

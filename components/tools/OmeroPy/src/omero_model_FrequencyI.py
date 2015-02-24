@@ -35,855 +35,857 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsFrequency
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.model.conversions import Add
+from omero.model.conversions import Int
+from omero.model.conversions import Mul
+from omero.model.conversions import Pow
+from omero.model.conversions import Rat
+from omero.model.conversions import Sym
 
 
 class FrequencyI(_omero_model.Frequency, UnitBase):
 
     CONVERSIONS = dict()
     CONVERSIONS["ATTOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:HERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("attohz"))
     CONVERSIONS["ATTOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("attohz"))
     CONVERSIONS["CENTIHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:HERTZ"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:MILLIHERTZ"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("centihz"))
     CONVERSIONS["CENTIHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("centihz"))
     CONVERSIONS["DECAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:HERTZ"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("decahz"))
     CONVERSIONS["DECAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("decahz"))
     CONVERSIONS["DECIHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:CENTIHERTZ"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:HERTZ"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("decihz"))
     CONVERSIONS["DECIHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("decihz"))
     CONVERSIONS["EXAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:HERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("exahz"))
     CONVERSIONS["EXAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("exahz"))
     CONVERSIONS["FEMTOHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:HERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("femtohz"))
     CONVERSIONS["FEMTOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("femtohz"))
     CONVERSIONS["GIGAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:HERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("gigahz"))
     CONVERSIONS["GIGAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("gigahz"))
     CONVERSIONS["HECTOHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:DECAHERTZ"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:HERTZ"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("hectohz"))
     CONVERSIONS["HECTOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("hectohz"))
     CONVERSIONS["HERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("hz"))
     CONVERSIONS["HERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("hz"))
     CONVERSIONS["HERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("hz"))
     CONVERSIONS["HERTZ:DECIHERTZ"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("hz"))
     CONVERSIONS["HERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("hz"))
     CONVERSIONS["HERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("hz"))
     CONVERSIONS["HERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("hz"))
     CONVERSIONS["HERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("hz"))
     CONVERSIONS["HERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("hz"))
     CONVERSIONS["HERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("hz"))
     CONVERSIONS["HERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("hz"))
     CONVERSIONS["HERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("hz"))
     CONVERSIONS["HERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("hz"))
     CONVERSIONS["HERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("hz"))
     CONVERSIONS["HERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("hz"))
     CONVERSIONS["HERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("hz"))
     CONVERSIONS["HERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("hz"))
     CONVERSIONS["HERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("hz"))
     CONVERSIONS["HERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("hz"))
     CONVERSIONS["HERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("hz"))
     CONVERSIONS["KILOHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:HECTOHERTZ"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:HERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("kilohz"))
     CONVERSIONS["KILOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("kilohz"))
     CONVERSIONS["MEGAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:HERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("megahz"))
     CONVERSIONS["MEGAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("megahz"))
     CONVERSIONS["MICROHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:HERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("microhz"))
     CONVERSIONS["MICROHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("microhz"))
     CONVERSIONS["MILLIHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:HERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("millihz"))
     CONVERSIONS["MILLIHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("millihz"))
     CONVERSIONS["NANOHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:HERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("nanohz"))
     CONVERSIONS["NANOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("nanohz"))
     CONVERSIONS["PETAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:HERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("petahz"))
     CONVERSIONS["PETAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("petahz"))
     CONVERSIONS["PICOHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:HERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("picohz"))
     CONVERSIONS["PICOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("picohz"))
     CONVERSIONS["TERAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:HERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("terahz"))
     CONVERSIONS["TERAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("terahz"))
     CONVERSIONS["YOCTOHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:HERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -48) * value
+        Mul(Pow(10, 48), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("yoctohz"))
     CONVERSIONS["YOCTOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("yoctohz"))
     CONVERSIONS["YOTTAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:HERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 48) * value
+        Mul(Rat(Int(1), Pow(10, 48)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("yottahz"))
     CONVERSIONS["YOTTAHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("yottahz"))
     CONVERSIONS["ZEPTOHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:HERTZ"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("zeptohz"))
     CONVERSIONS["ZEPTOHERTZ:ZETTAHERTZ"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("zeptohz"))
     CONVERSIONS["ZETTAHERTZ:ATTOHERTZ"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:CENTIHERTZ"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:DECAHERTZ"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:DECIHERTZ"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:EXAHERTZ"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:FEMTOHERTZ"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:GIGAHERTZ"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:HECTOHERTZ"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:HERTZ"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:KILOHERTZ"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:MEGAHERTZ"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:MICROHERTZ"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:MILLIHERTZ"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:NANOHERTZ"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:PETAHERTZ"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:PICOHERTZ"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:TERAHERTZ"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:YOCTOHERTZ"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:YOTTAHERTZ"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zettahz"))
     CONVERSIONS["ZETTAHERTZ:ZEPTOHERTZ"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("zettahz"))
 
     SYMBOLS = dict()
     SYMBOLS["ATTOHERTZ"] = "aHz"

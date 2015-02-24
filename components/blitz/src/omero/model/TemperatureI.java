@@ -19,11 +19,22 @@
 
 package omero.model;
 
+import static ome.model.units.Conversion.Mul;
+import static ome.model.units.Conversion.Add;
+import static ome.model.units.Conversion.Int;
+import static ome.model.units.Conversion.Pow;
+import static ome.model.units.Conversion.Rat;
+import static ome.model.units.Conversion.Sym;
+
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
+import ome.model.units.BigResult;
+import ome.model.units.Conversion;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -44,14 +55,22 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, double[][]> conversions;
+    private static final Map<String, Conversion> conversions;
     static {
-        Map<String, double[][]> c = new HashMap<String, double[][]>();
+        Map<String, Conversion> c = new HashMap<String, Conversion>();
 
-        c.put("CELSIUS:FAHRENHEIT", new double[][]{new double[]{32, 1}, new double[]{1.8, 1}});
-        c.put("CELSIUS:KELVIN", new double[][]{new double[]{273.15, 1}, new double[]{0, 1}});
-        c.put("FAHRENHEIT:CELSIUS", new double[][]{new double[]{-17.777777777, 1}, new double[]{0.55555555555, 1}});
-        c.put("KELVIN:CELSIUS", new double[][]{new double[]{-273.15, 1}, new double[]{0, 1}});
+        c.put("CELSIUS:FAHRENHEIT", Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32)));
+        c.put("CELSIUS:KELVIN", Add(Sym("c"), Rat(Int(5463), Int(20))));
+        c.put("CELSIUS:RANKINE", Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100))));
+        c.put("FAHRENHEIT:CELSIUS", Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9))));
+        c.put("FAHRENHEIT:KELVIN", Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180))));
+        c.put("FAHRENHEIT:RANKINE", Add(Sym("f"), Rat(Int(45967), Int(100))));
+        c.put("KELVIN:CELSIUS", Add(Sym("k"), Rat(Int(-5463), Int(20))));
+        c.put("KELVIN:FAHRENHEIT", Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100))));
+        c.put("KELVIN:RANKINE", Mul(Rat(Int(9), Int(5)), Sym("k")));
+        c.put("RANKINE:CELSIUS", Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20))));
+        c.put("RANKINE:FAHRENHEIT", Add(Sym("r"), Rat(Int(-45967), Int(100))));
+        c.put("RANKINE:KELVIN", Mul(Rat(Int(5), Int(9)), Sym("r")));
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -157,7 +176,7 @@ public class TemperatureI extends Temperature implements ModelBased {
     * Copy constructor that converts the given {@link omero.model.Temperature}
     * based on the given ome-xml enum
     */
-   public TemperatureI(Temperature value, Unit<ome.units.quantity.Temperature> ul) {
+   public TemperatureI(Temperature value, Unit<ome.units.quantity.Temperature> ul) throws BigResult {
        this(value,
             ome.model.enums.UnitsTemperature.bySymbol(ul.getSymbol()).toString());
    }
@@ -176,35 +195,28 @@ public class TemperatureI extends Temperature implements ModelBased {
     *
     * @param target String representation of the CODE enum
     */
-    public TemperatureI(Temperature value, String target) {
+    public TemperatureI(Temperature value, String target) throws BigResult {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            double[][] coeffs = conversions.get(source + ":" + target);
-            if (coeffs == null) {
+            Conversion conversion = conversions.get(source + ":" + target);
+            if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
             double orig = value.getValue();
-            double k, p, v;
-            if (coeffs.length == 0) {
-                v = orig;
-            } else if (coeffs.length == 2){
-                k = coeffs[0][0];
-                p = coeffs[0][1];
-                v = Math.pow(k, p);
-
-                k = coeffs[1][0];
-                p = coeffs[1][1];
-                v += Math.pow(k, p) * orig;
-            } else {
-                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            BigDecimal big = conversion.convert(orig);
+            double converted = big.doubleValue();
+            if (converted == Double.NEGATIVE_INFINITY ||
+                    converted == Double.POSITIVE_INFINITY) {
+                throw new BigResult(big,
+                        "Failed to convert " + source + ":" + target);
             }
 
-            setValue(v);
+            setValue(converted);
             setUnit(UnitsTemperature.valueOf(target));
        }
     }
@@ -214,7 +226,7 @@ public class TemperatureI extends Temperature implements ModelBased {
     *
     * @param target unit that is desired. non-null.
     */
-    public TemperatureI(Temperature value, UnitsTemperature target) {
+    public TemperatureI(Temperature value, UnitsTemperature target) throws BigResult {
         this(value, target.toString());
     }
 

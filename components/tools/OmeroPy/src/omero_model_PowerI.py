@@ -35,855 +35,857 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsPower
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.model.conversions import Add
+from omero.model.conversions import Int
+from omero.model.conversions import Mul
+from omero.model.conversions import Pow
+from omero.model.conversions import Rat
+from omero.model.conversions import Sym
 
 
 class PowerI(_omero_model.Power, UnitBase):
 
     CONVERSIONS = dict()
     CONVERSIONS["ATTOWATT:CENTIWATT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("attow"))
     CONVERSIONS["ATTOWATT:DECAWATT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("attow"))
     CONVERSIONS["ATTOWATT:DECIWATT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("attow"))
     CONVERSIONS["ATTOWATT:EXAWATT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("attow"))
     CONVERSIONS["ATTOWATT:FEMTOWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("attow"))
     CONVERSIONS["ATTOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("attow"))
     CONVERSIONS["ATTOWATT:HECTOWATT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("attow"))
     CONVERSIONS["ATTOWATT:KILOWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("attow"))
     CONVERSIONS["ATTOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("attow"))
     CONVERSIONS["ATTOWATT:MICROWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("attow"))
     CONVERSIONS["ATTOWATT:MILLIWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("attow"))
     CONVERSIONS["ATTOWATT:NANOWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("attow"))
     CONVERSIONS["ATTOWATT:PETAWATT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("attow"))
     CONVERSIONS["ATTOWATT:PICOWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("attow"))
     CONVERSIONS["ATTOWATT:TERAWATT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("attow"))
     CONVERSIONS["ATTOWATT:WATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("attow"))
     CONVERSIONS["ATTOWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("attow"))
     CONVERSIONS["ATTOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("attow"))
     CONVERSIONS["ATTOWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("attow"))
     CONVERSIONS["ATTOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("attow"))
     CONVERSIONS["CENTIWATT:ATTOWATT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:DECAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("centiw"))
     CONVERSIONS["CENTIWATT:DECIWATT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("centiw"))
     CONVERSIONS["CENTIWATT:EXAWATT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("centiw"))
     CONVERSIONS["CENTIWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:GIGAWATT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("centiw"))
     CONVERSIONS["CENTIWATT:HECTOWATT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("centiw"))
     CONVERSIONS["CENTIWATT:KILOWATT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("centiw"))
     CONVERSIONS["CENTIWATT:MEGAWATT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("centiw"))
     CONVERSIONS["CENTIWATT:MICROWATT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:MILLIWATT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:NANOWATT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:PETAWATT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("centiw"))
     CONVERSIONS["CENTIWATT:PICOWATT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:TERAWATT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("centiw"))
     CONVERSIONS["CENTIWATT:WATT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("centiw"))
     CONVERSIONS["CENTIWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("centiw"))
     CONVERSIONS["CENTIWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("centiw"))
     CONVERSIONS["CENTIWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("centiw"))
     CONVERSIONS["DECAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("decaw"))
     CONVERSIONS["DECAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("decaw"))
     CONVERSIONS["DECAWATT:DECIWATT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decaw"))
     CONVERSIONS["DECAWATT:EXAWATT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("decaw"))
     CONVERSIONS["DECAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("decaw"))
     CONVERSIONS["DECAWATT:GIGAWATT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("decaw"))
     CONVERSIONS["DECAWATT:HECTOWATT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("decaw"))
     CONVERSIONS["DECAWATT:KILOWATT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("decaw"))
     CONVERSIONS["DECAWATT:MEGAWATT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("decaw"))
     CONVERSIONS["DECAWATT:MICROWATT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("decaw"))
     CONVERSIONS["DECAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("decaw"))
     CONVERSIONS["DECAWATT:NANOWATT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("decaw"))
     CONVERSIONS["DECAWATT:PETAWATT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("decaw"))
     CONVERSIONS["DECAWATT:PICOWATT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("decaw"))
     CONVERSIONS["DECAWATT:TERAWATT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("decaw"))
     CONVERSIONS["DECAWATT:WATT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("decaw"))
     CONVERSIONS["DECAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("decaw"))
     CONVERSIONS["DECAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("decaw"))
     CONVERSIONS["DECAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("decaw"))
     CONVERSIONS["DECAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("decaw"))
     CONVERSIONS["DECIWATT:ATTOWATT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("deciw"))
     CONVERSIONS["DECIWATT:CENTIWATT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("deciw"))
     CONVERSIONS["DECIWATT:DECAWATT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("deciw"))
     CONVERSIONS["DECIWATT:EXAWATT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("deciw"))
     CONVERSIONS["DECIWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("deciw"))
     CONVERSIONS["DECIWATT:GIGAWATT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("deciw"))
     CONVERSIONS["DECIWATT:HECTOWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("deciw"))
     CONVERSIONS["DECIWATT:KILOWATT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("deciw"))
     CONVERSIONS["DECIWATT:MEGAWATT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("deciw"))
     CONVERSIONS["DECIWATT:MICROWATT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("deciw"))
     CONVERSIONS["DECIWATT:MILLIWATT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("deciw"))
     CONVERSIONS["DECIWATT:NANOWATT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("deciw"))
     CONVERSIONS["DECIWATT:PETAWATT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("deciw"))
     CONVERSIONS["DECIWATT:PICOWATT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("deciw"))
     CONVERSIONS["DECIWATT:TERAWATT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("deciw"))
     CONVERSIONS["DECIWATT:WATT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("deciw"))
     CONVERSIONS["DECIWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("deciw"))
     CONVERSIONS["DECIWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("deciw"))
     CONVERSIONS["DECIWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("deciw"))
     CONVERSIONS["DECIWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("deciw"))
     CONVERSIONS["EXAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("exaw"))
     CONVERSIONS["EXAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("exaw"))
     CONVERSIONS["EXAWATT:DECAWATT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("exaw"))
     CONVERSIONS["EXAWATT:DECIWATT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("exaw"))
     CONVERSIONS["EXAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("exaw"))
     CONVERSIONS["EXAWATT:GIGAWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("exaw"))
     CONVERSIONS["EXAWATT:HECTOWATT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("exaw"))
     CONVERSIONS["EXAWATT:KILOWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("exaw"))
     CONVERSIONS["EXAWATT:MEGAWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("exaw"))
     CONVERSIONS["EXAWATT:MICROWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("exaw"))
     CONVERSIONS["EXAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("exaw"))
     CONVERSIONS["EXAWATT:NANOWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("exaw"))
     CONVERSIONS["EXAWATT:PETAWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("exaw"))
     CONVERSIONS["EXAWATT:PICOWATT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("exaw"))
     CONVERSIONS["EXAWATT:TERAWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("exaw"))
     CONVERSIONS["EXAWATT:WATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("exaw"))
     CONVERSIONS["EXAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("exaw"))
     CONVERSIONS["EXAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("exaw"))
     CONVERSIONS["EXAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("exaw"))
     CONVERSIONS["EXAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("exaw"))
     CONVERSIONS["FEMTOWATT:ATTOWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:CENTIWATT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:DECAWATT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:DECIWATT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:EXAWATT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:HECTOWATT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:KILOWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:MICROWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:MILLIWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:NANOWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:PETAWATT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:PICOWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:TERAWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:WATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("femtow"))
     CONVERSIONS["FEMTOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("femtow"))
     CONVERSIONS["GIGAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:DECAWATT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:DECIWATT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:EXAWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:HECTOWATT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:KILOWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:MEGAWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:MICROWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:NANOWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:PETAWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:PICOWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:TERAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:WATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("gigaw"))
     CONVERSIONS["GIGAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("gigaw"))
     CONVERSIONS["HECTOWATT:ATTOWATT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:CENTIWATT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:DECAWATT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:DECIWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:EXAWATT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("hectow"))
     CONVERSIONS["HECTOWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("hectow"))
     CONVERSIONS["HECTOWATT:KILOWATT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("hectow"))
     CONVERSIONS["HECTOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("hectow"))
     CONVERSIONS["HECTOWATT:MICROWATT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:MILLIWATT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:NANOWATT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:PETAWATT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("hectow"))
     CONVERSIONS["HECTOWATT:PICOWATT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:TERAWATT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("hectow"))
     CONVERSIONS["HECTOWATT:WATT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("hectow"))
     CONVERSIONS["HECTOWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("hectow"))
     CONVERSIONS["HECTOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("hectow"))
     CONVERSIONS["KILOWATT:ATTOWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("kilow"))
     CONVERSIONS["KILOWATT:CENTIWATT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kilow"))
     CONVERSIONS["KILOWATT:DECAWATT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("kilow"))
     CONVERSIONS["KILOWATT:DECIWATT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("kilow"))
     CONVERSIONS["KILOWATT:EXAWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("kilow"))
     CONVERSIONS["KILOWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("kilow"))
     CONVERSIONS["KILOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("kilow"))
     CONVERSIONS["KILOWATT:HECTOWATT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("kilow"))
     CONVERSIONS["KILOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("kilow"))
     CONVERSIONS["KILOWATT:MICROWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("kilow"))
     CONVERSIONS["KILOWATT:MILLIWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kilow"))
     CONVERSIONS["KILOWATT:NANOWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("kilow"))
     CONVERSIONS["KILOWATT:PETAWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("kilow"))
     CONVERSIONS["KILOWATT:PICOWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("kilow"))
     CONVERSIONS["KILOWATT:TERAWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("kilow"))
     CONVERSIONS["KILOWATT:WATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("kilow"))
     CONVERSIONS["KILOWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("kilow"))
     CONVERSIONS["KILOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("kilow"))
     CONVERSIONS["KILOWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("kilow"))
     CONVERSIONS["KILOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("kilow"))
     CONVERSIONS["MEGAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:DECAWATT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:DECIWATT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:EXAWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("megaw"))
     CONVERSIONS["MEGAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:GIGAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("megaw"))
     CONVERSIONS["MEGAWATT:HECTOWATT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:KILOWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:MICROWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:NANOWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:PETAWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("megaw"))
     CONVERSIONS["MEGAWATT:PICOWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:TERAWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("megaw"))
     CONVERSIONS["MEGAWATT:WATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("megaw"))
     CONVERSIONS["MEGAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("megaw"))
     CONVERSIONS["MEGAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("megaw"))
     CONVERSIONS["MICROWATT:ATTOWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("microw"))
     CONVERSIONS["MICROWATT:CENTIWATT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("microw"))
     CONVERSIONS["MICROWATT:DECAWATT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("microw"))
     CONVERSIONS["MICROWATT:DECIWATT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("microw"))
     CONVERSIONS["MICROWATT:EXAWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("microw"))
     CONVERSIONS["MICROWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("microw"))
     CONVERSIONS["MICROWATT:GIGAWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("microw"))
     CONVERSIONS["MICROWATT:HECTOWATT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("microw"))
     CONVERSIONS["MICROWATT:KILOWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("microw"))
     CONVERSIONS["MICROWATT:MEGAWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("microw"))
     CONVERSIONS["MICROWATT:MILLIWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("microw"))
     CONVERSIONS["MICROWATT:NANOWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("microw"))
     CONVERSIONS["MICROWATT:PETAWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("microw"))
     CONVERSIONS["MICROWATT:PICOWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("microw"))
     CONVERSIONS["MICROWATT:TERAWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("microw"))
     CONVERSIONS["MICROWATT:WATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("microw"))
     CONVERSIONS["MICROWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("microw"))
     CONVERSIONS["MICROWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("microw"))
     CONVERSIONS["MICROWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("microw"))
     CONVERSIONS["MICROWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("microw"))
     CONVERSIONS["MILLIWATT:ATTOWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("milliw"))
     CONVERSIONS["MILLIWATT:CENTIWATT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("milliw"))
     CONVERSIONS["MILLIWATT:DECAWATT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("milliw"))
     CONVERSIONS["MILLIWATT:DECIWATT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("milliw"))
     CONVERSIONS["MILLIWATT:EXAWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("milliw"))
     CONVERSIONS["MILLIWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("milliw"))
     CONVERSIONS["MILLIWATT:GIGAWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("milliw"))
     CONVERSIONS["MILLIWATT:HECTOWATT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("milliw"))
     CONVERSIONS["MILLIWATT:KILOWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("milliw"))
     CONVERSIONS["MILLIWATT:MEGAWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("milliw"))
     CONVERSIONS["MILLIWATT:MICROWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("milliw"))
     CONVERSIONS["MILLIWATT:NANOWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("milliw"))
     CONVERSIONS["MILLIWATT:PETAWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("milliw"))
     CONVERSIONS["MILLIWATT:PICOWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("milliw"))
     CONVERSIONS["MILLIWATT:TERAWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("milliw"))
     CONVERSIONS["MILLIWATT:WATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("milliw"))
     CONVERSIONS["MILLIWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("milliw"))
     CONVERSIONS["MILLIWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("milliw"))
     CONVERSIONS["MILLIWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("milliw"))
     CONVERSIONS["MILLIWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("milliw"))
     CONVERSIONS["NANOWATT:ATTOWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("nanow"))
     CONVERSIONS["NANOWATT:CENTIWATT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("nanow"))
     CONVERSIONS["NANOWATT:DECAWATT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("nanow"))
     CONVERSIONS["NANOWATT:DECIWATT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("nanow"))
     CONVERSIONS["NANOWATT:EXAWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("nanow"))
     CONVERSIONS["NANOWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("nanow"))
     CONVERSIONS["NANOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("nanow"))
     CONVERSIONS["NANOWATT:HECTOWATT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("nanow"))
     CONVERSIONS["NANOWATT:KILOWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("nanow"))
     CONVERSIONS["NANOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("nanow"))
     CONVERSIONS["NANOWATT:MICROWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("nanow"))
     CONVERSIONS["NANOWATT:MILLIWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("nanow"))
     CONVERSIONS["NANOWATT:PETAWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("nanow"))
     CONVERSIONS["NANOWATT:PICOWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("nanow"))
     CONVERSIONS["NANOWATT:TERAWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("nanow"))
     CONVERSIONS["NANOWATT:WATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("nanow"))
     CONVERSIONS["NANOWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("nanow"))
     CONVERSIONS["NANOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("nanow"))
     CONVERSIONS["NANOWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("nanow"))
     CONVERSIONS["NANOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("nanow"))
     CONVERSIONS["PETAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("petaw"))
     CONVERSIONS["PETAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("petaw"))
     CONVERSIONS["PETAWATT:DECAWATT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("petaw"))
     CONVERSIONS["PETAWATT:DECIWATT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("petaw"))
     CONVERSIONS["PETAWATT:EXAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("petaw"))
     CONVERSIONS["PETAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("petaw"))
     CONVERSIONS["PETAWATT:GIGAWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("petaw"))
     CONVERSIONS["PETAWATT:HECTOWATT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("petaw"))
     CONVERSIONS["PETAWATT:KILOWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("petaw"))
     CONVERSIONS["PETAWATT:MEGAWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("petaw"))
     CONVERSIONS["PETAWATT:MICROWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("petaw"))
     CONVERSIONS["PETAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("petaw"))
     CONVERSIONS["PETAWATT:NANOWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("petaw"))
     CONVERSIONS["PETAWATT:PICOWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("petaw"))
     CONVERSIONS["PETAWATT:TERAWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("petaw"))
     CONVERSIONS["PETAWATT:WATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("petaw"))
     CONVERSIONS["PETAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("petaw"))
     CONVERSIONS["PETAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("petaw"))
     CONVERSIONS["PETAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("petaw"))
     CONVERSIONS["PETAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("petaw"))
     CONVERSIONS["PICOWATT:ATTOWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("picow"))
     CONVERSIONS["PICOWATT:CENTIWATT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("picow"))
     CONVERSIONS["PICOWATT:DECAWATT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("picow"))
     CONVERSIONS["PICOWATT:DECIWATT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("picow"))
     CONVERSIONS["PICOWATT:EXAWATT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("picow"))
     CONVERSIONS["PICOWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("picow"))
     CONVERSIONS["PICOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("picow"))
     CONVERSIONS["PICOWATT:HECTOWATT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("picow"))
     CONVERSIONS["PICOWATT:KILOWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("picow"))
     CONVERSIONS["PICOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("picow"))
     CONVERSIONS["PICOWATT:MICROWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("picow"))
     CONVERSIONS["PICOWATT:MILLIWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("picow"))
     CONVERSIONS["PICOWATT:NANOWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("picow"))
     CONVERSIONS["PICOWATT:PETAWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("picow"))
     CONVERSIONS["PICOWATT:TERAWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("picow"))
     CONVERSIONS["PICOWATT:WATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("picow"))
     CONVERSIONS["PICOWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("picow"))
     CONVERSIONS["PICOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("picow"))
     CONVERSIONS["PICOWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("picow"))
     CONVERSIONS["PICOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("picow"))
     CONVERSIONS["TERAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("teraw"))
     CONVERSIONS["TERAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("teraw"))
     CONVERSIONS["TERAWATT:DECAWATT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("teraw"))
     CONVERSIONS["TERAWATT:DECIWATT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("teraw"))
     CONVERSIONS["TERAWATT:EXAWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("teraw"))
     CONVERSIONS["TERAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("teraw"))
     CONVERSIONS["TERAWATT:GIGAWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("teraw"))
     CONVERSIONS["TERAWATT:HECTOWATT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("teraw"))
     CONVERSIONS["TERAWATT:KILOWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("teraw"))
     CONVERSIONS["TERAWATT:MEGAWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("teraw"))
     CONVERSIONS["TERAWATT:MICROWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("teraw"))
     CONVERSIONS["TERAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("teraw"))
     CONVERSIONS["TERAWATT:NANOWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("teraw"))
     CONVERSIONS["TERAWATT:PETAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("teraw"))
     CONVERSIONS["TERAWATT:PICOWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("teraw"))
     CONVERSIONS["TERAWATT:WATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("teraw"))
     CONVERSIONS["TERAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("teraw"))
     CONVERSIONS["TERAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("teraw"))
     CONVERSIONS["TERAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("teraw"))
     CONVERSIONS["TERAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("teraw"))
     CONVERSIONS["WATT:ATTOWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("w"))
     CONVERSIONS["WATT:CENTIWATT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("w"))
     CONVERSIONS["WATT:DECAWATT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("w"))
     CONVERSIONS["WATT:DECIWATT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("w"))
     CONVERSIONS["WATT:EXAWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("w"))
     CONVERSIONS["WATT:FEMTOWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("w"))
     CONVERSIONS["WATT:GIGAWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("w"))
     CONVERSIONS["WATT:HECTOWATT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("w"))
     CONVERSIONS["WATT:KILOWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("w"))
     CONVERSIONS["WATT:MEGAWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("w"))
     CONVERSIONS["WATT:MICROWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("w"))
     CONVERSIONS["WATT:MILLIWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("w"))
     CONVERSIONS["WATT:NANOWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("w"))
     CONVERSIONS["WATT:PETAWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("w"))
     CONVERSIONS["WATT:PICOWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("w"))
     CONVERSIONS["WATT:TERAWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("w"))
     CONVERSIONS["WATT:YOCTOWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("w"))
     CONVERSIONS["WATT:YOTTAWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("w"))
     CONVERSIONS["WATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("w"))
     CONVERSIONS["WATT:ZETTAWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("w"))
     CONVERSIONS["YOCTOWATT:ATTOWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:CENTIWATT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:DECAWATT"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:DECIWATT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:EXAWATT"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:FEMTOWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:HECTOWATT"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:KILOWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:MICROWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:MILLIWATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:NANOWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:PETAWATT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:PICOWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:TERAWATT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:WATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -48) * value
+        Mul(Pow(10, 48), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("yoctow"))
     CONVERSIONS["YOCTOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("yoctow"))
     CONVERSIONS["YOTTAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:DECAWATT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:DECIWATT"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:EXAWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:GIGAWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:HECTOWATT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:KILOWATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:MEGAWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:MICROWATT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:NANOWATT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:PETAWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:PICOWATT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:TERAWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:WATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 48) * value
+        Mul(Rat(Int(1), Pow(10, 48)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("yottaw"))
     CONVERSIONS["YOTTAWATT:ZETTAWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("yottaw"))
     CONVERSIONS["ZEPTOWATT:ATTOWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:CENTIWATT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:DECAWATT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:DECIWATT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:EXAWATT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:FEMTOWATT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:GIGAWATT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:HECTOWATT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:KILOWATT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:MEGAWATT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:MICROWATT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:MILLIWATT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:NANOWATT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:PETAWATT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:PICOWATT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:TERAWATT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:WATT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("zeptow"))
     CONVERSIONS["ZEPTOWATT:ZETTAWATT"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("zeptow"))
     CONVERSIONS["ZETTAWATT:ATTOWATT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:CENTIWATT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:DECAWATT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:DECIWATT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:EXAWATT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:FEMTOWATT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:GIGAWATT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:HECTOWATT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:KILOWATT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:MEGAWATT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:MICROWATT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:MILLIWATT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:NANOWATT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:PETAWATT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:PICOWATT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:TERAWATT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:WATT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:YOCTOWATT"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:YOTTAWATT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zettaw"))
     CONVERSIONS["ZETTAWATT:ZEPTOWATT"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("zettaw"))
 
     SYMBOLS = dict()
     SYMBOLS["ATTOWATT"] = "aW"

@@ -35,39 +35,41 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsTemperature
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.model.conversions import Add
+from omero.model.conversions import Int
+from omero.model.conversions import Mul
+from omero.model.conversions import Pow
+from omero.model.conversions import Rat
+from omero.model.conversions import Sym
 
 
 class TemperatureI(_omero_model.Temperature, UnitBase):
 
     CONVERSIONS = dict()
     CONVERSIONS["CELSIUS:FAHRENHEIT"] = \
-        lambda value: 32+1.8 * value
+        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32))
     CONVERSIONS["CELSIUS:KELVIN"] = \
-        lambda value: 273.15
+        Add(Sym("c"), Rat(Int(5463), Int(20)))
     CONVERSIONS["CELSIUS:RANKINE"] = \
-        lambda: noconversion("CELSIUS", "RANKINE")
+        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100)))
     CONVERSIONS["FAHRENHEIT:CELSIUS"] = \
-        lambda value: -17.777777777+0.55555555555 * value
+        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9)))
     CONVERSIONS["FAHRENHEIT:KELVIN"] = \
-        lambda: noconversion("FAHRENHEIT", "KELVIN")
+        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180)))
     CONVERSIONS["FAHRENHEIT:RANKINE"] = \
-        lambda: noconversion("FAHRENHEIT", "RANKINE")
+        Add(Sym("f"), Rat(Int(45967), Int(100)))
     CONVERSIONS["KELVIN:CELSIUS"] = \
-        lambda value: -273.15
+        Add(Sym("k"), Rat(Int(-5463), Int(20)))
     CONVERSIONS["KELVIN:FAHRENHEIT"] = \
-        lambda: noconversion("KELVIN", "FAHRENHEIT")
+        Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100)))
     CONVERSIONS["KELVIN:RANKINE"] = \
-        lambda: noconversion("KELVIN", "RANKINE")
+        Mul(Rat(Int(9), Int(5)), Sym("k"))
     CONVERSIONS["RANKINE:CELSIUS"] = \
-        lambda: noconversion("RANKINE", "CELSIUS")
+        Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20)))
     CONVERSIONS["RANKINE:FAHRENHEIT"] = \
-        lambda: noconversion("RANKINE", "FAHRENHEIT")
+        Add(Sym("r"), Rat(Int(-45967), Int(100)))
     CONVERSIONS["RANKINE:KELVIN"] = \
-        lambda: noconversion("RANKINE", "KELVIN")
+        Mul(Rat(Int(5), Int(9)), Sym("r"))
 
     SYMBOLS = dict()
     SYMBOLS["CELSIUS"] = "°C"

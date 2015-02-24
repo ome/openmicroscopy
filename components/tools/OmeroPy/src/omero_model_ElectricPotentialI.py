@@ -35,855 +35,857 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsElectricPotential
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.model.conversions import Add
+from omero.model.conversions import Int
+from omero.model.conversions import Mul
+from omero.model.conversions import Pow
+from omero.model.conversions import Rat
+from omero.model.conversions import Sym
 
 
 class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
 
     CONVERSIONS = dict()
     CONVERSIONS["ATTOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("attov"))
     CONVERSIONS["ATTOVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("attov"))
     CONVERSIONS["ATTOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("attov"))
     CONVERSIONS["ATTOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("attov"))
     CONVERSIONS["ATTOVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("attov"))
     CONVERSIONS["ATTOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("attov"))
     CONVERSIONS["ATTOVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("attov"))
     CONVERSIONS["ATTOVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("attov"))
     CONVERSIONS["ATTOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("attov"))
     CONVERSIONS["ATTOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("attov"))
     CONVERSIONS["ATTOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("attov"))
     CONVERSIONS["ATTOVOLT:NANOVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("attov"))
     CONVERSIONS["ATTOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("attov"))
     CONVERSIONS["ATTOVOLT:PICOVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("attov"))
     CONVERSIONS["ATTOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("attov"))
     CONVERSIONS["ATTOVOLT:VOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("attov"))
     CONVERSIONS["ATTOVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("attov"))
     CONVERSIONS["ATTOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("attov"))
     CONVERSIONS["ATTOVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("attov"))
     CONVERSIONS["ATTOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("attov"))
     CONVERSIONS["CENTIVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:MILLIVOLT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:VOLT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("centiv"))
     CONVERSIONS["CENTIVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("centiv"))
     CONVERSIONS["DECAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("decav"))
     CONVERSIONS["DECAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("decav"))
     CONVERSIONS["DECAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("decav"))
     CONVERSIONS["DECAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("decav"))
     CONVERSIONS["DECAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("decav"))
     CONVERSIONS["DECAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("decav"))
     CONVERSIONS["DECAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("decav"))
     CONVERSIONS["DECAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("decav"))
     CONVERSIONS["DECAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("decav"))
     CONVERSIONS["DECAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("decav"))
     CONVERSIONS["DECAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("decav"))
     CONVERSIONS["DECAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("decav"))
     CONVERSIONS["DECAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("decav"))
     CONVERSIONS["DECAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("decav"))
     CONVERSIONS["DECAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("decav"))
     CONVERSIONS["DECAVOLT:VOLT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("decav"))
     CONVERSIONS["DECAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("decav"))
     CONVERSIONS["DECAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("decav"))
     CONVERSIONS["DECAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("decav"))
     CONVERSIONS["DECAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("decav"))
     CONVERSIONS["DECIVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:CENTIVOLT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("deciv"))
     CONVERSIONS["DECIVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("deciv"))
     CONVERSIONS["DECIVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("deciv"))
     CONVERSIONS["DECIVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("deciv"))
     CONVERSIONS["DECIVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("deciv"))
     CONVERSIONS["DECIVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("deciv"))
     CONVERSIONS["DECIVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("deciv"))
     CONVERSIONS["DECIVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("deciv"))
     CONVERSIONS["DECIVOLT:VOLT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("deciv"))
     CONVERSIONS["DECIVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("deciv"))
     CONVERSIONS["DECIVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("deciv"))
     CONVERSIONS["DECIVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("deciv"))
     CONVERSIONS["EXAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("exav"))
     CONVERSIONS["EXAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("exav"))
     CONVERSIONS["EXAVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("exav"))
     CONVERSIONS["EXAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("exav"))
     CONVERSIONS["EXAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("exav"))
     CONVERSIONS["EXAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("exav"))
     CONVERSIONS["EXAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("exav"))
     CONVERSIONS["EXAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("exav"))
     CONVERSIONS["EXAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("exav"))
     CONVERSIONS["EXAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("exav"))
     CONVERSIONS["EXAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("exav"))
     CONVERSIONS["EXAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("exav"))
     CONVERSIONS["EXAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("exav"))
     CONVERSIONS["EXAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("exav"))
     CONVERSIONS["EXAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("exav"))
     CONVERSIONS["EXAVOLT:VOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("exav"))
     CONVERSIONS["EXAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("exav"))
     CONVERSIONS["EXAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("exav"))
     CONVERSIONS["EXAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("exav"))
     CONVERSIONS["EXAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("exav"))
     CONVERSIONS["FEMTOVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -17) * value
+        Mul(Pow(10, 17), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:NANOVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:PICOVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:VOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("femtov"))
     CONVERSIONS["FEMTOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("femtov"))
     CONVERSIONS["GIGAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:VOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("gigav"))
     CONVERSIONS["GIGAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("gigav"))
     CONVERSIONS["HECTOVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:DECAVOLT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -16) * value
+        Mul(Pow(10, 16), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:VOLT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("hectov"))
     CONVERSIONS["HECTOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("hectov"))
     CONVERSIONS["KILOVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("kilov"))
     CONVERSIONS["KILOVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("kilov"))
     CONVERSIONS["KILOVOLT:HECTOVOLT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("kilov"))
     CONVERSIONS["KILOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("kilov"))
     CONVERSIONS["KILOVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("kilov"))
     CONVERSIONS["KILOVOLT:VOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("kilov"))
     CONVERSIONS["KILOVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("kilov"))
     CONVERSIONS["KILOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("kilov"))
     CONVERSIONS["MEGAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 8) * value
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 5) * value
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 7) * value
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("megav"))
     CONVERSIONS["MEGAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("megav"))
     CONVERSIONS["MEGAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** 4) * value
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("megav"))
     CONVERSIONS["MEGAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("megav"))
     CONVERSIONS["MEGAVOLT:VOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("megav"))
     CONVERSIONS["MEGAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("megav"))
     CONVERSIONS["MEGAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("megav"))
     CONVERSIONS["MICROVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("microv"))
     CONVERSIONS["MICROVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("microv"))
     CONVERSIONS["MICROVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("microv"))
     CONVERSIONS["MICROVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("microv"))
     CONVERSIONS["MICROVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("microv"))
     CONVERSIONS["MICROVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("microv"))
     CONVERSIONS["MICROVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("microv"))
     CONVERSIONS["MICROVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("microv"))
     CONVERSIONS["MICROVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("microv"))
     CONVERSIONS["MICROVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("microv"))
     CONVERSIONS["MICROVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("microv"))
     CONVERSIONS["MICROVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("microv"))
     CONVERSIONS["MICROVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("microv"))
     CONVERSIONS["MICROVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("microv"))
     CONVERSIONS["MICROVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("microv"))
     CONVERSIONS["MICROVOLT:VOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("microv"))
     CONVERSIONS["MICROVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("microv"))
     CONVERSIONS["MICROVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("microv"))
     CONVERSIONS["MICROVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("microv"))
     CONVERSIONS["MICROVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("microv"))
     CONVERSIONS["MILLIVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -4) * value
+        Mul(Pow(10, 4), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -5) * value
+        Mul(Pow(10, 5), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:VOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("milliv"))
     CONVERSIONS["MILLIVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("milliv"))
     CONVERSIONS["NANOVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("nanov"))
     CONVERSIONS["NANOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -7) * value
+        Mul(Pow(10, 7), Sym("nanov"))
     CONVERSIONS["NANOVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("nanov"))
     CONVERSIONS["NANOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -8) * value
+        Mul(Pow(10, 8), Sym("nanov"))
     CONVERSIONS["NANOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("nanov"))
     CONVERSIONS["NANOVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("nanov"))
     CONVERSIONS["NANOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("nanov"))
     CONVERSIONS["NANOVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("nanov"))
     CONVERSIONS["NANOVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("nanov"))
     CONVERSIONS["NANOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("nanov"))
     CONVERSIONS["NANOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("nanov"))
     CONVERSIONS["NANOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("nanov"))
     CONVERSIONS["NANOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("nanov"))
     CONVERSIONS["NANOVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("nanov"))
     CONVERSIONS["NANOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("nanov"))
     CONVERSIONS["NANOVOLT:VOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("nanov"))
     CONVERSIONS["NANOVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("nanov"))
     CONVERSIONS["NANOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("nanov"))
     CONVERSIONS["NANOVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("nanov"))
     CONVERSIONS["NANOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("nanov"))
     CONVERSIONS["PETAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("petav"))
     CONVERSIONS["PETAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 17) * value
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("petav"))
     CONVERSIONS["PETAVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("petav"))
     CONVERSIONS["PETAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 16) * value
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("petav"))
     CONVERSIONS["PETAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("petav"))
     CONVERSIONS["PETAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("petav"))
     CONVERSIONS["PETAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("petav"))
     CONVERSIONS["PETAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("petav"))
     CONVERSIONS["PETAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("petav"))
     CONVERSIONS["PETAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("petav"))
     CONVERSIONS["PETAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("petav"))
     CONVERSIONS["PETAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("petav"))
     CONVERSIONS["PETAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("petav"))
     CONVERSIONS["PETAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("petav"))
     CONVERSIONS["PETAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("petav"))
     CONVERSIONS["PETAVOLT:VOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("petav"))
     CONVERSIONS["PETAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("petav"))
     CONVERSIONS["PETAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("petav"))
     CONVERSIONS["PETAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("petav"))
     CONVERSIONS["PETAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("petav"))
     CONVERSIONS["PICOVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("picov"))
     CONVERSIONS["PICOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -10) * value
+        Mul(Pow(10, 10), Sym("picov"))
     CONVERSIONS["PICOVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -13) * value
+        Mul(Pow(10, 13), Sym("picov"))
     CONVERSIONS["PICOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -11) * value
+        Mul(Pow(10, 11), Sym("picov"))
     CONVERSIONS["PICOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("picov"))
     CONVERSIONS["PICOVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("picov"))
     CONVERSIONS["PICOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("picov"))
     CONVERSIONS["PICOVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -14) * value
+        Mul(Pow(10, 14), Sym("picov"))
     CONVERSIONS["PICOVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("picov"))
     CONVERSIONS["PICOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("picov"))
     CONVERSIONS["PICOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("picov"))
     CONVERSIONS["PICOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("picov"))
     CONVERSIONS["PICOVOLT:NANOVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("picov"))
     CONVERSIONS["PICOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("picov"))
     CONVERSIONS["PICOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("picov"))
     CONVERSIONS["PICOVOLT:VOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("picov"))
     CONVERSIONS["PICOVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("picov"))
     CONVERSIONS["PICOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("picov"))
     CONVERSIONS["PICOVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("picov"))
     CONVERSIONS["PICOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("picov"))
     CONVERSIONS["TERAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("terav"))
     CONVERSIONS["TERAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 14) * value
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("terav"))
     CONVERSIONS["TERAVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 11) * value
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("terav"))
     CONVERSIONS["TERAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 13) * value
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("terav"))
     CONVERSIONS["TERAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("terav"))
     CONVERSIONS["TERAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("terav"))
     CONVERSIONS["TERAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("terav"))
     CONVERSIONS["TERAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** 10) * value
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("terav"))
     CONVERSIONS["TERAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("terav"))
     CONVERSIONS["TERAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("terav"))
     CONVERSIONS["TERAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("terav"))
     CONVERSIONS["TERAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("terav"))
     CONVERSIONS["TERAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("terav"))
     CONVERSIONS["TERAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("terav"))
     CONVERSIONS["TERAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("terav"))
     CONVERSIONS["TERAVOLT:VOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("terav"))
     CONVERSIONS["TERAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("terav"))
     CONVERSIONS["TERAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("terav"))
     CONVERSIONS["TERAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("terav"))
     CONVERSIONS["TERAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("terav"))
     CONVERSIONS["VOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("v"))
     CONVERSIONS["VOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 2) * value
+        Mul(Rat(Int(1), Int(100)), Sym("v"))
     CONVERSIONS["VOLT:DECAVOLT"] = \
-        lambda value: (10 ** -1) * value
+        Mul(Int(10), Sym("v"))
     CONVERSIONS["VOLT:DECIVOLT"] = \
-        lambda value: 10 * value
+        Mul(Rat(Int(1), Int(10)), Sym("v"))
     CONVERSIONS["VOLT:EXAVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("v"))
     CONVERSIONS["VOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("v"))
     CONVERSIONS["VOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("v"))
     CONVERSIONS["VOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -2) * value
+        Mul(Int(100), Sym("v"))
     CONVERSIONS["VOLT:KILOVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("v"))
     CONVERSIONS["VOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("v"))
     CONVERSIONS["VOLT:MICROVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("v"))
     CONVERSIONS["VOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("v"))
     CONVERSIONS["VOLT:NANOVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("v"))
     CONVERSIONS["VOLT:PETAVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("v"))
     CONVERSIONS["VOLT:PICOVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("v"))
     CONVERSIONS["VOLT:TERAVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("v"))
     CONVERSIONS["VOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("v"))
     CONVERSIONS["VOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("v"))
     CONVERSIONS["VOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("v"))
     CONVERSIONS["VOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("v"))
     CONVERSIONS["YOCTOVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -25) * value
+        Mul(Pow(10, 25), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -26) * value
+        Mul(Pow(10, 26), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:NANOVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:PICOVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:VOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -48) * value
+        Mul(Pow(10, 48), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("yoctov"))
     CONVERSIONS["YOCTOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("yoctov"))
     CONVERSIONS["YOTTAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 26) * value
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 25) * value
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:VOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 48) * value
+        Mul(Rat(Int(1), Pow(10, 48)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("yottav"))
     CONVERSIONS["YOTTAVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("yottav"))
     CONVERSIONS["ZEPTOVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** -19) * value
+        Mul(Pow(10, 19), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:DECAVOLT"] = \
-        lambda value: (10 ** -22) * value
+        Mul(Pow(10, 22), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:DECIVOLT"] = \
-        lambda value: (10 ** -20) * value
+        Mul(Pow(10, 20), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:EXAVOLT"] = \
-        lambda value: (10 ** -39) * value
+        Mul(Pow(10, 39), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** -6) * value
+        Mul(Pow(10, 6), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** -30) * value
+        Mul(Pow(10, 30), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** -23) * value
+        Mul(Pow(10, 23), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:KILOVOLT"] = \
-        lambda value: (10 ** -24) * value
+        Mul(Pow(10, 24), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** -27) * value
+        Mul(Pow(10, 27), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:MICROVOLT"] = \
-        lambda value: (10 ** -15) * value
+        Mul(Pow(10, 15), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** -18) * value
+        Mul(Pow(10, 18), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:NANOVOLT"] = \
-        lambda value: (10 ** -12) * value
+        Mul(Pow(10, 12), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:PETAVOLT"] = \
-        lambda value: (10 ** -36) * value
+        Mul(Pow(10, 36), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:PICOVOLT"] = \
-        lambda value: (10 ** -9) * value
+        Mul(Pow(10, 9), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:TERAVOLT"] = \
-        lambda value: (10 ** -33) * value
+        Mul(Pow(10, 33), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:VOLT"] = \
-        lambda value: (10 ** -21) * value
+        Mul(Pow(10, 21), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -45) * value
+        Mul(Pow(10, 45), Sym("zeptov"))
     CONVERSIONS["ZEPTOVOLT:ZETTAVOLT"] = \
-        lambda value: (10 ** -42) * value
+        Mul(Pow(10, 42), Sym("zeptov"))
     CONVERSIONS["ZETTAVOLT:ATTOVOLT"] = \
-        lambda value: (10 ** 39) * value
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:CENTIVOLT"] = \
-        lambda value: (10 ** 23) * value
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:DECAVOLT"] = \
-        lambda value: (10 ** 20) * value
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:DECIVOLT"] = \
-        lambda value: (10 ** 22) * value
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:EXAVOLT"] = \
-        lambda value: (10 ** 3) * value
+        Mul(Rat(Int(1), Int(1000)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:FEMTOVOLT"] = \
-        lambda value: (10 ** 36) * value
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:GIGAVOLT"] = \
-        lambda value: (10 ** 12) * value
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:HECTOVOLT"] = \
-        lambda value: (10 ** 19) * value
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:KILOVOLT"] = \
-        lambda value: (10 ** 18) * value
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:MEGAVOLT"] = \
-        lambda value: (10 ** 15) * value
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:MICROVOLT"] = \
-        lambda value: (10 ** 27) * value
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:MILLIVOLT"] = \
-        lambda value: (10 ** 24) * value
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:NANOVOLT"] = \
-        lambda value: (10 ** 30) * value
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:PETAVOLT"] = \
-        lambda value: (10 ** 6) * value
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:PICOVOLT"] = \
-        lambda value: (10 ** 33) * value
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:TERAVOLT"] = \
-        lambda value: (10 ** 9) * value
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:VOLT"] = \
-        lambda value: (10 ** 21) * value
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:YOCTOVOLT"] = \
-        lambda value: (10 ** 45) * value
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:YOTTAVOLT"] = \
-        lambda value: (10 ** -3) * value
+        Mul(Int(1000), Sym("zettav"))
     CONVERSIONS["ZETTAVOLT:ZEPTOVOLT"] = \
-        lambda value: (10 ** 42) * value
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("zettav"))
 
     SYMBOLS = dict()
     SYMBOLS["ATTOVOLT"] = "aV"
