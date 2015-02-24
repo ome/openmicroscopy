@@ -322,10 +322,8 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
 
     public void notifyMembersOfShare_async(
             AMD_IShare_notifyMembersOfShare __cb, long shareId, String subject,
-            String message, boolean html, List<Experimenter> exps,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, shareId, subject, message, html,
-                exps);
+            String message, boolean html, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, shareId, subject, message, html);
     }
 
     public void removeGuests_async(AMD_IShare_removeGuests __cb, long shareId,

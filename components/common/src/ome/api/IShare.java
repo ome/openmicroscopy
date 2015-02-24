@@ -433,10 +433,8 @@ public interface IShare extends ServiceInterface {
      * @param subject
      * @param message
      * @param html
-     * @param exps
      */
     void notifyMembersOfShare(@NotNull long shareId, @NotNull String subject,
-            @NotNull String message, boolean html,
-            @Validate(Experimenter.class) List<Experimenter> exps);
+            @NotNull String message, boolean html);
 
 }

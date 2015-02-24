@@ -763,29 +763,27 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void notifyMembersOfShare(long shareId, String subject, String message,
-            boolean html, List<Experimenter> exps) {
+            boolean html) {
 
-        Set<Long> memberIds = new HashSet<Long>();
-        for (final Experimenter e : getAllMembers(shareId)) {
-            memberIds.add(e.getId());
-        }
+        EventContext ec = getSecuritySystem().getEventContext();
+
+        Set<Experimenter> exps = getAllMembers(shareId);
+        exps.add(getShare(shareId).getOwner());
 
         Map<Experimenter, String> errors = new HashMap<Experimenter, String>();
         for (final Experimenter e : exps) {
-            if (memberIds.contains(e.getId())){
-                if (e.getEmail() != null && mailUtil.validateEmail(e.getEmail())) {
-                    try {
-                        mailUtil.sendEmail(e.getEmail(), subject, message, html,
-                                null, null);
-                    } catch (MailException me) {
-                        errors.put(e, me.getMessage());
-                    }
+            if (e.getId() != ec.getCurrentUserId() && e.getEmail() != null
+                    && mailUtil.validateEmail(e.getEmail())) {
+                try {
+                    mailUtil.sendEmail(e.getEmail(), subject, message, html,
+                            null, null);
+                } catch (MailException me) {
+                    errors.put(e, me.getMessage());
                 }
             }
         }
         if (!errors.isEmpty()) {
-            ServiceHandler sh = new ServiceHandler(new CurrentDetails());
-            log.error(sh.getResultsString(errors, null));
+            log.error(ServiceHandler.getResultsString(errors, null));
         }
     }
 
