@@ -2592,6 +2592,11 @@ CREATE TRIGGER image_series_default_zero
     BEFORE INSERT OR UPDATE ON image
     FOR EACH ROW EXECUTE PROCEDURE image_series_default_zero();
 
+-- Temporary workaround for the width of map types
+
+alter table annotation_mapvalue alter column name type text;
+alter table annotation_mapvalue alter column value type text;
+
 --
 -- FINISHED
 --

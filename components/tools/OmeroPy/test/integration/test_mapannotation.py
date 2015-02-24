@@ -154,3 +154,19 @@ class TestMapAnnotation(lib.ITest):
         assert l1[0] is None
         self.assertNV(l1[1], "Name2", "Value2")
         assert {"Name2": "Value2"} == m.getMapValueAsMap()
+
+    def testBigKeys(self):
+        uuid = self.uuid()
+        big = uuid + "X" * 500
+        a = MapAnnotationI()
+        a.setMapValue([NV(big, big)])
+        a = self.update.saveAndReturnObject(a)
+        m = self.query.findAllByQuery((
+            "from MapAnnotation m "
+            "join fetch m.mapValue a "
+            "where a.name like :name"),
+            omero.sys.ParametersI().addString("name",
+                                              uuid + "%")
+        )[0]
+        l1 = m.getMapValue()
+        self.assertNV(l1[0], big, big)

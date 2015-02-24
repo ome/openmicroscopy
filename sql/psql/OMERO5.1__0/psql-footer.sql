@@ -2996,6 +2996,9 @@ ALTER TABLE wellsample ADD CONSTRAINT posY_unitpair
     CHECK (posY IS NULL AND posYUnit IS NULL
         OR posY IS NOT NULL AND posYUnit IS NOT NULL);
 
+-- Temporary workaround for the width of map types
+alter table annotation_mapvalue alter column name type text;
+alter table annotation_mapvalue alter column value type text;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()

@@ -82,6 +82,9 @@ END;$$ LANGUAGE plpgsql;
 SELECT assert_db_server_prerequisites(90200);
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
+-- Temporary workaround for the width of map types
+alter table annotation_mapvalue alter column name type text;
+alter table annotation_mapvalue alter column value type text;
 
 --
 -- FINISHED
