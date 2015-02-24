@@ -123,8 +123,16 @@ class Rat(Conversion):
         self.n = n
         self.d = d
 
+    def unwrap(self, x, original):
+        if isinstance(x, (int, float, str)):
+            return float(x)
+        else:
+            return x(original)
+
     def __call__(self, original):
-        return float(self.n) / self.d
+        n = self.unwrap(self.n, original)
+        d = self.unwrap(self.d, original)
+        return float(n) / d
 
     def __str__(self):
         return "(%s / %s)" % (self.n, self.d)
