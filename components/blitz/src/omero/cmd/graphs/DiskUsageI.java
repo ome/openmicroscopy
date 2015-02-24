@@ -444,6 +444,16 @@ public class DiskUsageI extends DiskUsage implements IRequest {
 
         /* note the objects to process */
 
+        for (final String className : classes) {
+            final String hql = "SELECT id FROM " + className;
+            for (final Object[] resultRow : queryService.projection(hql, null)) {
+                if (resultRow != null) {
+                    final Long objectId = (Long) resultRow[0];
+                    objectsToProcess.put(className, objectId);
+                }
+            }
+        }
+
         for (final Map.Entry<String, long[]> objectList : objects.entrySet()) {
             objectsToProcess.putAll(objectList.getKey(), Arrays.asList(ArrayUtils.toObject(objectList.getValue())));
 

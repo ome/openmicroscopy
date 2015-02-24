@@ -119,7 +119,8 @@ module omero {
         /**
          * Request to determine the disk usage of the given objects
          * and their contents. File-system paths used by multiple objects
-         * are de-duplicated in the total count.
+         * are de-duplicated in the total count. Specifying a class is
+         * equivalent to specifying all its instances as objects.
          *
          * Permissible classes include:
          *   ExperimenterGroup, Experimenter, Project, Dataset,
@@ -127,6 +128,7 @@ module omero {
          *   Image, Pixels, Annotation, Job, Fileset, OriginalFile.
          **/
         class DiskUsage extends Request {
+            omero::api::StringSet classes;
             omero::api::IdListMap objects;
         };
 
