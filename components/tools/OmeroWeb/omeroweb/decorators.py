@@ -253,7 +253,8 @@ class login_required(object):
             }
             request.session['server_settings']['ui']['dropdown_menu'] = \
                 conn.getDropdownMenuSettings()
-            request.session['server_settings']['email'] = conn.getEmailSettings()
+            request.session['server_settings']['email'] = \
+                conn.getEmailSettings()
 
     def get_public_user_connector(self):
         """
