@@ -1605,16 +1605,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         new_cm = sh.addComment(long(share_id), str(comment))
 
         share = self.getShare(long(share_id))
-        members = list(self.getAllMembers(long(share_id)))
-        members.append(share.getOwner())
-        for m in members:
-            if m.id == self.getEventContext().userId:
-                members.remove(m)
-        ms = [m._obj for m in members]
         sh_type = sh.getContentSize(share_id) > 0 and "share" or "discussion"
         subject = "OMERO.%s %s" % (sh_type, share_id)
         body = "%s added new comment.\n\n%s\n\n%s URL: %s\n" % (self.getUser().getFullName(), str(comment), sh_type.title(), host)
-        sh.notifyMembersOfShare(long(share_id), subject, body, False, ms)
+        sh.notifyMembersOfShare(long(share_id), subject, body, False)
         return CommentAnnotationWrapper(self, new_cm)
 
     def removeImage(self, share_id, image_id):
@@ -1630,7 +1624,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sh_type = len(images) > 0 and "share" or "discussion"
         body = "%s\n\n%s URL: %s\n" % (message, sh_type.title(), host)
         subject = "OMERO.%s %s" % (sh_type, sid)
-        sh.notifyMembersOfShare(sid, subject, body, False, ms)
+        sh.notifyMembersOfShare(sid, subject, body, False)
         return sid
 
     def updateShareOrDiscussion (self, host, share_id, message, add_members, rm_members, enable, expiration=None):
@@ -1644,7 +1638,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             share = self.getShare(long(share_id))
             body = "%s\n\n%s URL: %s\n" % (share.message, sh_type.title(), host)
             subject = "OMERO.%s %s" % (sh_type, share_id)
-            sh.notifyMembersOfShare(share_id, subject, body, False, add_members)
+            sh.notifyMembersOfShare(share_id, subject, body, False)
         if len(rm_members) > 0:
             sh.removeUsers(long(share_id), rm_members)
         return share_id
