@@ -129,7 +129,7 @@ module omero {
          **/
         class DiskUsage extends Request {
             omero::api::StringSet classes;
-            omero::api::IdListMap objects;
+            omero::api::StringLongListMap objects;
         };
 
         /**
