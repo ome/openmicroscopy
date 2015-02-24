@@ -988,7 +988,7 @@ class BaseContainer(BaseController):
                         up_pdl = p
                         self.conn.deleteObjectDirect(up_pdl._obj)
             elif destination[0] == 'orphaned':
-                return 'Cannot move dataset to %s.' % conn.getOrphanedContainerSettings()[1]
+                return 'Cannot move dataset to %s.' % self.conn.getOrphanedContainerSettings()[1]
             else:
                 return 'Destination not supported.'
         elif self.image is not None:
