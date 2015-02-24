@@ -141,31 +141,6 @@ public class PlaneFactory {
     }
 
     /**
-     * A static helper method to retrieve Java type mappings.
-     * 
-     * @param type
-     *            The pixels type for which you wish to know the mapped Java
-     *            type.
-     * @return The Java type as an enumerated integer.
-     */
-    static int javaType(PixelsType type) {
-        if (in(type, new String[] { INT8, UINT8 })) {
-            return BYTE;
-        } else if (in(type, new String[] { INT16, UINT16 })) {
-            return SHORT;
-        } else if (in(type, new String[] { INT32, UINT32 })) {
-            return INT;
-        } else if (type.getValue().equals(FLOAT_TYPE)) {
-            return FLOAT;
-        } else if (type.getValue().equals(DOUBLE_TYPE)) {
-            return DOUBLE;
-        } else {
-            throw new RuntimeException("Unknown pixel type: '"
-                    + type.getValue() + "'");
-        }
-    }
-
-    /**
      * A static helper method to retrieve pixel byte signage.
      * 
      * @param type
