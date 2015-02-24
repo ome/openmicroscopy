@@ -20,13 +20,18 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-Module documentation
+Conversion utilities for changing between units.
 """
+
 
 class Conversion(object):
     """
-    "Interface" which has a single 'convert' method
-    which will be applied to any 'Sym' objects.
+    Base-functor like object which can be used for preparing complex
+    equations for converting from one unit to another. Primarily these
+    classes and static methods are used via code-generation. Sympy-generated
+    strings are placed directly into code. If the proper imports are in place,
+    then a top-level Conversion (usually of type Add or
+    Mul is returned from the evaluation.
     """
 
     def __init__(self, *conversions):
@@ -41,6 +46,10 @@ class Conversion(object):
 
 
 class Add(Conversion):
+    """
+    Sums all the Conversion instances which
+    are passed in to the constructor.
+    """
 
     def __call__(self, original):
         rv = 0.0
@@ -53,6 +62,10 @@ class Add(Conversion):
 
 
 class Int(Conversion):
+    """
+    Simple representation of a possibly
+    very large integer.
+    """
 
     def __init__(self, i):
         if isinstance(i, int):
@@ -68,6 +81,10 @@ class Int(Conversion):
 
 
 class Mul(Conversion):
+    """
+    Multiplies all the Conversion instances which
+    are passed in to the constructor.
+    """
 
     def __call__(self, original):
         rv = 1.0
@@ -80,6 +97,10 @@ class Mul(Conversion):
 
 
 class Pow(Conversion):
+    """
+    Raises the first argument (base) to
+    the power of the second (exponent).
+    """
 
     def __init__(self, base, exp):
         self.base = base
@@ -93,6 +114,10 @@ class Pow(Conversion):
 
 
 class Rat(Conversion):
+    """
+    Divides the first argument (numerator)
+    by the second (denominator).
+    """
 
     def __init__(self, n, d):
         self.n = n
@@ -106,6 +131,11 @@ class Rat(Conversion):
 
 
 class Sym(Conversion):
+    """
+    Represents the variable of the source
+    unit and simply returns the original
+    value passed to it.
+    """
 
     def __init__(self, s):
         self.s = s
