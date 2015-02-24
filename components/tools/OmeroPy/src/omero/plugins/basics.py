@@ -157,7 +157,7 @@ class HelpControl(BaseControl):
             help="Print help for all commands and topics")
         group.add_argument(
             "--list", action="store_true",
-            help="Print list of all commands")
+            help="Print list of all commands and subcommands")
         group.add_argument(
             "topic", nargs="?", help="Command or topic for more information")
 
