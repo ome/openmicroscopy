@@ -23,7 +23,7 @@ import pytest
 from difflib import unified_diff
 import re
 from path import path
-from omero.cli import CLI
+import omero.cli
 from omero.plugins.web import WebControl
 from omeroweb import settings
 
@@ -31,7 +31,7 @@ from omeroweb import settings
 class TestWeb(object):
 
     def setup_method(self, method):
-        self.cli = CLI()
+        self.cli = omero.cli.CLI()
         self.cli.register("web", WebControl, "TEST")
         self.args = ["web"]
 
@@ -64,9 +64,13 @@ class TestWeb(object):
         lines = [line for line in lines if line and not line.startswith('#')]
         return lines
 
-    def zero_datetime(self, s):
-        return re.sub('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}',
-                      '0000-00-00 00:00:00.000000', s)
+    def normalise_generated(self, s):
+        serverdir = path(
+            omero.cli.__file__).dirname().dirname().dirname().dirname()
+        s = re.sub('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}',
+                   '0000-00-00 00:00:00.000000', s)
+        s = s.replace(serverdir, '/home/omero/OMERO.server')
+        return s
 
     def compare_with_reference(self, refname, generated):
         reffile = path(__file__).dirname() / 'reference_templates' / refname
@@ -189,7 +193,7 @@ class TestWeb(object):
 
         o, e = capsys.readouterr()
         assert not e
-        o = self.zero_datetime(o)
+        o = self.normalise_generated(o)
         d = self.compare_with_reference(server_type + '.conf', o)
         assert not d, 'Files are different:\n' + d
 
@@ -207,7 +211,7 @@ class TestWeb(object):
 
         o, e = capsys.readouterr()
         assert not e
-        o = self.zero_datetime(o)
+        o = self.normalise_generated(o)
         d = self.compare_with_reference(
             server_type[0] + '-withoptions.conf', o)
         assert not d, 'Files are different:\n' + d
