@@ -20,6 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import pytest
+from difflib import unified_diff
+import re
 from path import path
 from omero.cli import CLI
 from omero.plugins.web import WebControl
@@ -61,6 +63,18 @@ class TestWeb(object):
         lines = [line.strip() for line in txt.split('\n')]
         lines = [line for line in lines if line and not line.startswith('#')]
         return lines
+
+    def zero_datetime(self, s):
+        return re.sub('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}',
+                      '0000-00-00 00:00:00.000000', s)
+
+    def compare_with_reference(self, refname, generated):
+        reffile = path(__file__).dirname() / 'reference_templates' / refname
+        generated = generated.split('\n')
+        # reffile.write_lines(generated)
+        ref = reffile.lines(retain=False)
+        d = '\n'.join(unified_diff(ref, generated))
+        return d
 
     def testHelp(self):
         self.args += ["-h"]
@@ -165,3 +179,35 @@ class TestWeb(object):
             assert lines[-3] == 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]'
             assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
             assert lines[-1] == 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/'
+
+    @pytest.mark.parametrize('server_type', [
+        "nginx", "nginx-development", "apache", "apache-fcgi"])
+    def testFullTemplateDefaults(self, server_type, capsys, monkeypatch):
+        self.args += ["config", server_type]
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capsys.readouterr()
+        assert not e
+        o = self.zero_datetime(o)
+        d = self.compare_with_reference(server_type + '.conf', o)
+        assert not d, 'Files are different:\n' + d
+
+    @pytest.mark.parametrize('server_type', [
+        ['nginx', '--http', '1234', '--max-body-size', '2m'],
+        ['nginx-development', '--http', '1234', '--max-body-size', '2m'],
+        ['apache'],
+        ['apache-fcgi']])
+    def testFullTemplateWithOptions(self, server_type, capsys, monkeypatch):
+        prefix = '/test'
+        self.add_prefix(prefix, monkeypatch)
+        self.args += ["config"] + server_type
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capsys.readouterr()
+        assert not e
+        o = self.zero_datetime(o)
+        d = self.compare_with_reference(
+            server_type[0] + '-withoptions.conf', o)
+        assert not d, 'Files are different:\n' + d
