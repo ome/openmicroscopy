@@ -121,4 +121,12 @@ public class TestStatsFactory {
         Assert.assertEquals(pixelsRange[1], 4095.0);
     }
 
+    public void testInitPixelsRangeClamping() {
+        Pixels pixels = createPixels("uint16", 16);
+        pixels.setSignificantBits(32);
+
+        double[] pixelsRange = statsFactory.initPixelsRange(pixels);
+        Assert.assertEquals(pixelsRange[0], 0.0);
+        Assert.assertEquals(pixelsRange[1], 65535.0);
+    }
 }
