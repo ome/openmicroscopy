@@ -273,13 +273,13 @@ class FsControl(CmdControl):
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=-1)
         usage.add_argument(
-            "--size_only", action="store_true",
+            "--size-only", action="store_true",
             help="Print total bytes used in bytes")
         usage.add_argument(
             "--report", action="store_true",
             help="Print detailed breakdown of disk usage")
         usage.add_argument(
-            "--sum_by", nargs="+", choices=("user", "group", "component"),
+            "--sum-by", nargs="+", choices=("user", "group", "component"),
             help=("Breakdown of disk usage by a combination of "
                   "user, group and component"))
         unit_group = usage.add_mutually_exclusive_group()
@@ -287,7 +287,7 @@ class FsControl(CmdControl):
             "--units", choices="KMGTP",
             help="Units to use for disk usage")
         unit_group.add_argument(
-            "--human_readable", action="store_true",
+            "--human-readable", action="store_true",
             help="Use most appropriate units")
         usage.add_argument(
             "--groups",  action="store_true",
