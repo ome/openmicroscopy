@@ -30,7 +30,9 @@ def pytest_generate_tests(metafunc):
 class Methods(object):
 
     @classmethod
-    def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
+    def assertAlmostEqual(self, first, second,
+                          places=None,
+                          delta=None):
         # Copied largely from unittest
         """Fail if the two objects are unequal as determined by their
            difference rounded to the given number of decimal places
@@ -76,4 +78,3 @@ def pytest_namespace():
     return {
         "assertAlmostEqual": Methods.assertAlmostEqual
     }
-

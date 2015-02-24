@@ -35,41 +35,41 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsTemperature
 
-from omero.model.conversions import Add
-from omero.model.conversions import Int
-from omero.model.conversions import Mul
-from omero.model.conversions import Pow
-from omero.model.conversions import Rat
-from omero.model.conversions import Sym
+from omero.model.conversions import Add  # nopep8
+from omero.model.conversions import Int  # nopep8
+from omero.model.conversions import Mul  # nopep8
+from omero.model.conversions import Pow  # nopep8
+from omero.model.conversions import Rat  # nopep8
+from omero.model.conversions import Sym  # nopep8
 
 
 class TemperatureI(_omero_model.Temperature, UnitBase):
 
     CONVERSIONS = dict()
     CONVERSIONS["CELSIUS:FAHRENHEIT"] = \
-        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32))
+        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32))  # nopep8
     CONVERSIONS["CELSIUS:KELVIN"] = \
-        Add(Sym("c"), Rat(Int(5463), Int(20)))
+        Add(Sym("c"), Rat(Int(5463), Int(20)))  # nopep8
     CONVERSIONS["CELSIUS:RANKINE"] = \
-        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100)))
+        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100)))  # nopep8
     CONVERSIONS["FAHRENHEIT:CELSIUS"] = \
-        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9)))
+        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9)))  # nopep8
     CONVERSIONS["FAHRENHEIT:KELVIN"] = \
-        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180)))
+        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180)))  # nopep8
     CONVERSIONS["FAHRENHEIT:RANKINE"] = \
-        Add(Sym("f"), Rat(Int(45967), Int(100)))
+        Add(Sym("f"), Rat(Int(45967), Int(100)))  # nopep8
     CONVERSIONS["KELVIN:CELSIUS"] = \
-        Add(Sym("k"), Rat(Int(-5463), Int(20)))
+        Add(Sym("k"), Rat(Int(-5463), Int(20)))  # nopep8
     CONVERSIONS["KELVIN:FAHRENHEIT"] = \
-        Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100)))
+        Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100)))  # nopep8
     CONVERSIONS["KELVIN:RANKINE"] = \
-        Mul(Rat(Int(9), Int(5)), Sym("k"))
+        Mul(Rat(Int(9), Int(5)), Sym("k"))  # nopep8
     CONVERSIONS["RANKINE:CELSIUS"] = \
-        Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20)))
+        Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20)))  # nopep8
     CONVERSIONS["RANKINE:FAHRENHEIT"] = \
-        Add(Sym("r"), Rat(Int(-45967), Int(100)))
+        Add(Sym("r"), Rat(Int(-45967), Int(100)))  # nopep8
     CONVERSIONS["RANKINE:KELVIN"] = \
-        Mul(Rat(Int(5), Int(9)), Sym("r"))
+        Mul(Rat(Int(5), Int(9)), Sym("r"))  # nopep8
 
     SYMBOLS = dict()
     SYMBOLS["CELSIUS"] = "°C"
