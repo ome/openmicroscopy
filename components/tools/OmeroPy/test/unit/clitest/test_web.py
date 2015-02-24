@@ -65,8 +65,7 @@ class TestWeb(object):
         return lines
 
     def normalise_generated(self, s):
-        serverdir = path(
-            omero.cli.__file__).dirname().dirname().dirname().dirname()
+        serverdir = self.cli.dir
         s = re.sub('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}',
                    '0000-00-00 00:00:00.000000', s)
         s = s.replace(serverdir, '/home/omero/OMERO.server')
