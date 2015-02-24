@@ -126,7 +126,7 @@ class ImportControl(BaseControl):
             help="Email for reported errors. Required --report (**)",
             metavar="EMAIL")
         feedback_group.add_argument(
-            "--qa_baseurl", dest="java_qa_baseurl",
+            "--qa-baseurl", "--qa_baseurl", dest="java_qa_baseurl",
             help=SUPPRESS)
 
         # DEPRECATED OPTIONS
@@ -163,13 +163,16 @@ class ImportControl(BaseControl):
             help="Turn debug logging on (**)",
             metavar="LEVEL")
         java_group.add_argument(
-            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
+            "--annotation-ns", "--annotation_ns", dest="java_ns",
+            metavar="ANNOTATION_NS",
             help="Namespace to use for subsequent annotation (**)")
         java_group.add_argument(
-            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
+            "--annotation-text", "--annotation_text", dest="java_text",
+            metavar="ANNOTATION_TEXT",
             help="Content for a text annotation (requires namespace) (**)")
         java_group.add_argument(
-            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
+            "--annotation-link", "--annotation_link", dest="java_link",
+            metavar="ANNOTATION_LINK",
             help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(

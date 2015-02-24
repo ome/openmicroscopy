@@ -273,15 +273,15 @@ dt_socket,address=8787,suspend=y" \\
             "--batch", default="500",
             help="Number of items to index before reporting status")
         reindex.add_argument(
-            "--merge_factor", default="100",
+            "--merge-factor", "--merge_factor", default="100",
             help=("Higher means merge less frequently. "
                   "Faster but needs more RAM"))
         reindex.add_argument(
-            "--ram_buffer_size", default="1000",
+            "--ram-buffer-size", "--ram_buffer_size", default="1000",
             help=("Number of MBs to use for the indexing. "
                   "Higher is faster."))
         reindex.add_argument(
-            "--lock_factory", default="native",
+            "--lock-factory", "--lock_factory", default="native",
             help=("Choose Lucene lock factory by class or "
                   "'native', 'simple', 'none'"))
 
