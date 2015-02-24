@@ -1596,27 +1596,28 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
+        # we only need selected tags for original form, not for json loading
         if jsonmode is None:
             manager.annotationList()
             tags = manager.tag_annotations
 
     else:
         manager = BaseContainer(conn)
+        # Use the first object we find to set context (assume all objects are in same group!)
+        for obs in oids.values():
+            if len(obs) > 0:
+                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                break
+
+        # we only need selected tags for original form, not for json loading
         if jsonmode is None:
             batchAnns = manager.loadBatchAnnotations(oids)
-
             tags = []
-
             for t in batchAnns['Tag']:
                 mylinks = [l for l in t['links'] if l.isOwned()]
                 if len(mylinks) == obj_count:
                     t['ann'].link = mylinks[0]  # make sure we pick a link that we own
                     tags.append(t['ann'])
-            # Use the first object we find to set context (assume all objects are in same group!)
-            for obs in oids.values():
-                if len(obs) > 0:
-                    conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
-                    break
 
     selected_tags = []
     for tag in tags:
@@ -1685,6 +1686,7 @@ def annotate_tags(request, conn=None, **kwargs):
                     well_index=index,
                     tag_group_id=form.cleaned_data['tagset'],
                 ))
+            # only remove Tags where the link is owned by self_id
             for remove in removed:
                 tag_manager = BaseContainer(conn, tag=remove)
                 tag_manager.remove([
