@@ -64,7 +64,7 @@ import omero.model.OriginalFile;
  */
 @SuppressWarnings("serial")
 public class DiskUsageI extends DiskUsage implements IRequest {
-    /* TODO: This class can be substantially refactored and simplified once the graph traversal reimplementation is merged. */
+    /* TODO: This class can be substantially refactored and simplified by using the graph traversal reimplementation. */
 
     /* FIELDS AND CONSTRUCTORS */
 
