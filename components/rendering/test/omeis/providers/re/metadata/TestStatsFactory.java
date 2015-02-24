@@ -111,4 +111,14 @@ public class TestStatsFactory {
         Assert.assertEquals(pixelsRange[0], (double) Integer.MIN_VALUE);
         Assert.assertEquals(pixelsRange[1], (double) Integer.MAX_VALUE);
     }
+
+    public void testInitPixelsRange12Bit() {
+        Pixels pixels = createPixels("uint16", 16);
+        pixels.setSignificantBits(12);
+
+        double[] pixelsRange = statsFactory.initPixelsRange(pixels);
+        Assert.assertEquals(pixelsRange[0], 0.0);
+        Assert.assertEquals(pixelsRange[1], 4095.0);
+    }
+
 }
