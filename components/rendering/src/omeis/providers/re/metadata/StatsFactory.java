@@ -247,6 +247,7 @@ public class StatsFactory {
         if (significantBits == null) {
             significantBits = type.getBitSize();
         }
+        significantBits = Math.min(significantBits, type.getBitSize());
         if (FormatTools.isSigned(bfPixelsType)) {
             minmax[0] = -Math.pow(2, significantBits - 1);
             minmax[1] = Math.pow(2,  significantBits - 1) - 1;
