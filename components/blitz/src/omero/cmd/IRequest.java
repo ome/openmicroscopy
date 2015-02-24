@@ -81,7 +81,7 @@ public interface IRequest {
 
     /**
      * Post-transaction chance to map from the return value of
-     * {@link #step(int)} to a {@link omero.cmd.Respnse} object.
+     * {@link #step(int)} to a {@link omero.cmd.Response} object.
      * 
      * @param i
      * @param object
