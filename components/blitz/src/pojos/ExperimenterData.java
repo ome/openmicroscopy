@@ -243,6 +243,20 @@ public class ExperimenterData extends DataObject {
      * Returns the default Group for this Experimenter
      * 
      * @return See above.
+     * 
+     * @deprecated Method renamed to {@link #getActiveGroup()}
+     */
+    @Deprecated
+    public GroupData getDefaultGroup() {
+        List<GroupData> groups = getGroups();
+        if (groups == null || groups.size() == 0) return null;
+        return groups.get(0);
+    }
+    
+    /**
+     * Returns the default Group for this Experimenter
+     * 
+     * @return See above.
      */
     public GroupData getActiveGroup() {
     	List<GroupData> groups = getGroups();
