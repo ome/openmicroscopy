@@ -24,53 +24,108 @@ import java.math.MathContext;
 
 
 /**
- * TODO
+ * Base-functor like object which can be used for preparing complex
+ * equations for converting from one unit to another. Primarily these
+ * classes and static methods are used via code-generation. Sympy-generated
+ * strings are placed directly into code. If the proper imports are in place,
+ * then a top-level {@link Conversion} (usually of type {@link Add} or
+ * {@link Mul} is returned from the evaluation.
  */
 public abstract class Conversion {
 
     // Helper static methods which prevent the need for "new"
     // in the generated code.
 
+    /**
+     * Static helper for creating {@link Add} instances.
+     */
     public static Conversion Add(Conversion...conversions) {
         return new Add(conversions);
     }
 
+    /**
+     * Static helper for creating {@link Int} instances.
+     */
     public static Conversion Int(long i) {
         return new Int(i);
     }
 
+    /**
+     * Static helper for creating {@link Int} instances.
+     */
     public static Conversion Int(String i) {
         return new Int(i);
     }
 
+    /**
+     * Static helper for creating {@link Mul} instances.
+     */
     public static Conversion Mul(Conversion...conversions) {
         return new Mul(conversions);
     }
 
+    /**
+     * Static helper for creating {@link Pow} instances.
+     */
     public static Conversion Pow(long num, int den) {
         return new Pow(num, den);
     }
 
+    /**
+     * Static helper for creating {@link Rat} instances.
+     */
     public static Conversion Rat(long num, long den) {
         return new Rat(num, den);
     }
 
+    /**
+     * Static helper for creating {@link Rat} instances.
+     */
     public static Conversion Rat(Conversion... conversions) {
         return new Rat(conversions);
     }
 
+    /**
+     * Static helper for creating {@link Sym} instances.
+     */
     public static Conversion Sym(String sym) {
         return new Sym(sym);
     }
 
+    /**
+     * Conversions, if any, which are passed into the constructor
+     * of this instance. If none are passed, then the implementation
+     * has a short-cut form, e.g. taking an {@link Integer} rather than
+     * an {@link Int}.
+     */
     protected final Conversion[] conversions;
 
+    /**
+     * Primary constructor for a {@link Conversion} object. No processing
+     * happens during constructor. Instead, the {@link #convert(double)}
+     * method will handle descending through the recursive structure.
+     *
+     * @param conversions can be empty.
+     */
     public Conversion(Conversion...conversions) {
         this.conversions = conversions;
     }
 
+    /**
+     * Primary operator for {@link Conversion} instances.
+     * @param original A unit value which is to be processed through the
+     *    tree-like representation of this equation. Only {@link Sym} objects
+     *    will actually use the "original" value.
+     * @return a {@link BigDecimal} result from the calculation. If this value
+     *    maps to {@link Double#NEGATIVE_INFINITY} or
+     *    {@link Double#POSITIVE_INFINITY}, then a {@link BigResult} exception
+     *    should be thrown before returning to clients.
+     */
     public abstract BigDecimal convert(double original);
 
+    /**
+     * Sums all {@link Conversion} instances via {@link BigDecimal#add(BigDecimal)}.
+     */
     public static class Add extends Conversion {
 
         public Add(Conversion[] conversions) {
@@ -87,6 +142,9 @@ public abstract class Conversion {
 
     }
 
+    /**
+     * Simply is a representation of a possibly large integer.
+     */
     public static class Int extends Conversion {
 
         private final long i;
@@ -111,6 +169,10 @@ public abstract class Conversion {
         }
     }
 
+    /**
+     * Multiplies all {@link Conversion} instances via
+     * {@link BigDecimal#multiply(BigDecimal)}.
+     */
     public static class Mul extends Conversion {
 
         public Mul(Conversion[] conversions) {
@@ -126,6 +188,10 @@ public abstract class Conversion {
         }
     }
 
+    /**
+     * Exponentiates two {@link Conversion} instances via
+     * {@link BigDecimal#pow(BigDecimal)}.
+     */
     public static class Pow extends Conversion {
 
         private final long base;
@@ -143,6 +209,10 @@ public abstract class Conversion {
 
     }
 
+    /**
+     * Divides two {@link Conversion} instances via
+     * {@link BigDecimal#divide(BigDecimal, MathContext)}.
+     */
     public static class Rat extends Conversion {
 
         private final long num, denom;
@@ -178,6 +248,10 @@ public abstract class Conversion {
         }
     }
 
+    /**
+     * Simply represents the variable of the source unit so that
+     * {@link Sym#convert(double)} just returns the value passed in.
+     */
     public static class Sym extends Conversion {
 
         public Sym(char sym) {
