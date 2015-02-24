@@ -299,7 +299,7 @@ public interface Importer
     GroupData getSelectedGroup();
 
     /**
-     * Sets the default group for the currently selected user and updates the 
+     * Sets the active group for the currently selected user and updates the 
      * view.
      * 
      * @param group The group to set.

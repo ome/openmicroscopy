@@ -529,7 +529,7 @@ class OmeroDataServiceImpl
 					LookupNames.CURRENT_USER_DETAILS);
 		gateway.updateExperimenter(ctx, exp.asExperimenter(), user.getId());
 		ExperimenterData data;
-		if (group != null && exp.getDefaultGroup().getId() != group.getId())
+		if (group != null && exp.getActiveGroup().getId() != group.getId())
 			gateway.changeCurrentGroup(ctx, exp, group.getId());
 		data = gateway.getUserDetails(ctx, uc.getUserName(), true);
 

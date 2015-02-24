@@ -193,7 +193,7 @@ public class DataBrowserAgent
 		ExperimenterData exp = getUserDetails();
 		Set groups = getGroupsLeaderOf();
 		if (groups.size() == 0) return false;
-		GroupData group = exp.getDefaultGroup();
+		GroupData group = exp.getActiveGroup();
 		Iterator i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {

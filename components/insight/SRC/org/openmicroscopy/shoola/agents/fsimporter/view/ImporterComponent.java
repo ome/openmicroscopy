@@ -244,7 +244,7 @@ class ImporterComponent
 		if (!model.isMaster()) return;
 		if (!success) return;
 		ExperimenterData exp = ImporterAgent.getUserDetails();
-		GroupData group = exp.getDefaultGroup();
+		GroupData group = exp.getActiveGroup();
 		long oldGroup = model.getGroupId();
 		model.setGroupId(group.getId());
 		ImportLocationDetails details = 
@@ -276,7 +276,7 @@ class ImporterComponent
 	void onReconnected()
 	{
 		ExperimenterData exp = ImporterAgent.getUserDetails();
-		GroupData group = exp.getDefaultGroup();
+		GroupData group = exp.getActiveGroup();
 		long oldGroup = -1;
 		if (model.getExperimenterId() == exp.getId() &&
 				group.getId() == model.getGroupId())
@@ -701,7 +701,7 @@ class ImporterComponent
 
 		if (m == null) {
 			ExperimenterData exp = ImporterAgent.getUserDetails();
-			return exp.getDefaultGroup();
+			return exp.getActiveGroup();
 		}
 
 		long id = model.getGroupId();
@@ -711,7 +711,7 @@ class ImporterComponent
 				return group;
 		}
 		ExperimenterData exp = ImporterAgent.getUserDetails();
-		return exp.getDefaultGroup();
+		return exp.getActiveGroup();
 	}
 
 	/** 

@@ -613,7 +613,7 @@ public class DataServicesFactory
         String ldap = null;
         try {
             GroupData defaultGroup = null;
-            long gid = exp.getDefaultGroup().getId();
+            long gid = exp.getActiveGroup().getId();
         	SecurityContext ctx = new SecurityContext(gid);
         	groups = omeroGateway.getAvailableGroups(ctx, exp);
         	registry.bind(LookupNames.SYSTEM_ROLES,
@@ -639,7 +639,7 @@ public class DataServicesFactory
         	if (available.size() ==  0) {
         	    //group with loaded users.
         	    if (defaultGroup != null) available.add(defaultGroup);
-        	    else available.add(exp.getDefaultGroup());
+        	    else available.add(exp.getActiveGroup());
         	}
         	registry.bind(LookupNames.USER_GROUP_DETAILS, available);
         	List<Long> ids = new ArrayList<Long>();

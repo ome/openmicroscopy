@@ -244,7 +244,7 @@ public class ExperimenterData extends DataObject {
      * 
      * @return See above.
      */
-    public GroupData getDefaultGroup() {
+    public GroupData getActiveGroup() {
     	List<GroupData> groups = getGroups();
     	if (groups == null || groups.size() == 0) return null;
         return groups.get(0);
@@ -299,7 +299,7 @@ public class ExperimenterData extends DataObject {
      * @see DataObject#getGroupId()
      */
     public long getGroupId() {
-    	GroupData g = getDefaultGroup();
+    	GroupData g = getActiveGroup();
     	if (g == null) return -1;
     	return g.getId();
     }

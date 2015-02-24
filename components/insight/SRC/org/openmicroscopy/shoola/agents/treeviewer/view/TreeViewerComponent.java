@@ -3997,7 +3997,7 @@ class TreeViewerComponent
 		model.getAdvancedFinder().reset(
 				TreeViewerAgent.getAvailableUserGroups());
 		ExperimenterData exp = model.getUserDetails();
-		model.setSelectedGroupId(exp.getDefaultGroup().getId());
+		model.setSelectedGroupId(exp.getActiveGroup().getId());
 		
 		
 		view.createTitle();

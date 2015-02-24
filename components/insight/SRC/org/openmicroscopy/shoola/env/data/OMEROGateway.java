@@ -1877,7 +1877,7 @@ class OMEROGateway
 			if (groupID >= 0) {
 				long defaultID = -1;
 				try {
-					defaultID = exp.getDefaultGroup().getId();
+					defaultID = exp.getActiveGroup().getId();
 				} catch (Exception e) {}
 				ctx = new SecurityContext(defaultID);
 				ctx.setServerInformation(hostName, port);
@@ -1905,7 +1905,7 @@ class OMEROGateway
 				}
 			}
 			// Connector now controls the secureClient for closing.
-			ctx = new SecurityContext(exp.getDefaultGroup().getId());
+			ctx = new SecurityContext(exp.getActiveGroup().getId());
 			ctx.setServerInformation(hostName, port);
 			ctx.setCompression(compression);
 			connector = new Connector(ctx, secureClient, entryEncrypted,
@@ -7543,7 +7543,7 @@ class OMEROGateway
 				if (value != null) {
 					exp = value;
 					expData = new ExperimenterData(exp);
-					defaultGroup = expData.getDefaultGroup();
+					defaultGroup = expData.getActiveGroup();
 					if (dsFactory.getAdmin().isSecuritySystemGroup(
 					        defaultGroup.getId()))
 						defaultGroup = null;

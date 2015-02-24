@@ -857,7 +857,7 @@ public interface Browser
 	 * 
 	 * @return See above.
 	 */
-	TreeImageDisplay getDefaultGroupNode();
+	TreeImageDisplay getActiveGroupNode();
 
 	/**
 	 * Returns the display mode. One of the constants defined by 

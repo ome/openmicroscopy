@@ -883,7 +883,7 @@ class BrowserModel
 	{
 		if (node == null || isSingleGroup()) {
 		    return new SecurityContext(
-					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+					TreeViewerAgent.getUserDetails().getActiveGroup().getId());
 		}
 		GroupData group = parent.getSingleGroupDisplayed();
 		if (node == null && group != null)
@@ -896,7 +896,7 @@ class BrowserModel
 				return new SecurityContext(group.getId());
 			} else {
 				return new SecurityContext(
-				getUserDetails().getDefaultGroup().getId());
+				getUserDetails().getActiveGroup().getId());
 			}
 		}
 		if (node.getUserObject() instanceof GroupData) {
@@ -916,12 +916,12 @@ class BrowserModel
 		}
 		if (n == null || isSingleGroup()) {
 			return new SecurityContext(
-					getUserDetails().getDefaultGroup().getId());
+					getUserDetails().getActiveGroup().getId());
 		}
 		TreeImageDisplay parent = n.getParentDisplay();
 		if (parent == null) {
 			return new SecurityContext(
-					getUserDetails().getDefaultGroup().getId());
+					getUserDetails().getActiveGroup().getId());
 		}
 		Object p = parent.getUserObject();
 		if (p instanceof GroupData) {
@@ -929,7 +929,7 @@ class BrowserModel
 			return new SecurityContext(group.getId());
 		}
 		return new SecurityContext(
-				getUserDetails().getDefaultGroup().getId());
+				getUserDetails().getActiveGroup().getId());
 	}
 	
 	

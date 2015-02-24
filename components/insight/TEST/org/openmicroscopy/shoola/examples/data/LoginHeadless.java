@@ -108,7 +108,7 @@ implements AgentEventListener
 			//The user is logged into his/her default group. 
 			//Security Context is mainly for now only using the group
 			// idea is to support multi-server.
-			long groupId = exp.getDefaultGroup().getId();
+			long groupId = exp.getActiveGroup().getId();
 			SecurityContext ctx = new SecurityContext(groupId);
 			List<Long> imageIds = new ArrayList<Long>();
 			

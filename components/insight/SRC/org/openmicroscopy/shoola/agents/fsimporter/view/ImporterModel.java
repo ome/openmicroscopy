@@ -220,7 +220,7 @@ class ImporterModel
 		this.groupId = groupId;
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		if (this.groupId < 0) {
-		    this.groupId = exp.getDefaultGroup().getGroupId();
+		    this.groupId = exp.getActiveGroup().getGroupId();
 		}
 		ctx = new SecurityContext(groupId);
 		experimenterId = exp.getId();

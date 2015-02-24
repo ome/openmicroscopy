@@ -525,7 +525,7 @@ public class TreeViewerAgent
             EventBus bus = registry.getEventBus();
             GroupData gp = null;
             try {
-                gp = exp.getDefaultGroup();
+                gp = exp.getActiveGroup();
             } catch (Exception ex) {
                 //No default group
             }

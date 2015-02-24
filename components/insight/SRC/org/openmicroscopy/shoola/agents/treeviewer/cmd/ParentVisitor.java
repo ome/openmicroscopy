@@ -89,7 +89,7 @@ public class ParentVisitor
         		   GroupData hgp = (GroupData) gp.getUserObject();
             	   gid = hgp.getId();
         	   } else {
-        		   gid = exp.getDefaultGroup().getId();
+        		   gid = exp.getActiveGroup().getId();
         	   }
         	   Map<Long, List<TreeImageDisplay>> m = data.get(gid);
         	   if (m == null) {

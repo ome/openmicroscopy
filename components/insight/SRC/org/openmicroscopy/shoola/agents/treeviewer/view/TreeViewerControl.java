@@ -435,7 +435,7 @@ class TreeViewerControl
 					UserNotifier un = 
 						TreeViewerAgent.getRegistry().getUserNotifier();
 					SecurityContext ctx = new SecurityContext(
-					TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+					TreeViewerAgent.getUserDetails().getActiveGroup().getId());
 					un.notifyActivity(ctx, activity);
 				}
 			}
@@ -941,7 +941,7 @@ class TreeViewerControl
 		if (script == null) return;
 		
 		SecurityContext ctx = new SecurityContext(
-				TreeViewerAgent.getUserDetails().getDefaultGroup().getId());
+				TreeViewerAgent.getUserDetails().getActiveGroup().getId());
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		if (index == ScriptActivityParam.VIEW) {
 			Environment env = (Environment) 
@@ -961,7 +961,7 @@ class TreeViewerControl
 		} else {
 			GroupData g = model.getSelectedGroup();
 			if (g == null) 
-				g = TreeViewerAgent.getUserDetails().getDefaultGroup();
+				g = TreeViewerAgent.getUserDetails().getActiveGroup();
 			ctx = new SecurityContext(g.getId());
 			un.notifyActivity(ctx, new ScriptActivityParam(script,
 					ScriptActivityParam.RUN));

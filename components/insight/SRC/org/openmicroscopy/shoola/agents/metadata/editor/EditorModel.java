@@ -1367,7 +1367,7 @@ class EditorModel
      */
     boolean isGroupLeader()
     {
-        return isGroupLeader(MetadataViewerAgent.getUserDetails().getDefaultGroup());
+        return isGroupLeader(MetadataViewerAgent.getUserDetails().getActiveGroup());
     }
 
 	/**

@@ -333,7 +333,7 @@ class UserProfile
                 GroupData g = getSelectedGroup();
                 ExperimenterData exp = (ExperimenterData)
                         model.getRefObject();
-                if (exp.getDefaultGroup().getId() != g.getId())
+                if (exp.getActiveGroup().getId() != g.getId())
                     model.fireAdminSaving(g, true);
                 view.saveData(true);
             }
@@ -358,7 +358,7 @@ class UserProfile
         ExperimenterData user = (ExperimenterData) model.getRefObject();
         Collection<GroupData> groups = user.getGroups();
 
-        GroupData defaultGroup = user.getDefaultGroup();
+        GroupData defaultGroup = user.getActiveGroup();
 
         groupsBox = new JComboBox();
         SelectableComboBoxModel m = new SelectableComboBoxModel();
@@ -500,7 +500,7 @@ class UserProfile
                         ExperimenterData exp = (ExperimenterData)
                                 model.getRefObject();
                         saveButton.setEnabled(
-                                exp.getDefaultGroup().getId() != g.getId());
+                                exp.getActiveGroup().getId() != g.getId());
                     }
                 });
             }
@@ -951,7 +951,7 @@ class UserProfile
             saveButton.setEnabled(true);
             return true;
         }
-		if (original.getDefaultGroup().getId() != getSelectedGroup().getId()) {
+		if (original.getActiveGroup().getId() != getSelectedGroup().getId()) {
 			saveButton.setEnabled(true);
 			return true;
 		}

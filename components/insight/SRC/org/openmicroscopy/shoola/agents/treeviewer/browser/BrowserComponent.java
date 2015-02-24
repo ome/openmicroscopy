@@ -149,7 +149,7 @@ class BrowserComponent
 	    long gid;
 	    SecurityContext ctx;
 	    if (model.isSingleGroup()) {
-	    	gid = model.getUserDetails().getDefaultGroup().getId();
+	    	gid = model.getUserDetails().getActiveGroup().getId();
 	    	for (int i = 0; i < n; i++) {
 	    		expNode = (TreeImageSet) root.getChildAt(i);
 		    	//if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
@@ -464,7 +464,7 @@ class BrowserComponent
             	TreeImageDisplay node;
             	switch (model.getDisplayMode()) {
 					case TreeViewer.GROUP_DISPLAY:
-						node = getDefaultGroupNode();
+						node = getActiveGroupNode();
 		            	if (node != null) {
 		            		view.expandNode(node, true);
 		            	}
@@ -1373,7 +1373,7 @@ class BrowserComponent
 	    switch (model.getDisplayMode()) {
 	    case TreeViewer.EXPERIMENTER_DISPLAY:
 	        if (model.isSingleGroup()) {
-	            gid = model.getUserDetails().getDefaultGroup().getId();
+	            gid = model.getUserDetails().getActiveGroup().getId();
 	            for (int i = 0; i < n; i++) {
 	                expNode = (TreeImageSet) root.getChildAt(i);
 	                if (expNode.isExpanded() && expNode.isChildrenLoaded()) {
@@ -1450,7 +1450,7 @@ class BrowserComponent
 	        TreeImageDisplay node = null;
 	        switch (model.getDisplayMode()) {
 	        case TreeViewer.GROUP_DISPLAY:
-	            node = getDefaultGroupNode();
+	            node = getActiveGroupNode();
 	        case TreeViewer.EXPERIMENTER_DISPLAY:
 	        default:
 	            node = getLoggedExperimenterNode();
@@ -1695,7 +1695,7 @@ class BrowserComponent
 		if (node == null) 
 			throw new IllegalArgumentException("No node specified.");
 		TreeImageDisplay n = EditorUtil.getDataGroup(node);
-		if (n == null) return model.getUserDetails().getDefaultGroup();
+		if (n == null) return model.getUserDetails().getActiveGroup();
 		return (GroupData) n.getUserObject();
 	}
 	
@@ -2287,7 +2287,7 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getLoggedExperimenterNode()
      */
-	public TreeImageDisplay getDefaultGroupNode()
+	public TreeImageDisplay getActiveGroupNode()
 	{
 		SecurityContext ctx = model.getSecurityContext(null);
 		long id = ctx.getGroupID();

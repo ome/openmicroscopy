@@ -333,7 +333,7 @@ public class AdvancedFinder
 		IconManager icons = IconManager.getInstance();
 		UserManagerDialog dialog = new UserManagerDialog(
 				FinderFactory.getRefFrame(), getUserDetails(), 
-				getUserDetails().getDefaultGroup(), null,
+				getUserDetails().getActiveGroup(), null,
 				icons.getIcon(IconManager.OWNER),
 				icons.getIcon(IconManager.OWNER_48));
 		dialog.addPropertyChangeListener(this);

@@ -375,7 +375,7 @@ class TreeViewerModel
 	{
 		initialize();
 		this.experimenter = exp;
-		selectedGroupId = exp.getDefaultGroup().getId();
+		selectedGroupId = exp.getActiveGroup().getId();
 	}
 
 	/**
@@ -1434,7 +1434,7 @@ class TreeViewerModel
 			if (g.getId() == selectedGroupId)
 				return g;
 		}
-		g = TreeViewerAgent.getUserDetails().getDefaultGroup();
+		g = TreeViewerAgent.getUserDetails().getActiveGroup();
 		selectedGroupId = g.getGroupId();
 		return g;
 	}
