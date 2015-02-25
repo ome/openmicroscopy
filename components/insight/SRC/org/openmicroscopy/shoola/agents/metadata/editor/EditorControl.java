@@ -691,7 +691,7 @@ class EditorControl
 				view.manageScript((ScriptObject) value, 
 						MetadataViewer.DOWNLOAD);
 			else if (value instanceof String) {
-				ScriptObject script = view.getScriptFromName((String) value);
+				ScriptObject script = model.getScriptFromName((String) value);
 				if (script != null)
 					view.manageScript(script, MetadataViewer.DOWNLOAD);
 			}
@@ -701,7 +701,7 @@ class EditorControl
 				view.manageScript((ScriptObject) value, 
 						MetadataViewer.VIEW);
 			else if (value instanceof String) {
-				ScriptObject script = view.getScriptFromName((String) value);
+				ScriptObject script = model.getScriptFromName((String) value);
 				if (script != null)
 					view.manageScript(script, MetadataViewer.VIEW);
 			}
