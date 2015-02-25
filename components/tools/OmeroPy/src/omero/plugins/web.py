@@ -201,12 +201,6 @@ class WebControl(BaseControl):
             settings.APPLICATION_SERVER_HOST,
             settings.APPLICATION_SERVER_PORT)
         d["FASTCGI_EXTERNAL"] = fastcgi_external
-
-        if d["FORCE_SCRIPT_NAME"] == '/':
-            d["WEB_PREFIX"] = ''
-        else:
-            d["WEB_PREFIX"] = d["FORCE_SCRIPT_NAME"]
-
         d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
     def config(self, args):
@@ -245,10 +239,20 @@ class WebControl(BaseControl):
             d["HTTPPORT"] = port
             d["MAX_BODY_SIZE"] = args.max_body_size
 
+        # FORCE_SCRIPT_NAME always has a starting /, and will not have a
+        # trailing / unless there is no prefix (/)
+        # WEB_PREFIX will never end in / (so may be empty)
+
         try:
             d["FORCE_SCRIPT_NAME"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
         except:
             d["FORCE_SCRIPT_NAME"] = "/"
+
+        if server in ("apache", "apache-fcgi"):
+            try:
+                d["WEB_PREFIX"] = settings.FORCE_SCRIPT_NAME.rstrip("/")
+            except:
+                d["WEB_PREFIX"] = ""
 
         if server in ("nginx", "nginx-development"):
             self._set_nginx_fastcgi(d, settings)
