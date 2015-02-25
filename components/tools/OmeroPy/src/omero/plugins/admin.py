@@ -313,9 +313,9 @@ Examples:
 
         cleanse = Action("cleanse", """Remove binary data files from OMERO
 
-Deleting an object from OMERO currently does not remove the binary data. Use
-this command either manually or in a cron job periodically to remove Pixels
-and other data.
+Deleting an object from OMERO currently may not remove all the binary data.
+Use this command either manually or in a cron job periodically to remove
+Pixels, empty directories, and other data.
 
 This is done by checking that for all the files in the given directory, a
 matching entry exists on the server. THE /OMERO DIRECTORY MUST MATCH THE
@@ -1584,10 +1584,8 @@ OMERO Diagnostics %s
     def cleanse(self, args):
         self.check_access()
         from omero.util.cleanse import cleanse
-        client = self.ctx.conn(args)
-        cleanse(data_dir=args.data_dir, dry_run=args.dry_run,
-                query_service=client.sf.getQueryService(),
-                config_service=client.sf.getConfigService())
+        cleanse(data_dir=args.data_dir, client=self.ctx.conn(args),
+                dry_run=args.dry_run)
 
     def sessionlist(self, args):
         client = self.ctx.conn(args)
