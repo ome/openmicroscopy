@@ -19,11 +19,13 @@
 
 package omero.cmd.graphs;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +53,9 @@ public class ChildOptionsPolicy {
      * @return the adjusted graph policy
      */
     public static GraphPolicy getChildOptionsPolicy(final GraphPolicy graphPolicyToAdjust, final GraphPathBean graphPathBean,
-            final ChildOptionI[] childOptions, final Set<GraphPolicy.Ability> requiredPermissions) {
+            final Collection<ChildOptionI> childOptions, final Set<GraphPolicy.Ability> requiredPermissions) {
 
-        if (childOptions == null || childOptions.length == 0) {
+        if (CollectionUtils.isEmpty(childOptions)) {
             /* there are no adjustments to make to the policy */
             return graphPolicyToAdjust;
         }

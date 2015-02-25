@@ -201,6 +201,7 @@ module omero {
              * specific kinds of children.
              * Only the first applicable option takes effect.
              **/
+            ["java:type:java.util.ArrayList<omero.cmd.graphs.ChildOption>:java.util.List<omero.cmd.graphs.ChildOption>"]
             sequence<ChildOption> ChildOptions;
         };
 
@@ -214,7 +215,7 @@ module omero {
              * The model objects upon which to operate.
              * Related model objects may also be targeted.
              **/
-            omero::api::IdListMap targetObjects;
+            omero::api::StringLongListMap targetObjects;
 
             /**
              * If the request should operate on specific kinds of children.
@@ -255,12 +256,12 @@ module omero {
             /**
              * The model objects that were moved.
              **/
-            omero::api::IdListMap includedObjects;
+            omero::api::StringLongListMap includedObjects;
 
             /**
              * The model objects that were deleted.
              **/
-            omero::api::IdListMap deletedObjects;
+            omero::api::StringLongListMap deletedObjects;
         };
 
         /**
@@ -286,12 +287,12 @@ module omero {
             /**
              * The model objects that were given.
              **/
-            omero::api::IdListMap includedObjects;
+            omero::api::StringLongListMap includedObjects;
 
             /**
              * The model objects that were deleted.
              **/
-            omero::api::IdListMap deletedObjects;
+            omero::api::StringLongListMap deletedObjects;
         };
 
         /**
@@ -308,7 +309,7 @@ module omero {
             /**
              * The model objects that were deleted.
              **/
-            omero::api::IdListMap deletedObjects;
+            omero::api::StringLongListMap deletedObjects;
         };
 
         /**

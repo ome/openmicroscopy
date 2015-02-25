@@ -222,7 +222,7 @@ public class DiskUsageTest extends AbstractServerTest {
     public void teardown() throws Exception {
         if (imageId != null) {
             final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Image", new long[] {imageId});
+            request.targetObjects = ImmutableMap.of("Image", Collections.singletonList(imageId));
             doChange(request);
         }
     }
@@ -291,11 +291,11 @@ public class DiskUsageTest extends AbstractServerTest {
             }
         } finally {
             final Delete2 request = new Delete2();
-            request.targetObjects = ImmutableMap.of("Project", new long[] {projectId});
+            request.targetObjects = ImmutableMap.of("Project", Collections.singletonList(projectId));
 
             final ChildOption option = new ChildOption();
             option.excludeType = Collections.singletonList("Image");
-            request.childOptions = new ChildOption[] {option};
+            request.childOptions = Collections.singletonList(option);
 
             doChange(request);
         }
@@ -341,23 +341,24 @@ public class DiskUsageTest extends AbstractServerTest {
     @Test
     public void testFileAnnotationSize() throws Exception {
         final Random rng = new Random(123456);  // fixed seed for deterministic testing
+        final int annotationCount = 5;
         long totalAnnotationSize = 0;
-        final long[] annotationIds = new long[5];
-        for (int i = 0; i < annotationIds.length; i++) {
+        final List<Long> annotationIds = new ArrayList<Long>(annotationCount);
+        for (int i = 0; i < annotationCount; i++) {
             final long size = rng.nextInt(Integer.MAX_VALUE) + 1L;  // positive
             totalAnnotationSize += size;
-            annotationIds[i] = createFileAnnotation(size);
+            annotationIds.add(createFileAnnotation(size));
         }
 
         final long channelId = queryForId("SELECT id FROM Channel WHERE pixels.id = :id", pixelsId);
         final long instrumentId = queryForId("SELECT instrument.id FROM Image WHERE id = :id", imageId);
         final long objectiveId = queryForId("SELECT id FROM Objective WHERE instrument.id = :id", instrumentId);
 
-        addAnnotation(Image.class, imageId, annotationIds[0]);
-        addAnnotation(Channel.class, channelId, annotationIds[1]);
-        addAnnotation(Instrument.class, instrumentId, annotationIds[2]);
-        addAnnotation(Objective.class, objectiveId, annotationIds[3]);
-        addAnnotation(Annotation.class, annotationIds[3], annotationIds[4]);
+        addAnnotation(Image.class, imageId, annotationIds.get(0));
+        addAnnotation(Channel.class, channelId, annotationIds.get(1));
+        addAnnotation(Instrument.class, instrumentId, annotationIds.get(2));
+        addAnnotation(Objective.class, objectiveId, annotationIds.get(3));
+        addAnnotation(Annotation.class, annotationIds.get(3), annotationIds.get(4));
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
@@ -379,24 +380,25 @@ public class DiskUsageTest extends AbstractServerTest {
     @Test
     public void testDuplicatedFileAnnotationSize() throws Exception {
         final Random rng = new Random(123456);  // fixed seed for deterministic testing
+        final int annotationCount = 3;
         long totalAnnotationSize = 0;
-        final long[] annotationIds = new long[3];
-        for (int i = 0; i < annotationIds.length; i++) {
+        final List<Long> annotationIds = new ArrayList<Long>(annotationCount);
+        for (int i = 0; i < annotationCount; i++) {
             final long size = rng.nextInt(Integer.MAX_VALUE) + 1L;  // positive
             totalAnnotationSize += size;
-            annotationIds[i] = createFileAnnotation(size);
+            annotationIds.add(createFileAnnotation(size));
         }
 
         final long channelId = queryForId("SELECT id FROM Channel WHERE pixels.id = :id", pixelsId);
         final long instrumentId = queryForId("SELECT instrument.id FROM Image WHERE id = :id", imageId);
         final long objectiveId = queryForId("SELECT id FROM Objective WHERE instrument.id = :id", instrumentId);
 
-        addAnnotation(Image.class, imageId, annotationIds[0]);
-        addAnnotation(Channel.class, channelId, annotationIds[1]);
-        addAnnotation(Instrument.class, instrumentId, annotationIds[2]);
-        addAnnotation(Objective.class, objectiveId, annotationIds[0]);
-        addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
-        addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
+        addAnnotation(Image.class, imageId, annotationIds.get(0));
+        addAnnotation(Channel.class, channelId, annotationIds.get(1));
+        addAnnotation(Instrument.class, instrumentId, annotationIds.get(2));
+        addAnnotation(Objective.class, objectiveId, annotationIds.get(0));
+        addAnnotation(Annotation.class, annotationIds.get(0), annotationIds.get(1));
+        addAnnotation(Annotation.class, annotationIds.get(1), annotationIds.get(2));
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
@@ -418,18 +420,19 @@ public class DiskUsageTest extends AbstractServerTest {
     @Test
     public void testCyclicFileAnnotationSize() throws Exception {
         final Random rng = new Random(123456);  // fixed seed for deterministic testing
+        final int annotationCount = 3;
         long totalAnnotationSize = 0;
-        final long[] annotationIds = new long[3];
-        for (int i = 0; i < annotationIds.length; i++) {
+        final List<Long> annotationIds = new ArrayList<Long>(annotationCount);
+        for (int i = 0; i < annotationCount; i++) {
             final long size = rng.nextInt(Integer.MAX_VALUE) + 1L;  // positive
             totalAnnotationSize += size;
-            annotationIds[i] = createFileAnnotation(size);
+            annotationIds.add(createFileAnnotation(size));
         }
 
-        addAnnotation(Image.class, imageId, annotationIds[0]);
-        addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
-        addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
-        addAnnotation(Annotation.class, annotationIds[2], annotationIds[0]);
+        addAnnotation(Image.class, imageId, annotationIds.get(0));
+        addAnnotation(Annotation.class, annotationIds.get(0), annotationIds.get(1));
+        addAnnotation(Annotation.class, annotationIds.get(1), annotationIds.get(2));
+        addAnnotation(Annotation.class, annotationIds.get(2), annotationIds.get(0));
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
@@ -466,26 +469,27 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testCountsWithFileAnnotations() throws Exception {
-        final long[] annotationIds = new long[5];
-        for (int i = 0; i < annotationIds.length; i++) {
-            annotationIds[i] = createFileAnnotation(1);
+        final int annotationCount = 5;
+        final List<Long> annotationIds = new ArrayList<Long>(annotationCount);
+        for (int i = 0; i < annotationCount; i++) {
+            annotationIds.add(createFileAnnotation(1));
         }
 
         final long channelId = queryForId("SELECT id FROM Channel WHERE pixels.id = :id", pixelsId);
         final long instrumentId = queryForId("SELECT instrument.id FROM Image WHERE id = :id", imageId);
         final long objectiveId = queryForId("SELECT id FROM Objective WHERE instrument.id = :id", instrumentId);
 
-        addAnnotation(Image.class, imageId, annotationIds[0]);
-        addAnnotation(Channel.class, channelId, annotationIds[1]);
-        addAnnotation(Instrument.class, instrumentId, annotationIds[2]);
-        addAnnotation(Objective.class, objectiveId, annotationIds[3]);
-        addAnnotation(Annotation.class, annotationIds[3], annotationIds[4]);
+        addAnnotation(Image.class, imageId, annotationIds.get(0));
+        addAnnotation(Channel.class, channelId, annotationIds.get(1));
+        addAnnotation(Instrument.class, instrumentId, annotationIds.get(2));
+        addAnnotation(Objective.class, objectiveId, annotationIds.get(3));
+        addAnnotation(Annotation.class, annotationIds.get(3), annotationIds.get(4));
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.length);
+                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
             final Delete2 request = new Delete2();
@@ -500,27 +504,28 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testCountWithDuplicatedFileAnnotations() throws Exception {
-        final long[] annotationIds = new long[3];
-        for (int i = 0; i < annotationIds.length; i++) {
-            annotationIds[i] = createFileAnnotation(1);
+        final int annotationCount = 3;
+        final List<Long> annotationIds = new ArrayList<Long>(annotationCount);
+        for (int i = 0; i < annotationCount; i++) {
+            annotationIds.add(createFileAnnotation(1));
         }
 
         final long channelId = queryForId("SELECT id FROM Channel WHERE pixels.id = :id", pixelsId);
         final long instrumentId = queryForId("SELECT instrument.id FROM Image WHERE id = :id", imageId);
         final long objectiveId = queryForId("SELECT id FROM Objective WHERE instrument.id = :id", instrumentId);
 
-        addAnnotation(Image.class, imageId, annotationIds[0]);
-        addAnnotation(Channel.class, channelId, annotationIds[1]);
-        addAnnotation(Instrument.class, instrumentId, annotationIds[2]);
-        addAnnotation(Objective.class, objectiveId, annotationIds[0]);
-        addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
-        addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
+        addAnnotation(Image.class, imageId, annotationIds.get(0));
+        addAnnotation(Channel.class, channelId, annotationIds.get(1));
+        addAnnotation(Instrument.class, instrumentId, annotationIds.get(2));
+        addAnnotation(Objective.class, objectiveId, annotationIds.get(0));
+        addAnnotation(Annotation.class, annotationIds.get(0), annotationIds.get(1));
+        addAnnotation(Annotation.class, annotationIds.get(1), annotationIds.get(2));
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.length);
+                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
             final Delete2 request = new Delete2();
@@ -535,21 +540,22 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     @Test
     public void testCountWithCyclicFileAnnotations() throws Exception {
-        final long[] annotationIds = new long[3];
-        for (int i = 0; i < annotationIds.length; i++) {
-            annotationIds[i] = createFileAnnotation(1);
+        final int annotationCount = 3;
+        final List<Long> annotationIds = new ArrayList<Long>(annotationCount);
+        for (int i = 0; i < annotationCount; i++) {
+            annotationIds.add(createFileAnnotation(1));
         }
 
-        addAnnotation(Image.class, imageId, annotationIds[0]);
-        addAnnotation(Annotation.class, annotationIds[0], annotationIds[1]);
-        addAnnotation(Annotation.class, annotationIds[1], annotationIds[2]);
-        addAnnotation(Annotation.class, annotationIds[2], annotationIds[0]);
+        addAnnotation(Image.class, imageId, annotationIds.get(0));
+        addAnnotation(Annotation.class, annotationIds.get(0), annotationIds.get(1));
+        addAnnotation(Annotation.class, annotationIds.get(1), annotationIds.get(2));
+        addAnnotation(Annotation.class, annotationIds.get(2), annotationIds.get(0));
 
         try {
             final DiskUsageResponse response = runDiskUsage(ImmutableMap.of("Image", Collections.singleton(imageId)));
             Assert.assertEquals(response.fileCountByReferer.size(), 1);
             for (final Map<String, Integer> byReferer : response.fileCountByReferer.values()) {
-                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.length);
+                Assert.assertEquals(byReferer.get("Annotation"), (Integer) annotationIds.size());
             }
         } finally {
             final Delete2 request = new Delete2();

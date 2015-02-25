@@ -345,7 +345,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     // Now after we've recursed, do the actual delete.
                     RLong id = (RLong) val.getValue().get("id");
                     final Delete2 del = (Delete2) delFactory.create(null);
-                    del.targetObjects = ImmutableMap.<String, long[]>of("OriginalFile", new long[] {id.getValue()});
+                    del.targetObjects =
+                            ImmutableMap.<String, List<Long>>of("OriginalFile", Collections.singletonList(id.getValue()));
                     commands.add(del);
                 }
             }
