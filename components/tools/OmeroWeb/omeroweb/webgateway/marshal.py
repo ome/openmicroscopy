@@ -134,11 +134,18 @@ def imageMarshal(image, key=None):
 
     # big images
     tiles = image._re.requiresPixelsPyramid()
-    width, height = 256, 256
+    rv['tiles'] = tiles
     if (tiles):
         width, height = image._re.getTileSize()
-    levels = image._re.getResolutionLevels()
-    zoomLevelScaling = image.getZoomLevelScaling()
+        levels = image._re.getResolutionLevels()
+        zoomLevelScaling = image.getZoomLevelScaling()
+
+        rv.update({'tile_size': {'width': width,
+                                 'height': height},
+                   'levels': levels})
+        if zoomLevelScaling is not None:
+            rv['zoomLevelScaling'] = zoomLevelScaling
+
     nominalMagnification = image.getObjectiveSettings() is not None \
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
@@ -152,9 +159,6 @@ def imageMarshal(image, key=None):
     try:
         rv.update({
             'tiles': tiles,
-            'tile_size': {'width': width,
-                          'height': height},
-            'levels': levels,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
                      'z': image.getSizeZ(),
@@ -166,8 +170,6 @@ def imageMarshal(image, key=None):
             })
         if init_zoom is not None:
             rv['init_zoom'] = init_zoom
-        if zoomLevelScaling is not None:
-            rv.update({'zoomLevelScaling': zoomLevelScaling})
         if nominalMagnification is not None:
             rv.update({'nominalMagnification': nominalMagnification})
         try:
