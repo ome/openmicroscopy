@@ -46,7 +46,7 @@ from omero.model.conversions import Sym  # nopep8
 class LengthI(_omero_model.Length, UnitBase):
 
     CONVERSIONS = dict()
-    CONVERSIONS["ANGSTROM:ASTRONMICALUNIT"] = \
+    CONVERSIONS["ANGSTROM:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 12)), Sym("ang"))  # nopep8
     CONVERSIONS["ANGSTROM:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("ang"))  # nopep8
@@ -108,71 +108,71 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Int(1), Pow(10, 11)), Sym("ang"))  # nopep8
     CONVERSIONS["ANGSTROM:ZETTAMETER"] = \
         Mul(Pow(10, 31), Sym("ang"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:ANGSTROM"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:ANGSTROM"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 12))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:ATTOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 20))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:CENTIMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:CENTIMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 4))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:DECAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:DECAMETER"] = \
         Mul(Rat(Int(1), Int("14959787070")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:DECIMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:DECIMETER"] = \
         Mul(Rat(Int(1), Int("1495978707000")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:EXAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:EXAMETER"] = \
         Mul(Rat(Pow(10, 16), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:FEMTOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:FEMTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 17))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:FOOT"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:FOOT"] = \
         Mul(Rat(Int(127), Int("62332446125000")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:GIGAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:GIGAMETER"] = \
         Mul(Rat(Pow(10, 7), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:HECTOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:HECTOMETER"] = \
         Mul(Rat(Int(1), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:INCH"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:INCH"] = \
         Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 5))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:KILOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:KILOMETER"] = \
         Mul(Rat(Int(10), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:LIGHTYEAR"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:LIGHTYEAR"] = \
         Mul(Rat(Int("431996825232"), Int(6830953)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:LINE"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:LINE"] = \
         Mul(Rat(Int(127), Mul(Int("8975872242"), Pow(10, 6))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:MEGAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:MEGAMETER"] = \
         Mul(Rat(Pow(10, 4), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:METER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:METER"] = \
         Mul(Rat(Int(1), Int("149597870700")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:MICROMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:MICROMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 8))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:MILE"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:MILE"] = \
         Mul(Rat(Int(16764), Int("1558311153125")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:MILLIMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:MILLIMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 5))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:NANOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:NANOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 11))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:PARSEC"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:PARSEC"] = \
         Mul(Rat(Mul(Int(10285592), Pow(10, 7)), Int(498659569)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:PETAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:PETAMETER"] = \
         Mul(Rat(Pow(10, 13), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:PICOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:PICOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 14))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:POINT"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:POINT"] = \
         Mul(Rat(Int(127), Mul(Int("53855233452"), Pow(10, 6))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:TERAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:TERAMETER"] = \
         Mul(Rat(Pow(10, 10), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:THOU"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:THOU"] = \
         Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 8))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:YARD"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:YARD"] = \
         Mul(Rat(Int(381), Int("62332446125000")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:YOCTOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:YOCTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 26))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:YOTTAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:YOTTAMETER"] = \
         Mul(Rat(Pow(10, 22), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:ZEPTOMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:ZEPTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 23))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONMICALUNIT:ZETTAMETER"] = \
+    CONVERSIONS["ASTRONOMICALUNIT:ZETTAMETER"] = \
         Mul(Rat(Pow(10, 19), Int(1495978707)), Sym("ua"))  # nopep8
     CONVERSIONS["ATTOMETER:ANGSTROM"] = \
         Mul(Pow(10, 8), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["ATTOMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 20)), Sym("attom"))  # nopep8
     CONVERSIONS["ATTOMETER:CENTIMETER"] = \
         Mul(Pow(10, 16), Sym("attom"))  # nopep8
@@ -234,7 +234,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 39), Sym("attom"))  # nopep8
     CONVERSIONS["CENTIMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["CENTIMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 4)), Sym("centim"))  # nopep8
     CONVERSIONS["CENTIMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("centim"))  # nopep8
@@ -296,7 +296,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 23), Sym("centim"))  # nopep8
     CONVERSIONS["DECAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["DECAMETER:ASTRONOMICALUNIT"] = \
         Mul(Int("14959787070"), Sym("decam"))  # nopep8
     CONVERSIONS["DECAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("decam"))  # nopep8
@@ -358,7 +358,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 20), Sym("decam"))  # nopep8
     CONVERSIONS["DECIMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["DECIMETER:ASTRONOMICALUNIT"] = \
         Mul(Int("1495978707000"), Sym("decim"))  # nopep8
     CONVERSIONS["DECIMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("decim"))  # nopep8
@@ -420,7 +420,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 22), Sym("decim"))  # nopep8
     CONVERSIONS["EXAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 28)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["EXAMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Pow(10, 16)), Sym("exam"))  # nopep8
     CONVERSIONS["EXAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("exam"))  # nopep8
@@ -482,7 +482,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Int(1000), Sym("exam"))  # nopep8
     CONVERSIONS["FEMTOMETER:ANGSTROM"] = \
         Mul(Pow(10, 5), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["FEMTOMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 17)), Sym("femtom"))  # nopep8
     CONVERSIONS["FEMTOMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Int(1000)), Sym("femtom"))  # nopep8
@@ -544,7 +544,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 36), Sym("femtom"))  # nopep8
     CONVERSIONS["FOOT:ANGSTROM"] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 6))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:ASTRONMICALUNIT"] = \
+    CONVERSIONS["FOOT:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int("62332446125000"), Int(127)), Sym("ft"))  # nopep8
     CONVERSIONS["FOOT:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 14))), Sym("ft"))  # nopep8
@@ -606,7 +606,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(381)), Sym("ft"))  # nopep8
     CONVERSIONS["GIGAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["GIGAMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Pow(10, 7)), Sym("gigam"))  # nopep8
     CONVERSIONS["GIGAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("gigam"))  # nopep8
@@ -668,7 +668,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 12), Sym("gigam"))  # nopep8
     CONVERSIONS["HECTOMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["HECTOMETER:ASTRONOMICALUNIT"] = \
         Mul(Int(1495978707), Sym("hectom"))  # nopep8
     CONVERSIONS["HECTOMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("hectom"))  # nopep8
@@ -730,7 +730,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 19), Sym("hectom"))  # nopep8
     CONVERSIONS["INCH:ANGSTROM"] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 6))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:ASTRONMICALUNIT"] = \
+    CONVERSIONS["INCH:ASTRONOMICALUNIT"] = \
         Mul(Rat(Mul(Int("7479893535"), Pow(10, 5)), Int(127)), Sym("in"))  # nopep8
     CONVERSIONS["INCH:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("in"))  # nopep8
@@ -792,7 +792,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("in"))  # nopep8
     CONVERSIONS["KILOMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["KILOMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Int(10)), Sym("kilom"))  # nopep8
     CONVERSIONS["KILOMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("kilom"))  # nopep8
@@ -854,7 +854,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 18), Sym("kilom"))  # nopep8
     CONVERSIONS["LIGHTYEAR:ANGSTROM"] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 12))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:ASTRONMICALUNIT"] = \
+    CONVERSIONS["LIGHTYEAR:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(6830953), Int("431996825232")), Sym("ly"))  # nopep8
     CONVERSIONS["LIGHTYEAR:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 20))), Sym("ly"))  # nopep8
@@ -916,7 +916,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(625), Pow(10, 15)), Int("5912956545363")), Sym("ly"))  # nopep8
     CONVERSIONS["LINE:ANGSTROM"] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 5))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:ASTRONMICALUNIT"] = \
+    CONVERSIONS["LINE:ASTRONOMICALUNIT"] = \
         Mul(Rat(Mul(Int("8975872242"), Pow(10, 6)), Int(127)), Sym("li"))  # nopep8
     CONVERSIONS["LINE:ATTOMETER"] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 13))), Sym("li"))  # nopep8
@@ -978,7 +978,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(6), Pow(10, 25)), Int(127)), Sym("li"))  # nopep8
     CONVERSIONS["MEGAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["MEGAMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Pow(10, 4)), Sym("megam"))  # nopep8
     CONVERSIONS["MEGAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("megam"))  # nopep8
@@ -1040,7 +1040,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 15), Sym("megam"))  # nopep8
     CONVERSIONS["METER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["METER:ASTRONOMICALUNIT"] = \
         Mul(Int("149597870700"), Sym("m"))  # nopep8
     CONVERSIONS["METER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("m"))  # nopep8
@@ -1102,7 +1102,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 21), Sym("m"))  # nopep8
     CONVERSIONS["MICROMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["MICROMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 8)), Sym("microm"))  # nopep8
     CONVERSIONS["MICROMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("microm"))  # nopep8
@@ -1164,7 +1164,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 27), Sym("microm"))  # nopep8
     CONVERSIONS["MILE:ANGSTROM"] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 7))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:ASTRONMICALUNIT"] = \
+    CONVERSIONS["MILE:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int("1558311153125"), Int(16764)), Sym("mi"))  # nopep8
     CONVERSIONS["MILE:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 15))), Sym("mi"))  # nopep8
@@ -1226,7 +1226,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(78125), Pow(10, 17)), Int(12573)), Sym("mi"))  # nopep8
     CONVERSIONS["MILLIMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["MILLIMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 5)), Sym("millim"))  # nopep8
     CONVERSIONS["MILLIMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("millim"))  # nopep8
@@ -1288,7 +1288,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 24), Sym("millim"))  # nopep8
     CONVERSIONS["NANOMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Int(10)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["NANOMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 11)), Sym("nanom"))  # nopep8
     CONVERSIONS["NANOMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("nanom"))  # nopep8
@@ -1350,7 +1350,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 30), Sym("nanom"))  # nopep8
     CONVERSIONS["PARSEC:ANGSTROM"] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 19))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:ASTRONMICALUNIT"] = \
+    CONVERSIONS["PARSEC:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(498659569), Mul(Int(10285592), Pow(10, 7))), Sym("pc"))  # nopep8
     CONVERSIONS["PARSEC:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 27))), Sym("pc"))  # nopep8
@@ -1412,7 +1412,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(125), Pow(10, 9)), Int(3857097)), Sym("pc"))  # nopep8
     CONVERSIONS["PETAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["PETAMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Pow(10, 13)), Sym("petam"))  # nopep8
     CONVERSIONS["PETAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("petam"))  # nopep8
@@ -1474,7 +1474,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 6), Sym("petam"))  # nopep8
     CONVERSIONS["PICOMETER:ANGSTROM"] = \
         Mul(Int(100), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["PICOMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 14)), Sym("picom"))  # nopep8
     CONVERSIONS["PICOMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("picom"))  # nopep8
@@ -1536,7 +1536,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 33), Sym("picom"))  # nopep8
     CONVERSIONS["POINT:ANGSTROM"] = \
         Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 4))), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:ASTRONMICALUNIT"] = \
+    CONVERSIONS["POINT:ASTRONOMICALUNIT"] = \
         Mul(Rat(Mul(Int("53855233452"), Pow(10, 6)), Int(127)), Sym("pt"))  # nopep8
     CONVERSIONS["POINT:ATTOMETER"] = \
         Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 12))), Sym("pt"))  # nopep8
@@ -1598,7 +1598,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(36), Pow(10, 25)), Int(127)), Sym("pt"))  # nopep8
     CONVERSIONS["TERAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["TERAMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Pow(10, 10)), Sym("teram"))  # nopep8
     CONVERSIONS["TERAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("teram"))  # nopep8
@@ -1660,7 +1660,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 9), Sym("teram"))  # nopep8
     CONVERSIONS["THOU:ANGSTROM"] = \
         Mul(Rat(Int(1), Int(254000)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:ASTRONMICALUNIT"] = \
+    CONVERSIONS["THOU:ASTRONOMICALUNIT"] = \
         Mul(Rat(Mul(Int("7479893535"), Pow(10, 8)), Int(127)), Sym("thou"))  # nopep8
     CONVERSIONS["THOU:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("thou"))  # nopep8
@@ -1722,7 +1722,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("thou"))  # nopep8
     CONVERSIONS["YARD:ANGSTROM"] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 6))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:ASTRONMICALUNIT"] = \
+    CONVERSIONS["YARD:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int("62332446125000"), Int(381)), Sym("yd"))  # nopep8
     CONVERSIONS["YARD:ATTOMETER"] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 14))), Sym("yd"))  # nopep8
@@ -1784,7 +1784,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(1143)), Sym("yd"))  # nopep8
     CONVERSIONS["YOCTOMETER:ANGSTROM"] = \
         Mul(Pow(10, 14), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["YOCTOMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 26)), Sym("yoctom"))  # nopep8
     CONVERSIONS["YOCTOMETER:ATTOMETER"] = \
         Mul(Pow(10, 6), Sym("yoctom"))  # nopep8
@@ -1846,7 +1846,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 45), Sym("yoctom"))  # nopep8
     CONVERSIONS["YOTTAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 34)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["YOTTAMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Pow(10, 22)), Sym("yottam"))  # nopep8
     CONVERSIONS["YOTTAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("yottam"))  # nopep8
@@ -1908,7 +1908,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Rat(Int(1), Int(1000)), Sym("yottam"))  # nopep8
     CONVERSIONS["ZEPTOMETER:ANGSTROM"] = \
         Mul(Pow(10, 11), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["ZEPTOMETER:ASTRONOMICALUNIT"] = \
         Mul(Mul(Int(1495978707), Pow(10, 23)), Sym("zeptom"))  # nopep8
     CONVERSIONS["ZEPTOMETER:ATTOMETER"] = \
         Mul(Int(1000), Sym("zeptom"))  # nopep8
@@ -1970,7 +1970,7 @@ class LengthI(_omero_model.Length, UnitBase):
         Mul(Pow(10, 42), Sym("zeptom"))  # nopep8
     CONVERSIONS["ZETTAMETER:ANGSTROM"] = \
         Mul(Rat(Int(1), Pow(10, 31)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:ASTRONMICALUNIT"] = \
+    CONVERSIONS["ZETTAMETER:ASTRONOMICALUNIT"] = \
         Mul(Rat(Int(1495978707), Pow(10, 19)), Sym("zettam"))  # nopep8
     CONVERSIONS["ZETTAMETER:ATTOMETER"] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("zettam"))  # nopep8
