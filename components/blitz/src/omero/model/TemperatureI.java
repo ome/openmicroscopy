@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
@@ -55,22 +56,28 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, Conversion> conversions;
+    private static final Map<UnitsTemperature, Map<UnitsTemperature, Conversion>> conversions;
     static {
-        Map<String, Conversion> c = new HashMap<String, Conversion>();
 
-        c.put("CELSIUS:FAHRENHEIT", Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32)));
-        c.put("CELSIUS:KELVIN", Add(Sym("c"), Rat(Int(5463), Int(20))));
-        c.put("CELSIUS:RANKINE", Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100))));
-        c.put("FAHRENHEIT:CELSIUS", Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9))));
-        c.put("FAHRENHEIT:KELVIN", Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180))));
-        c.put("FAHRENHEIT:RANKINE", Add(Sym("f"), Rat(Int(45967), Int(100))));
-        c.put("KELVIN:CELSIUS", Add(Sym("k"), Rat(Int(-5463), Int(20))));
-        c.put("KELVIN:FAHRENHEIT", Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100))));
-        c.put("KELVIN:RANKINE", Mul(Rat(Int(9), Int(5)), Sym("k")));
-        c.put("RANKINE:CELSIUS", Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20))));
-        c.put("RANKINE:FAHRENHEIT", Add(Sym("r"), Rat(Int(-45967), Int(100))));
-        c.put("RANKINE:KELVIN", Mul(Rat(Int(5), Int(9)), Sym("r")));
+        EnumMap<UnitsTemperature, EnumMap<UnitsTemperature, Conversion>> c
+            = new EnumMap<UnitsTemperature, EnumMap<UnitsTemperature, Conversion>>(UnitsTemperature.class);
+
+        for (UnitsTemperature e : UnitsTemperature.values()) {
+            c.put(e, new EnumMap<UnitsTemperature, Conversion>(UnitsTemperature.class));
+        }
+
+        c.get(UnitsTemperature.CELSIUS).put(UnitsTemperature.FAHRENHEIT, Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32)));
+        c.get(UnitsTemperature.CELSIUS).put(UnitsTemperature.KELVIN, Add(Sym("c"), Rat(Int(5463), Int(20))));
+        c.get(UnitsTemperature.CELSIUS).put(UnitsTemperature.RANKINE, Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100))));
+        c.get(UnitsTemperature.FAHRENHEIT).put(UnitsTemperature.CELSIUS, Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9))));
+        c.get(UnitsTemperature.FAHRENHEIT).put(UnitsTemperature.KELVIN, Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180))));
+        c.get(UnitsTemperature.FAHRENHEIT).put(UnitsTemperature.RANKINE, Add(Sym("f"), Rat(Int(45967), Int(100))));
+        c.get(UnitsTemperature.KELVIN).put(UnitsTemperature.CELSIUS, Add(Sym("k"), Rat(Int(-5463), Int(20))));
+        c.get(UnitsTemperature.KELVIN).put(UnitsTemperature.FAHRENHEIT, Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100))));
+        c.get(UnitsTemperature.KELVIN).put(UnitsTemperature.RANKINE, Mul(Rat(Int(9), Int(5)), Sym("k")));
+        c.get(UnitsTemperature.RANKINE).put(UnitsTemperature.CELSIUS, Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20))));
+        c.get(UnitsTemperature.RANKINE).put(UnitsTemperature.FAHRENHEIT, Add(Sym("r"), Rat(Int(-45967), Int(100))));
+        c.get(UnitsTemperature.RANKINE).put(UnitsTemperature.KELVIN, Mul(Rat(Int(5), Int(9)), Sym("r")));
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -201,7 +208,8 @@ public class TemperatureI extends Temperature implements ModelBased {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            Conversion conversion = conversions.get(source + ":" + target);
+            UnitsTemperature targetUnit = UnitsTemperature.valueOf(target);
+            Conversion conversion = conversions.get(value.getUnit()).get(targetUnit);
             if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
@@ -217,7 +225,7 @@ public class TemperatureI extends Temperature implements ModelBased {
             }
 
             setValue(converted);
-            setUnit(UnitsTemperature.valueOf(target));
+            setUnit(targetUnit);
        }
     }
 
