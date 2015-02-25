@@ -881,6 +881,7 @@ Examples:
             row.extend(subtotals[key])
             tb.row(*tuple(row))
 
+        tb.sort(col=0)
         self.ctx.out(str(tb.build()))
 
 try:
