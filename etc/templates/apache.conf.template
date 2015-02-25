@@ -69,5 +69,10 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s -idle-timeo
     Allow from all
 </Directory>
 
+<Location %(WEB_PREFIX)s/>
+    ErrorDocument 502 %(WEB_PREFIX)s/error/502.html
+</Location>
+
+Alias %(WEB_PREFIX)s/error %(ROOT)s/etc/templates/error
 Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
 Alias %(FORCE_SCRIPT_NAME)s "%(ROOT)s/var/omero.fcgi/"

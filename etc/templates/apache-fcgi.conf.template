@@ -68,6 +68,11 @@ RewriteEngine on
     Require all granted
 </Location>
 
+<Location %(WEB_PREFIX)s/>
+    ErrorDocument 502 %(WEB_PREFIX)s/error/502.html
+</Location>
+
+Alias %(WEB_PREFIX)s/error %(ROOT)s/etc/templates/error
 Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
 
 RewriteCond %%{REQUEST_URI} !^(%(STATIC_URL)s|/\.fcgi)
