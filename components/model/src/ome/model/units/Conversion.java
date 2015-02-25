@@ -161,6 +161,10 @@ public abstract class Conversion {
             this.i = 0;
         }
 
+        /**
+         * Returns a {@link BigDecimal} representation of this int.
+         * Original argument is ignored.
+         */
         public BigDecimal convert(double original) {
             if (s == null) {
                 return new BigDecimal(i);
@@ -230,7 +234,8 @@ public abstract class Conversion {
             this.num = 0;
             this.denom = 0;
             if (conversions.length != 2) {
-                throw new IllegalArgumentException("Too man conversions: " +
+                throw new IllegalArgumentException(
+                    "Too many conversions: " +
                     conversions.length);
             }
             this.delay = true;

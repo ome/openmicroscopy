@@ -31,8 +31,8 @@ class Conversion(object):
     classes and static methods are used via code-generation. Sympy-generated
     strings are placed directly into code. If the proper imports are in place,
     then a top-level Conversion (usually of type Add or
-    Mul is returned from the evaluation.
-    """
+    Mul is returned from the evaluation).
+    """)
 
     def __init__(self, *conversions):
         self.conversions = conversions

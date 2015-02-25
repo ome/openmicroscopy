@@ -78,7 +78,7 @@ class TestConversions(object):
     def testDelayedRat(self):
         r = Rat(Int(1), Int(3))
         x = r(-1)  # -1 is ignored
-        self.assertEquals(0.33333333, x)
+        self.assertEquals(0.333333, x)
 
     def testSimpleSym(self):
         s = Sym("s")

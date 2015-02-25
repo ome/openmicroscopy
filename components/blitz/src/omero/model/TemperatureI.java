@@ -242,8 +242,7 @@ public class TemperatureI extends Temperature implements ModelBased {
             double orig = value.getValue();
             BigDecimal big = conversion.convert(orig);
             double converted = big.doubleValue();
-            if (converted == Double.NEGATIVE_INFINITY ||
-                    converted == Double.POSITIVE_INFINITY) {
+            if (Double.isInfinite(converted)) {
                 throw new BigResult(big,
                         "Failed to convert " + source + ":" + target);
             }
