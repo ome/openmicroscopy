@@ -192,6 +192,20 @@ class TableBuilder(object):
                 if self.results[idx][-1] is None:
                     self.results[idx][-1] = ""
 
+    def sort(self, col=0):
+        """
+        Sort the results on a given column by transposing,
+        sorting and then transposing.
+        """
+        if col+1 > len(self.headers):
+            raise ValueError("Column mismatch: %s of %s" %
+                             (col, len(self.headers)))
+
+        from operator import itemgetter
+        tr = zip(*self.results)
+        tr.sort(key=itemgetter(col))
+        self.results = zip(*tr)
+
     def build(self):
         columns = []
         for i, x in enumerate(self.headers):
