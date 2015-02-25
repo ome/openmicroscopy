@@ -24,12 +24,12 @@ Simple tests of the new conversions used for units.
 """
 
 from pytest import assertAlmostEqual
-from omero.model.conversions import Add
-from omero.model.conversions import Int
-from omero.model.conversions import Mul
-from omero.model.conversions import Pow
-from omero.model.conversions import Rat
-from omero.model.conversions import Sym
+from omero.conversions import Add
+from omero.conversions import Int
+from omero.conversions import Mul
+from omero.conversions import Pow
+from omero.conversions import Rat
+from omero.conversions import Sym
 
 
 class TestConversions(object):
