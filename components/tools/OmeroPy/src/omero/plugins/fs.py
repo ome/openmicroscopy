@@ -732,7 +732,7 @@ Examples:
                 args.obj.append(
                     "ExperimenterGroup:%s" % ",".join(map(str, gids)))
 
-        req.objects = self._usage_obj(args.obj)
+        req.objects, req.classes = self._usage_obj(args.obj)
         cb = None
         try:
             rsp, status, cb = self.response(client, req, wait=args.wait)
@@ -744,21 +744,25 @@ Examples:
     def _usage_obj(self, obj):
         """
         Take the positional arguments and marshal them into
-        a dictionary for the command argument.
+        a dictionary and a list for the command argument.
         """
         objects = {}
+        classes = set()
         for o in obj:
             try:
                 parts = o.split(":", 1)
                 assert len(parts) == 2
-                type = parts[0]
-                ids = parts[1].split(",")
-                ids = map(long, ids)
-                objects[type] = ids
+                klass = parts[0]
+                if '*' in parts[1]:
+                    classes.add(klass)
+                else:
+                    ids = parts[1].split(",")
+                    ids = map(long, ids)
+                    objects[klass] = ids
             except:
                 raise ValueError("Bad object: ", o)
 
-        return objects
+        return (objects, list(classes))
 
     def _to_units(self, size, units):
         """
