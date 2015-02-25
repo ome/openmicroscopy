@@ -36,12 +36,13 @@
 {% endblock %}
 
 
-<!-- Moved to higher folder so global styles are applied to everything in the interface
-
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" media="screen"/>
-
--->
-
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.toolbar.css" %}" type="text/css" media="screen"/>
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar_ie.css" %}" />
+	<![endif]-->
+{% endblock %}
 
 {% block script %}
 

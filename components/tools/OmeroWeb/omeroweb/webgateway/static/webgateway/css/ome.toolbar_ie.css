@@ -1,0 +1,75 @@
+
+
+
+    /* Left Panel - Toolbar */
+    
+    
+    .toolbar {
+        border-bottom: solid 1px #CFDAE6;
+		border-right:solid 1px #C3CED9;
+        overflow:hidden;
+		position:relative;
+    }
+	
+            .toolbar input.button, .toolbar button.button {
+                background-color: transparent;
+            }
+        
+            .toolbar input.button:hover, .toolbar button.button:hover {
+				background: #F8F9FA; 
+            }
+			
+            .toolbar input.button:active, .toolbar input.button:focus, .toolbar button.button:active, .toolbar button.button:focus {
+               	background: #E1E5E8;
+            }
+			
+        
+		
+            .toolbar input.button-disabled, .toolbar button.button-disabled {
+				-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=25)";
+                cursor:default !important;
+				-pie-png-fix: true;
+            }
+        
+        
+            .toolbar input.button-disabled:hover, .toolbar button.button-disabled:hover {
+                filter: alpha(opacity=20);
+                background:none;
+                cursor:default !important;
+            }
+			
+            .toolbar input.button-disabled:active, .toolbar input.button-disabled:focus, .toolbar button.button-disabled:active, .toolbar button.button-disabled:focus {
+				
+				-webkit-box-shadow:none; /* Saf3.0+, Chrome */
+				   -moz-box-shadow:none; /* FF3.5+ */
+				        box-shadow:none; /* Opera 10.5, IE 9.0 */
+				
+				background:none;
+				border-top:solid 1px transparent;
+            }
+			
+        
+            .seperator, .seperator2 {
+                border:solid 1px transparent;
+            }
+        
+            .seperator:before, .seperator2:before {
+                content:'';
+                width:1px;
+                height: 8px;
+                position:absolute;
+                left:5px;
+                top:9px;
+            }
+			
+			.seperator:before {
+				border-right:solid 1px white;
+				background:#B8C2CC;
+			}
+        
+		
+			.seperator2:before {
+				border-right:solid 1px rgba(255,255,255,.5);
+				background:#A1AAB3;
+			}
+

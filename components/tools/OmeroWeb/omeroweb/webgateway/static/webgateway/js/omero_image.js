@@ -193,20 +193,20 @@
     window.updateUndoRedo = function(viewport) {
         // update disabled status of undo/redo buttons
         if (viewport.has_channels_undo()) {
-            $('#rdef-undo-btn').prop('disabled', false);
+            $('#rdef-undo-btn').removeAttr('disabled').removeClass("button-disabled");
         } else {
-            $('#rdef-undo-btn').prop('disabled', true);
+            $('#rdef-undo-btn').attr("disabled", "disabled").addClass("button-disabled");
         }
         if (viewport.has_channels_redo()) {
-            $('#rdef-redo-btn').prop('disabled', false);
+            $('#rdef-redo-btn').removeAttr('disabled').removeClass("button-disabled");
         } else {
-            $('#rdef-redo-btn').prop('disabled', true);
+            $('#rdef-redo-btn').attr("disabled", "disabled").addClass("button-disabled");
         }
         var canSaveRdef = viewport.loadedImg.perms.canAnnotate;
         if (viewport.getSaved() || !canSaveRdef) {
-            $("#rdef-setdef-btn").prop('disabled', true);
+            $("#rdef-setdef-btn").attr("disabled", "disabled").addClass("button-disabled");
         } else {
-            $("#rdef-setdef-btn").prop('disabled', false);
+            $("#rdef-setdef-btn").removeAttr('disabled').removeClass("button-disabled");
         }
     };
 

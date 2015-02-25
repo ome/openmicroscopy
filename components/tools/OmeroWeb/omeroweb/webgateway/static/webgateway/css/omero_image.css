@@ -323,25 +323,6 @@ button.pressed {
   margin: 0px;
 }
 
-.postit .buttonbar {
-  list-style: none;
-}
-
-.postit .buttonbar input.button{
-  padding: 6px 5px;
-}
-
-.postit .buttonbar li {
-  float: left;
-  position: relative;
-  height: 26px;
-}
-
-.buttonbar input.button-disabled {
-opacity: 0.3;
-background: none;
-cursor: default !important;
-}
 
 #metadata-postit { 
   width: 400px;
