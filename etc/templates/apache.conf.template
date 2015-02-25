@@ -69,6 +69,12 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s -idle-timeo
     Allow from all
 </Directory>
 
+<Directory "%(ROOT)s/etc/templates/error">
+    Options -Indexes FollowSymLinks
+    Order allow,deny
+    Allow from all
+</Directory>
+
 <Location %(WEB_PREFIX)s/>
     ErrorDocument 500 %(WEB_PREFIX)s/error/502.html
 </Location>
