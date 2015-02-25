@@ -20,6 +20,7 @@
 package integration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -87,18 +88,13 @@ public class DiskUsageTest extends AbstractServerTest {
     private Long thumbnailSize;
 
     /**
-     * Convert a Collection<Long> to a long[].
+     * Convert a {@code Collection<Long>} to a {@code List<Long>}.
      */
-    private static Function<Collection<Long>, long[]> LONG_COLLECTION_TO_ARRAY =
-            new Function<Collection<Long>, long[]>() {
+    private static Function<Collection<Long>, List<Long>> LONG_COLLECTION_TO_LIST =
+            new Function<Collection<Long>, List<Long>>() {
         @Override
-        public long[] apply(Collection<Long> ids) {
-            final long[] array = new long[ids.size()];
-            int index = 0;
-            for (final Long id : ids) {
-                array[index++] = id;
-            }
-            return array;
+        public List<Long> apply(Collection<Long> ids) {
+            return new ArrayList<Long>(ids);
         }
     };
 
@@ -110,7 +106,7 @@ public class DiskUsageTest extends AbstractServerTest {
      */
     private DiskUsageResponse runDiskUsage(Map<java.lang.String, ? extends Collection<Long>> objects) throws Exception {
         final DiskUsage request = new DiskUsage();
-        request.objects = Maps.transformValues(objects, LONG_COLLECTION_TO_ARRAY);
+        request.objects = Maps.transformValues(objects, LONG_COLLECTION_TO_LIST);
         return (DiskUsageResponse) doChange(request);
     }
 

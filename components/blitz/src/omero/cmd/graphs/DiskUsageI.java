@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@ package omero.cmd.graphs;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +64,7 @@ import omero.model.OriginalFile;
  */
 @SuppressWarnings("serial")
 public class DiskUsageI extends DiskUsage implements IRequest {
-    /* TODO: This class can be substantially refactored and simplified once the graph traversal reimplementation is merged. */
+    /* TODO: This class can be substantially refactored and simplified by using the graph traversal reimplementation. */
 
     /* FIELDS AND CONSTRUCTORS */
 
@@ -444,8 +442,18 @@ public class DiskUsageI extends DiskUsage implements IRequest {
 
         /* note the objects to process */
 
-        for (final Map.Entry<String, long[]> objectList : objects.entrySet()) {
-            objectsToProcess.putAll(objectList.getKey(), Arrays.asList(ArrayUtils.toObject(objectList.getValue())));
+        for (final String className : classes) {
+            final String hql = "SELECT id FROM " + className;
+            for (final Object[] resultRow : queryService.projection(hql, null)) {
+                if (resultRow != null) {
+                    final Long objectId = (Long) resultRow[0];
+                    objectsToProcess.put(className, objectId);
+                }
+            }
+        }
+
+        for (final Map.Entry<String, List<Long>> objectList : objects.entrySet()) {
+            objectsToProcess.putAll(objectList.getKey(), objectList.getValue());
 
             if (LOGGER.isDebugEnabled()) {
                 final List<Long> ids = Lists.newArrayList(objectsToProcess.get(objectList.getKey()));
