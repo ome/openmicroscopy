@@ -45,1114 +45,1123 @@ from omero.model.conversions import Sym  # nopep8
 
 class TimeI(_omero_model.Time, UnitBase):
 
+    try:
+        UNIT_VALUES = sorted(UnitsTime._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UNIT_VALUES = [x for x in sorted(UnitsTime._names)]
+        UNIT_VALUES = [getattr(UnitsTime, x) for x in UNIT_VALUES]
     CONVERSIONS = dict()
-    CONVERSIONS["ATTOSECOND:CENTISECOND"] = \
+    for val in UNIT_VALUES:
+        CONVERSIONS[val] = dict()
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Pow(10, 16), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 20)), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 19), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.DECISECOND] = \
         Mul(Pow(10, 17), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 36), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Int(1000), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 27), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 20), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 20)), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 21), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 24), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Pow(10, 12), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Pow(10, 15), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 19)), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.NANOSECOND] = \
         Mul(Pow(10, 9), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 33), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.PICOSECOND] = \
         Mul(Pow(10, 6), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.SECOND] = \
         Mul(Pow(10, 18), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 30), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 42), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("attos"))  # nopep8
-    CONVERSIONS["ATTOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.ATTOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 39), Sym("attos"))  # nopep8
-    CONVERSIONS["CENTISECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 4)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.DECASECOND] = \
         Mul(Int(1000), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.DECISECOND] = \
         Mul(Int(10), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 20), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 11), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 4), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 4)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 5), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 8), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Int(10)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.MINUTE] = \
         Mul(Int(6000), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 17), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.SECOND] = \
         Mul(Int(100), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 14), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 26), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("centis"))  # nopep8
-    CONVERSIONS["CENTISECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.CENTISECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 23), Sym("centis"))  # nopep8
-    CONVERSIONS["DAY:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 20))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 4))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Int(8640)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Int(864000)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.EXASECOND] = \
         Mul(Rat(Mul(Int(3125), Pow(10, 11)), Int(27)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 17))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.GIGASECOND] = \
         Mul(Rat(Int(312500), Int(27)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Int(864)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:HOUR"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.HOUR] = \
         Mul(Rat(Int(1), Int(24)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(5), Int(432)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(625), Int(54)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 8))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 5))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:MINUTE"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.MINUTE] = \
         Mul(Rat(Int(1), Int(1440)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 11))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.PETASECOND] = \
         Mul(Rat(Mul(Int(3125), Pow(10, 8)), Int(27)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 14))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:SECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Int(86400)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.TERASECOND] = \
         Mul(Rat(Mul(Int(3125), Pow(10, 5)), Int(27)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 26))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.YOTTASECOND] = \
         Mul(Rat(Mul(Int(3125), Pow(10, 17)), Int(27)), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(864), Pow(10, 23))), Sym("d"))  # nopep8
-    CONVERSIONS["DAY:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.DAY][UnitsTime.ZETTASECOND] = \
         Mul(Rat(Mul(Int(3125), Pow(10, 14)), Int(27)), Sym("d"))  # nopep8
-    CONVERSIONS["DECASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.DAY] = \
         Mul(Int(8640), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Int(100)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 17), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 8), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Int(10), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.HOUR] = \
         Mul(Int(360), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.KILOSECOND] = \
         Mul(Int(100), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 5), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.MINUTE] = \
         Mul(Int(6), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 14), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Int(10)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 11), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 23), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("decas"))  # nopep8
-    CONVERSIONS["DECASECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.DECASECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 20), Sym("decas"))  # nopep8
-    CONVERSIONS["DECISECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Int(10)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.DAY] = \
         Mul(Int(864000), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.DECASECOND] = \
         Mul(Int(100), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 19), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 10), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.HECTOSECOND] = \
         Mul(Int(1000), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.HOUR] = \
         Mul(Int(36000), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 4), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 7), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Int(100)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.MINUTE] = \
         Mul(Int(600), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 16), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.SECOND] = \
         Mul(Int(10), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 13), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 25), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("decis"))  # nopep8
-    CONVERSIONS["DECISECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.DECISECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 22), Sym("decis"))  # nopep8
-    CONVERSIONS["EXASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 11))), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.GIGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(9), Mul(Int(25), Pow(10, 14))), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Mul(Int(5), Pow(10, 16))), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.PETASECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.TERASECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 6), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("exas"))  # nopep8
-    CONVERSIONS["EXASECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.EXASECOND][UnitsTime.ZETTASECOND] = \
         Mul(Int(1000), Sym("exas"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Pow(10, 13), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 17)), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 16), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.DECISECOND] = \
         Mul(Pow(10, 14), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 33), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 24), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 17), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 17)), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 18), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 21), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Pow(10, 9), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Pow(10, 12), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 16)), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.NANOSECOND] = \
         Mul(Pow(10, 6), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 30), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.PICOSECOND] = \
         Mul(Int(1000), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.SECOND] = \
         Mul(Pow(10, 15), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 27), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 39), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("femtos"))  # nopep8
-    CONVERSIONS["FEMTOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.FEMTOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 36), Sym("femtos"))  # nopep8
-    CONVERSIONS["GIGASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(27), Int(312500)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 9), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(9), Mul(Int(25), Pow(10, 5))), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Mul(Int(5), Pow(10, 7))), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 6), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.TERASECOND] = \
         Mul(Int(1000), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 15), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("gigas"))  # nopep8
-    CONVERSIONS["GIGASECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.GIGASECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 12), Sym("gigas"))  # nopep8
-    CONVERSIONS["HECTOSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.DAY] = \
         Mul(Int(864), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Int(10)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 16), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 7), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.HOUR] = \
         Mul(Int(36), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.KILOSECOND] = \
         Mul(Int(10), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 4), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Int(5)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 13), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Int(100)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 10), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 22), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("hectos"))  # nopep8
-    CONVERSIONS["HECTOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.HECTOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 19), Sym("hectos"))  # nopep8
-    CONVERSIONS["HOUR:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 20))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 4))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:DAY"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.DAY] = \
         Mul(Int(24), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Int(360)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Int(36000)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.EXASECOND] = \
         Mul(Rat(Mul(Int(25), Pow(10, 14)), Int(9)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 17))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.GIGASECOND] = \
         Mul(Rat(Mul(Int(25), Pow(10, 5)), Int(9)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Int(36)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(5), Int(18)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(2500), Int(9)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 8))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 5))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:MINUTE"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.MINUTE] = \
         Mul(Rat(Int(1), Int(60)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 11))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.PETASECOND] = \
         Mul(Rat(Mul(Int(25), Pow(10, 11)), Int(9)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 14))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:SECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Int(3600)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.TERASECOND] = \
         Mul(Rat(Mul(Int(25), Pow(10, 8)), Int(9)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 26))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.YOTTASECOND] = \
         Mul(Rat(Mul(Int(25), Pow(10, 20)), Int(9)), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(36), Pow(10, 23))), Sym("h"))  # nopep8
-    CONVERSIONS["HOUR:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.HOUR][UnitsTime.ZETTASECOND] = \
         Mul(Rat(Mul(Int(25), Pow(10, 17)), Int(9)), Sym("h"))  # nopep8
-    CONVERSIONS["KILOSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(432), Int(5)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Int(100)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 15), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 6), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Int(10)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(18), Int(5)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Int(1000), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Int(50)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 12), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 9), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 21), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("kilos"))  # nopep8
-    CONVERSIONS["KILOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.KILOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 18), Sym("kilos"))  # nopep8
-    CONVERSIONS["MEGASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(54), Int(625)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 12), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.GIGASECOND] = \
         Mul(Int(1000), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(9), Int(2500)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Mul(Int(5), Pow(10, 4))), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 9), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 6), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 18), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("megas"))  # nopep8
-    CONVERSIONS["MEGASECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.MEGASECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 15), Sym("megas"))  # nopep8
-    CONVERSIONS["MICROSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.CENTISECOND] = \
         Mul(Pow(10, 4), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 8)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 7), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.DECISECOND] = \
         Mul(Pow(10, 5), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 24), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 15), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 8), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 8)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 9), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 12), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.MILLISECOND] = \
         Mul(Int(1000), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 7)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 21), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.SECOND] = \
         Mul(Pow(10, 6), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 18), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 30), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("micros"))  # nopep8
-    CONVERSIONS["MICROSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.MICROSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 27), Sym("micros"))  # nopep8
-    CONVERSIONS["MILLISECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.CENTISECOND] = \
         Mul(Int(10), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 5)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 4), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.DECISECOND] = \
         Mul(Int(100), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 21), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 12), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 5), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 5)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 6), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 9), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 4)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 18), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.SECOND] = \
         Mul(Int(1000), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 15), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 27), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("millis"))  # nopep8
-    CONVERSIONS["MILLISECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.MILLISECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 24), Sym("millis"))  # nopep8
-    CONVERSIONS["MINUTE:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 19))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Int(6000)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:DAY"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.DAY] = \
         Mul(Int(1440), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Int(6)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Int(600)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.EXASECOND] = \
         Mul(Rat(Mul(Int(5), Pow(10, 16)), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 16))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.GIGASECOND] = \
         Mul(Rat(Mul(Int(5), Pow(10, 7)), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(5), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:HOUR"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.HOUR] = \
         Mul(Int(60), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(50), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.MEGASECOND] = \
         Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 7))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 4))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 10))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.PETASECOND] = \
         Mul(Rat(Mul(Int(5), Pow(10, 13)), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 13))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:SECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Int(60)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.TERASECOND] = \
         Mul(Rat(Mul(Int(5), Pow(10, 10)), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 25))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.YOTTASECOND] = \
         Mul(Rat(Mul(Int(5), Pow(10, 22)), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Mul(Int(6), Pow(10, 22))), Sym("m"))  # nopep8
-    CONVERSIONS["MINUTE:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.MINUTE][UnitsTime.ZETTASECOND] = \
         Mul(Rat(Mul(Int(5), Pow(10, 19)), Int(3)), Sym("m"))  # nopep8
-    CONVERSIONS["NANOSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Pow(10, 7), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 11)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 10), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.DECISECOND] = \
         Mul(Pow(10, 8), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 27), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 18), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 11), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 11)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 12), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 15), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Int(1000), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Pow(10, 6), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 10)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 24), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.SECOND] = \
         Mul(Pow(10, 9), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 21), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 33), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("nanos"))  # nopep8
-    CONVERSIONS["NANOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.NANOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 30), Sym("nanos"))  # nopep8
-    CONVERSIONS["PETASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 8))), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.EXASECOND] = \
         Mul(Int(1000), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.GIGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(9), Mul(Int(25), Pow(10, 11))), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Mul(Int(5), Pow(10, 13))), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.TERASECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 9), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("petas"))  # nopep8
-    CONVERSIONS["PETASECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.PETASECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 6), Sym("petas"))  # nopep8
-    CONVERSIONS["PICOSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Pow(10, 10), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 14)), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 13), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.DECISECOND] = \
         Mul(Pow(10, 11), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 30), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 21), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 14), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 14)), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 15), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 18), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Pow(10, 6), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Pow(10, 9), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 13)), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.NANOSECOND] = \
         Mul(Int(1000), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 27), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.SECOND] = \
         Mul(Pow(10, 12), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 24), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 36), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("picos"))  # nopep8
-    CONVERSIONS["PICOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.PICOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 33), Sym("picos"))  # nopep8
-    CONVERSIONS["SECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Int(100)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.DAY] = \
         Mul(Int(86400), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.DECASECOND] = \
         Mul(Int(10), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Int(10)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 18), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 9), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.HECTOSECOND] = \
         Mul(Int(100), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.HOUR] = \
         Mul(Int(3600), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.KILOSECOND] = \
         Mul(Int(1000), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 6), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.MINUTE] = \
         Mul(Int(60), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 15), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 12), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 24), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("s"))  # nopep8
-    CONVERSIONS["SECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.SECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 21), Sym("s"))  # nopep8
-    CONVERSIONS["TERASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 5))), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 6), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.GIGASECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(9), Mul(Int(25), Pow(10, 8))), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Mul(Int(5), Pow(10, 10))), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.PETASECOND] = \
         Mul(Int(1000), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 12), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("teras"))  # nopep8
-    CONVERSIONS["TERASECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.TERASECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 9), Sym("teras"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Pow(10, 6), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Pow(10, 22), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 26)), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 25), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.DECISECOND] = \
         Mul(Pow(10, 23), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 42), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Pow(10, 9), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 33), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 26), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 26)), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 27), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 30), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Pow(10, 18), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Pow(10, 21), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 25)), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.NANOSECOND] = \
         Mul(Pow(10, 15), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 39), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.PICOSECOND] = \
         Mul(Pow(10, 12), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.SECOND] = \
         Mul(Pow(10, 24), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 36), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 48), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Int(1000), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOCTOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.YOCTOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 45), Sym("yoctos"))  # nopep8
-    CONVERSIONS["YOTTASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 17))), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.EXASECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.GIGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(9), Mul(Int(25), Pow(10, 20))), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Mul(Int(5), Pow(10, 22))), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.PETASECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.TERASECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 48)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("yottas"))  # nopep8
-    CONVERSIONS["YOTTASECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.YOTTASECOND][UnitsTime.ZETTASECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("yottas"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.ATTOSECOND] = \
         Mul(Int(1000), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.CENTISECOND] = \
         Mul(Pow(10, 19), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.DAY] = \
         Mul(Mul(Int(864), Pow(10, 23)), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.DECASECOND] = \
         Mul(Pow(10, 22), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.DECISECOND] = \
         Mul(Pow(10, 20), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.EXASECOND] = \
         Mul(Pow(10, 39), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Pow(10, 6), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.GIGASECOND] = \
         Mul(Pow(10, 30), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.HECTOSECOND] = \
         Mul(Pow(10, 23), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.HOUR] = \
         Mul(Mul(Int(36), Pow(10, 23)), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.KILOSECOND] = \
         Mul(Pow(10, 24), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.MEGASECOND] = \
         Mul(Pow(10, 27), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.MICROSECOND] = \
         Mul(Pow(10, 15), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.MILLISECOND] = \
         Mul(Pow(10, 18), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.MINUTE] = \
         Mul(Mul(Int(6), Pow(10, 22)), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.NANOSECOND] = \
         Mul(Pow(10, 12), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.PETASECOND] = \
         Mul(Pow(10, 36), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.PICOSECOND] = \
         Mul(Pow(10, 9), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.SECOND] = \
         Mul(Pow(10, 21), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.TERASECOND] = \
         Mul(Pow(10, 33), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.YOTTASECOND] = \
         Mul(Pow(10, 45), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZEPTOSECOND:ZETTASECOND"] = \
+    CONVERSIONS[UnitsTime.ZEPTOSECOND][UnitsTime.ZETTASECOND] = \
         Mul(Pow(10, 42), Sym("zeptos"))  # nopep8
-    CONVERSIONS["ZETTASECOND:ATTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.ATTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:CENTISECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.CENTISECOND] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:DAY"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.DAY] = \
         Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 14))), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:DECASECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.DECASECOND] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:DECISECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.DECISECOND] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:EXASECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.EXASECOND] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:FEMTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.FEMTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:GIGASECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.GIGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:HECTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.HECTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:HOUR"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.HOUR] = \
         Mul(Rat(Int(9), Mul(Int(25), Pow(10, 17))), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:KILOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.KILOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:MEGASECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.MEGASECOND] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:MICROSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.MICROSECOND] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:MILLISECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.MILLISECOND] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:MINUTE"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.MINUTE] = \
         Mul(Rat(Int(3), Mul(Int(5), Pow(10, 19))), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:NANOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.NANOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:PETASECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.PETASECOND] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:PICOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.PICOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:SECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.SECOND] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:TERASECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.TERASECOND] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:YOCTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.YOCTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:YOTTASECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.YOTTASECOND] = \
         Mul(Int(1000), Sym("zettas"))  # nopep8
-    CONVERSIONS["ZETTASECOND:ZEPTOSECOND"] = \
+    CONVERSIONS[UnitsTime.ZETTASECOND][UnitsTime.ZEPTOSECOND] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("zettas"))  # nopep8
 
     SYMBOLS = dict()
-    SYMBOLS["ATOOSECOND"] = "as"
+    SYMBOLS["ATTOSECOND"] = "as"
     SYMBOLS["CENTISECOND"] = "cs"
     SYMBOLS["DAY"] = "d"
     SYMBOLS["DECASECOND"] = "das"
@@ -1182,18 +1191,19 @@ class TimeI(_omero_model.Time, UnitBase):
         if isinstance(value, _omero_model.TimeI):
             # This is a copy-constructor call.
             target = str(unit)
+            targetUnit = getattr(UnitsTime, str(target))
             source = str(value.getUnit())
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                c = self.CONVERSIONS.get(value.getUnit()).get(targetUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(getattr(UnitsTime, str(target)))
+                self.setUnit(targetUnit)
         else:
             self.setValue(value)
             self.setUnit(unit)

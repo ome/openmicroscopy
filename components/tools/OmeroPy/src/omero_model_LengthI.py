@@ -45,1990 +45,1999 @@ from omero.model.conversions import Sym  # nopep8
 
 class LengthI(_omero_model.Length, UnitBase):
 
+    try:
+        UNIT_VALUES = sorted(UnitsLength._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UNIT_VALUES = [x for x in sorted(UnitsLength._names)]
+        UNIT_VALUES = [getattr(UnitsLength, x) for x in UNIT_VALUES]
     CONVERSIONS = dict()
-    CONVERSIONS["ANGSTROM:ASTRONOMICALUNIT"] = \
-        Mul(Mul(Int(1495978707), Pow(10, 12)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:ATTOMETER"] = \
-        Mul(Rat(Int(1), Pow(10, 8)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:CENTIMETER"] = \
-        Mul(Pow(10, 8), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:DECAMETER"] = \
-        Mul(Pow(10, 11), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:DECIMETER"] = \
+    for val in UNIT_VALUES:
+        CONVERSIONS[val] = dict()
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ASTRONOMICALUNIT] = \
+        Mul(Mul(Int(1495978707), Pow(10, 10)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ATTOMETER] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.CENTIMETER] = \
+        Mul(Pow(10, 6), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 9), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:EXAMETER"] = \
-        Mul(Pow(10, 28), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:FEMTOMETER"] = \
-        Mul(Rat(Int(1), Pow(10, 5)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:FOOT"] = \
-        Mul(Mul(Int(3048), Pow(10, 6)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:GIGAMETER"] = \
-        Mul(Pow(10, 19), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:HECTOMETER"] = \
-        Mul(Pow(10, 12), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:INCH"] = \
-        Mul(Mul(Int(254), Pow(10, 6)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:KILOMETER"] = \
-        Mul(Pow(10, 13), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:LIGHTYEAR"] = \
-        Mul(Mul(Int("94607304725808"), Pow(10, 12)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:LINE"] = \
-        Mul(Rat(Mul(Int(635), Pow(10, 5)), Int(3)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:MEGAMETER"] = \
-        Mul(Pow(10, 16), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:METER"] = \
-        Mul(Pow(10, 10), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:MICROMETER"] = \
-        Mul(Pow(10, 4), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:MILE"] = \
-        Mul(Mul(Int(1609344), Pow(10, 7)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 7), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:NANOMETER"] = \
-        Mul(Int(10), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:PARSEC"] = \
-        Mul(Mul(Int(30856776), Pow(10, 19)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:PETAMETER"] = \
-        Mul(Pow(10, 25), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:PICOMETER"] = \
-        Mul(Rat(Int(1), Int(100)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:POINT"] = \
-        Mul(Rat(Mul(Int(3175), Pow(10, 4)), Int(9)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:TERAMETER"] = \
-        Mul(Pow(10, 22), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:THOU"] = \
-        Mul(Int(254000), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:YARD"] = \
-        Mul(Mul(Int(9144), Pow(10, 6)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:YOCTOMETER"] = \
-        Mul(Rat(Int(1), Pow(10, 14)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:YOTTAMETER"] = \
-        Mul(Pow(10, 34), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:ZEPTOMETER"] = \
-        Mul(Rat(Int(1), Pow(10, 11)), Sym("ang"))  # nopep8
-    CONVERSIONS["ANGSTROM:ZETTAMETER"] = \
-        Mul(Pow(10, 31), Sym("ang"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:ANGSTROM"] = \
-        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 12))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.EXAMETER] = \
+        Mul(Pow(10, 26), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.FEMTOMETER] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.FOOT] = \
+        Mul(Mul(Int(3048), Pow(10, 4)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.GIGAMETER] = \
+        Mul(Pow(10, 17), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.HECTOMETER] = \
+        Mul(Pow(10, 10), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.INCH] = \
+        Mul(Mul(Int(254), Pow(10, 4)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.KILOMETER] = \
+        Mul(Pow(10, 11), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.LIGHTYEAR] = \
+        Mul(Mul(Int("94607304725808"), Pow(10, 10)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.LINE] = \
+        Mul(Rat(Int(635000), Int(3)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MEGAMETER] = \
+        Mul(Pow(10, 14), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.METER] = \
+        Mul(Pow(10, 8), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MICROMETER] = \
+        Mul(Int(100), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MILE] = \
+        Mul(Mul(Int(1609344), Pow(10, 5)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MILLIMETER] = \
+        Mul(Pow(10, 5), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.NANOMETER] = \
+        Mul(Rat(Int(1), Int(10)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.PARSEC] = \
+        Mul(Mul(Int(30856776), Pow(10, 17)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.PETAMETER] = \
+        Mul(Pow(10, 23), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.PICOMETER] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.POINT] = \
+        Mul(Rat(Int(317500), Int(9)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.TERAMETER] = \
+        Mul(Pow(10, 20), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.THOU] = \
+        Mul(Int(2540), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.YARD] = \
+        Mul(Mul(Int(9144), Pow(10, 4)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.YOCTOMETER] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.YOTTAMETER] = \
+        Mul(Pow(10, 32), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ZEPTOMETER] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ZETTAMETER] = \
+        Mul(Pow(10, 29), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 10))), Sym("ua"))  # nopep8
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 20))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 4))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Int("14959787070")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Int("1495978707000")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.EXAMETER] = \
         Mul(Rat(Pow(10, 16), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 17))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:FOOT"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.FOOT] = \
         Mul(Rat(Int(127), Int("62332446125000")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.GIGAMETER] = \
         Mul(Rat(Pow(10, 7), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:INCH"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 5))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(10), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("431996825232"), Int(6830953)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:LINE"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int("8975872242"), Pow(10, 6))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.MEGAMETER] = \
         Mul(Rat(Pow(10, 4), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:METER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.METER] = \
         Mul(Rat(Int(1), Int("149597870700")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 8))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:MILE"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.MILE] = \
         Mul(Rat(Int(16764), Int("1558311153125")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 5))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 11))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:PARSEC"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(10285592), Pow(10, 7)), Int(498659569)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.PETAMETER] = \
         Mul(Rat(Pow(10, 13), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 14))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:POINT"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int("53855233452"), Pow(10, 6))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.TERAMETER] = \
         Mul(Rat(Pow(10, 10), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:THOU"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 8))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:YARD"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.YARD] = \
         Mul(Rat(Int(381), Int("62332446125000")), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 26))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Pow(10, 22), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 23))), Sym("ua"))  # nopep8
-    CONVERSIONS["ASTRONOMICALUNIT:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Pow(10, 19), Int(1495978707)), Sym("ua"))  # nopep8
-    CONVERSIONS["ATTOMETER:ANGSTROM"] = \
-        Mul(Pow(10, 8), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Pow(10, 10), Sym("attom"))  # nopep8
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 20)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.CENTIMETER] = \
         Mul(Pow(10, 16), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 19), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 17), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 36), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.FEMTOMETER] = \
         Mul(Int(1000), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.FOOT] = \
         Mul(Mul(Int(3048), Pow(10, 14)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 27), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 20), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.INCH] = \
         Mul(Mul(Int(254), Pow(10, 14)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 21), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 20)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.LINE] = \
         Mul(Rat(Mul(Int(635), Pow(10, 13)), Int(3)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 24), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.METER] = \
         Mul(Pow(10, 18), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.MICROMETER] = \
         Mul(Pow(10, 12), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.MILE] = \
         Mul(Mul(Int(1609344), Pow(10, 15)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.MILLIMETER] = \
         Mul(Pow(10, 15), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.NANOMETER] = \
         Mul(Pow(10, 9), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 27)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 33), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.PICOMETER] = \
         Mul(Pow(10, 6), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.POINT] = \
         Mul(Rat(Mul(Int(3175), Pow(10, 12)), Int(9)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 30), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.THOU] = \
         Mul(Mul(Int(254), Pow(10, 11)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.YARD] = \
         Mul(Mul(Int(9144), Pow(10, 14)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 42), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("attom"))  # nopep8
-    CONVERSIONS["ATTOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 39), Sym("attom"))  # nopep8
-    CONVERSIONS["CENTIMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 8)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("centim"))  # nopep8
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 4)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.DECAMETER] = \
         Mul(Int(1000), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.DECIMETER] = \
         Mul(Int(10), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 20), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(762), Int(25)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 11), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 4), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Int(50)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 5), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 4)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Int(600)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 8), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:METER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.METER] = \
         Mul(Int(100), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(804672), Int(5)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Int(10)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 11)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 17), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Int(3600)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 14), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 4))), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(2286), Int(25)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 26), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("centim"))  # nopep8
-    CONVERSIONS["CENTIMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 23), Sym("centim"))  # nopep8
-    CONVERSIONS["DECAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 11)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("decam"))  # nopep8
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int("14959787070"), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Int(100)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 17), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Int(12500)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 8), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.HECTOMETER] = \
         Mul(Int(10), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 4))), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.KILOMETER] = \
         Mul(Int(100), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Int("946073047258080"), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 5))), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 5), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Int(10)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(100584), Int(625)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 8)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 14), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 5))), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 11), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 7))), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Int(12500)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 23), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("decam"))  # nopep8
-    CONVERSIONS["DECAMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 20), Sym("decam"))  # nopep8
-    CONVERSIONS["DECIMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 9)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("decim"))  # nopep8
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int("1495978707000"), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Int(10)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.DECAMETER] = \
         Mul(Int(100), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 19), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Int(125)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 10), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.HECTOMETER] = \
         Mul(Int(1000), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Int(500)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 4), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Int("94607304725808000"), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Int(6000)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 7), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:METER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.METER] = \
         Mul(Int(10), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(402336), Int(25)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Int(100)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 10)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 16), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Int(36000)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 13), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 5))), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Int(125)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 25), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("decim"))  # nopep8
-    CONVERSIONS["DECIMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 22), Sym("decim"))  # nopep8
-    CONVERSIONS["EXAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 28)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("exam"))  # nopep8
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 16)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 19))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.GIGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 21))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 12))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 22))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 14))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.PARSEC] = \
         Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 6))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.PETAMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 22))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.TERAMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 24))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 19))), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 6), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("exam"))  # nopep8
-    CONVERSIONS["EXAMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Int(1000), Sym("exam"))  # nopep8
-    CONVERSIONS["FEMTOMETER:ANGSTROM"] = \
-        Mul(Pow(10, 5), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Pow(10, 7), Sym("femtom"))  # nopep8
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 17)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.CENTIMETER] = \
         Mul(Pow(10, 13), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 16), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 14), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 33), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.FOOT] = \
         Mul(Mul(Int(3048), Pow(10, 11)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 24), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 17), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.INCH] = \
         Mul(Mul(Int(254), Pow(10, 11)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 18), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 17)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.LINE] = \
         Mul(Rat(Mul(Int(635), Pow(10, 10)), Int(3)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 21), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.METER] = \
         Mul(Pow(10, 15), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.MICROMETER] = \
         Mul(Pow(10, 9), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.MILE] = \
         Mul(Mul(Int(1609344), Pow(10, 12)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.MILLIMETER] = \
         Mul(Pow(10, 12), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.NANOMETER] = \
         Mul(Pow(10, 6), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 24)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 30), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.PICOMETER] = \
         Mul(Int(1000), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.POINT] = \
         Mul(Rat(Mul(Int(3175), Pow(10, 9)), Int(9)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 27), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.THOU] = \
         Mul(Mul(Int(254), Pow(10, 8)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.YARD] = \
         Mul(Mul(Int(9144), Pow(10, 11)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 39), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("femtom"))  # nopep8
-    CONVERSIONS["FEMTOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 36), Sym("femtom"))  # nopep8
-    CONVERSIONS["FOOT:ANGSTROM"] = \
-        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 6))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 4))), Sym("ft"))  # nopep8
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int("62332446125000"), Int(127)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 14))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(25), Int(762)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(12500), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(125), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 19)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 11))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.GIGAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 10)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(125000), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:INCH"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.INCH] = \
         Mul(Rat(Int(1), Int(12)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.KILOMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 4)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Mul(Int("3941971030242"), Pow(10, 6)), Int(127)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:LINE"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.LINE] = \
         Mul(Rat(Int(1), Int(144)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.MEGAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 7)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:METER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.METER] = \
         Mul(Rat(Int(1250), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Int(304800)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:MILE"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.MILE] = \
         Mul(Int(5280), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(5), Int(1524)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 5))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:PARSEC"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(1285699), Pow(10, 13)), Int(127)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 16)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 8))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:POINT"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.POINT] = \
         Mul(Rat(Int(1), Int(864)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 13)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:THOU"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.THOU] = \
         Mul(Rat(Int(1), Int(12000)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:YARD"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.YARD] = \
         Mul(Int(3), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 20))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 25)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 17))), Sym("ft"))  # nopep8
-    CONVERSIONS["FOOT:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.FOOT][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(381)), Sym("ft"))  # nopep8
-    CONVERSIONS["GIGAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 19)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("gigam"))  # nopep8
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 7)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 9), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 10))), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 12))), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("5912956545363"), Int(625000)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 13))), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 5))), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.PARSEC] = \
         Mul(Int(30856776), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 6), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 13))), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.TERAMETER] = \
         Mul(Int(1000), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 15))), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 10))), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 15), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("gigam"))  # nopep8
-    CONVERSIONS["GIGAMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 12), Sym("gigam"))  # nopep8
-    CONVERSIONS["HECTOMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 12)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("hectom"))  # nopep8
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int(1495978707), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Int(10)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 16), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Int(125000)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 7), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 5))), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.KILOMETER] = \
         Mul(Int(10), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Int("94607304725808"), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 6))), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 4), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Int(100)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(50292), Int(3125)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 7)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 13), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 6))), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 10), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 8))), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Int(125000)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 22), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("hectom"))  # nopep8
-    CONVERSIONS["HECTOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 19), Sym("hectom"))  # nopep8
-    CONVERSIONS["INCH:ANGSTROM"] = \
-        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 6))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 4))), Sym("in"))  # nopep8
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("7479893535"), Pow(10, 5)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(50), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.DECAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(500), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 21)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:FOOT"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.FOOT] = \
         Mul(Int(12), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.GIGAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 12)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.HECTOMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 5)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.KILOMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 6)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Mul(Int("47303652362904"), Pow(10, 6)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:LINE"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.LINE] = \
         Mul(Rat(Int(1), Int(12)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.MEGAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 9)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:METER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.METER] = \
         Mul(Rat(Int(5000), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Int(25400)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:MILE"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.MILE] = \
         Mul(Int(63360), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(5), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 5))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:PARSEC"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(15428388), Pow(10, 13)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 18)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 8))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:POINT"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.POINT] = \
         Mul(Rat(Int(1), Int(72)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 15)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:THOU"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.THOU] = \
         Mul(Rat(Int(1), Int(1000)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:YARD"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.YARD] = \
         Mul(Int(36), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 20))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 17))), Sym("in"))  # nopep8
-    CONVERSIONS["INCH:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.INCH][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("in"))  # nopep8
-    CONVERSIONS["KILOMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 13)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("kilom"))  # nopep8
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Int(10)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Int(100)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 15), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 4))), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 6), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Int(10)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 6))), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("47303652362904"), Int(5)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 7))), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.MEGAMETER] = \
         Mul(Int(1000), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(25146), Int(15625)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 6)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 12), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 7))), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 9), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 9))), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 4))), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 21), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("kilom"))  # nopep8
-    CONVERSIONS["KILOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 18), Sym("kilom"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:ANGSTROM"] = \
-        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 12))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 10))), Sym("ly"))  # nopep8
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(6830953), Int("431996825232")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 20))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 4))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Int("946073047258080")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Int("94607304725808000")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(625), Pow(10, 12)), Int("5912956545363")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 17))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:FOOT"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.FOOT] = \
         Mul(Rat(Int(127), Mul(Int("3941971030242"), Pow(10, 6))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.GIGAMETER] = \
         Mul(Rat(Int(625000), Int("5912956545363")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Int("94607304725808")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:INCH"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int("47303652362904"), Pow(10, 6))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(5), Int("47303652362904")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:LINE"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int("567643828354848"), Pow(10, 6))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(625), Int("5912956545363")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:METER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.METER] = \
         Mul(Rat(Int(1), Int("9460730472580800")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 8))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:MILE"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.MILE] = \
         Mul(Rat(Int(1397), Int("8212439646337500")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 5))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 11))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:PARSEC"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(6428495), Pow(10, 6)), Int("1970985515121")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(625), Pow(10, 9)), Int("5912956545363")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 14))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:POINT"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int("3405862970129088"), Pow(10, 6))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(625), Pow(10, 6)), Int("5912956545363")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:THOU"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int("47303652362904"), Pow(10, 9))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:YARD"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.YARD] = \
         Mul(Rat(Int(127), Mul(Int("1313990343414"), Pow(10, 6))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 26))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(625), Pow(10, 18)), Int("5912956545363")), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 23))), Sym("ly"))  # nopep8
-    CONVERSIONS["LIGHTYEAR:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(625), Pow(10, 15)), Int("5912956545363")), Sym("ly"))  # nopep8
-    CONVERSIONS["LINE:ANGSTROM"] = \
-        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 5))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(3), Int(635000)), Sym("li"))  # nopep8
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("8975872242"), Pow(10, 6)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 13))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(600), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.DECAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 5)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(6000), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 22)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 10))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:FOOT"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.FOOT] = \
         Mul(Int(144), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.GIGAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 13)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.HECTOMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 6)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:INCH"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.INCH] = \
         Mul(Int(12), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.KILOMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 7)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Mul(Int("567643828354848"), Pow(10, 6)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.MEGAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 10)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:METER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.METER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 4)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(3), Int(6350)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:MILE"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.MILE] = \
         Mul(Int(760320), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(60), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 4))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:PARSEC"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(185140656), Pow(10, 13)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 19)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 7))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:POINT"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.POINT] = \
         Mul(Rat(Int(1), Int(6)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 16)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:THOU"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.THOU] = \
         Mul(Rat(Int(3), Int(250)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:YARD"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.YARD] = \
         Mul(Int(432), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 19))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 28)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(3), Mul(Int(635), Pow(10, 16))), Sym("li"))  # nopep8
-    CONVERSIONS["LINE:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.LINE][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 25)), Int(127)), Sym("li"))  # nopep8
-    CONVERSIONS["MEGAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 16)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("megam"))  # nopep8
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 4)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 12), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 7))), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.GIGAMETER] = \
         Mul(Int(1000), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 9))), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("5912956545363"), Int(625)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 10))), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(12573), Int(7812500)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.PARSEC] = \
         Mul(Int("30856776000"), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 9), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 10))), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 6), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 12))), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 7))), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 18), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("megam"))  # nopep8
-    CONVERSIONS["MEGAMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 15), Sym("megam"))  # nopep8
-    CONVERSIONS["METER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 10)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("m"))  # nopep8
+    CONVERSIONS[UnitsLength.METER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int("149597870700"), Sym("m"))  # nopep8
-    CONVERSIONS["METER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Int(100)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.DECAMETER] = \
         Mul(Int(10), Sym("m"))  # nopep8
-    CONVERSIONS["METER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Int(10)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 18), Sym("m"))  # nopep8
-    CONVERSIONS["METER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:FOOT"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Int(1250)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 9), Sym("m"))  # nopep8
-    CONVERSIONS["METER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.HECTOMETER] = \
         Mul(Int(100), Sym("m"))  # nopep8
-    CONVERSIONS["METER:INCH"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Int(5000)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.KILOMETER] = \
         Mul(Int(1000), Sym("m"))  # nopep8
-    CONVERSIONS["METER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.LIGHTYEAR] = \
         Mul(Int("9460730472580800"), Sym("m"))  # nopep8
-    CONVERSIONS["METER:LINE"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 4))), Sym("m"))  # nopep8
-    CONVERSIONS["METER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 6), Sym("m"))  # nopep8
-    CONVERSIONS["METER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:MILE"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.MILE] = \
         Mul(Rat(Int(201168), Int(125)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 9)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 15), Sym("m"))  # nopep8
-    CONVERSIONS["METER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:POINT"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 4))), Sym("m"))  # nopep8
-    CONVERSIONS["METER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 12), Sym("m"))  # nopep8
-    CONVERSIONS["METER:THOU"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 6))), Sym("m"))  # nopep8
-    CONVERSIONS["METER:YARD"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Int(1250)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 24), Sym("m"))  # nopep8
-    CONVERSIONS["METER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("m"))  # nopep8
-    CONVERSIONS["METER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.METER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 21), Sym("m"))  # nopep8
-    CONVERSIONS["MICROMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 4)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Int(100)), Sym("microm"))  # nopep8
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 8)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.CENTIMETER] = \
         Mul(Pow(10, 4), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 7), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 5), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 24), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.FOOT] = \
         Mul(Int(304800), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 15), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 8), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.INCH] = \
         Mul(Int(25400), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 9), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 8)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(6350), Int(3)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 12), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:METER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.METER] = \
         Mul(Pow(10, 6), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.MILE] = \
         Mul(Int(1609344000), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.MILLIMETER] = \
         Mul(Int(1000), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 15)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 21), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(3175), Int(9)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 18), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Int(5)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.YARD] = \
         Mul(Int(914400), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 30), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("microm"))  # nopep8
-    CONVERSIONS["MICROMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 27), Sym("microm"))  # nopep8
-    CONVERSIONS["MILE:ANGSTROM"] = \
-        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 7))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 5))), Sym("mi"))  # nopep8
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int("1558311153125"), Int(16764)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 15))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(5), Int(804672)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(625), Int(100584)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(25), Int(402336)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(78125), Pow(10, 14)), Int(12573)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 12))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:FOOT"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.FOOT] = \
         Mul(Rat(Int(1), Int(5280)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.GIGAMETER] = \
         Mul(Rat(Mul(Int(78125), Pow(10, 5)), Int(12573)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(3125), Int(50292)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:INCH"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.INCH] = \
         Mul(Rat(Int(1), Int(63360)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(15625), Int(25146)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("8212439646337500"), Int(1397)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:LINE"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.LINE] = \
         Mul(Rat(Int(1), Int(760320)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(7812500), Int(12573)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:METER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.METER] = \
         Mul(Rat(Int(125), Int(201168)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Int(1609344000)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Int(1609344)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 6))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:PARSEC"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(803561875), Pow(10, 8)), Int(4191)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(78125), Pow(10, 11)), Int(12573)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 9))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:POINT"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.POINT] = \
         Mul(Rat(Int(1), Int(4561920)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(78125), Pow(10, 8)), Int(12573)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:THOU"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.THOU] = \
         Mul(Rat(Int(1), Mul(Int(6336), Pow(10, 4))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:YARD"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.YARD] = \
         Mul(Rat(Int(1), Int(1760)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 21))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(78125), Pow(10, 20)), Int(12573)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 18))), Sym("mi"))  # nopep8
-    CONVERSIONS["MILE:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.MILE][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(78125), Pow(10, 17)), Int(12573)), Sym("mi"))  # nopep8
-    CONVERSIONS["MILLIMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 7)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("millim"))  # nopep8
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 5)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.CENTIMETER] = \
         Mul(Int(10), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 4), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.DECIMETER] = \
         Mul(Int(100), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 21), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(1524), Int(5)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 12), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 5), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Int(5)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 6), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 5)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Int(60)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 9), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:METER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.METER] = \
         Mul(Int(1000), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.MILE] = \
         Mul(Int(1609344), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 12)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 18), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Int(360)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 15), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Int(5000)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(4572), Int(5)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 27), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("millim"))  # nopep8
-    CONVERSIONS["MILLIMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 24), Sym("millim"))  # nopep8
-    CONVERSIONS["NANOMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Int(10)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Int(10), Sym("nanom"))  # nopep8
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 11)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.CENTIMETER] = \
         Mul(Pow(10, 7), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 10), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 8), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 27), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.FOOT] = \
         Mul(Mul(Int(3048), Pow(10, 5)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 18), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 11), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.INCH] = \
         Mul(Mul(Int(254), Pow(10, 5)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 12), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 11)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.LINE] = \
         Mul(Rat(Mul(Int(635), Pow(10, 4)), Int(3)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 15), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.METER] = \
         Mul(Pow(10, 9), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.MICROMETER] = \
         Mul(Int(1000), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.MILE] = \
         Mul(Mul(Int(1609344), Pow(10, 6)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.MILLIMETER] = \
         Mul(Pow(10, 6), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 18)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 24), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(3175000), Int(9)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 21), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.THOU] = \
         Mul(Int(25400), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.YARD] = \
         Mul(Mul(Int(9144), Pow(10, 5)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 33), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("nanom"))  # nopep8
-    CONVERSIONS["NANOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 30), Sym("nanom"))  # nopep8
-    CONVERSIONS["PARSEC:ANGSTROM"] = \
-        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 19))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 17))), Sym("pc"))  # nopep8
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(498659569), Mul(Int(10285592), Pow(10, 7))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 27))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 11))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 8))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 10))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 6)), Int(3857097)), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 24))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:FOOT"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.FOOT] = \
         Mul(Rat(Int(127), Mul(Int(1285699), Pow(10, 13))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.GIGAMETER] = \
         Mul(Rat(Int(1), Int(30856776)), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 7))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:INCH"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(15428388), Pow(10, 13))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 6))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("1970985515121"), Mul(Int(6428495), Pow(10, 6))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:LINE"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(185140656), Pow(10, 13))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(1), Int("30856776000")), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:METER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.METER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 9))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 15))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:MILE"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.MILE] = \
         Mul(Rat(Int(4191), Mul(Int(803561875), Pow(10, 8))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 12))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 18))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.PETAMETER] = \
         Mul(Rat(Int(125000), Int(3857097)), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 21))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:POINT"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(1110843936), Pow(10, 13))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.TERAMETER] = \
         Mul(Rat(Int(125), Int(3857097)), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:THOU"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(15428388), Pow(10, 16))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:YARD"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.YARD] = \
         Mul(Rat(Int(381), Mul(Int(1285699), Pow(10, 13))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 33))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 12)), Int(3857097)), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 30))), Sym("pc"))  # nopep8
-    CONVERSIONS["PARSEC:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 9)), Int(3857097)), Sym("pc"))  # nopep8
-    CONVERSIONS["PETAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 25)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("petam"))  # nopep8
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 13)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.EXAMETER] = \
         Mul(Int(1000), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 16))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.GIGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 18))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 9))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 19))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 11))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.PARSEC] = \
         Mul(Rat(Int(3857097), Int(125000)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 19))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.TERAMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 21))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 16))), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 9), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("petam"))  # nopep8
-    CONVERSIONS["PETAMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 6), Sym("petam"))  # nopep8
-    CONVERSIONS["PICOMETER:ANGSTROM"] = \
-        Mul(Int(100), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Pow(10, 4), Sym("picom"))  # nopep8
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 14)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.CENTIMETER] = \
         Mul(Pow(10, 10), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 13), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 11), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 30), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.FOOT] = \
         Mul(Mul(Int(3048), Pow(10, 8)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 21), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 14), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.INCH] = \
         Mul(Mul(Int(254), Pow(10, 8)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 15), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 14)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.LINE] = \
         Mul(Rat(Mul(Int(635), Pow(10, 7)), Int(3)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 18), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.METER] = \
         Mul(Pow(10, 12), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.MICROMETER] = \
         Mul(Pow(10, 6), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.MILE] = \
         Mul(Mul(Int(1609344), Pow(10, 9)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.MILLIMETER] = \
         Mul(Pow(10, 9), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.NANOMETER] = \
         Mul(Int(1000), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 21)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 27), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.POINT] = \
         Mul(Rat(Mul(Int(3175), Pow(10, 6)), Int(9)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 24), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.THOU] = \
         Mul(Mul(Int(254), Pow(10, 5)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.YARD] = \
         Mul(Mul(Int(9144), Pow(10, 8)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 36), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("picom"))  # nopep8
-    CONVERSIONS["PICOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 33), Sym("picom"))  # nopep8
-    CONVERSIONS["POINT:ANGSTROM"] = \
-        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 4))), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(9), Int(317500)), Sym("pt"))  # nopep8
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("53855233452"), Pow(10, 6)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 12))), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(3600), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.DECAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 5)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(36000), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 22)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 9))), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:FOOT"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.FOOT] = \
         Mul(Int(864), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.GIGAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 13)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.HECTOMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 6)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:INCH"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.INCH] = \
         Mul(Int(72), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.KILOMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 7)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Mul(Int("3405862970129088"), Pow(10, 6)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:LINE"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.LINE] = \
         Mul(Int(6), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.MEGAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 10)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:METER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.METER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 4)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(9), Int(3175)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:MILE"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.MILE] = \
         Mul(Int(4561920), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(360), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(9), Int(3175000)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:PARSEC"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(1110843936), Pow(10, 13)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 19)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 6))), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 16)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:THOU"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.THOU] = \
         Mul(Rat(Int(9), Int(125)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:YARD"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.YARD] = \
         Mul(Int(2592), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 18))), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 28)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 15))), Sym("pt"))  # nopep8
-    CONVERSIONS["POINT:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.POINT][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 25)), Int(127)), Sym("pt"))  # nopep8
-    CONVERSIONS["TERAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 22)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("teram"))  # nopep8
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 10)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 6), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 13))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.GIGAMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 15))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 6))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 16))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 8))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.PARSEC] = \
         Mul(Rat(Int(3857097), Int(125)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.PETAMETER] = \
         Mul(Int(1000), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 16))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 18))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 13))), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 12), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("teram"))  # nopep8
-    CONVERSIONS["TERAMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 9), Sym("teram"))  # nopep8
-    CONVERSIONS["THOU:ANGSTROM"] = \
-        Mul(Rat(Int(1), Int(254000)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Int(2540)), Sym("thou"))  # nopep8
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("7479893535"), Pow(10, 8)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.CENTIMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.DECAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 7)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.DECIMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 5)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 8))), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:FOOT"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.FOOT] = \
         Mul(Int(12000), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.GIGAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 15)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.HECTOMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 8)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:INCH"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.INCH] = \
         Mul(Int(1000), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.KILOMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 9)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Mul(Int("47303652362904"), Pow(10, 9)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:LINE"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.LINE] = \
         Mul(Rat(Int(250), Int(3)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.MEGAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 12)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:METER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.METER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 6)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(5), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:MILE"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.MILE] = \
         Mul(Mul(Int(6336), Pow(10, 4)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(5000), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Int(25400)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:PARSEC"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(15428388), Pow(10, 16)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 21)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 5))), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:POINT"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.POINT] = \
         Mul(Rat(Int(125), Int(9)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 18)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:YARD"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.YARD] = \
         Mul(Int(36000), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 17))), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 30)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("thou"))  # nopep8
-    CONVERSIONS["THOU:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.THOU][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("thou"))  # nopep8
-    CONVERSIONS["YARD:ANGSTROM"] = \
-        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 6))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 4))), Sym("yd"))  # nopep8
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int("62332446125000"), Int(381)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 14))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(25), Int(2286)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(12500), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(125), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.EXAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 19)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 11))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:FOOT"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.FOOT] = \
         Mul(Rat(Int(1), Int(3)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.GIGAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 10)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(125000), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:INCH"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.INCH] = \
         Mul(Rat(Int(1), Int(36)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.KILOMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 4)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Mul(Int("1313990343414"), Pow(10, 6)), Int(127)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:LINE"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.LINE] = \
         Mul(Rat(Int(1), Int(432)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.MEGAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 7)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:METER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.METER] = \
         Mul(Rat(Int(1250), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Int(914400)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:MILE"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.MILE] = \
         Mul(Int(1760), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(5), Int(4572)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 5))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:PARSEC"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.PARSEC] = \
         Mul(Rat(Mul(Int(1285699), Pow(10, 13)), Int(381)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.PETAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 16)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 8))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:POINT"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.POINT] = \
         Mul(Rat(Int(1), Int(2592)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.TERAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 13)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:THOU"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.THOU] = \
         Mul(Rat(Int(1), Int(36000)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 20))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.YOTTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 25)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 17))), Sym("yd"))  # nopep8
-    CONVERSIONS["YARD:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.YARD][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(1143)), Sym("yd"))  # nopep8
-    CONVERSIONS["YOCTOMETER:ANGSTROM"] = \
-        Mul(Pow(10, 14), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Pow(10, 16), Sym("yoctom"))  # nopep8
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 26)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ATTOMETER] = \
         Mul(Pow(10, 6), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.CENTIMETER] = \
         Mul(Pow(10, 22), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 25), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 23), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 42), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.FEMTOMETER] = \
         Mul(Pow(10, 9), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.FOOT] = \
         Mul(Mul(Int(3048), Pow(10, 20)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 33), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 26), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.INCH] = \
         Mul(Mul(Int(254), Pow(10, 20)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 27), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 26)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.LINE] = \
         Mul(Rat(Mul(Int(635), Pow(10, 19)), Int(3)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 30), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.METER] = \
         Mul(Pow(10, 24), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.MICROMETER] = \
         Mul(Pow(10, 18), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.MILE] = \
         Mul(Mul(Int(1609344), Pow(10, 21)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.MILLIMETER] = \
         Mul(Pow(10, 21), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.NANOMETER] = \
         Mul(Pow(10, 15), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 33)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 39), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.PICOMETER] = \
         Mul(Pow(10, 12), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.POINT] = \
         Mul(Rat(Mul(Int(3175), Pow(10, 18)), Int(9)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 36), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.THOU] = \
         Mul(Mul(Int(254), Pow(10, 17)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.YARD] = \
         Mul(Mul(Int(9144), Pow(10, 20)), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 48), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Int(1000), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOCTOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 45), Sym("yoctom"))  # nopep8
-    CONVERSIONS["YOTTAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 34)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 32)), Sym("yottam"))  # nopep8
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 22)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.EXAMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 25))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.GIGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 27))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 18))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 28))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 20))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.PARSEC] = \
         Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 12))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.PETAMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 28))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.TERAMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 30))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 25))), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 48)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("yottam"))  # nopep8
-    CONVERSIONS["YOTTAMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("yottam"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:ANGSTROM"] = \
-        Mul(Pow(10, 11), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ANGSTROM] = \
+        Mul(Pow(10, 13), Sym("zeptom"))  # nopep8
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 23)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ATTOMETER] = \
         Mul(Int(1000), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.CENTIMETER] = \
         Mul(Pow(10, 19), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.DECAMETER] = \
         Mul(Pow(10, 22), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.DECIMETER] = \
         Mul(Pow(10, 20), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.EXAMETER] = \
         Mul(Pow(10, 39), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.FEMTOMETER] = \
         Mul(Pow(10, 6), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.FOOT] = \
         Mul(Mul(Int(3048), Pow(10, 17)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.GIGAMETER] = \
         Mul(Pow(10, 30), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.HECTOMETER] = \
         Mul(Pow(10, 23), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.INCH] = \
         Mul(Mul(Int(254), Pow(10, 17)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.KILOMETER] = \
         Mul(Pow(10, 24), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Mul(Int("94607304725808"), Pow(10, 23)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.LINE] = \
         Mul(Rat(Mul(Int(635), Pow(10, 16)), Int(3)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.MEGAMETER] = \
         Mul(Pow(10, 27), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:METER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.METER] = \
         Mul(Pow(10, 21), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.MICROMETER] = \
         Mul(Pow(10, 15), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.MILE] = \
         Mul(Mul(Int(1609344), Pow(10, 18)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.MILLIMETER] = \
         Mul(Pow(10, 18), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.NANOMETER] = \
         Mul(Pow(10, 12), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.PARSEC] = \
         Mul(Mul(Int(30856776), Pow(10, 30)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.PETAMETER] = \
         Mul(Pow(10, 36), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.PICOMETER] = \
         Mul(Pow(10, 9), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.POINT] = \
         Mul(Rat(Mul(Int(3175), Pow(10, 15)), Int(9)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.TERAMETER] = \
         Mul(Pow(10, 33), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.THOU] = \
         Mul(Mul(Int(254), Pow(10, 14)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.YARD] = \
         Mul(Mul(Int(9144), Pow(10, 17)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.YOTTAMETER] = \
         Mul(Pow(10, 45), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZEPTOMETER:ZETTAMETER"] = \
+    CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 42), Sym("zeptom"))  # nopep8
-    CONVERSIONS["ZETTAMETER:ANGSTROM"] = \
-        Mul(Rat(Int(1), Pow(10, 31)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:ASTRONOMICALUNIT"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ANGSTROM] = \
+        Mul(Rat(Int(1), Pow(10, 29)), Sym("zettam"))  # nopep8
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 19)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:ATTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:CENTIMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.CENTIMETER] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:DECAMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.DECAMETER] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:DECIMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.DECIMETER] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:EXAMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.EXAMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:FEMTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.FEMTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:FOOT"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.FOOT] = \
         Mul(Rat(Int(381), Mul(Int(125), Pow(10, 22))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:GIGAMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.GIGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:HECTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.HECTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:INCH"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.INCH] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 24))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:KILOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.KILOMETER] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:LIGHTYEAR"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.LIGHTYEAR] = \
         Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 15))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:LINE"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.LINE] = \
         Mul(Rat(Int(127), Mul(Int(6), Pow(10, 25))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:MEGAMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.MEGAMETER] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:METER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.METER] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:MICROMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.MICROMETER] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:MILE"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.MILE] = \
         Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 17))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:MILLIMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.MILLIMETER] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:NANOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.NANOMETER] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:PARSEC"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.PARSEC] = \
         Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 9))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:PETAMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.PETAMETER] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:PICOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.PICOMETER] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:POINT"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.POINT] = \
         Mul(Rat(Int(127), Mul(Int(36), Pow(10, 25))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:TERAMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.TERAMETER] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:THOU"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.THOU] = \
         Mul(Rat(Int(127), Mul(Int(5), Pow(10, 27))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:YARD"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.YARD] = \
         Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 22))), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:YOCTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.YOCTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:YOTTAMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.YOTTAMETER] = \
         Mul(Int(1000), Sym("zettam"))  # nopep8
-    CONVERSIONS["ZETTAMETER:ZEPTOMETER"] = \
+    CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ZEPTOMETER] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("zettam"))  # nopep8
 
     SYMBOLS = dict()
@@ -2072,18 +2081,19 @@ class LengthI(_omero_model.Length, UnitBase):
         if isinstance(value, _omero_model.LengthI):
             # This is a copy-constructor call.
             target = str(unit)
+            targetUnit = getattr(UnitsLength, str(target))
             source = str(value.getUnit())
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                c = self.CONVERSIONS.get(value.getUnit()).get(targetUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(getattr(UnitsLength, str(target)))
+                self.setUnit(targetUnit)
         else:
             self.setValue(value)
             self.setUnit(unit)

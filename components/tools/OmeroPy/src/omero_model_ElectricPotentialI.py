@@ -45,846 +45,855 @@ from omero.model.conversions import Sym  # nopep8
 
 class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
 
+    try:
+        UNIT_VALUES = sorted(UnitsElectricPotential._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UNIT_VALUES = [x for x in sorted(UnitsElectricPotential._names)]
+        UNIT_VALUES = [getattr(UnitsElectricPotential, x) for x in UNIT_VALUES]
     CONVERSIONS = dict()
-    CONVERSIONS["ATTOVOLT:CENTIVOLT"] = \
+    for val in UNIT_VALUES:
+        CONVERSIONS[val] = dict()
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Pow(10, 16), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 19), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Pow(10, 17), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 36), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Int(1000), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 27), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 20), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 21), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 24), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Pow(10, 12), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Pow(10, 15), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Pow(10, 9), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 33), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Pow(10, 6), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 30), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Pow(10, 18), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 42), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("attov"))  # nopep8
-    CONVERSIONS["ATTOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ATTOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 39), Sym("attov"))  # nopep8
-    CONVERSIONS["CENTIVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Int(1000), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Int(10), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 20), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 11), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 4), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 5), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 8), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Int(10)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 17), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 14), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Int(100), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 26), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("centiv"))  # nopep8
-    CONVERSIONS["CENTIVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.CENTIVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 23), Sym("centiv"))  # nopep8
-    CONVERSIONS["DECAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Int(100)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 17), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 8), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Int(10), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Int(100), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 5), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 14), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 11), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Int(10)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 23), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("decav"))  # nopep8
-    CONVERSIONS["DECAVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECAVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 20), Sym("decav"))  # nopep8
-    CONVERSIONS["DECIVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Int(10)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Int(100), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 19), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 10), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Int(1000), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 4), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 7), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Int(100)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 16), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 13), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Int(10), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 25), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("deciv"))  # nopep8
-    CONVERSIONS["DECIVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.DECIVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 22), Sym("deciv"))  # nopep8
-    CONVERSIONS["EXAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 6), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("exav"))  # nopep8
-    CONVERSIONS["EXAVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.EXAVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Int(1000), Sym("exav"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Pow(10, 13), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 16), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Pow(10, 14), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 33), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 24), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 17), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 18), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 21), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Pow(10, 9), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Pow(10, 12), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Pow(10, 6), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 30), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Int(1000), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 27), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Pow(10, 15), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 39), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("femtov"))  # nopep8
-    CONVERSIONS["FEMTOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.FEMTOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 36), Sym("femtov"))  # nopep8
-    CONVERSIONS["GIGAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 9), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 6), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Int(1000), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 15), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("gigav"))  # nopep8
-    CONVERSIONS["GIGAVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.GIGAVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 12), Sym("gigav"))  # nopep8
-    CONVERSIONS["HECTOVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Int(10)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 16), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 7), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Int(10), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 4), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 13), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 10), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Int(100)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 22), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("hectov"))  # nopep8
-    CONVERSIONS["HECTOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.HECTOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 19), Sym("hectov"))  # nopep8
-    CONVERSIONS["KILOVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Int(100)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 15), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 6), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Int(10)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Int(1000), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 12), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 9), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 21), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("kilov"))  # nopep8
-    CONVERSIONS["KILOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.KILOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 18), Sym("kilov"))  # nopep8
-    CONVERSIONS["MEGAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 12), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Int(1000), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 9), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 6), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 18), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("megav"))  # nopep8
-    CONVERSIONS["MEGAVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MEGAVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 15), Sym("megav"))  # nopep8
-    CONVERSIONS["MICROVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Pow(10, 4), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 7), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Pow(10, 5), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 24), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 15), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 8), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 9), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 12), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Int(1000), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 21), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 18), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Pow(10, 6), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 30), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("microv"))  # nopep8
-    CONVERSIONS["MICROVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MICROVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 27), Sym("microv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Int(10), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 4), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Int(100), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 21), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 12), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 5), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 6), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 9), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 18), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 15), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Int(1000), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 27), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("milliv"))  # nopep8
-    CONVERSIONS["MILLIVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.MILLIVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 24), Sym("milliv"))  # nopep8
-    CONVERSIONS["NANOVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Pow(10, 7), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 10), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Pow(10, 8), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 27), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 18), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 11), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 12), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 15), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Int(1000), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Pow(10, 6), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 24), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 21), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Pow(10, 9), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 33), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("nanov"))  # nopep8
-    CONVERSIONS["NANOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.NANOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 30), Sym("nanov"))  # nopep8
-    CONVERSIONS["PETAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Int(1000), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 9), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("petav"))  # nopep8
-    CONVERSIONS["PETAVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PETAVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 6), Sym("petav"))  # nopep8
-    CONVERSIONS["PICOVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Pow(10, 10), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 13), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Pow(10, 11), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 30), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 21), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 14), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 15), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 18), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Pow(10, 6), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Pow(10, 9), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Int(1000), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 27), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 24), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Pow(10, 12), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 36), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("picov"))  # nopep8
-    CONVERSIONS["PICOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.PICOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 33), Sym("picov"))  # nopep8
-    CONVERSIONS["TERAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 6), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Int(1000), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 12), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("terav"))  # nopep8
-    CONVERSIONS["TERAVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.TERAVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 9), Sym("terav"))  # nopep8
-    CONVERSIONS["VOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Int(100)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Int(10), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Int(10)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 18), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 9), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Int(100), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Int(1000), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 6), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 15), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 12), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 24), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("v"))  # nopep8
-    CONVERSIONS["VOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.VOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 21), Sym("v"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Pow(10, 6), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Pow(10, 22), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 25), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Pow(10, 23), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 42), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Pow(10, 9), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 33), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 26), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 27), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 30), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Pow(10, 18), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Pow(10, 21), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Pow(10, 15), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 39), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Pow(10, 12), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 36), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Pow(10, 24), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 48), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Int(1000), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOCTOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOCTOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 45), Sym("yoctov"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 48)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("yottav"))  # nopep8
-    CONVERSIONS["YOTTAVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.YOTTAVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("yottav"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Int(1000), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Pow(10, 19), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Pow(10, 22), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Pow(10, 20), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Pow(10, 39), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Pow(10, 6), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Pow(10, 30), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Pow(10, 23), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Pow(10, 24), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Pow(10, 27), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Pow(10, 15), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Pow(10, 18), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Pow(10, 12), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Pow(10, 36), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Pow(10, 9), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Pow(10, 33), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Pow(10, 21), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Pow(10, 45), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZEPTOVOLT:ZETTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZEPTOVOLT][UnitsElectricPotential.ZETTAVOLT] = \
         Mul(Pow(10, 42), Sym("zeptov"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:ATTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.ATTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:CENTIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.CENTIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:DECAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.DECAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:DECIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.DECIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:EXAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.EXAVOLT] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:FEMTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.FEMTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:GIGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.GIGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:HECTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.HECTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:KILOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.KILOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:MEGAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.MEGAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:MICROVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.MICROVOLT] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:MILLIVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.MILLIVOLT] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:NANOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.NANOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:PETAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.PETAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:PICOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.PICOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:TERAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.TERAVOLT] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:VOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.VOLT] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:YOCTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.YOCTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:YOTTAVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.YOTTAVOLT] = \
         Mul(Int(1000), Sym("zettav"))  # nopep8
-    CONVERSIONS["ZETTAVOLT:ZEPTOVOLT"] = \
+    CONVERSIONS[UnitsElectricPotential.ZETTAVOLT][UnitsElectricPotential.ZEPTOVOLT] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("zettav"))  # nopep8
 
     SYMBOLS = dict()
@@ -915,18 +924,19 @@ class ElectricPotentialI(_omero_model.ElectricPotential, UnitBase):
         if isinstance(value, _omero_model.ElectricPotentialI):
             # This is a copy-constructor call.
             target = str(unit)
+            targetUnit = getattr(UnitsElectricPotential, str(target))
             source = str(value.getUnit())
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                c = self.CONVERSIONS.get(value.getUnit()).get(targetUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(getattr(UnitsElectricPotential, str(target)))
+                self.setUnit(targetUnit)
         else:
             self.setValue(value)
             self.setUnit(unit)

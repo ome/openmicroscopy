@@ -45,846 +45,855 @@ from omero.model.conversions import Sym  # nopep8
 
 class FrequencyI(_omero_model.Frequency, UnitBase):
 
+    try:
+        UNIT_VALUES = sorted(UnitsFrequency._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UNIT_VALUES = [x for x in sorted(UnitsFrequency._names)]
+        UNIT_VALUES = [getattr(UnitsFrequency, x) for x in UNIT_VALUES]
     CONVERSIONS = dict()
-    CONVERSIONS["ATTOHERTZ:CENTIHERTZ"] = \
+    for val in UNIT_VALUES:
+        CONVERSIONS[val] = dict()
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Pow(10, 16), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 19), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Pow(10, 17), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 36), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Int(1000), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 27), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 20), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Pow(10, 18), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 21), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 24), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Pow(10, 12), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Pow(10, 15), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Pow(10, 9), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 33), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Pow(10, 6), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 30), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 42), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("attohz"))  # nopep8
-    CONVERSIONS["ATTOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ATTOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 39), Sym("attohz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Int(1000), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Int(10), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 20), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 11), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 4), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Int(100), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 5), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 8), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Int(10)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 17), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 14), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 26), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("centihz"))  # nopep8
-    CONVERSIONS["CENTIHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.CENTIHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 23), Sym("centihz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Int(100)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 17), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 8), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Int(10), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Int(10)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Int(100), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 5), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 14), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 11), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 23), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECAHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECAHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 20), Sym("decahz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Int(10)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Int(100), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 19), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 10), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Int(1000), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Int(10), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 4), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 7), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Int(100)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 16), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 13), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 25), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("decihz"))  # nopep8
-    CONVERSIONS["DECIHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.DECIHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 22), Sym("decihz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 6), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("exahz"))  # nopep8
-    CONVERSIONS["EXAHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.EXAHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Int(1000), Sym("exahz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Pow(10, 13), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 16), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Pow(10, 14), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 33), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 24), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 17), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Pow(10, 15), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 18), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 21), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Pow(10, 9), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Pow(10, 12), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Pow(10, 6), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 30), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Int(1000), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 27), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 39), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("femtohz"))  # nopep8
-    CONVERSIONS["FEMTOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.FEMTOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 36), Sym("femtohz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 9), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 6), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Int(1000), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 15), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("gigahz"))  # nopep8
-    CONVERSIONS["GIGAHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.GIGAHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 12), Sym("gigahz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Int(10)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 16), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 7), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Int(100)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Int(10), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 4), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 13), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 10), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 22), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HECTOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HECTOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 19), Sym("hectohz"))  # nopep8
-    CONVERSIONS["HERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Int(100)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Int(10), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Int(10)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 18), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 9), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Int(100), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Int(1000), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 6), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 15), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 12), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 24), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("hz"))  # nopep8
-    CONVERSIONS["HERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.HERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 21), Sym("hz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Int(100)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 15), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 6), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Int(10)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Int(1000), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 12), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 9), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 21), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("kilohz"))  # nopep8
-    CONVERSIONS["KILOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.KILOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 18), Sym("kilohz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 8)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 5)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 7)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 12), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Int(1000), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 4)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 9), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 6), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 18), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("megahz"))  # nopep8
-    CONVERSIONS["MEGAHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MEGAHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 15), Sym("megahz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Pow(10, 4), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 7), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Pow(10, 5), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 24), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 15), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 8), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Pow(10, 6), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 9), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 12), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Int(1000), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 21), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 18), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 30), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("microhz"))  # nopep8
-    CONVERSIONS["MICROHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MICROHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 27), Sym("microhz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Int(10), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 4), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Int(100), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 21), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 12), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 5), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Int(1000), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 6), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 9), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 18), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 15), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 27), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("millihz"))  # nopep8
-    CONVERSIONS["MILLIHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.MILLIHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 24), Sym("millihz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Pow(10, 7), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 10), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Pow(10, 8), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 27), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 18), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 11), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Pow(10, 9), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 12), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 15), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Int(1000), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Pow(10, 6), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 24), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 21), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 33), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("nanohz"))  # nopep8
-    CONVERSIONS["NANOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.NANOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 30), Sym("nanohz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 17)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 16)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Int(1000), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 9), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("petahz"))  # nopep8
-    CONVERSIONS["PETAHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PETAHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 6), Sym("petahz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Pow(10, 10), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 13), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Pow(10, 11), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 30), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 21), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 14), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Pow(10, 12), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 15), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 18), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Pow(10, 6), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Pow(10, 9), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Int(1000), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 27), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 24), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 36), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("picohz"))  # nopep8
-    CONVERSIONS["PICOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.PICOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 33), Sym("picohz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 14)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 11)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 13)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 6), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 10)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Int(1000), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 12), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("terahz"))  # nopep8
-    CONVERSIONS["TERAHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.TERAHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 9), Sym("terahz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Pow(10, 6), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Pow(10, 22), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 25), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Pow(10, 23), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 42), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Pow(10, 9), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 33), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 26), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Pow(10, 24), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 27), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 30), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Pow(10, 18), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Pow(10, 21), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Pow(10, 15), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 39), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Pow(10, 12), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 36), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 48), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Int(1000), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOCTOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOCTOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 45), Sym("yoctohz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 26)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 25)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 48)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["YOTTAHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.YOTTAHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("yottahz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Int(1000), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Pow(10, 19), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Pow(10, 22), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Pow(10, 20), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Pow(10, 39), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Pow(10, 6), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Pow(10, 30), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Pow(10, 23), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Pow(10, 21), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Pow(10, 24), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Pow(10, 27), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Pow(10, 15), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Pow(10, 18), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Pow(10, 12), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Pow(10, 36), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Pow(10, 9), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Pow(10, 33), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Pow(10, 45), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZEPTOHERTZ:ZETTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZEPTOHERTZ][UnitsFrequency.ZETTAHERTZ] = \
         Mul(Pow(10, 42), Sym("zeptohz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:ATTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.ATTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 39)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:CENTIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.CENTIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 23)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:DECAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.DECAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 20)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:DECIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.DECIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 22)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:EXAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.EXAHERTZ] = \
         Mul(Rat(Int(1), Int(1000)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:FEMTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.FEMTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 36)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:GIGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.GIGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 12)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:HECTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.HECTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 19)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:HERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.HERTZ] = \
         Mul(Rat(Int(1), Pow(10, 21)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:KILOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.KILOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 18)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:MEGAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.MEGAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 15)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:MICROHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.MICROHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 27)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:MILLIHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.MILLIHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 24)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:NANOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.NANOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 30)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:PETAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.PETAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 6)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:PICOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.PICOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 33)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:TERAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.TERAHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 9)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:YOCTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.YOCTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 45)), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:YOTTAHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.YOTTAHERTZ] = \
         Mul(Int(1000), Sym("zettahz"))  # nopep8
-    CONVERSIONS["ZETTAHERTZ:ZEPTOHERTZ"] = \
+    CONVERSIONS[UnitsFrequency.ZETTAHERTZ][UnitsFrequency.ZEPTOHERTZ] = \
         Mul(Rat(Int(1), Pow(10, 42)), Sym("zettahz"))  # nopep8
 
     SYMBOLS = dict()
@@ -915,18 +924,19 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
         if isinstance(value, _omero_model.FrequencyI):
             # This is a copy-constructor call.
             target = str(unit)
+            targetUnit = getattr(UnitsFrequency, str(target))
             source = str(value.getUnit())
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                c = self.CONVERSIONS.get(value.getUnit()).get(targetUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(getattr(UnitsFrequency, str(target)))
+                self.setUnit(targetUnit)
         else:
             self.setValue(value)
             self.setUnit(unit)

@@ -45,30 +45,39 @@ from omero.model.conversions import Sym  # nopep8
 
 class TemperatureI(_omero_model.Temperature, UnitBase):
 
+    try:
+        UNIT_VALUES = sorted(UnitsTemperature._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UNIT_VALUES = [x for x in sorted(UnitsTemperature._names)]
+        UNIT_VALUES = [getattr(UnitsTemperature, x) for x in UNIT_VALUES]
     CONVERSIONS = dict()
-    CONVERSIONS["CELSIUS:FAHRENHEIT"] = \
+    for val in UNIT_VALUES:
+        CONVERSIONS[val] = dict()
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.FAHRENHEIT] = \
         Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32))  # nopep8
-    CONVERSIONS["CELSIUS:KELVIN"] = \
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.KELVIN] = \
         Add(Sym("c"), Rat(Int(5463), Int(20)))  # nopep8
-    CONVERSIONS["CELSIUS:RANKINE"] = \
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.RANKINE] = \
         Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100)))  # nopep8
-    CONVERSIONS["FAHRENHEIT:CELSIUS"] = \
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.CELSIUS] = \
         Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9)))  # nopep8
-    CONVERSIONS["FAHRENHEIT:KELVIN"] = \
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.KELVIN] = \
         Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180)))  # nopep8
-    CONVERSIONS["FAHRENHEIT:RANKINE"] = \
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.RANKINE] = \
         Add(Sym("f"), Rat(Int(45967), Int(100)))  # nopep8
-    CONVERSIONS["KELVIN:CELSIUS"] = \
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.CELSIUS] = \
         Add(Sym("k"), Rat(Int(-5463), Int(20)))  # nopep8
-    CONVERSIONS["KELVIN:FAHRENHEIT"] = \
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.FAHRENHEIT] = \
         Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100)))  # nopep8
-    CONVERSIONS["KELVIN:RANKINE"] = \
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.RANKINE] = \
         Mul(Rat(Int(9), Int(5)), Sym("k"))  # nopep8
-    CONVERSIONS["RANKINE:CELSIUS"] = \
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.CELSIUS] = \
         Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20)))  # nopep8
-    CONVERSIONS["RANKINE:FAHRENHEIT"] = \
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.FAHRENHEIT] = \
         Add(Sym("r"), Rat(Int(-45967), Int(100)))  # nopep8
-    CONVERSIONS["RANKINE:KELVIN"] = \
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.KELVIN] = \
         Mul(Rat(Int(5), Int(9)), Sym("r"))  # nopep8
 
     SYMBOLS = dict()
@@ -82,18 +91,19 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
         if isinstance(value, _omero_model.TemperatureI):
             # This is a copy-constructor call.
             target = str(unit)
+            targetUnit = getattr(UnitsTemperature, str(target))
             source = str(value.getUnit())
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                c = self.CONVERSIONS.get(value.getUnit()).get(targetUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(getattr(UnitsTemperature, str(target)))
+                self.setUnit(targetUnit)
         else:
             self.setValue(value)
             self.setUnit(unit)

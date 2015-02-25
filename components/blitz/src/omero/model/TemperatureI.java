@@ -56,28 +56,52 @@ public class TemperatureI extends Temperature implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
+    private static Map<UnitsTemperature, Conversion> createMapCELSIUS() {
+        EnumMap<UnitsTemperature, Conversion> c =
+            new EnumMap<UnitsTemperature, Conversion>(UnitsTemperature.class);
+        c.put(UnitsTemperature.FAHRENHEIT, Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32)));
+        c.put(UnitsTemperature.KELVIN, Add(Sym("c"), Rat(Int(5463), Int(20))));
+        c.put(UnitsTemperature.RANKINE, Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100))));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTemperature, Conversion> createMapFAHRENHEIT() {
+        EnumMap<UnitsTemperature, Conversion> c =
+            new EnumMap<UnitsTemperature, Conversion>(UnitsTemperature.class);
+        c.put(UnitsTemperature.CELSIUS, Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9))));
+        c.put(UnitsTemperature.KELVIN, Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180))));
+        c.put(UnitsTemperature.RANKINE, Add(Sym("f"), Rat(Int(45967), Int(100))));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTemperature, Conversion> createMapKELVIN() {
+        EnumMap<UnitsTemperature, Conversion> c =
+            new EnumMap<UnitsTemperature, Conversion>(UnitsTemperature.class);
+        c.put(UnitsTemperature.CELSIUS, Add(Sym("k"), Rat(Int(-5463), Int(20))));
+        c.put(UnitsTemperature.FAHRENHEIT, Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100))));
+        c.put(UnitsTemperature.RANKINE, Mul(Rat(Int(9), Int(5)), Sym("k")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTemperature, Conversion> createMapRANKINE() {
+        EnumMap<UnitsTemperature, Conversion> c =
+            new EnumMap<UnitsTemperature, Conversion>(UnitsTemperature.class);
+        c.put(UnitsTemperature.CELSIUS, Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20))));
+        c.put(UnitsTemperature.FAHRENHEIT, Add(Sym("r"), Rat(Int(-45967), Int(100))));
+        c.put(UnitsTemperature.KELVIN, Mul(Rat(Int(5), Int(9)), Sym("r")));
+        return Collections.unmodifiableMap(c);
+    }
+
     private static final Map<UnitsTemperature, Map<UnitsTemperature, Conversion>> conversions;
     static {
 
-        EnumMap<UnitsTemperature, EnumMap<UnitsTemperature, Conversion>> c
-            = new EnumMap<UnitsTemperature, EnumMap<UnitsTemperature, Conversion>>(UnitsTemperature.class);
+        Map<UnitsTemperature, Map<UnitsTemperature, Conversion>> c
+            = new EnumMap<UnitsTemperature, Map<UnitsTemperature, Conversion>>(UnitsTemperature.class);
 
-        for (UnitsTemperature e : UnitsTemperature.values()) {
-            c.put(e, new EnumMap<UnitsTemperature, Conversion>(UnitsTemperature.class));
-        }
-
-        c.get(UnitsTemperature.CELSIUS).put(UnitsTemperature.FAHRENHEIT, Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32)));
-        c.get(UnitsTemperature.CELSIUS).put(UnitsTemperature.KELVIN, Add(Sym("c"), Rat(Int(5463), Int(20))));
-        c.get(UnitsTemperature.CELSIUS).put(UnitsTemperature.RANKINE, Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100))));
-        c.get(UnitsTemperature.FAHRENHEIT).put(UnitsTemperature.CELSIUS, Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9))));
-        c.get(UnitsTemperature.FAHRENHEIT).put(UnitsTemperature.KELVIN, Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180))));
-        c.get(UnitsTemperature.FAHRENHEIT).put(UnitsTemperature.RANKINE, Add(Sym("f"), Rat(Int(45967), Int(100))));
-        c.get(UnitsTemperature.KELVIN).put(UnitsTemperature.CELSIUS, Add(Sym("k"), Rat(Int(-5463), Int(20))));
-        c.get(UnitsTemperature.KELVIN).put(UnitsTemperature.FAHRENHEIT, Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100))));
-        c.get(UnitsTemperature.KELVIN).put(UnitsTemperature.RANKINE, Mul(Rat(Int(9), Int(5)), Sym("k")));
-        c.get(UnitsTemperature.RANKINE).put(UnitsTemperature.CELSIUS, Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20))));
-        c.get(UnitsTemperature.RANKINE).put(UnitsTemperature.FAHRENHEIT, Add(Sym("r"), Rat(Int(-45967), Int(100))));
-        c.get(UnitsTemperature.RANKINE).put(UnitsTemperature.KELVIN, Mul(Rat(Int(5), Int(9)), Sym("r")));
+        c.put(UnitsTemperature.CELSIUS, createMapCELSIUS());
+        c.put(UnitsTemperature.FAHRENHEIT, createMapFAHRENHEIT());
+        c.put(UnitsTemperature.KELVIN, createMapKELVIN());
+        c.put(UnitsTemperature.RANKINE, createMapRANKINE());
         conversions = Collections.unmodifiableMap(c);
     }
 
