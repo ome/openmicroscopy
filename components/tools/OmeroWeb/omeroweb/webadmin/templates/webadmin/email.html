@@ -32,8 +32,7 @@
 
     <link rel="stylesheet" href="{% static 'webgateway/css/ome.table.css' %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% static '3rdparty/jquery.tablesorter/jquery.tablesorter.css' %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static 'webadmin/css/email.css' %}" type="text/css" media="screen"/>
-    
+
 	<!--[if lte IE 8]>
 		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
 	<![endif]-->
@@ -76,15 +75,9 @@
     <div class="one_column_content">
       <h1>{% trans "Email Announcement" %}</h1>
 
-      {% if messages %}
-        {% for message in messages %}
-          <div class="message{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-
       <form action="{% url 'waemail' %}" method="POST" class="standard_form settings_form">{% csrf_token %}
-        {% if form.non_field_errors %}
-          Error: {{ form.non_field_errors }}
+        {% if non_field_errors %}
+          <div class="error">{{ non_field_errors }}</div>
         {% endif %}
 
         {% for field in form %}

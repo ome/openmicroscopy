@@ -55,6 +55,7 @@ import omero.api.AMD_IShare_removeUsers;
 import omero.api.AMD_IShare_setActive;
 import omero.api.AMD_IShare_setDescription;
 import omero.api.AMD_IShare_setExpiration;
+import omero.api.AMD_IShare_notifyMembersOfShare;
 import omero.api._IShareOperations;
 import omero.model.Annotation;
 import omero.model.Experimenter;
@@ -317,6 +318,12 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
             AMD_IShare_invalidateConnection __cb, long shareId,
             Experimenter exp, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, shareId, exp);
+    }
+
+    public void notifyMembersOfShare_async(
+            AMD_IShare_notifyMembersOfShare __cb, long shareId, String subject,
+            String message, boolean html, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, shareId, subject, message, html);
     }
 
     public void removeGuests_async(AMD_IShare_removeGuests __cb, long shareId,

@@ -272,6 +272,57 @@ INTERNAL_SETTINGS_MAPPING = {
         ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str, None],
     "omero.web.nanoxml_jar":
         ["NANOXML_JAR", "nanoxml.jar", str, None],
+    "omero.web.webstart_admins_only":
+        ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
+
+    # Internal email notification for admins
+    "omero.web.admins":
+        ["ADMINS",
+         '[]',
+         json.loads,
+         ("A tuple that lists people who get code error notifications. When "
+          ":property:`omero.web.debug` False and a view raises an exception, "
+          "Django will email these people with the full exception"
+          " information. Each member of the tuple should be a tuple of (Full"
+          " name, email address).")],
+    "omero.web.admins.server_email":
+        ["SERVER_EMAIL",
+         None,
+         identity,
+         ("The email address that error messages come from, such as those"
+          " sent to :property:`omero.web.admins`.  Requires EMAIL properties"
+          " below.")],
+    "omero.web.admins.email_host":
+        ["EMAIL_HOST",
+         None,
+         identity,
+         "The SMTP server host to use for sending email."],
+    "omero.web.admins.email_host_password":
+        ["EMAIL_HOST_PASSWORD",
+         None,
+         identity,
+         "Password to use for the SMTP server."],
+    "omero.web.admins.email_host_user":
+        ["EMAIL_HOST_USER",
+         None,
+         identity,
+         "Username to use for the SMTP server."],
+    "omero.web.admins.email_port":
+        ["EMAIL_PORT",
+         None,
+         identity,
+         "Port to use for the SMTP server."],
+    "omero.web.admins.email_subject_prefix":
+        ["EMAIL_SUBJECT_PREFIX",
+         "[OMERO.web - admin notification]",
+         str,
+         "Subject-line prefix for email messages"],
+    "omero.web.admins.email_use_tls":
+        ["EMAIL_USE_TLS",
+         "false",
+         parse_boolean,
+         ("Whether to use a TLS (secure) connection when talking to the SMTP"
+          " server.")],
 
     # Deprecated
     "omero.web.send_broken_link_emails":
@@ -347,53 +398,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
          86400,
          int,
          "The age of session cookies, in seconds."],
-    "omero.web.admins":
-        ["ADMINS",
-         '[]',
-         json.loads,
-         ("A tuple that lists people who get code error notifications. When "
-          ":property:`omero.web.debug` False and a view raises an exception, "
-          "Django will email these people with the full exception"
-          " information. Each member of the tuple should be a tuple of (Full"
-          " name, email address).")],
-    "omero.web.server_email":
-        ["SERVER_EMAIL",
-         None,
-         identity,
-         ("The email address that error messages come from, such as those"
-          " sent to :property:`omero.web.admins`.  Requires EMAIL properties"
-          " below.")],
-    "omero.web.email_host":
-        ["EMAIL_HOST",
-         None,
-         identity,
-         "The SMTP server host to use for sending email."],
-    "omero.web.email_host_password":
-        ["EMAIL_HOST_PASSWORD",
-         None,
-         identity,
-         "Password to use for the SMTP server."],
-    "omero.web.email_host_user":
-        ["EMAIL_HOST_USER",
-         None,
-         identity,
-         "Username to use for the SMTP server."],
-    "omero.web.email_port":
-        ["EMAIL_PORT",
-         None,
-         identity,
-         "Port to use for the SMTP server."],
-    "omero.web.email_subject_prefix":
-        ["EMAIL_SUBJECT_PREFIX",
-         "[OMERO.web]",
-         str,
-         "Subject-line prefix for email messages"],
-    "omero.web.email_use_tls":
-        ["EMAIL_USE_TLS",
-         "false",
-         parse_boolean,
-         ("Whether to use a TLS (secure) connection when talking to the SMTP"
-          " server.")],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
 
@@ -593,6 +597,42 @@ DEPRECATED_SETTINGS_MAPPINGS = {
          None,
          leave_none_unset,
          ("Use omero.web.prefix instead.")],
+    "omero.web.server_email":
+        ["SERVER_EMAIL",
+         None,
+         identity,
+         ("Use omero.mail.from instead.")],
+    "omero.web.email_host":
+        ["EMAIL_HOST",
+         None,
+         identity,
+         ("Use omero.mail.host instead.")],
+    "omero.web.email_host_password":
+        ["EMAIL_HOST_PASSWORD",
+         None,
+         identity,
+         ("Use omero.mail.password instead.")],
+    "omero.web.email_host_user":
+        ["EMAIL_HOST_USER",
+         None,
+         identity,
+         ("Use omero.mail.username instead.")],
+    "omero.web.email_port":
+        ["EMAIL_PORT",
+         None,
+         identity,
+         ("Use omero.mail.port instead.")],
+    "omero.web.email_subject_prefix":
+        ["EMAIL_SUBJECT_PREFIX",
+         "[OMERO.web]",
+         str,
+         ("Default email subject is no longer configurable.")],
+    "omero.web.email_use_tls":
+        ["EMAIL_USE_TLS",
+         "false",
+         parse_boolean,
+         ("Use omero.mail.smtp.* instead to set up"
+          " javax.mail.Session properties.")],
 }
 
 del CUSTOM_HOST
@@ -600,17 +640,7 @@ del CUSTOM_HOST
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
 # a ticket that needs to be resolved before a release either by moving the
 # setting to CUSTOM_SETTINGS_MAPPINGS or by removing the setting at all.
-DEVELOPMENT_SETTINGS_MAPPINGS = {
-
-    # Rename Orphans in data manager; default: '{"NAME":"Orphaned images",
-    # "DESCRIPTION":"This is a virtual container with orphaned images. These
-    # images are not linked anywhere. Just drag them to the selected
-    # container."}'
-    "omero.web.webstart_admins_only":
-        ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
-    "omero.web.webadmin.enable_email":
-        ["WEBADMIN_ENABLE_EMAIL", "false", parse_boolean, None],
-}
+DEVELOPMENT_SETTINGS_MAPPINGS = {}
 
 
 def map_deprecated_settings(settings):
@@ -981,41 +1011,6 @@ DEFAULT_USER = os.path.join(
 # SEND_BROKEN_LINK_EMAILS=True.
 MANAGERS = ADMINS  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
 
-
-EMAIL_TEMPLATES = {
-    'create_share': {
-        'html_content': (
-            '<p>Hi,</p><p>I would like to share some of my data'
-            ' with you.<br/>Please find it on the'
-            ' <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>'),
-        'text_content': (
-            'Hi, I would like to share some of my data with you.'
-            ' Please find it on the %s?server=%i. /n %s')
-    },
-    'add_member_to_share': {
-        'html_content': (
-            '<p>Hi,</p><p>I would like to share some of my data'
-            ' with you.<br/>Please find it on the'
-            ' <a href="%s?server=%i">%s?server=%i</a>.</p><p>%s</p>'),
-        'text_content': 'Hi, I would like to share some of my data with you.'
-        ' Please find it on the %s?server=%i. /n %s'
-    },
-    'remove_member_from_share': {
-        'html_content': (
-            '<p>You were removed from the share '
-            '<a href="%s?server=%i">%s?server=%i</a>. This share is no longer'
-            ' available for you.</p>'),
-        'text_content': (
-            'You were removed from the share %s?server=%i.'
-            ' This share is no longer available for you.')
-    },
-    'add_comment_to_share': {
-        'html_content': (
-            '<p>New comment is available on share '
-            '<a href="%s?server=%i">%s?server=%i</a>.</p>'),
-        'text_content': 'New comment is available on share %s?server=%i.'
-    }
-}
 
 # https://docs.djangoproject.com/en/1.6/releases/1.6/#default-session-serialization-switched-to-json
 # JSON serializer, which is now the default, cannot handle

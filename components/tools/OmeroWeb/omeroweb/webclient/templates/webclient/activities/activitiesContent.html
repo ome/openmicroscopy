@@ -1,6 +1,7 @@
 <html>
 {% load i18n %}
 {% load common_filters %}
+{% load common_tags %}
 
 
 {% comment %}
@@ -87,6 +88,55 @@
                     </tr>
                 {% endifequal %}
 
+                <!-- sending_email jobs -->
+                {% ifequal j.job_type "send_email" %}
+                    <tr id="{{ j.id }}" class="{% if j.new %}new_result{% endif %}{% ifequal j.status 'in progress' %} in_progress{% endifequal %}" >
+                        <td width="25px">
+                            {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
+                            {% else %}
+                                {% if j.error %}
+                                    <img alt="Failed to send email" src="{% static "webgateway/img/failed.png" %}" />
+                                {% else %}
+                                    <img class="icon" src="{% static "webgateway/img/success.png" %}" />
+                                {% endif %}
+                            {% endifequal %}
+                        </td>
+                        <td class="script_description" colspan='2'>
+                            <span class="activity_title">
+                                Send email
+                            </span>
+                            <span class="message">
+                                {% ifequal j.status "in progress" %}
+                                    Sending admin email...
+                                {% else %}
+                                    {% ifequal j.status "finished" %}
+                                        Sent {{ j.rsp.success }} {% plural j.rsp.success 'email' 'emails' %} of {{ j.rsp.total }}
+                                    {% endifequal %}
+                                    {% if j.report %}
+                                        <div class="chgrp_error">
+                                            <a href="#" title="Click to Open in new Window"> More...</a>
+                                            <div style="display:none">
+                                                <p>{{ j.report.error }}</p>
+                                                {% if j.report.invalidusers %}
+                                                <p>Invalid users:</p>
+                                                {% for u in j.report.invalidusers %}
+                                                    User: {{ u }}</br>
+                                                {% endfor %}
+                                                {% endif %}
+                                                {% if j.report.invalidemails %}
+                                                <p>Invalid emails:</p>
+                                                {% for u in j.report.invalidemails %}
+                                                    Email: {{ u }}</br>
+                                                {% endfor %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endifequal %}
+                            </span>
+                        </td>
+                    </tr>
+                {% endifequal %}
 
                 <!-- Delete jobs -->
                 {% ifequal j.job_type "delete" %}
