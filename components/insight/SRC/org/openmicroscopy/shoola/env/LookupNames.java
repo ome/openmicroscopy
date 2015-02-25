@@ -42,6 +42,8 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
 
+    /** Field to indicating if the session is from a session key. */
+    public static final String SESSION_KEY = "SessionKey";
     /** 
      * Field indicating how to display the data i.e.
      * <code>group</code> display, <code>experimenter</code>.
@@ -113,7 +115,7 @@ public class LookupNames
     public static final String MASTER_IMPORTER = "OMERO.importer";
 
     /** Field to access the <code>Version</code> information. */
-    public static final String VERSION = "Version";	
+    public static final String VERSION = "Version";
 
     /** Field to access the <code>Name of the software</code>. */
     public static final String SOFTWARE_NAME = "SoftwareName";

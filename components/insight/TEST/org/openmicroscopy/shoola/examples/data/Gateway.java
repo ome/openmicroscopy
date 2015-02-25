@@ -305,7 +305,7 @@ public class Gateway
 		services.clear();
 		reServices.clear();
 		try {
-			secureClient.closeSession();
+			if (secureClient != null) secureClient.__del__();
 			secureClient = null;
 			entryEncrypted = null;
 		} catch (Exception e) {

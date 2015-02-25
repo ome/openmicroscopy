@@ -255,8 +255,6 @@ public class LoginServiceImpl
         if (uc == null) return NOT_CONNECTED;
         String name = uc.getUserName();
         if (CommonsLangUtils.isBlank(name)) return NOT_CONNECTED;
-        String password = uc.getPassword();
-        if (CommonsLangUtils.isBlank(password)) return NOT_CONNECTED;
 
         state = ATTEMPTING_LOGIN;
         config.setCredentials(uc);
