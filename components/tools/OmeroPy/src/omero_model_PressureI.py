@@ -35,12 +35,12 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsPressure
 
-from omero.model.conversions import Add  # nopep8
-from omero.model.conversions import Int  # nopep8
-from omero.model.conversions import Mul  # nopep8
-from omero.model.conversions import Pow  # nopep8
-from omero.model.conversions import Rat  # nopep8
-from omero.model.conversions import Sym  # nopep8
+from omero.conversions import Add  # nopep8
+from omero.conversions import Int  # nopep8
+from omero.conversions import Mul  # nopep8
+from omero.conversions import Pow  # nopep8
+from omero.conversions import Rat  # nopep8
+from omero.conversions import Sym  # nopep8
 
 
 class PressureI(_omero_model.Pressure, UnitBase):
