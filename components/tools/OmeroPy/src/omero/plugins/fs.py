@@ -294,7 +294,9 @@ class FsControl(CmdControl):
             help="Print size for all current user's groups")
         usage.add_argument(
             "obj", nargs="*",
-            help="Objects to be queried in the form '<Class>:<Id>[,<Id> ...]'")
+            help=("Objects to be queried in the form "
+                  "'<Class>:<Id>[,<Id> ...]', or '<Class>:*' "
+                  "to query all the objects of the given type "))
 
         for x in (images, sets):
             x.add_argument(
@@ -710,6 +712,10 @@ Examples:
     bin/omero fs usage --groups    # total usage for current user's groups
     # total usage for five images with minimal output
     bin/omero fs usage Image:1,2,3,4,5 --size_only
+    # total usage for all images with in a human readable format
+    bin/omero fs usage Image:* --human-readable
+    # total usage for all users broken down by user and group
+    bin/omero fs usage Experimenter:* --report --sum-by user group
     # total usage for two projects and one dataset Megabytes
     bin/omero fs usage Project:1,2 Dataset:5 --units M
     # in this last case if the dataset was within one of the projects
