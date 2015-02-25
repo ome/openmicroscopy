@@ -11,7 +11,7 @@ Suite Teardown      Close all browsers
 *** Test Cases ***
 
 Test Tag
-    [Documentation]     Test Batch Annotation of 2 Projects that we create
+    [Documentation]     Several tests of the Tag dialog for single or batch tagging.
 
     Go To                                       ${WELCOME URL}
     Select Experimenter
