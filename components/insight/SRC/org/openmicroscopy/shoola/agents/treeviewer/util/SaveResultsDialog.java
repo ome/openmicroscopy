@@ -130,8 +130,8 @@ public class SaveResultsDialog
         ResultsObject result;
         if (toImport.size() > 0) { //ask if they want to import the image
             StringBuffer buf = new StringBuffer();
-            buf.append("Do you wish to import the selected image(s), not in "
-                    + "OMERO?");
+            buf.append("Do you wish to import any selected images not already "
+                    + "saved in OMERO to the OMERO server?");
             MessageBox box = new MessageBox(this, "Import images", buf.toString());
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);

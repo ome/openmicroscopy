@@ -96,7 +96,7 @@ public class FileObject
     /**
      * Returns the associated files if any or <code>null</code>.
      * 
-     * @preturn See above.
+     * @return See above.
      */
     public List<FileObject> getAssociatedFiles()
     {
