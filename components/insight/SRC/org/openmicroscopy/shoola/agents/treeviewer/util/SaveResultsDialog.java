@@ -116,8 +116,21 @@ public class SaveResultsDialog
         List<Object> toImport = new ArrayList<Object>();
         if (activeWindow) {
             img = new FileObject(WindowManager.getCurrentImage());
-            if (img.getOMEROID() < 0) toImport.add(img);
-            else images.add(img);
+            if (img.getOMEROID() < 0) {
+                toImport.add(img);
+              //check if there are associated files
+                int[] values = WindowManager.getIDList();
+                String path = img.getAbsolutePath();
+                if (path != null) {
+                    FileObject ff;
+                    for (int i = 0; i < values.length; i++) {
+                        ff = new FileObject(WindowManager.getImage(values[i]));
+                        if (path.equals(ff.getAbsolutePath())) {
+                            img.addAssociatedFile(ff);
+                        }
+                    }
+                }
+            } else images.add(img);
         } else {
             int[] values = WindowManager.getIDList();
             for (int i = 0; i < values.length; i++) {
