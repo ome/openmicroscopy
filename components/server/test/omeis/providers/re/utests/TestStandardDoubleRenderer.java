@@ -114,8 +114,10 @@ public class TestStandardDoubleRenderer extends BaseRenderingTest
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
                 settings.getQuantization(), pixels.getPixelsType());
-        assertEquals(Integer.MIN_VALUE, qs.getPixelsTypeMin());
-        assertEquals(Integer.MAX_VALUE, qs.getPixelsTypeMax());
+        assertEquals(new Double(Integer.MIN_VALUE),
+                new Double(qs.getPixelsTypeMin()));
+        assertEquals(new Double(Integer.MAX_VALUE),
+                new Double(qs.getPixelsTypeMax()));
     }
 
     @Test(timeOut=30000)
