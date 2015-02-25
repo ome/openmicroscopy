@@ -153,14 +153,15 @@ public class SaveResultsDialog
                          new SaveResultsEvent(result, true));
             }
         }
-        if (images.size() == 0) return;
-        result = new ResultsObject(images);
-        result.setROI(roi.isSelected());
-        ExperimenterData exp = TreeViewerAgent.getUserDetails();
-        SecurityContext ctx = new SecurityContext(exp.getGroupId());
-        ctx.setExperimenter(exp);
-        TreeViewerAgent.getRegistry().getUserNotifier().notifyActivity(ctx,
-                result);
+        if (images.size() > 0) {
+            result = new ResultsObject(images);
+            result.setROI(roi.isSelected());
+            ExperimenterData exp = TreeViewerAgent.getUserDetails();
+            SecurityContext ctx = new SecurityContext(exp.getGroupId());
+            ctx.setExperimenter(exp);
+            TreeViewerAgent.getRegistry().getUserNotifier().notifyActivity(ctx,
+                    result);
+        }
         cancel();
     }
 
