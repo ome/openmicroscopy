@@ -53,7 +53,7 @@ module omero {
                 void updateReferences(omero::api::StringStringArrayMap references) throws ServerError;
                 IObjectListMap saveToDB(omero::model::FilesetJobLink activity) throws ServerError;
                 void populateMinMax(DoubleArrayArrayArray imageChannelGlobalMinMax) throws ServerError;
-                idempotent void setPixelsParams(long pixelsId, bool useOriginalFile, StringStringMap params) throws ServerError;
+                idempotent void setPixelsFile(long pixelsId, string file, string repo) throws ServerError;
                 omero::grid::InteractiveProcessorList postProcess() throws ServerError;
             };
     };

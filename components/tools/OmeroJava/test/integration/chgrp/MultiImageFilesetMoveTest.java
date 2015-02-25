@@ -101,8 +101,8 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         }
         DatasetImageLink link(IUpdatePrx iUpdate, int datasetIndex, int imageIndex) throws Exception {
             DatasetImageLink link = new DatasetImageLinkI();
-            link.setParent(datasets.get(datasetIndex));
-            link.setChild(images.get(imageIndex));
+            link.setParent((Dataset) datasets.get(datasetIndex).proxy());
+            link.setChild((Image) images.get(imageIndex).proxy());
             link = (DatasetImageLink) iUpdate.saveAndReturnObject(link);
             return link;
         }
@@ -431,7 +431,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         List<IObject> links = new ArrayList<IObject>();
         while (i.hasNext()) {
         	DatasetImageLink link = new DatasetImageLinkI();
-        	link.setChild(i.next());
+        	link.setChild((Image) i.next().proxy());
         	link.setParent((Dataset) dataset.proxy());
 			links.add(link);
 		}

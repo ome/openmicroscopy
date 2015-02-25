@@ -14,6 +14,7 @@
 	<abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true">
 		<properties>
 			<optional name="ns" type="string"/>
+			<optional name="name" type="string"/>
 			<optional name="description" type="text"/>
 		</properties>
 	</abstract>

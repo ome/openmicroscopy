@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.Connector 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-//Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
@@ -37,15 +36,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 
-//Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ServerError;
 import omero.client;
@@ -479,11 +476,24 @@ class Connector
     IAdminPrx getAdminService()
             throws DSOutOfServiceException
     {
-        return IAdminPrxHelper.uncheckedCast(
-                get(omero.constants.ADMINSERVICE.value,
-                        unsecureClient == null));
+        return getAdminService(unsecureClient == null);
     }
 
+
+    /**
+     * Returns the {@link IAdminPrx} service.
+     *
+     * @param secure Pass <code>true</code> to have a secure admin service,
+     *               <code>false</code> otherwise.
+     * @return See above.
+     * @throws Throwable Thrown if the service cannot be initialized.
+     */
+    IAdminPrx getAdminService(boolean secure)
+            throws DSOutOfServiceException
+    {
+        return IAdminPrxHelper.uncheckedCast(
+                get(omero.constants.ADMINSERVICE.value, secure));
+    }
 
     //
     // Irregular service lookups
@@ -644,7 +654,8 @@ class Connector
         shutdownStateful();
         shutdownImports();
         if (!rendering) return;
-        for (Long pixelsId : reServices.keySet()) {
+        Set<Long> tmp = new HashSet<Long>(reServices.keySet());
+        for (Long pixelsId : tmp) {
             shutDownRenderingEngine(pixelsId);
         }
     }
@@ -832,7 +843,7 @@ class Connector
     Connector getConnector(String userName)
             throws Throwable
     {
-        if (StringUtils.isBlank(userName)) return this;
+        if (CommonsLangUtils.isBlank(userName)) return this;
         Connector c = derived.get(userName);
         if (c != null) return c;
         if (groupName == null) {

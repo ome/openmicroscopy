@@ -78,6 +78,7 @@ import org.testng.annotations.Test;
 /**
  */
 @Test(groups = { "integration", "chgrp" })
+@SuppressWarnings("deprecation")
 public class ChgrpITest extends AbstractGraphTest {
 
     long oldGroupId = -1L;

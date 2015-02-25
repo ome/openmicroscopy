@@ -94,6 +94,9 @@ public class DownloadActivityParam
     /** FileAnnotation to delete after downloading */
     private FileAnnotationData toDelete;
     
+    /** Overwrite local file, if it already exists */
+    private boolean overwrite = false;
+    
     /** 
      * Checks if the index is valid.
      * 
@@ -292,11 +295,32 @@ public class DownloadActivityParam
 	/**
 	 * Set the {@link FileAnnotationData} which should get
 	 * deleted after download finished
+	 * 
 	 * @param toDelete The {@link FileAnnotationData} to delete
 	 */
 	public void setToDelete(FileAnnotationData toDelete) {
 		this.toDelete = toDelete;
 	}
 
+	/**
+	 * Returns <code>true</code> if the local file should be overwritten, if it
+	 * already exists
+	 * 
+	 * @return See above.
+	 */
+	public boolean isOverwrite() {
+		return overwrite;
+	}
+
+	/**
+	 * Determines if the local file should be overwritten, if it already exists
+	 * 
+	 * @param overwrite
+	 *            Set to <code>true</code> if local file should be overwritten
+	 */
+	public void setOverwrite(boolean overwrite) {
+		this.overwrite = overwrite;
+	}
+	
 	
 }

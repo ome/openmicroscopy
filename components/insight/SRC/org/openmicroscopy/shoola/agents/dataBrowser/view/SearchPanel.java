@@ -50,8 +50,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
@@ -724,10 +723,10 @@ public class SearchPanel extends JPanel {
     String[] getQueryTerms() {
         String text;
         text = fullTextArea.getText();
-        if (!StringUtils.isBlank(text)) {
+        if (CommonsLangUtils.isNotBlank(text)) {
             List<String> l = SearchUtil.splitTerms(text);
             if (l.size() > 0)
-                return l.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
+                return l.toArray(new String[0]);
         }
 
         List<String> l = SearchUtil.splitTerms(text);

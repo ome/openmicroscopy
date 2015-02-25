@@ -164,7 +164,7 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Set the fill colour.
+	 * Set the fill color.
 	 * 
 	 * @param fillColour See above.
 	 */
@@ -173,6 +173,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (fillColour == null) return;
 		shape.setFillColor(rtypes.rint(fillColour.getRGB()));
 		setDirty(true);
 	}
@@ -192,7 +193,7 @@ public class ShapeSettingsData
 	}
 
 	/**
-	 * Set the stroke colour.
+	 * Set the stroke color.
 	 * 
 	 * @param strokeColour See above.
 	 */
@@ -201,6 +202,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (strokeColour == null) return;
 		shape.setStrokeColor(rtypes.rint(strokeColour.getRGB()));
 		setDirty(true);
 	}

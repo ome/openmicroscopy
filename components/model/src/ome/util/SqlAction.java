@@ -172,6 +172,13 @@ public interface SqlAction {
             Set<String> mimetypes);
 
     /**
+     * Like {@link #findRepoFile(String, String, String, Set)}, but queries in
+     * bulk and returns a map for the found IDs.
+     */
+    Map<String, Long> findRepoFiles(String uuid, String dirname,
+            List<String> basenames, Set<String> mimetypes);
+
+    /**
      * Return a list of original file ids that all have a path value matching
      * the passed dirname in the given repository.
      *
@@ -460,7 +467,7 @@ public interface SqlAction {
 
     List<String> getUserGroups(String userName);
 
-    void setFileRepo(long id, String repoId);
+    void setFileRepo(Collection<Long> ids, String repoId);
 
     void setPixelsNamePathRepo(long pixId, String name, String path,
             String repoId);
@@ -487,63 +494,11 @@ public interface SqlAction {
      */
     Map<Long, byte[]> getShareData(List<Long> ids);
 
-    //
-    // Previously PgArrayHelper
-    //
-
-    /**
-     * Returns only the (possibly empty) keys which are set on the given
-     * original file. If the given original file cannot be found, null is
-     * returned.
-     */
-    List<String> getPixelsParamKeys(long id) throws InternalException;
-
-    /**
-     * Loads all the (possibly empty) params for the given original file. If the
-     * id is not found, null is returned.
-     */
-    Map<String, String> getPixelsParams(final long id) throws InternalException;
-
     /**
      * Retrieves the name, path and repo for the given pixels set. If the
      * id is not found, null is returned.
      */
     List<String> getPixelsNamePathRepo(final long id) throws InternalException;
-
-    /**
-     * Resets the entire original file "params" field.
-     */
-    int setPixelsParams(final long id, Map<String, String> params);
-
-    /**
-     * Appends "{key, value}" onto the original file "params" field or replaces
-     * the value if already present.
-     */
-    int setPixelsParam(final long id, final String key, final String value);
-
-    /**
-     * Returns only the (possibly empty) keys which are set on the given
-     * original file. If the given original file cannot be found, null is
-     * returned.
-     */
-    List<String> getFileParamKeys(long id) throws InternalException;
-
-    /**
-     * Loads all the (possibly empty) params for the given original file. If the
-     * id is not found, null is returned.
-     */
-    Map<String, String> getFileParams(final long id) throws InternalException;
-
-    /**
-     * Resets the entire original file "params" field.
-     */
-    int setFileParams(final long id, Map<String, String> params);
-
-    /**
-     * Appends "{key, value}" onto the original file "params" field or replaces
-     * the value if already present.
-     */
-    int setFileParam(final long id, final String key, final String value);
 
     Set<String> currentUserNames();
 
@@ -737,15 +692,40 @@ public interface SqlAction {
 
         public Long findRepoFile(String uuid, String dirname, String basename,
                 Set<String> mimetypes) {
+            Map<String, Long> rv = findRepoFiles(uuid, dirname,
+                    Arrays.asList(basename), mimetypes);
+            if (rv == null) {
+                return null;
+            } else {
+                return rv.get(basename);
+            }
+        }
 
-            String findRepoFileSql = _lookup("find_repo_file"); //$NON-NLS-1$
+        public Map<String, Long> findRepoFiles(String uuid, String dirname,
+                List<String> basenames,
+                Set<String> mimetypes) {
+
+            if (basenames == null || basenames.size() == 0) {
+                return null;
+            }
+
+            String findRepoFileSql = _lookup("find_repo_files_by_name"); //$NON-NLS-1$
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("repo", uuid);
             params.put("path", dirname);
-            params.put("name", basename);
+            params.put("names", basenames);
             findRepoFileSql += addMimetypes(mimetypes, params);
             try {
-                return _jdbc().queryForLong(findRepoFileSql, params);
+                final Map<String, Long> rv = new HashMap<String, Long>();
+                _jdbc().query(findRepoFileSql,
+                        new RowMapper<Object>(){
+                            @Override
+                            public Object mapRow(ResultSet arg0, int arg1)
+                                    throws SQLException {
+                                rv.put(arg0.getString(1),  arg0.getLong(2));
+                                return null;
+                            }}, params);
+                return rv;
             } catch (EmptyResultDataAccessException e) {
                 return null;
             }

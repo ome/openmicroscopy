@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.EditorComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -123,9 +123,6 @@ class EditorComponent
 	
 	/** The dialog used to display script.*/
 	private ScriptingDialog dialog;
-	
-	/** A pointer to keep track which was the action which triggered the fileset loading */
-	private int filesetLoadTrigger = -1;
 	
 	/**
 	 * Returns the collection of annotation that cannot be removed 
@@ -290,11 +287,6 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject(oldObject);
-		
-		// have to load the filesets immediately to determine if the
-		// show file path button in the toolbar should be activated or not
-		if (refObject != null && DataObject.class.isAssignableFrom(refObject.getClass()))
-		    loadFileset(-1);
 	}
 
 	/** 
@@ -1166,10 +1158,10 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#saveAs(File, int)
 	 */
-	public void saveAs(File folder, int format)
+	public void saveAs(File folder, int format, String fileName)
 	{
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
-		model.saveAs(folder, format);
+		model.saveAs(folder, format, fileName);
 	}
 	
 	/** 
@@ -1226,18 +1218,17 @@ class EditorComponent
 	public void setFileset(Set<FilesetData> set)
 	{
 		model.setFileset(set);
-		view.displayFileset(filesetLoadTrigger);
+		view.displayFileset();
 	}
 
-    	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#loadFileset(int)
-	 */
-	public void loadFileset(int trigger)
-	{
-	        this.filesetLoadTrigger = trigger;
-		model.fireFilesetLoading();
-	}
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * 
+     * @see Editor#loadFileset(int)
+     */
+    public void loadFileset() {
+        model.fireFilesetLoading();
+    }
 
     /** 
      * Implemented as specified by the {@link Editor} interface.

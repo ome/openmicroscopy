@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
 import static org.jhotdraw.draw.AttributeKeys.FILL_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.FONT_BOLD;
 import static org.jhotdraw.draw.AttributeKeys.FONT_FACE;
@@ -48,9 +47,8 @@ import static org.jhotdraw.draw.AttributeKeys.TEXT_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
@@ -179,7 +177,7 @@ class InputServerStrategy
 		
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
-			if (StringUtils.isNotBlank(s)) {
+			if (CommonsLangUtils.isNotBlank(s)) {
 			    newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
 			}
 		}

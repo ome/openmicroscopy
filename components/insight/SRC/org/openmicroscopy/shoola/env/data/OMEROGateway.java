@@ -23,8 +23,6 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-
-//Java imports
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,7 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,18 +48,15 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -90,6 +84,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
+
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -100,7 +95,6 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ProportionalTimeEstimatorImpl;
 import ome.formats.importer.util.TimeEstimator;
-import ome.parameters.Filter;
 import ome.system.UpgradeCheck;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -168,11 +162,9 @@ import omero.grid.WellColumn;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
 import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
@@ -182,7 +174,6 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
@@ -194,6 +185,7 @@ import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.MapAnnotation;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -217,11 +209,7 @@ import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
-import omero.model.TermAnnotationI;
-import omero.model.TimestampAnnotation;
-import omero.model.TimestampAnnotationI;
 import omero.model.Well;
-import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
@@ -244,6 +232,7 @@ import pojos.ImageData;
 import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
+import pojos.MapAnnotationData;
 import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
@@ -992,7 +981,7 @@ class OMEROGateway
 	private List<String> formatText(List<String> terms, String field)
 	{
 		if (CollectionUtils.isEmpty(terms)) return null;
-		if (StringUtils.isBlank(field)) return terms;
+		if (CommonsLangUtils.isBlank(field)) return terms;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		Iterator<String> j = terms.iterator();
 		while (j.hasNext())
@@ -1573,7 +1562,7 @@ class OMEROGateway
 	 */
 	private boolean startWithWildCard(String value)
 	{
-		if (StringUtils.isBlank(value)) return false;
+		if (CommonsLangUtils.isBlank(value)) return false;
 		Iterator<String> i = WILD_CARDS.iterator();
 		String card = null;
 		while (i.hasNext()) {
@@ -1694,6 +1683,8 @@ class OMEROGateway
 			return XmlAnnotation.class;
 		else if (FilesetData.class.equals(nodeType))
 			return Fileset.class;
+		else if (MapAnnotationData.class.equals(nodeType))
+			return MapAnnotation.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -1721,7 +1712,8 @@ class OMEROGateway
 		else if (TagAnnotationData.class.getName().equals(data) ||
 				TermAnnotationData.class.getName().equals(data) ||
 				FileAnnotationData.class.getName().equals(data) ||
-				TextualAnnotationData.class.getName().equals(data))
+				TextualAnnotationData.class.getName().equals(data) ||
+				MapAnnotationData.class.getName().equals(data))
 			return REF_ANNOTATION;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
@@ -1805,11 +1797,8 @@ class OMEROGateway
 	 * @param userName The user name to be used for login.
 	 * @param password The password to be used for login.
 	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and
-	 * 					  thumbnails depending on the connection speed.
-	 * @param groupID The id of the group or <code>-1</code>.
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
-     * 					<code>false</code> otherwise.
+     *                  <code>false</code> otherwise.
      * @param agentName The name to register with the server.
      * @param port The port to use.
 	 * @return The user's details.
@@ -1824,13 +1813,29 @@ class OMEROGateway
 	{
 		this.encrypted = encrypted;
 		client secureClient = null;
+		
 		try {
 		    // client must be cleaned up by caller.
-			if (port > 0) secureClient = new client(hostName, port);
-			else secureClient = new client(hostName);
-			secureClient.setAgent(agentName);
-			ServiceFactoryPrx entryEncrypted
-			    = secureClient.createSession(userName, password);
+		    if (port > 0) secureClient = new client(hostName, port);
+		    else secureClient = new client(hostName);
+		    secureClient.setAgent(agentName);
+		    ServiceFactoryPrx entryEncrypted;
+		    boolean session = true;
+		    try {
+		        //Check if it is a session first
+		        ServiceFactoryPrx guestSession = secureClient.createSession("guest", "guest");
+		        guestSession.getSessionService().getSession(userName);
+		    } catch (Exception e) {
+		        //thrown if it is not a session or session has experied.
+		        session = false;
+		    } finally {
+		        secureClient.closeSession();
+		    }
+		    if (session) {
+		        entryEncrypted = secureClient.joinSession(userName);
+		    } else {
+		        entryEncrypted = secureClient.createSession(userName, password);
+		    }
 			serverVersion = entryEncrypted.getConfigService().getVersion();
 			String ip = null;
 	        try {
@@ -1857,7 +1862,6 @@ class OMEROGateway
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
 	 * credentials. The <code>createSession</code> method must be invoked before.
 	 *
-	 * @param userName The user name to be used for login.
 	 * @param secureClient Reference to the client
 	 * @param hostName The name of the server.
 	 * @param compression The compression level used for images and
@@ -1872,7 +1876,7 @@ class OMEROGateway
 	 *                                  or the credentials are invalid.
 	 * @see #createSession(String, String, String, long, boolean, String)
 	 */
-	ExperimenterData login(client secureClient, String userName, String hostName,
+	ExperimenterData login(client secureClient, String hostName,
 		float compression, long groupID, int port)
 		throws DSOutOfServiceException
 	{
@@ -1882,6 +1886,7 @@ class OMEROGateway
 			connected = true;
 			ServiceFactoryPrx entryEncrypted = secureClient.getSession();
 			IAdminPrx prx = entryEncrypted.getAdminService();
+			String userName = prx.getEventContext().userName;
 			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
 					prx.lookupExperimenter(userName));
 			if (groupID >= 0) {
@@ -3977,7 +3982,7 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
-		if (StringUtils.isBlank(mimeType))
+		if (CommonsLangUtils.isBlank(mimeType))
 			mimeType =  DEFAULT_MIMETYPE;
 
 		boolean fileCreated = false;
@@ -4112,7 +4117,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx service = c.getAdminService();
+		    IAdminPrx service = c.getAdminService(true);
 			service.changePasswordWithOldPassword(
 					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
@@ -6215,6 +6220,9 @@ class OMEROGateway
 		map.put("IDs", omero.rtypes.rlist(ids));
 		map.put("Data_Type", omero.rtypes.rstring(type));
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+		if (CommonsLangUtils.isNotEmpty(param.getBatchExportFilename()))
+			map.put("Folder_Name",
+		omero.rtypes.rstring(param.getBatchExportFilename()));
 		return runScript(ctx, id, map);
 	}
 
@@ -7940,7 +7948,7 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
-		    IAdminPrx svc = c.getAdminService();
+		    IAdminPrx svc = c.getAdminService(true);
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);

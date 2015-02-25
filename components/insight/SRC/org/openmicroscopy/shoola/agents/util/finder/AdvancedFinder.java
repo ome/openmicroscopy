@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,9 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.finder;
 
-
-
-//Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -46,14 +43,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-
-
-
-//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -277,7 +269,7 @@ public class AdvancedFinder
 			return;
 		}
 		
-		if (StringUtils.isEmpty(query) && start == null && end == null) {
+		if (CommonsLangUtils.isEmpty(query) && start == null && end == null) {
 			un.notifyInfo(TITLE, "Please enter a term to search for " +
 				"or a valid time interval.");
 			return;

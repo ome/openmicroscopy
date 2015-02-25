@@ -52,7 +52,7 @@ def getprefs(args, dir):
     """
     if not isinstance(args, list):
         raise Exception("Not a list")
-    cmd = ["prefs"]+list(args)
+    cmd = ["prefs"] + list(args)
     return omero.java.run(cmd, chdir=dir)
 
 
@@ -136,6 +136,9 @@ class PrefsControl(WriteableConfigControl):
         get.set_defaults(func=self.get)
         get.add_argument(
             "KEY", nargs="*", help="Names of keys in the current profile")
+        get.add_argument(
+            "--hide-password", action="store_true",
+            help="Hide values of password keys in the current profile")
 
         set = parser.add(
             sub, self.set,
@@ -178,7 +181,7 @@ class PrefsControl(WriteableConfigControl):
         parse = parser.add(
             sub, self.parse,
             "Parse the configuration properties from the etc/omero.properties"
-            " file for readability.")
+            " file and Web properties for readability.")
         parse.add_argument(
             "-f", "--file", type=ExistingFile('r'),
             help="Alternative location for a Java properties file")
@@ -195,6 +198,9 @@ class PrefsControl(WriteableConfigControl):
         parse_group.add_argument(
             "--headers", action="store_true",
             help="Print all headers from omero.properties")
+        parse.add_argument(
+            "--no-web", action="store_true",
+            help="Do not parse Web properties")
 
         parser.add(sub, self.edit, "Present the properties for the current"
                    " profile in your editor. Saving them will update your"
@@ -264,13 +270,18 @@ class PrefsControl(WriteableConfigControl):
             for k in config.IGNORE:
                 k in keys and keys.remove(k)
 
+        hide_password = 'hide_password' in args and args.hide_password
+        is_password = lambda x: x.endswith('.pass') or x.endswith('.password')
         for k in keys:
             if k not in orig:
                 continue
             if args.KEY and len(args.KEY) == 1:
                 self.ctx.out(config[k])
             else:
-                self.ctx.out("%s=%s" % (k, config[k]))
+                if (hide_password and is_password(k)):
+                    self.ctx.out("%s=%s" % (k, '*' * 8 if config[k] else ''))
+                else:
+                    self.ctx.out("%s=%s" % (k, config[k]))
 
     @with_rw_config
     def set(self, args, config):
@@ -362,15 +373,15 @@ class PrefsControl(WriteableConfigControl):
 
         from omero.install.config_parser import PropertyParser
         pp = PropertyParser()
-        pp.parse(str(cfg.abspath()))
+        pp.parse_file(str(cfg.abspath()))
+        if not args.no_web:
+            pp.parse_module('omeroweb.settings')
         if args.headers:
             pp.print_headers()
         elif args.keys:
             pp.print_keys()
         elif args.rst:
             pp.print_rst()
-            from omero.install.web_parser import WebSettings
-            WebSettings().print_rst()
         else:
             pp.print_defaults()
 

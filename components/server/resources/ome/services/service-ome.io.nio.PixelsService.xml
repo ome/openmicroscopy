@@ -36,6 +36,7 @@
     <constructor-arg ref="omeroFilePathResolver"/>
     <constructor-arg ref="backOff"/>
     <constructor-arg ref="tileSizes"/>
+    <constructor-arg ref="internal-ome.api.IQuery"/>
     <property name="metrics" ref="metrics"/>
   </bean>
 

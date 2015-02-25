@@ -32,13 +32,8 @@ import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-//Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -134,8 +129,6 @@ class BrowserComponent
         boolean hasImage = model.hasImage();
         if (image instanceof BufferedImage)
         	model.setRenderedImage((BufferedImage) image);
-        else if (image instanceof TextureData)
-        	model.setRenderedImageAsTexture((TextureData) image);
         else  
         	throw new IllegalArgumentException("Image type not supported.");
         //Paint only if selected.
@@ -227,59 +220,32 @@ class BrowserComponent
     				projectionView.zoomImage(true);
     		}
     	} else {
-    		if (ImViewerAgent.hasOpenGLSupport()) {
-    			TextureData img = null;
-        		Dimension viewport = null;
-        		if (index == ImViewer.VIEW_INDEX) {
-        			img = model.getRenderedImageAsTexture();
-        			viewport = view.getViewportSize();
-        		} else if (index == ImViewer.PROJECTION_INDEX) {
-        			img = model.getProjectedImageAsTexture();
-        			viewport = projectionView.getViewportSize();
-        		}
-        		if (img != null) {
-        			int width = img.getWidth();
-            		int height = img.getHeight();
-            		double zoomFactorX = 0;
-            		if (width > 0) zoomFactorX = viewport.getWidth()/width;
-            		double zoomFactorY = 0;
-            		if (height > 0) zoomFactorY = viewport.getHeight()/height;
-            		factor = Math.min(zoomFactorX, zoomFactorY); 
-        		}
-        		model.setZoomFactor(factor);
-        		if (!reset) {
-        			if (index == ImViewer.VIEW_INDEX) view.zoomImage();  
-        			else if (index == ImViewer.PROJECTION_INDEX)
-        				projectionView.zoomImage(true);
-        		}
-    		} else {
-    			BufferedImage img = null;
-        		Dimension viewport = null;
-        		if (index == ImViewer.VIEW_INDEX) {
-        			img = model.getRenderedImage();
-        			viewport = view.getViewportSize();
-        		} else if (index == ImViewer.PROJECTION_INDEX) {
-        			img = model.getProjectedImage();
-        			viewport = projectionView.getViewportSize();
-        		}
-        		if (img != null) {
-        			int width = img.getWidth();
-            		int height = img.getHeight();
-            		double zoomFactorX = 0;
-            		if (width > 0) zoomFactorX = viewport.getWidth()/width;
-            		double zoomFactorY = 0;
-            		if (height > 0) zoomFactorY = viewport.getHeight()/height;
-            		factor = Math.min(zoomFactorX, zoomFactorY); 
-        		}
-        		model.setZoomFactor(factor);
-        		if (!reset) {
-        			if (index == ImViewer.VIEW_INDEX || 
-        					index == ImViewer.PROJECTION_INDEX) {
-        				view.zoomImage();
-        				projectionView.zoomImage(true);
-        			}
-        		}
-    		}
+    	    BufferedImage img = null;
+            Dimension viewport = null;
+            if (index == ImViewer.VIEW_INDEX) {
+                img = model.getRenderedImage();
+                viewport = view.getViewportSize();
+            } else if (index == ImViewer.PROJECTION_INDEX) {
+                img = model.getProjectedImage();
+                viewport = projectionView.getViewportSize();
+            }
+            if (img != null) {
+                int width = img.getWidth();
+                int height = img.getHeight();
+                double zoomFactorX = 0;
+                if (width > 0) zoomFactorX = viewport.getWidth()/width;
+                double zoomFactorY = 0;
+                if (height > 0) zoomFactorY = viewport.getHeight()/height;
+                factor = Math.min(zoomFactorX, zoomFactorY); 
+            }
+            model.setZoomFactor(factor);
+            if (!reset) {
+                if (index == ImViewer.VIEW_INDEX || 
+                        index == ImViewer.PROJECTION_INDEX) {
+                    view.zoomImage();
+                    projectionView.zoomImage(true);
+                }
+            }
     	}
     }
 
@@ -459,13 +425,8 @@ class BrowserComponent
 	{
 		switch (index) {
 			case ImViewer.GRID_INDEX:
-				if (ImViewerAgent.hasOpenGLSupport()) {
-					if (!model.hasGridImagesAsTexture())
-						model.setGridImages();
-				} else {
-					if (model.hasNoGridImages())
-						model.setGridImages();
-				}
+			    if (model.hasNoGridImages())
+                    model.setGridImages();
 				gridView.paintImage();
 				break;
 			case ImViewer.PROJECTION_INDEX:	
@@ -522,19 +483,9 @@ class BrowserComponent
      */
 	public BufferedImage getGridImage()
 	{
-		//if (model.getCombinedImage() != null)
-		//	return gridView.getGridImage();
-		//model.setGridImages();
-		if (ImViewerAgent.hasOpenGLSupport()) {
-			if (!model.hasGridImagesAsTexture()) {
-				model.setGridImages();
-				gridView.paintImage();
-			}
-		} else {
-			if (model.getCombinedImage() != null)
-				return gridView.getGridImage();
-			model.setGridImages();
-		}
+	    if (model.getCombinedImage() != null)
+            return gridView.getGridImage();
+        model.setGridImages();
 		return gridView.getGridImage();
 	}
 	
@@ -591,8 +542,6 @@ class BrowserComponent
 			model.createDisplayedProjectedImage();
 			BufferedImage img = model.getDisplayedProjectedImage();
 			if (img == null) return;
-		} else if (image instanceof TextureData) {
-			model.setProjectedImageAsTexture((TextureData) image);
 		}
 		projectionView.zoomImage(false);
         projectionView.repaint();
@@ -641,43 +590,6 @@ class BrowserComponent
 	 */
 	public double getUnitInRefUnits() { return model.getUnitInRefUnits(); }
 
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#createImageFromTexture(int)
-	 */
-	public BufferedImage createImageFromTexture(int type)
-	{
-		switch (type) {
-			case ImgSaver.IMAGE:
-				return view.activeFileSave();
-			case ImgSaver.PROJECTED_IMAGE:
-				return projectionView.activeFileSave();
-			case ImgSaver.GRID_IMAGE:
-				if (!model.hasGridImagesAsTexture())
-					model.setGridImages();
-				return gridView.activeFileSave();
-		}
-		return null;
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#getImageAsTexture(SaveObject)
-	 */
-	public TextureData getImageAsTexture()
-	{
-		return model.getRenderedImageAsTexture();
-	}
-	
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#getProjectedImageAsTexture(SaveObject)
-	 */
-	public TextureData getProjectedImageAsTexture()
-	{
-		return model.getProjectedImageAsTexture();
-	}
-	
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setBirdEyeView(Object)

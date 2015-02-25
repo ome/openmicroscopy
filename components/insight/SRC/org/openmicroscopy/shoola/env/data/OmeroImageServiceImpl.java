@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.transform.Transformer;
@@ -47,15 +48,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-//Third-party libraries
 import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 
-import com.sun.opengl.util.texture.TextureData;
-
-//Application-internal dependencies
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RawPixelsStorePrx;
@@ -78,10 +75,10 @@ import omero.sys.Parameters;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -104,6 +101,7 @@ import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -233,7 +231,8 @@ class OmeroImageServiceImpl
 							label.setCallback(gateway.importImageFile(ctx,
 									object, ioContainer, importIc,
 									label, toClose,
-									ImportableObject.isHCSFile(file),
+									ImportableObject.isHCSFile(
+									        file.getAbsolutePath()),
 									userName));
 						}
 					}
@@ -512,16 +511,15 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderImage(SecurityContext, long, PlaneDef,
-	 * boolean, boolean, int)
+	 * boolean, int)
 	 */
 	public Object renderImage(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-		boolean asTexture, boolean largeImage, int compression)
+		boolean largeImage, int compression)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.render(context, ctx,
-						Long.valueOf(pixelsID), pDef, asTexture, largeImage,
-						compression);
+						Long.valueOf(pixelsID), pDef, largeImage, compression);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}
@@ -836,21 +834,7 @@ class OmeroImageServiceImpl
 		return PixelsServicesFactory.renderProjected(context, pixelsID, startZ,
 				endZ, type, stepping, channels);
 	}
-	
-	/** 
-	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderProjectedAsTexture(SecurityContext, long,
-	 * int, int, int, int, List)
-	 */
-	public TextureData renderProjectedAsTexture(SecurityContext ctx,
-		long pixelsID, int startZ, int endZ, int stepping, int type,
-		List<Integer> channels)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		return PixelsServicesFactory.renderProjectedAsTexture(context, 
-				pixelsID, startZ, endZ, type, stepping, channels);
-	}
-	
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#projectImage(SecurityContext, ProjectionParam)
@@ -1009,7 +993,9 @@ class OmeroImageServiceImpl
 			}
 			//save the tag.
 			try {
-				l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    if (l.size() > 0) {
+			        l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
+			    }
 				Iterator<IObject> j = l.iterator();
 				Annotation a;
 				while (j.hasNext()) {
@@ -1029,7 +1015,7 @@ class OmeroImageServiceImpl
 		//prepare the container.
 		List<String> candidates;
 		ImportCandidates ic = null;
-		File file = importable.getFile();
+		File file = importable.getFile().getFileToImport();
 		DatasetData dataset = importable.getDataset();
 		DataObject container = importable.getParent();
 		IObject ioContainer = null;
@@ -1042,7 +1028,7 @@ class OmeroImageServiceImpl
 		ImportContainer importIc;
 		List<ImportContainer> icContainers;
 		if (file.isFile()) {
-			hcsFile = ImportableObject.isHCSFile(file);
+			hcsFile = ImportableObject.isHCSFile(importable.getFile());
 			//Create the container if required.
 			if (hcsFile) {
 				boolean b = ImportableObject.isArbitraryFile(file);
@@ -1162,13 +1148,14 @@ class OmeroImageServiceImpl
 					status.resetFile(f);
 					if (ioContainer == null) status.setNoContainer();
 					importIc = ic.getContainers().get(0);
+					importIc.setCustomAnnotationList(customAnnotationList);
 					status.setUsedFiles(importIc.getUsedFiles());
 					//Check after scanning
 					if (status.isMarkedAsCancel())
 						return Boolean.valueOf(false);
 					return gateway.importImageFile(ctx, object, ioContainer,
 							importIc, status, close,
-							ImportableObject.isHCSFile(f),userName);
+							ImportableObject.isHCSFile(f.getAbsolutePath()),userName);
 				} else {
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
@@ -1180,7 +1167,7 @@ class OmeroImageServiceImpl
 					File f;
 					while (i.hasNext()) {
 					    f = new File(i.next());
-						label = new StatusLabel(f);
+						label = new StatusLabel(new FileObject(f));
 						label.setUsedFiles(containers.get(index).getUsedFiles());
 						files.put(f, label);
 						index++;
@@ -1213,7 +1200,8 @@ class OmeroImageServiceImpl
 					return Boolean.valueOf(false);
 				return gateway.importImageFile(ctx, object, ioContainer,
 						importIc,
-					status, close, ImportableObject.isHCSFile(file), userName);
+					status, close, ImportableObject.isHCSFile(
+					        file.getAbsolutePath()), userName);
 			}
 		} //file import ends.
 		//Checks folder import.
@@ -1243,7 +1231,7 @@ class OmeroImageServiceImpl
 			c = j.next();
 			hcs = c.getIsSPW();
 			f = c.getFile();
-			sl = new StatusLabel(f);
+			sl = new StatusLabel(new FileObject(f));
 			sl.setUsedFiles(c.getUsedFiles());
 			if (hcs) {
 				if (n == 1 && file.list().length > 1)
@@ -1473,11 +1461,11 @@ class OmeroImageServiceImpl
 		OutputStream out = null;
 		File tmp = null;
 		try {
-			File inputXML = File.createTempFile(RandomStringUtils.random(10),
+			File inputXML = File.createTempFile(""+Math.random(),
 					ext);
 			files.add(inputXML);
 			if (index == EXPORT_AS_OMETIFF) {
-				tmp = File.createTempFile(RandomStringUtils.random(10),
+				tmp = File.createTempFile(""+Math.random(),
 						"."+OMETIFFFilter.OME_TIFF);
 				files.add(tmp);
 				FileUtils.copyFile(f, tmp);
@@ -1489,7 +1477,7 @@ class OmeroImageServiceImpl
 			while (i.hasNext()) {
 				factory = TransformerFactory.newInstance();
 				stream = i.next();
-				output = File.createTempFile(RandomStringUtils.random(10), ext);
+				output = File.createTempFile(""+Math.random(), ext);
 				transformer = factory.newTransformer(new StreamSource(stream));
 				out = new FileOutputStream(output);
 				in =  new FileInputStream(inputXML);
@@ -1568,16 +1556,15 @@ class OmeroImageServiceImpl
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#renderOverLays(SecurityContext, long, PlaneDef,
-	 * long, Map, boolean)
+	 * long, Map)
 	 */
 	public Object renderOverLays(SecurityContext ctx, long pixelsID,
-		PlaneDef pd, long tableID, Map<Long, Integer> overlays,
-		boolean asTexture)
+		PlaneDef pd, long tableID, Map<Long, Integer> overlays)
 		throws RenderingServiceException
 	{
 		try {
 			return PixelsServicesFactory.renderOverlays(context,
-					pixelsID, pd, tableID, overlays, asTexture);
+					pixelsID, pd, tableID, overlays);
 		} catch (Exception e) {
 			throw new RenderingServiceException("RenderImage", e);
 		}

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.IconManager 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -427,14 +427,14 @@ public class IconManager
     /** The <code>Link</code> icon. */
     public static final int LINK = 124;
     
-    /** The <code>Inplace Import</code> icon. */
-    public static final int INPLACE_IMPORT = 125;
-    
     /** The <code>Copy</code> icon. */
-    public static final int COPY = 126;
+    public static final int COPY = 125;
     
     /** The <code>Paste</code> icon. */
-    public static final int PASTE = 127;
+    public static final int PASTE = 126;
+    
+    /** The <code>Plus</code> icon. */
+    public static final int PLUS = 127;
     
     /** 
 	 * The maximum ID used for the icon IDs.
@@ -570,9 +570,9 @@ public class IconManager
         relPaths[VIEWER_IJ] = "imageJ16.png";
         relPaths[FILE_PATH] = "icon_fs_path16.png";
         relPaths[LINK] = "nuvola_enhanced_browsing16.png";
-        relPaths[INPLACE_IMPORT] = "red-link-icon-16.png";
         relPaths[COPY] = "eclipse_copy_edit16.png";
         relPaths[PASTE] = "eclipse_paste_edit16.png";
+        relPaths[PLUS] = "nuvola_edit_add16.png";
 	}
    
 	/** The sole instance. */

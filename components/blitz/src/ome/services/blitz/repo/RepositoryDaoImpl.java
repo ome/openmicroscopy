@@ -1,24 +1,12 @@
 package ome.services.blitz.repo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
-import org.springframework.aop.framework.Advised;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.Iterables;
-
-import Ice.Current;
 
 import ome.api.IQuery;
 import ome.api.JobHandle;
@@ -39,7 +27,6 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
-
 import omero.RMap;
 import omero.RType;
 import omero.SecurityViolation;
@@ -51,6 +38,21 @@ import omero.model.Job;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.Advised;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 
 /**
  * DAO class for encapsulating operations related to resource access inside the
@@ -331,9 +333,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 if (id == null) {
                     // Doesn't exist. Create directory
                     sw = new Slf4JStopWatch();
-                    f = _internalRegister(repoUuid, checked, null,
-                            PublicRepositoryI.DIRECTORY_MIMETYPE,
-                            parent, sf, sql);
+                    // TODO: this whole method now looks quite similar to _internalRegister
+                    f = _internalRegister(repoUuid,
+                            Arrays.asList(checked), Arrays.asList(parent),
+                            null, PublicRepositoryI.DIRECTORY_MIMETYPE,
+                            sf, sql).get(0);
                     sw.stop("omero.repo.file.register");
                 } else {
                     // Make sure the file is in the user group
@@ -502,6 +506,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         final ome.model.fs.Fileset fs = (ome.model.fs.Fileset) mapper.reverse(_fs);
 
+        final StopWatch outer = new Slf4JStopWatch();
         try {
             return (Fileset) mapper.map((ome.model.fs.Fileset)
                     executor.execute(current.ctx, currentUser(current),
@@ -520,19 +525,35 @@ public class RepositoryDaoImpl implements RepositoryDao {
                             jh.close();
                         }
                     }
-                    int size = paths.size();
+
+                    StopWatch sw = new Slf4JStopWatch();
+                    final int size = paths.size();
+                    List<ome.model.core.OriginalFile> ofs =
+                                _internalRegister(repoUuid, paths, parents,
+                                        checksumAlgorithm, null,
+                                        sf, getSqlAction());
+                    sw.stop("omero.repo.save_fileset.register");
+
+                    sw = new Slf4JStopWatch();
                     for (int i = 0; i < size; i++) {
                         CheckedPath checked = paths.get(i);
-                        ome.model.core.OriginalFile of =
-                                _internalRegister(repoUuid, checked, checksumAlgorithm, null,
-                                        parents.get(i), sf, getSqlAction());
+                        ome.model.core.OriginalFile of = ofs.get(i);
                         fs.getFilesetEntry(i).setOriginalFile(of);
                     }
+                    sw.stop("omero.repo.save_fileset.update_fileset_entries");
 
-                    return sf.getUpdateService().saveAndReturnObject(fs);
+                    sw = new Slf4JStopWatch();
+                    try {
+                        return sf.getUpdateService().saveAndReturnObject(fs);
+                    } finally {
+                        sw.stop("omero.repo.save_fileset.save");
+                    }
+
                 }}));
         } catch (Exception e) {
             throw (ServerError) mapper.handleException(e, executor.getContext());
+        } finally {
+            outer.stop("omero.repo.save_fileset");
         }
     }
 
@@ -580,8 +601,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     this, "register", repoUuid, checked, mimetype) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
-                    return _internalRegister(repoUuid, checked, null, mimetype,
-                            parent, sf, getSqlAction());
+                    return _internalRegister(repoUuid,
+                            Arrays.asList(checked), Arrays.asList(parent),
+                            null, mimetype, sf, getSqlAction()).get(0);
                 }
             });
 
@@ -613,8 +635,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         final CheckedPath parent = checked.parent();
 
-        return _internalRegister(repoUuid, checked, null, mimetype,
-                parent, sf, sql);
+        return _internalRegister(repoUuid,
+                Arrays.asList(checked), Arrays.asList(parent),
+                null, mimetype, sf, sql).get(0);
 
     }
 
@@ -740,7 +763,8 @@ public class RepositoryDaoImpl implements RepositoryDao {
     }
 
     /**
-     * Internal file registration which must happen within a single tx.
+     * Internal file registration which must happen within a single tx. All
+     * files in the same directory are loaded in one block.
      *
      * @param repoUuid
      * @param checked
@@ -751,22 +775,60 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param sql non-null
      * @return
      */
-    private ome.model.core.OriginalFile _internalRegister(final String repoUuid,
-            final CheckedPath checked, ChecksumAlgorithm checksumAlgorithm, final String mimetype,
-            final CheckedPath parent, ServiceFactory sf, SqlAction sql) {
-        Long fileId = sql.findRepoFile(
-                repoUuid, checked.getRelativePath(),
-                checked.getName());
+    private List<ome.model.core.OriginalFile> _internalRegister(final String repoUuid,
+            final List<CheckedPath> checked, final List<CheckedPath> parents,
+            ChecksumAlgorithm checksumAlgorithm, final String mimetype,
+            ServiceFactory sf, SqlAction sql) {
 
-        if (fileId == null) {
-            canWriteParentDirectory(sf, sql,
-                    repoUuid, parent);
-            return createOriginalFile(sf, sql,
-                    repoUuid, checked, checksumAlgorithm, mimetype);
-        } else {
-            return sf.getQueryService().get(
-                    ome.model.core.OriginalFile.class, fileId);
+        final List<ome.model.core.OriginalFile> toReturn = new ArrayList<ome.model.core.OriginalFile>();
+        final ListMultimap<CheckedPath, CheckedPath> levels = ArrayListMultimap.create();
+        for (int i = 0; i < checked.size(); i++) {
+            levels.put(parents.get(i), checked.get(i));
         }
+
+        for (CheckedPath parent : levels.keySet()) {
+            List<CheckedPath> level = levels.get(parent);
+            List<String> basenames = new ArrayList<String>(checked.size());
+            for (CheckedPath path: level) {
+                basenames.add(path.getName());
+            }
+
+            StopWatch sw = new Slf4JStopWatch();
+            Map<String, Long> fileIds = sql.findRepoFiles(repoUuid,
+                level.get(0).getRelativePath(), /* all the same */
+                basenames, null /*mimetypes*/);
+            sw.stop("omero.repo.internal_register.find_repo_files");
+
+            List<Long> toLoad = new ArrayList<Long>();
+            List<CheckedPath> toCreate = new ArrayList<CheckedPath>();
+            for (int i = 0; i < level.size(); i++) {
+                CheckedPath path = level.get(i);
+                Long fileId = fileIds.get(path.getName());
+                if (fileId == null) {
+                    toCreate.add(path);
+                } else {
+                    toLoad.add(fileId);
+                }
+            }
+            
+            if (toCreate.size() > 0) {
+                canWriteParentDirectory(sf, sql,
+                    repoUuid, parent);
+                List<ome.model.core.OriginalFile> created = createOriginalFile(sf, sql,
+                    repoUuid, toCreate, checksumAlgorithm, mimetype);
+                toReturn.addAll(created);
+            }
+
+            sw = new Slf4JStopWatch();
+            if (toLoad.size() > 0) {
+                List<ome.model.core.OriginalFile> loaded = 
+                    sf.getQueryService().findAllByQuery("select o from OriginalFile o " +
+                        "where o.id in (:ids)", new Parameters().addIds(toLoad));
+                toReturn.addAll(loaded);
+            }
+            sw.stop("omero.repo.internal_register.load");
+        }
+        return toReturn;
     }
 
     public FsFile getFile(final long id, final Ice.Current current,
@@ -798,12 +860,43 @@ public class RepositoryDaoImpl implements RepositoryDao {
         });
     }
 
+    @SuppressWarnings("unchecked")
+    public List<List<DeleteLog>> findRepoDeleteLogs(final List<DeleteLog> templates, Current current) {
+        return (List<List<DeleteLog>>) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "findRepoDeleteLogs", templates) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                List<List<DeleteLog>> rv = new ArrayList<List<DeleteLog>>();
+                for (DeleteLog template : templates) {
+                    rv.add(getSqlAction().findRepoDeleteLogs(template));
+                }
+                return rv;
+            }
+        });
+    }
+
     public int deleteRepoDeleteLogs(final DeleteLog template, Current current) {
         return (Integer) executor.execute(current.ctx, currentUser(current),
                 new Executor.SimpleWork(this, "deleteRepoDeleteLogs", template) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 return getSqlAction().deleteRepoDeleteLogs(template);
+            }
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Integer> deleteRepoDeleteLogs(final List<DeleteLog> templates, Current current) {
+        return (List<Integer>) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "deleteRepoDeleteLogs", templates) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                List<Integer> rv = new ArrayList<Integer>();
+                for (DeleteLog template : templates) {
+                    Integer i = getSqlAction().deleteRepoDeleteLogs(template);
+                    rv.add(i);
+                }
+                return rv;
             }
         });
     }
@@ -863,24 +956,42 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param mimetype
      * @return
      */
-    protected ome.model.core.OriginalFile createOriginalFile(
+    protected List<ome.model.core.OriginalFile> createOriginalFile(
             ServiceFactory sf, SqlAction sql, String repoUuid,
-            CheckedPath checked, ChecksumAlgorithm checksumAlgorithm, String mimetype) {
+            List<CheckedPath> checked, ChecksumAlgorithm checksumAlgorithm, String mimetype) {
 
-        ome.model.core.OriginalFile ofile = checked.asOriginalFile(mimetype);
-
+        ome.model.enums.ChecksumAlgorithm ca = null;
         if (checksumAlgorithm != null) {
-            ofile.setHasher(new ome.model.enums.ChecksumAlgorithm(checksumAlgorithm.getValue().getValue()));
+             ca = new ome.model.enums.ChecksumAlgorithm(checksumAlgorithm.getValue().getValue());
+        }
+        List<ome.model.core.OriginalFile> rv = new ArrayList<ome.model.core.OriginalFile>();
+        for (CheckedPath path : checked) {
+            ome.model.core.OriginalFile ofile = path.asOriginalFile(mimetype);
+            rv.add(ofile);
+            ofile.setHasher(ca);
         }
 
-        ofile = sf.getUpdateService().saveAndReturnObject(ofile);
-        sql.setFileRepo(ofile.getId(), repoUuid);
 
-        if (PublicRepositoryI.DIRECTORY_MIMETYPE.equals(ofile.getMimetype())) {
-            internalMkdir(checked);
+        StopWatch sw = new Slf4JStopWatch();
+        IObject[] saved = sf.getUpdateService().saveAndReturnArray(rv.toArray(new IObject[rv.size()]));
+        sw.stop("omero.repo.create_original_file.save");
+        final List<Long> ids = new ArrayList<Long>(saved.length);
+        sw = new Slf4JStopWatch();
+        for (int i = 0; i < saved.length; i++) {
+            final CheckedPath path = checked.get(i);
+            final ome.model.core.OriginalFile ofile = (ome.model.core.OriginalFile) saved[i];
+            rv.set(i, ofile);
+            ids.add(ofile.getId());
+            if (PublicRepositoryI.DIRECTORY_MIMETYPE.equals(ofile.getMimetype())) {
+                internalMkdir(path);
+            }
         }
+        sw.stop("omero.repo.create_original_file.internal_mkdir");
 
-        return ofile;
+        sw = new Slf4JStopWatch();
+        sql.setFileRepo(ids, repoUuid);
+        sw.stop("omero.repo.create_original_file.set_file_repo");
+        return rv;
     }
 
     /**
@@ -1063,4 +1174,5 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
         });
     }
+
 }

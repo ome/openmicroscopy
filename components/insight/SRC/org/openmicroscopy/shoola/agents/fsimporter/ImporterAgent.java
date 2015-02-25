@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,10 +31,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 
 //Third-party libraries
+
+
+
+
 
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
@@ -44,6 +49,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.SaveResultsEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -58,6 +64,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -223,7 +230,6 @@ public class ImporterAgent
         if (evt == null) return;
 
         ImporterFactory.onReconnected();
-
         if (isMaster)
         {
             Importer importer = ImporterFactory.getImporter(
@@ -299,6 +305,18 @@ public class ImporterAgent
         ImporterFactory.setDiplayMode(displayMode);
     }
 
+    /**
+     * Imports and saved the results when completed.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleSaveResultsEvent(SaveResultsEvent evt)
+    {
+        if (evt == null) return;
+        Importer importer = ImporterFactory.getImporter(groupId, displayMode);
+        importer.importResults(evt.getObject(), evt.isFirstImport());
+    }
+
     /** Registers the agent with the tool bar.*/
     private void register()
     {
@@ -349,33 +367,35 @@ public class ImporterAgent
     public void activate(boolean master)
     {
         this.isMaster = master;
-        if (!master) return;
-        ExperimenterData exp = (ExperimenterData) registry.lookup(
-                LookupNames.CURRENT_USER_DETAILS);
-        if (exp == null) return;
-        GroupData gp = null;
-        try {
-            gp = exp.getDefaultGroup();
-        } catch (Exception e) {
-            //No default group
-        }
-        long id = -1;
-        if (gp != null) id = gp.getId();
-        Importer importer = ImporterFactory.getImporter(id, true, displayMode);
-        if (importer != null) {
-            Environment env = (Environment) registry.lookup(LookupNames.ENV);
-            int type = Importer.PROJECT_TYPE;
-            if (env != null) {
-                switch (env.getDefaultHierarchy()) {
-                case LookupNames.PD_ENTRY:
-                default:
-                    type = Importer.PROJECT_TYPE;
-                    break;
-                case LookupNames.HCS_ENTRY:
-                    type = Importer.SCREEN_TYPE;
-                }
+        if (master) {
+            this.isMaster = master;
+            ExperimenterData exp = (ExperimenterData) registry.lookup(
+                    LookupNames.CURRENT_USER_DETAILS);
+            if (exp == null) return;
+            GroupData gp = null;
+            try {
+                gp = exp.getDefaultGroup();
+            } catch (Exception e) {
+                //No default group
             }
-            importer.activate(type, null, null, importer.getImportFor());
+            long id = -1;
+            if (gp != null) id = gp.getId();
+            Importer importer = ImporterFactory.getImporter(id, true, displayMode);
+            if (importer != null) {
+                Environment env = (Environment) registry.lookup(LookupNames.ENV);
+                int type = Importer.PROJECT_TYPE;
+                if (env != null) {
+                    switch (env.getDefaultHierarchy()) {
+                    case LookupNames.PD_ENTRY:
+                    default:
+                        type = Importer.PROJECT_TYPE;
+                        break;
+                    case LookupNames.HCS_ENTRY:
+                        type = Importer.SCREEN_TYPE;
+                    }
+                }
+                importer.activate(type, null, null, importer.getImportFor());
+            }
         }
     }
 
@@ -387,7 +407,7 @@ public class ImporterAgent
     {
         Environment env = (Environment) registry.lookup(LookupNames.ENV);
         if (env.isRunAsPlugin())
-            ImporterFactory.onGroupSwitched(true);
+            ImporterFactory.terminate();
     }
 
     /** 
@@ -406,6 +426,7 @@ public class ImporterAgent
         bus.register(this, ChangeUserGroupEvent.class);
         bus.register(this, DisplayModeEvent.class);
         bus.register(this, ActivitiesEvent.class);
+        bus.register(this, SaveResultsEvent.class);
         browserType = getDefaultBrowser();
         groupId = -1;
         register();
@@ -460,6 +481,8 @@ public class ImporterAgent
             handleDisplayModeEvent((DisplayModeEvent) e);
         } else if (e instanceof ActivitiesEvent) {
             handleActivitiesEvent((ActivitiesEvent) e);
+        } else if (e instanceof SaveResultsEvent) {
+            handleSaveResultsEvent((SaveResultsEvent) e);
         }
     }
 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.UserProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,8 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -61,12 +63,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-//Third-party libraries
-
-
-import org.apache.commons.lang.StringUtils;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
@@ -197,7 +195,7 @@ class UserProfile
             StringBuffer buf = new StringBuffer();
             buf.append(passwordNew.getPassword());
             String newPass = buf.toString();
-            if (StringUtils.isBlank(newPass)) {
+            if (CommonsLangUtils.isBlank(newPass)) {
                 un = MetadataViewerAgent.getRegistry().getUserNotifier();
                 un.notifyInfo(PASSWORD_CHANGE_TITLE,
                         "Please enter the new password.");
@@ -220,14 +218,14 @@ class UserProfile
         buf = new StringBuffer();
         buf.append(oldPassword.getPassword());
         String old = buf.toString();
-        if (StringUtils.isBlank(old)) {
+        if (CommonsLangUtils.isBlank(old)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please enter your old password.");
             oldPassword.requestFocus();
             return;
         }
-        if (StringUtils.isBlank(newPass)) {
+        if (CommonsLangUtils.isBlank(newPass)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
                     "Please enter your new password.");
@@ -245,7 +243,7 @@ class UserProfile
             return;
         }
 
-        if (pass == null || StringUtils.isBlank(confirm) ||
+        if (pass == null || CommonsLangUtils.isBlank(confirm) ||
                 !pass.equals(confirm)) {
             un = MetadataViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo(PASSWORD_CHANGE_TITLE,
@@ -378,6 +376,12 @@ class UserProfile
         }
         groupsBox.setModel(m);
         if (selected != null) groupsBox.setSelectedItem(selected);
+        groupsBox.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				hasDataToSave();
+			}
+		});
         permissionsPane = new PermissionsPane(defaultGroup.getPermissions(),
                 UIUtilities.BACKGROUND_COLOR);
         permissionsPane.disablePermissions();
@@ -784,7 +788,7 @@ class UserProfile
     private JPanel buildPasswordPanel(String ldap)
     {
         passwordPanel.removeAll();
-        if (StringUtils.isNotBlank(ldap)) {
+        if (CommonsLangUtils.isNotBlank(ldap)) {
             passwordPanel.setBorder( BorderFactory.createTitledBorder("LDAP"));
             passwordPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
             passwordPanel.add(new JLabel(ldap));
@@ -940,13 +944,17 @@ class UserProfile
     {
         saveButton.setEnabled(false);
         String text = loginArea.getText();
-        if (StringUtils.isBlank(text)) return false;
+        if (CommonsLangUtils.isBlank(text)) return false;
         text = text.trim();
         ExperimenterData original = (ExperimenterData) model.getRefObject();
         if (!text.equals(original.getUserName())) {
             saveButton.setEnabled(true);
             return true;
         }
+		if (original.getDefaultGroup().getId() != getSelectedGroup().getId()) {
+			saveButton.setEnabled(true);
+			return true;
+		}
         //if (selectedIndex != originalIndex) return true;
         if (details == null) return false;
         Entry<String, String> entry;
@@ -963,7 +971,7 @@ class UserProfile
                 field = items.get(key);
                 if (field != null) {
                     v = field.getText();
-                    if (StringUtils.isBlank(v)) {
+                    if (CommonsLangUtils.isBlank(v)) {
                         if (EditorUtil.FIRST_NAME.equals(key) ||
                                 EditorUtil.LAST_NAME.equals(key)) {
                             return false;

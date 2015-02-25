@@ -36,7 +36,11 @@ import com.google.common.collect.HashMultimap;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.3
+ * @deprecated will be removed in OMERO 5.2, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public abstract class GraphStep {
 
     public interface Callback {

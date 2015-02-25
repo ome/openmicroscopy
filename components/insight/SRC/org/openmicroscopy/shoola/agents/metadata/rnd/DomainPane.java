@@ -1055,7 +1055,7 @@ public class DomainPane
             		convertUIBitResolution(bitDepthSlider.getValue()));
         } else if (source.equals(tSlider) || source.equals(zSlider)) {
             if (lifetimeSlider != null && lifetimeSlider.isVisible()) {
-                controller.setSelectedXYPlane(model.getDefaultZ(),
+                controller.setSelectedXYPlane(zSlider.getValue(),
                         tSlider.getValue(), lifetimeSlider.getValue());
             } else controller.setSelectedXYPlane(zSlider.getValue(),
                     tSlider.getValue());

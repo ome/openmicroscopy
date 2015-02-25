@@ -8,6 +8,7 @@ package ome.formats.utests;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import ome.formats.importer.IObservable;
@@ -17,7 +18,6 @@ import ome.formats.importer.util.ErrorContainer;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.importer.util.HtmlMessengerException;
 
-import org.apache.commons.httpclient.methods.multipart.Part;
 import org.testng.annotations.Test;
 
 /**
@@ -47,13 +47,13 @@ public class ErrorHandlerTest extends TestCase {
         }
 
         @Override
-        public void executePost(String sendUrl, List<Part> postList)
+        public void executePost(String sendUrl, Map<String, String> postList)
                 throws HtmlMessengerException {
 
             List<String> selectedFiles = new ArrayList<String>();
             for (int i = 0; i < postList.size(); i++) {
-                Part part = postList.get(i);
-                if (part.getName().equals("selected_file")) {
+                String part = postList.get(i);
+                if (part.equals("selected_file")) {
                     selectedFiles.add(""+part);
                 }
             }

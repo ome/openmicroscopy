@@ -40,7 +40,11 @@ import omero.cmd.HandleI.Cancel;
  * Implements an approximation of {@link Chown}'s API using {@link omero.cmd.Chown2}.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.1.0
+ * @deprecated will be removed in OMERO 5.3, so use the
+ * <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Server/ObjectGraphs.html">new graphs implementation</a>
  */
+@Deprecated
+@SuppressWarnings("deprecation")
 public class ChownFacadeI extends Chown implements IRequest {
 
     private final GraphRequestFactory graphRequestFactory;

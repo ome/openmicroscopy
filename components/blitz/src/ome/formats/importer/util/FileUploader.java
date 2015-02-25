@@ -29,22 +29,31 @@
 package ome.formats.importer.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
-import ome.formats.importer.util.FileUploadCounter.ProgressListener;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.CloseableHttpClient;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.common.io.Files;
 
 /**
  * @author Brian W. Loranger
@@ -53,178 +62,168 @@ import org.slf4j.LoggerFactory;
 public class FileUploader implements IObservable
 {
 
-    private static Logger         log = LoggerFactory.getLogger(FileUploader.class);
+    /** The extension used for the zip.*/
+    public static final String ZIP_EXTENSION = ".zip";
 
-    private String[] files;
+    /** Identifies the token returned by the server. */
+    private static final String TOKEN = "token";
 
-    private String session_id;
+    /** Identifies the reader used. */
+    private static final String READER = "file_format";
 
-    private PostMethod method = null;
+    /** Identifies the <code>file</code> to send. */
+    private static final String FILE = "Filedata";
 
 
-    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    /** The collection of observers.*/
+    private List<IObserver> observers = new ArrayList<IObserver>();
 
-    private HttpClient client;
-
-    private boolean cancelUpload;
+    /** The http client.*/
+    private CloseableHttpClient client;
 
     /**
      * Initialize upload with httpClient
      *
      * @param httpClient
      */
-    public FileUploader(HttpClient httpClient)
+    public FileUploader(CloseableHttpClient httpClient)
     {
         this.client = httpClient;
     }
 
     /**
-     * Set specific sessionID
-     *
-     * @param sessionId
+     * Zips directory.
+     * 
+     * @param directory The directory to zip.
+     * @param out The output stream.
+     * @throws Exception Thrown if an error occurred during the operation.
      */
-    public void setSessionId(String sessionId)
+    private void zipDir(File directory, ZipOutputStream out,
+            String parentDirectoryName)
+            throws Exception
     {
-        if (sessionId != null)
-            this.session_id = sessionId;
-        else
-        {
-            this.session_id = java.util.UUID.randomUUID().toString().replace("-", "");
-            log.warn("FileUploadContainer has not set session_id, autogenerating session id of: " + session_id);
+        File[] entries = directory.listFiles();
+        byte[] buffer = new byte[4096]; // Create a buffer for copying
+        int bytesRead;
+        FileInputStream in;
+        File f;
+        for (int i = 0; i < entries.length; i++) {
+            f = entries[i];
+            if (f.isHidden())
+                continue;
+            if (f.isDirectory()) {
+                zipDir(f, out, f.getName());
+                continue;
+            }
+            in = new FileInputStream(f); // Stream to read file
+            String zipName = f.getName();
+            if (!StringUtils.isEmpty(parentDirectoryName)) {
+                zipName = FilenameUtils.concat(parentDirectoryName, zipName);
+            }
+            out.putNextEntry(new ZipEntry(zipName)); // Store entry
+            while ((bytesRead = in.read(buffer)) != -1)
+                out.write(buffer, 0, bytesRead);
+            out.closeEntry();
+            in.close();
         }
-
     }
 
-    /**
-     * @return session_id
-     */
-    public String getSessionId()
+    private File zipDirectory(File zip, boolean compress)
+            throws Exception
     {
-        return this.session_id;
+        if (zip == null)
+            throw new IllegalArgumentException("No name specified.");
+        if (!zip.isDirectory() || !zip.exists())
+            throw new IllegalArgumentException("Not a valid directory.");
+        //Check if the name already has the extension
+        String extension = FilenameUtils.getExtension(zip.getName());
+        String name = zip.getName();
+        if (StringUtils.isEmpty(extension) ||
+                !ZIP_EXTENSION.equals("."+extension)) {
+            name += ZIP_EXTENSION;
+        }
+        File file = new File(zip.getParentFile(), name);
+        ZipOutputStream out = null;
+        try {
+            out = new ZipOutputStream(new FileOutputStream(file));
+            if (!compress) out.setLevel(ZipOutputStream.STORED);
+            zipDir(zip, out, null);
+        } catch (Exception e) {
+            throw new Exception("Cannot create the zip.", e);
+        } finally {
+            if (out != null) out.close();
+        }
+        return file;
     }
 
     /**
      * Upload files from error container to url
      *
-     * @param url - url to send to
+     * @param url The URL to use.
      * @param timeout - timeout
      * @param upload - error container with files in it
      */
-    public void uploadFiles(String url, int timeout, ErrorContainer upload)
+    public void uploadFiles(String path, int timeout, ErrorContainer upload)
+        throws HtmlMessengerException
     {
-        if (client == null)
-            client = new HttpClient();
-
-        this.files = upload.getFiles();
-        setSessionId(upload.getToken());
-
-        int fileCount = 0;
-
-        for (String f : files)
-        {
-            if (cancelUpload)
-            {
-                System.err.println(cancelUpload);
-                continue;
-            }
-
-            fileCount++;
-            final int count = fileCount;
-            final File file = new File(f);
-
-            try {
-                HttpClientParams params = new HttpClientParams();
-                params.setConnectionManagerTimeout(timeout);
-                client.setParams(params);
-
-                method = new PostMethod(url);
-
-                String format = "";
-
-                if (upload.getFileFormat() != null)
-                    format = upload.getFileFormat();
-                else
-                    format = "unknown";
-
-
-                final ErrorFilePart errorFilePart = new ErrorFilePart("Filedata", file);
-
-                Part[] parts ={
-                        new StringPart("token", upload.getToken()),
-                        new StringPart("file_format", format),
-                        errorFilePart
-                        };
-
-                final long fileLength = file.length();
-
-                MultipartRequestEntity mpre =
-                    new MultipartRequestEntity(parts, method.getParams());
-
-                ProgressListener listener = new ProgressListener(){
-
-                    private long partsTotal = -1;
-
-                    /* (non-Javadoc)
-                     * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
-                     */
-                    public void update(long bytesRead)
-                    {
-
-			if (cancelUpload) errorFilePart.cancel = true;
-
-                        long partsDone = 0;
-                        long parts = (long) Math.ceil(fileLength / 10.0f);
-                        if (fileLength != 0) partsDone = bytesRead / parts;
-
-                        if (partsTotal == partsDone) {
-                            return;
-                        }
-                        partsTotal = partsDone;
-
-                        notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                                file.getName(), count, files.length, null, null, null));
-
-                        long uploadedBytes = bytesRead/2;
-                        if (fileLength == -1) {
-
-                            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                                    file.getName(), count, files.length, uploadedBytes, null, null, null));
-
-                        } else {
-
-                            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                                    file.getName(), count, files.length, uploadedBytes, fileLength, null, null));
-
-                        }
-                    }
-                };
-
-                FileUploadCounter hfre = new FileUploadCounter(mpre, listener);
-
-                method.setRequestEntity(hfre);
-
-                int status = client.executeMethod(method);
-
-                if (status == HttpStatus.SC_OK) {
-
-                    notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                            file.getName(), count, files.length, null, null, null));
-                    log.info("Uploaded file '" + file.getName() + "' to QA system");
-                    upload.setStatus(1);
-
-                } else {
-                    notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                            file.getName(), count, files.length, null, null, null));
-                }
-            } catch (Exception ex) {
-                notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
-                        file.getName(), count, files.length, null, null, ex));
-            }
+        String[] files = upload.getFiles();
+        if (files == null || files.length == 0) return;
+        File directory = Files.createTempDir();
+        File file = null;
+        //Create request.
+        String r ="unknown";
+        if (upload.getFileFormat() != null) {
+            r = upload.getFileFormat();
         }
-
-        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
-                null, 0, 0, null, null, null));
-
+        InputStreamReader reader;
+        try {
+            if (files.length > 1) {
+                for (String f : files) {
+                    FileUtils.copyFileToDirectory(new File(f),
+                            directory, true);
+                }
+                //submit the zip
+                file = zipDirectory(directory, false);
+            } else {
+                file = new File(files[0]);
+            }
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addPart(FILE, new FileBody(file,
+                    ContentType.APPLICATION_OCTET_STREAM, file.getName()));
+            builder.addPart(TOKEN, new StringBody(upload.getToken(),
+                    ContentType.TEXT_PLAIN));
+            builder.addPart(READER, new StringBody(r, ContentType.TEXT_PLAIN));
+            HttpPost request = new HttpPost(path);
+            request.setEntity(builder.build());
+            // Execute the POST method
+            CloseableHttpResponse response = client.execute(request);
+            //response, not sure what we want to do with it.
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                reader = new InputStreamReader(entity.getContent());
+                char[] buf = new char[32678];
+                StringBuilder str = new StringBuilder();
+                for (int n; (n = reader.read(buf)) != -1;)
+                    str.append(buf, 0, n);
+                String s = str.toString();
+                //Decide v
+                notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
+                        null, 0, 0, null, null, null));
+            }
+        } catch( Exception e ) {
+            throw new HtmlMessengerException("Cannot Connect", e);
+        } finally {
+            if (client != null) {
+                try {
+                    client.close();
+                } catch (Exception ex) {}
+            }
+            try {
+                FileUtils.deleteDirectory(directory);
+            } catch (Exception ex) {}
+            if (file != null && files.length > 1) file.delete();
+        }
     }
 
     // Observable methods
@@ -258,31 +257,4 @@ public class FileUploader implements IObservable
         }
     }
 
-    /**
-     * cancel's upload
-     */
-    public void cancel()
-    {
-        this.cancelUpload = true;
-    }
-
-    /**
-     * Main for testing (debugging only)
-     *
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args)
-    {
-
-        String url = "http://mage.openmicroscopy.org.uk/qa/processing/";
-        String dvPath = "/Users/TheBrain/test_images_shortrun/dv/";
-        String[] files = {dvPath + "CFPNEAT01_R3D.dv", dvPath + "IAGFP-Noc01_R3D.dv"};
-
-
-        FileUploader uploader = new FileUploader(new HttpClient());
-        ErrorContainer upload = new ErrorContainer();
-        upload.setFiles(files);
-        uploader.uploadFiles(url, 5000, upload);
-    }
 }

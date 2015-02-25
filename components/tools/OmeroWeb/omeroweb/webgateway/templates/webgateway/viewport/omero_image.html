@@ -344,20 +344,23 @@
   *     ROI load & table methods
   */
 
-  var refresh_rois = function () {
+  var refresh_rois = function (theZ, theT, rois_filter) {
       // re-plots the ROIs (if currently shown) for new Z and T position
       if (viewport.viewportimg.get(0).refresh_rois) {
           var theT = viewport.getTPos();
           var theZ = viewport.getZPos();
-          viewport.viewportimg.get(0).refresh_rois(theZ, theT);
+          // avoid to clear filter when changing image (changing channels, Z or T)
+          rois_filter = (rois_filter ? rois_filter : viewport.viewportimg.get(0).get_current_rois_filter());
+          viewport.viewportimg.get(0).refresh_rois(theZ, theT, rois_filter);
       }
   }
-  var show_rois = function () {
+
+  var show_rois = function (theZ, theT, filter) {
       var theT = viewport.getTPos();
-        var theZ = viewport.getZPos();
+      var theZ = viewport.getZPos();
 
       {% if image %}
-        // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
+      // if the ROI plugin has not been initialised (method not available...) init and load ROIs...
       if (!viewport.viewportimg.get(0).show_rois) {
           var options = {'width':{{ image.getSizeX }},
                      'height':{{ image.getSizeY }},
@@ -374,7 +377,7 @@
       $("#roi_table_postit").show();
 
       // loads ROIs (if needed) and shows.
-    viewport.viewportimg.get(0).show_rois(theZ, theT);
+      viewport.viewportimg.get(0).show_rois(theZ, theT, filter);
   }
 
 
@@ -402,6 +405,7 @@
       }
       var toggle_roi_thumbs = "<input type='checkbox' id='toggle_roi_thumbs' title='Show ROI Previews' />";
       var toggle_shape_text = "<input type='checkbox' id='toggle_shape_text' checked='true' title='Show/Hide ROI text labels' />";
+      var toggle_roi_visibility = "<input type='checkbox' id='toggle_roi_visibility' checked='true' title='Show/Hide ROIs and shapes' />";
 
       // thead for whole table:
       var roi_html = "<thead id='roi_table_head'><tr>";
@@ -412,6 +416,7 @@
       roi_html += "<th>T</th>"; // no T for ROI
       roi_html += "<th>" + toggle_shape_text + " Text</th>";
       roi_html += "<th title='Pick colour of ROI outlines'><div style='white-space:nowrap;'>" + toggle_roi_thumbs + "Preview</div>"+ color_picker + "</th>";
+      roi_html += "<th>" + toggle_roi_visibility + " Visibility</th>";
       roi_html += "</tr></thead>";
       $roi_table.append($(roi_html));
 
@@ -429,7 +434,7 @@
               return text_string
           return text_string.substring(0,truncate_length) + "...";
       }
-      // populate table. Cols are: ID, Z, T, Shape, text
+      // populate table. Cols are: ID, Z, T, Shape, text, visibility
       for (var r=0; r<json.length; r++) {
           var roi = json[r];
           var shapes = roi['shapes'];
@@ -437,6 +442,10 @@
           // thumbnail of roi - display small & popup full-size
           var line_color = 'f00';   // store current line color, used when we 'show' thumbs to get url.
           var roiThumbHtml = "<img src='' id='"+ roi['id'] +"_roi_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb'>";
+
+          // visibility check for ROI, used to turn ON\OFF all connected shapes
+          var roiVisibilityHtml = "<input type='checkbox'  id='" + roi['id'] + "_visibility' checked='true' " +
+                  "class='roi_visibility' roi_id='"+ roi['id'] +"'/>";
 
           // process the shapes first - note first shape & text
           var roiIcon = null;
@@ -462,7 +471,7 @@
                   if (maxZ === null || maxZ < shape.theZ) maxZ = shape.theZ;
               }
               if (shape['textValue'] != null) {
-                  text = shape['textValue']
+                  text = shape['textValue'];
                   if (shapes.length == 1) roiText = text;
               } else text = "";
               var indent = " &nbsp&nbsp&nbsp&nbsp";    // hack to add "indent", but not if shape is only-child
@@ -470,6 +479,10 @@
                   indent = " &nbsp";
               }
               var shapeThumbHtml = "<img src='' id='"+ shape['id'] +"_shape_thumb' color='"+ line_color +"' width=50 height=33 class='roi_thumb shape_thumb'>";
+
+              var shape_id = roi['id'] + '_' + shape['id'] + '_shape_visibility';
+              var shapeVisibilityHtml = "<input type='checkbox' id='" + shape_id + "' checked='true' " +
+                      "roi_id=" + roi['id'] +"' shape_id='" + shape['id'] +"' class='shape_visibility roi_" + roi['id'] + "_vis'/>";
 
               shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
               // clicking on any cell of a shape 'shape_cell' selects it
@@ -484,6 +497,7 @@
               shapesHtml += "<td class='shape_cell'>" + theT + "</td>";
               shapesHtml += "<td class='shape_cell shape_text' title=\""+ text +"\"><p>"+ truncate_text(text.escapeHTML()) + "</p></td>";
               shapesHtml += "<td class='shape_cell'>" + shapeThumbHtml + "</td>";
+              shapesHtml += "<td class='shape_cell'>" + shapeVisibilityHtml + "</td>";
               shapesHtml += "</tr>";
               if (roiIcon == null) roiIcon = shape['type'];
               else if (roiIcon != shape['type']) roiIcon = "";    // mixture of shapes - show no icon
@@ -502,6 +516,7 @@
           roi_html += "<th style='white-space: nowrap'> "+ zRange +" </th>"; // no T for ROI
           roi_html += "<th class='shape_text' title=\""+ roiText +"\"><p>"+ truncate_text(roiText) +"</p></th>";
           roi_html += "<th>"+ roiThumbHtml +"</th>";
+          roi_html += "<th>" + roiVisibilityHtml + "</th>";
           roi_html += "</tr></thead>";
 
           var tbody = $(shapesHtml);
@@ -1182,6 +1197,27 @@
         }
     }
 
+    var check_visibility_column = function() {
+        if ( $('.roi_visibility').is(':checked') || $('.shape_visibility').is(':checked') ) {
+            $('#toggle_roi_visibility').prop('checked', true);
+        } else {
+            $('#toggle_roi_visibility').prop('checked', false);
+        }
+    }
+
+    var check_roi_visibility_checkbox = function(roi_id) {
+        var roi_id = parseInt(roi_id);
+        var roi_checkbox_id = '#' + roi_id + '_visibility';
+        var shape_checkboxes_class = '.roi_' + roi_id + '_vis';
+        if ( $(shape_checkboxes_class).is(':checked') ) {
+            $(roi_checkbox_id).prop('checked', true);
+            $('#toggle_roi_visibility').prop('checked', true);
+        } else {
+            $(roi_checkbox_id).prop('checked', false);
+            check_visibility_column();
+        }
+    }
+
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
         if ($target.attr('id') == "toggle_roi_thumbs") {
@@ -1194,6 +1230,47 @@
         } else if ($target.attr('id') == "toggle_shape_text") {
             var show_labels = ($("#toggle_shape_text").is( ":checked" ));
             viewport.viewportimg.get(0).show_labels(show_labels);
+            return true;
+        } else if ($target.attr('id') == "toggle_roi_visibility") {
+            var activate_rois = ($("#toggle_roi_visibility").is(":checked"));
+            if (activate_rois) {
+                var theT = viewport.getTPos();
+                var theZ = viewport.getZPos();
+                viewport.viewportimg.get(0).show_rois(theZ, theT, undefined);
+            } else {
+                viewport.viewportimg.get(0).hide_rois();
+            }
+            $('.roi_visibility').prop('checked', activate_rois);
+            $('.shape_visibility').prop('checked', activate_rois);
+            return true;
+        } else if ($target.hasClass('roi_visibility')) {
+            var roi_id = $target.attr('roi_id');
+            var act_roi = $target.is(':checked');
+            if (act_roi) {
+                viewport.viewportimg.get(0).activate_roi(roi_id);
+            } else {
+                viewport.viewportimg.get(0).deactivate_roi(roi_id);
+            }
+            var theZ = viewport.getZPos();
+            var theT = viewport.getTPos();
+            viewport.viewportimg.get(0).refresh_active_rois(theZ, theT);
+            var check_group_id = '.roi_' + roi_id + '_vis';
+            $(check_group_id).prop('checked', act_roi);
+            check_visibility_column();
+            return true;
+        } else if ($target.hasClass('shape_visibility')) {
+            var roi_id = $target.attr('roi_id');
+            var shape_id = $target.attr('shape_id');
+            var act_shape = $target.is(':checked');
+            if (act_shape) {
+                viewport.viewportimg.get(0).activate_shape(roi_id, shape_id);
+            } else {
+                viewport.viewportimg.get(0).deactivate_shape(roi_id, shape_id);
+            }
+            var theZ = viewport.getZPos();
+            var theT = viewport.getTPos();
+            viewport.viewportimg.get(0).refresh_active_rois(theZ, theT);
+            check_roi_visibility_checkbox(roi_id);
             return true;
         } else if ($target.hasClass('shape_cell')) {
             // a shape td click selects the shape.

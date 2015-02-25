@@ -59,8 +59,8 @@ Options for logging in:
 
     # Provide all values interactively
     $ bin/omero sessions login
-    Server:
-    Username:
+    Server: [localhost:4064]
+    Username: [root]
     Password:
 
     # Pass values as the target
@@ -71,16 +71,16 @@ Options for logging in:
 
     # Pass some values via arguments
     $ bin/omero -s localhost sessions login
-    Username:
+    Username: [user]
     Password:
     $ bin/omero -p 24064 sessions login
-    Server:
-    Username:
+    Server: [localhost:24064]
+    Username: [user]
     Password:
 
     # Pass all non-password values via arguments
     $ bin/omero -s localhost -u john sessions login
-    Password
+    Password:
 
     # Use a session ID to login without a password
     $ bin/omero -s localhost -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 \
@@ -212,12 +212,6 @@ class SessionsControl(BaseControl):
         create = getattr(args, "create", None)
         store = self.store(args)
         previous = store.get_current()
-        try:
-            previous_props = store.get(*previous)
-            previous_port = previous_props.get(
-                "omero.port", str(omero.constants.GLACIER2PORT))
-        except:
-            previous_port = str(omero.constants.GLACIER2PORT)
 
         # Basic props, don't get fiddled with
         props = {}
@@ -281,7 +275,7 @@ class SessionsControl(BaseControl):
 
                 server_differs = (server is not None and server != previous[0])
                 name_differs = (name is not None and name != previous[1])
-                port_differs = (port is not None and port != previous_port)
+                port_differs = (port is not None and port != previous[3])
 
                 if not create and not server_differs and not name_differs \
                         and not port_differs:
@@ -295,19 +289,19 @@ class SessionsControl(BaseControl):
                                 self.ctx.dbg("Not attaching because of"
                                              " conflicts: %s" % conflicts)
                             else:
-                                rv = store.attach(*previous)
+                                rv = store.attach(*previous[:-1])
                                 return self.handle(rv, "Using")
                         self.ctx.out("Previously logged in to %s:%s as %s"
-                                     % (previous[0], previous_port,
+                                     % (previous[0], previous[3],
                                         previous[1]))
                     except Exception, e:
                         self.ctx.out("Previous session expired for %s on"
                                      " %s:%s" % (previous[1], previous[0],
-                                                 previous_port))
+                                                 previous[3]))
                         self.ctx.dbg("Exception on attach: %s"
                                      % traceback.format_exc(e))
                         try:
-                            store.remove(*previous)
+                            store.remove(*previous[:-1])
                         except OSError, ose:
                             self.ctx.dbg("Session file missing: %s" % ose)
                         except:
@@ -323,7 +317,7 @@ class SessionsControl(BaseControl):
         # If they've omitted some required value, we must ask for it.
         #
         if not server:
-            server, name, port = self._get_server(store, name)
+            server, name, port = self._get_server(store, name, port)
         if not name:
             name = self._get_username(previous[1])
 
@@ -467,11 +461,11 @@ class SessionsControl(BaseControl):
         previous = store.get_current()
 
         try:
-            rv = store.attach(*previous)
+            rv = store.attach(*previous[:-1])
             rv[0].killSession()
         except Exception, e:
             self.ctx.dbg("Exception on logout: %s" % e)
-        store.remove(*previous)
+        store.remove(*previous[:-1])
         # Last is still useful. Not resetting.
         # store.set_current("", "", "")
 
@@ -644,11 +638,13 @@ class SessionsControl(BaseControl):
             name = default_name
         return server, name, port
 
-    def _get_server(self, store, name):
+    def _get_server(self, store, name, port):
         defserver = store.last_host()
-        rv = self.ctx.input("Server: [%s]" % defserver)
+        if not port:
+            port = str(omero.constants.GLACIER2PORT)
+        rv = self.ctx.input("Server: [%s:%s]" % (defserver, port))
         if not rv:
-            return defserver, name, None
+            return defserver, name, port
         else:
             return self._parse_conn(rv, name)
 

@@ -26,10 +26,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 
 //Third-party libraries
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -38,7 +40,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ImageData;
 
 /** 
@@ -99,14 +103,15 @@ public class ViewInPlugin
         name = NAME;
         IconManager icons = IconManager.getInstance();
         switch (plugin) {
-			case TreeViewer.IMAGE_J:
+			case LookupNames.IMAGE_J:
+			case LookupNames.IMAGE_J_IMPORT:
 				name = NAME_IJ;
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_IJ));
 		        putValue(Action.SMALL_ICON, 
 		        		icons.getIcon(IconManager.VIEWER_IJ));
 				break;
-			case TreeViewer.KNIME:
+			case LookupNames.KNIME:
 				name = NAME_KNIME;
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_KNIME));

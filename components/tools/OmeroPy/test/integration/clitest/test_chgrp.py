@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
 # This program is free software; you can redistribute it and/or modify
@@ -156,11 +156,10 @@ class TestChgrp(CLITest):
             img = self.query.get('Image', i.id.val, ctx)
             assert img.details.group.id.val == group.id.val
 
-    @pytest.mark.broken(reason="CLI  does not wrap all chgrps in 1 DoAll")
-    def testFilesetAllImages(self):
+    def testFilesetAllImagesMoveImages(self):
         images = self.importMIF(2)  # 2 images sharing a fileset
 
-        # create a new group and try to move only one image to the new group
+        # create a new group and try to move both the images to the new group
         group = self.add_new_group()
         self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val,
                       '/Image:%s' % images[1].id.val]
@@ -168,6 +167,34 @@ class TestChgrp(CLITest):
 
         # check the images have been moved
         ctx = {'omero.group': '-1'}  # query across groups
+        for i in images:
+            img = self.query.get('Image', i.id.val, ctx)
+            assert img.details.group.id.val == group.id.val
+
+    def testFilesetAllImagesMoveDataset(self):
+        images = self.importMIF(2)  # 2 images sharing a fileset
+        dataset_id = self.create_object('Dataset')  # ... in a dataset
+
+        # put the images into the dataset
+        for image in images:
+            link = omero.model.DatasetImageLinkI()
+            link.parent = omero.model.DatasetI(dataset_id, False)
+            link.child = omero.model.ImageI(image.id.val, False)
+            self.update.saveObject(link)
+
+        # create a new group and try to move the dataset to the new group
+        group = self.add_new_group()
+        self.args += ['%s' % group.id.val, '/Dataset:%s' % dataset_id]
+        self.cli.invoke(self.args, strict=True)
+
+        # query across groups
+        ctx = {'omero.group': '-1'}
+
+        # check the dataset been moved
+        ds = self.query.get('Dataset', dataset_id, ctx)
+        assert ds.details.group.id.val == group.id.val
+
+        # check the images have been moved
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
             assert img.details.group.id.val == group.id.val

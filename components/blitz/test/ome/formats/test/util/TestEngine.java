@@ -13,7 +13,9 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
@@ -27,8 +29,6 @@ import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Project;
 
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
@@ -276,7 +276,7 @@ public class TestEngine
                 "\n" +
                 "ex. %s -s localhost -u username -w password ShortRunImages\n" +
                 "\n" +
-                "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
+                "Report bugs to qa@openmicroscopy.org.uk>",
                 APP_NAME, TestEngineConfig.DEFAULT_FEEDBACK, APP_NAME));
         System.exit(1);
     }
@@ -286,65 +286,27 @@ public class TestEngine
      */
     private void sendRequest(String email, String comment, Throwable error, File file)
     {
-        List<Part> postList = new ArrayList<Part>();
+        Map<String, String> postList = new HashMap<String, String>();
 
         Date end = new Date();
         Format formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
-        /*
-        String parent = file.getParent();
-        String[] splitPath = parent.split(File.separator);
-        String feedback_id = "";
-        feedback_id = splitPath[splitPath.length-1];
-
-        postList.add(new StringPart("selected_file", file.getName()));
-        postList.add(new StringPart("feedback_id", feedback_id));
-        postList.add(new StringPart("started", formatter.format(start)));
-        postList.add(new StringPart("ended", formatter.format(end)));
-        postList.add(new StringPart("error", error));
-
-        postList.add(new StringPart("repo_java_version", System.getProperty("java.version")));
-        postList.add(new StringPart("repo_java_classpath", System.getProperty("java.class.path")));
-        postList.add(new StringPart("repo_os_name", System.getProperty("os.name")));
-        postList.add(new StringPart("repo_os_arch", System.getProperty("os.arch")));
-        postList.add(new StringPart("repo_os_version", System.getProperty("os.version")));
-
-        try {
-            HtmlMessenger messenger = new HtmlMessenger(message_url, postList);
-
-            messenger.login(login_url, login_username, login_password);
-            String serverReply = messenger.executePost();
-            log.info("Feedback sent. Returned: " + serverReply);
-        }
-        catch( Exception e ) {
-            log.error("Error while sending debug information.", e);
-            //Get the full debug text
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-
-            String debugText = sw.toString();
-
-            log.error("Feedback failed with: " + debugText);
-        }
-        */
 
         StringWriter strw = new StringWriter();
         error.printStackTrace(new PrintWriter(strw));
 
         comment = comment + ", Started: " + formatter.format(start) + ", Ended: " + formatter.format(end);
 
-        postList.add(new StringPart("java_version", System.getProperty("java.version")));
-        postList.add(new StringPart("java_classpath", System.getProperty("java.class.path")));
-        postList.add(new StringPart("os_name", System.getProperty("os.name")));
-        postList.add(new StringPart("os_arch", System.getProperty("os.arch")));
-        postList.add(new StringPart("os_version", System.getProperty("os.version")));
-        postList.add(new StringPart("error", "File: " + file.getAbsolutePath() + "\n]n" + strw.toString()));
-        postList.add(new StringPart("comment", comment));
-        postList.add(new StringPart("email", email));
-        postList.add(new StringPart("app_name", "5"));
-        postList.add(new StringPart("import_session", "test"));
-        postList.add(new StringPart("extra", ""));
+        postList.put("java_version", System.getProperty("java.version"));
+        postList.put("java_classpath", System.getProperty("java.class.path"));
+        postList.put("os_name", System.getProperty("os.name"));
+        postList.put("os_arch", System.getProperty("os.arch"));
+        postList.put("os_version", System.getProperty("os.version"));
+        postList.put("error", "File: " + file.getAbsolutePath() + "\n]n" + strw.toString());
+        postList.put("comment", comment);
+        postList.put("email", email);
+        postList.put("app_name", "5");
+        postList.put("import_session", "test");
+        postList.put("extra", "");
 
         try {
             HtmlMessenger messenger = new HtmlMessenger(comment_url, postList);

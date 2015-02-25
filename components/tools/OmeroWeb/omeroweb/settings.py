@@ -213,10 +213,11 @@ def identity(x):
     return x
 
 
-def remove_slash(s):
-    if s is not None and len(s) > 0:
-        if s.endswith("/"):
-            s = s[:-1]
+def str_slash(s):
+    if s is not None:
+        s = str(s)
+        if s and not s.endswith("/"):
+            s += "/"
     return s
 
 
@@ -301,7 +302,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
         ["APPLICATION_SERVER_PORT", "4080", str, "Upstream application port"],
     "omero.web.application_server.max_requests":
         ["APPLICATION_SERVER_MAX_REQUESTS", 400, int, None],
-    "omero.web.force_script_name":
+    "omero.web.prefix":
         ["FORCE_SCRIPT_NAME",
          None,
          leave_none_unset,
@@ -310,7 +311,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.static_url":
         ["STATIC_URL",
          "/static/",
-         str,
+         str_slash,
          ("URL to use when referring to static files. Example: ``'/static/'``"
           " or ``'http://static.example.com/'``. Used as the base path for"
           " asset  definitions (the Media class) and the staticfiles app. It"
@@ -539,7 +540,9 @@ CUSTOM_SETTINGS_MAPPINGS = {
          ('['
           '["Data", "webindex", {"title": "Browse Data via Projects, Tags'
           ' etc"}],'
-          '["History", "history", {"title": "History"}]'
+          '["History", "history", {"title": "History"}],'
+          '["Help", "http://help.openmicroscopy.org/",'
+          '{"title":"Open OMERO user guide in a new tab", "target":"new"}]'
           ']'),
          json.loads,
          ("Add links to the top header: links are ``['Link Text', 'link',"
@@ -591,6 +594,15 @@ CUSTOM_SETTINGS_MAPPINGS = {
 
 }
 
+DEPRECATED_SETTINGS_MAPPINGS = {
+    # Deprecated settings, description should indicate the replacement.
+    "omero.web.force_script_name":
+        ["FORCE_SCRIPT_NAME",
+         None,
+         leave_none_unset,
+         ("Use omero.web.prefix instead.")],
+}
+
 del CUSTOM_HOST
 
 # DEVELOPMENT_SETTINGS_MAPPINGS - WARNING: For each setting developer MUST open
@@ -609,8 +621,31 @@ DEVELOPMENT_SETTINGS_MAPPINGS = {
 }
 
 
-def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
+def map_deprecated_settings(settings):
+    m = {}
+    for key, values in settings.items():
+        try:
+            global_name = values[0]
+            m[global_name] = (CUSTOM_SETTINGS[key], key)
+            if len(values) < 5:
+                # Not using default (see process_custom_settings)
+                values.append(False)
+        except KeyError:
+            if len(values) < 5:
+                values.append(True)
+    return m
+
+
+def process_custom_settings(
+        module, settings='CUSTOM_SETTINGS_MAPPINGS', deprecated=None):
     logging.info('Processing custom settings for module %s' % module.__name__)
+
+    if deprecated:
+        deprecated_map = map_deprecated_settings(
+            getattr(module, deprecated, {}))
+    else:
+        deprecated_map = {}
+
     for key, values in getattr(module, settings, {}).items():
         # Django may import settings.py more than once, see:
         # http://blog.dscpl.com.au/2010/03/improved-wsgi-script-for-use-with.html
@@ -628,6 +663,17 @@ def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
             values.append(True)
 
         try:
+            using_default = values[-1]
+            if global_name in deprecated_map:
+                dep_value, dep_key = deprecated_map[global_name]
+                if using_default:
+                    logging.warning(
+                        'Setting %s is deprecated, use %s', dep_key, key)
+                    global_value = dep_value
+                else:
+                    logging.error(
+                        '%s and its deprecated key %s are both set, using %s',
+                        key, dep_key, key)
             setattr(module, global_name, mapping(global_value))
         except ValueError:
             raise ValueError(
@@ -636,7 +682,8 @@ def process_custom_settings(module, settings='CUSTOM_SETTINGS_MAPPINGS'):
             pass
 
 process_custom_settings(sys.modules[__name__], 'INTERNAL_SETTINGS_MAPPING')
-process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS')
+process_custom_settings(sys.modules[__name__], 'CUSTOM_SETTINGS_MAPPINGS',
+                        'DEPRECATED_SETTINGS_MAPPINGS')
 process_custom_settings(sys.modules[__name__], 'DEVELOPMENT_SETTINGS_MAPPINGS')
 
 if not DEBUG:  # from CUSTOM_SETTINGS_MAPPINGS  # noqa
@@ -668,6 +715,17 @@ def report_settings(module):
             logger.debug(
                 "%s = %r (source:%s)", global_name,
                 cleanse_setting(global_name, global_value), source)
+
+    deprecated_settings = getattr(module, 'DEPRECATED_SETTINGS_MAPPINGS', {})
+    for key in sorted(deprecated_settings):
+        values = deprecated_settings[key]
+        global_name, default_value, mapping, description, using_default = \
+            values
+        global_value = getattr(module, global_name, None)
+        if global_name.isupper() and not using_default:
+            logger.debug(
+                "%s = %r (deprecated:%s, %s)", global_name,
+                cleanse_setting(global_name, global_value), key, description)
 
 report_settings(sys.modules[__name__])
 

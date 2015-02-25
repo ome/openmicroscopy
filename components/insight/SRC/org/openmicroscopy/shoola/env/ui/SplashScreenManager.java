@@ -263,10 +263,15 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		if (view == null) return;
+		Boolean b = (Boolean) container.getRegistry().lookup(
+		        LookupNames.SESSION_KEY);
+		if (b != null && b.booleanValue()) {
+		    view.setUserName("");
+		}
 		view.close();
 		view = null;
 		isOpen = false;
-		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
+		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN,
 				Boolean.valueOf(false));
 	}
 

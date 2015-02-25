@@ -30,6 +30,7 @@ import logging
 import traceback
 import json
 import re
+import unicodedata
 
 from time import time
 
@@ -396,7 +397,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     myColleagues = {}
     if menu == "search":
         for g in groups:
-            g.groupSummary()
+            g.loadLeadersAndMembers()
             for c in g.leaders + g.colleagues:
                 myColleagues[c.id] = c
         myColleagues = myColleagues.values()
@@ -426,13 +427,16 @@ def group_user_content(request, url=None, conn=None, **kwargs):
     myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
     if conn.isAdmin():  # Admin can see all groups
-        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
+        system_groups = [
+            conn.getAdminService().getSecurityRoles().userGroupId,
+            conn.getAdminService().getSecurityRoles().guestGroupId]
+        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getId() not in system_groups]
         groups.sort(key=lambda x: x.getName().lower())
     else:
         groups = myGroups
 
     for g in groups:
-        g.groupSummary()    # load leaders / members
+        g.loadLeadersAndMembers() # load leaders / members
 
     context = {'template': 'webclient/base/includes/group_user_content.html',
                'current_url':url,
@@ -569,16 +573,84 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     return context
 
 
-@login_required(setGroupContext=True)
+@login_required()
+@render_response()
+def load_chgrp_groups(request, conn=None, **kwargs):
+    """
+    Get the potential groups we can move selected data to.
+    These will be groups that the owner(s) of selected objects is a member of.
+    Objects are specified by query string like: ?Image=1,2&Dataset=3
+    If no selected objects are specified, simply list the groups that the
+    current user is a member of.
+    Groups list will exclude the 'current' group context.
+    """
+
+    ownerIds = []
+    currentGroups = set()
+    groupSets = []
+    groups = {}
+    owners = {}
+    for dtype in ("Project", "Dataset", "Image", "Screen", "Plate"):
+        oids = request.REQUEST.get(dtype, None)
+        if oids is not None:
+            for o in conn.getObjects(dtype, oids.split(",")):
+                ownerIds.append(o.getDetails().owner.id.val)
+                currentGroups.add(o.getDetails().group.id.val)
+    ownerIds = list(set(ownerIds))
+    # In case we were passed no objects or they weren't found
+    if len(ownerIds) == 0:
+        ownerIds = [conn.getUserId()]
+    for owner in conn.getObjects("Experimenter", ownerIds):
+        # Each owner has a set of groups
+        gids = []
+        owners[owner.id] = owner.getFullName()
+        for group in owner.copyGroupExperimenterMap():
+            groups[group.parent.id.val] = group.parent
+            gids.append(group.parent.id.val)
+        groupSets.append(set(gids))
+
+    # Can move to groups that all owners are members of...
+    targetGroupIds = set.intersection(*groupSets)
+    #...but not 'user' group
+    userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
+    targetGroupIds.remove(userGroupId)
+
+    # if all the Objects are in a single group, exclude it from the target groups
+    if len(currentGroups) == 1:
+        targetGroupIds.remove(currentGroups.pop())
+
+    def getPerms(group):
+        p = group.getDetails().permissions
+        return {'write': p.isGroupWrite(),
+                'annotate': p.isGroupAnnotate(),
+                'read': p.isGroupRead()}
+
+    # From groupIds, create a list of group dicts for json
+    targetGroups = []
+    for gid in targetGroupIds:
+        targetGroups.append({
+            'id':gid,
+            'name': groups[gid].name.val,
+            'perms': getPerms(groups[gid])
+        })
+    targetGroups.sort(key=lambda x: x['name'])
+
+    owners = [[k, v] for k, v in owners.items()]
+
+    return {'owners': owners, 'groups': targetGroups}
+
+
+@login_required()
 @render_response()
 def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     """ Loads a tree for user to pick target Project, Dataset or Screen """
 
     # filter by group (not switching group)
     conn.SERVICE_OPTS.setOmeroGroup(int(group_id))
+    owner = getIntOrDefault(request, 'owner', None)
 
     manager= BaseContainer(conn)
-    manager.listContainerHierarchy()
+    manager.listContainerHierarchy(owner)
     template = 'webclient/data/chgrp_target_tree.html'
 
     show_projects = target_type in ('project', 'dataset')
@@ -1221,6 +1293,14 @@ def batch_annotate(request, conn=None, **kwargs):
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
+    # get average values for User ratings and Other ratings.
+    r = [r['ann'].getLongValue() for r in batchAnns['UserRatings']]
+    userRatingAvg = r and sum(r) / len(r) or 0
+    # get all ratings and summarise
+    allratings = [a['ann'] for a in batchAnns['UserRatings']]
+    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
+    ratings = manager.getGroupedRatings(allratings)
+
     figScripts = manager.listFigureScripts(objs)
     filesetInfo = None
     iids = []
@@ -1251,7 +1331,7 @@ def batch_annotate(request, conn=None, **kwargs):
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
             'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
             'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked,
-            'differentGroups':False}
+            'userRatingAvg': userRatingAvg, 'ratings': ratings, 'differentGroups':False}
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
         context['differentGroups'] = True       # E.g. don't run scripts etc
@@ -1353,6 +1433,31 @@ def annotate_file(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
+
+@login_required()
+@render_response()
+def annotate_rating(request, conn=None, **kwargs):
+    """
+    Handle adding Rating to one or more objects
+    """
+    index = getIntOrDefault(request, 'index', 0)
+    rating = getIntOrDefault(request, 'rating', 0)
+    oids = getObjects(request, conn)
+
+    # add / update rating
+    for otype, objs in oids.items():
+        for o in objs:
+            o.setRating(rating)
+
+    # return a summary of ratings
+    manager = BaseContainer(conn)
+    batchAnns = manager.loadBatchAnnotations(oids)
+    allratings = [a['ann'] for a in batchAnns['UserRatings']]
+    allratings.extend([a['ann'] for a in batchAnns['OtherRatings']])
+    ratings = manager.getGroupedRatings(allratings)
+    return ratings
+
+
 @login_required()
 @render_response()
 def annotate_comment(request, conn=None, **kwargs):
@@ -1397,6 +1502,60 @@ def annotate_comment(request, conn=None, **kwargs):
             return context
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
+
+
+@login_required()
+@render_response()
+def annotate_map(request, conn=None, **kwargs):
+    """
+        Handle adding Map Annotations to one or more objects
+        POST data "mapAnnotation" should be list of ['key':'value'] pairs.
+    """
+
+    if request.method != 'POST':
+        raise Http404("Need to POST map annotation data as list of ['key', 'value'] pairs")
+
+    oids = getObjects(request, conn)
+
+    # Use the first object we find to set context (assume all objects are in same group!)
+    # this does not aplly to share
+    if len(oids['share']) < 1:
+        for obs in oids.values():
+            if len(obs) > 0:
+                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                break
+
+    data = request.POST.get('mapAnnotation')
+    data = json.loads(data)
+
+    annId = request.POST.get('annId')
+    # Create a new annotation
+    if annId is None and len(data) > 0:
+        ann = omero.gateway.MapAnnotationWrapper(conn)
+        ann.setValue(data)
+        ann.setNs(omero.constants.metadata.NSCLIENTMAPANNOTATION)
+        ann.save()
+        for objs in oids.values():
+            for obj in objs:
+                obj.linkAnnotation(ann)
+        annId = ann.getId()
+    # Or update existing annotation
+    elif annId is not None:
+        ann = conn.getObject("MapAnnotation", annId)
+        if len(data) > 0:
+            ann.setValue(data)
+            ann.save()
+            annId = ann.getId()
+        else:
+            # Delete if no data
+            handle = conn.deleteObjects('/Annotation', [annId])
+            try:
+                conn._waitOnCmd(handle)
+            finally:
+                handle.close()
+            annId = None
+
+    return {"annId": annId}
 
 
 @login_required()
@@ -2430,7 +2589,9 @@ def activities(request, conn=None, **kwargs):
                                     #except:
                                     #    pass
                                 if v.isLoaded() and hasattr(v, "name"):  # E.g Image, OriginalFile etc
-                                    obj_data['name'] = v.name.val
+                                    name = unwrap(v.name)
+                                    if name is not None:                # E.g. FileAnnotation has null name
+                                        obj_data['name'] = name
                                 rMap[key] = obj_data
                             else:
                                 rMap[key] = v
@@ -2444,7 +2605,7 @@ def activities(request, conn=None, **kwargs):
         # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
         rv[cbString] = copy.copy(request.session['callback'][cbString])
 
-    # return json (not used now, but still an option)
+    # return json (used for testing)
     if 'template' in kwargs and kwargs['template'] == 'json':
         for cbString in request.session.get('callback').keys():
             rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
@@ -2555,7 +2716,7 @@ def list_scripts (request, conn=None, **kwargs):
         # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
 
         ul = scriptMenu
-        dirs = fullpath.split("/");
+        dirs = fullpath.split(os.path.sep);
         for l, d in enumerate(dirs):
             if len(d) == 0:
                 continue
@@ -2890,9 +3051,29 @@ def chgrp(request, conn=None, **kwargs):
         raise AttributeError("chgrp: No group_id specified")
     group_id = long(group_id)
 
+    def getObjectOwnerId(r):
+        for t in ["Dataset", "Image", "Plate"]:
+            ids = r.REQUEST.get(t, None)
+            if ids is not None:
+                for o in list(conn.getObjects(t, ids.split(","))):
+                    return o.getDetails().owner.id.val
+
     group = conn.getObject("ExperimenterGroup", group_id)
-    target_id = request.REQUEST.get('target_id', None)      # E.g. "dataset-234"
-    container_id = target_id is not None and target_id.split("-")[1] or None
+    new_container_name = request.REQUEST.get('new_container_name', None)
+    new_container_type = request.REQUEST.get('new_container_type', None)
+    container_id = None
+
+    # Context must be set to owner of data, E.g. to create links.
+    ownerId = getObjectOwnerId(request)
+    conn.SERVICE_OPTS.setOmeroUser(ownerId)
+    if (new_container_name is not None and len(new_container_name) > 0 and
+                new_container_type is not None):
+        conn.SERVICE_OPTS.setOmeroGroup(group_id)
+        container_id = conn.createContainer(new_container_type, new_container_name)
+    # No new container, check if target is specified
+    if container_id is None:
+        target_id = request.REQUEST.get('target_id', None)      # E.g. "dataset-234"
+        container_id = target_id is not None and target_id.split("-")[1] or None
     dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)

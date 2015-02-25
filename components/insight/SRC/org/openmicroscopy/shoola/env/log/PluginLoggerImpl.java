@@ -57,7 +57,8 @@ class PluginLoggerImpl
      */
     private void handlePlugin(String logMsg)
     {
-        if (runAsPlugin == LookupNames.IMAGE_J && IJ.debugMode) {
+        if ((runAsPlugin == LookupNames.IMAGE_J ||
+                runAsPlugin == LookupNames.IMAGE_J_IMPORT) && IJ.debugMode) {
             IJ.log(logMsg);
         }
     }

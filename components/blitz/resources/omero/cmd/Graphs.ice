@@ -16,6 +16,7 @@ module omero {
         /**
          *
          **/
+        ["deprecated:use omero::cmd::GraphModify2 instead"]
         class GraphModify extends Request {
             string type;
             long id;
@@ -27,6 +28,7 @@ module omero {
          * is thrown. The contents of that internal exception are passed in
          * this instance.
          **/
+        ["deprecated:use omero::cmd::ERR instead"]
         class GraphConstraintERR extends ERR {
 
             /**
@@ -38,23 +40,27 @@ module omero {
 
         };
 
-
-        ["java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
+        ["deprecated:omero::cmd::GraphModify is deprecated",
+         "java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
         sequence<GraphModify> GraphModifyList;
 
         /**
          *
          **/
+        ["deprecated:GraphSpecs in general are deprecated"]
         class GraphSpecList extends Request {};
 
+        ["deprecated:GraphSpecs in general are deprecated"]
         class GraphSpecListRsp extends Response {
             GraphModifyList list;
         };
 
+        ["deprecated:use omero::cmd::Chgrp2 instead"]
         class Chgrp extends GraphModify {
             long grp;
         };
 
+        ["deprecated:use omero::cmd::Chgrp2Response instead"]
         class ChgrpRsp extends Response {
         };
 
@@ -81,10 +87,12 @@ module omero {
         class ChmodRsp extends Response {
         };
 
+        ["deprecated:use omero::cmd::Chown2 instead"]
         class Chown extends GraphModify {
             long user;
         };
 
+        ["deprecated:use omero::cmd::Chown2Response instead"]
         class ChownRsp extends Response {
         };
 
@@ -93,6 +101,7 @@ module omero {
          * unless an error has occurred in which case a standard
          * [omero::cmd::ERR] may be returned.
          **/
+        ["deprecated:use omero::cmd::Delete2 instead"]
         class Delete extends GraphModify {
         };
 
@@ -101,6 +110,7 @@ module omero {
          * because if there was an error than an ERR object will be
          * returned.
          **/
+        ["deprecated:use omero::cmd::Delete2Response instead"]
         class DeleteRsp extends OK {
 
             /**
@@ -329,6 +339,19 @@ module omero {
              * (those implementing WrappableRequest).
              **/
             GraphModify2 request;
+        };
+
+        /**
+         * Returned when specifically a ome.services.graphs.GraphException
+         * is thrown. The contents of that internal exception are passed in
+         * this instance.
+         **/
+        class GraphException extends ERR {
+
+            /**
+             * The message of the GraphException.
+             **/
+             string message;
         };
     };
 };

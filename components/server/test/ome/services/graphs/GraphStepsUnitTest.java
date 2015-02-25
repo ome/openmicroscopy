@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 
 /**
  */
+@SuppressWarnings("deprecation")
 public class GraphStepsUnitTest extends MockGraphTest {
 
     GraphSteps steps;

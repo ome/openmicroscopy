@@ -124,12 +124,6 @@ public interface DataBrowser
     
     /** Identifies the <code>FSFolderModel</code>. */
     public static final int FS_FOLDER = 9;
-    
-	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
-	public static final int IMAGE_J = LookupNames.IMAGE_J;
-	
-	/** Indicates to run the application as an <code>Knime</code> plugin.*/
-	public static final int KNIME = LookupNames.KNIME;
 
 	/** Bound property indicating to activate the user.*/
 	public static final String ACTIVATE_USER_PROPERTY = "activateUser";

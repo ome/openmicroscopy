@@ -1052,26 +1052,9 @@ class EditorUI
  	 *
 	 * @param trigger The action which triggered the loading,
 	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
-	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}
 	 * */
-	void displayFileset(int trigger) { 
-	    if (CollectionUtils.isEmpty(model.getFileset())) {
-	        toolBar.enableFilePathButton(false);
-	    }
-	    else {
-	        toolBar.enableFilePathButton(true);
-	        // show the filepaths if this was triggered by the user
-	        switch (trigger) {
-	                case EditorControl.FILE_PATH_TOOLBAR:
-	                    toolBar.displayFileset();
-	                    break;
-	                case EditorControl.FILE_PATH_INPLACE_ICON:
-	                    generalPane.getPropertiesUI().displayFileset();
-	                    break;
-	                default:
-	                    return;
-	            }
-	    }
+	void displayFileset() { 
+	    toolBar.displayFileset();
 	}
 	
 	/**
