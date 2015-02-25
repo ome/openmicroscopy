@@ -1,0 +1,100 @@
+*** Settings ***
+Documentation     Tests submission of forms.
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+*** Test Cases ***
+
+Test Tag
+    [Documentation]     Several tests of the Tag dialog for single or batch tagging.
+
+    Go To                                       ${WELCOME URL}
+    Select Experimenter
+    ${projectId}=                               Create Project      robot test tagging_1
+    ${pId}=                                     Create Project      robot test tagging_2
+    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
+    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
+
+    # Tag a single Project
+    Click Element                               launch_tags_form
+    Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
+    Input Text                                  id_tag     robotTagTest${pid}TagOne
+    Click Element                               id_add_new_tag
+    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
+    # Refresh, check and add another Tag, remove first one
+    Go To                                       ${WELCOME URL}?show=project-${pId}
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]  10
+    Click Element                               launch_tags_form
+    Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
+    # Create a second Tag
+    Input Text                                  id_tag     robotTagTest${pid}TagTwo
+    Click Element                               id_add_new_tag
+    # Remove previously added Tag
+    Click Element                               xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Click Element                               id=id_tag_deselect_button
+    Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    # Save - check Tag added and Tag removed
+    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]  10
+    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
+
+
+    # Now select both Projects...
+    Go To                                       ${WELCOME URL}?show=project-${projectId}|project-${pId}
+    Wait Until Page Contains Element            id=batch_ann_title
+
+    Click Element                               launch_tags_form
+    Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
+
+    # Tags created above should be available to add to second Project
+    Wait Until Page Contains Element            xpath=//div[@id='id_all_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Page Should Contain Element                 xpath=//div[@id='id_all_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
+    # And shouldn't appear in right column
+    Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
+    # Add the first Tag to both Projects
+    Click Element                               xpath=//div[@id='id_all_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Click Element                               id=id_tag_select_button
+    # Just 1 tag should be moved to right
+    Page Should Contain Element                 xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
+    # Save - check Tag added and Tag removed
+    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    # Right panel Tag tooltip should indicate one tag is on BOTH Projects 'Can remove Tag from <b>2 objects</b>'
+    Wait Until Page Contains Element            xpath=//span[@class='tooltip_html']/b[contains(text(),'2 objects')]
+    # Other tag is still on one Project
+    Page Should Contain Element                 xpath=//span[@class='tooltip_html']/b[contains(text(),'1 object')]
+    Page Should Contain Element                 xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
+    Page Should Contain Element                 xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
+
+    # Open Tag dialog again...
+    Click Element                               launch_tags_form
+    Wait Until Page Contains Element            id_tag
+    Sleep                                       5                   # allow tags to load
+    # Same tag as before should be on right
+    Wait Until Page Contains Element            xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Page Should Not Contain Element             xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagTwo')]
+    # Remove this Tag form Both projects...
+    Click Element                               xpath=//div[@id='id_selected_tags']/div[contains(text(),'robotTagTest${pid}TagOne')]
+    Click Element                               id=id_tag_deselect_button
+    # Create a third Tag
+    Input Text                                  id_tag     robotTagTest${pid}TagThree
+    Click Element                               id_add_new_tag
+    Click Element                               xpath=//button/span[contains(text(),'Save')]
+    # After Save, Tags Two and Three should be added, Tag One removed
+    # Seems we need a proper refresh here to be sure that TagOne is removed.
+    Go To                                       ${WELCOME URL}?show=project-${projectId}|project-${pId}
+    Wait Until Page Contains Element            xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagThree')]  10
+    Page Should Contain Element                 xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagTwo')]
+    Page Should Not Contain Element             xpath=//div[@class='tag']/a[contains(text(), 'robotTagTest${pid}TagOne')]
+
+

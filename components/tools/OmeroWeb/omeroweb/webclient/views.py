@@ -1570,6 +1570,12 @@ def annotate_tags(request, conn=None, **kwargs):
     # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
     manager = None
     self_id = conn.getEventContext().userId
+
+    jsonmode = request.GET.get('jsonmode')
+    tags = []
+
+    # Prepare list of 'selected_tags' either for creation of the Tag dialog, OR to
+    # use with form POST to know what has been added / removed from selected tags.
     if obj_count == 1:
         for t in selected:
             if len(selected[t]) > 0:
@@ -1590,28 +1596,41 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
-        manager.annotationList()
-        selected_tags = [(tag.id,
-                          unwrap(tag.link.details.owner.id),
-                          "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
-                          unwrap(tag.link.details.getPermissions().canDelete()),
-                          str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000)),
-                          self_id == unwrap(tag.link.details.owner.id),
-                          )
-                         for tag in manager.tag_annotations]
+        # we only need selected tags for original form, not for json loading
+        if jsonmode is None:
+            manager.annotationList()
+            tags = manager.tag_annotations
+
     else:
         manager = BaseContainer(conn)
-        selected_tags = []
         # Use the first object we find to set context (assume all objects are in same group!)
         for obs in oids.values():
             if len(obs) > 0:
                 conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
                 break
 
+        # we only need selected tags for original form, not for json loading
+        if jsonmode is None:
+            batchAnns = manager.loadBatchAnnotations(oids)
+            tags = []
+            for t in batchAnns['Tag']:
+                mylinks = [l for l in t['links'] if l.isOwned()]
+                if len(mylinks) == obj_count:
+                    t['ann'].link = mylinks[0]  # make sure we pick a link that we own
+                    tags.append(t['ann'])
+
+    selected_tags = []
+    for tag in tags:
+        ownerId = unwrap(tag.link.details.owner.id)
+        ownerName = "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName))
+        canDelete = unwrap(tag.link.details.getPermissions().canDelete())
+        created = str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000))
+        owned = self_id == unwrap(tag.link.details.owner.id)
+        selected_tags.append((tag.id, ownerId, ownerName, canDelete, created, owned))
+
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
 
-    jsonmode = request.GET.get('jsonmode')
     if jsonmode:
         try:
             offset = int(request.GET.get('offset'))
@@ -1625,13 +1644,29 @@ def annotate_tags(request, conn=None, **kwargs):
             all_tags = manager.tags_recursive
             all_tags_owners = manager.tags_recursive_owners
 
+        if jsonmode == 'tagcount':
+            # send number of tags for better paging progress bar
+            return dict(tag_count=tag_count)
+
+        elif jsonmode == 'tags':
+            # send tag information without descriptions
+            return list((i, t, o, s) for i, d, t, o, s in all_tags)
+
+        elif jsonmode == 'desc':
+            # send descriptions for tags
+            return dict((i, d) for i, d, t, o, s in all_tags)
+
+        elif jsonmode == 'owners':
+            # send owner information
+            return all_tags_owners
+
     if request.method == 'POST':
         # handle form submission
         form_tags = TagsAnnotationForm(initial=initial, data=request.REQUEST.copy())
         newtags_formset = NewTagsAnnotationFormSet(prefix='newtags', data=request.REQUEST.copy())
         # Create new tags or Link existing tags...
         if form_tags.is_valid() and newtags_formset.is_valid():
-            # filter down previously selected tags to the ones owned by current user
+            # filter down previously selected tags to the ones linked by current user
             selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
             added_tags = [stag[0] for stag in selected_tags if not stag[5]]
             tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tag_ids]
@@ -1651,6 +1686,7 @@ def annotate_tags(request, conn=None, **kwargs):
                     well_index=index,
                     tag_group_id=form.cleaned_data['tagset'],
                 ))
+            # only remove Tags where the link is owned by self_id
             for remove in removed:
                 tag_manager = BaseContainer(conn, tag=remove)
                 tag_manager.remove([
@@ -1675,22 +1711,6 @@ def annotate_tags(request, conn=None, **kwargs):
                 context['can_remove'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
-
-    elif jsonmode == 'tagcount':
-        # send number of tags for better paging progress bar
-        return dict(tag_count=tag_count)
-
-    elif jsonmode == 'tags':
-        # send tag information without descriptions
-        return list((i, t, o, s) for i, d, t, o, s in all_tags)
-
-    elif jsonmode == 'desc':
-        # send descriptions for tags
-        return dict((i, d) for i, d, t, o, s in all_tags)
-
-    elif jsonmode == 'owners':
-        # send owner information
-        return all_tags_owners
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
