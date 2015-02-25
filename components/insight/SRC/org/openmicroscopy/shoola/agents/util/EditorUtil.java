@@ -130,8 +130,8 @@ public class EditorUtil
     /** Default text displayed in the acquisition date is not available. */
     public static final String DATE_NOT_AVAILABLE = "Not available";
 
-    /** Identifies the <code>Default group</code>. */
-    public static final String DEFAULT_GROUP = "Default Group";
+    /** Identifies the <code>Active group</code>. */
+    public static final String ACTIVE_GROUP = "Active Group";
 
     /** Symbols indicating the mandatory values. */
     public static final String MANDATORY_SYMBOL = " *";

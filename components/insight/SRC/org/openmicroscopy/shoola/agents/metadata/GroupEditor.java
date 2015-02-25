@@ -61,7 +61,7 @@ public class GroupEditor
     /** Indicates to update the group.*/
     public static final int UPDATE = 0;
     
-    /** Indicates to change the default group.*/
+    /** Indicates to change the active group.*/
     public static final int CHANGE = 1;
     
     private static final String GROUP_PERMISSION_ERROR_MSG = "Could not change group permissions";

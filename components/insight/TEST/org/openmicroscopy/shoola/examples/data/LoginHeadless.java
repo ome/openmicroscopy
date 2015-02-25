@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.examples.data.LoginHeadless 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,12 +25,10 @@ package org.openmicroscopy.shoola.examples.data;
 
 
 //Java imports
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 //Third-party libraries
 
@@ -50,7 +48,6 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -105,10 +102,10 @@ implements AgentEventListener
 			//All the groups the user is member of 
 			Collection<GroupData> groups = adminSvc.getAvailableUserGroups();
 			System.err.println(groups);
-			//The user is logged into his/her default group. 
+			//The user is logged into his/her active group. 
 			//Security Context is mainly for now only using the group
 			// idea is to support multi-server.
-			long groupId = exp.getDefaultGroup().getId();
+			long groupId = exp.getActiveGroup().getId();
 			SecurityContext ctx = new SecurityContext(groupId);
 			List<Long> imageIds = new ArrayList<Long>();
 			

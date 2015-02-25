@@ -2520,7 +2520,7 @@ class ImViewerModel
 	{ 
 		boolean b = isUserOwner();
 		if (b) return b;
-		GroupData g = ImViewerAgent.getUserDetails().getDefaultGroup();
+		GroupData g = ImViewerAgent.getUserDetails().getActiveGroup();
 		switch (g.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_GROUP_READ_LINK:
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:

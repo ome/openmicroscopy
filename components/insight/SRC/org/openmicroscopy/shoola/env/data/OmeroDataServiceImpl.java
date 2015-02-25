@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -529,7 +529,7 @@ class OmeroDataServiceImpl
 					LookupNames.CURRENT_USER_DETAILS);
 		gateway.updateExperimenter(ctx, exp.asExperimenter(), user.getId());
 		ExperimenterData data;
-		if (group != null && exp.getDefaultGroup().getId() != group.getId())
+		if (group != null && exp.getActiveGroup().getId() != group.getId())
 			gateway.changeCurrentGroup(ctx, exp, group.getId());
 		data = gateway.getUserDetails(ctx, uc.getUserName(), true);
 

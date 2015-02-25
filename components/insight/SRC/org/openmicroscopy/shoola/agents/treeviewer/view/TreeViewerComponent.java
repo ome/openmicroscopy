@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -3997,7 +3997,7 @@ class TreeViewerComponent
 		model.getAdvancedFinder().reset(
 				TreeViewerAgent.getAvailableUserGroups());
 		ExperimenterData exp = model.getUserDetails();
-		model.setSelectedGroupId(exp.getDefaultGroup().getId());
+		model.setSelectedGroupId(exp.getActiveGroup().getId());
 		
 		
 		view.createTitle();

@@ -335,9 +335,9 @@ public class ImporterAgent
                 if (exp == null) return;
                 GroupData gp = null;
                 try {
-                    gp = exp.getDefaultGroup();
+                    gp = exp.getActiveGroup();
                 } catch (Exception ex) {
-                    //No default group
+                    //No active group
                 }
                 long id = -1;
                 if (gp != null) id = gp.getId();
@@ -374,9 +374,9 @@ public class ImporterAgent
             if (exp == null) return;
             GroupData gp = null;
             try {
-                gp = exp.getDefaultGroup();
+                gp = exp.getActiveGroup();
             } catch (Exception e) {
-                //No default group
+                //No active group
             }
             long id = -1;
             if (gp != null) id = gp.getId();

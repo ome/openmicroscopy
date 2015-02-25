@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -166,7 +166,7 @@ public class GroupSelectionAction
 	public long getGroupId() { return group.getId(); }
 	
 	/**
-	 * Sets the default group for the currently logged in user.
+	 * Sets the active group for the currently logged in user.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
     public void actionPerformed(ActionEvent e)

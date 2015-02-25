@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.TaskBarManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -584,7 +584,7 @@ public class TaskBarManager
 	 * 
 	 * @param askQuestion Pass <code>true</code> to pop up a message before
 	 * 						quitting, <code>false</code> otherwise.
-	 * @param ctx The security context so the default group can be set or
+	 * @param ctx The security context so the active group can be set or
 	 * <code>null</code>.
 	 */
 	private void doExit(boolean askQuestion, SecurityContext ctx)

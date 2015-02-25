@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -525,9 +525,9 @@ public class TreeViewerAgent
             EventBus bus = registry.getEventBus();
             GroupData gp = null;
             try {
-                gp = exp.getDefaultGroup();
+                gp = exp.getActiveGroup();
             } catch (Exception ex) {
-                //No default group
+                //No active group
             }
             long id = -1;
             if (gp != null) id = gp.getId();

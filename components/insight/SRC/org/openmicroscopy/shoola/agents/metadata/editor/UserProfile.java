@@ -333,7 +333,7 @@ class UserProfile
                 GroupData g = getSelectedGroup();
                 ExperimenterData exp = (ExperimenterData)
                         model.getRefObject();
-                if (exp.getDefaultGroup().getId() != g.getId())
+                if (exp.getActiveGroup().getId() != g.getId())
                     model.fireAdminSaving(g, true);
                 view.saveData(true);
             }
@@ -358,7 +358,7 @@ class UserProfile
         ExperimenterData user = (ExperimenterData) model.getRefObject();
         Collection<GroupData> groups = user.getGroups();
 
-        GroupData defaultGroup = user.getDefaultGroup();
+        GroupData defaultGroup = user.getActiveGroup();
 
         groupsBox = new JComboBox();
         SelectableComboBoxModel m = new SelectableComboBoxModel();
@@ -489,18 +489,18 @@ class UserProfile
                 groupsBox.addActionListener(new ActionListener() {
 
                     /**
-                     * Listens to the change of default group.
+                     * Listens to the change of active group.
                      */
                     public void actionPerformed(ActionEvent evt) {
                         GroupData g = getSelectedGroup();
-                        //update the default group
+                        //update the active group
                         permissionsPane.resetPermissions(g.getPermissions());
                         permissionsPane.disablePermissions();
                         setGroupOwner(g);
                         ExperimenterData exp = (ExperimenterData)
                                 model.getRefObject();
                         saveButton.setEnabled(
-                                exp.getDefaultGroup().getId() != g.getId());
+                                exp.getActiveGroup().getId() != g.getId());
                     }
                 });
             }
@@ -706,7 +706,7 @@ class UserProfile
         }
         c.gridx = 0;
         c.gridy++;
-        label = EditorUtil.getLabel(EditorUtil.DEFAULT_GROUP, false);
+        label = EditorUtil.getLabel(EditorUtil.ACTIVE_GROUP, false);
         c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
         c.fill = GridBagConstraints.NONE;//reset to default
         c.weightx = 0.0;  
@@ -951,7 +951,7 @@ class UserProfile
             saveButton.setEnabled(true);
             return true;
         }
-		if (original.getDefaultGroup().getId() != getSelectedGroup().getId()) {
+		if (original.getActiveGroup().getId() != getSelectedGroup().getId()) {
 			saveButton.setEnabled(true);
 			return true;
 		}

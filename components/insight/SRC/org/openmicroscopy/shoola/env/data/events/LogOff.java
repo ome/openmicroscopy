@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.events.LogOff
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -50,7 +50,7 @@ public class LogOff
 	 */
 	private boolean askQuestion;
 
-	/** The security context to use to modify the default group.*/
+	/** The security context to use to modify the active group.*/
 	private SecurityContext ctx;
 	
     /** Creates a new instance. */

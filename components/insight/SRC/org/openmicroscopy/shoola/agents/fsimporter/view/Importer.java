@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.FSImporter 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -299,7 +299,7 @@ public interface Importer
     GroupData getSelectedGroup();
 
     /**
-     * Sets the default group for the currently selected user and updates the 
+     * Sets the active group for the currently selected user and updates the 
      * view.
      * 
      * @param group The group to set.

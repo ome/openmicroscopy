@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.browser.Browser
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -853,11 +853,11 @@ public interface Browser
 	void paste(TreeImageDisplay[] parents);
 	
 	/**
-	 * Returns the node hosting the default group when in group display mode.
+	 * Returns the node hosting the active group when in group display mode.
 	 * 
 	 * @return See above.
 	 */
-	TreeImageDisplay getDefaultGroupNode();
+	TreeImageDisplay getActiveGroupNode();
 
 	/**
 	 * Returns the display mode. One of the constants defined by 

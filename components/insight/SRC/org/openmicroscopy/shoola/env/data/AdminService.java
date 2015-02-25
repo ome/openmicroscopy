@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.AdminService 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -343,7 +343,7 @@ public interface AdminService
      * experimenter that cannot be updated and whose values are the exception.
      * 
      * @param ctx The security context.
-     * @param group The default group.
+     * @param group The active group.
      * @param experimenters The experimenters to update.
      * @return See above
      * @throws DSOutOfServiceException If the connection is broken, or logged in

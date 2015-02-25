@@ -612,7 +612,7 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Fires an asynchronous call to modify the default group of the
+	 * Fires an asynchronous call to modify the active group of the
 	 * logged in experimenter.
 	 * 
 	 * @param group

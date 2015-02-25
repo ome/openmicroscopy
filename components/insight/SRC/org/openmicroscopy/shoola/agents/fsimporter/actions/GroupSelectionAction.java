@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -123,7 +123,7 @@ public class GroupSelectionAction
 	}
 	
 	/**
-	 * Sets the default group for the currently logged in user.
+	 * Sets the active group for the currently logged in user.
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
     public void actionPerformed(ActionEvent e) { model.setUserGroup(group); }

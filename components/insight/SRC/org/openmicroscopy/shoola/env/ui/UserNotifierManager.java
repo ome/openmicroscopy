@@ -155,7 +155,7 @@ class UserNotifierManager
 			ExperimenterData exp = (ExperimenterData) reg.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			SecurityContext ctx = new SecurityContext(
-					exp.getDefaultGroup().getId());
+					exp.getActiveGroup().getId());
 			FileUploader loader = new FileUploader(component, 
 					container.getRegistry(), ctx, source, details);
 			loader.load();

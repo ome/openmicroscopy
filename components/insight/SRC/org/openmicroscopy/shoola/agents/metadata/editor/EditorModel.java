@@ -1363,11 +1363,11 @@ class EditorModel
 
     /**
      * Returns <code>true</code> if the user currently logged in, is a leader
-     * of their default group, <code>false</code> otherwise.
+     * of their active group, <code>false</code> otherwise.
      */
     boolean isGroupLeader()
     {
-        return isGroupLeader(MetadataViewerAgent.getUserDetails().getDefaultGroup());
+        return isGroupLeader(MetadataViewerAgent.getUserDetails().getActiveGroup());
     }
 
 	/**

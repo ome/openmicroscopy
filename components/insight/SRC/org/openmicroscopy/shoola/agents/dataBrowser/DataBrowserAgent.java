@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -193,7 +193,7 @@ public class DataBrowserAgent
 		ExperimenterData exp = getUserDetails();
 		Set groups = getGroupsLeaderOf();
 		if (groups.size() == 0) return false;
-		GroupData group = exp.getDefaultGroup();
+		GroupData group = exp.getActiveGroup();
 		Iterator i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {
