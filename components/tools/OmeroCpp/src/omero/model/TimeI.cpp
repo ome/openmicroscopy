@@ -28,7 +28,7 @@ namespace omero {
 
         static std::map<omero::model::enums::UnitsTime, std::string> makeSymbols(){
             std::map<omero::model::enums::UnitsTime, std::string> s;
-            s[omero::model::enums::ATOOSECOND] = "as";
+            s[omero::model::enums::ATTOSECOND] = "as";
             s[omero::model::enums::CENTISECOND] = "cs";
             s[omero::model::enums::DAY] = "d";
             s[omero::model::enums::DECASECOND] = "das";

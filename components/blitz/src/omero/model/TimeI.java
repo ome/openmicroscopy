@@ -624,7 +624,7 @@ public class TimeI extends Time implements ModelBased {
     private static final Map<UnitsTime, String> SYMBOLS;
     static {
         Map<UnitsTime, String> s = new HashMap<UnitsTime, String>();
-        s.put(UnitsTime.ATOOSECOND, "as");
+        s.put(UnitsTime.ATTOSECOND, "as");
         s.put(UnitsTime.CENTISECOND, "cs");
         s.put(UnitsTime.DAY, "d");
         s.put(UnitsTime.DECASECOND, "das");

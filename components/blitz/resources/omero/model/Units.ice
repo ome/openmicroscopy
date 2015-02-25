@@ -198,7 +198,7 @@ module omero {
                 NANOSECOND,
                 PICOSECOND,
                 FEMTOSECOND,
-                ATOOSECOND,
+                ATTOSECOND,
                 ZEPTOSECOND,
                 YOCTOSECOND,
                 MINUTE,
