@@ -69,7 +69,7 @@ RewriteEngine on
 </Location>
 
 <Location %(WEB_PREFIX)s/>
-    ErrorDocument 502 %(WEB_PREFIX)s/error/502.html
+    ErrorDocument 500 %(WEB_PREFIX)s/error/502.html
 </Location>
 
 Alias %(WEB_PREFIX)s/error %(ROOT)s/etc/templates/error
