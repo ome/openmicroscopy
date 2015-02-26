@@ -2,7 +2,7 @@
  * pojos.ChannelData
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package pojos;
 import java.math.RoundingMode;
 
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RInt;
 import omero.RString;
@@ -124,7 +125,10 @@ public class ChannelData
         if (StringUtils.isNotBlank(value)) return value;
         value = getFluor();
         if (StringUtils.isNotBlank(value)) return value;
-        Length v = getEmissionWavelength(null);
+        Length v = null;
+        try {
+            v = getEmissionWavelength(null);
+        } catch (BigResult e) { }
         if (v != null) {
         	return ""+ DoubleMath.roundToInt(v.getValue(), RoundingMode.DOWN);
         }
@@ -165,8 +169,9 @@ public class ChannelData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getEmissionWavelength(UnitsLength unit)
+    public Length getEmissionWavelength(UnitsLength unit) throws BigResult
     {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) 
@@ -190,8 +195,14 @@ public class ChannelData
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return index;
         Length value  = lc.getEmissionWave();
-        if (value != null) return new LengthI(value,
-                UnitsFactory.Channel_EmissionWavelength).getValue();
+        if (value != null) {
+            try {
+                return new LengthI(value,
+                    UnitsFactory.Channel_EmissionWavelength).getValue();
+            } catch (BigResult e) {
+                return e.result.doubleValue();
+            }
+        }
         return -1;
     }
 
@@ -202,8 +213,9 @@ public class ChannelData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getExcitationWavelength(UnitsLength unit)
+    public Length getExcitationWavelength(UnitsLength unit) throws BigResult
     {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) 
@@ -227,8 +239,14 @@ public class ChannelData
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return getEmissionWavelength();
         Length value = lc.getExcitationWave();
-        if (value != null) return new LengthI(value,
-                UnitsFactory.Channel_ExcitationWavelength).getValue();
+        if (value != null) {
+            try {
+                return new LengthI(value,
+                    UnitsFactory.Channel_ExcitationWavelength).getValue();
+            } catch (BigResult e) {
+                return e.result.doubleValue();
+            }
+        }
         return -1;
     }
 
@@ -239,8 +257,9 @@ public class ChannelData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getPinholeSize(UnitsLength unit)
+    public Length getPinholeSize(UnitsLength unit) throws BigResult
     {
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) 
@@ -265,8 +284,14 @@ public class ChannelData
         LogicalChannel lc = asChannel().getLogicalChannel();
         if (lc == null) return -1;
         Length value = lc.getPinHoleSize();
-        if (value != null) return new LengthI(value,
-                UnitsFactory.Channel_PinholeSize).getValue();
+        if (value != null)  {
+            try {
+                return new LengthI(value,
+                    UnitsFactory.Channel_PinholeSize).getValue();
+            } catch (BigResult e) {
+                return e.result.doubleValue();
+            }
+        }
         return -1;
     }
 
