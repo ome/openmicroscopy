@@ -93,8 +93,6 @@ class ExperimenterForm(NonASCIIForm):
                 label="Groups")
 
         try:
-            if kwargs['initial']['default_group']:
-                pass
             self.fields['default_group'] = GroupModelChoiceField(
                 queryset=kwargs['initial']['groups'],
                 initial=kwargs['initial']['default_group'],
@@ -103,7 +101,6 @@ class ExperimenterForm(NonASCIIForm):
             self.fields['default_group'] = GroupModelChoiceField(
                 queryset=kwargs['initial']['groups'],
                 empty_label=u"---------", required=False)
-        self.fields['default_group'].widget.attrs['class'] = 'hidden'
 
         if ('with_password' in kwargs['initial'] and
                 kwargs['initial']['with_password']):

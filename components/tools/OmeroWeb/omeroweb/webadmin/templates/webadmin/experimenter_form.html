@@ -50,29 +50,6 @@
     <script type="text/javascript">
     $(document).ready(function() 
     {
-        var highlightDefault = function() {
-            dv = $('#id_default_group').val();
-            if (dv.length > 0){
-                selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
-                    return item.value == dv;
-                });
-                $("#id_other_groups_chzn_c_"+selected[0].array_index).addClass('search-choice-default').find("a").first().attr('rel');
-                $('#id_default_group').val(selected[0].value);
-            } else {
-                $('#id_default_group').val("");
-            }
-        }
-
-        var selectDefaultGroup = function(evt) {
-            evt.stopPropagation();
-            var target = $(evt.target).hasClass("search-choice") ? $(evt.target) : $(evt.target).parents(".search-choice").first();
-            $(".chzn-choices li.search-choice").removeClass('search-choice-default');
-            choice_id = $(evt.currentTarget).addClass('search-choice-default').find("a").first().attr('rel');
-            selected = $.grep($('#id_other_groups').data('chosen').results_data, function(item){
-                return item.array_index == choice_id;
-            })[0];
-            $("#id_default_group").selectOptions(selected.value, true);
-        };
 
         // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
         var admin_groups = {{ admin_groups|jsonify|safe }};
@@ -83,24 +60,43 @@
                 $system_li.find('a').hide();
             }
         }
-        
+
+        // The groups available as a default_group should match the groups chosen in 'other_groups'
+        var syncDefaultGroupOptions = function syncDefaultGroupOptions() {
+
+            var $defaultGroup = $("#id_default_group"),
+                currentDefaultGroup = $defaultGroup.val(),
+                groupIds = $("#id_other_groups").val();
+            $defaultGroup.empty();
+            // if other_groups <option> value is in selected IDs...
+            $("#id_other_groups option").each(function(){
+                if (groupIds.indexOf(this.value) > -1) {
+                    // ...put that <option> into default_group <select>
+                    $defaultGroup.append($(this).clone());
+                }
+            });
+            // Reset the val. If removed, this will select first <option>
+            $defaultGroup.val(currentDefaultGroup);
+        }
+
+        // Setup chosen plugin on 'Groups' chooser
         $("#id_other_groups").chosen({placeholder_text:'Type group names to add...'}).change(function(evt, data) {
             if (data && data.deselected) {
                 if (data.deselected === "0") {
                     $("input[name='administrator']").prop('checked', false);
                 }
-                $df = $('#id_default_group')
+                var $df = $('#id_default_group');
                 if ($df.val() === data.deselected){
-                    $("#id_default_group").selectOptions("", true);
+                    $df.selectOptions("", true);
                 } 
             } else if (data && data.selected) {
                 if (data.selected === "0") {
                     $("input[name='administrator']").prop('checked', true);
                 }
-                $("li.search-choice").click(selectDefaultGroup);
-                // In case we've added the system group:
             }
+            // In case we've added the system group:
             hideSystemGroupX();
+            syncDefaultGroupOptions();
         });
         
         $("input[name='administrator']").click( function(evt) {
@@ -109,15 +105,14 @@
                 $('#id_other_groups option[value=0]').prop('selected', true);
             } else {
                 $('#id_other_groups option[value=0]').prop('selected', false);
-                // also remove 'system' from the hidden 'default group' chooser
-                $df = $('#id_default_group');
+                // also remove 'system' from the 'default group' chooser
+                var $df = $('#id_default_group');
                 if ($df.val() === "0"){
                     $("#id_default_group").selectOptions("", true);
                 }
             }
             $("#id_other_groups").trigger("liszt:updated");
-            $("li.search-choice").click(selectDefaultGroup);
-            highlightDefault();
+            // In case we've added the system group:
             hideSystemGroupX();
         });
 
@@ -125,7 +120,9 @@
             evt.stopPropagation();
             selectDefaultGroup(evt);
         });
-        highlightDefault();
+
+        // Initial setup:
+        syncDefaultGroupOptions();
         hideSystemGroupX();
         
         
@@ -244,11 +241,6 @@
         {% for field in form %}
             {% if field.errors %}<div style="clear:both">{{ field.errors }}</div>{% endif %}
 
-            {% ifequal field.label_tag form.default_group.label_tag %}
-                <!-- default group -->
-                {{ field }}
-            
-            {% else %}
                 {% ifequal field.label_tag form.other_groups.label_tag %}
                     <!-- other groups -->
                     <span class="required">{{ field.label_tag }}</span>
@@ -263,7 +255,6 @@
                     {% endif %}
                     {{ field }}
                 {% endifequal %}
-            {% endifequal %}
             <br />
             
         {% endfor %}
