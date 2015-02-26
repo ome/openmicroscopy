@@ -282,6 +282,14 @@ class FsControl(CmdControl):
             "--sum-by", nargs="+", choices=("user", "group", "component"),
             help=("Breakdown of disk usage by a combination of "
                   "user, group and component"))
+        usage.add_argument(
+            "--sort-by", nargs="+",
+            choices=("user", "group", "component", "size", "files"),
+            help=("Sort the report table by one or more of "
+                  "user, group, component, size and files"))
+        usage.add_argument(
+            "--reverse", action="store_true",
+            help="Reverse sort order")
         unit_group = usage.add_mutually_exclusive_group()
         unit_group.add_argument(
             "--units", choices="KMGTP",
@@ -814,9 +822,11 @@ Examples:
         """
         from omero.util.text import TableBuilder
 
-        sum_by = allCols = ("user", "group", "component")
+        sum_by = allCols = sortCols = ("user", "group", "component")
         if args.sum_by is not None:
-            sum_by = args.sum_by
+            sum_by = sortCols = args.sum_by
+        sortCols = list(sortCols)
+        sortCols.extend(["size", "files"])
 
         cols = []
         align = ''
@@ -881,7 +891,20 @@ Examples:
             row.extend(subtotals[key])
             tb.row(*tuple(row))
 
-        tb.sort(col=0)
+        # Since an order in the response is not guaranteed if not sort keys
+        # are specified then sort by the first column at least.
+        if args.sort_by:
+            keys = []
+            for col in args.sort_by:
+                try:
+                    pos = sortCols.index(col)
+                    keys.append(pos)
+                except:
+                    pass
+        else:
+            keys = [0]
+
+        tb.sort(cols=keys, reverse=args.reverse)
         self.ctx.out(str(tb.build()))
 
 try:
