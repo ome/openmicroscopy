@@ -62,16 +62,16 @@ except:
 
     logger = logging.getLogger(__name__)
 
+try:
+    from PIL import Image  # see ticket:2597
+except ImportError:
     try:
-        from PIL import Image  # see ticket:2597
-    except ImportError:
-        try:
-            import Image  # see ticket:2597
-        except:
-            logger.error(
-                "You need to install the Python Imaging Library. Get it at"
-                " http://www.pythonware.com/products/pil/")
-            logger.error(traceback.format_exc())
+        import Image  # see ticket:2597
+    except:
+        logger.error(
+            "You need to install the Python Imaging Library. Get it at"
+            " http://www.pythonware.com/products/pil/")
+        logger.error(traceback.format_exc())
 
 
 def defaultThumbnail(size=(120, 120)):
