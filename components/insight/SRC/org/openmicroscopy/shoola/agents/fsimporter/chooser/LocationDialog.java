@@ -544,9 +544,12 @@ class LocationDialog extends JDialog implements ActionListener,
 				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
 		JPanel buttonPanel = new JPanel(buttonLayout);
 		int plugin = ImporterAgent.runAsPlugin();
-		if (plugin != LookupNames.IMAGE_J_IMPORT) {
+		if (plugin != LookupNames.IMAGE_J_IMPORT &&
+		        plugin != LookupNames.IMAGE_J_IMPORT) {
 	        buttonPanel.add(closeButton, "0, 0, l, c");
 	        buttonPanel.add(refreshButton, "1, 0, l, c");
+		} else {
+		    buttonPanel.add(refreshButton, "1, 0, l, c");
 		}
 		buttonPanel.add(addButton, "2, 0, r, c");
 		JPanel buttonWrapper = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
@@ -880,6 +883,11 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void close()
 	{
+	    int plugin = ImporterAgent.runAsPlugin();
+        if (plugin == LookupNames.IMAGE_J_IMPORT ||
+                plugin == LookupNames.IMAGE_J_IMPORT) {
+            return;
+        }
 		setVisible(false);
 		dispose();
 	}
