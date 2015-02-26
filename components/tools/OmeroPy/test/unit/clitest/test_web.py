@@ -155,8 +155,6 @@ class TestWeb(object):
 
         if prefix:
             missing = self.required_lines_in([
-                'RewriteEngine on',
-                'RewriteRule ^/?$ %s/ [R]' % prefix,
                 ('FastCGIExternalServer ',
                  'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60'),
                 ('Alias %s/error ' % prefix, 'etc/templates/error'),
