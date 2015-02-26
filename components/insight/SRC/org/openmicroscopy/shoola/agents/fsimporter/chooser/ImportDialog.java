@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
+import ij.ImagePlus;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
@@ -1557,12 +1558,19 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                 list.add(f);
             } else {
                 int[] values = WindowManager.getIDList();
-                for (int i = 0; i < values.length; i++) {
-                    list.add(new FileObject(WindowManager.getImage(values[i])));
+                if (values != null) {
+                    for (int i = 0; i < values.length; i++) {
+                        list.add(new FileObject(
+                                WindowManager.getImage(values[i])));
+                    }
                 }
             }
         }
-        
+        if (CollectionUtils.isEmpty(list)) {
+            ImporterAgent.getRegistry().getUserNotifier().notifyInfo(
+                    "Image Selection", "No images opened.");
+            return;
+        }
         ImportLocationSettings settings = locationDialog.getImportSettings();
         table.addFiles(list, settings);
         importButton.setEnabled(table.hasFilesToImport());
