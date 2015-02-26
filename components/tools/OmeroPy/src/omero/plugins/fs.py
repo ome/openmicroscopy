@@ -822,21 +822,15 @@ Examples:
         """
         from omero.util.text import TableBuilder
 
-        sum_by = allCols = sortCols = ("user", "group", "component")
+        sum_by = ("user", "group", "component")
         if args.sum_by is not None:
-            sum_by = sortCols = args.sum_by
-        sortCols = list(sortCols)
-        sortCols.extend(["size", "files"])
+            sum_by = args.sum_by
+        showCols = list(sum_by)
+        showCols.extend(["size", "files"])
 
-        cols = []
-        align = ''
-        for col in allCols:
-            if col in sum_by:
-                cols.append(col)
-                align += 'l'
-        cols.extend(["size","files"])
+        align = 'l'*len(sum_by)
         align += 'rr'
-        tb = TableBuilder(*cols)
+        tb = TableBuilder(*showCols)
         tb.set_align(align)
         if args.style:
             tb.set_style(args.style)
@@ -886,7 +880,7 @@ Examples:
             keys = []
             for col in args.sort_by:
                 try:
-                    pos = sortCols.index(col)
+                    pos = showCols.index(col)
                     keys.append(pos)
                 except:
                     pass
