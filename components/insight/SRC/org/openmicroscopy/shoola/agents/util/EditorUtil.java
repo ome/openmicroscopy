@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import ome.units.UNITS;
 import omero.model.ElectricPotential;
 import omero.model.Frequency;
@@ -703,11 +704,24 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             details.put(CHANNELS, ""+data.getSizeC());
-            Length l = data.getPixelSizeX(UnitsLength.MICROMETER);
+            Length l = null;
+            try {
+                l = data.getPixelSizeX(UnitsLength.MICROMETER);
+            } catch (BigResult e) {
+                // TODO: Log this in some way
+            }
 			details.put(PIXEL_SIZE_X,  l == null ? nullLength : l);
-			l = data.getPixelSizeY(UnitsLength.MICROMETER);
+			try {
+                l = data.getPixelSizeY(UnitsLength.MICROMETER);
+            } catch (BigResult e) {
+             // TODO: Log this in some way
+            }
 			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
-			l = data.getPixelSizeZ(UnitsLength.MICROMETER);
+			try {
+                l = data.getPixelSizeZ(UnitsLength.MICROMETER);
+            } catch (BigResult e) {
+             // TODO: Log this in some way
+            }
 			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
 			details.put(PIXEL_TYPE, data.getPixelType());
         }
@@ -1205,7 +1219,12 @@ public class EditorUtil
             notSet.add(NAME);
         details.put(NAME, s);
 
-        Length wl = data.getEmissionWavelength(null);
+        Length wl = null;
+        try {
+            wl = data.getEmissionWavelength(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (wl == null) {
         	notSet.add(EMISSION);
         } else {
@@ -1222,7 +1241,11 @@ public class EditorUtil
             }
         }
 
-        wl = data.getExcitationWavelength(null);
+        try {
+            wl = data.getExcitationWavelength(null);
+        } catch (BigResult e) {
+         // can't happen as null is passed to the method
+        }
         if (wl == null) {
         	notSet.add(EXCITATION);
         } else {
@@ -1245,7 +1268,12 @@ public class EditorUtil
         else
         	details.put(ND_FILTER, f*100);
 
-        Length ph = data.getPinholeSize(null);
+        Length ph = null ;
+        try {
+            ph = data.getPinholeSize(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (ph == null) {
             notSet.add(PIN_HOLE_SIZE);
         }
@@ -1460,7 +1488,12 @@ public class EditorUtil
         if (CommonsLangUtils.isBlank(s))
             notSet.add(CORRECTION);
         details.put(CORRECTION, s);
-        Length wd = data.getWorkingDistance(null);
+        Length wd = null;
+        try {
+            wd = data.getWorkingDistance(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (wd==null) {
             notSet.add(WORKING_DISTANCE);
         }
@@ -1547,7 +1580,12 @@ public class EditorUtil
             details.put(NOT_SET, notSet);
             return details;
         }
-        Temperature t = data.getTemperature(null);
+        Temperature t = null;
+        try {
+            t = data.getTemperature(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         double f = 0;
         if (t == null) {
             notSet.add(TEMPERATURE);
@@ -1556,7 +1594,12 @@ public class EditorUtil
         	details.put(TEMPERATURE, f+NONBRSPACE+t.getSymbol());
         }
 
-        Pressure p = data.getAirPressure(null);
+        Pressure p = null;
+        try {
+            p = data.getAirPressure(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (p == null) {
             notSet.add(AIR_PRESSURE);
         }
@@ -1612,21 +1655,34 @@ public class EditorUtil
         if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Length p = data.getPositionX(UnitsLength.REFERENCEFRAME);
+        Length p = null;
+        try {
+            p = data.getPositionX(UnitsLength.REFERENCEFRAME);
+        } catch (BigResult e) {
+            // TODO: Log this in some way
+        }
         double f = 0;
         if (p == null) {
             notSet.add(POSITION_X);
         } else f = p.getValue();
         details.put(POSITION_X, f);
 
-        p = data.getPositionY(UnitsLength.REFERENCEFRAME);
+        try {
+            p = data.getPositionY(UnitsLength.REFERENCEFRAME);
+        } catch (BigResult e) {
+            // TODO: Log this in some way
+        }
         f = 0;
         if (p == null) {
             notSet.add(POSITION_Y);
         } else f = p.getValue();
         details.put(POSITION_Y, f);
 
-        p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
+        try {
+            p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
+        } catch (BigResult e) {
+            // TODO: Log this in some way
+        }
         f = 0;
         if (p == null) {
             notSet.add(POSITION_Z);
@@ -1744,7 +1800,12 @@ public class EditorUtil
         if (CommonsLangUtils.isBlank(s))
             notSet.add(FILTER_WHEEL);
         details.put(FILTER_WHEEL, s);
-        Length wl = data.getCutIn(null);
+        Length wl = null;
+        try {
+            wl = data.getCutIn(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         int i = 0;
         if (wl == null)
         	notSet.add(CUT_IN);
@@ -1753,7 +1814,11 @@ public class EditorUtil
         	 details.put(CUT_IN, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutOut(null);
+        try {
+            wl = data.getCutOut(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (wl == null) {
             notSet.add(CUT_OUT);
         }
@@ -1762,7 +1827,11 @@ public class EditorUtil
         	details.put(CUT_OUT, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutInTolerance(null);
+        try {
+            wl = data.getCutInTolerance(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (wl == null) {
             notSet.add(CUT_IN_TOLERANCE);
         }
@@ -1771,7 +1840,11 @@ public class EditorUtil
         	details.put(CUT_IN_TOLERANCE, i+NONBRSPACE+wl.getSymbol());
         }
 
-        wl = data.getCutOutTolerance(null);
+        try {
+            wl = data.getCutOutTolerance(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (wl == null) {
             notSet.add(CUT_OUT_TOLERANCE);
         }
@@ -1823,7 +1896,12 @@ public class EditorUtil
         else v = f;
         details.put(ATTENUATION, v*PERCENT_FRACTION);
 
-        Length wl = data.getLightSettingsWavelength(null);
+        Length wl = null;
+        try {
+            wl = data.getLightSettingsWavelength(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (details.containsKey(WAVELENGTH)) {
             if (wl != null) { //override the value.
                 details.put(WAVELENGTH, wl.getValue()+NONBRSPACE+wl.getSymbol());
@@ -1892,7 +1970,12 @@ public class EditorUtil
 
         s = data.getKind();
         details.put(LIGHT_TYPE, s);
-        Power p = data.getPower(null);
+        Power p = null;
+        try {
+            p = data.getPower(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         double f = 0;
         if (p == null) {
             notSet.add(POWER);
@@ -1929,7 +2012,12 @@ public class EditorUtil
                 notSet.add(MEDIUM);
             details.put(MEDIUM, s);
 
-            Length wl = data.getLaserWavelength(null);
+            Length wl = null;
+            try {
+                wl = data.getLaserWavelength(null);
+            } catch (BigResult e) {
+                // can't happen as null is passed to the method
+            }
             double wave = 0;
             if (wl == null) {
                 notSet.add(WAVELENGTH);
@@ -1956,7 +2044,12 @@ public class EditorUtil
             if (CommonsLangUtils.isBlank(s))
                 notSet.add(PULSE);
             details.put(PULSE, s);
-            Frequency freq = data.getLaserRepetitionRate(null);
+            Frequency freq = null; 
+            try {
+                freq = data.getLaserRepetitionRate(null);
+            } catch (BigResult e) {
+                // can't happen as null is passed to the method
+            }
             if (freq == null) {
                 notSet.add(REPETITION_RATE);
             }
@@ -2033,7 +2126,12 @@ public class EditorUtil
         if (f == null) notSet.add(GAIN);
         else v = f.doubleValue();
         details.put(GAIN, v);
-        ElectricPotential p = data.getVoltage(null);
+        ElectricPotential p = null;
+        try {
+            p = data.getVoltage(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (p == null) {
             notSet.add(VOLTAGE);
         }
@@ -2108,7 +2206,12 @@ public class EditorUtil
             notSet.remove(GAIN);
         }
 
-        ElectricPotential p = data.getDetectorSettingsVoltage(null);
+        ElectricPotential p = null;
+        try {
+            p = data.getDetectorSettingsVoltage(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         if (p != null) {
         	f = p.getValue();
             notSet.remove(VOLTAGE);
@@ -2121,7 +2224,12 @@ public class EditorUtil
             details.put(OFFSET, UIUtilities.roundTwoDecimals(f));
         }
 
-        Frequency freq = data.getDetectorSettingsReadOutRate(null);
+        Frequency freq = null;
+        try {
+            freq = data.getDetectorSettingsReadOutRate(null);
+        } catch (BigResult e) {
+            // can't happen as null is passed to the method
+        }
         double v = 0;
         if (freq == null) {
             notSet.add(READ_OUT_RATE);
@@ -2177,12 +2285,22 @@ public class EditorUtil
             omero.model.Time t = plane.getDeltaT();
             if (t != null)  {
                 notSet.remove(DELTA_T);
-                details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                try {
+                    details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                } catch (BigResult e) {
+                    // TODO: Log this in some way
+                    details.put(DELTA_T, e.result.doubleValue());
+                }
             }
             t = plane.getExposureTime();
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
-                details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                try {
+                    details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                } catch (BigResult e) {
+                    // TODO: Log this in some way
+                    details.put(EXPOSURE_TIME, e.result.doubleValue());
+                }
             }
 
             Length o = plane.getPositionX();
