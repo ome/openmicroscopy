@@ -183,12 +183,6 @@ class WebControl(BaseControl):
             fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
                 self.ctx.dir
         d["FASTCGI_EXTERNAL"] = fastcgi_external
-        try:
-            d["REWRITERULE"] = (
-                "RewriteEngine on\nRewriteRule ^/?$ %s/ [R]\n"
-                % settings.FORCE_SCRIPT_NAME.rstrip("/"))
-        except:
-            d["REWRITERULE"] = ""
 
     def _set_apache_fcgi_fastcgi(self, d, settings):
         # OMERO.web requires the fastcgi PATH_INFO variable, which

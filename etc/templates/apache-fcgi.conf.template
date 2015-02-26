@@ -48,11 +48,11 @@
 #
 #</VirtualHost>
 
-RewriteEngine on
-
 ###
 ### Stanza for OMERO.web created %(NOW)s
 ###
+
+RewriteEngine on
 
 <Directory "%(ROOT)s/var">
     Options -Indexes +FollowSymLinks
