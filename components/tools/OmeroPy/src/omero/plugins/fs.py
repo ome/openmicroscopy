@@ -834,13 +834,7 @@ Examples:
             if col in sum_by:
                 cols.append(col)
                 align += 'l'
-        if args.units:
-            cols.append("size (%siB)" % args.units)
-        elif args.human_readable:
-            cols.append("size")
-        else:
-            cols.append("size (bytes)")
-        cols.append("files")
+        cols.extend(["size","files"])
         align += 'rr'
         tb = TableBuilder(*cols)
         tb.set_align(align)
@@ -883,11 +877,6 @@ Examples:
 
         for key in subtotals.keys():
             row = list(key)
-            if args.units:
-                subtotals[key][0] = self._to_units(
-                    subtotals[key][0], args.units)
-            elif args.human_readable:
-                subtotals[key][0] = filesizeformat(subtotals[key][0])
             row.extend(subtotals[key])
             tb.row(*tuple(row))
 
@@ -903,8 +892,21 @@ Examples:
                     pass
         else:
             keys = [0]
-
         tb.sort(cols=keys, reverse=args.reverse)
+
+        # Format the size column after sorting.
+        if args.units:
+            col = tb.get_col("size")
+            col = [self._to_units(val, args.units) for val in col]
+            tb.replace_col("size", col)
+            tb.replace_header("size", "size (%siB)" % args.units)
+        elif args.human_readable:
+            col = tb.get_col("size")
+            col = [filesizeformat(val) for val in col]
+            tb.replace_col("size", col)
+        else:
+            tb.replace_header("size", "size (bytes)")
+
         self.ctx.out(str(tb.build()))
 
 try:
