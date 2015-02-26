@@ -43,7 +43,7 @@ class MultiEmailField(forms.Field):
             raise forms.ValidationError('No email.')
         if value.count(' ') > 0:
             raise forms.ValidationError(
-                'Use only separator ";". Remove every spaces.')
+                'Use only separator ";". Remove every space.')
         emails = value.split(';')
         for email in emails:
             if not self.is_valid_email(email):
