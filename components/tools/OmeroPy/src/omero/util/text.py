@@ -169,6 +169,36 @@ class TableBuilder(object):
             if name not in self.headers:
                 self.col(name)
 
+    def get_col(self, name):
+        """
+        Return a column by header name.
+        """
+        if name not in self.headers:
+            raise KeyError("%s not in %s" % (name, self.headers))
+        idx = self.headers.index(name)
+        return self.results[idx]
+
+    def replace_col(self, name, col):
+        """
+        Replace a column by header name, it must be the same length.
+        """
+        if name not in self.headers:
+            raise KeyError("%s not in %s" % (name, self.headers))
+        idx = self.headers.index(name)
+        if len(self.results[idx]) != len(col):
+            raise ValueError("Size mismatch: %s != %s" %
+                             (self.results[idx], len(col)))
+        self.results[idx] = col
+
+    def replace_header(self, name, new_name):
+        """
+        Replace a header name with a new name.
+        """
+        if name not in self.headers:
+            raise KeyError("%s not in %s" % (name, self.headers))
+        idx = self.headers.index(name)
+        self.headers[idx] = new_name
+
     def row(self, *items, **by_name):
 
         if len(items) > len(self.headers):
