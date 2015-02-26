@@ -111,9 +111,10 @@
                     $("#id_default_group").selectOptions("", true);
                 }
             }
-            $("#id_other_groups").trigger("liszt:updated");
+            $("#id_other_groups").trigger("chosen:updated");
             // In case we've added the system group:
             hideSystemGroupX();
+            syncDefaultGroupOptions();
         });
 
         $("li.search-choice").click(function(evt) {
