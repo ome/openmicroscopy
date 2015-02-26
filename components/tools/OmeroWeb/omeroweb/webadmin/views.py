@@ -989,8 +989,8 @@ def email(request, conn=None, **kwargs):
             message = form.cleaned_data['message']
             experimenters = form.cleaned_data['experimenters']
             groups = form.cleaned_data['groups']
-            everyone = toBoolean(form.cleaned_data['everyone'])
-            inactive = toBoolean(form.cleaned_data['inactive'])
+            everyone = form.cleaned_data['everyone']
+            inactive = form.cleaned_data['inactive']
 
             req = omero.cmd.SendEmailRequest(subject=subject, body=message,
                                              groupIds=groups,
