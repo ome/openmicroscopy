@@ -21,6 +21,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
+import ij.ImagePlus;
 import ij.WindowManager;
 
 import java.awt.BorderLayout;
@@ -115,28 +116,33 @@ public class SaveResultsDialog
         FileObject img;
         List<Object> toImport = new ArrayList<Object>();
         if (activeWindow) {
-            img = new FileObject(WindowManager.getCurrentImage());
-            if (img.getOMEROID() < 0) {
-                toImport.add(img);
-              //check if there are associated files
-                int[] values = WindowManager.getIDList();
-                String path = img.getAbsolutePath();
-                if (path != null) {
-                    FileObject ff;
-                    for (int i = 0; i < values.length; i++) {
-                        ff = new FileObject(WindowManager.getImage(values[i]));
-                        if (path.equals(ff.getAbsolutePath())) {
-                            img.addAssociatedFile(ff);
+            ImagePlus plus = WindowManager.getCurrentImage();
+            if (plus != null) {
+                img = new FileObject(plus);
+                if (img.getOMEROID() < 0) {
+                    toImport.add(img);
+                  //check if there are associated files
+                    int[] values = WindowManager.getIDList();
+                    String path = img.getAbsolutePath();
+                    if (path != null) {
+                        FileObject ff;
+                        for (int i = 0; i < values.length; i++) {
+                            ff = new FileObject(WindowManager.getImage(values[i]));
+                            if (path.equals(ff.getAbsolutePath())) {
+                                img.addAssociatedFile(ff);
+                            }
                         }
                     }
-                }
-            } else images.add(img);
+                } else images.add(img);
+            }
         } else {
             int[] values = WindowManager.getIDList();
-            for (int i = 0; i < values.length; i++) {
-                img = new FileObject(WindowManager.getImage(values[i]));
-                if (img.getOMEROID() < 0) toImport.add(img);
-                else images.add(img);
+            if (values != null) {
+                for (int i = 0; i < values.length; i++) {
+                    img = new FileObject(WindowManager.getImage(values[i]));
+                    if (img.getOMEROID() < 0) toImport.add(img);
+                    else images.add(img);
+                }
             }
         }
         //Check if the images are OMERO images
