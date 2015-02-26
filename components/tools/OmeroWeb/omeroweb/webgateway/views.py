@@ -2063,13 +2063,16 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         imgIds = [iid]
 
     # If plate download disabled, check for SPW data...
-    if hasattr(settings, 'PLATE_DOWNLOAD_ENABLED') and not settings.PLATE_DOWNLOAD_ENABLED:
+    if (hasattr(settings, 'PLATE_DOWNLOAD_ENABLED') and not
+            settings.PLATE_DOWNLOAD_ENABLED):
         if imgIds:
             # if any WellSamples exist with image ids?
             params = omero.sys.ParametersI()
             params.addIds(imgIds)
-            query = ("select count(*) from WellSample as w where w.image.id in (:ids)")
-            ws = conn.getQueryService().projection(query, params, conn.SERVICE_OPTS)
+            query = ("select count(*) from WellSample as w "
+                     "where w.image.id in (:ids)")
+            ws = conn.getQueryService().projection(query, params,
+                                                   conn.SERVICE_OPTS)
             if ws[0][0].val > 0:
                 raise Http404
         elif wellIds:
