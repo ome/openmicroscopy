@@ -54,8 +54,6 @@
 ### Stanza for OMERO.web created %(NOW)s
 ###
 
-RewriteEngine on
-
 FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s -idle-timeout 60
 
 <Directory "%(ROOT)s/var">
