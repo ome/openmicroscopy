@@ -60,7 +60,7 @@ except:
     import sha
     hash_sha1 = sha.new
 
-    logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 try:
     from PIL import Image  # see ticket:2597
