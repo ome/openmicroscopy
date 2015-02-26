@@ -74,7 +74,7 @@ class TestWeb(object):
 
         n = 0
         for req in required:
-            if not compare(req, lines[n]):
+            while not compare(req, lines[n]):
                 n += 1
                 if n == len(lines):
                     return req
@@ -140,7 +140,7 @@ class TestWeb(object):
                 "location %s {" % static_prefix[:-1],
                 "location %s {" % (prefix or "/"),
                 ], lines)
-        assert not missing, 'Line not found: ' + missing
+        assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheConfig(self, prefix, capsys, monkeypatch):
@@ -172,7 +172,7 @@ class TestWeb(object):
                 ('Alias /static ', 'lib/python/omeroweb/static'),
                 ('Alias / "', 'var/omero.fcgi/"'),
                 ], lines)
-        assert not missing, 'Line not found: ' + missing
+        assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheFcgiConfig(self, prefix, capsys, monkeypatch):
@@ -200,12 +200,12 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ('Alias /error ', 'etc/templates/error'),
                 ('Alias /static ', 'lib/python/omeroweb/static'),
-                'RewriteCond %%{REQUEST_URI} !^(/static|/.fcgi|/error)',
+                'RewriteCond %{REQUEST_URI} !^(/static|/.fcgi|/error)',
                 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]',
                 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
                 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/',
                 ], lines)
-        assert not missing, 'Line not found: ' + missing
+        assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('server_type', [
         "nginx", "nginx-development", "apache", "apache-fcgi"])
