@@ -185,7 +185,7 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ('Alias %s' % static_prefix[:-1],
                  'lib/python/omeroweb/static'),
-                'RewriteCond %{REQUEST_URI} !^(%s|/\\.fcgi)' %
+                'RewriteCond %%{REQUEST_URI} !^(%s|/\\.fcgi)' %
                 static_prefix[:-1],
                 'RewriteRule ^%s(/|$)(.*) %s.fcgi/$2 [PT]' % (prefix, prefix),
                 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
@@ -194,7 +194,7 @@ class TestWeb(object):
         else:
             missing = self.required_lines_in([
                 ('Alias /static ', 'lib/python/omeroweb/static'),
-                'RewriteCond %{REQUEST_URI} !^(/static|/\\.fcgi)',
+                'RewriteCond %%{REQUEST_URI} !^(/static|/\\.fcgi)',
                 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]',
                 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
                 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/',
