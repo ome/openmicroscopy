@@ -65,6 +65,8 @@ class TestWeb(object):
         return lines
 
     def required_lines_in(self, required, lines):
+        # Checks that all lines in required are present in the same order,
+        # but not necessarily consecutively
         def compare(req, line):
             if isinstance(req, tuple):
                 return line.startswith(req[0]) and line.endswith(req[1])
