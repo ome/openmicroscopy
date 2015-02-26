@@ -229,9 +229,7 @@ public class StatsFactory {
      */
     public double[] initPixelsRange(PixelsType type)
     {
-        double[] minmax = new double[2];
-        minmax[0] = 0;
-        minmax[1] = 1;
+        double[] minmax = new double[] {0, 1};
         if (type == null) return minmax;
         String typeAsString = type.getValue();
         long[] values = FormatTools.defaultMinMax(
