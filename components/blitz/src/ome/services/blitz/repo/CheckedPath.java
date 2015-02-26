@@ -457,6 +457,7 @@ public class CheckedPath {
     /**
      * {@inheritDoc}
      * Instances are equal if their string representations match.
+     * On Windows systems the comparison is not case-sensitive.
      */
     @Override
     public boolean equals(Object object) {
@@ -469,6 +470,7 @@ public class CheckedPath {
 
     /**
      * {@inheritDoc}
+     * On Windows systems the calculation is not case-sensitive.
      */
     @Override
     public int hashCode() {
