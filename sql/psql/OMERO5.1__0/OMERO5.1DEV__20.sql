@@ -86,6 +86,11 @@ DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 alter table annotation_mapvalue alter column name type text;
 alter table annotation_mapvalue alter column value type text;
 
+-- Add lookup table to channel and channel binding to
+-- contain a server-specific lookup for a LUT.
+alter table channel add column lookupTable varchar(255);
+alter table channelbinding add column lookupTable varchar(255);
+
 --
 -- FINISHED
 --
