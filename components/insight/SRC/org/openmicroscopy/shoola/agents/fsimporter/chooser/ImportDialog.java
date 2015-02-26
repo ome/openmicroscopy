@@ -825,13 +825,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @return See above.
 	 */
 	private JPanel buildToolBarLeft() {
-		JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		bar.add(closeButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(refreshFilesButton);
-		//bar.add(Box.createHorizontalStrut(5));
-		//bar.add(showThumbnails);
-		return bar;
+	    JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+	    bar.add(closeButton);
+	    int plugin = ImporterAgent.runAsPlugin();
+	    if (!(plugin == LookupNames.IMAGE_J_IMPORT ||
+	            plugin == LookupNames.IMAGE_J)) {
+	        bar.add(Box.createHorizontalStrut(5));
+	        bar.add(refreshFilesButton);
+	    }
+
+	    return bar;
 	}
 
 	/**
