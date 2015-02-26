@@ -464,7 +464,7 @@ public class CheckedPath {
             return true;
         if (!(object instanceof CheckedPath))
             return false;
-        return this.fsFile.equals(((CheckedPath) object).fsFile);
+        return this.file.equals(((CheckedPath) object).file);
     }
 
     /**
@@ -472,6 +472,6 @@ public class CheckedPath {
      */
     @Override
     public int hashCode() {
-        return this.fsFile.hashCode() * 98;
+        return this.file.hashCode() * 98;
     }
 }
