@@ -33,7 +33,7 @@ import java.math.BigDecimal;
  * internal {@link BigDecimal} will be returned in the {@link #result} field
  * for consumption by the client.
  */
-public class BigResult extends Exception { // FIXME: revert to catched.
+public class BigResult extends Exception {
 
     private static final long serialVersionUID = 626976940908390756L;
 
