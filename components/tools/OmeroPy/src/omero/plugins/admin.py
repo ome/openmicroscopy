@@ -1373,7 +1373,7 @@ OMERO Diagnostics %s
                 ))
             if rsp.invalidusers:
                 self.ctx.out(
-                    "%s users had no email addresses" % len(
+                    "%s users had no email address" % len(
                         rsp.invalidusers)
                 )
             if rsp.invalidemails:
