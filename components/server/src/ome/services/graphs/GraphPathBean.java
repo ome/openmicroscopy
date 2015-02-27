@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -119,6 +119,9 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
     /* which properties are accessible */
     private final Set<Entry<String, String>> accessibleProperties = new HashSet<Entry<String, String>>();
 
+    /* the identifier properties of classes */
+    private final Map<String, String> classIdProperties = new HashMap<String, String>();
+
     /**
      * The application context after refresh should contain a usable Hibernate session factory.
      * If not already done, process the Hibernate domain object model from that bean.
@@ -214,6 +217,9 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
         for (final Entry<String, ClassMetadata> classMetadata : classesMetadata.entrySet()) {
             final String className = classMetadata.getKey();
             final ClassMetadata metadata = classMetadata.getValue();
+            /* note name of identifier property */
+            classIdProperties.put(metadata.getEntityName(), metadata.getIdentifierPropertyName());
+            /* queue other properties */
             final String[] propertyNames = metadata.getPropertyNames();
             final Type[] propertyTypes = metadata.getPropertyTypes();
             final boolean[] propertyNullabilities = metadata.getPropertyNullability();
@@ -434,5 +440,14 @@ public class GraphPathBean extends OnContextRefreshedEventListener {
      */
     public boolean isPropertyAccessible(String className, String propertyName) {
         return accessibleProperties.contains(Maps.immutableEntry(className, propertyName));
+    }
+
+    /**
+     * Get the identifier property for the given class.
+     * @param className the name of a class
+     * @return the identifier property, or {@code null} if one is not known
+     */
+    public String getIdentifierProperty(String className) {
+        return classIdProperties.get(className);
     }
 }
