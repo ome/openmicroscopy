@@ -2310,7 +2310,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
             expiration = form.cleaned_data['expiration']
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
-            enable = toBoolean(form.cleaned_data['enable'])
+            enable = form.cleaned_data['enable']
             host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
             share.createDiscussion(host, message, members, enable, expiration)
