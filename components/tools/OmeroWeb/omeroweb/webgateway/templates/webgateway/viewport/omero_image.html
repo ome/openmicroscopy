@@ -241,10 +241,7 @@
       // disable line-plot for max projection, split-view etc
       $('#wblitz-lp-enable').prop('disabled', p != 'normal');
       //$('#wblitz-channels-box button').prop('disabled', p == 'split');
-      var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
-      $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
     }
-
     //nosync || syncRDCW(viewport);
   };
 
@@ -1032,6 +1029,11 @@
       if ($.inArray(viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
         $("#rdef-fullrange-btn").attr("disabled", "disabled");
       }
+
+      // disable 'Max Intensity' projection for single-Z images
+      var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
+      $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
+
     });
 
     // 'Color' checkbox to left of image
