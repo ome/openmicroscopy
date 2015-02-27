@@ -183,21 +183,26 @@ public class SendEmailRequestI extends SendEmailRequest implements IRequest {
                     .getSecurityRoles().getUserGroupId());
         }
 
-        if (groupIds.size() > 0) {
-            sql.append(" and e.id in ");
-            sql.append(" (select m.child from GroupExperimenterMap m "
-                    + " where m.parent.id in (:gids) )");
-            p.addSet("gids", new HashSet<Long>(groupIds));
-        }
+        if (!everyone) {
 
-        if (userIds.size() > 0) {
-            if (groupIds.size() > 0)
-                sql.append(" or ");
-            else
-                sql.append(" and ");
+            if (groupIds.size() > 0) {
+                sql.append(" and e.id in ");
+                sql.append(" (select m.child from GroupExperimenterMap m "
+                        + " where m.parent.id in (:gids) )");
+                p.addSet("gids", new HashSet<Long>(groupIds));
+            }
 
-            sql.append(" e.id in (:eids)");
-            p.addSet("eids", new HashSet<Long>(userIds));
+            if (userIds.size() > 0) {
+                if (groupIds.size() > 0) {
+                    sql.append(" or ");
+                } else {
+                    sql.append(" and ");
+                }
+
+                sql.append(" e.id in (:eids)");
+                p.addSet("eids", new HashSet<Long>(userIds));
+            }
+
         }
 
         IQuery iquery = helper.getServiceFactory().getQueryService();
