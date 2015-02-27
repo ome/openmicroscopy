@@ -790,6 +790,29 @@ class BaseControl(object):
                 subcommands.append(format(choice))
         return subcommands
 
+    def add_user_and_group_arguments(self, parser, *args,
+                                     **kwargs):
+
+        group = parser
+        try:
+            if kwargs.pop("exclusive"):
+                group = parser.add_mutually_exclusive_group()
+        except:
+            pass
+
+        group.add_argument("--user-id",
+                           help="ID of the user.",
+                           *args, **kwargs)
+        group.add_argument("--user-name",
+                           help="Name of the user.",
+                           *args, **kwargs)
+        group.add_argument("--group-id",
+                           help="ID of the group.",
+                           *args, **kwargs)
+        group.add_argument("--group-name",
+                           help="Name of the group.",
+                           *args, **kwargs)
+
     ###############################################
     #
     # Methods likely to be implemented by subclasses
