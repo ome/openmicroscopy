@@ -708,19 +708,19 @@ public class EditorUtil
             try {
                 l = data.getPixelSizeX(UnitsLength.MICROMETER);
             } catch (BigResult e) {
-                // TODO: Log this in some way
+                details.put(PIXEL_SIZE_X, e);
             }
 			details.put(PIXEL_SIZE_X,  l == null ? nullLength : l);
 			try {
                 l = data.getPixelSizeY(UnitsLength.MICROMETER);
             } catch (BigResult e) {
-             // TODO: Log this in some way
+                details.put(PIXEL_SIZE_Y, e);
             }
 			details.put(PIXEL_SIZE_Y,  l == null ? nullLength : l);
 			try {
                 l = data.getPixelSizeZ(UnitsLength.MICROMETER);
             } catch (BigResult e) {
-             // TODO: Log this in some way
+                details.put(PIXEL_SIZE_Z, e);
             }
 			details.put(PIXEL_SIZE_Z,  l == null ? nullLength : l);
 			details.put(PIXEL_TYPE, data.getPixelType());
@@ -736,10 +736,10 @@ public class EditorUtil
      * @param image The {@link ImageData} object to transform.
      * @return See above
      */
-    public static Map<String, String> transformImageData(ImageData image)
+    public static Map<String, Object> transformImageData(ImageData image)
     {
-        LinkedHashMap<String, String> details =
-                new LinkedHashMap<String, String>(10);
+        LinkedHashMap<String, Object> details =
+                new LinkedHashMap<String, Object>(10);
         if (image == null) {
             details.put(SIZE_X, "");
             details.put(SIZE_Y, "");
@@ -771,18 +771,27 @@ public class EditorUtil
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             try {
-                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX(UnitsLength.MICROMETER)));
-                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY(UnitsLength.MICROMETER)));
-                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ(UnitsLength.MICROMETER)));
-                details.put(PIXEL_TYPE,
-                        PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType()));
-            } catch (Exception e) {
-                details.put(PIXEL_SIZE_X, "");
-                details.put(PIXEL_SIZE_Y, "");
-                details.put(PIXEL_SIZE_Z, "");
-                details.put(PIXEL_TYPE, "");
+                details.put(PIXEL_SIZE_X,
+                        nf.format(data.getPixelSizeX(UnitsLength.MICROMETER)));
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_X, e);
             }
+            try {
+                details.put(PIXEL_SIZE_Y,
+                        nf.format(data.getPixelSizeY(UnitsLength.MICROMETER)));
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_Y, e);
+            }
+            try {
+                details.put(PIXEL_SIZE_Z,
+                        nf.format(data.getPixelSizeZ(UnitsLength.MICROMETER)));
+            } catch (BigResult e) {
+                details.put(PIXEL_SIZE_Z, e);
+            }
+            details.put(PIXEL_TYPE,
+                    PIXELS_TYPE_DESCRIPTION.get("" + data.getPixelType()));
         }
+        
         details.put(EMISSION+" "+WAVELENGTH+"s", "");
         Timestamp date = getAcquisitionTime(image);
         if (date == null)
@@ -1655,39 +1664,41 @@ public class EditorUtil
         if (CommonsLangUtils.isBlank(s))
             notSet.add(NAME);
         details.put(NAME, s);
-        Length p = null;
+        Length p;
+        double f;
         try {
             p = data.getPositionX(UnitsLength.REFERENCEFRAME);
+            f = 0;
+            if (p == null) {
+                notSet.add(POSITION_X);
+            } else
+                f = p.getValue();
+            details.put(POSITION_X, f);
         } catch (BigResult e) {
-            // TODO: Log this in some way
+            details.put(POSITION_X, e);
         }
-        double f = 0;
-        if (p == null) {
-            notSet.add(POSITION_X);
-        } else f = p.getValue();
-        details.put(POSITION_X, f);
 
         try {
             p = data.getPositionY(UnitsLength.REFERENCEFRAME);
+            f = 0;
+            if (p == null) {
+                notSet.add(POSITION_Y);
+            } else f = p.getValue();
+            details.put(POSITION_Y, f);
         } catch (BigResult e) {
-            // TODO: Log this in some way
+            details.put(POSITION_Y, e);
         }
-        f = 0;
-        if (p == null) {
-            notSet.add(POSITION_Y);
-        } else f = p.getValue();
-        details.put(POSITION_Y, f);
-
+       
         try {
             p = data.getPositionZ(UnitsLength.REFERENCEFRAME);
+            f = 0;
+            if (p == null) {
+                notSet.add(POSITION_Z);
+            } else f = p.getValue();
+            details.put(POSITION_Z, f);
         } catch (BigResult e) {
-            // TODO: Log this in some way
+            details.put(POSITION_Z, e);
         }
-        f = 0;
-        if (p == null) {
-            notSet.add(POSITION_Z);
-        } else f = p.getValue();
-        details.put(POSITION_Z, f);
 
         details.put(NOT_SET, notSet);
         return details;
@@ -2288,8 +2299,7 @@ public class EditorUtil
                 try {
                     details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
                 } catch (BigResult e) {
-                    // TODO: Log this in some way
-                    details.put(DELTA_T, e.result.doubleValue());
+                    details.put(DELTA_T, e);
                 }
             }
             t = plane.getExposureTime();
@@ -2298,8 +2308,7 @@ public class EditorUtil
                 try {
                     details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
                 } catch (BigResult e) {
-                    // TODO: Log this in some way
-                    details.put(EXPOSURE_TIME, e.result.doubleValue());
+                    details.put(EXPOSURE_TIME, e);
                 }
             }
 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+
+import ome.model.units.BigResult;
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -36,8 +39,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
@@ -240,6 +241,31 @@ public class MetadataViewerAgent
 		if (b == null) return true;
 		return b.booleanValue();
 	}
+	
+    /**
+     * Convenience method for logging BigResult exceptions
+     * 
+     * @param src
+     *            The origin of the exception
+     * @param exception
+     *            The exception
+     * @param property
+     *            The property which conversion triggered the exception
+     */
+    public static void logBigResultExeption(Object src, Object exception,
+            String property) {
+        if (exception instanceof BigResult) {
+            MetadataViewerAgent
+                    .getRegistry()
+                    .getLogger()
+                    .warn(src,
+                            "Arithmetic overflow; "
+                                    + property
+                                    + " is "
+                                    + ((BigResult) exception).result
+                                            .doubleValue());
+        }
+    }
 	
     /**
      * Handles the {@link UserGroupSwitched} event.

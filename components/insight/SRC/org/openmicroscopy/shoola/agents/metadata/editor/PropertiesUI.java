@@ -32,7 +32,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -52,9 +51,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -66,7 +62,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
@@ -83,16 +78,15 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEve
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.ROICountLoader;
-import org.openmicroscopy.shoola.agents.metadata.util.FilesetInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.modulo.ModuloInfo;
-import org.openmicroscopy.shoola.util.ui.ClickableTooltip;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
 
+import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -154,11 +148,6 @@ public class PropertiesUI
     
     /**Text indicating to edit the channels.*/
     private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
-
-    /**Text indicating that this file is an inplace import*/
-    private static final String INPLACE_IMPORT_TOOLTIP_TEXT = "<html>This file is an in-place import.<br>The data might not be located within the<br>OMERO data directory.</html>";
-    
-    private static final String INPLACE_IMPORT_TOOLTIP_ACTION_TEXT = "Show File Paths...";
     
     /** The default height of the description.*/
     private static final int HEIGHT = 120;
@@ -662,6 +651,23 @@ public class PropertiesUI
      */
     private String formatPixelsSize(Map details, JLabel component)
     {
+        // First make sure that no conversion exception has occurred
+        Object obj = details.get(EditorUtil.PIXEL_SIZE_X);
+        if (obj instanceof BigResult) {
+            MetadataViewerAgent.logBigResultExeption(this, obj, EditorUtil.PIXEL_SIZE_X);
+            return "N/A";
+        }
+        obj = details.get(EditorUtil.PIXEL_SIZE_Y);
+        if (obj instanceof BigResult) {
+            MetadataViewerAgent.logBigResultExeption(this, obj, EditorUtil.PIXEL_SIZE_Y);
+            return "N/A";
+        }
+        obj = details.get(EditorUtil.PIXEL_SIZE_Z);
+        if (obj instanceof BigResult) {
+            MetadataViewerAgent.logBigResultExeption(this, obj, EditorUtil.PIXEL_SIZE_Z);
+            return "N/A";
+        }
+        
     	Length x = (Length) details.get(EditorUtil.PIXEL_SIZE_X);
     	Length y = (Length) details.get(EditorUtil.PIXEL_SIZE_Y);
     	Length z = (Length) details.get(EditorUtil.PIXEL_SIZE_Z);
