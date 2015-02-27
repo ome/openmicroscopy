@@ -812,8 +812,8 @@ Examples:
                     "Total disk usage: %s bytes in %d files"
                     % (size, files))
 
-        if args.report and not args.size_only:
-            self._detailed_usage_report(req, rsp, status, args)
+            if args.report and not args.size_only and size > 0:
+                self._detailed_usage_report(req, rsp, status, args)
 
     def _detailed_usage_report(self, req, rsp, status, args):
         """
