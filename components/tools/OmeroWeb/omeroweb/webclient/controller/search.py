@@ -80,14 +80,7 @@ class BaseSearch(BaseController):
                     searchGroup=searchGroup,
                     ownedBy=ownedBy,
                     useAcquisitionDate=useAcquisitionDate))
-            obj_ids = [o.id for o in obj_list]
-            im_annotation_counter = self.conn.getCollectionCount(objType.title(), "annotationLinks", obj_ids)
-
-            im_list_with_counters = []
-            for o in obj_list:
-                o.annotation_counter = im_annotation_counter.get(o.id)
-                im_list_with_counters.append(o)
-            return im_list_with_counters
+            return obj_list
 
         self.containers={}
         resultCount = 0
