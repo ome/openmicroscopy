@@ -1297,40 +1297,6 @@ OMERO Diagnostics %s
         except:
             self.ctx.out("OMERO.web not installed!")
 
-    def get_users_groups(self, args, iadmin):
-        users = []
-        groups = []
-
-        if args.user_name:
-            for user_name in args.user_name:
-                uid, u = self.find_user_by_name(
-                    iadmin, user_name, fatal=False)
-                if uid is not None:
-                    users.append(uid)
-
-        if args.user_id:
-            for user_id in args.user_id:
-                uid, u = self.find_user_by_id(
-                    iadmin, user_id, fatal=False)
-                if uid is not None:
-                    users.append(uid)
-
-        if args.group_name:
-            for group_name in args.group_name:
-                gid, g = self.find_group_by_name(
-                    iadmin, group_name, fatal=False)
-                if gid is not None:
-                    groups.append(gid)
-
-        if args.group_id:
-            for group_id in args.group_id:
-                gid, g = self.find_group_by_id(
-                    iadmin, group_id, fatal=False)
-                if gid is not None:
-                    groups.append(gid)
-
-        return users, groups
-
     def email(self, args):
         client = self.ctx.conn(args)
         iadmin = client.sf.getAdminService()
