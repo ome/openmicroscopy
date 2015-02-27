@@ -40,6 +40,7 @@ class BaseSearch(BaseController):
     prSize = 0
     
     c_size = 0
+    moreResults = False     # Indicates that search returned a full page of batchSize
 
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
@@ -54,6 +55,7 @@ class BaseSearch(BaseController):
         fields = list(fields)
 
         created = None
+        self.moreResults = False
         batchSize = 500
         if len(onlyTypes) == 1:
             batchSize = 1000
@@ -96,6 +98,9 @@ class BaseSearch(BaseController):
                 dt = str(dt)
                 if dt in ['projects', 'datasets', 'images', 'screens', 'plates']:
                     self.containers[dt] = doSearch(dt)
+                    # If we get a full page of results, we know there are more
+                    if len(self.containers[dt]) == batchSize:
+                        self.moreResults = True
                     resultCount += len(self.containers[dt])
         except Exception, x:
             if isinstance(x, omero.ServerError):

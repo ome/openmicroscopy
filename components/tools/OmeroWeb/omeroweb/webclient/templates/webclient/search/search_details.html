@@ -78,7 +78,8 @@
 
         {% if manager.c_size or foundById %}
         
-        <table id="dataTable" class="tablesorter">
+        <table id="dataTable" class="tablesorter"
+                data-result-count="{{ resultCount }}" {% if manager.moreResults %}data-more-results="true"{% endif %}>
             <thead> 
                 <tr> 
                     <th class="table_images">{% trans "Type" %}</th>
