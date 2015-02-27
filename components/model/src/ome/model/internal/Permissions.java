@@ -173,11 +173,19 @@ public class Permissions implements Serializable {
     public static final int EDITRESTRICTION = 1;
     public static final int DELETERESTRICTION = 2;
     public static final int ANNOTATERESTRICTION = 3;
+
     /**
      * Calculated restrictions which are based on both the store
      * representation({@link #perm1}) and the current calling context.
      */
     private boolean[] restrictions;
+
+    /**
+     * Further calculated restrictions which can be defined individually by
+     * any service. Individual service methods should specify in their
+     * documentation which strings must be checked by clients.
+     */
+    private String[] extendedRestrictions;
 
     // ~ Getters
     // =========================================================================
@@ -304,6 +312,19 @@ public class Permissions implements Serializable {
     }
 
     /**
+     * Produce a copy of restrictions for use elsewhere.
+     */
+    public String[] copyExtendedRestrictions() {
+        if (extendedRestrictions == null) {
+            return null;
+        }
+        String[] copy = new String[extendedRestrictions.length];
+        System.arraycopy(extendedRestrictions, 0,
+                copy, 0, extendedRestrictions.length);
+        return copy;
+    }
+
+    /**
      * Safely copy the source array. If it is null or contains no "true" values,
      * then the restrictions field will remain null.
      */
@@ -321,7 +342,16 @@ public class Permissions implements Serializable {
     /**
      * Copy restrictions based on the integer returned by BasicACLVoter.
      */
-    public void copyRestrictions(int allow) {
+    public void copyRestrictions(int allow, String[] extendedRestrictions) {
+
+        if (extendedRestrictions == null) {
+            this.extendedRestrictions = null;
+        } else {
+            this.extendedRestrictions = new String[extendedRestrictions.length];
+            System.arraycopy(extendedRestrictions, 0,
+                    this.extendedRestrictions, 0,
+                    extendedRestrictions.length);
+        }
         if (allow == 15) { // Would be all false.
             this.restrictions = null;
             return;
