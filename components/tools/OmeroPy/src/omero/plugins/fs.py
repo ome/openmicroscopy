@@ -726,7 +726,7 @@ Examples:
     bin/omero fs usage Experimenter:* --report --sum-by user group
     # total usage for two projects and one dataset Megabytes
     bin/omero fs usage Project:1,2 Dataset:5 --units M
-    # in this last case if the dataset was within one of the projects
+    # in this last case if the dataset was within project 1 or 2
     # then the size returned would be identical to:
     bin/omero fs usage Project:1,2 --units M
         """
