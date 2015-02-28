@@ -708,13 +708,18 @@ def load_chgrp_target(request, group_id, target_type, conn=None, **kwargs):
     conn.SERVICE_OPTS.setOmeroGroup(int(group_id))
     owner = getIntOrDefault(request, 'owner', None)
 
-    manager= BaseContainer(conn)
+    manager = BaseContainer(conn)
     manager.listContainerHierarchy(owner)
     template = 'webclient/data/chgrp_target_tree.html'
 
     show_projects = target_type in ('project', 'dataset')
-    context = {'manager': manager, 'target_type': target_type, 'show_projects':show_projects, 'template': template}
+    context = {
+        'manager': manager,
+        'target_type': target_type,
+        'show_projects': show_projects,
+        'template': template}
     return context
+
 
 @login_required(setGroupContext=True)
 @render_response()
@@ -736,7 +741,8 @@ def load_searching(request, form=None, conn=None, **kwargs):
         searchGroup = request.REQUEST.get('searchGroup', None)
         ownedBy = request.REQUEST.get('ownedBy', None)
 
-        useAcquisitionDate = toBoolean(request.REQUEST.get('useAcquisitionDate'))
+        useAcquisitionDate = toBoolean(
+            request.REQUEST.get('useAcquisitionDate'))
         startdate = request.REQUEST.get('startdateinput', None)
         startdate = startdate is not None and smart_str(startdate) or None
         enddate = request.REQUEST.get('enddateinput', None)
@@ -752,8 +758,10 @@ def load_searching(request, form=None, conn=None, **kwargs):
         if len(onlyTypes) == 0:
             onlyTypes = ['images']
 
-        # search is carried out and results are stored in manager.containers.images etc.
-        manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy, useAcquisitionDate, date)
+        # search is carried out and results are stored in
+        # manager.containers.images etc.
+        manager.search(query_search, onlyTypes, fields, searchGroup, ownedBy,
+                       useAcquisitionDate, date)
 
         # if the query is only numbers (separated by commas or spaces)
         # we search for objects by ID
@@ -770,8 +778,9 @@ def load_searching(request, form=None, conn=None, **kwargs):
                         continue
                     idSet.add(searchById)
                     for t in onlyTypes:
-                        t = t[0:-1] # remove 's'
-                        if t in ('project', 'dataset', 'image', 'screen', 'plate'):
+                        t = t[0:-1]  # remove 's'
+                        if t in ('project', 'dataset', 'image', 'screen',
+                                 'plate'):
                             obj = conn.getObject(t, searchById)
                             if obj is not None:
                                 foundById.append({'otype': t, 'obj': obj})
@@ -782,9 +791,10 @@ def load_searching(request, form=None, conn=None, **kwargs):
         # simply display the search home page.
         template = "webclient/search/search.html"
 
-
-    context = {'manager':manager, 'foundById': foundById,
-               'resultCount':manager.c_size + len(foundById)}
+    context = {
+        'manager': manager,
+        'foundById': foundById,
+        'resultCount': manager.c_size + len(foundById)}
     context['template'] = template
     return context
 
@@ -794,11 +804,13 @@ def load_searching(request, form=None, conn=None, **kwargs):
 def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     """
     Loads data for the tag tree and center panel.
-    Either get the P/D/I etc under tags, or the images etc under a tagged Dataset or Project.
+    Either get the P/D/I etc under tags, or the images etc under a tagged
+    Dataset or Project.
     @param o_type       'tag' or 'project', 'dataset'.
     """
 
-    if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
+    if (request.REQUEST.get("o_type") is not None and
+            len(request.REQUEST.get("o_type")) > 0):
         o_type = request.REQUEST.get("o_type")
         try:
             o_id = long(request.REQUEST.get("o_id"))
@@ -817,7 +829,7 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
         kw[str(o_type)] = long(o_id)
 
     try:
-        manager= BaseContainer(conn, **kw)
+        manager = BaseContainer(conn, **kw)
     except AttributeError, x:
         return handlerInternalError(request, x)
 
@@ -837,7 +849,10 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
         template = "webclient/data/container_tags_tree.html"
     # load data
 
-    context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
+    context = {
+        'manager': manager,
+        'insight_ns': omero.rtypes.rstring(
+            omero.constants.metadata.NSINSIGHTTAGSET).val}
     context['template_view'] = view
     context['isLeader'] = conn.isLeader()
     context['template'] = template
@@ -848,9 +863,11 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
 @render_response()
 def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     """
-    Opens the Open Astex Viewer applet, to display volume masks in a couple of formats:
+    Opens the Open Astex Viewer applet, to display volume masks in a couple of
+    formats:
     - mrc.map files that are attached to images. obj_type = 'file'
-    - Convert OMERO image to mrc on the fly. obj_type = 'image_8bit' or 'image'
+    - Convert OMERO image to mrc on the fly. obj_type = 'image_8bit' or
+      'image'
         In this case, we may use 'scipy' to scale the image volume.
     """
 
@@ -859,12 +876,17 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
     data_storage_mode = ""
     pixelRange = None       # (min, max) values of the raw data
     contourSliderInit, contourSliderIncr = None, None
-    sizeOptions = None  # only give user choice if we need to scale down (and we CAN scale with scipy)
-    # If we convert to 8bit map, subtract dataOffset, multiply by mapPixelFactor add mapOffset. (used for js contour controls)
+    # only give user choice if we need to scale down (and we CAN scale with
+    # scipy)
+    sizeOptions = None
+    # If we convert to 8bit map, subtract dataOffset, multiply by
+    # mapPixelFactor add mapOffset. (used for js contour controls)
     if obj_type == 'file':
         ann = conn.getObject("Annotation", obj_id)
         if ann is None:
-            return handlerInternalError(request, "Can't find file Annotation ID %s as data source for Open Astex Viewer." % obj_id)
+            return handlerInternalError(
+                request, "Can't find file Annotation ID %s as data source for"
+                " Open Astex Viewer." % obj_id)
         # determine mapType by name
         imageName = ann.getFileName()
         if imageName.endswith(".bit"):
@@ -873,12 +895,15 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
             data_url = reverse("open_astex_map", args=[obj_id])
 
     elif obj_type in ('image', 'image_8bit'):
-        image = conn.getObject("Image", obj_id)     # just check the image exists
+        image = conn.getObject("Image", obj_id)  # just check the image exists
         if image is None:
-            return handlerInternalError(request, "Can't find image ID %s as data source for Open Astex Viewer." % obj_id)
+            return handlerInternalError(
+                request, "Can't find image ID %s as data source for Open"
+                " Astex Viewer." % obj_id)
         imageName = image.getName()
         c = image.getChannels()[0]
-        # By default, scale to 120 ^3. Also give option to load 'bigger' map or full sized
+        # By default, scale to 120 ^3. Also give option to load 'bigger' map
+        # or full sized
         DEFAULTMAPSIZE = 120
         BIGGERMAPSIZE = 160
         targetSize = DEFAULTMAPSIZE * DEFAULTMAPSIZE * DEFAULTMAPSIZE
@@ -888,92 +913,143 @@ def open_astex_viewer(request, obj_type, obj_id, conn=None, **kwargs):
             try:
                 import scipy.ndimage  # keep to raise exception if not available  # noqa
                 sizeOptions = {}
-                factor = float(targetSize)/ imgSize
-                f = pow(factor,1.0/3)
-                sizeOptions["small"] = {'x':image.getSizeX() * f, 'y':image.getSizeY() * f, 'z':image.getSizeZ() * f, 'size':DEFAULTMAPSIZE}
+                factor = float(targetSize) / imgSize
+                f = pow(factor, 1.0/3)
+                sizeOptions["small"] = {
+                    'x': image.getSizeX() * f,
+                    'y': image.getSizeY() * f,
+                    'z': image.getSizeZ() * f,
+                    'size': DEFAULTMAPSIZE}
                 if imgSize > biggerSize:
-                    factor2 = float(biggerSize)/ imgSize
-                    f2 = pow(factor2,1.0/3)
-                    sizeOptions["medium"] = {'x':image.getSizeX() * f2, 'y':image.getSizeY() * f2, 'z':image.getSizeZ() * f2, 'size':BIGGERMAPSIZE}
+                    factor2 = float(biggerSize) / imgSize
+                    f2 = pow(factor2, 1.0/3)
+                    sizeOptions["medium"] = {
+                        'x': image.getSizeX() * f2,
+                        'y': image.getSizeY() * f2,
+                        'z': image.getSizeZ() * f2,
+                        'size': BIGGERMAPSIZE}
                 else:
-                    sizeOptions["full"] = {'x':image.getSizeX(), 'y':image.getSizeY(), 'z':image.getSizeZ()}
+                    sizeOptions["full"] = {
+                        'x': image.getSizeX(),
+                        'y': image.getSizeY(),
+                        'z': image.getSizeZ()}
             except ImportError:
-                DEFAULTMAPSIZE = 0  # don't try to resize the map (see image_as_map)
+                # don't try to resize the map (see image_as_map)
+                DEFAULTMAPSIZE = 0
                 pass
         pixelRange = (c.getWindowMin(), c.getWindowMax())
-        contourSliderInit = (pixelRange[0] + pixelRange[1])/2   # best guess as starting position for contour slider
+        # best guess as starting position for contour slider
+        contourSliderInit = (pixelRange[0] + pixelRange[1])/2
 
         def calcPrecision(range):
-            dec=0
-            if (range == 0):    dec = 0
-            elif (range < 0.0000001): dec = 10
-            elif (range < 0.000001): dec = 9
-            elif (range < 0.00001): dec = 8
-            elif (range < 0.0001): dec = 7
-            elif (range < 0.001): dec = 6
-            elif (range < 0.01): dec = 5
-            elif (range < 0.1): dec = 4
-            elif (range < 1.0): dec = 3
-            elif (range < 10.0): dec = 2
-            elif (range < 100.0): dec = 1
+            dec = 0
+            if (range == 0):
+                dec = 0
+            elif (range < 0.0000001):
+                dec = 10
+            elif (range < 0.000001):
+                dec = 9
+            elif (range < 0.00001):
+                dec = 8
+            elif (range < 0.0001):
+                dec = 7
+            elif (range < 0.001):
+                dec = 6
+            elif (range < 0.01):
+                dec = 5
+            elif (range < 0.1):
+                dec = 4
+            elif (range < 1.0):
+                dec = 3
+            elif (range < 10.0):
+                dec = 2
+            elif (range < 100.0):
+                dec = 1
             return dec
         dec = calcPrecision(pixelRange[1]-pixelRange[0])
-        contourSliderIncr = "%.*f" % (dec,abs((pixelRange[1]-pixelRange[0])/128.0))
+        contourSliderIncr = (
+            "%.*f" % (dec, abs((pixelRange[1]-pixelRange[0])/128.0)))
 
         if obj_type == 'image_8bit':
             data_storage_mode = 1
-            data_url = reverse("webclient_image_as_map_8bit", args=[obj_id, DEFAULTMAPSIZE])
+            data_url = reverse("webclient_image_as_map_8bit",
+                               args=[obj_id, DEFAULTMAPSIZE])
         else:
             if image.getPrimaryPixels().getPixelsType.value == 'float':
                 data_storage_mode = 2
             else:
-                data_storage_mode = 1   # E.g. uint16 image will get served as 8bit map
-            data_url = reverse("webclient_image_as_map", args=[obj_id, DEFAULTMAPSIZE])
+                # E.g. uint16 image will get served as 8bit map
+                data_storage_mode = 1
+            data_url = reverse("webclient_image_as_map",
+                               args=[obj_id, DEFAULTMAPSIZE])
 
-    context = {'data_url': data_url, "image": image,
-        "sizeOptions":sizeOptions, "contourSliderInit":contourSliderInit, "contourSliderIncr":contourSliderIncr,
-        "data_storage_mode": data_storage_mode,'pixelRange':pixelRange}
+    context = {
+        'data_url': data_url,
+        "image": image,
+        "sizeOptions": sizeOptions,
+        "contourSliderInit": contourSliderInit,
+        "contourSliderIncr": contourSliderIncr,
+        "data_storage_mode": data_storage_mode,
+        'pixelRange': pixelRange}
     context['template'] = 'webclient/annotations/open_astex_viewer.html'
     return context
 
 
 @login_required()
 @render_response()
-def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwargs):
+def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
+                          **kwargs):
     """
     This page is the right-hand panel 'general metadata', first tab only.
     Shown for Projects, Datasets, Images, Screens, Plates, Wells, Tags etc.
-    The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
+    The data and annotations are loaded by the manager. Display of appropriate
+    data is handled by the template.
     """
 
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
     # we only expect a single object, but forms can take multiple objects
-    images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
-    datasets = c_type == "dataset" and list(conn.getObjects("Dataset", [c_id])) or list()
-    projects = c_type == "project" and list(conn.getObjects("Project", [c_id])) or list()
-    screens = c_type == "screen" and list(conn.getObjects("Screen", [c_id])) or list()
-    plates = c_type == "plate" and list(conn.getObjects("Plate", [c_id])) or list()
-    acquisitions = c_type == "acquisition" and list(conn.getObjects("PlateAcquisition", [c_id])) or list()
-    shares = (c_type == "share" or c_type == "discussion") and [conn.getShare(c_id)] or list()
+    images = (c_type == "image" and
+              list(conn.getObjects("Image", [c_id])) or
+              list())
+    datasets = (c_type == "dataset" and
+                list(conn.getObjects("Dataset", [c_id])) or list())
+    projects = (c_type == "project" and
+                list(conn.getObjects("Project", [c_id])) or list())
+    screens = (c_type == "screen" and
+               list(conn.getObjects("Screen", [c_id])) or
+               list())
+    plates = (c_type == "plate" and
+              list(conn.getObjects("Plate", [c_id])) or list())
+    acquisitions = (c_type == "acquisition" and
+                    list(conn.getObjects("PlateAcquisition", [c_id])) or
+                    list())
+    shares = ((c_type == "share" or c_type == "discussion") and
+              [conn.getShare(c_id)] or list())
     wells = list()
     if c_type == "well":
         for w in conn.getObjects("Well", [c_id]):
-            w.index=index
+            w.index = index
             wells.append(w)
 
-    # we simply set up the annotation form, passing the objects to be annotated.
-    selected = {'images':c_type == "image" and [c_id] or [],
-        'datasets':c_type == "dataset" and [c_id] or [],
-        'projects':c_type == "project" and [c_id] or [],
-        'screens':c_type == "screen" and [c_id] or [],
-        'plates':c_type == "plate" and [c_id] or [],
-        'acquisitions':c_type == "acquisition" and [c_id] or [],
-        'wells':c_type == "well" and [c_id] or [],
-        'shares':(c_type == "share" or c_type == "discussion") and [c_id] or []}
+    # we simply set up the annotation form, passing the objects to be
+    # annotated.
+    selected = {
+        'images': c_type == "image" and [c_id] or [],
+        'datasets': c_type == "dataset" and [c_id] or [],
+        'projects': c_type == "project" and [c_id] or [],
+        'screens': c_type == "screen" and [c_id] or [],
+        'plates': c_type == "plate" and [c_id] or [],
+        'acquisitions': c_type == "acquisition" and [c_id] or [],
+        'wells': c_type == "well" and [c_id] or [],
+        'shares': ((c_type == "share" or c_type == "discussion") and [c_id] or
+                   [])}
 
-    initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
+    initial = {
+        'selected': selected, 'images': images,  'datasets': datasets,
+        'projects': projects, 'screens': screens, 'plates': plates,
+        'acquisitions': acquisitions, 'wells': wells, 'shares': shares}
 
     form_comment = None
     figScripts = None
@@ -986,7 +1062,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         form_comment = CommentAnnotationForm(initial=initial)
     else:
         try:
-            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+            manager = BaseContainer(
+                conn, index=index, **{str(c_type): long(c_id)})
         except AttributeError, x:
             return handlerInternalError(request, x)
         if share_id is None:
@@ -999,23 +1076,33 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
             template = "webclient/annotations/annotations_share.html"
 
     if c_type in ("tag", "tagset"):
-        context = {'manager':manager, 'insight_ns': omero.rtypes.rstring(omero.constants.metadata.NSINSIGHTTAGSET).val}
+        context = {
+            'manager': manager,
+            'insight_ns': omero.rtypes.rstring(
+                omero.constants.metadata.NSINSIGHTTAGSET).val}
     else:
-        context = {'manager':manager, 'form_comment':form_comment, 'index':index,
-            'share_id':share_id, 'share_owned': share_owned}
+        context = {
+            'manager': manager,
+            'form_comment': form_comment,
+            'index': index,
+            'share_id': share_id,
+            'share_owned': share_owned}
 
     context['figScripts'] = figScripts
     context['template'] = template
-    context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
+    context['webclient_path'] = request.build_absolute_uri(
+        reverse('webindex'))
     return context
 
 
 @login_required()
 @render_response()
-def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwargs):
+def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
+                          **kwargs):
     """
     This is the image 'Preview' tab for the right-hand panel.
-    Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
+    Currently this doesn't do much except launch the view-port plugin using
+    the image Id (and share Id if necessary)
     """
 
     # the index of a field within a well
@@ -1037,7 +1124,8 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
         if ownerId not in rdefs or rdefs[ownerId]['id'] < r['id']:
             rdefs[ownerId] = r
     rdefs = rdefs.values()
-    # format into rdef strings, E.g. {c: '1|3118:35825$FF0000,2|2086:18975$FFFF00', m: 'c'}
+    # format into rdef strings,
+    # E.g. {c: '1|3118:35825$FF0000,2|2086:18975$FFFF00', m: 'c'}
     rdefQueries = []
     for r in rdefs:
         chs = []
@@ -1045,7 +1133,8 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
             act = "-"
             if c['active']:
                 act = ""
-            chs.append('%s%s|%d:%d$%s' % (act, i+1, c['start'], c['end'], c['color']))
+            chs.append('%s%s|%d:%d$%s'
+                       % (act, i+1, c['start'], c['end'], c['color']))
         rdefQueries.append({
             'id': r['id'],
             'owner': r['owner'],
@@ -1053,7 +1142,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })
 
-    context = {'manager':manager, 'share_id':share_id}
+    context = {'manager': manager, 'share_id': share_id}
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
     context['template'] = "webclient/annotations/metadata_preview.html"
@@ -1064,7 +1153,8 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
 @render_response()
 def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     """
-    This loads the ancestors of the specified object and displays them in a static tree.
+    This loads the ancestors of the specified object and displays them in a
+    static tree.
     Used by an AJAX call from the metadata_general panel.
     """
 
@@ -1073,14 +1163,15 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
 
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
 
-    context = {'manager':manager}
+    context = {'manager': manager}
     context['template'] = "webclient/annotations/metadata_hierarchy.html"
     return context
 
 
 @login_required()
 @render_response()
-def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, **kwargs):
+def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
+                              **kwargs):
     """
     The acquisition tab of the right-hand panel. Only loaded for images.
     TODO: urls regex should make sure that c_type is only 'image' OR 'well'
@@ -1097,7 +1188,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             manager.getComments(c_id)
         else:
             template = "webclient/annotations/metadata_acquisition.html"
-            manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+            manager = BaseContainer(
+                conn, index=index, **{str(c_type): long(c_id)})
     except AttributeError, x:
         return handlerInternalError(request, x)
 
@@ -1350,15 +1442,16 @@ def load_original_metadata(request, imageId, conn=None, **kwargs):
     if image is None:
         raise Http404("No Image found with ID %s" % imageId)
 
-    context = {'template': 'webclient/annotations/original_metadata.html',
-                'imageId': image.getId()}
+    context = {
+        'template': 'webclient/annotations/original_metadata.html',
+        'imageId': image.getId()}
     try:
         om = image.loadOriginalMetadata()
         if om is not None:
             context['original_metadata'] = om[0]
             context['global_metadata'] = om[1]
             context['series_metadata'] = om[2]
-    except omero.LockTimeout, ex:
+    except omero.LockTimeout:
         # 408 is Request Timeout
         return HttpResponse(content='LockTimeout', status=408)
     return context
@@ -1366,44 +1459,80 @@ def load_original_metadata(request, imageId, conn=None, **kwargs):
 ###########################################################################
 # ACTIONS
 
-# Annotation in the right-hand panel is handled the same way for single objects (metadata_general.html)
+# Annotation in the right-hand panel is handled the same way for single
+# objects (metadata_general.html)
 # AND for batch annotation (batch_annotate.html) by 4 forms:
 # Comment (this is loaded in the initial page)
 # Tags (the empty form is in the initial page but fields are loaded via AJAX)
 # Local File (this is loaded in the initial page)
-# Existing File (the empty form is in the initial page but field is loaded via AJAX)
+# Existing File (the empty form is in the initial page but field is loaded via
+# AJAX)
 #
-# In each case, the form itself contains hidden fields to specify the object(s) being annotated
+# In each case, the form itself contains hidden fields to specify the
+# object(s) being annotated
 # All forms inherit from a single form that has these fields.
+
 
 def getObjects(request, conn=None):
     """
     Prepare objects for use in the annotation forms.
-    These objects are required by the form superclass to populate hidden fields, so we know what we're annotating on submission
+    These objects are required by the form superclass to populate hidden
+    fields, so we know what we're annotating on submission
     """
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or list()
-    acquisitions = len(request.REQUEST.getlist('acquisition')) > 0 and \
-            list(conn.getObjects("PlateAcquisition", request.REQUEST.getlist('acquisition'))) or list()
-    shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
+    images = (
+        len(request.REQUEST.getlist('image')) > 0 and
+        list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or
+        list())
+    datasets = (
+        len(request.REQUEST.getlist('dataset')) > 0 and
+        list(conn.getObjects(
+            "Dataset", request.REQUEST.getlist('dataset'))) or
+        list())
+    projects = (
+        len(request.REQUEST.getlist('project')) > 0 and
+        list(conn.getObjects(
+            "Project", request.REQUEST.getlist('project'))) or
+        list())
+    screens = (
+        len(request.REQUEST.getlist('screen')) > 0 and
+        list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or
+        list())
+    plates = (
+        len(request.REQUEST.getlist('plate')) > 0 and
+        list(conn.getObjects("Plate", request.REQUEST.getlist('plate'))) or
+        list())
+    acquisitions = (
+        len(request.REQUEST.getlist('acquisition')) > 0 and
+        list(conn.getObjects(
+            "PlateAcquisition", request.REQUEST.getlist('acquisition'))) or
+        list())
+    shares = (len(request.REQUEST.getlist('share')) > 0 and
+              [conn.getShare(request.REQUEST.getlist('share')[0])] or list())
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
         index = getIntOrDefault(request, 'index', 0)
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
-            w.index=index
+            w.index = index
             wells.append(w)
-    return {'image':images, 'dataset':datasets, 'project':projects, 'screen':screens,
-            'plate':plates, 'acquisition':acquisitions, 'well':wells, 'share':shares}
+    return {
+        'image': images, 'dataset': datasets, 'project': projects,
+        'screen': screens, 'plate': plates, 'acquisition': acquisitions,
+        'well': wells, 'share': shares}
+
 
 def getIds(request):
-    """ Used by forms to indicate the currently selected objects prepared above """
-    selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), \
-            'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), \
-            'plates':request.REQUEST.getlist('plate'), 'acquisitions':request.REQUEST.getlist('acquisition'), \
-            'wells':request.REQUEST.getlist('well'), 'shares':request.REQUEST.getlist('share')}
+    """
+    Used by forms to indicate the currently selected objects prepared above
+    """
+    selected = {
+        'images': request.REQUEST.getlist('image'),
+        'datasets': request.REQUEST.getlist('dataset'),
+        'projects': request.REQUEST.getlist('project'),
+        'screens': request.REQUEST.getlist('screen'),
+        'plates': request.REQUEST.getlist('plate'),
+        'acquisitions': request.REQUEST.getlist('acquisition'),
+        'wells': request.REQUEST.getlist('well'),
+        'shares': request.REQUEST.getlist('share')}
     return selected
 
 
@@ -1412,13 +1541,21 @@ def getIds(request):
 def batch_annotate(request, conn=None, **kwargs):
     """
     This page gives a form for batch annotation.
-    Local File form and Comment form are loaded. Other forms are loaded via AJAX
+    Local File form and Comment form are loaded. Other forms are loaded via
+    AJAX
     """
 
     objs = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'],
-            'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisition'], 'wells':objs['well']}
+    initial = {
+        'selected': selected,
+        'images': objs['image'],
+        'datasets': objs['dataset'],
+        'projects': objs['project'],
+        'screens': objs['screen'],
+        'plates': objs['plate'],
+        'acquisitions': objs['acquisition'],
+        'wells': objs['well']}
     form_comment = CommentAnnotationForm(initial=initial)
     index = getIntOrDefault(request, 'index', 0)
 
