@@ -1812,11 +1812,13 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
             nameDict[i+1] = cname
     # If the 'Apply to Dataset' button was used to submit...
     if request.REQUEST.get('confirm_apply', None) is not None:
-        parentId = request.REQUEST.get('parentId', None)    # plate-123 OR dataset-234
+        # plate-123 OR dataset-234
+        parentId = request.REQUEST.get('parentId', None)
         if parentId is not None:
             ptype = parentId.split("-")[0].title()
             pid = long(parentId.split("-")[1])
-            counts = conn.setChannelNames(ptype, [pid], nameDict, channelCount=sizeC)
+            counts = conn.setChannelNames(
+                ptype, [pid], nameDict, channelCount=sizeC)
     else:
         counts = conn.setChannelNames("Image", [image.getId()], nameDict)
     rv = {"channelNames": channelNames}
@@ -1830,15 +1832,20 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
 
 @login_required(setGroupContext=True)
 @render_response()
-def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
+def manage_action_containers(request, action, o_type=None, o_id=None,
+                             conn=None, **kwargs):
     """
     Handles many different actions on various objects.
 
-    @param action:      "addnewcontainer", (creates a new Project, Dataset, Screen)
-                        "editname", "savename", "editdescription", "savedescription",  (used as GET and POST for in-line editing)
-                        "paste", "move", "remove", "removefromshare", (tree P/D/I moving etc)
+    @param action:      "addnewcontainer", (creates a new Project, Dataset,
+                        Screen), "editname", "savename", "editdescription",
+                        "savedescription",  (used as GET and POST for in-line
+                        editing), "paste", "move", "remove",
+                        "removefromshare", (tree P/D/I moving etc)
                         "delete", "deletemany"      (delete objects)
-    @param o_type:      "dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset","share", "sharecomment"
+    @param o_type:      "dataset", "project", "image", "screen", "plate",
+                        "acquisition", "well","comment", "file", "tag",
+                        "tagset","share", "sharecomment"
     """
     template = None
 
@@ -1846,9 +1853,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     index = getIntOrDefault(request, 'index', 0)
 
     manager = None
-    if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
-        if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
-        kw = {'index':index}
+    if o_type in ("dataset", "project", "image", "screen", "plate",
+                  "acquisition", "well", "comment", "file", "tag", "tagset"):
+        if o_type == 'tagset':
+            # TODO: this should be handled by the BaseContainer
+            o_type = 'tag'
+        kw = {'index': index}
         if o_type is not None and o_id > 0:
             kw[str(o_type)] = long(o_id)
         try:
@@ -1862,27 +1872,32 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
 
     form = None
     if action == 'addnewcontainer':
-        # Used within the jsTree to add a new Project, Dataset etc under a specified parent OR top-level
+        # Used within the jsTree to add a new Project, Dataset etc under a
+        # specified parent OR top-level
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
+            return HttpResponseRedirect(reverse("manage_action_containers",
+                                        args=["edit", o_type, o_id]))
         if o_type is not None and hasattr(manager, o_type) and o_id > 0:
             # E.g. Parent o_type is 'project'...
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
-                logger.debug("Create new in %s: %s" % (o_type, str(form.cleaned_data)))
+                logger.debug(
+                    "Create new in %s: %s" % (o_type, str(form.cleaned_data)))
                 name = form.cleaned_data['name']
                 description = form.cleaned_data['description']
                 oid = manager.createDataset(name, description)
-                rdict = {'bad':'false', 'id': oid}
+                rdict = {'bad': 'false', 'id': oid}
                 return HttpJsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])})
-                rdict = {'bad':'true','errs': d }
+                    d.update({e[0]: unicode(e[1])})
+                rdict = {'bad': 'true', 'errs': d}
                 return HttpJsonResponse(rdict)
-        elif request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
-            # No parent specified. We can create orphaned 'project', 'dataset' etc.
+        elif request.REQUEST.get('folder_type') in ("project", "screen",
+                                                    "dataset"):
+            # No parent specified. We can create orphaned 'project', 'dataset'
+            # etc.
             form = ContainerForm(data=request.REQUEST.copy())
             if form.is_valid():
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
@@ -1890,16 +1905,19 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 description = form.cleaned_data['description']
                 folder_type = request.REQUEST.get('folder_type')
                 if folder_type == "dataset":
-                    oid = manager.createDataset(name,description, img_ids=request.REQUEST.get('img_ids', None))
+                    oid = manager.createDataset(
+                        name, description,
+                        img_ids=request.REQUEST.get('img_ids', None))
                 else:
-                    oid = getattr(manager, "create"+folder_type.capitalize())(name, description)
-                rdict = {'bad':'false', 'id': oid}
+                    oid = getattr(manager, "create" +
+                                  folder_type.capitalize())(name, description)
+                rdict = {'bad': 'false', 'id': oid}
                 return HttpJsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])})
-                rdict = {'bad':'true','errs': d }
+                    d.update({e[0]: unicode(e[1])})
+                rdict = {'bad': 'true', 'errs': d}
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
@@ -1911,39 +1929,48 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             manager.getComments(o_id)
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
-            initial={'message': manager.share.message, 'expiration': "", \
-                                    'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
-                                    'experimenters': experimenters}
+            initial = {
+                'message': manager.share.message,
+                'expiration': "",
+                'shareMembers': manager.membersInShare,
+                'enable': manager.share.active,
+                'experimenters': experimenters}
             if manager.share.getExpireDate() is not None:
-                initial['expiration'] = manager.share.getExpireDate().strftime("%Y-%m-%d")
-            form = ShareForm(initial=initial) #'guests': share.guestsInShare,
-            context = {'share':manager, 'form':form}
+                initial['expiration'] = \
+                    manager.share.getExpireDate().strftime("%Y-%m-%d")
+            form = ShareForm(initial=initial)  # 'guests':share.guestsInShare,
+            context = {'share': manager, 'form': form}
         elif hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
             template = "webclient/data/container_form.html"
-            form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
-            context = {'manager':manager, 'form':form}
+            form = ContainerForm(
+                initial={'name': obj.name, 'description': obj.description})
+            context = {'manager': manager, 'form': form}
     elif action == 'save':
         # Handles submission of the 'edit' form above. TODO: not used now?
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
+            return HttpResponseRedirect(reverse("manage_action_containers",
+                                        args=["edit", o_type, o_id]))
         if o_type == "share":
             experimenters = list(conn.getExperimenters())
             experimenters.sort(key=lambda x: x.getOmeName().lower())
-            form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
+            form = ShareForm(initial={'experimenters': experimenters},
+                             data=request.REQUEST.copy())
             if form.is_valid():
                 logger.debug("Update share: %s" % (str(form.cleaned_data)))
                 message = form.cleaned_data['message']
                 expiration = form.cleaned_data['expiration']
                 members = form.cleaned_data['members']
-                #guests = request.REQUEST['guests']
+                # guests = request.REQUEST['guests']
                 enable = form.cleaned_data['enable']
-                host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
-                manager.updateShareOrDiscussion(host, message, members, enable, expiration)
+                host = "%s?server=%i" % (request.build_absolute_uri(
+                    reverse("load_template", args=["public"])), int(conn.server_id))
+                manager.updateShareOrDiscussion(
+                    host, message, members, enable, expiration)
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
-                context = {'share':manager, 'form':form}
+                context = {'share': manager, 'form': form}
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'editname':
@@ -1958,19 +1985,20 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 txtValue = obj.getName()
             form = ContainerNameForm(initial={'name': txtValue})
-            context = {'manager':manager, 'form':form}
+            context = {'manager': manager, 'form': form}
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savename':
         # Save name edit in-line
         if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
+            return HttpResponseRedirect(reverse("manage_action_containers",
+                                        args=["edit", o_type, o_id]))
         if hasattr(manager, o_type) and o_id > 0:
             form = ContainerNameForm(data=request.REQUEST.copy())
             if form.is_valid():
                 logger.debug("Update name form:" + str(form.cleaned_data))
                 name = form.cleaned_data['name']
-                rdict = {'bad':'false', 'o_type': o_type}
+                rdict = {'bad': 'false', 'o_type': o_type}
                 if (o_type == "well"):
                     manager.image = manager.well.getWellSample(index).image()
                     o_type = "image"
@@ -1979,8 +2007,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])})
-                rdict = {'bad':'true','errs': d }
+                    d.update({e[0]: unicode(e[1])})
+                rdict = {'bad': 'true', 'errs': d}
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
@@ -1991,14 +2019,17 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if (o_type == "well"):
                 obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerDescriptionForm(initial={'description': obj.description})
-            context = {'manager':manager, 'form':form}
+            form = ContainerDescriptionForm(
+                initial={'description': obj.description})
+            context = {'manager': manager, 'form': form}
         else:
             return HttpResponseServerError("Object does not exist")
     elif action == 'savedescription':
         # Save editing of description in-line
         if not request.method == 'POST':
-            return HttpResponseServerError("Action '%s' on the '%s' id:%s cannot be complited" % (action, o_type, o_id))
+            return HttpResponseServerError(
+                "Action '%s' on the '%s' id:%s cannot be complited"
+                % (action, o_type, o_id))
         if hasattr(manager, o_type) and o_id > 0:
             form = ContainerDescriptionForm(data=request.REQUEST.copy())
             if form.is_valid():
@@ -2008,13 +2039,13 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                     manager.image = manager.well.getWellSample(index).image()
                     o_type = "image"
                 manager.updateDescription(o_type, description)
-                rdict = {'bad':'false' }
+                rdict = {'bad': 'false'}
                 return HttpJsonResponse(rdict)
             else:
                 d = dict()
                 for e in form.errors.iteritems():
-                    d.update({e[0]:unicode(e[1])})
-                rdict = {'bad':'true','errs': d }
+                    d.update({e[0]: unicode(e[1])})
+                rdict = {'bad': 'true', 'errs': d}
                 return HttpJsonResponse(rdict)
         else:
             return HttpResponseServerError("Object does not exist")
@@ -2023,42 +2054,44 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         destination = request.REQUEST['destination'].split('-')
         rv = manager.paste(destination)
         if rv:
-            rdict = {'bad':'true','errs': rv }
+            rdict = {'bad': 'true', 'errs': rv}
             return HttpJsonResponse(rdict)
         else:
-            rdict = {'bad':'false' }
+            rdict = {'bad': 'false'}
             return HttpJsonResponse(rdict)
     elif action == 'move':
         # Handles drag-and-drop moving of objects in jsTree.
         # Also handles 'remove' of Datasets (moves to 'Experimenter' parent)
         parent = request.REQUEST['parent'].split('-')
-        #source = request.REQUEST['source'].split('-')
+        # source = request.REQUEST['source'].split('-')
         destination = request.REQUEST['destination'].split('-')
         rv = None
         try:
             if parent[1] == destination[1]:
                 rv = "Error: Cannot move to the same place."
         except Exception, x:
-            rdict = {'bad':'true','errs': str(x) }
+            rdict = {'bad': 'true', 'errs': str(x)}
         else:
             if rv is None:
-                rv = manager.move(parent,destination)
+                rv = manager.move(parent, destination)
             if rv:
-                rdict = {'bad':'true','errs': rv }
+                rdict = {'bad': 'true', 'errs': rv}
             else:
-                rdict = {'bad':'false' }
+                rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
     elif action == 'remove':
-        # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
-        parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
+        # Handles 'remove' of Images from jsTree, removal of comment, tag from
+        # Object etc.
+        # E.g. image-123  or image-1|image-2
+        parents = request.REQUEST['parent']
         try:
             manager.remove(parents.split('|'), index)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rdict = {'bad':'true','errs': str(x) }
+            rdict = {'bad': 'true', 'errs': str(x)}
             return HttpJsonResponse(rdict)
 
-        rdict = {'bad':'false' }
+        rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
     elif action == 'removefromshare':
         image_id = request.REQUEST.get('source')
@@ -2066,9 +2099,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             manager.removeImage(image_id)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rdict = {'bad':'true','errs': str(x) }
+            rdict = {'bad': 'true', 'errs': str(x)}
             return HttpJsonResponse(rdict)
-        rdict = {'bad':'false' }
+        rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
     elif action == 'delete':
         # Handles delete of a file attached to object.
@@ -2076,27 +2109,50 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
-                'error':0, 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
+            request.session['callback'][str(handle)] = {
+                'job_type': 'delete',
+                'delmany': False,
+                'did': o_id,
+                'dtype': o_type,
+                'status': 'in progress',
+                'error': 0,
+                'dreport': _formatReport(handle),
+                'start_time': datetime.datetime.now()}
             request.session.modified = True
         except Exception, x:
-            logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
-            rdict = {'bad':'true','errs': str(x) }
+            logger.error(
+                'Failed to delete: %r' % {'did': o_id, 'dtype': o_type},
+                exc_info=True)
+            rdict = {'bad': 'true', 'errs': str(x)}
         else:
-            rdict = {'bad':'false' }
+            rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
     elif action == 'deletemany':
         # Handles multi-delete from jsTree.
-        object_ids = {'Image':request.REQUEST.getlist('image'), 'Dataset':request.REQUEST.getlist('dataset'), 'Project':request.REQUEST.getlist('project'), 'Screen':request.REQUEST.getlist('screen'), 'Plate':request.REQUEST.getlist('plate'), 'Well':request.REQUEST.getlist('well'), 'PlateAcquisition':request.REQUEST.getlist('acquisition')}
+        object_ids = {
+            'Image': request.REQUEST.getlist('image'),
+            'Dataset': request.REQUEST.getlist('dataset'),
+            'Project': request.REQUEST.getlist('project'),
+            'Screen': request.REQUEST.getlist('screen'),
+            'Plate': request.REQUEST.getlist('plate'),
+            'Well': request.REQUEST.getlist('well'),
+            'PlateAcquisition': request.REQUEST.getlist('acquisition')}
         child = toBoolean(request.REQUEST.get('child'))
         anns = toBoolean(request.REQUEST.get('anns'))
-        logger.debug("Delete many: child? %s anns? %s object_ids %s" % (child, anns, object_ids))
+        logger.debug(
+            "Delete many: child? %s anns? %s object_ids %s"
+            % (child, anns, object_ids))
         try:
-            for key,ids in object_ids.iteritems():
+            for key, ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
-                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'error':0,
-                        'dreport':_formatReport(handle), 'dtype':key}
+                    dMap = {
+                        'job_type': 'delete',
+                        'start_time': datetime.datetime.now(),
+                        'status': 'in progress',
+                        'error': 0,
+                        'dreport': _formatReport(handle),
+                        'dtype': key}
                     if len(ids) > 1:
                         dMap['delmany'] = len(ids)
                         dMap['did'] = ids
@@ -2106,39 +2162,50 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                     request.session['callback'][str(handle)] = dMap
             request.session.modified = True
         except Exception, x:
-            logger.error('Failed to delete: %r' % {'did':ids, 'dtype':key}, exc_info=True)
-            rdict = {'bad':'true','errs': str(x) }
+            logger.error(
+                'Failed to delete: %r' % {'did': ids, 'dtype': key},
+                exc_info=True)
+            rdict = {'bad': 'true', 'errs': str(x)}
         else:
-            rdict = {'bad':'false' }
+            rdict = {'bad': 'false'}
         return HttpJsonResponse(rdict)
     context['template'] = template
     return context
 
+
 @login_required(doConnectionCleanup=False)
 def get_original_file(request, fileId, conn=None, **kwargs):
-    """ Returns the specified original file as an http response. Used for displaying text or png/jpeg etc files in browser """
+    """
+    Returns the specified original file as an http response. Used for
+    displaying text or png/jpeg etc files in browser
+    """
 
     # May be viewing results of a script run in a different group.
     conn.SERVICE_OPTS.setOmeroGroup(-1)
 
     orig_file = conn.getObject("OriginalFile", fileId)
     if orig_file is None:
-        return handlerInternalError(request, "Original File does not exists (id:%s)." % (fileId))
+        return handlerInternalError(
+            request, "Original File does not exists (id:%s)." % (fileId))
 
     rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
     rsp.conn = conn
     mimetype = orig_file.mimetype
     if mimetype == "text/x-python":
-        mimetype = "text/plain" # allows display in browser
-    rsp['Content-Type'] =  mimetype
+        mimetype = "text/plain"  # allows display in browser
+    rsp['Content-Type'] = mimetype
     rsp['Content-Length'] = orig_file.getSize()
-    #rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.name.replace(" ","_"))
+    # rsp['Content-Disposition'] = ('attachment; filename=%s'
+    #                               % (orig_file.name.replace(" ", "_")))
     return rsp
 
 
 @login_required()
 def image_as_map(request, imageId, conn=None, **kwargs):
-    """ Converts OMERO image into mrc.map file (using tiltpicker utils) and returns the file """
+    """
+    Converts OMERO image into mrc.map file (using tiltpicker utils) and
+    returns the file
+    """
 
     from omero_ext.tiltpicker.pyami import mrc
     from numpy import dstack, zeros, int8
@@ -2150,20 +2217,25 @@ def image_as_map(request, imageId, conn=None, **kwargs):
         return handlerInternalError(request, message)
 
     imageName = image.getName()
-    downloadName = imageName.endswith(".map") and imageName or "%s.map" % imageName
+    downloadName = (imageName.endswith(".map") and imageName or
+                    "%s.map" % imageName)
     pixels = image.getPrimaryPixels()
 
     # get a list of numpy planes and make stack
-    zctList = [(z,0,0) for z in range(image.getSizeZ())]
+    zctList = [(z, 0, 0) for z in range(image.getSizeZ())]
     npList = list(pixels.getPlanes(zctList))
     npStack = dstack(npList)
-    logger.info("Numpy stack for image_as_map: dtype: %s, range %s-%s" % (npStack.dtype.name, npStack.min(), npStack.max()) )
+    logger.info(
+        "Numpy stack for image_as_map: dtype: %s, range %s-%s"
+        % (npStack.dtype.name, npStack.min(), npStack.max()))
 
     # OAV only supports 'float' and 'int8'. Convert anything else to int8
-    if pixels.getPixelsType().value != 'float' or ('8bit' in kwargs and kwargs['8bit']):
-        #scale from -127 -> 128 and conver to 8 bit integer
+    if (pixels.getPixelsType().value != 'float' or
+            ('8bit' in kwargs and kwargs['8bit'])):
+        # scale from -127 -> 128 and conver to 8 bit integer
         npStack = npStack - npStack.min()  # start at 0
-        npStack = (npStack * 255.0 / npStack.max()) - 127 # range - 127 -> 128
+        # range - 127 -> 128
+        npStack = (npStack * 255.0 / npStack.max()) - 127
         a = zeros(npStack.shape, dtype=int8)
         npStack = npStack.round(out=a)
 
@@ -2175,39 +2247,46 @@ def image_as_map(request, imageId, conn=None, **kwargs):
             try:
                 import scipy.ndimage
                 from numpy import round
-                factor = float(targetSize)/ npStack.size
-                factor = pow(factor,1.0/3)
-                logger.info("Resizing numpy stack %s by factor of %s" % (npStack.shape, factor))
-                npStack = round(scipy.ndimage.interpolation.zoom(npStack, factor), 1)
+                factor = float(targetSize) / npStack.size
+                factor = pow(factor, 1.0/3)
+                logger.info(
+                    "Resizing numpy stack %s by factor of %s"
+                    % (npStack.shape, factor))
+                npStack = round(
+                    scipy.ndimage.interpolation.zoom(npStack, factor), 1)
             except ImportError:
-                logger.info("Failed to import scipy.ndimage for interpolation of 'image_as_map'. Full size: %s" % str(npStack.shape))
+                logger.info(
+                    "Failed to import scipy.ndimage for interpolation of"
+                    " 'image_as_map'. Full size: %s" % str(npStack.shape))
                 pass
 
     header = {}
     # Sometimes causes scaling issues in OAV.
-    #header["xlen"] = pixels.physicalSizeX * image.getSizeX()
-    #header["ylen"] = pixels.physicalSizeY * image.getSizeY()
-    #header["zlen"] = pixels.physicalSizeZ * image.getSizeZ()
-    #if header["xlen"] == 0 or header["ylen"] == 0 or header["zlen"] == 0:
-        #header = {}
+    # header["xlen"] = pixels.physicalSizeX * image.getSizeX()
+    # header["ylen"] = pixels.physicalSizeY * image.getSizeY()
+    # header["zlen"] = pixels.physicalSizeZ * image.getSizeZ()
+    # if header["xlen"] == 0 or header["ylen"] == 0 or header["zlen"] == 0:
+    #     header = {}
 
     # write mrc.map to temp file
     import tempfile
     temp = tempfile.NamedTemporaryFile(suffix='.map')
     try:
         mrc.write(npStack, temp.name, header)
-        logger.debug("download file: %r" % {'name':temp.name, 'size':temp.tell()})
+        logger.debug(
+            "download file: %r" % {'name': temp.name, 'size': temp.tell()})
         originalFile_data = FileWrapper(temp)
         rsp = HttpResponse(originalFile_data)
         rsp['Content-Type'] = 'application/force-download'
-        #rsp['Content-Length'] = temp.tell()
-        rsp['Content-Length'] =os.path.getsize(temp.name)
+        # rsp['Content-Length'] = temp.tell()
+        rsp['Content-Length'] = os.path.getsize(temp.name)
         rsp['Content-Disposition'] = 'attachment; filename=%s' % downloadName
         temp.seek(0)
     except Exception:
         temp.close()
         logger.error(traceback.format_exc())
-        return handlerInternalError(request, "Cannot generate map (id:%s)." % (imageId))
+        return handlerInternalError(
+            request, "Cannot generate map (id:%s)." % (imageId))
     return rsp
 
 
@@ -2216,13 +2295,15 @@ def download_annotation(request, annId, conn=None, **kwargs):
     """ Returns the file annotation as an http response for download """
     ann = conn.getObject("Annotation", annId)
     if ann is None:
-        return handlerInternalError(request, "Annotation does not exist (id:%s)." % (annId))
+        return handlerInternalError(
+            request, "Annotation does not exist (id:%s)." % (annId))
 
     rsp = ConnCleaningHttpResponse(ann.getFileInChunks())
     rsp.conn = conn
     rsp['Content-Type'] = 'application/force-download'
     rsp['Content-Length'] = ann.getFileSize()
-    rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
+    rsp['Content-Disposition'] = ('attachment; filename=%s'
+                                  % (ann.getFileName().replace(" ", "_")))
     return rsp
 
 
@@ -2237,10 +2318,10 @@ def download_orig_metadata(request, imageId, conn=None, **kwargs):
     om = image.loadOriginalMetadata()
 
     txtLines = ["[Global Metadata]"]
-    txtLines.extend( ["%s=%s" % (kv[0], kv[1]) for kv in om[1]] )
+    txtLines.extend(["%s=%s" % (kv[0], kv[1]) for kv in om[1]])
 
     txtLines.append("[Series Metadata]")
-    txtLines.extend( ["%s=%s" % (kv[0], kv[1]) for kv in om[2]] )
+    txtLines.extend(["%s=%s" % (kv[0], kv[1]) for kv in om[2]])
     rspText = "\n".join(txtLines)
 
     rsp = HttpResponse(rspText)
@@ -2253,7 +2334,8 @@ def download_orig_metadata(request, imageId, conn=None, **kwargs):
 @render_response()
 def download_placeholder(request):
     """
-    Page displays a simple "Preparing download..." message and redirects to the 'url'.
+    Page displays a simple "Preparing download..." message and redirects to
+    the 'url'.
     We construct the url and query string from request: 'url' and 'ids'.
     """
 
@@ -2265,21 +2347,23 @@ def download_placeholder(request):
         download_url = reverse('archived_files')
         zipName = 'OriginalFileDownload'
     targetIds = request.REQUEST.get('ids')      # E.g. image-1|image-2
-    defaultName = request.REQUEST.get('name', zipName) # default zip name
+    defaultName = request.REQUEST.get('name', zipName)  # default zip name
     defaultName = os.path.basename(defaultName)         # remove path
 
     query = "&".join([i.replace("-", "=") for i in targetIds.split("|")])
     download_url = download_url + "?" + query
     if format is not None:
-        download_url = download_url + "&format=%s" % format
+        download_url = (download_url + "&format=%s"
+                        % format)
     if request.REQUEST.get('index'):
-        download_url = download_url + "&index=%s" % request.REQUEST.get('index')
+        download_url = (download_url + "&index=%s"
+                        % request.REQUEST.get('index'))
 
     context = {
-            'template': "webclient/annotations/download_placeholder.html",
-            'url': download_url,
-            'defaultName': defaultName
-            }
+        'template': "webclient/annotations/download_placeholder.html",
+        'url': download_url,
+        'defaultName': defaultName
+        }
     return context
 
 
@@ -2290,7 +2374,8 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 
     # SUBTREE TODO:
     if share_id is None:
-        share_id = request.REQUEST.get("o_id") is not None and long(request.REQUEST.get("o_id")) or None
+        share_id = (request.REQUEST.get("o_id") is not None and
+                    long(request.REQUEST.get("o_id")) or None)
 
     # check view
     view = request.REQUEST.get("view")
