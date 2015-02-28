@@ -1587,21 +1587,34 @@ def batch_annotate(request, conn=None, **kwargs):
     groupIds = set()
     annotationBlocked = False
     for key in objs:
-        obj_ids += ["%s=%s"%(key,o.id) for o in objs[key]]
+        obj_ids += ["%s=%s" % (key, o.id) for o in objs[key]]
         for o in objs[key]:
             groupIds.add(o.getDetails().group.id.val)
             if not o.canAnnotate():
-                annotationBlocked = "Can't add annotations because you don't have permissions"
-            obj_labels.append( {'type':key.title(), 'id':o.id, 'name':o.getName()} )
+                annotationBlocked = ("Can't add annotations because you don't"
+                                     " have permissions")
+            obj_labels.append({
+                'type': key.title(), 'id': o.id, 'name': o.getName()})
     obj_string = "&".join(obj_ids)
     link_string = "|".join(obj_ids).replace("=", "-")
 
-    context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
-            'figScripts':figScripts, 'filesetInfo': filesetInfo, 'annotationBlocked': annotationBlocked,
-            'userRatingAvg': userRatingAvg, 'ratings': ratings, 'differentGroups':False}
+    context = {
+        'form_comment': form_comment,
+        'obj_string': obj_string,
+        'link_string': link_string,
+        'obj_labels': obj_labels,
+        'batchAnns': batchAnns,
+        'batch_ann': True,
+        'index': index,
+        'figScripts': figScripts,
+        'filesetInfo': filesetInfo,
+        'annotationBlocked': annotationBlocked,
+        'userRatingAvg': userRatingAvg,
+        'ratings': ratings,
+        'differentGroups': False}
     if len(groupIds) > 1:
-        context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
+        context['annotationBlocked'] = ("Can't add annotations because"
+                                        " objects are in different groups")
         context['differentGroups'] = True       # E.g. don't run scripts etc
     context['canDownload'] = manager.canDownload(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
@@ -1613,24 +1626,35 @@ def batch_annotate(request, conn=None, **kwargs):
 @render_response()
 def annotate_file(request, conn=None, **kwargs):
     """
-    On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects
-    Otherwise it generates the form for choosing file-annotations & local files.
+    On 'POST', This handles attaching an existing file-annotation(s) and/or
+    upload of a new file to one or more objects
+    Otherwise it generates the form for choosing file-annotations & local
+    files.
     """
     index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
+    initial = {
+        'selected': selected,
+        'images': oids['image'],
+        'datasets': oids['dataset'],
+        'projects': oids['project'],
+        'screens': oids['screen'],
+        'plates': oids['plate'],
+        'acquisitions': oids['acquisition'],
+        'wells': oids['well']}
 
-    # Use the first object we find to set context (assume all objects are in same group!)
+    # Use the first object we find to set context (assume all objects are in
+    # same group!)
     for obs in oids.values():
         if len(obs) > 0:
             conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
             break
 
-    obj_count = sum( [len(selected[types]) for types in selected] )
+    obj_count = sum([len(selected[types]) for types in selected])
 
-    # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
+    # Get appropriate manager, either to list available Tags to add to single
+    # object, or list ALL Tags (multiple objects)
     manager = None
     if obj_count == 1:
         for t in selected:
@@ -1638,9 +1662,13 @@ def annotate_file(request, conn=None, **kwargs):
                 o_type = t[:-1]         # "images" -> "image"
                 o_id = selected[t][0]
                 break
-        if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
-            if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
-            kw = {'index':index}
+        if o_type in ("dataset", "project", "image", "screen", "plate",
+                      "acquisition", "well", "comment", "file", "tag",
+                      "tagset"):
+            if o_type == 'tagset':
+                # TODO: this should be handled by the BaseContainer
+                o_type = 'tag'
+            kw = {'index': index}
             if o_type is not None and o_id > 0:
                 kw[str(o_type)] = long(o_id)
             try:
@@ -1654,32 +1682,40 @@ def annotate_file(request, conn=None, **kwargs):
         manager = BaseContainer(conn)
         for dtype, objs in oids.items():
             if len(objs) > 0:
-                # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
-                files = manager.getFilesByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
+                # NB: we only support a single data-type now. E.g. 'image' OR
+                # 'dataset' etc.
+                files = manager.getFilesByObject(
+                    parent_type=dtype, parent_ids=[o.getId() for o in objs])
                 break
 
     initial['files'] = files
 
     if request.method == 'POST':
         # handle form submission
-        form_file = FilesAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        form_file = FilesAnnotationForm(
+            initial=initial, data=request.REQUEST.copy())
         if form_file.is_valid():
             # Link existing files...
             files = form_file.cleaned_data['files']
             added_files = []
-            if files is not None and len(files)>0:
-                added_files = manager.createAnnotationsLinks('file', files, oids, well_index=index)
+            if files is not None and len(files) > 0:
+                added_files = manager.createAnnotationsLinks(
+                    'file', files, oids, well_index=index)
             # upload new file
-            fileupload = 'annotation_file' in request.FILES and request.FILES['annotation_file'] or None
+            fileupload = ('annotation_file' in request.FILES and
+                          request.FILES['annotation_file'] or None)
             if fileupload is not None and fileupload != "":
-                newFileId = manager.createFileAnnotations(fileupload, oids, well_index=index)
+                newFileId = manager.createFileAnnotations(
+                    fileupload, oids, well_index=index)
                 added_files.append(newFileId)
             if len(added_files) == 0:
                 return HttpResponse("<div>No Files chosen</div>")
             template = "webclient/annotations/fileanns.html"
             context = {}
-            # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_files, addedByMe=(obj_count==1))
+            # Now we lookup the object-annotations (same as for def
+            # batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(
+                oids, ann_ids=added_files, addedByMe=(obj_count == 1))
             if obj_count > 1:
                 context["batchAnns"] = batchAnns
                 context['batch_ann'] = True
@@ -1708,7 +1744,6 @@ def annotate_rating(request, conn=None, **kwargs):
     """
     Handle adding Rating to one or more objects
     """
-    index = getIntOrDefault(request, 'index', 0)
     rating = getIntOrDefault(request, 'rating', 0)
     oids = getObjects(request, conn)
 
@@ -1740,20 +1775,29 @@ def annotate_comment(request, conn=None, **kwargs):
     index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well'],
-            'shares':oids['share']}
+    initial = {
+        'selected': selected,
+        'images': oids['image'],
+        'datasets': oids['dataset'],
+        'projects': oids['project'],
+        'screens': oids['screen'],
+        'plates': oids['plate'],
+        'acquisitions': oids['acquisition'],
+        'wells': oids['well'],
+        'shares': oids['share']}
 
-    # Use the first object we find to set context (assume all objects are in same group!)
-    # this does not aplly to share
+    # Use the first object we find to set context (assume all objects are in
+    # same group!) this does not aplly to share
     if len(oids['share']) < 1:
         for obs in oids.values():
             if len(obs) > 0:
-                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                conn.SERVICE_OPTS.setOmeroGroup(
+                    obs[0].getDetails().group.id.val)
                 break
 
     # Handle form submission...
-    form_multi = CommentAnnotationForm(initial=initial, data=request.REQUEST.copy())
+    form_multi = CommentAnnotationForm(initial=initial,
+                                       data=request.REQUEST.copy())
     if form_multi.is_valid():
         # In each case below, we pass the {'object_type': [ids]} map
         content = form_multi.cleaned_data['comment']
@@ -1761,15 +1805,23 @@ def annotate_comment(request, conn=None, **kwargs):
             if oids['share'] is not None and len(oids['share']) > 0:
                 sid = oids['share'][0].id
                 manager = BaseShare(conn, sid)
-                host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
+                host = "%s?server=%i" % (
+                    request.build_absolute_uri(
+                        reverse("load_template", args=["public"])),
+                    int(conn.server_id))
                 textAnn = manager.addComment(host, content)
             else:
                 manager = BaseContainer(conn)
-                textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
-            context = {'tann': textAnn, 'added_by':conn.getUserId(), 'template':"webclient/annotations/comment.html"}
+                textAnn = manager.createCommentAnnotations(
+                    content, oids, well_index=index)
+            context = {
+                'tann': textAnn,
+                'added_by': conn.getUserId(),
+                'template': "webclient/annotations/comment.html"}
             return context
     else:
-        return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
+        # TODO: handle invalid form error
+        return HttpResponse(str(form_multi.errors))
 
 
 @login_required()
@@ -1781,16 +1833,20 @@ def annotate_map(request, conn=None, **kwargs):
     """
 
     if request.method != 'POST':
-        raise Http404("Need to POST map annotation data as list of ['key', 'value'] pairs")
+        raise Http404("Need to POST map annotation data as list of"
+
+                      " ['key', 'value'] pairs")
 
     oids = getObjects(request, conn)
 
-    # Use the first object we find to set context (assume all objects are in same group!)
+    # Use the first object we find to set context (assume all objects are in
+    # same group!)
     # this does not aplly to share
     if len(oids['share']) < 1:
         for obs in oids.values():
             if len(obs) > 0:
-                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                conn.SERVICE_OPTS.setOmeroGroup(
+                    obs[0].getDetails().group.id.val)
                 break
 
     data = request.POST.get('mapAnnotation')
@@ -1829,33 +1885,43 @@ def annotate_map(request, conn=None, **kwargs):
 @login_required()
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
-    """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
+    """
+    This handles creation AND submission of Tags form, adding new AND/OR
+    existing tags to one or more objects
+    """
 
     index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
-    obj_count = sum( [len(selected[types]) for types in selected] )
+    obj_count = sum([len(selected[types]) for types in selected])
 
-    # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
+    # Get appropriate manager, either to list available Tags to add to single
+    # object, or list ALL Tags (multiple objects)
     manager = None
     self_id = conn.getEventContext().userId
 
     jsonmode = request.GET.get('jsonmode')
     tags = []
 
-    # Prepare list of 'selected_tags' either for creation of the Tag dialog, OR to
-    # use with form POST to know what has been added / removed from selected tags.
+    # Prepare list of 'selected_tags' either for creation of the Tag dialog,
+    # OR to use with form POST to know what has been added / removed from
+    # selected tags.
     if obj_count == 1:
         for t in selected:
             if len(selected[t]) > 0:
                 o_type = t[:-1]         # "images" -> "image"
                 o_id = selected[t][0]
                 objWrapper = oids[o_type][0]
-                conn.SERVICE_OPTS.setOmeroGroup(objWrapper.getDetails().group.id.val)
+                conn.SERVICE_OPTS.setOmeroGroup(
+                    objWrapper.getDetails().group.id.val)
                 break
-        if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
-            if o_type == 'tagset': o_type = 'tag' # TODO: this should be handled by the BaseContainer
-            kw = {'index':index}
+        if o_type in ("dataset", "project", "image", "screen", "plate",
+                      "acquisition", "well", "comment", "file", "tag",
+                      "tagset"):
+            if o_type == 'tagset':
+                # TODO: this should be handled by the BaseContainer
+                o_type = 'tag'
+            kw = {'index': index}
             if o_type is not None and o_id > 0:
                 kw[str(o_type)] = long(o_id)
             try:
@@ -1872,10 +1938,12 @@ def annotate_tags(request, conn=None, **kwargs):
 
     else:
         manager = BaseContainer(conn)
-        # Use the first object we find to set context (assume all objects are in same group!)
+        # Use the first object we find to set context (assume all objects are
+        # in same group!)
         for obs in oids.values():
             if len(obs) > 0:
-                conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
+                conn.SERVICE_OPTS.setOmeroGroup(
+                    obs[0].getDetails().group.id.val)
                 break
 
         # we only need selected tags for original form, not for json loading
@@ -1885,20 +1953,32 @@ def annotate_tags(request, conn=None, **kwargs):
             for t in batchAnns['Tag']:
                 mylinks = [l for l in t['links'] if l.isOwned()]
                 if len(mylinks) == obj_count:
-                    t['ann'].link = mylinks[0]  # make sure we pick a link that we own
+                    # make sure we pick a link that we own
+                    t['ann'].link = mylinks[0]
                     tags.append(t['ann'])
 
     selected_tags = []
     for tag in tags:
         ownerId = unwrap(tag.link.details.owner.id)
-        ownerName = "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName))
+        ownerName = "%s %s" % (
+            unwrap(tag.link.details.owner.firstName),
+            unwrap(tag.link.details.owner.lastName))
         canDelete = unwrap(tag.link.details.getPermissions().canDelete())
-        created = str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000))
+        created = str(datetime.datetime.fromtimestamp(
+            unwrap(tag.link.details.getCreationEvent().getTime()) / 1000))
         owned = self_id == unwrap(tag.link.details.owner.id)
-        selected_tags.append((tag.id, ownerId, ownerName, canDelete, created, owned))
+        selected_tags.append(
+            (tag.id, ownerId, ownerName, canDelete, created, owned))
 
-    initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
-            'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
+    initial = {
+        'selected': selected,
+        'images': oids['image'],
+        'datasets': oids['dataset'],
+        'projects': oids['project'],
+        'screens': oids['screen'],
+        'plates': oids['plate'],
+        'acquisitions': oids['acquisition'],
+        'wells': oids['well']}
 
     if jsonmode:
         try:
@@ -1931,15 +2011,20 @@ def annotate_tags(request, conn=None, **kwargs):
 
     if request.method == 'POST':
         # handle form submission
-        form_tags = TagsAnnotationForm(initial=initial, data=request.REQUEST.copy())
-        newtags_formset = NewTagsAnnotationFormSet(prefix='newtags', data=request.REQUEST.copy())
+        form_tags = TagsAnnotationForm(
+            initial=initial, data=request.REQUEST.copy())
+        newtags_formset = NewTagsAnnotationFormSet(
+            prefix='newtags', data=request.REQUEST.copy())
         # Create new tags or Link existing tags...
         if form_tags.is_valid() and newtags_formset.is_valid():
-            # filter down previously selected tags to the ones linked by current user
+            # filter down previously selected tags to the ones linked by
+            # current user
             selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
             added_tags = [stag[0] for stag in selected_tags if not stag[5]]
-            tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tag_ids]
-            removed = [tag for tag in selected_tag_ids if tag not in form_tags.cleaned_data['tags']]
+            tags = [tag for tag in form_tags.cleaned_data['tags']
+                    if tag not in selected_tag_ids]
+            removed = [tag for tag in selected_tag_ids
+                       if tag not in form_tags.cleaned_data['tags']]
             if tags:
                 manager.createAnnotationsLinks(
                     'tag',
@@ -1959,14 +2044,15 @@ def annotate_tags(request, conn=None, **kwargs):
             for remove in removed:
                 tag_manager = BaseContainer(conn, tag=remove)
                 tag_manager.remove([
-                        "%s-%s" % (dtype, obj.id)
-                        for dtype, objs in oids.items()
-                        for obj in objs
-                    ], index, tag_owner_id=self_id)
+                    "%s-%s" % (dtype, obj.id)
+                    for dtype, objs in oids.items()
+                    for obj in objs], index, tag_owner_id=self_id)
             template = "webclient/annotations/tags.html"
             context = {}
-            # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags)
+            # Now we lookup the object-annotations (same as for def
+            # batch_annotate above)
+            batchAnns = manager.loadBatchAnnotations(
+                oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags)
             if obj_count > 1:
                 context["batchAnns"] = batchAnns
                 context['batch_ann'] = True
@@ -1979,7 +2065,8 @@ def annotate_tags(request, conn=None, **kwargs):
                 context['tags'] = taganns
                 context['can_remove'] = True
         else:
-            return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
+            # TODO: handle invalid form error
+            return HttpResponse(str(form_tags.errors))
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
@@ -1993,6 +2080,7 @@ def annotate_tags(request, conn=None, **kwargs):
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
     return context
+
 
 @require_POST
 @login_required()
