@@ -49,11 +49,7 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- Actual upgrade
 --
 
-UPDATE pg_enum
-    SET enumlabel = 'kbar'
-    WHERE enumlabel = 'kBar' AND enumtypid = (
-        SELECT oid FROM pg_type WHERE typname = 'unitspressure'
-    );
+ALTER TYPE unitspressure ADD VALUE 'kbar' BEFORE 'kBar';
 
 --
 -- check PostgreSQL server version and database encoding
