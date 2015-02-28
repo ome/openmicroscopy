@@ -2473,16 +2473,18 @@ def getObjectUrl(conn, obj):
 @render_response()
 def activities(request, conn=None, **kwargs):
     """
-    This refreshes callback handles (delete, scripts, chgrp etc) and provides html to update Activities window & Progressbar.
-    The returned html contains details for ALL callbacks in web session, regardless of their status.
-    We also add counts of jobs, failures and 'in progress' to update status bar.
+    This refreshes callback handles (delete, scripts, chgrp etc) and provides
+    html to update Activities window & Progressbar.
+    The returned html contains details for ALL callbacks in web session,
+    regardless of their status.
+    We also add counts of jobs, failures and 'in progress' to update status
+    bar.
     """
 
     in_progress = 0
     failure = 0
     new_results = []
     _purgeCallback(request)
-
 
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
@@ -2491,7 +2493,7 @@ def activities(request, conn=None, **kwargs):
 
         status = callbackDict['status']
         if status == "failed":
-            failure+=1
+            failure += 1
 
         request.session.modified = True
 
@@ -2500,122 +2502,149 @@ def activities(request, conn=None, **kwargs):
             if status not in ("failed", "finished"):
                 rsp = None
                 try:
-                    prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    prx = omero.cmd.HandlePrx.checkedCast(
+                        conn.c.ic.stringToProxy(cbString))
                     rsp = prx.getResponse()
                     close_handle = False
                     try:
-                        # if response is None, then we're still in progress, otherwise...
+                        # if response is None, then we're still in progress,
+                        # otherwise...
                         if rsp is not None:
                             close_handle = True
                             new_results.append(cbString)
                             if isinstance(rsp, omero.cmd.ERR):
-                                request.session['callback'][cbString]['status'] = "failed"
-                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
-                                logger.error("chgrp failed with: %s" % rsp_params)
-                                request.session['callback'][cbString]['report'] = "%s %s" % (rsp.name, rsp_params)
-                                request.session['callback'][cbString]['error'] = 1
+                                callbackDict['status'] = "failed"
+                                rsp_params = ", ".join(
+                                    ["%s: %s" % (k, v) for k, v in
+                                     rsp.parameters.items()])
+                                logger.error("chgrp failed with: %s"
+                                             % rsp_params)
+                                callbackDict['report'] = (
+                                    "%s %s" % (rsp.name, rsp_params))
+                                callbackDict['error'] = 1
                             elif isinstance(rsp, omero.cmd.OK):
-                                request.session['callback'][cbString]['status'] = "finished"
+                                callbackDict['status'] = "finished"
                         else:
-                            in_progress+=1
+                            in_progress += 1
                     finally:
                         prx.close(close_handle)
                 except:
-                    logger.info("Activities chgrp handle not found: %s" % cbString)
+                    logger.info(
+                        "Activities chgrp handle not found: %s" % cbString)
                     continue
         elif job_type == 'send_email':
             if status not in ("failed", "finished"):
                 rsp = None
                 try:
-                    prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    prx = omero.cmd.HandlePrx.checkedCast(
+                        conn.c.ic.stringToProxy(cbString))
                     callback = omero.callbacks.CmdCallbackI(conn.c, prx)
                     rsp = callback.getResponse()
                     close_handle = False
                     try:
-                        # if response is None, then we're still in progress, otherwise...
+                        # if response is None, then we're still in progress,
+                        # otherwise...
                         if rsp is not None:
                             close_handle = True
                             new_results.append(cbString)
+
                             if isinstance(rsp, omero.cmd.ERR):
-                                request.session['callback'][cbString]['status'] = "failed"
-                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
-                                logger.error("send_email failed with: %s" % rsp_params)
-                                request.session['callback'][cbString]['report'] = {'error':rsp_params}
-                                request.session['callback'][cbString]['error'] = 1
+                                callbackDict['status'] = "failed"
+                                rsp_params = ", ".join(
+                                    ["%s: %s" % (k, v)
+                                     for k, v in rsp.parameters.items()])
+                                logger.error("send_email failed with: %s"
+                                             % rsp_params)
+                                callbackDict['report'] = {'error': rsp_params}
+                                callbackDict['error'] = 1
                             else:
-                                request.session['callback'][cbString]['status'] = "finished"
-                                request.session['callback'][cbString]['rsp'] = {
-                                            'success': rsp.success,
-                                            'total': rsp.success+len(rsp.invalidusers)+len(rsp.invalidemails)
-                                }
-                                if len(rsp.invalidusers) > 0 or len(rsp.invalidemails) > 0:
-                                    request.session['callback'][cbString]['report'] = dict()
-                                    invalidusers = [e.getFullName() for e in list(conn.getObjects("Experimenter", rsp.invalidusers))]
-                                    request.session['callback'][cbString]['report']['invalidusers'] = invalidusers
-                                    request.session['callback'][cbString]['report']['invalidemails'] = rsp.invalidemails
+                                callbackDict['status'] = "finished"
+                                callbackDict['rsp'] = {
+                                    'success': rsp.success,
+                                    'total': (
+                                        rsp.success + len(rsp.invalidusers) +
+                                        len(rsp.invalidemails))}
+                                if (len(rsp.invalidusers) > 0 or
+                                        len(rsp.invalidemails) > 0):
+                                    callbackDict['report'] = dict()
+                                    invalidusers = [
+                                        e.getFullName() for e in list(
+                                            conn.getObjects(
+                                                "Experimenter",
+                                                rsp.invalidusers))]
+                                    callbackDict['report'] = {
+                                        'invalidusers': invalidusers,
+                                        'invalidemails': rsp.invalidemails}
                         else:
-                            in_progress+=1
+                            in_progress += 1
                     finally:
                         callback.close(close_handle)
                 except:
                     logger.error(traceback.format_exc())
-                    logger.info("Activities send_email handle not found: %s" % cbString)
+                    logger.info("Activities send_email handle not found: %s"
+                                % cbString)
 
         # update delete
         elif job_type == 'delete':
             if status not in ("failed", "finished"):
                 try:
-                    handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    handle = omero.cmd.HandlePrx.checkedCast(
+                        conn.c.ic.stringToProxy(cbString))
                     cb = omero.callbacks.CmdCallbackI(conn.c, handle)
                     close_handle = False
                     try:
-                        if not cb.block(0): # Response not available
-                            request.session['callback'][cbString]['error'] = 0
-                            request.session['callback'][cbString]['status'] = "in progress"
-                            request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            in_progress+=1
-                        else: # Response available
+                        if not cb.block(0):  # Response not available
+                            callbackDict['error'] = 0
+                            callbackDict['status'] = "in progress"
+                            callbackDict['dreport'] = _formatReport(handle)
+                            in_progress += 1
+                        else:  # Response available
                             close_handle = True
                             new_results.append(cbString)
                             rsp = cb.getResponse()
                             err = isinstance(rsp, omero.cmd.ERR)
                             if err:
-                                request.session['callback'][cbString]['error'] = 1
-                                request.session['callback'][cbString]['status'] = "failed"
-                                failure+=1
-                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                                callbackDict['error'] = 1
+                                callbackDict['status'] = "failed"
+                                failure += 1
+                                callbackDict['dreport'] = _formatReport(
+                                    handle)
                             else:
-                                request.session['callback'][cbString]['error'] = 0
-                                request.session['callback'][cbString]['status'] = "finished"
-                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                                callbackDict['error'] = 0
+                                callbackDict['status'] = "finished"
+                                callbackDict['dreport'] = _formatReport(
+                                    handle)
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException:
-                    request.session['callback'][cbString]['error'] = 0
-                    request.session['callback'][cbString]['status'] = "finished"
-                    request.session['callback'][cbString]['dreport'] = None
+                    callbackDict['error'] = 0
+                    callbackDict['status'] = "finished"
+                    callbackDict['dreport'] = None
                 except Exception, x:
                     logger.error(traceback.format_exc())
                     logger.error("Status job '%s'error:" % cbString)
-                    request.session['callback'][cbString]['error'] = 1
-                    request.session['callback'][cbString]['status'] = "failed"
-                    request.session['callback'][cbString]['dreport'] = str(x)
-                    failure+=1
+                    callbackDict['error'] = 1
+                    callbackDict['status'] = "failed"
+                    callbackDict['dreport'] = str(x)
+                    failure += 1
 
         # update scripts
         elif job_type == 'script':
             # if error on runScript, the cbString is not a ProcessCallback...
-            if not cbString.startswith('ProcessCallback'): continue  # ignore
+            if not cbString.startswith('ProcessCallback'):
+                continue  # ignore
             if status not in ("failed", "finished"):
                 logger.info("Check callback on script: %s" % cbString)
-                proc = omero.grid.ScriptProcessPrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                proc = omero.grid.ScriptProcessPrx.checkedCast(
+                    conn.c.ic.stringToProxy(cbString))
                 cb = omero.scripts.ProcessCallbackI(conn.c, proc)
                 # check if we get something back from the handle...
-                if cb.block(0): # ms.
+                if cb.block(0):  # ms.
                     cb.close()
                     try:
-                        results = proc.getResults(0, conn.SERVICE_OPTS)     # we can only retrieve this ONCE - must save results
-                        request.session['callback'][cbString]['status'] = "finished"
+                        # we can only retrieve this ONCE - must save results
+                        results = proc.getResults(0, conn.SERVICE_OPTS)
+                        callbackDict['status'] = "finished"
                         new_results.append(cbString)
                     except Exception, x:
                         logger.error(traceback.format_exc())
@@ -2626,52 +2655,67 @@ def activities(request, conn=None, **kwargs):
                         v = value.getValue()
                         if key in ("stdout", "stderr", "Message"):
                             if key in ('stderr', 'stdout'):
-                                v = v.id.val    # just save the id of original file
-                            request.session['callback'][cbString][key] = v
+                                # just save the id of original file
+                                v = v.id.val
+                            callbackDict[key] = v
                         else:
-                            if hasattr(v, "id"):    # do we have an object (ImageI, FileAnnotationI etc)
-                                obj_data = {'id': v.id.val, 'type': v.__class__.__name__[:-1]}
+                            if hasattr(v, "id"):
+                                # do we have an object (ImageI,
+                                # FileAnnotationI etc)
+                                obj_data = {
+                                    'id': v.id.val,
+                                    'type': v.__class__.__name__[:-1]}
                                 obj_data['browse_url'] = getObjectUrl(conn, v)
                                 if v.isLoaded() and hasattr(v, "file"):
-                                    #try:
-                                    mimetypes = {'image/png':'png', 'image/jpeg':'jpeg', 'text/plain': 'text'}
+                                    # try:
+                                    mimetypes = {
+                                        'image/png': 'png',
+                                        'image/jpeg': 'jpeg',
+                                        'text/plain': 'text'}
                                     if v.file.mimetype.val in mimetypes:
-                                        obj_data['fileType'] = mimetypes[v.file.mimetype.val]
+                                        obj_data['fileType'] = mimetypes[
+                                            v.file.mimetype.val]
                                         obj_data['fileId'] = v.file.id.val
                                     obj_data['name'] = v.file.name.val
-                                    #except:
+                                    # except:
                                     #    pass
-                                if v.isLoaded() and hasattr(v, "name"):  # E.g Image, OriginalFile etc
+                                if v.isLoaded() and hasattr(v, "name"):
+                                    # E.g Image, OriginalFile etc
                                     name = unwrap(v.name)
-                                    if name is not None:                # E.g. FileAnnotation has null name
+                                    if name is not None:
+                                        # E.g. FileAnnotation has null name
                                         obj_data['name'] = name
                                 rMap[key] = obj_data
                             else:
                                 rMap[key] = v
-                    request.session['callback'][cbString]['results'] = rMap
+                    callbackDict['results'] = rMap
                 else:
-                    in_progress+=1
+                    in_progress += 1
 
-    # having updated the request.session, we can now prepare the data for http response
+    # having updated the request.session, we can now prepare the data for http
+    # response
     rv = {}
     for cbString in request.session.get('callback').keys():
-        # make a copy of the map in session, so that we can replace non json-compatible objects, without modifying session
+        # make a copy of the map in session, so that we can replace non
+        # json-compatible objects, without modifying session
         rv[cbString] = copy.copy(request.session['callback'][cbString])
 
     # return json (used for testing)
     if 'template' in kwargs and kwargs['template'] == 'json':
         for cbString in request.session.get('callback').keys():
-            rv[cbString]['start_time'] = str(request.session['callback'][cbString]['start_time'])
+            rv[cbString]['start_time'] = str(
+                request.session['callback'][cbString]['start_time'])
         rv['inprogress'] = in_progress
         rv['failure'] = failure
         rv['jobs'] = len(request.session['callback'])
-        return HttpJsonResponse(rv) # json
+        return HttpJsonResponse(rv)  # json
 
     jobs = []
     new_errors = False
     for key, data in rv.items():
-        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
-        # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
+        # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727  # noqa
+        # create id we can use as html id,
+        # E.g. 39f77932-c447-40d8-8f99-910b5a531a25
         if len(key.split(" ")) > 0:
             htmlId = key.split(" ")[0]
             if len(htmlId.split("/")) > 1:
@@ -2684,13 +2728,14 @@ def activities(request, conn=None, **kwargs):
                 new_errors = True
         jobs.append(rv[key])
 
-    jobs.sort(key=lambda x:x['start_time'], reverse=True)
-    context = {'sizeOfJobs':len(request.session['callback']),
-            'jobs':jobs,
-            'inprogress':in_progress,
-            'new_results':len(new_results),
-            'new_errors': new_errors,
-            'failure':failure}
+    jobs.sort(key=lambda x: x['start_time'], reverse=True)
+    context = {
+        'sizeOfJobs': len(request.session['callback']),
+        'jobs': jobs,
+        'inprogress': in_progress,
+        'new_results': len(new_results),
+        'new_errors': new_errors,
+        'failure': failure}
 
     context['template'] = "webclient/activities/activitiesContent.html"
     return context
