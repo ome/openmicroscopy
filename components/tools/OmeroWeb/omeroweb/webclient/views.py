@@ -3313,8 +3313,8 @@ def list_scripts(request, conn=None, **kwargs):
                 # value is a directory
                 dir_list.append({'name': name, 'ul': ul_to_list(value)})
             else:
-                dir_list.append({'name': name, 'id':value})
-        dir_list.sort(key=lambda x:x['name'].lower())
+                dir_list.append({'name': name, 'id': value})
+        dir_list.sort(key=lambda x: x['name'].lower())
         return dir_list
 
     scriptList = ul_to_list(scriptMenu)
@@ -3338,9 +3338,10 @@ def script_ui(request, scriptId, conn=None, **kwargs):
         params = scriptService.getParams(long(scriptId))
     except Exception, ex:
         if ex.message.lower().startswith("no processor available"):
-            return {'template':'webclient/scripts/no_processor.html', 'scriptId': scriptId}
+            return {'template': 'webclient/scripts/no_processor.html',
+                    'scriptId': scriptId}
         raise ex
-    if params == None:
+    if params is None:
         return HttpResponse()
 
     paramData = {}
@@ -3378,28 +3379,35 @@ def script_ui(request, scriptId, conn=None, **kwargs):
             i["map"] = True
         elif pt.__class__.__name__ == 'list':
             i["list"] = True
-            if "default" in i: i["default"] = i["default"][0]
-        elif pt.__class__ == type(True):
+            if "default" in i:
+                i["default"] = i["default"][0]
+        elif isinstance(pt.__class__, bool):
             i["boolean"] = True
-        elif pt.__class__ == type(0) or pt.__class__ == type(long(0)):
-            i["number"] = "number"  # will stop the user entering anything other than numbers.
-        elif pt.__class__ == type(float(0.0)):
+        elif isinstance(pt.__class__, int) or isinstance(pt.__class__, long):
+            # will stop the user entering anything other than numbers.
+            i["number"] = "number"
+        elif isinstance(pt.__class__, float):
             i["number"] = "float"
 
-        # if we got a value for this key in the page request, use this as default
+        # if we got a value for this key in the page request, use this as
+        # default
         if request.REQUEST.get(key, None) is not None:
             i["default"] = request.REQUEST.get(key, None)
 
-        i["prototype"] = unwrap(param.prototype)    # E.g  ""  (string) or [0] (int list) or 0.0 (float)
+        # E.g  ""  (string) or [0] (int list) or 0.0 (float)
+        i["prototype"] = unwrap(param.prototype)
         i["grouping"] = param.grouping
         inputs.append(i)
 
-        if key == "IDs": IDsParam = i           # remember these...
-        if key == "Data_Type": Data_TypeParam = i
+        if key == "IDs":
+            IDsParam = i           # remember these...
+        if key == "Data_Type":
+            Data_TypeParam = i
     inputs.sort(key=lambda i: i["grouping"])
 
     # if we have Data_Type param - use the request parameters to populate IDs
-    if Data_TypeParam is not None and IDsParam is not None and "options" in Data_TypeParam:
+    if (Data_TypeParam is not None and IDsParam is not None and
+            "options" in Data_TypeParam):
         IDsParam["default"] = ""
         for dtype in Data_TypeParam["options"]:
             if request.REQUEST.get(dtype, None) is not None:
@@ -3407,9 +3415,11 @@ def script_ui(request, scriptId, conn=None, **kwargs):
                 IDsParam["default"] = request.REQUEST.get(dtype, "")
                 break       # only use the first match
         # if we've not found a match, check whether we have "Well" selected
-        if len(IDsParam["default"]) == 0 and request.REQUEST.get("Well", None) is not None:
+        if (len(IDsParam["default"]) == 0 and
+                request.REQUEST.get("Well", None) is not None):
             if "Image" in Data_TypeParam["options"]:
-                wellIds = [long(i) for i in request.REQUEST.get("Well", None).split(",")]
+                wellIds = [long(j) for j in request.REQUEST.get(
+                           "Well", None).split(",")]
                 wellIdx = 0
                 try:
                     wellIdx = int(request.REQUEST.get("Index", 0))
@@ -3420,9 +3430,11 @@ def script_ui(request, scriptId, conn=None, **kwargs):
                 Data_TypeParam["default"] = "Image"
                 IDsParam["default"] = ",".join(imgIds)
 
-    # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy level now (not recursive!)
+    # try to determine hierarchies in the groupings - ONLY handle 1 hierarchy
+    # level now (not recursive!)
     for i in range(len(inputs)):
-        if len(inputs) <= i:    # we may remove items from inputs as we go - need to check
+        if len(inputs) <= i:
+            # we may remove items from inputs as we go - need to check
             break
         param = inputs[i]
         grouping = param["grouping"]    # E.g  03
@@ -3437,7 +3449,10 @@ def script_ui(request, scriptId, conn=None, **kwargs):
 
     paramData["inputs"] = inputs
 
-    return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
+    return {
+        'template': 'webclient/scripts/script_ui.html',
+        'paramData': paramData,
+        'scriptId': scriptId}
 
 
 @login_required()
@@ -3470,11 +3485,11 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
     if imageIds is not None:
         imageIds, validImages = validateIds("Image", imageIds)
-        context['idString'] = ",".join( [str(i) for i in imageIds] )
+        context['idString'] = ",".join([str(i) for i in imageIds])
         context['dtype'] = "Image"
     if datasetIds is not None:
         datasetIds, validDatasets = validateIds("Dataset", datasetIds)
-        context['idString'] = ",".join( [str(i) for i in datasetIds] )
+        context['idString'] = ",".join([str(i) for i in datasetIds])
         context['dtype'] = "Dataset"
 
     if scriptName == "SplitView":
@@ -3483,10 +3498,11 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         # Lookup Tags & Datasets (for row labels)
         imgDict = []    # A list of data about each image.
         for iId in imageIds:
-            data = {'id':iId}
+            data = {'id': iId}
             img = validImages[iId]
             data['name'] = img.getName()
-            tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
+            tags = [ann.getTextValue() for ann in img.listAnnotations()
+                    if ann._obj.__class__ == omero.model.TagAnnotationI]
             data['tags'] = tags
             data['datasets'] = [d.getName() for d in img.listParents()]
             imgDict.append(data)
@@ -3500,7 +3516,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     elif scriptName == "Thumbnail":
         scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
         template = "webclient/scripts/thumbnail_figure.html"
-        #context['tags'] = BaseContainer(conn).getTagsByObject()    # ALL tags
+        # context['tags'] = BaseContainer(conn).getTagsByObject()  # ALL tags
 
         def loadImageTags(imageIds):
             tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
@@ -3515,7 +3531,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
                     linkMap[l.getParent().id].append(c)
             imageTags = []
             for iId in imageIds:
-                imageTags.append({'id':iId, 'tags':linkMap[iId]})
+                imageTags.append({'id': iId, 'tags': linkMap[iId]})
             tags = []
             for tId, t in tagMap.items():
                 tags.append(t)
@@ -3528,12 +3544,13 @@ def figure_script(request, scriptName, conn=None, **kwargs):
             for d in conn.getObjects("Dataset", datasetIds):
                 imgIds = [i.id for i in d.listChildren()]
                 imageTags, ts = loadImageTags(imgIds)
-                thumbSets.append({'name':d.getName(), 'imageTags': imageTags})
+                thumbSets.append({
+                    'name': d.getName(), 'imageTags': imageTags})
                 tags.extend(ts)
             figureName = thumbSets[0]['name']
         else:
             imageTags, ts = loadImageTags(imageIds)
-            thumbSets.append({'name':'images', 'imageTags': imageTags})
+            thumbSets.append({'name': 'images', 'imageTags': imageTags})
             tags.extend(ts)
             parent = conn.getObject("Image", imageIds[0]).getParent()
             figureName = parent.getName()
@@ -3556,7 +3573,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         # expect to run on a single image at a time
         image = conn.getObject("Image", imageIds[0])
         # remove extension (if 3 chars or less)
-        movieName = image.getName().rsplit(".",1)
+        movieName = image.getName().rsplit(".", 1)
         if len(movieName) > 1 and len(movieName[1]) > 3:
             movieName = ".".join(movieName)
         else:
@@ -3574,9 +3591,8 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         context['sizeT'] = image.getSizeT()
         context['sizeZ'] = image.getSizeZ()
 
-
     scriptService = conn.getScriptService()
-    scriptId = scriptService.getScriptID(scriptPath);
+    scriptId = scriptService.getScriptID(scriptPath)
     if (scriptId < 0):
         raise AttributeError("No script found for path '%s'" % scriptPath)
 
@@ -3590,26 +3606,30 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 def fileset_check(request, action, conn=None, **kwargs):
     """
     Check whether Images / Datasets etc contain partial Multi-image filesets.
-    Used by chgrp or delete dialogs to test whether we can perform this 'action'.
+    Used by chgrp or delete dialogs to test whether we can perform this
+    'action'.
     """
     dtypeIds = {}
     for dtype in ("Image", "Dataset", "Project"):
         ids = request.REQUEST.get(dtype, None)
         if ids is not None:
             dtypeIds[dtype] = [int(i) for i in ids.split(",")]
-    splitFilesets = conn.getContainerService().getImagesBySplitFilesets(dtypeIds, None, conn.SERVICE_OPTS)
+    splitFilesets = conn.getContainerService().getImagesBySplitFilesets(
+        dtypeIds, None, conn.SERVICE_OPTS)
 
     splits = []
     for fsId, splitIds in splitFilesets.items():
-        splits.append({'id':fsId,
-                'attempted_iids':splitIds[True],
-                'blocking_iids':splitIds[False]})
+        splits.append({
+            'id': fsId,
+            'attempted_iids': splitIds[True],
+            'blocking_iids': splitIds[False]})
 
     context = {"split_filesets": splits}
     context['action'] = action
     if action == 'chgrp':
         context['action'] = 'move'
-    context['template'] = "webclient/activities/fileset_check_dialog_content.html"
+    context['template'] = ("webclient/activities/"
+                           "fileset_check_dialog_content.html")
 
     return context
 
@@ -3643,28 +3663,33 @@ def chgrp(request, conn=None, **kwargs):
     ownerId = getObjectOwnerId(request)
     conn.SERVICE_OPTS.setOmeroUser(ownerId)
     if (new_container_name is not None and len(new_container_name) > 0 and
-                new_container_type is not None):
+            new_container_type is not None):
         conn.SERVICE_OPTS.setOmeroGroup(group_id)
-        container_id = conn.createContainer(new_container_type, new_container_name)
+        container_id = conn.createContainer(
+            new_container_type, new_container_name)
     # No new container, check if target is specified
     if container_id is None:
-        target_id = request.REQUEST.get('target_id', None)      # E.g. "dataset-234"
-        container_id = target_id is not None and target_id.split("-")[1] or None
+        # E.g. "dataset-234"
+        target_id = request.REQUEST.get('target_id', None)
+        container_id = (target_id is not None and target_id.split("-")[1] or
+                        None)
     dtypes = ["Project", "Dataset", "Image", "Screen", "Plate"]
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
             obj_ids = [int(oid) for oid in oids.split(",")]
-            # if 'filesets' are specified, make sure we move ALL Fileset Images
+            # if 'filesets' are specified, make sure we move ALL Fileset
+            # Images
             fsIds = request.REQUEST.getlist('fileset')
             if len(fsIds) > 0:
                 if dtype == 'Dataset':
-                    conn.regroupFilesets (dsIds=obj_ids, fsIds=fsIds)
+                    conn.regroupFilesets(dsIds=obj_ids, fsIds=fsIds)
                 else:
                     for fs in conn.getObjects("Fileset", fsIds):
-                        obj_ids.extend( [i.id for i in fs.copyImages()] )
+                        obj_ids.extend([i.id for i in fs.copyImages()])
                     obj_ids = list(set(obj_ids))    # remove duplicates
-            logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_ids))
+            logger.debug(
+                "chgrp to group:%s %s-%s" % (group_id, dtype, obj_ids))
             handle = conn.chgrpObjects(dtype, obj_ids, group_id, container_id)
             jobId = str(handle)
             request.session['callback'][jobId] = {
@@ -3675,7 +3700,7 @@ def chgrp(request, conn=None, **kwargs):
                 'obj_ids': obj_ids,
                 'job_name': "Change group",
                 'start_time': datetime.datetime.now(),
-                'status':'in progress'}
+                'status': 'in progress'}
             request.session.modified = True
 
     return HttpResponse("OK")
@@ -3697,7 +3722,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
     except Exception, x:
         if x.message and x.message.startswith("No processor available"):
             # Delegate to run_script() for handling 'No processor available'
-            rsp = run_script(request, conn, sId, inputMap, scriptName='Script')
+            rsp = run_script(
+                request, conn, sId, inputMap, scriptName='Script')
             return HttpJsonResponse(rsp)
         else:
             raise
@@ -3710,7 +3736,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
         prototype = param.prototype
         pclass = prototype.__class__
 
-        # handle bool separately, since unchecked checkbox will not be in request.POST
+        # handle bool separately, since unchecked checkbox will not be in
+        # request.POST
         if pclass == omero.rtypes.RBoolI:
             value = key in request.POST
             inputMap[key] = pclass(value)
@@ -3722,12 +3749,13 @@ def script_run(request, scriptId, conn=None, **kwargs):
             row = 0
             paramMap = {}
             while keyName in request.POST:
-                # the key and value don't have any data-type defined by scripts - just use string
+                # the key and value don't have any data-type defined by
+                # scripts - just use string
                 k = str(request.POST[keyName])
                 v = str(request.POST[valueName])
                 if len(k) > 0 and len(v) > 0:
                     paramMap[str(k)] = str(v)
-                row +=1
+                row += 1
                 keyName = "%s_key%d" % (key, row)
                 valueName = "%s_value%d" % (key, row)
             if len(paramMap) > 0:
@@ -3737,15 +3765,19 @@ def script_run(request, scriptId, conn=None, **kwargs):
         if key in request.POST:
             if pclass == omero.rtypes.RListI:
                 values = request.POST.getlist(key)
-                if len(values) == 0: continue
+                if len(values) == 0:
+                    continue
                 if len(values) == 1:     # process comma-separated list
-                    if len(values[0]) == 0: continue
+                    if len(values[0]) == 0:
+                        continue
                     values = values[0].split(",")
 
                 # try to determine 'type' of values in our list
                 listClass = omero.rtypes.rstring
                 l = prototype.val     # list
-                if len(l) > 0:       # check if a value type has been set (first item of prototype list)
+                # check if a value type has been set (first item of prototype
+                # list)
+                if len(l) > 0:
                     listClass = l[0].__class__
                     if listClass == int(1).__class__:
                         listClass = omero.rtypes.rint
@@ -3756,7 +3788,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
                 valueList = []
                 for v in values:
                     try:
-                        obj = listClass(str(v.strip())) # convert unicode -> string
+                        # convert unicode -> string
+                        obj = listClass(str(v.strip()))
                     except:
                         logger.debug("Invalid entry for '%s' : %s" % (key, v))
                         continue
@@ -3769,19 +3802,22 @@ def script_run(request, scriptId, conn=None, **kwargs):
             # Handle other rtypes: String, Long, Int etc.
             else:
                 value = request.POST[key]
-                if len(value) == 0: continue
+                if len(value) == 0:
+                    continue
                 try:
                     inputMap[key] = pclass(value)
                 except:
                     logger.debug("Invalid entry for '%s' : %s" % (key, value))
                     continue
 
-    # If we have objects specified via 'IDs' and 'DataType', try to pick correct group
+    # If we have objects specified via 'IDs' and 'DataType', try to pick
+    # correct group
     if 'IDs' in inputMap.keys() and 'Data_Type' in inputMap.keys():
         gid = conn.SERVICE_OPTS.getOmeroGroup()
         conn.SERVICE_OPTS.setOmeroGroup('-1')
         try:
-            firstObj = conn.getObject(inputMap['Data_Type'].val, unwrap(inputMap['IDs'])[0])
+            firstObj = conn.getObject(
+                inputMap['Data_Type'].val, unwrap(inputMap['IDs'])[0])
             newGid = firstObj.getDetails().group.id.val
             conn.SERVICE_OPTS.setOmeroGroup(newGid)
         except Exception, x:
@@ -3798,13 +3834,15 @@ def script_run(request, scriptId, conn=None, **kwargs):
 @login_required()
 def ome_tiff_script(request, imageId, conn=None, **kwargs):
     """
-    Uses the scripting service (Batch Image Export script) to generate OME-TIFF for an
-    image and attach this as a file annotation to the image.
-    Script will show up in the 'Activities' for users to monitor and download result etc.
+    Uses the scripting service (Batch Image Export script) to generate
+    OME-TIFF for an image and attach this as a file annotation to the image.
+    Script will show up in the 'Activities' for users to monitor and download
+    result etc.
     """
 
     scriptService = conn.getScriptService()
-    sId = scriptService.getScriptID("/omero/export_scripts/Batch_Image_Export.py")
+    sId = scriptService.getScriptID(
+        "/omero/export_scripts/Batch_Image_Export.py")
 
     image = conn.getObject("Image", imageId)
     if image is not None:
@@ -3813,35 +3851,39 @@ def ome_tiff_script(request, imageId, conn=None, **kwargs):
     imageIds = [long(imageId)]
     inputMap = {'Data_Type': wrap('Image'), 'IDs': wrap(imageIds)}
     inputMap['Format'] = wrap('OME-TIFF')
-    rsp = run_script(request, conn, sId, inputMap, scriptName='Create OME-TIFF')
+    rsp = run_script(
+        request, conn, sId, inputMap, scriptName='Create OME-TIFF')
     return HttpJsonResponse(rsp)
 
 
 def run_script(request, conn, sId, inputMap, scriptName='Script'):
     """
-    Starts running a script, adding details to the request.session so that it shows up
-    in the webclient Activities panel and results are available there etc.
+    Starts running a script, adding details to the request.session so that it
+    shows up in the webclient Activities panel and results are available there
+    etc.
     """
     request.session.modified = True
     scriptService = conn.getScriptService()
     try:
-        handle = scriptService.runScript(sId, inputMap, None, conn.SERVICE_OPTS)
-        # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h 10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154
+        handle = scriptService.runScript(
+            sId, inputMap, None, conn.SERVICE_OPTS)
+        # E.g. ProcessCallback/4ab13b23-22c9-4b5f-9318-40f9a1acc4e9 -t:tcp -h  10.37.129.2 -p 53154:tcp -h 10.211.55.2 -p 53154:tcp -h 10.12.1.230 -p 53154 # noqa
         jobId = str(handle)
         status = 'in progress'
         request.session['callback'][jobId] = {
             'job_type': "script",
             'job_name': scriptName,
             'start_time': datetime.datetime.now(),
-            'status':status}
+            'status': status}
         request.session.modified = True
     except Exception, x:
         jobId = str(time())      # E.g. 1312803670.6076391
-        if x.message and x.message.startswith("No processor available"): # omero.ResourceError
+        if x.message and x.message.startswith("No processor available"):
+            # omero.ResourceError
             logger.info(traceback.format_exc())
             error = "No Processor Available"
             status = 'no processor available'
-            message = "" # template displays message and link
+            message = ""  # template displays message and link
         else:
             logger.error(traceback.format_exc())
             error = traceback.format_exc()
@@ -3852,28 +3894,33 @@ def run_script(request, conn, sId, inputMap, scriptName='Script'):
             'job_type': "script",
             'job_name': scriptName,
             'start_time': datetime.datetime.now(),
-            'status':status,
+            'status': status,
             'Message': message,
-            'error':error}
+            'error': error}
         return {'status': status, 'error': error}
 
     return {'jobId': jobId, 'status': status}
+
 
 @login_required()
 @render_response()
 def ome_tiff_info(request, imageId, conn=None, **kwargs):
     """
-    Query to see if we have an OME-TIFF attached to the image (assume only 1, since Batch Image Export will delete old ones)
+    Query to see if we have an OME-TIFF attached to the image (assume only 1,
+    since Batch Image Export will delete old ones)
     """
     # Any existing OME-TIFF will appear in list
-    links = list( conn.getAnnotationLinks("Image", [imageId], ns=omero.constants.namespaces.NSOMETIFF) )
+    links = list(conn.getAnnotationLinks(
+        "Image", [imageId], ns=omero.constants.namespaces.NSOMETIFF))
     rv = {}
     if len(links) > 0:
-        links.sort(key=lambda x: x.getId(), reverse=True)   # use highest ID === most recent
+        # use highest ID === most recent
+        links.sort(key=lambda x: x.getId(), reverse=True)
         annlink = links[0]
         created = annlink.creationEventDate()
         annId = annlink.getChild().getId()
         from omeroweb.webgateway.templatetags.common_filters import ago
         download = reverse("download_annotation", args=[annId])
-        rv = {"created": str(created), "ago": ago(created), "id":annId, "download": download}
+        rv = {"created": str(created), "ago": ago(created), "id": annId,
+              "download": download}
     return rv       # will get returned as json by default
