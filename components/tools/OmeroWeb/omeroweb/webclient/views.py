@@ -125,28 +125,35 @@ def login(request):
         connector = Connector(server_id, is_secure)
 
         # TODO: version check should be done on the low level, see #5983
-        if server_id is not None and username is not None and password is not None \
-                and connector.check_version(useragent):
-            conn = connector.create_connection(useragent, username, password, userip=get_client_ip(request))
+        if (server_id is not None and username is not None and
+                password is not None and connector.check_version(useragent)):
+            conn = connector.create_connection(
+                useragent, username, password, userip=get_client_ip(request))
             if conn is not None:
                 # Check if user is in "user" group
-                userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
+                userGroupId = \
+                    conn.getAdminService().getSecurityRoles().userGroupId
                 if userGroupId in conn.getEventContext().memberOfGroups:
                     request.session['connector'] = connector
-                    # UpgradeCheck URL should be loaded from the server or loaded
-                    # omero.web.upgrades.url allows to customize web only
+                    # UpgradeCheck URL should be loaded from the server or
+                    # loaded omero.web.upgrades.url allows to customize web
+                    # only
                     try:
                         upgrades_url = settings.UPGRADES_URL
                     except:
                         upgrades_url = conn.getUpgradesUrl()
                     upgradeCheck(url=upgrades_url)
-                    # if 'active_group' remains in session from previous login, check it's valid for this user
+                    # if 'active_group' remains in session from previous
+                    # login, check it's valid for this user
                     if request.session.get('active_group'):
-                        if request.session.get('active_group') not in conn.getEventContext().memberOfGroups:
+                        if (request.session.get('active_group') not in
+                                conn.getEventContext().memberOfGroups):
                             del request.session['active_group']
-                    if request.session.get('user_id'):  # always want to revert to logged-in user
+                    if request.session.get('user_id'):
+                        # always want to revert to logged-in user
                         del request.session['user_id']
-                    if request.session.get('server_settings'):  # always clean when logging in
+                    if request.session.get('server_settings'):
+                        # always clean when logging in
                         del request.session['server_settings']
                     # do we ned to display server version ?
                     # server_version = conn.getServerVersion()
@@ -160,19 +167,21 @@ def login(request):
                             url = reverse("webindex")
                     return HttpResponseRedirect(url)
                 elif username == "guest":
-                    error = "Guest account is for internal OMERO use only. Not for login."
+                    error = ("Guest account is for internal OMERO use only."
+                             " Not for login.")
                 else:
                     error = "This user is not active."
-
 
     if request.method == 'POST' and server_id is not None:
         connector = Connector(server_id, True)
         if not connector.is_server_up(useragent):
             error = "Server is not responding, please contact administrator."
         elif not connector.check_version(useragent):
-            error = "Client version does not match server, please contact administrator."
+            error = ("Client version does not match server, please contact"
+                     " administrator.")
         else:
-            error = "Connection not available, please check your user name and password."
+            error = ("Connection not available, please check your user name"
+                     " and password.")
     url = request.REQUEST.get("url")
 
     template = "webclient/login.html"
@@ -183,10 +192,13 @@ def login(request):
         else:
             form = LoginForm()
 
-    context = {'version': omero_version, 'build_year': build_year,
-               'error':error, 'form':form}
+    context = {
+        'version': omero_version,
+        'build_year': build_year,
+        'error': error,
+        'form': form}
     if url is not None and len(url) != 0:
-        context['url'] = urlencode({'url':url})
+        context['url'] = urlencode({'url': url})
 
     if hasattr(settings, 'LOGIN_LOGO'):
         context['LOGIN_LOGO'] = settings.LOGIN_LOGO
@@ -196,25 +208,29 @@ def login(request):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
+
 @login_required(ignore_login_fail=True)
 def keepalive_ping(request, conn=None, **kwargs):
     """ Keeps the OMERO session alive by pinging the server """
 
-    # login_required handles ping, timeout etc, so we don't need to do anything else
+    # login_required handles ping, timeout etc, so we don't need to do
+    # anything else
     return HttpResponse("OK")
+
 
 @login_required()
 @render_response()
 def feed(request, conn=None, **kwargs):
     """
-    Viewing this page doesn't perform any action. All we do here is assemble various data for display.
+    Viewing this page doesn't perform any action. All we do here is assemble
+    various data for display.
     Last imports, tag cloud etc are retrived via separate AJAX calls.
     """
     template = "webclient/index/index.html"
 
     controller = BaseIndex(conn)
 
-    context = {'controller':controller}
+    context = {'controller': controller}
     context['template'] = template
     return context
 
@@ -229,21 +245,26 @@ def index_last_imports(request, conn=None, **kwargs):
     controller = BaseIndex(conn)
     controller.loadLastAcquisitions()
 
-    context = {'controller':controller}
+    context = {'controller': controller}
     context['template'] = "webclient/index/index_last_imports.html"
     return context
+
 
 @login_required()
 @render_response()
 def index_most_recent(request, conn=None, **kwargs):
-    """ Gets the most recent 'shares' and 'share' comments. Used by the homepage via AJAX call """
+    """
+    Gets the most recent 'shares' and 'share' comments. Used by the homepage
+    via AJAX call
+    """
 
     controller = BaseIndex(conn)
     controller.loadMostRecent()
 
-    context = {'controller':controller}
+    context = {'controller': controller}
     context['template'] = "webclient/index/index_most_recent.html"
     return context
+
 
 @login_required()
 @render_response()
@@ -253,38 +274,47 @@ def index_tag_cloud(request, conn=None, **kwargs):
     controller = BaseIndex(conn)
     controller.loadTagCloud()
 
-    context = {'controller':controller }
+    context = {'controller': controller}
     context['template'] = "webclient/index/index_tag_cloud.html"
     return context
+
 
 @login_required()
 def change_active_group(request, conn=None, url=None, **kwargs):
     """
-    Simply changes the request.session['active_group'] which is then used by the
-    @login_required decorator to configure conn for any group-based queries.
+    Simply changes the request.session['active_group'] which is then used by
+    the @login_required decorator to configure conn for any group-based
+    queries.
     Finally this redirects to the 'url'.
     """
     switch_active_group(request)
     url = url or reverse("webindex")
     return HttpResponseRedirect(url)
 
+
 def switch_active_group(request, active_group=None):
     """
-    Simply changes the request.session['active_group'] which is then used by the
-    @login_required decorator to configure conn for any group-based queries.
+    Simply changes the request.session['active_group'] which is then used by
+    the @login_required decorator to configure conn for any group-based
+    queries.
     """
     if active_group is None:
         active_group = request.REQUEST.get('active_group')
     active_group = int(active_group)
-    if 'active_group' not in request.session or active_group != request.session['active_group']:
+    if ('active_group' not in request.session or
+            active_group != request.session['active_group']):
         request.session.modified = True
         request.session['active_group'] = active_group
         request.session['imageInBasket'] = set()        # empty basket
         request.session['basket_counter'] = 0
 
+
 @login_required(login_redirect='webindex')
 def logout(request, conn=None, **kwargs):
-    """ Logout of the session and redirects to the homepage (will redirect to login first) """
+    """
+    Logout of the session and redirects to the homepage (will redirect to
+    login first)
+    """
 
     if request.method == "POST":
         try:
@@ -296,19 +326,26 @@ def logout(request, conn=None, **kwargs):
             request.session.flush()
         return HttpResponseRedirect(reverse("webindex"))
     else:
-        context = {'url':reverse('weblogout'), 'submit': "Do you want to log out?"}
-        t = template_loader.get_template('webgateway/base/includes/post_form.html')
+        context = {
+            'url': reverse('weblogout'),
+            'submit': "Do you want to log out?"}
+        t = template_loader.get_template(
+            'webgateway/base/includes/post_form.html')
         c = Context(request, context)
         return HttpResponse(t.render(c))
+
 
 ###########################################################################
 @login_required()
 @render_response()
 def load_template(request, menu, conn=None, url=None, **kwargs):
     """
-    This view handles most of the top-level pages, as specified by 'menu' E.g. userdata, usertags, history, search etc.
-    Query string 'path' that specifies an object to display in the data tree is parsed.
-    We also prepare the list of users in the current group, for the switch-user form. Change-group form is also prepared.
+    This view handles most of the top-level pages, as specified by 'menu' E.g.
+    userdata, usertags, history, search etc.
+    Query string 'path' that specifies an object to display in the data tree
+    is parsed.
+    We also prepare the list of users in the current group, for the
+    switch-user form. Change-group form is also prepared.
     """
     request.session.modified = True
 
@@ -317,9 +354,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     elif menu == 'usertags':
         template = "webclient/data/container_tags.html"
     else:
-        template = "webclient/%s/%s.html" % (menu,menu)
+        template = "webclient/%s/%s.html" % (menu, menu)
 
-    #tree support
+    # tree support
     show = Show(conn, request, menu)
     # Constructor does no loading.  Show.first_selected must be called first
     # in order to set up our initial state correctly.
@@ -343,33 +380,38 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         if global_search_form.is_valid():
             init['query'] = global_search_form.cleaned_data['search_query']
 
-    # get url without request string - used to refresh page after switch user/group etc
+    # get url without request string - used to refresh page after switch
+    # user/group etc
     url = reverse(viewname="load_template", args=[menu])
 
     # validate experimenter is in the active group
-    active_group = request.session.get('active_group') or conn.getEventContext().groupId
+    active_group = (request.session.get('active_group') or
+                    conn.getEventContext().groupId)
     # prepare members of group...
     leaders, members = conn.getObject("ExperimenterGroup", active_group).groupSummary()
     userIds = [u.id for u in leaders]
-    userIds.extend( [u.id for u in members] )
+    userIds.extend([u.id for u in members])
     users = []
     if len(leaders) > 0:
-        users.append( ("Owners", leaders) )
+        users.append(("Owners", leaders))
     if len(members) > 0:
-        users.append( ("Members", members) )
+        users.append(("Members", members))
     users = tuple(users)
 
     # check any change in experimenter...
     user_id = request.REQUEST.get('experimenter')
     if initially_open_owner is not None:
-        if (request.session.get('user_id', None) != -1): # if we're not already showing 'All Members'...
+        if (request.session.get('user_id', None) != -1):
+            # if we're not already showing 'All Members'...
             user_id = initially_open_owner
     try:
         user_id = long(user_id)
     except:
         user_id = None
     if user_id is not None:
-        form_users = UsersForm(initial={'users': users, 'empty_label':None, 'menu':menu}, data=request.REQUEST.copy())
+        form_users = UsersForm(
+            initial={'users': users, 'empty_label': None, 'menu': menu},
+            data=request.REQUEST.copy())
         if not form_users.is_valid():
             if user_id != -1:           # All users in group is allowed
                 user_id = None
@@ -398,10 +440,15 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
         myColleagues = myColleagues.values()
         myColleagues.sort(key=lambda x: x.getLastName().lower())
 
-    context = {'init':init, 'myGroups':myGroups, 'new_container_form':new_container_form, 'global_search_form':global_search_form}
+    context = {
+        'init': init,
+        'myGroups': myGroups,
+        'new_container_form': new_container_form,
+        'global_search_form': global_search_form}
     context['groups'] = groups
     context['myColleagues'] = myColleagues
-    context['active_group'] = conn.getObject("ExperimenterGroup", long(active_group))
+    context['active_group'] = conn.getObject(
+        "ExperimenterGroup", long(active_group))
     context['active_user'] = conn.getObject("Experimenter", long(user_id))
 
     context['isLeader'] = conn.isLeader()
@@ -415,8 +462,10 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 @render_response()
 def group_user_content(request, url=None, conn=None, **kwargs):
     """
-    Loads html content of the Groups/Users drop-down menu on main webclient pages.
-    Url should be supplied in request, as target for redirect after switching group.
+    Loads html content of the Groups/Users drop-down menu on main webclient
+    pages.
+    Url should be supplied in request, as target for redirect after switching
+    group.
     """
 
     myGroups = list(conn.getGroupsMemberOf())
@@ -425,23 +474,27 @@ def group_user_content(request, url=None, conn=None, **kwargs):
         system_groups = [
             conn.getAdminService().getSecurityRoles().userGroupId,
             conn.getAdminService().getSecurityRoles().guestGroupId]
-        groups = [g for g in conn.getObjects("ExperimenterGroup") if g.getId() not in system_groups]
+        groups = [g for g in conn.getObjects("ExperimenterGroup")
+                  if g.getId() not in system_groups]
         groups.sort(key=lambda x: x.getName().lower())
     else:
         groups = myGroups
 
     for g in groups:
-        g.loadLeadersAndMembers() # load leaders / members
+        g.loadLeadersAndMembers()  # load leaders / members
 
-    context = {'template': 'webclient/base/includes/group_user_content.html',
-               'current_url':url,
-               'groups':groups, 'myGroups':myGroups}
+    context = {
+        'template': 'webclient/base/includes/group_user_content.html',
+        'current_url': url,
+        'groups': groups,
+        'myGroups': myGroups}
     return context
 
 
 @login_required(setGroupContext=True)
 @render_response()
-def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, conn=None, **kwargs):
+def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None,
+              o3_type=None, o3_id=None, conn=None, **kwargs):
     """
     This loads data for the tree, via AJAX calls.
     The template is specified by query string. E.g. icon, table, tree.
@@ -458,7 +511,8 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     # get index of the plate
     index = getIntOrDefault(request, 'index', 0)
 
-    # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L, 'dataset': 301L}
+    # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L,
+    # 'dataset': 301L}
     kw = dict()
     if o1_type is not None:
         if o1_id is not None and o1_id > 0:
@@ -471,7 +525,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         kw[str(o3_type)] = long(o3_id)
 
     try:
-        manager= BaseContainer(conn, **kw)
+        manager = BaseContainer(conn, **kw)
     except AttributeError, x:
         return handlerInternalError(request, x)
 
@@ -479,32 +533,40 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     filter_user_id = request.session.get('user_id')
     form_well_index = None
 
-    context = {'manager':manager, 'form_well_index':form_well_index, 'index':index}
+    context = {
+        'manager': manager,
+        'form_well_index': form_well_index,
+        'index': index}
 
     # load data & template
     template = None
-    if kw.has_key('orphaned'):
+    if 'orphaned' in kw:
         manager.listOrphanedImages(filter_user_id, page)
-        if view =='icon':
+        if view == 'icon':
             template = "webclient/data/containers_icon.html"
         else:
             template = "webclient/data/container_subtree.html"
-    elif len(kw.keys()) > 0 :
-        if kw.has_key('dataset'):
-            load_pixels = (view == 'icon')  # we need the sizeX and sizeY for these
-            filter_user_id = None           # Show images belonging to all users
-            manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
-            if view =='icon':
+    elif len(kw.keys()) > 0:
+        if 'dataset' in kw:
+            # we need the sizeX and sizeY for these
+            load_pixels = (view == 'icon')
+            filter_user_id = None   # Show images belonging to all users
+            manager.listImagesInDataset(kw.get('dataset'), filter_user_id,
+                                        page, load_pixels=load_pixels)
+            if view == 'icon':
                 template = "webclient/data/containers_icon.html"
             else:
                 template = "webclient/data/container_subtree.html"
-        elif kw.has_key('plate') or kw.has_key('acquisition'):
-            if view == 'tree':  # Only used when pasting Plate into Screen - load Acquisition in tree
+        elif 'plate' in kw or 'acquisition' in kw:
+            if view == 'tree':
+                # Only used when pasting Plate into Screen - load Acquisition
+                # in tree
                 template = "webclient/data/container_subtree.html"
             else:
                 fields = manager.getNumberOfFields()
                 if fields is not None:
-                    form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
+                    form_well_index = WellIndexForm(
+                        initial={'index': index, 'range': fields})
                     if index == 0:
                         index = fields[0]
 
@@ -527,14 +589,14 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                             if m.group('object_type') == 'well':
                                 wells_to_select.append(m.group('value'))
                         context['select_wells'] = ','.join(wells_to_select)
-                except IncorrectMenuError, e:
+                except IncorrectMenuError:
                     pass
 
                 context['baseurl'] = reverse('webgateway').rstrip('/')
                 context['form_well_index'] = form_well_index
                 template = "webclient/data/plate.html"
     else:
-        if view =='tree':
+        if view == 'tree':
             # Replicate the semantics of listContainerHierarchy's filtering
             # and experimenter population.
             if filter_user_id is not None:
@@ -557,7 +619,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             # Images (orphaned)
             context['orphans'] = conn.countOrphans("Image", filter_user_id)
             template = "webclient/data/containers_tree.html"
-        elif view =='icon':
+        elif view == 'icon':
             template = "webclient/data/containers_icon.html"
         else:
             template = "webclient/data/containers.html"
@@ -606,25 +668,27 @@ def load_chgrp_groups(request, conn=None, **kwargs):
 
     # Can move to groups that all owners are members of...
     targetGroupIds = set.intersection(*groupSets)
-    #...but not 'user' group
+    # ...but not 'user' group
     userGroupId = conn.getAdminService().getSecurityRoles().userGroupId
     targetGroupIds.remove(userGroupId)
 
-    # if all the Objects are in a single group, exclude it from the target groups
+    # if all the Objects are in a single group, exclude it from the target
+    # groups
     if len(currentGroups) == 1:
         targetGroupIds.remove(currentGroups.pop())
 
     def getPerms(group):
         p = group.getDetails().permissions
-        return {'write': p.isGroupWrite(),
-                'annotate': p.isGroupAnnotate(),
-                'read': p.isGroupRead()}
+        return {
+            'write': p.isGroupWrite(),
+            'annotate': p.isGroupAnnotate(),
+            'read': p.isGroupRead()}
 
     # From groupIds, create a list of group dicts for json
     targetGroups = []
     for gid in targetGroupIds:
         targetGroups.append({
-            'id':gid,
+            'id': gid,
             'name': groups[gid].name.val,
             'perms': getPerms(groups[gid])
         })
