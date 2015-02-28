@@ -1053,7 +1053,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     filamenttypes = list(conn.getEnumerationEntries("FilamentType"))
 
     # various enums we need for the forms (don't load unless needed)
-    mediums =  None
+    mediums = None
     immersions = None
     corrections = None
 
@@ -1067,13 +1067,18 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
             logicalChannel = ch.getLogicalChannel()
             if logicalChannel is not None:
                 channel = dict()
-                channel['form'] = MetadataChannelForm(initial={'logicalChannel': logicalChannel,
-                                        'exWave': ch.getExcitationWave(units=True),
-                                        'emWave': ch.getEmissionWave(units=True),
-                                        'illuminations': list(conn.getEnumerationEntries("IlluminationI")),
-                                        'contrastMethods': list(conn.getEnumerationEntries("ContrastMethodI")),
-                                        'modes': list(conn.getEnumerationEntries("AcquisitionModeI"))})
-                if share_id is None:        #9853 Much metadata is not available to 'shares'
+                channel['form'] = MetadataChannelForm(initial={
+                    'logicalChannel': logicalChannel,
+                    'exWave': ch.getExcitationWave(units=True),
+                    'emWave': ch.getEmissionWave(units=True),
+                    'illuminations': list(conn.getEnumerationEntries(
+                        "IlluminationI")),
+                    'contrastMethods': list(conn.getEnumerationEntries(
+                        "ContrastMethodI")),
+                    'modes': list(conn.getEnumerationEntries(
+                        "AcquisitionModeI"))})
+                # 9853 Much metadata is not available to 'shares'
+                if share_id is None:
                     lightPath = logicalChannel.getLightPath()
                     if lightPath is not None:
                         channel['form_dichroic'] = None
@@ -1081,20 +1086,35 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                         channel['form_emission_filters'] = list()
                         lightPathDichroic = lightPath.getDichroic()
                         if lightPathDichroic is not None:
-                            channel['form_dichroic'] = MetadataDichroicForm(initial={'dichroic': lightPathDichroic})
-                        filterTypes = list(conn.getEnumerationEntries("FilterTypeI"))
+                            channel['form_dichroic'] = MetadataDichroicForm(
+                                initial={'dichroic': lightPathDichroic})
+                        filterTypes = list(conn.getEnumerationEntries(
+                            "FilterTypeI"))
                         for f in lightPath.getEmissionFilters():
-                            channel['form_emission_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
+                            channel['form_emission_filters'].append(
+                                MetadataFilterForm(initial={
+                                    'filter': f, 'types': filterTypes}))
                         for f in lightPath.getExcitationFilters():
-                            channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,'types':filterTypes}))
-                    if logicalChannel.getDetectorSettings()._obj is not None and logicalChannel.getDetectorSettings().getDetector():
-                        channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':logicalChannel.getDetectorSettings(),
-                            'detector': logicalChannel.getDetectorSettings().getDetector(),
-                            'types':list(conn.getEnumerationEntries("DetectorTypeI")),
-                            'binnings':list(conn.getEnumerationEntries("Binning"))})
+                            channel['form_excitation_filters'].append(
+                                MetadataFilterForm(initial={
+                                    'filter': f, 'types': filterTypes}))
 
-                    lightSourceSettings = logicalChannel.getLightSourceSettings()
-                    if lightSourceSettings is not None and lightSourceSettings._obj is not None:
+                    detectorSettings = logicalChannel.getDetectorSettings()
+                    if (detectorSettings._obj is not None and
+                            detectorSettings.getDetector()):
+                        channel['form_detector_settings'] = \
+                            MetadataDetectorForm(initial={
+                                'detectorSettings': detectorSettings,
+                                'detector': detectorSettings.getDetector(),
+                                'types': list(conn.getEnumerationEntries(
+                                    "DetectorTypeI")),
+                                'binnings': list(conn.getEnumerationEntries(
+                                    "Binning"))})
+
+                    lightSourceSettings = \
+                        logicalChannel.getLightSourceSettings()
+                    if (lightSourceSettings is not None and
+                            lightSourceSettings._obj is not None):
                         lightSrc = lightSourceSettings.getLightSource()
                         if lightSrc is not None:
                             lstypes = lasertypes
@@ -1102,16 +1122,28 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                                 lstypes = arctypes
                             elif lightSrc.OMERO_CLASS == "Filament":
                                 lstypes = filamenttypes
-                            channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': lightSrc,
-                                            'lightSourceSettings': lightSourceSettings,
-                                            'lstypes': lstypes,
-                                            'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
-                                            'pulses': list(conn.getEnumerationEntries("PulseI"))})
-                # TODO: We don't display filter sets here yet since they are not populated on Import by BioFormats.
+                            channel['form_light_source'] = \
+                                MetadataLightSourceForm(initial={
+                                    'lightSource':
+                                        lightSrc,
+                                    'lightSourceSettings':
+                                        lightSourceSettings,
+                                    'lstypes': lstypes,
+                                    'mediums': list(
+                                        conn.getEnumerationEntries(
+                                            "LaserMediumI")),
+                                    'pulses': list(conn.getEnumerationEntries(
+                                        "PulseI"))})
+                # TODO: We don't display filter sets here yet since they are
+                # not populated on Import by BioFormats.
                 channel['label'] = ch.getLabel()
                 color = ch.getColor()
-                channel['color'] = color is not None and color.getHtml() or None
-                planeInfo = manager.image and manager.image.getPrimaryPixels().copyPlaneInfo(theC=theC, theZ=0)
+                channel['color'] = (color is not None and color.getHtml() or
+                                    None)
+                planeInfo = (
+                    manager.image and
+                    manager.image.getPrimaryPixels().copyPlaneInfo(
+                        theC=theC, theZ=0))
                 plane_info = []
 
                 for pi in planeInfo:
@@ -1136,49 +1168,77 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
         except:
             image = manager.image
 
-        if share_id is None:    #9853
+        if share_id is None:    # 9853
             if image.getObjectiveSettings() is not None:
                 # load the enums if needed and create our Objective Form
-                if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
-                if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
-                if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
-                form_objective = MetadataObjectiveSettingsForm(initial={'objectiveSettings': image.getObjectiveSettings(),
-                                        'objective': image.getObjectiveSettings().getObjective(),
-                                        'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
+                if mediums is None:
+                    mediums = list(conn.getEnumerationEntries("MediumI"))
+                if immersions is None:
+                    immersions = list(
+                        conn.getEnumerationEntries("ImmersionI"))
+                if corrections is None:
+                    corrections = list(
+                        conn.getEnumerationEntries("CorrectionI"))
+                form_objective = MetadataObjectiveSettingsForm(initial={
+                    'objectiveSettings': image.getObjectiveSettings(),
+                    'objective': image.getObjectiveSettings().getObjective(),
+                    'mediums': mediums,
+                    'immersions': immersions,
+                    'corrections': corrections})
             if image.getImagingEnvironment() is not None:
-                form_environment = MetadataEnvironmentForm(initial={'image': image})
+                form_environment = MetadataEnvironmentForm(initial={
+                    'image': image})
             if image.getStageLabel() is not None:
-                form_stageLabel = MetadataStageLabelForm(initial={'image': image })
+                form_stageLabel = MetadataStageLabelForm(initial={
+                    'image': image})
 
             instrument = image.getInstrument()
             if instrument is not None:
                 if instrument.getMicroscope() is not None:
-                    form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': instrument.getMicroscope()})
+                    form_microscope = MetadataMicroscopeForm(initial={
+                        'microscopeTypes': list(
+                            conn.getEnumerationEntries("MicroscopeTypeI")),
+                        'microscope': instrument.getMicroscope()})
 
                 objectives = instrument.getObjectives()
                 for o in objectives:
                     # load the enums if needed and create our Objective Form
-                    if mediums is None: mediums = list(conn.getEnumerationEntries("MediumI"))
-                    if immersions is None: immersions = list(conn.getEnumerationEntries("ImmersionI"))
-                    if corrections is None: corrections = list(conn.getEnumerationEntries("CorrectionI"))
-                    obj_form = MetadataObjectiveForm(initial={'objective': o,
-                                            'mediums': mediums, 'immersions': immersions, 'corrections': corrections })
+                    if mediums is None:
+                        mediums = list(conn.getEnumerationEntries("MediumI"))
+                    if immersions is None:
+                        immersions = list(
+                            conn.getEnumerationEntries("ImmersionI"))
+                    if corrections is None:
+                        corrections = list(
+                            conn.getEnumerationEntries("CorrectionI"))
+                    obj_form = MetadataObjectiveForm(initial={
+                        'objective': o,
+                        'mediums': mediums,
+                        'immersions': immersions,
+                        'corrections': corrections})
                     form_instrument_objectives.append(obj_form)
                 filters = list(instrument.getFilters())
                 if len(filters) > 0:
                     for f in filters:
-                        form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
+                        form_filter = MetadataFilterForm(initial={
+                            'filter': f, 'types': list(
+                                conn.getEnumerationEntries("FilterTypeI"))})
                         form_filters.append(form_filter)
 
                 dichroics = list(instrument.getDichroics())
                 for d in dichroics:
-                    form_dichroic = MetadataDichroicForm(initial={'dichroic': d})
+                    form_dichroic = MetadataDichroicForm(
+                        initial={'dichroic': d})
                     form_dichroics.append(form_dichroic)
 
                 detectors = list(instrument.getDetectors())
                 if len(detectors) > 0:
                     for d in detectors:
-                        form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
+                        form_detector = MetadataDetectorForm(initial={
+                            'detectorSettings': None,
+                            'detector': d,
+                            'types': list(
+                                conn.getEnumerationEntries("DetectorTypeI"))})
                         form_detectors.append(form_detector)
 
                 lasers = list(instrument.getLightSources())
@@ -1189,20 +1249,31 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
                             lstypes = arctypes
                         elif l.OMERO_CLASS == "Filament":
                             lstypes = filamenttypes
-                        form_laser = MetadataLightSourceForm(initial={'lightSource': l,
-                                        'lstypes': lstypes,
-                                        'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
-                                        'pulses': list(conn.getEnumerationEntries("PulseI"))})
+                        form_laser = MetadataLightSourceForm(initial={
+                            'lightSource': l,
+                            'lstypes': lstypes,
+                            'mediums': list(
+                                conn.getEnumerationEntries("LaserMediumI")),
+                            'pulses': list(
+                                conn.getEnumerationEntries("PulseI"))})
                         form_lasers.append(form_laser)
 
     # TODO: remove this 'if' since we should only have c_type = 'image'?
     if c_type in ("share", "discussion", "tag"):
-        context = {'manager':manager}
+        context = {'manager': manager}
     else:
-        context = {'manager':manager,
-        'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective,
-        'form_microscope':form_microscope, 'form_instrument_objectives': form_instrument_objectives, 'form_filters':form_filters,
-        'form_dichroics':form_dichroics, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+        context = {
+            'manager': manager,
+            'form_channels': form_channels,
+            'form_environment': form_environment,
+            'form_objective': form_objective,
+            'form_microscope': form_microscope,
+            'form_instrument_objectives': form_instrument_objectives,
+            'form_filters': form_filters,
+            'form_dichroics': form_dichroics,
+            'form_detectors': form_detectors,
+            'form_lasers': form_lasers,
+            'form_stageLabel': form_stageLabel}
     context['template'] = template
     return context
 
