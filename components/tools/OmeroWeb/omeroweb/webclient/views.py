@@ -2682,7 +2682,7 @@ def load_public(request, share_id=None, conn=None, **kwargs):
         controller = BaseShare(conn)
         controller.getShares()
 
-    context = {'share':controller, 'manager': controller}
+    context = {'share': controller, 'manager': controller}
     context['isLeader'] = conn.isLeader()
     context['template'] = template
     return context
@@ -2690,14 +2690,17 @@ def load_public(request, share_id=None, conn=None, **kwargs):
 ##################################################################
 # Basket
 
+
 @login_required(setGroupContext=True)
 @render_response()
-def basket_action (request, action=None, conn=None, **kwargs):
+def basket_action(request, action=None, conn=None, **kwargs):
     """
     Various actions for creating a 'share' or 'discussion' (no images).
 
-    @param action:      'toshare', 'createshare'    (form to create share and handling the action itself)
-                        'todiscuss', 'createdisc'    (form to create discussion and handling the action itself)
+    @param action:      'toshare', 'createshare'    (form to create share and
+                        handling the action itself)
+                        'todiscuss', 'createdisc'    (form to create
+                        discussion and handling the action itself)
     """
 
     if action == "toshare":
@@ -2707,8 +2710,12 @@ def basket_action (request, action=None, conn=None, **kwargs):
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
         selected = [long(i) for i in request.REQUEST.getlist('image')]
-        form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket, 'enable':True, 'selected':selected})
-        context = {'form':form}
+        form = BasketShareForm(initial={
+            'experimenters': experimenters,
+            'images': basket.imageInBasket,
+            'enable': True,
+            'selected': selected})
+        context = {'form': form}
     elif action == "createshare":
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("basket_action"))
@@ -2716,57 +2723,65 @@ def basket_action (request, action=None, conn=None, **kwargs):
         basket.load_basket(request)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = BasketShareForm(initial={'experimenters':experimenters, 'images':basket.imageInBasket}, data=request.REQUEST.copy())
+        form = BasketShareForm(initial={'experimenters': experimenters,
+                                        'images': basket.imageInBasket},
+                               data=request.REQUEST.copy())
         if form.is_valid():
             images = form.cleaned_data['image']
             message = form.cleaned_data['message']
             expiration = form.cleaned_data['expiration']
             members = form.cleaned_data['members']
-            #guests = request.REQUEST['guests']
+            # guests = request.REQUEST['guests']
             enable = form.cleaned_data['enable']
-            host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
+            host = "%s?server=%i" % (request.build_absolute_uri(
+                reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
-            sid = share.createShare(host, images, message, members, enable, expiration)
+            share.createShare(
+                host, images, message, members, enable, expiration)
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_share_action.html"
-            context = {'form':form}
+            context = {'form': form}
     elif action == "todiscuss":
         template = "webclient/basket/basket_discussion_action.html"
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = ShareForm(initial={'experimenters':experimenters, 'enable':True})
-        context = {'form':form}
+        form = ShareForm(initial={'experimenters': experimenters,
+                                  'enable': True})
+        context = {'form': form}
     elif action == "createdisc":
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("basket_action"))
         basket = BaseBasket(conn)
         experimenters = list(conn.getExperimenters())
         experimenters.sort(key=lambda x: x.getOmeName().lower())
-        form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
+        form = ShareForm(initial={'experimenters': experimenters},
+                         data=request.REQUEST.copy())
         if form.is_valid():
             message = form.cleaned_data['message']
             expiration = form.cleaned_data['expiration']
             members = form.cleaned_data['members']
-            #guests = request.REQUEST['guests']
+            # guests = request.REQUEST['guests']
             enable = form.cleaned_data['enable']
-            host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
+            host = "%s?server=%i" % (request.build_absolute_uri(
+                reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
             share.createDiscussion(host, message, members, enable, expiration)
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_discussion_action.html"
-            context = {'form':form}
+            context = {'form': form}
     else:
         template = kwargs.get("template", "webclient/basket/basket.html")
 
         basket = BaseBasket(conn)
         basket.load_basket(request)
 
-        context = {'basket':basket }
+        context = {'basket': basket}
     context['template'] = template
     return context
+
 
 @login_required()
 def empty_basket(request, **kwargs):
@@ -2780,6 +2795,7 @@ def empty_basket(request, **kwargs):
 
     return HttpResponseRedirect(reverse("basket_action"))
 
+
 @login_required()
 def update_basket(request, **kwargs):
     """ Add or remove images to the set in the basket """
@@ -2791,13 +2807,14 @@ def update_basket(request, **kwargs):
             action = request.REQUEST['action']
         except Exception:
             logger.error(traceback.format_exc())
-            return handlerInternalError(request, "Attribute error: 'action' is missed.")
+            return handlerInternalError(
+                request, "Attribute error: 'action' is missed.")
         else:
             prod = request.REQUEST.get('productId')
             ptype = request.REQUEST.get('productType')
             if action == 'add':
                 images = request.REQUEST.getlist('image')
-                #datasets = request.REQUEST.getlist('datasets')
+                # datasets = request.REQUEST.getlist('datasets')
                 for i in images:
                     flag = False
                     for item in request.session['imageInBasket']:
@@ -2806,14 +2823,14 @@ def update_basket(request, **kwargs):
                             break
                     if not flag:
                         request.session['imageInBasket'].add(long(i))
-                #for i in datasets:
+                # for i in datasets:
                 #    flag = False
                 #    for item in request.session['datasetInBasket']:
                 #        if item == long(i):
                 #            flag = True
                 #            break
                 #    if not flag:
-                 #       request.session['datasetInBasket'].append(long(i))
+                #        request.session['datasetInBasket'].append(long(i))
             elif action == 'del':
                 if ptype == 'image':
                     try:
@@ -2821,7 +2838,7 @@ def update_basket(request, **kwargs):
                     except:
                         rv = "Error: could not remove image from the basket."
                         return HttpResponse(rv)
-                #elif ptype == 'dataset':
+                # elif ptype == 'dataset':
                 #    try:
                 #        request.session['datasetInBasket'].remove(prod)
                 #    except:
@@ -2839,17 +2856,21 @@ def update_basket(request, **kwargs):
                         rv = "Error: could not remove image from the basket."
                         return HttpResponse(rv)
 
-        total = len(request.session['imageInBasket'])#+len(request.session['datasetInBasket'])
+        total = len(request.session['imageInBasket'])
+        # +len(request.session['datasetInBasket'])
         request.session['basket_counter'] = total
         return HttpResponse(total)
     else:
-        return handlerInternalError(request, "Request method error in Basket.")
+        return handlerInternalError(
+            request, "Request method error in Basket.")
+
 
 @login_required(setGroupContext=True)
 @render_response()
 def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     """
-    Loads the calendar which is displayed in the left panel of the history page.
+    Loads the calendar which is displayed in the left panel of the history
+    page.
     Shows current month by default. Filter by experimenter
     """
 
@@ -2857,13 +2878,15 @@ def load_calendar(request, year=None, month=None, conn=None, **kwargs):
     filter_user_id = request.session.get('user_id')
 
     if year is not None and month is not None:
-        controller = BaseCalendar(conn=conn, year=year, month=month, eid=filter_user_id)
+        controller = BaseCalendar(
+            conn=conn, year=year, month=month, eid=filter_user_id)
     else:
         today = datetime.datetime.today()
-        controller = BaseCalendar(conn=conn, year=today.year, month=today.month, eid=filter_user_id)
+        controller = BaseCalendar(
+            conn=conn, year=today.year, month=today.month, eid=filter_user_id)
     controller.create_calendar()
 
-    context = {'controller':controller}
+    context = {'controller': controller}
 
     context['template'] = template
     return context
@@ -2880,24 +2903,27 @@ def load_history(request, year, month, day, conn=None, **kwargs):
     page = int(request.REQUEST.get('page', 1))
 
     filter_user_id = request.session.get('user_id')
-    controller = BaseCalendar(conn=conn, year=year, month=month, day=day, eid=filter_user_id)
+    controller = BaseCalendar(
+        conn=conn, year=year, month=month, day=day, eid=filter_user_id)
     controller.get_items(page)
 
-    context = {'controller':controller}
+    context = {'controller': controller}
     context['template'] = template
     return context
 
 
 def getObjectUrl(conn, obj):
     """
-    This provides a url to browse to the specified omero.model.ObjectI P/D/I, S/P, FileAnnotation etc.
-    used to display results from the scripting service
+    This provides a url to browse to the specified omero.model.ObjectI P/D/I,
+    S/P, FileAnnotation etc. used to display results from the scripting
+    service
     E.g webclient/userdata/?path=image-12601
     If the object is a file annotation, try to browse to the parent P/D/I
     """
     base_url = reverse(viewname="load_template", args=['userdata'])
 
-    # if we have a File Annotation, then we want our URL to be for the parent object...
+    # if we have a File Annotation, then we want our URL to be for the parent
+    # object...
     if isinstance(obj, omero.model.FileAnnotationI):
         fa = conn.getObject("Annotation", obj.id.val)
         for ptype in ['project', 'dataset', 'image']:
@@ -2906,7 +2932,8 @@ def getObjectUrl(conn, obj):
                 obj = links[0].parent
                 break
 
-    if obj.__class__.__name__ in ("ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
+    if obj.__class__.__name__ in (
+            "ImageI", "DatasetI", "ProjectI", "ScreenI", "PlateI"):
         otype = obj.__class__.__name__[:-1].lower()
         base_url += "?show=%s-%s" % (otype, obj.id.val)
         return base_url
@@ -3187,10 +3214,11 @@ def activities(request, conn=None, **kwargs):
 
 
 @login_required()
-def activities_update (request, action, **kwargs):
+def activities_update(request, action, **kwargs):
     """
-    If the above 'action' == 'clean' then we clear jobs from request.session['callback']
-    either a single job (if 'jobKey' is specified in POST) or all jobs (apart from those in progress)
+    If the above 'action' == 'clean' then we clear jobs from
+    request.session['callback'] either a single job (if 'jobKey' is specified
+    in POST) or all jobs (apart from those in progress)
     """
 
     request.session.modified = True
@@ -3212,8 +3240,9 @@ def activities_update (request, action, **kwargs):
                     del request.session['callback'][key]
     return HttpResponse("OK")
 
-####################################################################################
+##############################################################################
 # User Photo
+
 
 @login_required()
 def avatar(request, oid=None, conn=None, **kwargs):
@@ -3221,31 +3250,34 @@ def avatar(request, oid=None, conn=None, **kwargs):
     photo = conn.getExperimenterPhoto(oid)
     return HttpResponse(photo, content_type='image/jpeg')
 
-####################################################################################
+##############################################################################
 # webgateway extention
 
+
 @login_required()
-def image_viewer (request, iid, share_id=None, **kwargs):
+def image_viewer(request, iid, share_id=None, **kwargs):
     """ Delegates to webgateway, using share connection if appropriate """
-    kwargs['viewport_server'] = share_id is not None and reverse("webindex")+share_id or reverse("webindex")
-    kwargs['viewport_server'] = kwargs['viewport_server'].rstrip('/')   # remove any trailing slash
+    kwargs['viewport_server'] = (
+        share_id is not None and reverse("webindex")+share_id or
+        reverse("webindex"))
+    # remove any trailing slash
+    kwargs['viewport_server'] = kwargs['viewport_server'].rstrip('/')
     return webgateway_views.full_viewer(request, iid, **kwargs)
 
 
-####################################################################################
+##############################################################################
 # scripting service....
 @login_required()
 @render_response()
-def list_scripts (request, conn=None, **kwargs):
+def list_scripts(request, conn=None, **kwargs):
     """ List the available scripts - Just officical scripts for now """
     scriptService = conn.getScriptService()
     scripts = scriptService.getScripts()
 
     # group scripts into 'folders' (path), named by parent folder name
     scriptMenu = {}
-    scripts_to_ignore = conn.getConfigService() \
-                        .getConfigValue("omero.client.scripts_to_ignore") \
-                        .split(",")
+    scripts_to_ignore = conn.getConfigService().getConfigValue(
+        "omero.client.scripts_to_ignore").split(",")
     for s in scripts:
         scriptId = s.id.val
         path = s.path.val
@@ -3255,11 +3287,12 @@ def list_scripts (request, conn=None, **kwargs):
             logger.info('Ignoring script %r' % fullpath)
             continue
 
-        # We want to build a hierarchical <ul> <li> structure
-        # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
+        # We want to build a hierarchical <ul> <li> structure
+        # Each <ul> is a {}, each <li> is either a script 'name': <id> or
+        # directory 'name': {ul}
 
         ul = scriptMenu
-        dirs = fullpath.split(os.path.sep);
+        dirs = fullpath.split(os.path.sep)
         for l, d in enumerate(dirs):
             if len(d) == 0:
                 continue
