@@ -3,7 +3,7 @@
 #
 # OMERO Text handling utilities
 #
-# Copyright 2010 Glencoe Software, Inc.  All Rights Reserved.
+# Copyright 2010-2015 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
