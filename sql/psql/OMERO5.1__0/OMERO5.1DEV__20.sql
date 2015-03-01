@@ -49,8 +49,6 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- Actual upgrade
 --
 
-ALTER TYPE unitspressure ADD VALUE 'kbar' BEFORE 'kBar';
-
 --
 -- check PostgreSQL server version and database encoding
 --
@@ -100,3 +98,11 @@ UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
 SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
+
+-- A previous dev upgrade added the unit 'kBar' with an
+-- unintentional capital 'B'. Modifying pg_enum directly
+-- would allow correcting the typo but is not possible
+-- without superuser credentials. Instead, we simply add
+-- the extra enum. That can't be done in a transaction,
+-- however, and is therefore done here at the end.
+ALTER TYPE unitspressure ADD VALUE 'kbar' BEFORE 'kBar';
