@@ -30,39 +30,40 @@ import logging
 import traceback
 import json
 import re
-import unicodedata
 
 from time import time
 
 from omero_version import build_year
 from omero_version import omero_version
 
-import omero, omero.scripts
+import omero
+import omero.scripts
 from omero.rtypes import wrap, unwrap
 
 from omero.gateway.utils import toBoolean
 
 from django.conf import settings
 from django.template import loader as template_loader
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseServerError
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseServerError
 from django.template import RequestContext as Context
 from django.utils.http import urlencode
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 from django.core.servers.basehttp import FileWrapper
 
-from django.views.decorators.http import require_http_methods, require_GET, require_POST
+from django.views.decorators.http import require_POST
 
 from webclient_utils import _formatReport, _purgeCallback
-from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
-                    ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
-                    CommentAnnotationForm, TagsAnnotationForm, \
-                    UsersForm, \
-                    MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
-                    MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
-                    MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    FilesAnnotationForm, WellIndexForm, \
-                    NewTagsAnnotationFormSet
+from forms import GlobalSearchForm, ShareForm, BasketShareForm, ContainerForm
+from forms import ContainerNameForm, ContainerDescriptionForm
+from forms import CommentAnnotationForm, TagsAnnotationForm,  UsersForm
+from forms import MetadataFilterForm, MetadataDetectorForm
+from forms import MetadataChannelForm, MetadataEnvironmentForm
+from forms import MetadataObjectiveForm, MetadataObjectiveSettingsForm
+from forms import MetadataStageLabelForm, MetadataLightSourceForm
+from forms import MetadataDichroicForm, MetadataMicroscopeForm
+from forms import FilesAnnotationForm, WellIndexForm, NewTagsAnnotationFormSet
 
 from controller.index import BaseIndex
 from controller.basket import BaseBasket
@@ -83,7 +84,8 @@ from omeroweb.webclient.decorators import login_required
 from omeroweb.webclient.decorators import render_response
 from omeroweb.webclient.show import Show, IncorrectMenuError
 from omeroweb.connector import Connector
-from omeroweb.decorators import ConnCleaningHttpResponse, parse_url, get_client_ip
+from omeroweb.decorators import ConnCleaningHttpResponse, parse_url
+from omeroweb.decorators import get_client_ip
 from omeroweb.webgateway.util import getIntOrDefault
 
 import tree
@@ -93,7 +95,7 @@ logger = logging.getLogger(__name__)
 logger.info("INIT '%s'" % os.getpid())
 
 
-################################################################################
+##############################################################################
 # views controll
 
 def login(request):
