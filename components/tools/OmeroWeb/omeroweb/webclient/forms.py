@@ -2721,117 +2721,137 @@ class MetadataLightSourceForm(forms.Form):
 
 
 class MetadataEnvironmentForm(forms.Form):
-    
+
     def __init__(self, *args, **kwargs):
         super(MetadataEnvironmentForm, self).__init__(*args, **kwargs)
-        
-        # Imaging environment 
 
-        imagingEnv = kwargs['initial']['image'].getImagingEnvironment()        
+        # Imaging environment
+
+        imagingEnv = kwargs['initial']['image'].getImagingEnvironment()
         # Temperature
         try:
             if imagingEnv.temperature is not None:
                 self.fields['temperature'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'temperature\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'temperature')}),
                     initial=imagingEnv.temperature.getValue(),
-                    label = "Temperature (%s)" % imagingEnv.temperature.getSymbol(),
+                    label=("Temperature (%s)"
+                           % imagingEnv.temperature.getSymbol()),
                     required=False)
             else:
                 self.fields['temperature'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'temperature\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'temperature')}),
                     required=False)
-            self.fields['temperature'].widget.attrs['disabled'] = True 
-            self.fields['temperature'].widget.attrs['class'] = 'disabled-metadata'
+            set_widget_attrs(self.fields['temperature'])
         except:
             self.fields['temperature'] = forms.CharField(
                 max_length=10,
-                widget=forms.TextInput(attrs={'size':25}),
+                widget=forms.TextInput(attrs={'size': 25}),
                 initial="N/A",
                 required=False)
-            self.fields['temperature'].widget.attrs['disabled'] = True 
-            self.fields['temperature'].widget.attrs['class'] = 'disabled-metadata'
-        
+            set_widget_attrs(self.fields['temperature'])
+
         # Air Pressure
         try:
             if imagingEnv.airPressure is not None:
                 self.fields['airPressure'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'airPressure\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'airPressure')}),
                     initial=imagingEnv.airPressure.getValue(),
-                    label="Air Pressure (%s)" % imagingEnv.airPressure.getSymbol(),
+                    label=("Air Pressure (%s)"
+                           % imagingEnv.airPressure.getSymbol()),
                     required=False)
             else:
                 self.fields['airPressure'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'airPressure\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'airPressure')}),
                     label="Air Pressure",
                     required=False)
-            self.fields['airPressure'].widget.attrs['disabled'] = True 
-            self.fields['airPressure'].widget.attrs['class'] = 'disabled-metadata'
+            set_widget_attrs(self.fields['airPressure'])
         except:
             self.fields['airPressure'] = forms.CharField(
                 max_length=10,
-                widget=forms.TextInput(attrs={'size':25}),
+                widget=forms.TextInput(attrs={'size': 25}),
                 label="Air Pressure",
                 initial="N/A",
                 required=False)
-            self.fields['airPressure'].widget.attrs['disabled'] = True 
-            self.fields['airPressure'].widget.attrs['class'] = 'disabled-metadata'
-        
+            set_widget_attrs(self.fields['airPressure'])
+
         # Humidity
         try:
             if imagingEnv.humidity is not None:
                 self.fields['humidity'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'humidity\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'humidity')}),
                     initial=imagingEnv.humidity,
                     required=False)
             else:
                 self.fields['humidity'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'humidity\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'humidity')}),
                     required=False)
-            self.fields['humidity'].widget.attrs['disabled'] = True 
-            self.fields['humidity'].widget.attrs['class'] = 'disabled-metadata'
+            set_widget_attrs(self.fields['humidity'])
         except:
             self.fields['humidity'] = forms.CharField(
                 max_length=10,
-                widget=forms.TextInput(attrs={'size':25}),
+                widget=forms.TextInput(attrs={'size': 25}),
                 initial="N/A",
                 required=False)
-            self.fields['humidity'].widget.attrs['disabled'] = True 
-            self.fields['humidity'].widget.attrs['class'] = 'disabled-metadata'
-        
+            set_widget_attrs(self.fields['humidity'])
+
         # CO2 percent
         try:
             if imagingEnv.co2percent is not None:
                 self.fields['co2percent'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'co2percent\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'co2percent')}),
                     initial=imagingEnv.co2percent,
                     label="CO2 (%)",
                     required=False)
             else:
                 self.fields['co2percent'] = forms.CharField(
                     max_length=100,
-                    widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'co2percent\', this.value);'}),
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'co2percent')}),
                     label="CO2 (%)",
                     required=False)
-            self.fields['co2percent'].widget.attrs['disabled'] = True 
-            self.fields['co2percent'].widget.attrs['class'] = 'disabled-metadata'
+            set_widget_attrs(self.fields['co2percent'])
         except:
             self.fields['co2percent'] = forms.CharField(
                 max_length=10,
-                widget=forms.TextInput(attrs={'size':25}),
+                widget=forms.TextInput(attrs={'size': 25}),
                 initial="N/A",
                 label="CO2 (%)",
                 required=False)
-            self.fields['co2percent'].widget.attrs['disabled'] = True 
-            self.fields['co2percent'].widget.attrs['class'] = 'disabled-metadata'
-        
-        self.fields.keyOrder = ['airPressure', 'co2percent', 'humidity', 'temperature']
+            set_widget_attrs(self.fields['co2percent'])
+
+        self.fields.keyOrder = [
+            'airPressure', 'co2percent', 'humidity', 'temperature']
+
 
 class MetadataStageLabelForm(forms.Form):
     
