@@ -1424,45 +1424,110 @@ class MetadataObjectiveSettingsForm(MetadataObjectiveForm):
 
         # Correction Collar
         try:
-            if kwargs['initial']['objectiveSettings'].correctionCollar is not None:
-                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'correctionCollar\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].correctionCollar, label="Correction collar", required=False)
+            if (kwargs['initial']['objectiveSettings'].correctionCollar is not
+                    None):
+                self.fields['correctionCollar'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['objectiveSettings'].id,
+                            'correctionCollar')}),
+                    initial=kwargs['initial'][
+                        'objectiveSettings'].correctionCollar,
+                    label="Correction collar",
+                    required=False)
             else:
-                self.fields['correctionCollar'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'correctionCollar\', this.value);'}), label="Correction collar", required=False)
-            self.fields['correctionCollar'].widget.attrs['disabled'] = True
-            self.fields['correctionCollar'].widget.attrs['class'] = 'disabled-metadata'
+                self.fields['correctionCollar'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['objectiveSettings'].id,
+                            'correctionCollar')}),
+                        label="Correction collar",
+                        required=False)
+            set_widget_attrs(self.fields['correctionCollar'])
         except:
-            self.fields['correctionCollar'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Correction collar", required=False)
-            self.fields['correctionCollar'].widget.attrs['disabled'] = True
-            self.fields['correctionCollar'].widget.attrs['class'] = 'disabled-metadata'
+            self.fields['correctionCollar'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size': 25}),
+                initial="N/A",
+                label="Correction collar",
+                required=False)
+            set_widget_attrs(self.fields['correctionCollar'])
 
         # Medium
         try:
             if kwargs['initial']['objectiveSettings'].getMedium() is not None:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['objectiveSettings'].getMedium().value, required=False)
+                self.fields['medium'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['mediums'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={
+                        'onchange': save_metadata(
+                            kwargs['initial']['objectiveSettings'].id,
+                            'medium', options=True)}),
+                    initial=kwargs['initial'][
+                        'objectiveSettings'].getMedium().value,
+                    required=False)
             else:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"Not set", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False)
-            self.fields['medium'].widget.attrs['disabled'] = True
-            self.fields['medium'].widget.attrs['class'] = 'disabled-metadata'
+                self.fields['medium'] = MetadataModelChoiceField(
+                    queryset=kwargs['initial']['mediums'],
+                    empty_label=u"Not set",
+                    widget=forms.Select(attrs={
+                        'onchange': save_metadata(
+                            kwargs['initial']['objectiveSettings'].id,
+                            'medium', options=True)}),
+                    required=False)
+            set_widget_attrs(self.fields['medium'])
         except:
-            self.fields['medium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
-            self.fields['medium'].widget.attrs['disabled'] = True
-            self.fields['medium'].widget.attrs['class'] = 'disabled-metadata'
+            self.fields['medium'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size': 25}),
+                initial="N/A",
+                required=False)
+            set_widget_attrs(self.fields['medium'])
 
         # Refractive Index
         try:
-            if kwargs['initial']['objectiveSettings'].refractiveIndex is not None:
-                self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'refractiveIndex\', this.value);'}), initial=kwargs['initial']['objectiveSettings'].refractiveIndex, label="Refractive index", required=False)
+            if (kwargs['initial']['objectiveSettings'].refractiveIndex is not
+                    None):
+                self.fields['refractiveIndex'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['objectiveSettings'].id,
+                            'refractiveIndex')}),
+                    initial=kwargs['initial'][
+                        'objectiveSettings'].refractiveIndex,
+                    label="Refractive index",
+                    required=False)
             else:
-                self.fields['refractiveIndex'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['objectiveSettings'].id)+', \'refractiveIndex\', this.value);'}), label="Refractive index", required=False)
-            self.fields['refractiveIndex'].widget.attrs['disabled'] = True
-            self.fields['refractiveIndex'].widget.attrs['class'] = 'disabled-metadata'
+                self.fields['refractiveIndex'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['objectiveSettings'].id,
+                            'refractiveIndex')}),
+                    label="Refractive index",
+                    required=False)
+            set_widget_attrs(self.fields['refractiveIndex'])
         except:
-            self.fields['refractiveIndex'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Refractive index", required=False)
-            self.fields['refractiveIndex'].widget.attrs['disabled'] = True
-            self.fields['refractiveIndex'].widget.attrs['class'] = 'disabled-metadata'
+            self.fields['refractiveIndex'] = forms.CharField(
+                max_length=10,
+                widget=forms.TextInput(attrs={'size': 25}),
+                initial="N/A",
+                label="Refractive index",
+                required=False)
+            set_widget_attrs(self.fields['refractiveIndex'])
 
-        
-        self.fields.keyOrder = ['model', 'manufacturer', 'serialNumber', 'lotNumber', 'nominalMagnification', 'calibratedMagnification', 'lensNA', 'immersion', 'correction', 'workingDistance', 'iris', 'correctionCollar',  'medium', 'refractiveIndex'] 
+        self.fields.keyOrder = [
+            'model', 'manufacturer', 'serialNumber', 'lotNumber',
+            'nominalMagnification', 'calibratedMagnification', 'lensNA',
+            'immersion', 'correction', 'workingDistance', 'iris',
+            'correctionCollar',  'medium', 'refractiveIndex']
 
 
 class MetadataFilterForm(forms.Form):
