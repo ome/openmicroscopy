@@ -360,7 +360,7 @@ class UsersForm(forms.Form):
         try:
             empty_label = kwargs['initial']['empty_label']
         except:
-            empty_label='---------'
+            empty_label = '---------'
         try:
             menu = kwargs['initial']['menu']
         except:
@@ -370,33 +370,67 @@ class UsersForm(forms.Form):
         except:
             user = None
         users = kwargs['initial']['users']
-        
-        self.fields['experimenter'] = ExperimenterModelChoiceField(queryset=users, initial=user, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="load_template", args=[menu])+'?experimenter=\'+this.options[this.selectedIndex].value'}), required=False, empty_label=empty_label)
-        
-        if users is None or len(users)<2:
+
+        self.fields['experimenter'] = ExperimenterModelChoiceField(
+            queryset=users,
+            initial=user,
+            widget=forms.Select(attrs={
+                'onchange': (
+                    'window.location.href=\'' +
+                    reverse(viewname="load_template", args=[menu]) +
+                    '?experimenter=\''
+                    '+this.options[this.selectedIndex].value')}),
+            required=False,
+            empty_label=empty_label)
+
+        if users is None or len(users) < 2:
             self.fields['experimenter'].widget.attrs['disabled'] = True
             self.fields['experimenter'].widget.attrs['class'] = 'disabled'
-        
+
         self.fields.keyOrder = ['experimenter']
+
 
 class ActiveGroupForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(ActiveGroupForm, self).__init__(*args, **kwargs)
         try:
-            self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?url='+kwargs['initial']['url']+'&active_group=\'+this.options[this.selectedIndex].value'})) 
+            self.fields['active_group'] = GroupModelChoiceField(
+                queryset=kwargs['initial']['mygroups'],
+                initial=kwargs['initial']['activeGroup'],
+                empty_label=None,
+                widget=forms.Select(attrs={
+                    'onchange': (
+                        'window.location.href=\'' +
+                        reverse(viewname="change_active_group") +
+                        '?url=' + kwargs['initial']['url'] +
+                        '&active_group=\''
+                        '+this.options[this.selectedIndex].value')}))
         except:
-            self.fields['active_group'] = GroupModelChoiceField(queryset=kwargs['initial']['mygroups'], initial=kwargs['initial']['activeGroup'], empty_label=None, widget=forms.Select(attrs={'onchange':'window.location.href=\''+reverse(viewname="change_active_group")+'?active_group=\'+this.options[this.selectedIndex].value'})) 
+            self.fields['active_group'] = GroupModelChoiceField(
+                queryset=kwargs['initial']['mygroups'],
+                initial=kwargs['initial']['activeGroup'],
+                empty_label=None, widget=forms.Select(attrs={
+                    'onchange': (
+                        'window.location.href=\'' +
+                        reverse(viewname="change_active_group") +
+                        '?active_group=\''
+                        '+this.options[this.selectedIndex].value')}))
         self.fields.keyOrder = ['active_group']
 
 
 class WellIndexForm(forms.Form):
-    
+
     def __init__(self, *args, **kwargs):
         super(WellIndexForm, self).__init__(*args, **kwargs)
         rmin, rmax = kwargs['initial']['range']
-        choices = [(str(i), "Field#%i" % (i-rmin+1)) for i in range(rmin, rmax+1)]
-        self.fields['index'] = forms.ChoiceField(choices=tuple(choices),  widget=forms.Select(attrs={'onchange':'changeField(this.options[this.selectedIndex].value);'}))
+        choices = [(str(i), "Field#%i" % (i-rmin+1))
+                   for i in range(rmin, rmax+1)]
+        self.fields['index'] = forms.ChoiceField(
+            choices=tuple(choices),
+            widget=forms.Select(attrs={
+                'onchange': (
+                    'changeField(this.options[this.selectedIndex].value);')}))
         self.fields.keyOrder = ['index']
 
 ###############################
