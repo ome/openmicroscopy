@@ -27,7 +27,7 @@ from omero.rtypes import rstring
 import pytest
 from django.core.urlresolvers import reverse
 
-from weblibrary import IWebTest, _get_reponse
+from weblibrary import IWebTest, _get_response
 
 
 class TestDownload(IWebTest):
@@ -70,7 +70,7 @@ class TestDownload(IWebTest):
         request_url = reverse('webgateway.views.archived_files')
         data = {
             "image": image.id.val}
-        _get_reponse(self.django_client, request_url, data, status_code=404)
+        _get_response(self.django_client, request_url, data, status_code=404)
 
     def test_image_download(self):
         """
@@ -83,4 +83,4 @@ class TestDownload(IWebTest):
         request_url = reverse('webgateway.views.archived_files')
         data = {
             "image": image.id.val}
-        _get_reponse(self.django_client, request_url, data, status_code=200)
+        _get_response(self.django_client, request_url, data, status_code=200)

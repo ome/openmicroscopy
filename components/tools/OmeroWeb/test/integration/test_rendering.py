@@ -26,7 +26,7 @@ import omero
 import omero.clients
 
 from weblibrary import IWebTest
-from weblibrary import _csrf_post_reponse, _get_reponse
+from weblibrary import _csrf_post_response, _get_response
 
 from django.core.urlresolvers import reverse
 
@@ -65,14 +65,14 @@ class TestCsrf(IWebTest):
         data = {
             "fromid": iid1
         }
-        _get_reponse(self.django_client, request_url, data, status_code=200)
+        _get_response(self.django_client, request_url, data, status_code=200)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
 
-        _csrf_post_reponse(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
 
         image2 = conn.getObject("Image", iid2)
         assert image2.isGreyscaleRenderingModel() is False
@@ -128,13 +128,13 @@ class TestCsrf(IWebTest):
             "z": 1,
             "zm": 100
         }
-        _get_reponse(self.django_client, request_url, data, status_code=200)
+        _get_response(self.django_client, request_url, data, status_code=200)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
-        _csrf_post_reponse(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
 
         # reload image1
         image1 = conn.getObject("Image", iid1)

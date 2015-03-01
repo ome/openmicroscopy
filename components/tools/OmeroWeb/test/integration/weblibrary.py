@@ -75,27 +75,28 @@ class IWebTest(lib.ITest):
 
 
 # Helpers
-def _post_reponse(django_client, request_url, data, status_code=403):
+def _post_response(django_client, request_url, data, status_code=403):
     response = django_client.post(request_url, data=data)
     assert response.status_code == status_code
     return response
 
 
-def _csrf_post_reponse(django_client, request_url, data, status_code=200):
+def _csrf_post_response(django_client, request_url, data, status_code=200):
     csrf_token = django_client.cookies['csrftoken'].value
     data['csrfmiddlewaretoken'] = csrf_token
-    return _post_reponse(django_client, request_url, data, status_code)
+    return _post_response(django_client, request_url, data, status_code)
 
 
-def _get_reponse(django_client, request_url, query_string, status_code=405):
+def _get_response(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
     response = django_client.get('%s?%s' % (request_url, query_string))
     assert response.status_code == status_code
     return response
 
 
-def _csrf_get_reponse(django_client, request_url, query_string,
-                      status_code=200):
+def _csrf_get_response(django_client, request_url, query_string,
+                       status_code=200):
     csrf_token = django_client.cookies['csrftoken'].value
     query_string['csrfmiddlewaretoken'] = csrf_token
-    return _get_reponse(django_client, request_url, query_string, status_code)
+    return _get_response(django_client, request_url, query_string,
+                         status_code)
