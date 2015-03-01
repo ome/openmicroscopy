@@ -2854,49 +2854,104 @@ class MetadataEnvironmentForm(forms.Form):
 
 
 class MetadataStageLabelForm(forms.Form):
-    
+
     def __init__(self, *args, **kwargs):
         super(MetadataStageLabelForm, self).__init__(*args, **kwargs)
-        
+
         # Stage label
-        
+
         # Position x
         try:
             if kwargs['initial']['image'].getStageLabel() is not None:
-                self.fields['positionx'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionx\', this.value);'}), initial=kwargs['initial']['image'].getStageLabel().positionx, label="Position X", required=False)
+                self.fields['positionx'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'positionx')}),
+                    initial=kwargs['initial'][
+                        'image'].getStageLabel().positionx,
+                    label="Position X",
+                    required=False)
             else:
-                self.fields['positionx'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionx\', this.value);'}), label="Position X", required=False)
-            self.fields['positionx'].widget.attrs['disabled'] = True 
-            self.fields['positionx'].widget.attrs['class'] = 'disabled-metadata'
+                self.fields['positionx'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'positionx')}),
+                    label="Position X",
+                    required=False)
+            set_widget_attrs(self.fields['positionx'])
         except:
-            self.fields['positionx'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Position X", required=False)
-            self.fields['positionx'].widget.attrs['disabled'] = True 
-            self.fields['positionx'].widget.attrs['class'] = 'disabled-metadata'
-        
+            self.fields['positionx'] = forms.CharField(
+                max_length=100,
+                widget=forms.TextInput(attrs={'size': 25}),
+                initial="N/A",
+                label="Position X",
+                required=False)
+            set_widget_attrs(self.fields['positionx'])
+
         # Position y
         try:
             if kwargs['initial']['image'].getStageLabel() is not None:
-                self.fields['positiony'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positiony\', this.value);'}), initial=kwargs['initial']['image'].getStageLabel().positiony, label="Position Y", required=False)
+                self.fields['positiony'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'positiony')}),
+                    initial=kwargs['initial'][
+                        'image'].getStageLabel().positiony,
+                    label="Position Y",
+                    required=False)
             else:
-                self.fields['positiony'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positiony\', this.value);'}), label="Position Y", required=False)
-            self.fields['positiony'].widget.attrs['disabled'] = True 
-            self.fields['positiony'].widget.attrs['class'] = 'disabled-metadata'
+                self.fields['positiony'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'positiony')}),
+                    label="Position Y",
+                    required=False)
+            set_widget_attrs(self.fields['positiony'])
         except:
-            self.fields['positiony'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Position Y", required=False)
-            self.fields['positiony'].widget.attrs['disabled'] = True 
-            self.fields['positiony'].widget.attrs['class'] = 'disabled-metadata'
-        
+            self.fields['positiony'] = forms.CharField(
+                max_length=100,
+                widget=forms.TextInput(attrs={'size': 25}),
+                initial="N/A",
+                label="Position Y",
+                required=False)
+            set_widget_attrs(self.fields['positionx'])
+
         # Position z
         try:
             if kwargs['initial']['image'].getStageLabel() is not None:
-                self.fields['positionz'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionz\', this.value);'}), initial=kwargs['initial']['image'].getStageLabel().positionz, label="Position Z", required=False)
+                self.fields['positionz'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'positionz')}),
+                    initial=kwargs['initial'][
+                        'image'].getStageLabel().positionz,
+                    label="Position Z",
+                    required=False)
             else:
-                self.fields['positionz'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['image'].id)+', \'positionz\', this.value);'}), label="Position Z", required=False)
-            self.fields['positionz'].widget.attrs['disabled'] = True 
-            self.fields['positionz'].widget.attrs['class'] = 'disabled-metadata'
+                self.fields['positionz'] = forms.CharField(
+                    max_length=100,
+                    widget=forms.TextInput(attrs={
+                        'size': 25,
+                        'onchange': save_metadata(
+                            kwargs['initial']['image'].id, 'positionz')}),
+                    label="Position Z",
+                    required=False)
+            set_widget_attrs(self.fields['positionz'])
         except:
-            self.fields['positionz'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Position Z", required=False)
-            self.fields['positionz'].widget.attrs['disabled'] = True 
-            self.fields['positionz'].widget.attrs['class'] = 'disabled-metadata'
-        
+            self.fields['positionz'] = forms.CharField(
+                max_length=100,
+                widget=forms.TextInput(attrs={'size': 25}),
+                initial="N/A", label="Position Z", required=False)
+            set_widget_attrs(self.fields['positionz'])
+
         self.fields.keyOrder = ['positionx', 'positiony', 'positionz']
