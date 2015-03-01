@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# 
-# 
-# 
+#
+#
+#
 # Copyright (c) 2008-2015 University of Dundee.
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 # Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
+#
 # Version: 1.0
 #
 
@@ -33,91 +33,144 @@ from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
 
 from omeroweb.custom_forms import NonASCIIForm
-from custom_forms import MetadataModelChoiceField, \
-                        AnnotationModelMultipleChoiceField, \
-                        ObjectModelMultipleChoiceField
-from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField, \
-                        ExperimenterModelMultipleChoiceField, \
-                        GroupModelMultipleChoiceField, GroupModelChoiceField
+from custom_forms import MetadataModelChoiceField
+from custom_forms import AnnotationModelMultipleChoiceField
+from custom_forms import ObjectModelMultipleChoiceField
+from omeroweb.webadmin.custom_forms import ExperimenterModelChoiceField
+from omeroweb.webadmin.custom_forms import ExperimenterModelMultipleChoiceField
+from omeroweb.webadmin.custom_forms import GroupModelMultipleChoiceField
+from omeroweb.webadmin.custom_forms import GroupModelChoiceField
 from omeroweb.webclient.webclient_utils import formatPercentFraction
 
 logger = logging.getLogger(__name__)
 
-             
+
 ##################################################################
 # Static values
 
 # TODO: change to reverse
 help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 
-help_wiki = '<span id="markup" data-content="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
+help_wiki = (
+    '<span id="markup" data-content="Markups - <small>If you\'d like to'
+    ' include URL please type:'
+    '<br/><b>http://www.openmicroscopy.org.uk/</b></small>">'
+    '<img src="%s" /></span>') % help_button
 
-help_wiki_c = '<span id="markup_c" data-content="Markups - <small>If you\'d like to include URL please type:<br/><b>http://www.openmicroscopy.org.uk/</b></small>"><img src="%s" /></span>' % help_button
+help_wiki_c = (
+    '<span id="markup_c" data-content="Markups - <small>If you\'d like to'
+    ' include URL please type:'
+    '<br/><b>http://www.openmicroscopy.org.uk/</b></small>">'
+    '<img src="%s" /></span>') % help_button
 
-help_enable = '<span id="enable" data-content="Enable/Disable - <small>This option allows the owner to keep the access control of the share.</small>"><img src="%s" /></span>' % help_button
+help_enable = (
+    '<span id="enable" data-content="Enable/Disable - <small>This option'
+    ' allows the owner to keep the access control of the share.</small>">'
+    '<img src="%s" /></span>') % help_button
 
-help_expire = '<span id="expire" data-content="Expire date - <small>This date defines when share will stop being available. Date format: YYYY-MM-DD.</small>"><img src="%s" /></span>' % help_button
+help_expire = (
+    '<span id="expire" data-content="Expire date - <small>This date defines'
+    ' when share will stop being available. Date format:'
+    ' YYYY-MM-DD.</small>"><img src="%s" /></span>') % help_button
 
 #################################################################
 # Non-model Form
 
+
 class GlobalSearchForm(NonASCIIForm):
-    
-    search_query = forms.CharField(widget=forms.TextInput(attrs={'size':25}))
+
+    search_query = forms.CharField(widget=forms.TextInput(attrs={'size': 25}))
 
 
 class ShareForm(NonASCIIForm):
-    
+
     def __init__(self, *args, **kwargs):
         super(ShareForm, self).__init__(*args, **kwargs)
-        
+
         try:
-            if kwargs['initial']['shareMembers']: pass
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['shareMembers'], widget=forms.SelectMultiple(attrs={'size':5}))
+            if kwargs['initial']['shareMembers']:
+                pass
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'],
+                initial=kwargs['initial']['shareMembers'], 
+                widget=forms.SelectMultiple(attrs={'size': 5}))
         except:
-            self.fields['members'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], widget=forms.SelectMultiple(attrs={'size':5}))
-        self.fields.keyOrder = ['message', 'expiration', 'enable', 'members']#, 'guests']
+            self.fields['members'] = ExperimenterModelMultipleChoiceField(
+                queryset=kwargs['initial']['experimenters'], 
+                widget=forms.SelectMultiple(attrs={'size': 5}))
+        self.fields.keyOrder = [
+                'message', 'expiration', 'enable', 'members']  #, 'guests']
     
-    message = forms.CharField(widget=forms.Textarea(attrs={'rows': 7, 'cols': 39}), help_text=help_wiki_c) 
-    expiration = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':20}), label="Expire date", help_text=help_expire, required=False)
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 7, 'cols': 39}), 
+        help_text=help_wiki_c) 
+    expiration = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'size': 20}),
+        label="Expire date",
+        help_text=help_expire,
+        required=False)
     enable = ssl = forms.BooleanField(required=False, help_text=help_enable)
-    #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
+    # guests = MultiEmailField(required=False,
+    # widget=forms.TextInput(attrs={'size':75}))
 
     def clean_expiration(self):
-        if self.cleaned_data['expiration'] is not None and len(self.cleaned_data['expiration']) < 1:
+        if (self.cleaned_data['expiration'] is not None and
+                len(self.cleaned_data['expiration']) < 1):
             return None
         if self.cleaned_data['expiration'] is not None:
             d = str(self.cleaned_data['expiration']).rsplit("-")
             try:
-                date = datetime.datetime.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")
+                date = datetime.datetime.strptime(
+                    ("%s-%s-%s" % (d[0], d[1], d[2])), "%Y-%m-%d")
             except:
-                raise forms.ValidationError('Date is in the wrong format. YY-MM-DD')
+                raise forms.ValidationError(
+                    'Date is in the wrong format. YY-MM-DD')
             if time.mktime(date.timetuple()) <= time.time():
-                raise forms.ValidationError('Expire date must be in the future.')
+                raise forms.ValidationError(
+                    'Expire date must be in the future.')
         return self.cleaned_data['expiration']
-    
+
+
 class BasketShareForm(ShareForm):
-    
+
     def __init__(self, *args, **kwargs):
         super(BasketShareForm, self).__init__(*args, **kwargs)
-        
+
         try:
-            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], initial=kwargs['initial']['selected'], widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['image'] = GroupModelMultipleChoiceField(
+                queryset=kwargs['initial']['images'],
+                initial=kwargs['initial']['selected'],
+                widget=forms.SelectMultiple(attrs={'size': 10}))
         except:
-            self.fields['image'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['images'], widget=forms.SelectMultiple(attrs={'size':10}))
+            self.fields['image'] = GroupModelMultipleChoiceField(
+                queryset=kwargs['initial']['images'],
+                widget=forms.SelectMultiple(attrs={'size': 10}))
+
 
 class ContainerForm(NonASCIIForm):
-    
-    name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 49}), required=False, help_text=help_wiki)
+
+    name = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 45}))
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 2, 'cols': 49}),
+        required=False,
+        help_text=help_wiki)
+
 
 class ContainerNameForm(NonASCIIForm):
-    
-    name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
-    
+
+    name = forms.CharField(
+        max_length=250,
+        widget=forms.TextInput(attrs={'size': 45}))
+
+
 class ContainerDescriptionForm(NonASCIIForm):
-    
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}), required=False)
+
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}),
+        required=False)
 
 
 class BaseAnnotationForm(NonASCIIForm):
