@@ -435,6 +435,24 @@ class WellIndexForm(forms.Form):
 
 ###############################
 # METADATA FORMS
+
+
+def save_metadata(obj, name, options=False):
+    s = 'javascript:save_metadata(' + str(obj) + ', \'' + name + '\', '
+    if options:
+        s += 'this.options[this.selectedIndex].value);'
+    else:
+        s += 'this.value);'
+
+    return s
+
+
+def set_widget_attrs(field, set_class=True):
+    field.widget.attrs['disabled'] = True
+    if set_class:
+        field.widget.attrs['class'] = 'disabled-metadata'
+
+
 class MetadataChannelForm(forms.Form):
     
     def __init__(self, *args, **kwargs):
