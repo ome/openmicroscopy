@@ -175,71 +175,139 @@ class ContainerDescriptionForm(NonASCIIForm):
 
 class BaseAnnotationForm(NonASCIIForm):
     """
-    This is the superclass of the various forms used for annotating single or multiple objects.
-    All these forms use hidden fields to specify the object(s) currently being annotated.
+    This is the superclass of the various forms used for annotating single or
+    multiple objects.
+    All these forms use hidden fields to specify the object(s) currently being
+    annotated.
     """
     def __init__(self, *args, **kwargs):
         super(BaseAnnotationForm, self).__init__(*args, **kwargs)
-        
-        images = 'images' in kwargs['initial'] and kwargs['initial']['images'] or list()
+
+        images = ('images' in kwargs['initial'] and
+                  kwargs['initial']['images'] or list())
         if len(images) > 0:
             try:
-                self.fields['image'] = ObjectModelMultipleChoiceField(queryset=images, initial=kwargs['initial']['selected']['images'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['image'] = ObjectModelMultipleChoiceField(
+                    queryset=images,
+                    initial=kwargs['initial']['selected']['images'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['image'] = ObjectModelMultipleChoiceField(queryset=images, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        datasets = 'datasets' in kwargs['initial'] and kwargs['initial']['datasets'] or list()
+                self.fields['image'] = ObjectModelMultipleChoiceField(
+                    queryset=images,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
+        datasets = ('datasets' in kwargs['initial'] and
+                    kwargs['initial']['datasets'] or list())
         if len(datasets) > 0:
             try:
-                self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=datasets, initial=kwargs['initial']['selected']['datasets'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['dataset'] = ObjectModelMultipleChoiceField(
+                    queryset=datasets,
+                    initial=kwargs['initial']['selected']['datasets'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['dataset'] = ObjectModelMultipleChoiceField(queryset=datasets, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        projects = 'projects' in kwargs['initial'] and kwargs['initial']['projects'] or list()
+                self.fields['dataset'] = ObjectModelMultipleChoiceField(
+                    queryset=datasets,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
+        projects = ('projects' in kwargs['initial'] and
+                    kwargs['initial']['projects'] or list())
         if len(projects) > 0:
             try:
-                self.fields['project'] = ObjectModelMultipleChoiceField(queryset=projects, initial=kwargs['initial']['selected']['projects'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['project'] = ObjectModelMultipleChoiceField(
+                    queryset=projects,
+                    initial=kwargs['initial']['selected']['projects'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['project'] = ObjectModelMultipleChoiceField(queryset=projects, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        screens = 'screens' in kwargs['initial'] and kwargs['initial']['screens'] or list()
+                self.fields['project'] = ObjectModelMultipleChoiceField(
+                    queryset=projects,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
+        screens = ('screens' in kwargs['initial'] and
+                   kwargs['initial']['screens'] or list())
         if len(screens) > 0:
             try:
-                self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=screens, initial=kwargs['initial']['selected']['screens'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['screen'] = ObjectModelMultipleChoiceField(
+                    queryset=screens,
+                    initial=kwargs['initial']['selected']['screens'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['screen'] = ObjectModelMultipleChoiceField(queryset=screens, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        plates = 'plates' in kwargs['initial'] and kwargs['initial']['plates'] or list()
+                self.fields['screen'] = ObjectModelMultipleChoiceField(
+                    queryset=screens,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
+        plates = ('plates' in kwargs['initial'] and
+                  kwargs['initial']['plates'] or list())
         if len(plates) > 0:
             try:
-                self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=plates, initial=kwargs['initial']['selected']['plates'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['plate'] = ObjectModelMultipleChoiceField(
+                    queryset=plates,
+                    initial=kwargs['initial']['selected']['plates'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['plate'] = ObjectModelMultipleChoiceField(queryset=plates, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        acquisitions = 'acquisitions' in kwargs['initial'] and kwargs['initial']['acquisitions'] or list()
+                self.fields['plate'] = ObjectModelMultipleChoiceField(
+                    queryset=plates,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
+        acquisitions = ('acquisitions' in kwargs['initial'] and
+                        kwargs['initial']['acquisitions'] or list())
         if len(acquisitions) > 0:
             try:
-                self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=acquisitions, initial=kwargs['initial']['selected']['acquisitions'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['acquisition'] = ObjectModelMultipleChoiceField(
+                    queryset=acquisitions,
+                    initial=kwargs['initial']['selected']['acquisitions'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['acquisition'] = ObjectModelMultipleChoiceField(queryset=acquisitions, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        wells = 'wells' in kwargs['initial'] and kwargs['initial']['wells'] or list()
+                self.fields['acquisition'] = ObjectModelMultipleChoiceField(
+                    queryset=acquisitions,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
+        wells = ('wells' in kwargs['initial'] and
+                 kwargs['initial']['wells'] or list())
         if len(wells) > 0:
             try:
-                self.fields['well'] = ObjectModelMultipleChoiceField(queryset=wells, initial=kwargs['initial']['selected']['wells'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['well'] = ObjectModelMultipleChoiceField(
+                    queryset=wells,
+                    initial=kwargs['initial']['selected']['wells'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['well'] = ObjectModelMultipleChoiceField(queryset=wells, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
-        shares = 'shares' in kwargs['initial'] and kwargs['initial']['shares'] or list()
+                self.fields['well'] = ObjectModelMultipleChoiceField(
+                    queryset=wells,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
+        shares = ('shares' in kwargs['initial'] and
+                  kwargs['initial']['shares'] or list())
         if len(shares) > 0:
             try:
-                self.fields['share'] = ObjectModelMultipleChoiceField(queryset=shares, initial=kwargs['initial']['selected']['shares'], widget=forms.SelectMultiple(attrs={'size':10}), required=False)
+                self.fields['share'] = ObjectModelMultipleChoiceField(
+                    queryset=shares,
+                    initial=kwargs['initial']['selected']['shares'],
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
             except:
-                self.fields['share'] = ObjectModelMultipleChoiceField(queryset=shares, widget=forms.SelectMultiple(attrs={'size':10}), required=False)
-        
+                self.fields['share'] = ObjectModelMultipleChoiceField(
+                    queryset=shares,
+                    widget=forms.SelectMultiple(attrs={'size': 10}),
+                    required=False)
+
 
 class TagsAnnotationForm(BaseAnnotationForm):
-    """ Form for annotating one or more objects with existing Tags or New tags """
+    """
+    Form for annotating one or more objects with existing Tags or New tags
+    """
 
     def __init__(self, *args, **kwargs):
         super(TagsAnnotationForm, self).__init__(*args, **kwargs)
@@ -261,22 +329,29 @@ class NewTagsAnnotationForm(forms.Form):
     """ Helper form for new tags """
     tag = forms.CharField(required=True, widget=forms.HiddenInput)
     description = forms.CharField(required=False, widget=forms.HiddenInput)
-    tagset = forms.IntegerField(min_value=1, required=False, widget=forms.HiddenInput)
+    tagset = forms.IntegerField(
+        min_value=1, required=False, widget=forms.HiddenInput)
 
 NewTagsAnnotationFormSet = formset_factory(NewTagsAnnotationForm, extra=0)
 
 
 class FilesAnnotationForm(BaseAnnotationForm):
-    
+
     def __init__(self, *args, **kwargs):
         super(FilesAnnotationForm, self).__init__(*args, **kwargs)
-        self.fields['files'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['files'], widget=forms.SelectMultiple(attrs={'size':8, 'class':'existing'}), required=False)
-    
+        self.fields['files'] = AnnotationModelMultipleChoiceField(
+            queryset=kwargs['initial']['files'],
+            widget=forms.SelectMultiple(attrs={
+                'size': 8, 'class': 'existing'}),
+            required=False)
+
     annotation_file = forms.FileField(required=False)
 
 
 class CommentAnnotationForm(BaseAnnotationForm):
-    comment = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
+    comment = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
+
 
 class UsersForm(forms.Form):
 
