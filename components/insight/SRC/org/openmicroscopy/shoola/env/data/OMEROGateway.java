@@ -5060,8 +5060,13 @@ class OMEROGateway
                         String fields = resolveScopeIdsAsString(context.getScope());
                         String dFrom = from != null ? df.format(from) : null;
                         String dTo = to != null ? df.format(to) : null;
-                        service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
-                                context.getQuery(), m);
+                        try {
+                            service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
+                                    context.getQuery(), m);
+                        } catch (ApiUsageException e) {
+                            result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                            return result;
+                        }
                     } else {
                         // have to build lucene query client side for versions pre 5.0.3
                         String query = LuceneQueryBuilder.buildLuceneQuery(
