@@ -281,7 +281,7 @@ public class Helper {
      * Like {@link #fail(ERR, String, String...)} throws a
      * {@link Cancel} exception.
      *
-     * A {@link Cancel} is thrown, even though one is also specificed as the
+     * A {@link Cancel} is thrown, even though one is also specified as the
      * return value. This permits:
      * <pre>
      * } catch (Throwable t) {
