@@ -313,7 +313,7 @@ public class AdvancedFinder
 		loader = new AdvancedFinderLoader(this, secCtx, searchContext);
 		loader.load();
 		state = Finder.SEARCH;
-		setSearchEnabled(true);
+		setSearchEnabled(-1);
 	}
 	
 	/**
@@ -472,7 +472,7 @@ public class AdvancedFinder
 	 */
 	public void dispose() 
 	{
-		setSearchEnabled(false);
+		setSearchEnabled(-1);
 		setVisible(false);
 		cancel();
 	}
@@ -508,12 +508,12 @@ public class AdvancedFinder
                 }
                 UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
                 un.notifyError("Search error", msg);
-                setSearchEnabled(false);
+                setSearchEnabled(-1);
                 return;
             }
     
             results = result;
-            setSearchEnabled(false);
+            setSearchEnabled(result.size());
             firePropertyChange(RESULTS_FOUND_PROPERTY, null, results);
 	}
 	
