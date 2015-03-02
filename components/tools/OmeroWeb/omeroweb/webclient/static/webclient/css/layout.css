@@ -1275,29 +1275,11 @@
 		
 		position:absolute;
 		right:10px;
-		top:3px;
+		top:0;
 		background:none;
 		overflow:hidden !important;
 	}
-	
-		#center_panel_header .toolbar li{
-			-webkit-border-radius:3px;	
-			
-			-webkit-border-radius:3px; /* Saf3+, Chrome */
-			   -moz-border-radius:3px; /* FF1+ */
-			        border-radius:3px; /* Opera 10.5, IE 9 */ 
-			
-		}
-		
-		#center_panel_header .toolbar input{
-			-webkit-border-radius:3px !important;
-			
-			-webkit-border-radius:3px !important; /* Saf3+, Chrome */
-			   -moz-border-radius:3px !important; /* FF1+ */
-			        border-radius:3px !important; /* Opera 10.5, IE 9 */ 
-			
-		}
-	
+
 
     #icon_layout {
         background: url("../image/icon_layout.png") no-repeat scroll center center transparent;

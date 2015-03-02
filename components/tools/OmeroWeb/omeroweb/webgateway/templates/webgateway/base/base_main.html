@@ -20,6 +20,14 @@
 -->
 {% endcomment %}
 
+{% block link %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.toolbar.css" %}" type="text/css" media="screen"/>
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar_ie.css" %}" />
+	<![endif]-->
+{% endblock %}
+
 {% block script %}
     {{ block.super }}
     <!-- Include our current version of jQuery-UI and an ome utility script used by many pages -->
