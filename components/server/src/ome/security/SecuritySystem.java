@@ -21,6 +21,7 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
 import ome.model.meta.ExperimenterGroup;
+import ome.security.policy.Policy;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -162,6 +163,17 @@ public interface SecuritySystem {
      * by the {@link SecuritySystem}.
      */
     boolean hasPrivilegedToken(IObject obj);
+
+    /**
+     * Checks whether or not a {@link ome.sercurity.Policy} instance of matching
+     * type and name has been registered, considers itself active, <em>and</em>
+     * considers the passed context object(s) to be restricted.
+     * 
+     * @param policy An instance of the {@link Policy} to be checked.
+     * @throws a {@link SecurityViolation} if the given {@link Policy} is
+     *      considered to be restricted.
+     */
+    void checkRestriction(Policy policy) throws SecurityViolation;
 
     // ~ Subsystem disabling
     // =========================================================================

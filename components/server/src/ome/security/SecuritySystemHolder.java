@@ -13,6 +13,7 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.policy.Policy;
 import ome.security.sharing.SharingSecuritySystem;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -98,6 +99,10 @@ public class SecuritySystemHolder implements SecuritySystem {
 
     public boolean hasPrivilegedToken(IObject obj) {
         return choose().hasPrivilegedToken(obj);
+    }
+
+    public void checkRestriction(Policy policy) {
+        choose().checkRestriction(policy);
     }
 
     public boolean isDisabled(String id) {

@@ -71,6 +71,12 @@
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
 
+  <alias name="${omero.security.policy_bean}" alias="policyService"/>
+
+  <bean id="defaultPolicyService" class="ome.security.policy.DefaultPolicyService"/>
+
+  <bean id="RESTRICT-DOWNLOAD" class="ome.security.policy.DownloadPolicy"/>
+
   <bean id="aclVoter" class="ome.security.CompositeACLVoter">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="sharingACLVoter"/>
