@@ -250,6 +250,12 @@ module omero {
        **/
       const int ANNOTATERESTRICTION = 3;
 
+      /**
+       * Extended restriction name which may be applied to images and other
+       * downloadable materials. This string can also be found in the
+       * ome.security.policy.DownloadPolicy class.
+       **/
+      const string DOWNLOAD = "RESTRICT-DOWNLOAD";
     };
 
     module projection {
