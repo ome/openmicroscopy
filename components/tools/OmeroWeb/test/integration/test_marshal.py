@@ -104,9 +104,9 @@ class TestImgDetail(object):
         print imgData
         # Not a big image - tiles should be False with no other tiles metadata
         assert imgData['tiles'] == False
-        # assert 'levels' not in imgData
-        # assert 'zoomLevelScaling' not in imgData
-        # assert 'tile_size' not in imgData
+        assert 'levels' not in imgData
+        assert 'zoomLevelScaling' not in imgData
+        assert 'tile_size' not in imgData
 
         # Channels metadata
         assert len(imgData['channels']) == 1
