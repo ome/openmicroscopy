@@ -79,13 +79,13 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     private static final ImmutableSet<String> OWNED_OBJECTS;
     private static final ImmutableSet<String> ANNOTATABLE_OBJECTS;
 
+    private static final Map<String, String> classIdProperties = Collections.synchronizedMap(new HashMap<String, String>());
+
     private final PixelsService pixelsService;
     private final ThumbnailService thumbnailService;
     private final GraphPathBean graphPathBean;
 
     private Helper helper;
-
-    private final Map<String, String> classIdProperties = new HashMap<String, String>();
 
     /**
      * Construct a disk usage request.
