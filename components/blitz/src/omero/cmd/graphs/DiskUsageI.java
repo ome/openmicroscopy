@@ -442,13 +442,13 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         if (idProperty == null) {
             final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
             if (actualClass == null) {
-                throw helper.cancel(new ERR(), new IllegalArgumentException(),
-                        "class " + className + " is unknown");
+                final Exception e = new IllegalArgumentException("class " + className + " is unknown");
+                throw helper.cancel(new ERR(), e, "bad-class");
             }
             idProperty = graphPathBean.getIdentifierProperty(actualClass.getName());
             if (idProperty == null) {
-                throw helper.cancel(new ERR(), new IllegalArgumentException(),
-                        "no identifier property is known for class " + className);
+                final Exception e = new IllegalArgumentException("no identifier property is known for class " + className);
+                throw helper.cancel(new ERR(), e, "bad-class");
             }
             classIdProperties.put(className, idProperty);
         }

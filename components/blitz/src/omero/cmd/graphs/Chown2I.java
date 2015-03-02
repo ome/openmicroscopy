@@ -170,14 +170,15 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                 graphTraversal.processTargets();
                 return null;
             default:
-                throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
+                final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
+                throw helper.cancel(new ERR(), e, "bad-step");
             }
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
-            throw helper.cancel(graphERR, ge, "model object graph operation failed");
+            throw helper.cancel(graphERR, ge, "graph-fail");
         } catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "model object graph operation failed");
+            throw helper.cancel(new ERR(), t, "graph-fail");
         }
     }
 
@@ -196,7 +197,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                 try {
                     deletionInstance.deleteFiles(GraphUtil.trimPackageNames(result.getValue()));
                 } catch (Exception e) {
-                    helper.cancel(new ERR(), e, "file deletion error");
+                    helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
             final Map<String, List<Long>> givenObjects = new HashMap<String, List<Long>>();
