@@ -88,10 +88,10 @@ def update_service(request, client):
 
 class TestImgDetail(object):
     """
-    Tests to check download is disabled where specified.
+    Tests json for webgateway/imgData/
     """
 
-    def test_image_download(self, itest, client, django_client):
+    def test_image_detail(self, itest, client, django_client):
         """
         Download of archived files for a non-SPW Image.
         """
@@ -102,8 +102,44 @@ class TestImgDetail(object):
         data = {}
         imgData = _get_response_json(django_client, json_url, data, status_code=200)
         print imgData
-        assert True == False
+        # Not a big image - tiles should be False with no other tiles metadata
+        assert imgData['tiles'] == False
+        # assert 'levels' not in imgData
+        # assert 'zoomLevelScaling' not in imgData
+        # assert 'tile_size' not in imgData
 
+        # Channels metadata
+        assert len(imgData['channels']) == 1
+        assert imgData['channels'][0] == {
+                                    'color': "808080",
+                                    'active': True,
+                                    'window': {
+                                        'max': 255,
+                                        'end': 255,
+                                        'start': 0,
+                                        'min': 0
+                                    },
+                                    'emissionWave': None,
+                                    'label': "0"
+                                }
+        assert imgData['pixel_range'] == [0, 255]
+        assert imgData['rdefs'] == {
+                            'defaultT': 0,
+                            'model': "greyscale",
+                            'invertAxis': False,
+                            'projection': "normal",
+                            'defaultZ': 0
+                        }
+
+        # Core image metadata
+        assert imgData['size'] == {
+                                    'width': 512,
+                                    'c': 1,
+                                    'z': 1,
+                                    't': 1,
+                                    'height': 512
+                                }
+        assert imgData['meta']['pixelsType'] == "uint8"
 
 
 # Helpers
