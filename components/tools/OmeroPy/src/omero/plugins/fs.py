@@ -796,7 +796,7 @@ Examples:
         """
         err = self.get_error(rsp)
         if err:
-            self.ctx.err("Error: " + rsp.name)
+            self.ctx.err("Error: " + rsp.parameters['message'])
         else:
             size = sum(rsp.totalBytesUsed.values())
             if args.size_only:
