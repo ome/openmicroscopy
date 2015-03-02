@@ -382,6 +382,8 @@ public class FullTextBridge extends BridgeHelper {
                 if (nv != null) {
                     add(document, nv.getName(), nv.getValue(), opts);
                     add(document, "has_key", nv.getName(), opts);
+                    add(document, "annotation", nv.getValue(), opts);
+                    add(document, "annotation", nv.getName(), opts);
                 }
             }
         }
