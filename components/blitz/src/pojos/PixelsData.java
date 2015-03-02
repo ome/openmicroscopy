@@ -1,13 +1,14 @@
 /*
  * pojos.PixelsData
  *
- *   Copyright 2006-2014 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package pojos;
 
 import static omero.rtypes.*;
+import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Pixels;
@@ -263,8 +264,9 @@ public class PixelsData extends DataObject {
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above.
+     * @throws BigResult If an arithmetic under-/overflow occurred 
      */
-    public Length getPixelSizeX(UnitsLength unit) {
+    public Length getPixelSizeX(UnitsLength unit) throws BigResult {
     	Length l = asPixels().getPhysicalSizeX();
     	if(l == null)
     		return null;
@@ -314,8 +316,9 @@ public class PixelsData extends DataObject {
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above.
+     * @throws BigResult If an arithmetic under-/overflow occurred 
      */
-    public Length getPixelSizeY(UnitsLength unit) {
+    public Length getPixelSizeY(UnitsLength unit) throws BigResult {
     	Length l = asPixels().getPhysicalSizeY();
     	if(l == null)
     		return null;
@@ -365,8 +368,9 @@ public class PixelsData extends DataObject {
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above.
+     * @throws BigResult If an arithmetic under-/overflow occurred 
      */
-    public Length getPixelSizeZ(UnitsLength unit) {
+    public Length getPixelSizeZ(UnitsLength unit) throws BigResult {
     	Length l = asPixels().getPhysicalSizeZ();
     	if(l == null)
     		return null;

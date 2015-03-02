@@ -18,6 +18,7 @@
 
 package ome.formats.utests;
 
+import ome.model.units.BigResult;
 import ome.units.UNITS;
 import omero.model.LengthI;
 
@@ -38,12 +39,12 @@ public class UnitsTest {
     }
 
     @Test
-    public void testLengthMapping() {
+    public void testLengthMapping() throws BigResult {
         new LengthI(mm(1), UNITS.M);
     }
 
     @Test
-    public void testLengthNoOpMapping() {
+    public void testLengthNoOpMapping() throws BigResult {
         new LengthI(mm(1), UNITS.MM);
     }
 

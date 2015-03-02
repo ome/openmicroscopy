@@ -2,7 +2,7 @@
  * pojos.DetectorData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 package pojos;
 
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RString;
 import omero.model.Detector;
@@ -67,8 +68,9 @@ public class DetectorData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
 	 */
-	public ElectricPotential getVoltage(UnitsElectricPotential unit)
+	public ElectricPotential getVoltage(UnitsElectricPotential unit) throws BigResult
 	{
 		Detector detector = (Detector) asIObject();
 		ElectricPotential e = detector.getVoltage();
@@ -89,7 +91,11 @@ public class DetectorData
 		Detector detector = (Detector) asIObject();
 		ElectricPotential value = detector.getVoltage();
 		if (value == null) return null;
-		return new ElectricPotentialI(value, UnitsFactory.Detector_Voltage).getValue();
+		try {
+            return new ElectricPotentialI(value, UnitsFactory.Detector_Voltage).getValue();
+        } catch (BigResult e) {
+            return e.result.doubleValue();
+        }
 	}
 	
 	/**

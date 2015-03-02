@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -45,7 +45,6 @@ import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
-
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
@@ -97,6 +96,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -713,7 +713,13 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	Length getPixelSizeX() {
-		Length l = pixels.getPixelSizeX(UnitsLength.MICROMETER);
+        Length l = null;
+        try {
+            l = pixels.getPixelSizeX(UnitsLength.MICROMETER);
+        } catch (BigResult e) {
+            MeasurementAgent.getRegistry().getLogger()
+                    .warn(this, "Could not get pixel size X in micrometer");
+        }
 		return l != null ? l : new LengthI(1, UnitsLength.PIXEL);
 	}
 
@@ -723,7 +729,13 @@ class MeasurementViewerModel
 	 * @return See above.
 	 */
 	Length getPixelSizeY() {
-		Length l = pixels.getPixelSizeY(UnitsLength.MICROMETER);
+	    Length l = null;
+        try {
+            l = pixels.getPixelSizeY(UnitsLength.MICROMETER);
+        } catch (BigResult e) {
+            MeasurementAgent.getRegistry().getLogger()
+                    .warn(this, "Could not get pixel size Y in micrometer");
+        }
 		return l != null ? l : new LengthI(1, UnitsLength.PIXEL);
 	}
 
@@ -732,8 +744,16 @@ class MeasurementViewerModel
 	 *
 	 * @return See above.
 	 */
-	Length getPixelSizeZ() { return pixels.getPixelSizeZ(UnitsLength.MICROMETER); }
-
+    Length getPixelSizeZ() {
+        try {
+            return pixels.getPixelSizeZ(UnitsLength.MICROMETER);
+        } catch (BigResult e) {
+            MeasurementAgent.getRegistry().getLogger()
+                    .warn(this, "Could not get pixel size Z in micrometer");
+        }
+        return null;
+    }
+	
 	/**
 	 * Returns the number of z sections in an image.
 	 *

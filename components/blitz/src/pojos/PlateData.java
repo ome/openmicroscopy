@@ -2,7 +2,7 @@
  * pojos.PlateData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static omero.rtypes.*;
+import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.Plate;
@@ -348,8 +349,9 @@ public class PlateData extends DataObject {
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getWellOriginX(UnitsLength unit)
+    public Length getWellOriginX(UnitsLength unit) throws BigResult
     {
     	Length value = asPlate().getWellOriginX();
     	if (value == null) 
@@ -379,8 +381,9 @@ public class PlateData extends DataObject {
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
      * @return See above
+     * @throws BigResult If an arithmetic under-/overflow occurred
      */
-    public Length getWellOriginY(UnitsLength unit)
+    public Length getWellOriginY(UnitsLength unit) throws BigResult
     {
     	Length value = asPlate().getWellOriginY();
     	if (value == null)

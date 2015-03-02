@@ -2,7 +2,7 @@
  * pojos.ShapeSettingsData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ import java.awt.Color;
 import java.awt.Font;
 
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
@@ -219,7 +220,11 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		Length value = shape.getStrokeWidth();
 		if (value == null) return 1.0;
-		return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
+		try {
+            return new LengthI(value, UnitsFactory.Shape_StrokeWidth).getValue();
+        } catch (BigResult e) {
+            return value.getValue();
+        }
 	}
 	
 	/**
@@ -229,8 +234,9 @@ public class ShapeSettingsData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
 	 */
-	public Length getStrokeWidth(UnitsLength unit)
+	public Length getStrokeWidth(UnitsLength unit) throws BigResult
 	{
 		Shape shape = (Shape) asIObject();
 		Length value = shape.getStrokeWidth();
@@ -407,7 +413,13 @@ public class ShapeSettingsData
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		Length size = shape.getFontSize();
-		if (size != null) return (new LengthI(size, UnitsLength.POINT)).getValue();
+		if (size != null) {
+		    try {
+                return (new LengthI(size, UnitsLength.POINT)).getValue();
+            } catch (BigResult e) {
+                return e.result.doubleValue();
+            }
+		}
 		return DEFAULT_FONT_SIZE;
 	}
 	
@@ -418,8 +430,9 @@ public class ShapeSettingsData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getFontSize(UnitsLength unit)
+	public Length getFontSize(UnitsLength unit) throws BigResult
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 

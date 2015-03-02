@@ -22,6 +22,7 @@ package omero.model;
 import java.io.IOException;
 
 import junit.framework.TestCase;
+import ome.model.units.BigResult;
 import omero.model.enums.UnitsLength;
 import omero.model.enums.UnitsTemperature;
 import omero.model.enums.UnitsPower;
@@ -32,7 +33,7 @@ import org.testng.annotations.Test;
 public class UnitsTest extends TestCase {
 
     @Test
-    public void testPowerConversion() throws IOException {
+    public void testPowerConversion() throws IOException, BigResult {
         Power p1 = new PowerI(100.1, UnitsPower.CENTIWATT);
         Power p2 = new PowerI(p1, UnitsPower.WATT);
         assertEquals(1.001, p2.getValue());
@@ -45,7 +46,7 @@ public class UnitsTest extends TestCase {
     }
 
     @Test
-    public void testTemperatureConversion() throws IOException {
+    public void testTemperatureConversion() throws IOException, BigResult {
         Temperature f = new TemperatureI(32, UnitsTemperature.FAHRENHEIT);
         Temperature c = new TemperatureI(f, UnitsTemperature.CELSIUS);
         Temperature k = new TemperatureI(c, UnitsTemperature.KELVIN);

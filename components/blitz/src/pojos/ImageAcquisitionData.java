@@ -2,7 +2,7 @@
  * pojos.ImageAcquisitionData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 package pojos;
 
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RLong;
 import omero.model.Image;
@@ -132,8 +133,9 @@ public class ImageAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
 	 */
-	public Length getPositionX(UnitsLength unit)
+	public Length getPositionX(UnitsLength unit) throws BigResult
 	{
 		if (label == null) 
 			return null;
@@ -165,8 +167,9 @@ public class ImageAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
 	 */
-	public Length getPositionY(UnitsLength unit)
+	public Length getPositionY(UnitsLength unit) throws BigResult
 	{
 		if (label == null) 
 			return null;
@@ -198,8 +201,9 @@ public class ImageAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getPositionZ(UnitsLength unit)
+	public Length getPositionZ(UnitsLength unit) throws BigResult
 	{
 		if (label == null) 
 			return null;
@@ -231,8 +235,9 @@ public class ImageAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Temperature getTemperature(UnitsTemperature unit)
+	public Temperature getTemperature(UnitsTemperature unit) throws BigResult
 	{
 		if (environment == null) 
 			return null;
@@ -264,8 +269,9 @@ public class ImageAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Pressure getAirPressure(UnitsPressure unit)
+	public Pressure getAirPressure(UnitsPressure unit) throws BigResult
 	{
 		if (environment == null) 
 			return null;

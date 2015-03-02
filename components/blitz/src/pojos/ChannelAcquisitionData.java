@@ -2,7 +2,7 @@
  * pojos.ChannelAcquisitionData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@
 package pojos;
 
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.model.AcquisitionMode;
 import omero.model.Binning;
@@ -167,8 +168,9 @@ public class ChannelAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public ElectricPotential getDetectorSettingsVoltage(UnitsElectricPotential unit)
+	public ElectricPotential getDetectorSettingsVoltage(UnitsElectricPotential unit) throws BigResult
 	{
 		if (detectorSettings == null) 
 			return null;
@@ -202,8 +204,9 @@ public class ChannelAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Frequency getDetectorSettingsReadOutRate(UnitsFrequency unit)
+	public Frequency getDetectorSettingsReadOutRate(UnitsFrequency unit) throws BigResult
 	{
 		if (detectorSettings == null) return null;
 		Frequency f = detectorSettings.getReadOutRate();
@@ -224,8 +227,12 @@ public class ChannelAcquisitionData
 		if (detectorSettings == null) return null;
 		Frequency value = detectorSettings.getReadOutRate();
 		if (value == null) return null;
-		return new FrequencyI(value, UnitsFactory.DetectorSettings_ReadOutRate)
-		    .getValue();
+		try {
+            return new FrequencyI(value, UnitsFactory.DetectorSettings_ReadOutRate)
+                .getValue();
+        } catch (BigResult e) {
+            return e.result.doubleValue();
+        }
 	}
 	
 	/**
@@ -262,8 +269,9 @@ public class ChannelAcquisitionData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getLightSettingsWavelength(UnitsLength unit)
+	public Length getLightSettingsWavelength(UnitsLength unit) throws BigResult
 	{
 		if (lightSettings == null) return null;
 		Length l = lightSettings.getWavelength();
