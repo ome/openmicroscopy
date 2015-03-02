@@ -45,7 +45,7 @@
     <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
     <!-- ... and for single images -->
 
-    {% if image or filesetInfo %}
+    {% if image.canDownload or filesetInfo %}
     <!-- download options -->
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">

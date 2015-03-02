@@ -1934,6 +1934,22 @@ class OmeroWebSafeCallWrapper(OmeroGatewaySafeCallWrapper): #pragma: no cover
 
 omero.gateway.SafeCallWrapper = OmeroWebSafeCallWrapper
 
+
+class OmeroRestrictionWrapper (object):
+
+    def canDownload(self):
+        """
+        Determines if the current user can Download raw data linked to that
+        object. The canDownload() property is set on objects:
+        Image, Fileset, FileAnnotation as it is read from the server,
+        based on the current user, event context and group permissions.
+
+        :rtype:     Boolean
+        :return:    True if user can download.
+        """
+        return not self.getDetails().getPermissions().isRestricted('TEST')
+
+
 class OmeroWebObjectWrapper (object):
     
     annotation_counter = None
@@ -2211,7 +2227,7 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
      
 omero.gateway.DatasetWrapper = DatasetWrapper
 
-class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
+class ImageWrapper (OmeroWebObjectWrapper, OmeroRestrictionWrapper, omero.gateway.ImageWrapper):
     """
     omero_model_ImageI class wrapper overwrite omero.gateway.ImageWrapper
     and extends OmeroWebObjectWrapper.
@@ -2358,6 +2374,13 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
         super(ScreenWrapper, self).__prepare__(**kwargs)
         if kwargs.has_key('annotation_counter'):
             self.annotation_counter = kwargs['annotation_counter']
+
+class FileAnnotationWrapper (OmeroRestrictionWrapper, omero.gateway.FileAnnotationWrapper):
+    """
+    omero_model_FileAnnotationI class wrapper extends AnnotationWrapper.
+    """
+    pass
+
 
 omero.gateway.ScreenWrapper = ScreenWrapper
 
