@@ -61,7 +61,7 @@ class ElectricPotentialObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.ElectricPotentialI(self.client)
+        return self.ElectricPotentialI()
 
     def destroy(self):
         pass
@@ -74,7 +74,7 @@ class FrequencyObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.FrequencyI(self.client)
+        return self.FrequencyI()
 
     def destroy(self):
         pass
@@ -87,7 +87,7 @@ class LengthObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.LengthI(self.client)
+        return self.LengthI()
 
     def destroy(self):
         pass
@@ -100,7 +100,7 @@ class PowerObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.PowerI(self.client)
+        return self.PowerI()
 
     def destroy(self):
         pass
@@ -113,7 +113,7 @@ class PressureObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.PressureI(self.client)
+        return self.PressureI()
 
     def destroy(self):
         pass
@@ -126,7 +126,7 @@ class TemperatureObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.TemperatureI(self.client)
+        return self.TemperatureI()
 
     def destroy(self):
         pass
@@ -139,7 +139,7 @@ class TimeObjectFactory(Ice.ObjectFactory):
         self.client = client
 
     def create(self, type):
-        return self.TimeI(self.client)
+        return self.TimeI()
 
     def destroy(self):
         pass
