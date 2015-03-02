@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,9 +19,11 @@
 
 package omero.cmd.graphs;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.HashMultimap;
@@ -85,9 +87,9 @@ public class ChownFacadeI extends Chown implements IRequest {
         final Chown2I actualChown = (Chown2I) chownRequest;
         /* set target object and group then review options */
         addToTargets(type, id);
-        actualChown.targetObjects = new HashMap<String, long[]>();
+        actualChown.targetObjects = new HashMap<String, List<Long>>();
         for (final Map.Entry<String, Collection<Long>> oneClassToTarget : targetObjects.asMap().entrySet()) {
-            actualChown.targetObjects.put(oneClassToTarget.getKey(), GraphUtil.idsToArray(oneClassToTarget.getValue()));
+            actualChown.targetObjects.put(oneClassToTarget.getKey(), new ArrayList<Long>(oneClassToTarget.getValue()));
         }
         targetObjects.clear();
         actualChown.userId = user;

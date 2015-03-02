@@ -44,6 +44,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -63,6 +65,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
@@ -815,12 +818,21 @@ class MetadataViewerComponent
 		
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
+				Object src = evt.getSource();
 				if (MovieExportDialog.CREATE_MOVIE_PROPERTY.equals(name)) {
-					Object src = evt.getSource();
 					if (src instanceof MovieExportDialog) {
 						MovieExportDialog d = (MovieExportDialog) src;
 						createMovie(d.getParameters());
 					}
+				} else if (
+				ScriptingDialog.VIEW_SELECTED_SCRIPT_PROPERTY.equals(name)) {
+                    if (src instanceof MovieExportDialog) {
+                        String script = (String) evt.getNewValue();
+                        ScriptObject object =
+                                model.getEditor().getScriptFromName(script);
+                        if (object == null) return;
+                        manageScript(object, MetadataViewer.VIEW);
+                    }
 				}
 			}
 		});

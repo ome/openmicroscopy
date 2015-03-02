@@ -170,49 +170,13 @@ class ToolBar
 	private JButton viewButton;
 
 	/** The Button displaying the path to the file on the server.*/
-	private JMenuItem pathButton;
+	private JButton pathButton;
 	
 	/** Menu for displaying the 'Located in' information */
-	private JMenuItem locationButton;
-	
-	/** Button display the links like path, html.*/
-	private JButton linkButton;
+	private JButton locationButton;
 	
 	/** The component where the mouse clicked occurred.*/
 	private Component component;
-	
-	/** The menu displaying the link option. */
-	private JPopupMenu linkMenu;
-	
-	/** 
-	 * Creates or recycles the link menu.
-	 * 
-	 * @return See above.
-	 */
-    private JPopupMenu createLinkMenu()
-    {
-    	if (linkMenu != null) return linkMenu;
-    	linkMenu = new JPopupMenu();
-		IconManager icons = IconManager.getInstance();
-		
-		pathButton = new JMenuItem(icons.getIcon(IconManager.FILE_PATH));
-		pathButton.setText("Show File Paths...");
-		pathButton.setToolTipText("Show file paths on the server.");
-		pathButton.addActionListener(controller);
-		pathButton.setActionCommand(""+EditorControl.FILE_PATH_TOOLBAR);
-		pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
-		
-		locationButton = new JMenuItem(icons.getIcon(IconManager.DATASET));
-		locationButton.setText("Show Location...");
-		locationButton.setToolTipText("Show location in data hierarchy.");
-		locationButton.addActionListener(controller);
-		locationButton.setActionCommand(""+EditorControl.SHOW_LOCATION);
-		locationButton.setEnabled(model.isSingleMode() && model.getImage() != null);
-		
-		linkMenu.add(locationButton);
-		linkMenu.add(pathButton);
-    	return linkMenu;
-    }
 
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
@@ -435,8 +399,8 @@ class ToolBar
 		});
 		saveAsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		
-		viewButton = new JButton(icons.getIcon(IconManager.VIEW));
-		viewButton.setToolTipText("Open the Image Viewer");
+		viewButton = new JButton("Full Viewer");
+		viewButton.setToolTipText("Open full viewer.");
 		if (MetadataViewerAgent.runAsPlugin() == LookupNames.IMAGE_J) {
 			viewButton.addMouseListener(new MouseAdapter() {
 				
@@ -452,25 +416,31 @@ class ToolBar
 			viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
 	    	viewButton.addActionListener(controller);
 		}
-		linkButton = new JButton(icons.getIcon(IconManager.LINK));
-		linkButton.addMouseListener(new MouseAdapter() {
-		    
-                    /**
-                     * Launches the dialog when the user releases the mouse.
-                     * MouseAdapter#mouseReleased(MouseEvent)
-                     */
-                    public void mouseReleased(MouseEvent e) {
-                        if (linkButton.isEnabled()) {
-                            location = e.getPoint();
-                            component = (Component) e.getSource();
-                            createLinkMenu().show(component, location.x, location.y);
-                        }
-                    }
-                    
-		});
 		
-		UIUtilities.unifiedButtonLookAndFeel(linkButton);
-		UIUtilities.unifiedButtonLookAndFeel(viewButton);
+        MouseListener pathLocML = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                location = e.getPoint();
+                component = (Component) e.getSource();
+            }
+        };
+		
+		pathButton = new JButton(icons.getIcon(IconManager.FILE_PATH));
+        pathButton.setToolTipText("Show file paths on server.");
+        pathButton.addActionListener(controller);
+        pathButton.setActionCommand(""+EditorControl.SHOW_FILE_PATHS);
+        pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+        pathButton.addMouseListener(pathLocML);
+        
+        locationButton = new JButton(icons.getIcon(IconManager.DATASET));
+        locationButton.setToolTipText("Show parent Projects & Datasets.");
+        locationButton.addActionListener(controller);
+        locationButton.setActionCommand(""+EditorControl.SHOW_LOCATION);
+        locationButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+        locationButton.addMouseListener(pathLocML);
+		
+		UIUtilities.unifiedButtonLookAndFeel(pathButton);
+		UIUtilities.unifiedButtonLookAndFeel(locationButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
@@ -501,59 +471,30 @@ class ToolBar
     	bar.setFloatable(false);
     	bar.setRollover(true);
     	bar.setBorder(null);
+    	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+    	
+        bar.add(viewButton);
+        bar.add(Box.createHorizontalGlue());
     	bar.add(saveButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(refreshButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(viewButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(linkButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(saveAsButton);
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(publishingButton);
-    	/*
-    	if (MetadataViewerAgent.isAdministrator()) {
-    		bar.add(Box.createHorizontalStrut(5));
-        	bar.add(uploadScriptButton);
-    	}
-    	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(scriptsButton);
-    	*/
-    	//bar.add(scriptsButton);
+        bar.add(publishingButton);
+        bar.add(Box.createHorizontalStrut(5));
+        bar.add(locationButton);
+        bar.add(Box.createHorizontalStrut(5));
+        bar.add(pathButton);
+  
+        bar.add(Box.createHorizontalStrut(20));
+        bar.add(busyLabel);
+        
     	return bar;
-    }
-    
-    /**
-     * Enables or disables the Show File path button
-     * @param b <code>true</code> enables the button; disables the button otherwise
-     */
-    public void enableFilePathButton(boolean b) {
-        if(!model.isSingleMode() || model.getImage() == null) {
-            b = false;
-        }
-        linkButton.setEnabled(b);
     }
     
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	JPanel bars = new JPanel();
-    	bars.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
-    	bars.add(buildGeneralBar());
-    	JPanel p = new JPanel();
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-    	JPanel pp = UIUtilities.buildComponentPanel(bars);
-    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(pp);
-    	pp = UIUtilities.buildComponentPanelRight(busyLabel);
-    	pp.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p.add(pp);
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	add(p);
+    	add(buildGeneralBar());
     	add(new JSeparator());
     }
     
@@ -720,33 +661,35 @@ class ToolBar
     /** Sets the root object. */
 	private void setRootObject()
 	{ 
-		Object ref = model.getRefObject();
-		if (ref instanceof ExperimenterData || ref instanceof GroupData) {
-			publishingButton.setEnabled(false);
-			analysisButton.setEnabled(false);
-			scriptsButton.setEnabled(false);
-			return;
-		}
-                if (!(ref instanceof ImageData)) {
-                    linkButton.setEnabled(false);
-                }
-		viewButton.setEnabled(false);
-    	exportAsOmeTiffButton.setEnabled(false);
-    	if (pathButton != null) pathButton.setEnabled(false);
-		if (exportAsOmeTiffButton != null)
-			exportAsOmeTiffButton.setEnabled(false);
-    	if (model.isSingleMode() && model.getImage() != null) {
-    		if (exportAsOmeTiffItem != null)
-				exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
-			viewButton.setEnabled(true);
-			if (pathButton != null) pathButton.setEnabled(true);
-    	}
-    	
-		publishingButton.setEnabled(true);
-		analysisButton.setEnabled(true);
-		scriptsButton.setEnabled(true);
-		if (publishingDialog != null) publishingDialog.setRootObject();
-		if (analysisDialog != null) analysisDialog.setRootObject();
+        Object ref = model.getRefObject();
+        if (ref instanceof ExperimenterData || ref instanceof GroupData) {
+            publishingButton.setEnabled(false);
+            analysisButton.setEnabled(false);
+            scriptsButton.setEnabled(false);
+            return;
+        }
+        
+        pathButton.setEnabled(false);
+        locationButton.setEnabled(false);
+        viewButton.setEnabled(false);
+        exportAsOmeTiffButton.setEnabled(false);
+        
+        if (model.isSingleMode()) {
+            exportAsOmeTiffButton.setEnabled(model.getImage() != null
+                    && !model.isLargeImage());
+            viewButton.setEnabled(model.getImage() != null);
+            pathButton.setEnabled(model.getImage() != null);
+            locationButton.setEnabled((model.getImage() != null || model
+                    .getRefObject() instanceof DatasetData));
+        }
+
+        publishingButton.setEnabled(true);
+        analysisButton.setEnabled(true);
+        scriptsButton.setEnabled(true);
+        if (publishingDialog != null)
+            publishingDialog.setRootObject();
+        if (analysisDialog != null)
+            analysisDialog.setRootObject();
 	}
 
 	/**
@@ -803,6 +746,11 @@ class ToolBar
             SwingUtilities.convertPointToScreen(location, component);
             FilesetInfoDialog d = new FilesetInfoDialog();
             d.setData(model.getFileset(), model.isInplaceImport());
+            d.pack();
+            if (location != null) {
+                location = new Point(location.x - d.getSize().width,
+                        location.y + 10);
+            }
             d.open(location);
         }
         
@@ -815,30 +763,13 @@ class ToolBar
             SwingUtilities.convertPointToScreen(location, component);
             TinyDialog d = new TinyDialog(null, new JScrollPane(comp), TinyDialog.CLOSE_ONLY);
             d.getContentPane().setBackground(comp.getBackground());
+            if (location != null) {
+                location = new Point(location.x - 400,
+                        location.y + 10);
+            }
             d.setLocation(location);
             d.setSize(new Dimension(400,130));
             d.setResizable(true);
-            d.addWindowFocusListener(new WindowFocusListener() {
-
-                /**
-                 * Closes the dialog when the window loses focus.
-                 * 
-                 * @see WindowFocusListener#windowLostFocus(WindowEvent)
-                 */
-                public void windowLostFocus(WindowEvent evt) {
-                    TinyDialog d = (TinyDialog) evt.getSource();
-                    d.setClosed(true);
-                    d.closeWindow();
-                }
-
-                /**
-                 * Required by the I/F but no-operation in our case.
-                 * 
-                 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-                 */
-                public void windowGainedFocus(WindowEvent evt) {
-                }
-            });
             d.setVisible(true);
         }
 }

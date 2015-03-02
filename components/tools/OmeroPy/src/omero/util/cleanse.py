@@ -5,7 +5,7 @@ Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 """
 
 #
-#  Copyright (c) 2009 University of Dundee. All rights reserved.
+#  Copyright (c) 2009-2015 University of Dundee. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions
@@ -206,8 +206,15 @@ def initial_check(config_service):
         sys.exit(3)
 
 
-def cleanse(data_dir, query_service, dry_run=False, config_service=None):
+def cleanse(data_dir, client, dry_run=False):
+    client.getImplicitContext().put(omero.constants.GROUP, '-1')
+
+    query_service = client.sf.getQueryService()
+    config_service = client.sf.getConfigService()
+    shared_resources = client.sf.sharedResources()
+
     initial_check(config_service)
+
     try:
         cleanser = ""
         for directory in SEARCH_DIRECTORIES:
@@ -225,6 +232,65 @@ def cleanse(data_dir, query_service, dry_run=False, config_service=None):
     finally:
         if dry_run:
             print cleanser
+
+    # delete empty directories from the managed repositories
+    repos = shared_resources.repositories()
+    for (description, proxy) in zip(repos.descriptions, repos.proxies):
+        if description.name.val == 'ManagedRepository':
+            # found a managed repository, so delete empty directories
+            root = description.path.val + description.name.val
+            delete_empty_dirs(proxy, root, client, dry_run)
+
+
+def delete_empty_dirs(repo, root, client, dry_run):
+    # empty subdirectories are to be appended to this list
+    to_delete = []
+
+    # find the empty subdirectories
+    is_empty_dir(repo, '/', False, to_delete)
+
+    if dry_run:
+        for directory in to_delete:
+            print "Would remove %s%s" % (root, directory)
+    elif to_delete:
+        # probably less than a screenful
+        batch_size = 20
+
+        for from_index in range(0, len(to_delete), batch_size):
+            batch_to_delete = to_delete[from_index:from_index + batch_size]
+            for directory in batch_to_delete:
+                print "Removing %s%s" % (root, directory)
+            handle = repo.deletePaths(batch_to_delete, True, False)
+            try:
+                client.waitOnCmd(handle, closehandle=True)
+            except omero.CmdError, ce:
+                if isinstance(ce.err, omero.cmd.GraphException):
+                    raise Exception("failed delete: " + ce.err.message)
+                else:
+                    raise Exception("failed: " + ce.err.name)
+
+
+def is_empty_dir(repo, directory, may_delete_dir, to_delete):
+    empty_subdirs = []
+    is_empty = True
+
+    for entry in repo.listFiles(directory):
+        subdirectory = directory + entry.name.val + '/'
+        may_delete_subdir = entry.details.permissions.canDelete()
+        if entry.mimetype is not None and \
+           entry.mimetype.val == 'Directory' and \
+           is_empty_dir(repo, subdirectory, may_delete_subdir, empty_subdirs):
+            if may_delete_subdir:
+                # note empty subdirectories that can be deleted
+                empty_subdirs.append(subdirectory)
+        else:
+            is_empty = False
+
+    if not (may_delete_dir and is_empty):
+        # cannot delete this directory, so note empty subdirectories
+        to_delete.extend(empty_subdirs)
+
+    return is_empty
 
 
 def fixpyramids(data_dir, query_service, dry_run=False, config_service=None):

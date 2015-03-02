@@ -23,7 +23,7 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
-//Java imports
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Collection;
@@ -33,10 +33,6 @@ import java.util.Set;
 
 import javax.swing.JComponent;
 
-//Third-party libraries
-
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.FileAnnotationCheckResult;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -49,7 +45,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
-import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
@@ -534,15 +529,10 @@ public interface Editor
 	 */
 	void setFileset(Set<FilesetData> result);
 
-	/** Loads the file set associated to the image.
-	 * 
-	 * @param trigger The action which triggered the loading,
-	 * see {@link EditorControl#FILE_PATH_TOOLBAR}
-	 * or {@link EditorControl#FILE_PATH_INPLACE_ICON}; 
-	 * (pass -1 or any other unreserved value to load the filesets automatically
-	 *  without user trigger)
+	/** 
+	 * Loads the file set associated to the image.
 	 * */
-	void loadFileset(int trigger);
+	void loadFileset();
 
 	/**
 	 * Loads the rendering engine depending on the selected pane or component
@@ -557,4 +547,6 @@ public interface Editor
 	 * @param result The value to set.
 	 */
     void setLDAPDetails(long userID, String result);
+
+    ScriptObject getScriptFromName(String name);
 }

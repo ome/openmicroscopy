@@ -70,6 +70,7 @@ public class LuceneQueryBuilder {
     static {
         NO_BREAK.add("_");
         NO_BREAK.add("-");
+        NO_BREAK.add(":");
     }
 
     /**
@@ -160,13 +161,22 @@ public class LuceneQueryBuilder {
                 continue;
             }
 
-            String newTerm = "";
-            for (String field : fields) {
-                if (newTerm.length() > 0)
-                    newTerm += " ";
-                newTerm += field + ":" + term;
+            if((term.indexOf(':')) == -1) {
+                // only add fields, if the term is not already in form 'foo:bar'
+                // (i. e. it is not a MapAnnotation specific search term)
+                String newTerm = "";
+                for (String field : fields) {
+                    if (newTerm.length() > 0)
+                        newTerm += " ";
+                    
+                    newTerm += field + ":" + term;
+                }
+                result.add(newTerm);
             }
-            result.add(newTerm);
+            else {
+                result.add(term);
+            }
+            
         }
         return result;
     }

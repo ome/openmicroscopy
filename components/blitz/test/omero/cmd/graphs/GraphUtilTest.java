@@ -19,7 +19,6 @@
 
 package omero.cmd.graphs;
 
-import java.util.Collections;
 import java.util.Map.Entry;
 
 import ome.services.graphs.GraphTraversal;
@@ -29,8 +28,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -41,60 +38,6 @@ import com.google.common.collect.SetMultimap;
  */
 @Test
 public class GraphUtilTest {
-
-    /**
-     * Test that {@link GraphUtil#getIdListMapSize(java.util.Map)} counts an empty map as having no IDs.
-     */
-    public void testGetIdListMapSizeUnpopulated() {
-        final int expected = 0;
-        final int actual = GraphUtil.getIdListMapSize(Collections.<Object, long[]>emptyMap());
-        Assert.assertEquals(actual, expected,
-                "an empty ID list map must have no IDs");
-    }
-
-    /**
-     * Test that {@link GraphUtil#getIdListMapSize(java.util.Map)} counts IDs correctly.
-     */
-    public void testGetIdListMapSizePopulated() {
-        final ImmutableMap.Builder<Integer, long[]> builder = ImmutableMap.builder();
-        int expected = 0;
-        for (int i = 0; i < 20; i++) {
-            builder.put(i, new long[i]);
-            expected += i;
-        }
-        final int actual = GraphUtil.getIdListMapSize(builder.build());
-        Assert.assertEquals(actual, expected,
-                "ID list map size is incorrect");
-    }
-
-    /**
-     * Test that {@link GraphUtil#idsToArray(java.util.Collection)} converts an empty list to an empty array.
-     */
-    public void testIdsToArrayUnpopulatedList() {
-        final int expected = 0;
-        final int actual = GraphUtil.idsToArray(Collections.<Long>emptyList()).length;
-        Assert.assertEquals(actual, expected,
-                "an empty list should become an empty array");
-    }
-
-    /**
-     * Test that {@link GraphUtil#idsToArray(java.util.Collection)} converts a set of IDs to an array correctly.
-     */
-    public void testIdsToArrayPopulatedSet() {
-        final ImmutableSet.Builder<Long> builder = ImmutableSet.builder();
-        final long[] expected = new long[20];
-        for (int i = 0; i < expected.length; i++) {
-            builder.add(Long.valueOf(i));
-            expected[i] = i;
-        }
-        final long[] actual = GraphUtil.idsToArray(builder.build());
-        Assert.assertEquals(actual.length, expected.length,
-                "after conversion to an array there should be the same number of elements");
-        for (int i = 0; i < expected.length; i++) {
-            Assert.assertEquals(actual[i], expected[i],
-                    "conversion to an array ought not mutate elements");
-        }
-    }
 
     /**
      * Test that {@link GraphUtil#trimPackageNames(SetMultimap)} correctly trim package names from map keys.

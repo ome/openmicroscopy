@@ -25,11 +25,10 @@
 {% block center_details %}
   <div id="admin_tabs">
     <ul id="webadmin_main_tabs">
-      {% webadmin_options as admin_opts %}
       <li id="experimenters_tab"><a href="{% url 'waexperimenters' %}" title="Edit Users">{% trans "Users" %}</a></li>
       <li id="groups_tab"><a href="{% url 'wagroups' %}" title="Edit Groups">{% trans "Groups" %}</a></li>
       <li id="drivespace_tab"><a href="{% url 'wastats' %}" title="Statistics">{% trans "Statistics" %}</a></li>
-      {% if admin_opts.email %}
+      {% if ome.email %}
         <li id="email_tab"><a href="{% url 'waemail' %}" title="Email Users">{% trans "Email" %}</a></li>
       {% endif %}
     </ul>

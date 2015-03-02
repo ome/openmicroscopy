@@ -59,7 +59,10 @@
 
 
 			{% block middle_header_right %}
-					
+                <ul class="header_toolbar" id="script_notifications">
+                    {% include "webclient/base/includes/script_launch.html" %}
+                    {% include "webclient/base/includes/activities_info.html" %}
+                </ul>
 				<!-- Global Search -->
 				{% include "webclient/base/includes/search_field.html" %}
 						

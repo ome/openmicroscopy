@@ -427,23 +427,20 @@ public class IconManager
     /** The <code>Link</code> icon. */
     public static final int LINK = 124;
     
-    /** The <code>Inplace Import</code> icon. */
-    public static final int INPLACE_IMPORT = 125;
-    
     /** The <code>Copy</code> icon. */
-    public static final int COPY = 126;
+    public static final int COPY = 125;
     
     /** The <code>Paste</code> icon. */
-    public static final int PASTE = 127;
+    public static final int PASTE = 126;
     
     /** The <code>Plus</code> icon. */
-    public static final int PLUS = 128;
+    public static final int PLUS = 127;
     
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing.
 	 */
-	private static final int          MAX_ID = 128;
+	private static final int          MAX_ID = 127;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -573,7 +570,6 @@ public class IconManager
         relPaths[VIEWER_IJ] = "imageJ16.png";
         relPaths[FILE_PATH] = "icon_fs_path16.png";
         relPaths[LINK] = "nuvola_enhanced_browsing16.png";
-        relPaths[INPLACE_IMPORT] = "red-link-icon-16.png";
         relPaths[COPY] = "eclipse_copy_edit16.png";
         relPaths[PASTE] = "eclipse_paste_edit16.png";
         relPaths[PLUS] = "nuvola_edit_add16.png";

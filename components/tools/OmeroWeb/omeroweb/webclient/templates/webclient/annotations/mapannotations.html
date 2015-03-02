@@ -28,7 +28,7 @@
         var $input,
             inputEdited = false,
             saveInProgress = false,
-            saveTimeout,
+            saveTimeout, waitingToSave,
             $lastRow = $("<tr class='placeholder'><td>Add Key</td><td>Add Value</td></tr>"),
             multiSelectKey = OME.multi_key() + "Key";
 
@@ -64,6 +64,15 @@
             var key = getCellText($tr.children('td:first')),
                 val = getCellText($tr.children('td:last'));
             return [key, val]
+        }
+
+        var saveInASec = function saveInASec($table) {
+            if (waitingToSave) {
+                clearTimeout(waitingToSave)
+            }
+            waitingToSave = setTimeout(function() {
+                saveMapAnnotation($table);
+            }, 1000);
         }
 
         // Save $table data to OMERO via $.post()
@@ -365,6 +374,8 @@
                     break;
                 default:
                     inputEdited = true;
+                    $table = $td.parent().parent().parent();
+                    saveInASec($table);
             }
 
             // Ignore Tab

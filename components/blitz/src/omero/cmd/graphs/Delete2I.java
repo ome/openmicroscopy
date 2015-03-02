@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -107,7 +107,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
 
         final EventContext eventContext = helper.getEventContext();
 
-        final ChildOptionI[] childOptions = ChildOptionI.castChildOptions(this.childOptions);
+        final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
 
         if (childOptions != null) {
             for (final ChildOptionI childOption : childOptions) {
@@ -137,7 +137,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
             case 0:
                 /* if targetObjects were an IObjectList then this would need IceMapper.reverse */
                 final SetMultimap<String, Long> targetMultimap = HashMultimap.create();
-                for (final Entry<String, long[]> oneClassToTarget : targetObjects.entrySet()) {
+                for (final Entry<String, List<Long>> oneClassToTarget : targetObjects.entrySet()) {
                     String className = oneClassToTarget.getKey();
                     if (className.lastIndexOf('.') < 0) {
                         className = graphPathBean.getClassForSimpleName(className).getName();
@@ -186,12 +186,11 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
                     helper.cancel(new ERR(), e, "file deletion error");
                 }
             }
-            final Map<String, long[]> deletedObjects = new HashMap<String, long[]>();
+            final Map<String, List<Long>> deletedObjects = new HashMap<String, List<Long>>();
             for (final String className : Sets.union(resultProcessed.keySet(), resultDeleted.keySet())) {
                 final Set<Long> ids = Sets.union(resultProcessed.get(className), resultDeleted.get(className));
-                final long[] idArray = GraphUtil.idsToArray(ids);
-                deletedObjectCount += idArray.length;
-                deletedObjects.put(className, idArray);
+                deletedObjectCount += ids.size();
+                deletedObjects.put(className, new ArrayList<Long>(ids));
             }
             final Delete2Response response = new Delete2Response(deletedObjects);
             helper.setResponseIfNull(response);
@@ -225,7 +224,7 @@ public class Delete2I extends Delete2 implements IRequest, WrappableRequest<Dele
     }
 
     @Override
-    public Map<String, long[]> getStartFrom(Response response) {
+    public Map<String, List<Long>> getStartFrom(Response response) {
         return ((Delete2Response) response).deletedObjects;
     }
 

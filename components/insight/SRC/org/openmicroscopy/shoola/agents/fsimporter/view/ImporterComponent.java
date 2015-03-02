@@ -841,7 +841,6 @@ class ImporterComponent
 		element.setImportResult(component, result);
 		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
-		
 		if (CollectionUtils.isEmpty(pixels)) return;
 		List<DataObject> l = new ArrayList<DataObject>();
 		Iterator<PixelsData> i = pixels.iterator();

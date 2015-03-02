@@ -506,6 +506,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         final ome.model.fs.Fileset fs = (ome.model.fs.Fileset) mapper.reverse(_fs);
 
+        final StopWatch outer = new Slf4JStopWatch();
         try {
             return (Fileset) mapper.map((ome.model.fs.Fileset)
                     executor.execute(current.ctx, currentUser(current),
@@ -525,21 +526,34 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         }
                     }
 
+                    StopWatch sw = new Slf4JStopWatch();
                     final int size = paths.size();
                     List<ome.model.core.OriginalFile> ofs =
                                 _internalRegister(repoUuid, paths, parents,
                                         checksumAlgorithm, null,
                                         sf, getSqlAction());
+                    sw.stop("omero.repo.save_fileset.register");
+
+                    sw = new Slf4JStopWatch();
                     for (int i = 0; i < size; i++) {
                         CheckedPath checked = paths.get(i);
                         ome.model.core.OriginalFile of = ofs.get(i);
                         fs.getFilesetEntry(i).setOriginalFile(of);
                     }
+                    sw.stop("omero.repo.save_fileset.update_fileset_entries");
 
-                    return sf.getUpdateService().saveAndReturnObject(fs);
+                    sw = new Slf4JStopWatch();
+                    try {
+                        return sf.getUpdateService().saveAndReturnObject(fs);
+                    } finally {
+                        sw.stop("omero.repo.save_fileset.save");
+                    }
+
                 }}));
         } catch (Exception e) {
             throw (ServerError) mapper.handleException(e, executor.getContext());
+        } finally {
+            outer.stop("omero.repo.save_fileset");
         }
     }
 
@@ -772,17 +786,19 @@ public class RepositoryDaoImpl implements RepositoryDao {
             levels.put(parents.get(i), checked.get(i));
         }
 
-        for (CheckedPath parent : levels.keys()) {
+        for (CheckedPath parent : levels.keySet()) {
             List<CheckedPath> level = levels.get(parent);
             List<String> basenames = new ArrayList<String>(checked.size());
             for (CheckedPath path: level) {
                 basenames.add(path.getName());
             }
 
+            StopWatch sw = new Slf4JStopWatch();
             Map<String, Long> fileIds = sql.findRepoFiles(repoUuid,
                 level.get(0).getRelativePath(), /* all the same */
                 basenames, null /*mimetypes*/);
-            
+            sw.stop("omero.repo.internal_register.find_repo_files");
+
             List<Long> toLoad = new ArrayList<Long>();
             List<CheckedPath> toCreate = new ArrayList<CheckedPath>();
             for (int i = 0; i < level.size(); i++) {
@@ -803,12 +819,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 toReturn.addAll(created);
             }
 
+            sw = new Slf4JStopWatch();
             if (toLoad.size() > 0) {
                 List<ome.model.core.OriginalFile> loaded = 
                     sf.getQueryService().findAllByQuery("select o from OriginalFile o " +
                         "where o.id in (:ids)", new Parameters().addIds(toLoad));
                 toReturn.addAll(loaded);
             }
+            sw.stop("omero.repo.internal_register.load");
         }
         return toReturn;
     }
@@ -953,8 +971,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
             ofile.setHasher(ca);
         }
 
+
+        StopWatch sw = new Slf4JStopWatch();
         IObject[] saved = sf.getUpdateService().saveAndReturnArray(rv.toArray(new IObject[rv.size()]));
+        sw.stop("omero.repo.create_original_file.save");
         final List<Long> ids = new ArrayList<Long>(saved.length);
+        sw = new Slf4JStopWatch();
         for (int i = 0; i < saved.length; i++) {
             final CheckedPath path = checked.get(i);
             final ome.model.core.OriginalFile ofile = (ome.model.core.OriginalFile) saved[i];
@@ -964,7 +986,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 internalMkdir(path);
             }
         }
+        sw.stop("omero.repo.create_original_file.internal_mkdir");
+
+        sw = new Slf4JStopWatch();
         sql.setFileRepo(ids, repoUuid);
+        sw.stop("omero.repo.create_original_file.set_file_repo");
         return rv;
     }
 

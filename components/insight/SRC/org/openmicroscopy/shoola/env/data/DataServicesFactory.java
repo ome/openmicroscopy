@@ -562,7 +562,10 @@ public class DataServicesFactory
     	String clientVersion = "";
     	if (v != null && v instanceof String)
     		clientVersion = (String) v;
-    	
+    	if (uc.getUserName().equals(client.getSessionId())) {
+    	    container.getRegistry().bind(LookupNames.SESSION_KEY, Boolean.TRUE);
+    	}
+    	;
         //Check if client and server are compatible.
         String version = omeroGateway.getServerVersion();
         Boolean check = checkClientServerCompatibility(version, clientVersion);
@@ -577,10 +580,10 @@ public class DataServicesFactory
         	omeroGateway.logout();
         	return;
         }
-        
-        ExperimenterData exp = omeroGateway.login(client, uc.getUserName(), 
-        		uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-        		uc.getGroup(), uc.getPort());
+
+        ExperimenterData exp = omeroGateway.login(client,
+                uc.getHostName(), determineCompression(uc.getSpeedLevel()),
+                uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
@@ -594,9 +597,9 @@ public class DataServicesFactory
         Entry<String, String> entry;
         Iterator<Entry<String, String>> k = info.entrySet().iterator();
         while (k.hasNext()) {
-        	entry = k.next();
-        	msg.println(entry.getKey()+": "+entry.getValue());
-		}
+            entry = k.next();
+            msg.println(entry.getKey()+": "+entry.getValue());
+        }
         registry.getLogger().info(this, msg);
         
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);

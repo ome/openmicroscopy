@@ -11,6 +11,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -39,6 +40,9 @@ public class MailUtil {
     protected final JavaMailSender mailSender;
 
     public MailUtil(String sender, JavaMailSender mailSender) {
+        if (StringUtils.isBlank(sender)) {
+            log.error("omero.mail.from is empty. Email notification won't be sent.");
+        }
         this.sender = sender;
         this.mailSender = mailSender;
     }
@@ -51,8 +55,8 @@ public class MailUtil {
     }
 
     /**
-     * Main method which takes typical email fields as an arguments, to prepare
-     * and populate the given new MimeMessage instance and send.
+     * Main method which takes typical email fields as arguments, to prepare and
+     * populate the given new MimeMessage instance and send.
      * 
      * @param from
      *            email address message is sent from
@@ -71,8 +75,7 @@ public class MailUtil {
      */
     public void sendEmail(final String from, final String to,
             final String topic, final String body, final boolean html,
-            final List<String> ccrecipients,
-            final List<String> bccrecipients) {
+            final List<String> ccrecipients, final List<String> bccrecipients) {
 
         MimeMessagePreparator preparator = new MimeMessagePreparator() {
             public void prepare(MimeMessage mimeMessage) throws Exception {
@@ -97,7 +100,33 @@ public class MailUtil {
 
         this.mailSender.send(preparator);
     }
-    
+
+    /**
+     * Overloaded method which takes typical email fields as arguments, to
+     * prepare and populate the given new MimeMessage instance and send. Sender
+     * of the email is loaded from omero.mail.from
+     * 
+     * @param to
+     *            email address message is sent to
+     * @param topic
+     *            topic of the message
+     * @param body
+     *            body of the message
+     * @param html
+     *            flag determines the content type to apply.
+     * @param ccrecipients
+     *            list of email addresses message is sent as copy to
+     * @param bccrecipients
+     *            list of email addresses message is sent as blind copy to
+     */
+    public void sendEmail(final String to, final String topic,
+            final String body, final boolean html,
+            final List<String> ccrecipients, final List<String> bccrecipients) {
+
+        this.sendEmail(sender, to, topic, body, html, ccrecipients,
+                bccrecipients);
+    }
+
     /**
      * Helper Validate that this address conforms to the syntax rules of RFC
      * 822.

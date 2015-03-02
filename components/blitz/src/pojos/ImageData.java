@@ -1,16 +1,12 @@
 /*
  * pojos.ImageData
  *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package pojos;
 
-
-
-
-//Java imports
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,10 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import static omero.rtypes.rstring;
+import omero.RInt;
 import omero.RTime;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -202,7 +196,20 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public int getIndex() { return index; }
-    
+
+    /**
+     * Returns the series.
+     *
+     * @return See above.
+     */
+    public int getSeries()
+    {
+        Image image = asImage();
+        RInt value = image.getSeries();
+        if (value == null) return 0;
+        return value.getValue();
+    }
+
     /**
      * Returns the format of the image.
      * 

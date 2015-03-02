@@ -26,9 +26,6 @@ import logging
 from django.conf import settings
 from django import forms
 from django.forms.widgets import Textarea
-from django.core.mail import get_connection, EmailMultiAlternatives
-from django.contrib import messages
-from smtplib import SMTPException
 
 from omeroweb.connector import Server
 
@@ -37,8 +34,6 @@ from omeroweb.custom_forms import NonASCIIForm
 from custom_forms import ServerModelChoiceField, GroupModelChoiceField
 from custom_forms import GroupModelMultipleChoiceField, OmeNameField
 from custom_forms import ExperimenterModelMultipleChoiceField, MultiEmailField
-
-from .webadmin_utils import resolveExperimenters, removeUnaddressable
 
 logger = logging.getLogger(__name__)
 
@@ -480,25 +475,6 @@ class EmailForm(forms.Form):
         self.fields['groups'].choices = [
             (group.id, group.name) for group in groups]
 
-        # TODO If these are adapted to support inactive users for experimenters
-        # and not show the permissions for groups, can use these:
-
-        # self.fields['experimenters'] = ExperimenterModelMultipleChoiceField(
-        #     queryset=experimenters,
-        #     label='Users',
-        #     required=False
-        # )
-
-        # self.fields['groups'] = GroupModelMultipleChoiceField(
-        #     queryset=groups,
-        #     label='Groups',
-        #     required=False,
-        # )
-
-        # Order the form fields
-        # self.fields.keyOrder = ['everyone', 'experimenters', 'groups', 'cc',
-        #                         'subject', 'message', 'inactive']
-
         self.conn = conn
         self.request = request
 
@@ -508,114 +484,10 @@ class EmailForm(forms.Form):
         experimenters = cleaned_data.get("experimenters")
         groups = cleaned_data.get("groups")
         cc = cleaned_data.get("cc")
-        inactive = cleaned_data.get('inactive')
 
         # If nobody addressed, throw an error
         if not cc and not everyone and not experimenters and not groups:
             raise forms.ValidationError("At least one addressee must be "
                                         "specified in one or more of 'all',"
                                         " 'user', 'group' or 'cc'")
-
-        # Email resolution should be done in clean so that an error can
-        # be thrown if there are inactive experimenters in the explicit
-        # addressee list
-
-        self.recipients = set([])
-
-        # Resolve experimenters and groups to addresses
-        if everyone:
-            exp_active, exp_inactive = resolveExperimenters(
-                self.conn, everyone)
-
-            # Include active recipients
-            self.recipients.update(removeUnaddressable(exp_active))
-
-            # Include inactive recipients if enabled, otherwise drop silently
-            if inactive:
-                self.recipients.update(removeUnaddressable(exp_inactive))
-        else:
-            # Process explicitly specified Experimenters
-            exp_active, exp_inactive = resolveExperimenters(
-                self.conn,
-                experimenter_ids=experimenters
-            )
-
-            # Error if inactive experimenters have been specified and inactive
-            # is not checked
-
-            if exp_inactive and not inactive:
-                raise forms.ValidationError(
-                    "Inactive users were explicitly specified but emailing "
-                    "of inactive users is disabled. Either remove the "
-                    "inactive users from the experimenters list or enable "
-                    "emailing of inactive users"
-                )
-
-            # Include active recipients
-            self.recipients.update(removeUnaddressable(exp_active))
-
-            # Error if inactive experimenters have been specified and inactive
-            # is not checked
-            if inactive:
-                self.recipients.update(removeUnaddressable(exp_inactive))
-
-            # Process Groups
-            exp_active, exp_inactive = resolveExperimenters(self.conn,
-                                                            group_ids=groups)
-            # Include active group recipients
-            self.recipients.update(removeUnaddressable(exp_active))
-
-            # Include inactive group recipients if enabled, otherwise drop
-            # silently
-            if inactive:
-                self.recipients.update(removeUnaddressable(exp_inactive))
-
-        # In later django releases, this return is no longer necessary
         return cleaned_data
-
-    def send_email(self):
-        cleaned_data = self.cleaned_data
-        cc = cleaned_data.get("cc")
-        subject = cleaned_data.get('subject')
-        message = cleaned_data.get('message')
-
-        # Get sender 'from' address from settings
-        sender = settings.SERVER_EMAIL
-
-        # Send emails
-        sent_count = 0
-        failed_count = 0
-        failed_addresses = []
-
-        # Resolve experimenters to email addresses
-        addresses = set([exp.email.strip() for exp in self.recipients])
-        # Add cc (using set to remove any duplicates)
-        addresses.update(cc)
-
-        get_connection(fail_silently=False)
-
-        for address in addresses:
-            try:
-                msg = EmailMultiAlternatives(subject, message, sender,
-                                             [address])
-                msg.attach_alternative(message, "text/html")
-                msg.send()
-
-                sent_count += 1
-                logger.info("Email \"%s\" sent to %s" % (subject, address))
-            except SMTPException:
-                failed_addresses.append(address)
-                failed_count += 1
-                logger.error("Email \"%s\" to %s failed" % (subject, address))
-
-        if sent_count > 0:
-            messages.success(self.request, "%s message%s sent"
-                             % (sent_count, 's' if sent_count > 1 else ''))
-        else:
-            messages.warning(self.request, "No messages sent")
-
-        # Print message failures
-        if failed_addresses:
-            messages.warning(self.request,
-                             "%s messages failed to: %s" %
-                             (failed_count, ', '.join(failed_addresses)))

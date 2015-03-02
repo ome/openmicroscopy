@@ -98,14 +98,16 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
             } else {
                 callInvokerOnRawArgs(__cb, __current, fileId);
             }
+        } catch (ome.conditions.SecurityViolation e) {
+            final omero.SecurityViolation sv = new omero.SecurityViolation();
+            IceMapper.fillServerError(sv, e);
+            __cb.ice_exception(sv);
+        } catch (Exception e) {
+            __cb.ice_exception((Exception) e);
         } catch (Throwable e) {
-            if (e instanceof Exception) {
-                __cb.ice_exception((Exception) e);
-            } else {
-                omero.InternalException ie = new omero.InternalException();
-                IceMapper.fillServerError(ie, e);
-                __cb.ice_exception(ie);
-            }
+            final omero.InternalException ie = new omero.InternalException();
+            IceMapper.fillServerError(ie, e);
+            __cb.ice_exception(ie);
         }
     }
 

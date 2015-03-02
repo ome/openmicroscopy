@@ -240,6 +240,22 @@ class login_required(object):
             return self.allowPublic
         return False
 
+    def load_server_settings(self, conn, request):
+        """Loads Client preferences from the server."""
+        request.session.modified = True
+
+        if request.session.get('server_settings') is None:
+            request.session['server_settings'] = {'ui': {}}
+            orphans_name, orphans_desc = conn.getOrphanedContainerSettings()
+            request.session['server_settings']['ui'] = {
+                'orphans_name': orphans_name,
+                'orphans_desc': orphans_desc
+            }
+            request.session['server_settings']['ui']['dropdown_menu'] = \
+                conn.getDropdownMenuSettings()
+            request.session['server_settings']['email'] = \
+                conn.getEmailSettings()
+
     def get_public_user_connector(self):
         """
         Returns the current cached OMERO.webpublic connector or None if
@@ -436,6 +452,7 @@ class login_required(object):
                         ctx.on_logged_in(request, conn)
                     ctx.verify_is_admin(conn)
                     ctx.verify_is_group_owner(conn, kwargs.get('gid'))
+                    ctx.load_server_settings(conn, request)
 
                     share_id = kwargs.get('share_id')
                     conn_share = ctx.prepare_share_connection(

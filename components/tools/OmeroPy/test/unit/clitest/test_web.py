@@ -20,8 +20,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import pytest
+from difflib import unified_diff
+import re
 from path import path
-from omero.cli import CLI
+import omero.cli
 from omero.plugins.web import WebControl
 from omeroweb import settings
 
@@ -29,7 +31,7 @@ from omeroweb import settings
 class TestWeb(object):
 
     def setup_method(self, method):
-        self.cli = CLI()
+        self.cli = omero.cli.CLI()
         self.cli.register("web", WebControl, "TEST")
         self.args = ["web"]
 
@@ -62,6 +64,37 @@ class TestWeb(object):
         lines = [line for line in lines if line and not line.startswith('#')]
         return lines
 
+    def required_lines_in(self, required, lines):
+        # Checks that all lines in required are present in the same order,
+        # but not necessarily consecutively
+        def compare(req, line):
+            if isinstance(req, tuple):
+                return line.startswith(req[0]) and line.endswith(req[1])
+            return req == line
+
+        n = 0
+        for req in required:
+            if not compare(req, lines[n]):
+                n += 1
+                if n == len(lines):
+                    return req
+        return None
+
+    def normalise_generated(self, s):
+        serverdir = self.cli.dir
+        s = re.sub('\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{6}',
+                   '0000-00-00 00:00:00.000000', s)
+        s = s.replace(serverdir, '/home/omero/OMERO.server')
+        return s
+
+    def compare_with_reference(self, refname, generated):
+        reffile = path(__file__).dirname() / 'reference_templates' / refname
+        generated = generated.split('\n')
+        # reffile.write_lines(generated)
+        ref = reffile.lines(retain=False)
+        d = '\n'.join(unified_diff(ref, generated))
+        return d
+
     def testHelp(self):
         self.args += ["-h"]
         self.cli.invoke(self.args, strict=True)
@@ -92,19 +125,22 @@ class TestWeb(object):
         lines = self.clean_generated_file(o)
 
         if server_type.split()[0] == "nginx":
-            assert lines[0] == "server {"
-            assert lines[1] == "listen       %s;" % (http or 80)
-            assert lines[4] == "client_max_body_size %s;" % (
-                max_body_size or '0')
-            assert lines[9] == "location %s {" % static_prefix[:-1]
-            assert lines[12] == "location %s {" % (prefix or "/")
+            missing = self.required_lines_in([
+                "server {",
+                "listen       %s;" % (http or 80),
+                "client_max_body_size %s;" % (max_body_size or '0'),
+                "location %s {" % static_prefix[:-1],
+                "location %s {" % (prefix or "/"),
+                ], lines)
         else:
-            assert lines[13] == "server {"
-            assert lines[14] == "listen       %s;" % (http or 8080)
-            assert lines[19] == "client_max_body_size %s;" % (
-                max_body_size or '0')
-            assert lines[24] == "location %s {" % static_prefix[:-1]
-            assert lines[27] == "location %s {" % (prefix or "/")
+            missing = self.required_lines_in([
+                "server {",
+                "listen       %s;" % (http or 8080),
+                "client_max_body_size %s;" % (max_body_size or '0'),
+                "location %s {" % static_prefix[:-1],
+                "location %s {" % (prefix or "/"),
+                ], lines)
+        assert not missing, 'Line not found: ' + missing
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheConfig(self, prefix, capsys, monkeypatch):
@@ -118,23 +154,23 @@ class TestWeb(object):
         lines = self.clean_generated_file(o)
 
         if prefix:
-            assert lines[0] == 'RewriteEngine on'
-            assert lines[1] == 'RewriteRule ^/?$ %s/ [R]' % prefix
-            assert lines[2].startswith('FastCGIExternalServer ')
-            assert lines[2].endswith(
-                'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60')
-            assert lines[-2].startswith('Alias %s ' % static_prefix[:-1])
-            assert lines[-2].endswith('lib/python/omeroweb/static')
-            assert lines[-1].startswith('Alias %s "' % prefix)
-            assert lines[-1].endswith('var/omero.fcgi/"')
+            missing = self.required_lines_in([
+                'RewriteEngine on',
+                'RewriteRule ^/?$ %s/ [R]' % prefix,
+                ('FastCGIExternalServer ',
+                 'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60'),
+                ('Alias %s ' % static_prefix[:-1],
+                 'lib/python/omeroweb/static'),
+                ('Alias %s "' % prefix, 'var/omero.fcgi/"'),
+                ], lines)
         else:
-            assert lines[0].startswith('FastCGIExternalServer ')
-            assert lines[0].endswith(
-                'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60')
-            assert lines[-2].startswith('Alias /static ')
-            assert lines[-2].endswith('lib/python/omeroweb/static')
-            assert lines[-1].startswith('Alias / "')
-            assert lines[-1].endswith('var/omero.fcgi/"')
+            missing = self.required_lines_in([
+                ('FastCGIExternalServer ',
+                 'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60'),
+                ('Alias /static ', 'lib/python/omeroweb/static'),
+                ('Alias / "', 'var/omero.fcgi/"'),
+                ], lines)
+        assert not missing, 'Line not found: ' + missing
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheFcgiConfig(self, prefix, capsys, monkeypatch):
@@ -148,20 +184,53 @@ class TestWeb(object):
         lines = self.clean_generated_file(o)
 
         if prefix:
-            assert lines[-5].startswith('Alias %s' % static_prefix[:-1])
-            assert lines[-5].endswith('lib/python/omeroweb/static')
-            assert lines[-4] == 'RewriteCond %{REQUEST_URI} ' + \
-                '!^(%s|/\\.fcgi)' % static_prefix[:-1]
-            assert lines[-3] == \
-                'RewriteRule ^%s(/|$)(.*) %s.fcgi/$2 [PT]' % (prefix, prefix)
-            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
-            assert lines[-1] == 'ProxyPass %s.fcgi/ fcgi://0.0.0.0:4080/' \
-                % prefix
+            missing = self.required_lines_in([
+                ('Alias %s' % static_prefix[:-1],
+                 'lib/python/omeroweb/static'),
+                'RewriteCond %%{REQUEST_URI} !^(%s|/\\.fcgi)' %
+                static_prefix[:-1],
+                'RewriteRule ^%s(/|$)(.*) %s.fcgi/$2 [PT]' % (prefix, prefix),
+                'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
+                'ProxyPass %s.fcgi/ fcgi://0.0.0.0:4080/' % prefix,
+                ], lines)
         else:
-            assert lines[-5].startswith('Alias /static ')
-            assert lines[-5].endswith('lib/python/omeroweb/static')
-            assert lines[-4] == \
-                'RewriteCond %{REQUEST_URI} !^(/static|/\\.fcgi)'
-            assert lines[-3] == 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]'
-            assert lines[-2] == 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1'
-            assert lines[-1] == 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/'
+            missing = self.required_lines_in([
+                ('Alias /static ', 'lib/python/omeroweb/static'),
+                'RewriteCond %%{REQUEST_URI} !^(/static|/\\.fcgi)',
+                'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]',
+                'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
+                'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/',
+                ], lines)
+        assert not missing, 'Line not found: ' + missing
+
+    @pytest.mark.parametrize('server_type', [
+        "nginx", "nginx-development", "apache", "apache-fcgi"])
+    def testFullTemplateDefaults(self, server_type, capsys, monkeypatch):
+        self.args += ["config", server_type]
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capsys.readouterr()
+        assert not e
+        o = self.normalise_generated(o)
+        d = self.compare_with_reference(server_type + '.conf', o)
+        assert not d, 'Files are different:\n' + d
+
+    @pytest.mark.parametrize('server_type', [
+        ['nginx', '--http', '1234', '--max-body-size', '2m'],
+        ['nginx-development', '--http', '1234', '--max-body-size', '2m'],
+        ['apache'],
+        ['apache-fcgi']])
+    def testFullTemplateWithOptions(self, server_type, capsys, monkeypatch):
+        prefix = '/test'
+        self.add_prefix(prefix, monkeypatch)
+        self.args += ["config"] + server_type
+        self.set_templates_dir(monkeypatch)
+        self.cli.invoke(self.args, strict=True)
+
+        o, e = capsys.readouterr()
+        assert not e
+        o = self.normalise_generated(o)
+        d = self.compare_with_reference(
+            server_type[0] + '-withoptions.conf', o)
+        assert not d, 'Files are different:\n' + d

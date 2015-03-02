@@ -31,9 +31,12 @@ import javax.swing.JPopupMenu;
 
 //Third-party libraries
 
+import javax.swing.JSeparator;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -227,12 +230,12 @@ class PublishingDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		add(movieItem);
-		//add(exportAsOmeTiffItem);
 		add(splitViewFigureItem);
 		add(splitViewROIFigureItem);
 		add(thumbnailsFigureItem);
 		add(movieFigureItem);
+		add(new JSeparator());
+		add(movieItem);
 	}
 	
 	/**

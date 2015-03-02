@@ -192,7 +192,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     ##############################################
     ##   IAdmin                                 ##
-    
+
+    def getEmailSettings(self):
+        """
+        Retrieves a configuration value "omero.mail.config" from the backend store.
+        
+        @return:        String
+        """
+        
+        conf = self.getConfigService()
+        return toBoolean(conf.getConfigValue("omero.mail.config"))
+
     def isAnythingCreated(self):
         """
         Checks if any of the experimenter was created before
@@ -1589,157 +1599,49 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
         sh = self.getShareService()
         return sh.getAllUsers(long(share_id))
-    
-    def prepareRecipients(self, recipients):
-        recps = list()
-        for m in recipients:
-            try:
-                if m.email is not None and m.email!="":
-                    recps.append(m.email)
-            except:
-                logger.error(traceback.format_exc())
-        logger.info(recps)
-        if len(recps) == 0:
-            raise AttributeError("Recipients list is empty")
-        return recps
-        
-    def addComment(self, host, blitz_id, share_id, comment):
+
+    def addComment(self, host, share_id, comment):
         sh = self.getShareService()
         new_cm = sh.addComment(long(share_id), str(comment))
-        
-        members = list(self.getAllMembers(long(share_id)))
-        sh = self.getShare(long(share_id))
-        if self.getEventContext().userId != sh.owner.id.val:
-            members.append(sh.getOwner())
-        
-        if sh.active:
-            try:
-                for m in members:
-                    try:
-                        if m.id == self.getEventContext().userId:
-                            members.remove(m)
-                    except:
-                        logger.error(traceback.format_exc())
-                recipients = self.prepareRecipients(members)
-            except Exception:
-                logger.error(traceback.format_exc())
-            else:
-                t = settings.EMAIL_TEMPLATES["add_comment_to_share"]
-                message = t['text_content'] % (host, blitz_id)
-                message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
-                try:
-                    title = 'OMERO.web - new comment for share %i' % share_id
-                    text_content = message
-                    html_content = message_html
-                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
-                    logger.error("Email was sent")
-                except:
-                    logger.error(traceback.format_exc())
+
+        share = self.getShare(long(share_id))
+        sh_type = sh.getContentSize(share_id) > 0 and "share" or "discussion"
+        subject = "OMERO.%s %s" % (sh_type, share_id)
+        body = "%s added new comment.\n\n%s\n\n%s URL: %s\n" % (self.getUser().getFullName(), str(comment), sh_type.title(), host)
+        sh.notifyMembersOfShare(long(share_id), subject, body, False)
         return CommentAnnotationWrapper(self, new_cm)
-                
+
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
         img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
-            
-    def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
+
+    def createShare(self, host, images, message, members, enable, expiration=None):
         sh = self.getShareService()
-        q = self.getQueryService()
-        
-        items = list()
-        ms = list()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        #images
-        if len(image) > 0:
-            p.map["ids"] = rlist([rlong(long(a)) for a in image])
-            sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
-            items.extend(q.findAllByQuery(sql, p, self.SERVICE_OPTS))
-        
-        #members
-        if members is not None:
-            p.map["ids"] = rlist([rlong(long(a)) for a in members])
-            sql = "select e from Experimenter e " \
-                  "where e.id in (:ids) order by e.omeName"
-            ms = q.findAllByQuery(sql, p, self.SERVICE_OPTS)
+        items = [i._obj for i in images]
+        ms = [m._obj for m in members]
         sid = sh.createShare(message, rtime(expiration), items, ms, [], enable)
-        
-        #send email if avtive
-        if enable:
-            try:
-                recipients = self.prepareRecipients(ms)
-            except Exception:
-                logger.error(traceback.format_exc())
-            else:
-                t = settings.EMAIL_TEMPLATES["create_share"]
-                message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (host, blitz_id, host, blitz_id, self.getUser().getFullName())
-                
-                try:
-                    title = 'OMERO.web - new share %i' % sid
-                    text_content = message
-                    html_content = message_html
-                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
-                    logger.error("Email was sent")
-                except:
-                    logger.error(traceback.format_exc())                
-    
-    def updateShareOrDiscussion (self, host, blitz_id, share_id, message, add_members, rm_members, enable, expiration=None):
+        sh_type = len(images) > 0 and "share" or "discussion"
+        body = "%s\n\n%s URL: %s\n" % (message, sh_type.title(), host)
+        subject = "OMERO.%s %s" % (sh_type, sid)
+        sh.notifyMembersOfShare(sid, subject, body, False)
+        return sid
+
+    def updateShareOrDiscussion (self, host, share_id, message, add_members, rm_members, enable, expiration=None):
         sh = self.getShareService()
         sh.setDescription(long(share_id), message)
         sh.setExpiration(long(share_id), rtime(expiration))
         sh.setActive(long(share_id), enable)
+        sh_type = sh.getContentSize(share_id) > 0 and "share" or "discussion"
         if len(add_members) > 0:
             sh.addUsers(long(share_id), add_members)
+            share = self.getShare(long(share_id))
+            body = "%s\n\n%s URL: %s\n" % (share.message, sh_type.title(), host)
+            subject = "OMERO.%s %s" % (sh_type, share_id)
+            sh.notifyMembersOfShare(share_id, subject, body, False)
         if len(rm_members) > 0:
             sh.removeUsers(long(share_id), rm_members)
-        
-        #send email if avtive
-        if len(add_members) > 0:
-            try:
-                recipients = self.prepareRecipients(add_members)
-            except Exception:
-                logger.error(traceback.format_exc())
-            else:
-                t = settings.EMAIL_TEMPLATES["add_member_to_share"]
-                message = t['text_content'] % (host, blitz_id, self.getUser().getFullName())
-                message_html = t['html_content'] % (host, blitz_id, host, blitz_id, self.getUser().getFullName())
-                try:
-                    title = 'OMERO.web - update share %i' % share_id
-                    text_content = message
-                    html_content = message_html
-                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
-                    logger.error("Email was sent")
-                except:
-                    logger.error(traceback.format_exc())
-            
-        if len(rm_members) > 0:
-            try:
-                recipients = self.prepareRecipients(rm_members)
-            except Exception:
-                logger.error(traceback.format_exc())
-            else:
-                t = settings.EMAIL_TEMPLATES["remove_member_from_share"]
-                message = t['text_content'] % (host, blitz_id)
-                message_html = t['html_content'] % (host, blitz_id, host, blitz_id)
-                
-                try:
-                    title = 'OMERO.web - update share %i' % share_id
-                    text_content = message
-                    html_content = message_html
-                    msg = EmailMultiAlternatives(title, text_content, settings.SERVER_EMAIL, recipients)
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
-                    logger.error("Email was sent")
-                except:
-                    logger.error(traceback.format_exc())
-    
+        return share_id
 
     ##############################################
     ##  History methods                        ##

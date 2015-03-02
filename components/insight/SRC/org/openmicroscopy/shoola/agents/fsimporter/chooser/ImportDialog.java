@@ -1537,8 +1537,21 @@ public class ImportDialog extends ClosableTabbedPaneComponent
         if (CollectionUtils.isEmpty(list)) {
             boolean active = locationDialog.isActiveWindow();
             list = new ArrayList<FileObject>();
+            FileObject f, ff;
             if (active) {
-                list.add(new FileObject(WindowManager.getCurrentImage()));
+                f = new FileObject(WindowManager.getCurrentImage());
+                //check if there are associated files
+                int[] values = WindowManager.getIDList();
+                String path = f.getAbsolutePath();
+                if (path != null) {
+                    for (int i = 0; i < values.length; i++) {
+                        ff = new FileObject(WindowManager.getImage(values[i]));
+                        if (path.equals(f.getAbsolutePath())) {
+                            f.addAssociatedFile(ff);
+                        }
+                    }
+                }
+                list.add(f);
             } else {
                 int[] values = WindowManager.getIDList();
                 for (int i = 0; i < values.length; i++) {

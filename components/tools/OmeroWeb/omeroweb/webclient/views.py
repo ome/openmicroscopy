@@ -146,6 +146,8 @@ def login(request):
                             del request.session['active_group']
                     if request.session.get('user_id'):  # always want to revert to logged-in user
                         del request.session['user_id']
+                    if request.session.get('server_settings'):  # always clean when logging in
+                        del request.session['server_settings']
                     # do we ned to display server version ?
                     # server_version = conn.getServerVersion()
                     if request.REQUEST.get('noredirect'):
@@ -1492,8 +1494,8 @@ def annotate_comment(request, conn=None, **kwargs):
             if oids['share'] is not None and len(oids['share']) > 0:
                 sid = oids['share'][0].id
                 manager = BaseShare(conn, sid)
-                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                textAnn = manager.addComment(host, conn.server_id, content)
+                host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
+                textAnn = manager.addComment(host, content)
             else:
                 manager = BaseContainer(conn)
                 textAnn = manager.createCommentAnnotations(content, oids, well_index=index)
@@ -1570,6 +1572,12 @@ def annotate_tags(request, conn=None, **kwargs):
     # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
     manager = None
     self_id = conn.getEventContext().userId
+
+    jsonmode = request.GET.get('jsonmode')
+    tags = []
+
+    # Prepare list of 'selected_tags' either for creation of the Tag dialog, OR to
+    # use with form POST to know what has been added / removed from selected tags.
     if obj_count == 1:
         for t in selected:
             if len(selected[t]) > 0:
@@ -1590,28 +1598,41 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
-        manager.annotationList()
-        selected_tags = [(tag.id,
-                          unwrap(tag.link.details.owner.id),
-                          "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
-                          unwrap(tag.link.details.getPermissions().canDelete()),
-                          str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000)),
-                          self_id == unwrap(tag.link.details.owner.id),
-                          )
-                         for tag in manager.tag_annotations]
+        # we only need selected tags for original form, not for json loading
+        if jsonmode is None:
+            manager.annotationList()
+            tags = manager.tag_annotations
+
     else:
         manager = BaseContainer(conn)
-        selected_tags = []
         # Use the first object we find to set context (assume all objects are in same group!)
         for obs in oids.values():
             if len(obs) > 0:
                 conn.SERVICE_OPTS.setOmeroGroup(obs[0].getDetails().group.id.val)
                 break
 
+        # we only need selected tags for original form, not for json loading
+        if jsonmode is None:
+            batchAnns = manager.loadBatchAnnotations(oids)
+            tags = []
+            for t in batchAnns['Tag']:
+                mylinks = [l for l in t['links'] if l.isOwned()]
+                if len(mylinks) == obj_count:
+                    t['ann'].link = mylinks[0]  # make sure we pick a link that we own
+                    tags.append(t['ann'])
+
+    selected_tags = []
+    for tag in tags:
+        ownerId = unwrap(tag.link.details.owner.id)
+        ownerName = "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName))
+        canDelete = unwrap(tag.link.details.getPermissions().canDelete())
+        created = str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000))
+        owned = self_id == unwrap(tag.link.details.owner.id)
+        selected_tags.append((tag.id, ownerId, ownerName, canDelete, created, owned))
+
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
 
-    jsonmode = request.GET.get('jsonmode')
     if jsonmode:
         try:
             offset = int(request.GET.get('offset'))
@@ -1625,13 +1646,29 @@ def annotate_tags(request, conn=None, **kwargs):
             all_tags = manager.tags_recursive
             all_tags_owners = manager.tags_recursive_owners
 
+        if jsonmode == 'tagcount':
+            # send number of tags for better paging progress bar
+            return dict(tag_count=tag_count)
+
+        elif jsonmode == 'tags':
+            # send tag information without descriptions
+            return list((i, t, o, s) for i, d, t, o, s in all_tags)
+
+        elif jsonmode == 'desc':
+            # send descriptions for tags
+            return dict((i, d) for i, d, t, o, s in all_tags)
+
+        elif jsonmode == 'owners':
+            # send owner information
+            return all_tags_owners
+
     if request.method == 'POST':
         # handle form submission
         form_tags = TagsAnnotationForm(initial=initial, data=request.REQUEST.copy())
         newtags_formset = NewTagsAnnotationFormSet(prefix='newtags', data=request.REQUEST.copy())
         # Create new tags or Link existing tags...
         if form_tags.is_valid() and newtags_formset.is_valid():
-            # filter down previously selected tags to the ones owned by current user
+            # filter down previously selected tags to the ones linked by current user
             selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
             added_tags = [stag[0] for stag in selected_tags if not stag[5]]
             tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tag_ids]
@@ -1651,6 +1688,7 @@ def annotate_tags(request, conn=None, **kwargs):
                     well_index=index,
                     tag_group_id=form.cleaned_data['tagset'],
                 ))
+            # only remove Tags where the link is owned by self_id
             for remove in removed:
                 tag_manager = BaseContainer(conn, tag=remove)
                 tag_manager.remove([
@@ -1675,22 +1713,6 @@ def annotate_tags(request, conn=None, **kwargs):
                 context['can_remove'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
-
-    elif jsonmode == 'tagcount':
-        # send number of tags for better paging progress bar
-        return dict(tag_count=tag_count)
-
-    elif jsonmode == 'tags':
-        # send tag information without descriptions
-        return list((i, t, o, s) for i, d, t, o, s in all_tags)
-
-    elif jsonmode == 'desc':
-        # send descriptions for tags
-        return dict((i, d) for i, d, t, o, s in all_tags)
-
-    elif jsonmode == 'owners':
-        # send owner information
-        return all_tags_owners
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
@@ -1850,8 +1872,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 members = form.cleaned_data['members']
                 #guests = request.REQUEST['guests']
                 enable = toBoolean(form.cleaned_data['enable'])
-                host = request.build_absolute_uri(reverse("load_template", args=["public"]))
-                manager.updateShareOrDiscussion(host, conn.server_id, message, members, enable, expiration)
+                host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
+                manager.updateShareOrDiscussion(host, message, members, enable, expiration)
                 return HttpResponse("DONE")
             else:
                 template = "webclient/public/share_form.html"
@@ -2262,9 +2284,9 @@ def basket_action (request, action=None, conn=None, **kwargs):
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
             enable = toBoolean(form.cleaned_data['enable'])
-            host = request.build_absolute_uri(reverse("load_template", args=["public"]))
+            host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
-            share.createShare(host, conn.server_id, images, message, members, enable, expiration)
+            sid = share.createShare(host, images, message, members, enable, expiration)
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_share_action.html"
@@ -2289,9 +2311,9 @@ def basket_action (request, action=None, conn=None, **kwargs):
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
             enable = toBoolean(form.cleaned_data['enable'])
-            host = request.build_absolute_uri(reverse("load_template", args=["public"]))
+            host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
-            share.createDiscussion(host, conn.server_id, message, members, enable, expiration)
+            share.createDiscussion(host, message, members, enable, expiration)
             return HttpResponse("success")
         else:
             template = "webclient/basket/basket_discussion_action.html"
@@ -2506,6 +2528,43 @@ def activities(request, conn=None, **kwargs):
                 except:
                     logger.info("Activities chgrp handle not found: %s" % cbString)
                     continue
+        elif job_type == 'send_email':
+            if status not in ("failed", "finished"):
+                rsp = None
+                try:
+                    prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                    callback = omero.callbacks.CmdCallbackI(conn.c, prx)
+                    rsp = callback.getResponse()
+                    close_handle = False
+                    try:
+                        # if response is None, then we're still in progress, otherwise...
+                        if rsp is not None:
+                            close_handle = True
+                            new_results.append(cbString)
+                            if isinstance(rsp, omero.cmd.ERR):
+                                request.session['callback'][cbString]['status'] = "failed"
+                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                                logger.error("send_email failed with: %s" % rsp_params)
+                                request.session['callback'][cbString]['report'] = {'error':rsp_params}
+                                request.session['callback'][cbString]['error'] = 1
+                            else:
+                                request.session['callback'][cbString]['status'] = "finished"
+                                request.session['callback'][cbString]['rsp'] = {
+                                            'success': rsp.success,
+                                            'total': rsp.success+len(rsp.invalidusers)+len(rsp.invalidemails)
+                                }
+                                if len(rsp.invalidusers) > 0 or len(rsp.invalidemails) > 0:
+                                    request.session['callback'][cbString]['report'] = dict()
+                                    invalidusers = [e.getFullName() for e in list(conn.getObjects("Experimenter", rsp.invalidusers))]
+                                    request.session['callback'][cbString]['report']['invalidusers'] = invalidusers
+                                    request.session['callback'][cbString]['report']['invalidemails'] = rsp.invalidemails
+                        else:
+                            in_progress+=1
+                    finally:
+                        callback.close(close_handle)
+                except:
+                    logger.error(traceback.format_exc())
+                    logger.info("Activities send_email handle not found: %s" % cbString)
 
         # update delete
         elif job_type == 'delete':
@@ -2715,7 +2774,7 @@ def list_scripts (request, conn=None, **kwargs):
         # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
 
         ul = scriptMenu
-        dirs = fullpath.split("/");
+        dirs = fullpath.split(os.path.sep);
         for l, d in enumerate(dirs):
             if len(d) == 0:
                 continue

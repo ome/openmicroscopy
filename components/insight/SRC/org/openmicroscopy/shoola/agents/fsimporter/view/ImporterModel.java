@@ -592,8 +592,8 @@ class ImporterModel
             while (i.hasNext()) {
                 data = i.next();
                 id = data.getId();
-                index = data.getIndex(); //to be modified when series is available.
-              //First check overlay
+                index = data.getSeries();
+                //First check overlay
                 if (indexes.containsKey(index)) {
                    rois = indexes.get(index);
                    linkRoisToImage(id, rois);
@@ -602,6 +602,7 @@ class ImporterModel
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {
+                    
                     rois = reader.readImageJROI(id);
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {

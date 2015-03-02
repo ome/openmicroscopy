@@ -4039,12 +4039,11 @@ class EditorModel
      */
     private List<ScriptObject> getScriptsWithUI()
     {
-    	/*
     	if (scriptsWithUI != null) return scriptsWithUI;
     	try {
     		OmeroImageService svc = 
     			MetadataViewerAgent.getRegistry().getImageService();
-    		scriptsWithUI = svc.loadAvailableScriptsWithUI();
+    		scriptsWithUI = svc.loadAvailableScriptsWithUI(getSecurityContext());
     		return scriptsWithUI;
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
@@ -4052,7 +4051,6 @@ class EditorModel
 			msg.print(e);
 			MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
 		}
-		*/
     	return new ArrayList<ScriptObject>();
     }
     

@@ -204,9 +204,6 @@ public class PropertiesUI
     /** The component hosting the id of the <code>DataObject</code>. */
     private JTextField				idLabel;
     
-    /** The component hosting the icon for inplace imported images */
-    private JLabel 				inplaceIcon;
-    
     /** 
      * The component hosting the owner of the <code>DataObject</code>.
      * if not the current user. 
@@ -335,9 +332,6 @@ public class PropertiesUI
        	idLabel.setFont(idLabel.getFont().deriveFont(Font.BOLD));
        	idLabel.setEditable(false);
        	idLabel.setBorder(BorderFactory.createEmptyBorder());
-       	inplaceIcon = new JLabel(IconManager.getInstance().getIcon(IconManager.INPLACE_IMPORT));
-       	ClickableTooltip inplaceIconTooltip = new ClickableTooltip(INPLACE_IMPORT_TOOLTIP_TEXT, createInplaceIconAction());
-        inplaceIconTooltip.attach(inplaceIcon);
         
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -435,22 +429,6 @@ public class PropertiesUI
 			}
 		});
 		
-    }
-    
-    /**
-     * Creates the action for the inplace import icon tooltip
-     * @return
-     */
-    private Action createInplaceIconAction() {
-        Action inplaceIconAction = new AbstractAction(INPLACE_IMPORT_TOOLTIP_ACTION_TEXT) {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                // Just pass this on to the controller
-                controller.actionPerformed(arg0);
-            }
-        };
-        inplaceIconAction.putValue(Action.ACTION_COMMAND_KEY, ""+EditorControl.FILE_PATH_INPLACE_ICON);
-        return inplaceIconAction;
     }
     
     /**
@@ -954,15 +932,9 @@ public class PropertiesUI
         p.add(namePanel);
         p.add(Box.createVerticalStrut(2));
         
-        JPanel idPanel = new JPanel();
-        idPanel.setLayout(new BoxLayout(idPanel, BoxLayout.X_AXIS));
-        idPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        idPanel.add(l);
-        idPanel.add(Box.createHorizontalGlue());
-        idPanel.add(inplaceIcon);
-        p.add(idPanel);
+        p.add(l);
         p.add(Box.createVerticalStrut(2));
         
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
@@ -1253,7 +1225,6 @@ public class PropertiesUI
             t += " (Image ID: "+wsd.getImage().getId()+")";
         }
         idLabel.setText(t);
-        inplaceIcon.setVisible(model.isInplaceImport());
         String ownerName = model.getOwnerName();
         ownerLabel.setText("");
         if (ownerName != null && ownerName.length() > 0)
@@ -1481,7 +1452,6 @@ public class PropertiesUI
 	    if (!model.isSameObject(oldObject)) {
 	        channelsArea.setText("");
 	        idLabel.setText("");
-	        inplaceIcon.setVisible(false);
 	        ownerLabel.setText("");
 	        parentLabel.setText("");
 	        wellLabel.setText("");
@@ -1623,20 +1593,6 @@ public class PropertiesUI
 	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
 	public void changedUpdate(DocumentEvent e) {}
-
-	/** Displays the file set associated to the image. */
-        void displayFileset() {
-            Point location = inplaceIcon.getLocation();
-            SwingUtilities.convertPointToScreen(location, inplaceIcon.getParent());
-            // as the inplaceIcon already is on the right edge of the window
-            // move it a bit more to the left
-            location.translate(
-                    -FilesetInfoDialog.DEFAULT_WIDTH + inplaceIcon.getWidth(),
-                    inplaceIcon.getHeight());
-            FilesetInfoDialog d = new FilesetInfoDialog();
-            d.setData(model.getFileset(), model.isInplaceImport());
-            d.open(location);
-        }
         
         /** 
          * Starts an asyc. call to load the number of ROIs

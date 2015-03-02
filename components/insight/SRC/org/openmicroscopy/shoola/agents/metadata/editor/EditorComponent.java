@@ -42,6 +42,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -123,9 +124,6 @@ class EditorComponent
 	
 	/** The dialog used to display script.*/
 	private ScriptingDialog dialog;
-	
-	/** A pointer to keep track which was the action which triggered the fileset loading */
-	private int filesetLoadTrigger = -1;
 	
 	/**
 	 * Returns the collection of annotation that cannot be removed 
@@ -290,11 +288,6 @@ class EditorComponent
 		model.setRootObject(refObject);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setRootObject(oldObject);
-		
-		// have to load the filesets immediately to determine if the
-		// show file path button in the toolbar should be activated or not
-		if (refObject != null && DataObject.class.isAssignableFrom(refObject.getClass()))
-		    loadFileset(-1);
 	}
 
 	/** 
@@ -1226,18 +1219,17 @@ class EditorComponent
 	public void setFileset(Set<FilesetData> set)
 	{
 		model.setFileset(set);
-		view.displayFileset(filesetLoadTrigger);
+		view.displayFileset();
 	}
 
-    	/** 
-	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#loadFileset(int)
-	 */
-	public void loadFileset(int trigger)
-	{
-	        this.filesetLoadTrigger = trigger;
-		model.fireFilesetLoading();
-	}
+    /**
+     * Implemented as specified by the {@link Editor} interface.
+     * 
+     * @see Editor#loadFileset(int)
+     */
+    public void loadFileset() {
+        model.fireFilesetLoading();
+    }
 
     /** 
      * Implemented as specified by the {@link Editor} interface.
@@ -1267,5 +1259,14 @@ class EditorComponent
                 view.setLDAPDetails(result);
             }
         }
+    }
+
+    /** 
+     * Implemented as specified by the {@link Editor} interface.
+     * @see Editor#getScriptFromName(String)
+     */
+    public ScriptObject getScriptFromName(String name)
+    {
+        return model.getScriptFromName(name);
     }
 }

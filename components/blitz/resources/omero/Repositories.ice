@@ -63,7 +63,7 @@ module omero {
 
             /**
              * Return the OriginalFile descriptor for this Repository. It will have
-             * the path "/"
+             * the path of the repository's root on the underlying filesystem.
              **/
             omero::model::OriginalFile root() throws ServerError;
 

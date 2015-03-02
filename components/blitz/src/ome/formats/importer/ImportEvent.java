@@ -215,6 +215,12 @@ public class ImportEvent {
         }
     }
 
+    public static class FILESET_EXCLUSION extends FILE_UPLOAD_EVENT {
+        public FILESET_EXCLUSION(String filename, int fileIndex, int fileTotal) {
+            super(filename, fileIndex, fileTotal, 0l, 0l, null);
+        }
+    }
+
     public static class FILESET_UPLOAD_PREPARATION extends FILE_UPLOAD_EVENT {
         public FILESET_UPLOAD_PREPARATION(String filename, int fileIndex,
                 int fileTotal, Long uploadedBytes, Long contentLength,
