@@ -74,7 +74,7 @@ RewriteEngine on
 </Location>
 
 <Location %(CGI_PREFIX)s/>
-    ErrorDocument 503 %(WEB_PREFIX)s/error/502.html
+    ErrorDocument 503 %(WEB_PREFIX)s/error/maintainance.html
 </Location>
 
 Alias %(WEB_PREFIX)s/error %(ROOT)s/etc/templates/error
