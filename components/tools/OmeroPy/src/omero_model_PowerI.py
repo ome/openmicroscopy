@@ -925,12 +925,13 @@ class PowerI(_omero_model.Power, UnitBase):
             # This is a copy-constructor call.
             target = str(unit)
             targetUnit = getattr(UnitsPower, str(target))
-            source = str(value.getUnit())
+            sourceUnit = value.getUnit()
+            source = str(sourceUnit)
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get(value.getUnit()).get(targetUnit)
+                c = self.CONVERSIONS.get(targetUnit).get(sourceUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t

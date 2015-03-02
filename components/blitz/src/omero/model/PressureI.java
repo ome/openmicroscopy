@@ -1437,7 +1437,7 @@ public class PressureI extends Pressure implements ModelBased {
            setUnit(value.getUnit());
         } else {
             UnitsPressure targetUnit = UnitsPressure.valueOf(target);
-            Conversion conversion = conversions.get(value.getUnit()).get(targetUnit);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
             if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",

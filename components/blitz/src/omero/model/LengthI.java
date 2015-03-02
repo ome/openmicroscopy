@@ -59,44 +59,44 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapANGSTROM() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 10)), Sym("ang")));
-        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 10)), Sym("ang")));
-        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 6), Sym("ang")));
-        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 9), Sym("ang")));
-        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 7), Sym("ang")));
-        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 26), Sym("ang")));
-        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 7)), Sym("ang")));
-        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 4)), Sym("ang")));
-        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 17), Sym("ang")));
-        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 10), Sym("ang")));
-        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 4)), Sym("ang")));
-        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 11), Sym("ang")));
-        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 10)), Sym("ang")));
-        c.put(UnitsLength.LINE, Mul(Rat(Int(635000), Int(3)), Sym("ang")));
-        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 14), Sym("ang")));
-        c.put(UnitsLength.METER, Mul(Pow(10, 8), Sym("ang")));
-        c.put(UnitsLength.MICROMETER, Mul(Int(100), Sym("ang")));
-        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 5)), Sym("ang")));
-        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 5), Sym("ang")));
-        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Int(10)), Sym("ang")));
-        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 17)), Sym("ang")));
-        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 23), Sym("ang")));
-        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 4)), Sym("ang")));
-        c.put(UnitsLength.POINT, Mul(Rat(Int(317500), Int(9)), Sym("ang")));
-        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 20), Sym("ang")));
-        c.put(UnitsLength.THOU, Mul(Int(2540), Sym("ang")));
-        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 4)), Sym("ang")));
-        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 16)), Sym("ang")));
-        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 32), Sym("ang")));
-        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 13)), Sym("ang")));
-        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 29), Sym("ang")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 12)), Sym("ang")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 8)), Sym("ang")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 8), Sym("ang")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 11), Sym("ang")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 9), Sym("ang")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 28), Sym("ang")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 5)), Sym("ang")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 6)), Sym("ang")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 19), Sym("ang")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 12), Sym("ang")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 6)), Sym("ang")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 13), Sym("ang")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 12)), Sym("ang")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 5)), Int(3)), Sym("ang")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 16), Sym("ang")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 10), Sym("ang")));
+        c.put(UnitsLength.MICROMETER, Mul(Pow(10, 4), Sym("ang")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 7)), Sym("ang")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 7), Sym("ang")));
+        c.put(UnitsLength.NANOMETER, Mul(Int(10), Sym("ang")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 19)), Sym("ang")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 25), Sym("ang")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Int(100)), Sym("ang")));
+        c.put(UnitsLength.POINT, Mul(Rat(Mul(Int(3175), Pow(10, 4)), Int(9)), Sym("ang")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 22), Sym("ang")));
+        c.put(UnitsLength.THOU, Mul(Int(254000), Sym("ang")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 6)), Sym("ang")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 14)), Sym("ang")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 34), Sym("ang")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 11)), Sym("ang")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 31), Sym("ang")));
         return Collections.unmodifiableMap(c);
     }
 
     private static Map<UnitsLength, Conversion> createMapASTRONOMICALUNIT() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 10))), Sym("ua")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 12))), Sym("ua")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 20))), Sym("ua")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 4))), Sym("ua")));
         c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Int("14959787070")), Sym("ua")));
@@ -133,7 +133,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapATTOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 10), Sym("attom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 8), Sym("attom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 20)), Sym("attom")));
         c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 16), Sym("attom")));
         c.put(UnitsLength.DECAMETER, Mul(Pow(10, 19), Sym("attom")));
@@ -170,7 +170,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapCENTIMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 6)), Sym("centim")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 8)), Sym("centim")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 4)), Sym("centim")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 16)), Sym("centim")));
         c.put(UnitsLength.DECAMETER, Mul(Int(1000), Sym("centim")));
@@ -207,7 +207,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapDECAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 9)), Sym("decam")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 11)), Sym("decam")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int("14959787070"), Sym("decam")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 19)), Sym("decam")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Int(1000)), Sym("decam")));
@@ -244,7 +244,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapDECIMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 7)), Sym("decim")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 9)), Sym("decim")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int("1495978707000"), Sym("decim")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 17)), Sym("decim")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Int(10)), Sym("decim")));
@@ -281,7 +281,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapEXAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 26)), Sym("exam")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 28)), Sym("exam")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 16)), Sym("exam")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 36)), Sym("exam")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 20)), Sym("exam")));
@@ -318,7 +318,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapFEMTOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 7), Sym("femtom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 5), Sym("femtom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 17)), Sym("femtom")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Int(1000)), Sym("femtom")));
         c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 13), Sym("femtom")));
@@ -355,7 +355,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapFOOT() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 4))), Sym("ft")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 6))), Sym("ft")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int("62332446125000"), Int(127)), Sym("ft")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 14))), Sym("ft")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(25), Int(762)), Sym("ft")));
@@ -392,7 +392,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapGIGAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 17)), Sym("gigam")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 19)), Sym("gigam")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 7)), Sym("gigam")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("gigam")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 11)), Sym("gigam")));
@@ -429,7 +429,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapHECTOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 10)), Sym("hectom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 12)), Sym("hectom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int(1495978707), Sym("hectom")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 20)), Sym("hectom")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 4)), Sym("hectom")));
@@ -466,7 +466,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapINCH() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 4))), Sym("in")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 6))), Sym("in")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("7479893535"), Pow(10, 5)), Int(127)), Sym("in")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("in")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(50), Int(127)), Sym("in")));
@@ -503,7 +503,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapKILOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 11)), Sym("kilom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 13)), Sym("kilom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Int(10)), Sym("kilom")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("kilom")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 5)), Sym("kilom")));
@@ -540,7 +540,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapLIGHTYEAR() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 10))), Sym("ly")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 12))), Sym("ly")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(6830953), Int("431996825232")), Sym("ly")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 20))), Sym("ly")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 4))), Sym("ly")));
@@ -577,7 +577,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapLINE() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(3), Int(635000)), Sym("li")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 5))), Sym("li")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("8975872242"), Pow(10, 6)), Int(127)), Sym("li")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 13))), Sym("li")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(600), Int(127)), Sym("li")));
@@ -614,7 +614,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapMEGAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 14)), Sym("megam")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 16)), Sym("megam")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 4)), Sym("megam")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("megam")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 8)), Sym("megam")));
@@ -651,7 +651,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 8)), Sym("m")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 10)), Sym("m")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int("149597870700"), Sym("m")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("m")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Int(100)), Sym("m")));
@@ -688,7 +688,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapMICROMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Int(100)), Sym("microm")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 4)), Sym("microm")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 8)), Sym("microm")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("microm")));
         c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 4), Sym("microm")));
@@ -725,7 +725,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapMILE() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 5))), Sym("mi")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 7))), Sym("mi")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int("1558311153125"), Int(16764)), Sym("mi")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 15))), Sym("mi")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(5), Int(804672)), Sym("mi")));
@@ -762,7 +762,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapMILLIMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 5)), Sym("millim")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 7)), Sym("millim")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 5)), Sym("millim")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("millim")));
         c.put(UnitsLength.CENTIMETER, Mul(Int(10), Sym("millim")));
@@ -799,7 +799,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapNANOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Int(10), Sym("nanom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Int(10)), Sym("nanom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 11)), Sym("nanom")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanom")));
         c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 7), Sym("nanom")));
@@ -836,7 +836,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapPARSEC() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 17))), Sym("pc")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 19))), Sym("pc")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(498659569), Mul(Int(10285592), Pow(10, 7))), Sym("pc")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 27))), Sym("pc")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 11))), Sym("pc")));
@@ -873,7 +873,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapPETAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 23)), Sym("petam")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 25)), Sym("petam")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 13)), Sym("petam")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 33)), Sym("petam")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 17)), Sym("petam")));
@@ -910,7 +910,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapPICOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 4), Sym("picom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Int(100), Sym("picom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 14)), Sym("picom")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("picom")));
         c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 10), Sym("picom")));
@@ -947,7 +947,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapPOINT() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(9), Int(317500)), Sym("pt")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 4))), Sym("pt")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("53855233452"), Pow(10, 6)), Int(127)), Sym("pt")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 12))), Sym("pt")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(3600), Int(127)), Sym("pt")));
@@ -984,7 +984,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapTERAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 20)), Sym("teram")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 22)), Sym("teram")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 10)), Sym("teram")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("teram")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 14)), Sym("teram")));
@@ -1021,7 +1021,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapTHOU() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Int(2540)), Sym("thou")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Int(254000)), Sym("thou")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("7479893535"), Pow(10, 8)), Int(127)), Sym("thou")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("thou")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(127)), Sym("thou")));
@@ -1058,7 +1058,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapYARD() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 4))), Sym("yd")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 6))), Sym("yd")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int("62332446125000"), Int(381)), Sym("yd")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 14))), Sym("yd")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(25), Int(2286)), Sym("yd")));
@@ -1095,7 +1095,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapYOCTOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 16), Sym("yoctom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 14), Sym("yoctom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 26)), Sym("yoctom")));
         c.put(UnitsLength.ATTOMETER, Mul(Pow(10, 6), Sym("yoctom")));
         c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 22), Sym("yoctom")));
@@ -1132,7 +1132,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapYOTTAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 32)), Sym("yottam")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 34)), Sym("yottam")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 22)), Sym("yottam")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 42)), Sym("yottam")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 26)), Sym("yottam")));
@@ -1169,7 +1169,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapZEPTOMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 13), Sym("zeptom")));
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 11), Sym("zeptom")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 23)), Sym("zeptom")));
         c.put(UnitsLength.ATTOMETER, Mul(Int(1000), Sym("zeptom")));
         c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 19), Sym("zeptom")));
@@ -1206,7 +1206,7 @@ public class LengthI extends Length implements ModelBased {
     private static Map<UnitsLength, Conversion> createMapZETTAMETER() {
         EnumMap<UnitsLength, Conversion> c =
             new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
-        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 29)), Sym("zettam")));
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 31)), Sym("zettam")));
         c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 19)), Sym("zettam")));
         c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 39)), Sym("zettam")));
         c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 23)), Sym("zettam")));
@@ -1439,7 +1439,7 @@ public class LengthI extends Length implements ModelBased {
            setUnit(value.getUnit());
         } else {
             UnitsLength targetUnit = UnitsLength.valueOf(target);
-            Conversion conversion = conversions.get(value.getUnit()).get(targetUnit);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
             if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",

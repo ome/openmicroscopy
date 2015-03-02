@@ -56,69 +56,69 @@ class LengthI(_omero_model.Length, UnitBase):
     for val in UNIT_VALUES:
         CONVERSIONS[val] = dict()
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ASTRONOMICALUNIT] = \
-        Mul(Mul(Int(1495978707), Pow(10, 10)), Sym("ang"))  # nopep8
+        Mul(Mul(Int(1495978707), Pow(10, 12)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ATTOMETER] = \
-        Mul(Rat(Int(1), Pow(10, 10)), Sym("ang"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.CENTIMETER] = \
-        Mul(Pow(10, 6), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.DECAMETER] = \
-        Mul(Pow(10, 9), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.DECIMETER] = \
-        Mul(Pow(10, 7), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.EXAMETER] = \
-        Mul(Pow(10, 26), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.FEMTOMETER] = \
-        Mul(Rat(Int(1), Pow(10, 7)), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.FOOT] = \
-        Mul(Mul(Int(3048), Pow(10, 4)), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.GIGAMETER] = \
-        Mul(Pow(10, 17), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.HECTOMETER] = \
-        Mul(Pow(10, 10), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.INCH] = \
-        Mul(Mul(Int(254), Pow(10, 4)), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.KILOMETER] = \
-        Mul(Pow(10, 11), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.LIGHTYEAR] = \
-        Mul(Mul(Int("94607304725808"), Pow(10, 10)), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.LINE] = \
-        Mul(Rat(Int(635000), Int(3)), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MEGAMETER] = \
-        Mul(Pow(10, 14), Sym("ang"))  # nopep8
-    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.METER] = \
         Mul(Pow(10, 8), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.DECAMETER] = \
+        Mul(Pow(10, 11), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.DECIMETER] = \
+        Mul(Pow(10, 9), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.EXAMETER] = \
+        Mul(Pow(10, 28), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.FEMTOMETER] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.FOOT] = \
+        Mul(Mul(Int(3048), Pow(10, 6)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.GIGAMETER] = \
+        Mul(Pow(10, 19), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.HECTOMETER] = \
+        Mul(Pow(10, 12), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.INCH] = \
+        Mul(Mul(Int(254), Pow(10, 6)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.KILOMETER] = \
+        Mul(Pow(10, 13), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.LIGHTYEAR] = \
+        Mul(Mul(Int("94607304725808"), Pow(10, 12)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.LINE] = \
+        Mul(Rat(Mul(Int(635), Pow(10, 5)), Int(3)), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MEGAMETER] = \
+        Mul(Pow(10, 16), Sym("ang"))  # nopep8
+    CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.METER] = \
+        Mul(Pow(10, 10), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MICROMETER] = \
-        Mul(Int(100), Sym("ang"))  # nopep8
+        Mul(Pow(10, 4), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MILE] = \
-        Mul(Mul(Int(1609344), Pow(10, 5)), Sym("ang"))  # nopep8
+        Mul(Mul(Int(1609344), Pow(10, 7)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.MILLIMETER] = \
-        Mul(Pow(10, 5), Sym("ang"))  # nopep8
+        Mul(Pow(10, 7), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.NANOMETER] = \
-        Mul(Rat(Int(1), Int(10)), Sym("ang"))  # nopep8
+        Mul(Int(10), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.PARSEC] = \
-        Mul(Mul(Int(30856776), Pow(10, 17)), Sym("ang"))  # nopep8
+        Mul(Mul(Int(30856776), Pow(10, 19)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.PETAMETER] = \
-        Mul(Pow(10, 23), Sym("ang"))  # nopep8
+        Mul(Pow(10, 25), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.PICOMETER] = \
-        Mul(Rat(Int(1), Pow(10, 4)), Sym("ang"))  # nopep8
+        Mul(Rat(Int(1), Int(100)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.POINT] = \
-        Mul(Rat(Int(317500), Int(9)), Sym("ang"))  # nopep8
+        Mul(Rat(Mul(Int(3175), Pow(10, 4)), Int(9)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.TERAMETER] = \
-        Mul(Pow(10, 20), Sym("ang"))  # nopep8
+        Mul(Pow(10, 22), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.THOU] = \
-        Mul(Int(2540), Sym("ang"))  # nopep8
+        Mul(Int(254000), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.YARD] = \
-        Mul(Mul(Int(9144), Pow(10, 4)), Sym("ang"))  # nopep8
+        Mul(Mul(Int(9144), Pow(10, 6)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.YOCTOMETER] = \
-        Mul(Rat(Int(1), Pow(10, 16)), Sym("ang"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.YOTTAMETER] = \
-        Mul(Pow(10, 32), Sym("ang"))  # nopep8
+        Mul(Pow(10, 34), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ZEPTOMETER] = \
-        Mul(Rat(Int(1), Pow(10, 13)), Sym("ang"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ANGSTROM][UnitsLength.ZETTAMETER] = \
-        Mul(Pow(10, 29), Sym("ang"))  # nopep8
+        Mul(Pow(10, 31), Sym("ang"))  # nopep8
     CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 10))), Sym("ua"))  # nopep8
+        Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 12))), Sym("ua"))  # nopep8
     CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.ATTOMETER] = \
         Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 20))), Sym("ua"))  # nopep8
     CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.CENTIMETER] = \
@@ -180,7 +180,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.ASTRONOMICALUNIT][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Pow(10, 19), Int(1495978707)), Sym("ua"))  # nopep8
     CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Pow(10, 10), Sym("attom"))  # nopep8
+        Mul(Pow(10, 8), Sym("attom"))  # nopep8
     CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 20)), Sym("attom"))  # nopep8
     CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.CENTIMETER] = \
@@ -242,7 +242,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.ATTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 39), Sym("attom"))  # nopep8
     CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 6)), Sym("centim"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("centim"))  # nopep8
     CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 4)), Sym("centim"))  # nopep8
     CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ATTOMETER] = \
@@ -304,7 +304,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.CENTIMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 23), Sym("centim"))  # nopep8
     CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 9)), Sym("decam"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("decam"))  # nopep8
     CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int("14959787070"), Sym("decam"))  # nopep8
     CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ATTOMETER] = \
@@ -366,7 +366,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.DECAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 20), Sym("decam"))  # nopep8
     CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 7)), Sym("decim"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("decim"))  # nopep8
     CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int("1495978707000"), Sym("decim"))  # nopep8
     CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ATTOMETER] = \
@@ -428,7 +428,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.DECIMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 22), Sym("decim"))  # nopep8
     CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 26)), Sym("exam"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 28)), Sym("exam"))  # nopep8
     CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 16)), Sym("exam"))  # nopep8
     CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ATTOMETER] = \
@@ -490,7 +490,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.EXAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Int(1000), Sym("exam"))  # nopep8
     CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Pow(10, 7), Sym("femtom"))  # nopep8
+        Mul(Pow(10, 5), Sym("femtom"))  # nopep8
     CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 17)), Sym("femtom"))  # nopep8
     CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ATTOMETER] = \
@@ -552,7 +552,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.FEMTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 36), Sym("femtom"))  # nopep8
     CONVERSIONS[UnitsLength.FOOT][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 4))), Sym("ft"))  # nopep8
+        Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 6))), Sym("ft"))  # nopep8
     CONVERSIONS[UnitsLength.FOOT][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int("62332446125000"), Int(127)), Sym("ft"))  # nopep8
     CONVERSIONS[UnitsLength.FOOT][UnitsLength.ATTOMETER] = \
@@ -614,7 +614,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.FOOT][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(381)), Sym("ft"))  # nopep8
     CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 17)), Sym("gigam"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("gigam"))  # nopep8
     CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 7)), Sym("gigam"))  # nopep8
     CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ATTOMETER] = \
@@ -676,7 +676,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.GIGAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 12), Sym("gigam"))  # nopep8
     CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 10)), Sym("hectom"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("hectom"))  # nopep8
     CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int(1495978707), Sym("hectom"))  # nopep8
     CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ATTOMETER] = \
@@ -738,7 +738,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.HECTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 19), Sym("hectom"))  # nopep8
     CONVERSIONS[UnitsLength.INCH][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 4))), Sym("in"))  # nopep8
+        Mul(Rat(Int(1), Mul(Int(254), Pow(10, 6))), Sym("in"))  # nopep8
     CONVERSIONS[UnitsLength.INCH][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("7479893535"), Pow(10, 5)), Int(127)), Sym("in"))  # nopep8
     CONVERSIONS[UnitsLength.INCH][UnitsLength.ATTOMETER] = \
@@ -800,7 +800,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.INCH][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("in"))  # nopep8
     CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 11)), Sym("kilom"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("kilom"))  # nopep8
     CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Int(10)), Sym("kilom"))  # nopep8
     CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ATTOMETER] = \
@@ -862,7 +862,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.KILOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 18), Sym("kilom"))  # nopep8
     CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 10))), Sym("ly"))  # nopep8
+        Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 12))), Sym("ly"))  # nopep8
     CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(6830953), Int("431996825232")), Sym("ly"))  # nopep8
     CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ATTOMETER] = \
@@ -924,7 +924,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.LIGHTYEAR][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(625), Pow(10, 15)), Int("5912956545363")), Sym("ly"))  # nopep8
     CONVERSIONS[UnitsLength.LINE][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(3), Int(635000)), Sym("li"))  # nopep8
+        Mul(Rat(Int(3), Mul(Int(635), Pow(10, 5))), Sym("li"))  # nopep8
     CONVERSIONS[UnitsLength.LINE][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("8975872242"), Pow(10, 6)), Int(127)), Sym("li"))  # nopep8
     CONVERSIONS[UnitsLength.LINE][UnitsLength.ATTOMETER] = \
@@ -986,7 +986,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.LINE][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(6), Pow(10, 25)), Int(127)), Sym("li"))  # nopep8
     CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 14)), Sym("megam"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("megam"))  # nopep8
     CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 4)), Sym("megam"))  # nopep8
     CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ATTOMETER] = \
@@ -1048,7 +1048,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.MEGAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 15), Sym("megam"))  # nopep8
     CONVERSIONS[UnitsLength.METER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 8)), Sym("m"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("m"))  # nopep8
     CONVERSIONS[UnitsLength.METER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Int("149597870700"), Sym("m"))  # nopep8
     CONVERSIONS[UnitsLength.METER][UnitsLength.ATTOMETER] = \
@@ -1110,7 +1110,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.METER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 21), Sym("m"))  # nopep8
     CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Int(100)), Sym("microm"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("microm"))  # nopep8
     CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 8)), Sym("microm"))  # nopep8
     CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ATTOMETER] = \
@@ -1172,7 +1172,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.MICROMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 27), Sym("microm"))  # nopep8
     CONVERSIONS[UnitsLength.MILE][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 5))), Sym("mi"))  # nopep8
+        Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 7))), Sym("mi"))  # nopep8
     CONVERSIONS[UnitsLength.MILE][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int("1558311153125"), Int(16764)), Sym("mi"))  # nopep8
     CONVERSIONS[UnitsLength.MILE][UnitsLength.ATTOMETER] = \
@@ -1234,7 +1234,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.MILE][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(78125), Pow(10, 17)), Int(12573)), Sym("mi"))  # nopep8
     CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 5)), Sym("millim"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("millim"))  # nopep8
     CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 5)), Sym("millim"))  # nopep8
     CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ATTOMETER] = \
@@ -1296,7 +1296,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.MILLIMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 24), Sym("millim"))  # nopep8
     CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Int(10), Sym("nanom"))  # nopep8
+        Mul(Rat(Int(1), Int(10)), Sym("nanom"))  # nopep8
     CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 11)), Sym("nanom"))  # nopep8
     CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ATTOMETER] = \
@@ -1358,7 +1358,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.NANOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 30), Sym("nanom"))  # nopep8
     CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 17))), Sym("pc"))  # nopep8
+        Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 19))), Sym("pc"))  # nopep8
     CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(498659569), Mul(Int(10285592), Pow(10, 7))), Sym("pc"))  # nopep8
     CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ATTOMETER] = \
@@ -1420,7 +1420,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.PARSEC][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 9)), Int(3857097)), Sym("pc"))  # nopep8
     CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 23)), Sym("petam"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("petam"))  # nopep8
     CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 13)), Sym("petam"))  # nopep8
     CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ATTOMETER] = \
@@ -1482,7 +1482,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.PETAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 6), Sym("petam"))  # nopep8
     CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Pow(10, 4), Sym("picom"))  # nopep8
+        Mul(Int(100), Sym("picom"))  # nopep8
     CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 14)), Sym("picom"))  # nopep8
     CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ATTOMETER] = \
@@ -1544,7 +1544,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.PICOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 33), Sym("picom"))  # nopep8
     CONVERSIONS[UnitsLength.POINT][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(9), Int(317500)), Sym("pt"))  # nopep8
+        Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 4))), Sym("pt"))  # nopep8
     CONVERSIONS[UnitsLength.POINT][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("53855233452"), Pow(10, 6)), Int(127)), Sym("pt"))  # nopep8
     CONVERSIONS[UnitsLength.POINT][UnitsLength.ATTOMETER] = \
@@ -1606,7 +1606,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.POINT][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(36), Pow(10, 25)), Int(127)), Sym("pt"))  # nopep8
     CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 20)), Sym("teram"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("teram"))  # nopep8
     CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 10)), Sym("teram"))  # nopep8
     CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ATTOMETER] = \
@@ -1668,7 +1668,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.TERAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 9), Sym("teram"))  # nopep8
     CONVERSIONS[UnitsLength.THOU][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Int(2540)), Sym("thou"))  # nopep8
+        Mul(Rat(Int(1), Int(254000)), Sym("thou"))  # nopep8
     CONVERSIONS[UnitsLength.THOU][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Mul(Int("7479893535"), Pow(10, 8)), Int(127)), Sym("thou"))  # nopep8
     CONVERSIONS[UnitsLength.THOU][UnitsLength.ATTOMETER] = \
@@ -1730,7 +1730,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.THOU][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("thou"))  # nopep8
     CONVERSIONS[UnitsLength.YARD][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 4))), Sym("yd"))  # nopep8
+        Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 6))), Sym("yd"))  # nopep8
     CONVERSIONS[UnitsLength.YARD][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int("62332446125000"), Int(381)), Sym("yd"))  # nopep8
     CONVERSIONS[UnitsLength.YARD][UnitsLength.ATTOMETER] = \
@@ -1792,7 +1792,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.YARD][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(1143)), Sym("yd"))  # nopep8
     CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Pow(10, 16), Sym("yoctom"))  # nopep8
+        Mul(Pow(10, 14), Sym("yoctom"))  # nopep8
     CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 26)), Sym("yoctom"))  # nopep8
     CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ATTOMETER] = \
@@ -1854,7 +1854,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.YOCTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 45), Sym("yoctom"))  # nopep8
     CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 32)), Sym("yottam"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 34)), Sym("yottam"))  # nopep8
     CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 22)), Sym("yottam"))  # nopep8
     CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ATTOMETER] = \
@@ -1916,7 +1916,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.YOTTAMETER][UnitsLength.ZETTAMETER] = \
         Mul(Rat(Int(1), Int(1000)), Sym("yottam"))  # nopep8
     CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ANGSTROM] = \
-        Mul(Pow(10, 13), Sym("zeptom"))  # nopep8
+        Mul(Pow(10, 11), Sym("zeptom"))  # nopep8
     CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Mul(Int(1495978707), Pow(10, 23)), Sym("zeptom"))  # nopep8
     CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ATTOMETER] = \
@@ -1978,7 +1978,7 @@ class LengthI(_omero_model.Length, UnitBase):
     CONVERSIONS[UnitsLength.ZEPTOMETER][UnitsLength.ZETTAMETER] = \
         Mul(Pow(10, 42), Sym("zeptom"))  # nopep8
     CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ANGSTROM] = \
-        Mul(Rat(Int(1), Pow(10, 29)), Sym("zettam"))  # nopep8
+        Mul(Rat(Int(1), Pow(10, 31)), Sym("zettam"))  # nopep8
     CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ASTRONOMICALUNIT] = \
         Mul(Rat(Int(1495978707), Pow(10, 19)), Sym("zettam"))  # nopep8
     CONVERSIONS[UnitsLength.ZETTAMETER][UnitsLength.ATTOMETER] = \
@@ -2082,12 +2082,13 @@ class LengthI(_omero_model.Length, UnitBase):
             # This is a copy-constructor call.
             target = str(unit)
             targetUnit = getattr(UnitsLength, str(target))
-            source = str(value.getUnit())
+            sourceUnit = value.getUnit()
+            source = str(sourceUnit)
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get(value.getUnit()).get(targetUnit)
+                c = self.CONVERSIONS.get(targetUnit).get(sourceUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
