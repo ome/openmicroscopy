@@ -23,6 +23,12 @@
 Library for managing user sessions.
 """
 
+import omero.constants
+from omero.util import get_user_dir, make_logname
+from path import path
+
+import logging
+
 """
  * Track last used
  * provide single library (with lock) which does all of this
@@ -39,12 +45,6 @@ from omero.cli import Arguments, BaseControl, VERSION
 from path import path
 
 """
-
-import omero.constants
-from omero.util import get_user_dir, make_logname
-from path import path
-
-import logging
 
 
 class SessionsStore(object):
