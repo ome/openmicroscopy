@@ -48,7 +48,7 @@ public enum UnitsPressure {
     YOCTOPASCAL("yPa"),
     BAR("bar"),
     MEGABAR("Mbar"),
-    KILOBAR("kBar"),
+    KILOBAR("kbar"),
     DECIBAR("dbar"),
     CENTIBAR("cbar"),
     MILLIBAR("mbar"),

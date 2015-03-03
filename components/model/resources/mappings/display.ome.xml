@@ -61,6 +61,7 @@
 			<required name="green" type="int"/>
 			<required name="blue" type="int"/>
 			<required name="alpha" type="int"/>
+			<optional name="lookupTable" type="string"/>
 		</properties>
 	</type>
 

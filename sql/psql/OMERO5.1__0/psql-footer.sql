@@ -1729,7 +1729,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1DEV',  20,    'OMERO5.1DEV',   0,             'Initializing');
+             values ('OMERO5.1',  0,    'OMERO5.1',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2996,12 +2996,15 @@ ALTER TABLE wellsample ADD CONSTRAINT posY_unitpair
     CHECK (posY IS NULL AND posYUnit IS NULL
         OR posY IS NOT NULL AND posYUnit IS NOT NULL);
 
+-- Temporary workaround for the width of map types
+alter table annotation_mapvalue alter column name type text;
+alter table annotation_mapvalue alter column value type text;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO5.1DEV' and
-        currentPatch = 20 and
-        previousVersion = 'OMERO5.1DEV' and
+  where currentVersion = 'OMERO5.1' and
+        currentPatch = 0 and
+        previousVersion = 'OMERO5.1' and
         previousPatch = 0;
 
 COMMIT;
