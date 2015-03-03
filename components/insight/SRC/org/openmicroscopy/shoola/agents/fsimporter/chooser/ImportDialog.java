@@ -1546,7 +1546,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                 if (path != null) {
                     for (int i = 0; i < values.length; i++) {
                         ff = new FileObject(WindowManager.getImage(values[i]));
-                        if (path.equals(f.getAbsolutePath())) {
+                        if (path.equals(ff.getAbsolutePath())) {
                             f.addAssociatedFile(ff);
                         }
                     }
