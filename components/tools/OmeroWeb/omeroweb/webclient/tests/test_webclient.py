@@ -26,7 +26,7 @@
 #
 
 
-def testUserProxy (gatewaywrapper):
+def testUserProxy(gatewaywrapper):
     gatewaywrapper.loginAsAuthor()
     user = gatewaywrapper.gateway.getUser()
     assert user.isAdmin() is False
