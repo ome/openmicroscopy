@@ -97,7 +97,7 @@ def imageMarshal(image, key=None):
             'projectId': pr and pr.id or None,
             'projectDescription': pr and pr.description or '',
             'datasetName': ds and ds.name or 'Multiple',
-            'datasetId': ds and ds.id or '',
+            'datasetId': ds and ds.id or None,
             'datasetDescription': ds and ds.description or '',
             'wellSampleId': wellsample and wellsample.id or '',
             'wellId': well and well.id.val or '',
