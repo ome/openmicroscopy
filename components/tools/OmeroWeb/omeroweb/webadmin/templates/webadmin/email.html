@@ -59,8 +59,8 @@
         $("#id_everyone").change(function(e){
           var state =  $(e.target).is(':checked');
           // Disable/Enable Users/Groups
-          $('#id_experimenters').prop('disabled', state).trigger("liszt:updated");
-          $('#id_groups').prop('disabled', state).trigger("liszt:updated");
+          $('#id_experimenters').prop('disabled', state).trigger("chosen:updated");
+          $('#id_groups').prop('disabled', state).trigger("chosen:updated");
         });
       });
 
