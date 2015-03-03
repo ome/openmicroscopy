@@ -53,7 +53,8 @@ class DownloadControl(BaseControl):
 
         if orig_file.details.permissions.isRestricted(
             omero.constants.permissions.DOWNLOAD):
-            self.ctx.die(66, "Download is restricted")
+            self.ctx.die(66, ("Download of OriginalFile:"
+                              "%s is restricted") % orig_file.id.val)
         target_file = str(args.filename)
 
         try:

@@ -75,7 +75,9 @@
 
   <bean id="defaultPolicyService" class="ome.security.policy.DefaultPolicyService"/>
 
-  <bean id="RESTRICT-DOWNLOAD" class="ome.security.policy.DownloadPolicy"/>
+  <bean id="RESTRICT-DOWNLOAD" class="ome.security.policy.DownloadPolicy">
+      <constructor-arg ref="aclVoter"/>
+  </bean>
 
   <bean id="aclVoter" class="ome.security.CompositeACLVoter">
     <constructor-arg ref="currentDetails"/>

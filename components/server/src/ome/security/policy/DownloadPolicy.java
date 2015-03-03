@@ -19,6 +19,10 @@
 
 package ome.security.policy;
 
+import ome.conditions.SecurityViolation;
+import ome.model.IObject;
+import ome.security.ACLVoter;
+
 
 
 /**
@@ -33,13 +37,31 @@ public class DownloadPolicy extends BasePolicy {
      */
     public final static String NAME = "RESTRICT-DOWNLOAD";
 
+    private final ACLVoter voter;
+
+    public DownloadPolicy(ACLVoter voter) {
+        this.voter = voter;
+    }
+
     @Override
     public String getName() {
         return NAME;
     }
 
-    public DownloadPolicy() {
-        
+    @Override
+    public boolean isRestricted(IObject obj) {
+        if (voter.allowUpdate(obj, obj.getDetails())) {
+            return false;
+        }
+        return true;
     }
 
+    @Override
+    public void checkRestriction(IObject obj) {
+        if (isRestricted(obj)) {
+            throw new SecurityViolation(String.format(
+                    "Download is restricted for %s",
+                    obj));
+        }
+    }
 }
