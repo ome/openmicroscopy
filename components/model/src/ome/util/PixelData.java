@@ -234,7 +234,7 @@ public class PixelData
     }
 
     /**
-     * Returns the java type.
+     * Returns the Java type that has the same byte width of the pixel data.
      *
      * @return See above.
      */
