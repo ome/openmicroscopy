@@ -76,7 +76,7 @@ function poweroffvm ()
 function poweronvm ()
 {
 	$VBOX list runningvms | grep "$VMNAME" || {
-    	$VBOX startvm "$VMNAME" --type headless && sleep 45
+	$VBOX startvm "$VMNAME" --type headless && sleep 60
 	}
 }
 
@@ -134,7 +134,7 @@ function createvm ()
 {
 		$VBOX list vms | grep "$VMNAME" || {
 		VBoxManage clonehd "$OMERO_BASE_IMAGE" "$HARDDISKS$VMNAME.vdi"
-		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian_64"
+		VBoxManage createvm --name "$VMNAME" --register --ostype "Ubuntu_64"
 		VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
 		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium $HARDDISKS$VMNAME.vdi
 			
