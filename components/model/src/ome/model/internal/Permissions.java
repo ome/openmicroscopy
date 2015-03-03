@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
@@ -342,15 +343,13 @@ public class Permissions implements Serializable {
     /**
      * Copy restrictions based on the integer returned by BasicACLVoter.
      */
-    public void copyRestrictions(int allow, String[] extendedRestrictions) {
+    public void copyRestrictions(int allow, Set<String> extendedRestrictions) {
 
-        if (extendedRestrictions == null) {
+        if (extendedRestrictions == null || extendedRestrictions.isEmpty()) {
             this.extendedRestrictions = null;
         } else {
-            this.extendedRestrictions = new String[extendedRestrictions.length];
-            System.arraycopy(extendedRestrictions, 0,
-                    this.extendedRestrictions, 0,
-                    extendedRestrictions.length);
+            this.extendedRestrictions = extendedRestrictions.toArray(
+                    new String[extendedRestrictions.size()]);
         }
         if (allow == 15) { // Would be all false.
             this.restrictions = null;

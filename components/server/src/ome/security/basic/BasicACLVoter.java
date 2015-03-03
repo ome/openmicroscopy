@@ -415,7 +415,8 @@ public class BasicACLVoter implements ACLVoter {
             // are currently being shared, the safest solution
             // is to always produce a copy.
             Permissions copy = new Permissions(p);
-            copy.copyRestrictions(allow, new String[]{"TEST"});
+            copy.copyRestrictions(allow,
+                    policyService.listActiveRestrictions(object));
             details.setPermissions(copy); // #9635
         }
     }
