@@ -123,6 +123,9 @@ class SessionsStore(object):
             new = new_props.get(key, None)
             if ignore_nulls and new is None:
                 continue
+            elif (key == "omero.port" and old is None and
+                    new == str(omero.constants.GLACIER2PORT)):
+                continue
             elif old != new:
                 conflicts += (key + (":%s!=%s;" % (old, new)))
         return conflicts
