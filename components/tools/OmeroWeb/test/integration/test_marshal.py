@@ -80,12 +80,6 @@ def django_client(request, client):
     return django_client
 
 
-@pytest.fixture(scope='function')
-def update_service(request, client):
-    """Returns a new OMERO update service."""
-    return client.getSession().getUpdateService()
-
-
 class TestImgDetail(object):
     """
     Tests json for webgateway/imgData/
@@ -196,17 +190,6 @@ class TestImgDetail(object):
 
 
 # Helpers
-def _post_response(django_client, request_url, data, status_code=200):
-    response = django_client.post(request_url, data=data)
-    assert response.status_code == status_code
-    return response
-
-
-def _csrf_post_response(django_client, request_url, data, status_code=200):
-    csrf_token = django_client.cookies['csrftoken'].value
-    data['csrfmiddlewaretoken'] = csrf_token
-    return _post_response(django_client, request_url, data, status_code)
-
 
 def _get_response(django_client, request_url, query_string, status_code=200):
     query_string = urlencode(query_string.items())
@@ -221,30 +204,3 @@ def _get_response_json(django_client, request_url,
     # allow 'text/javascript'?
     # assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)
-
-
-def _login_django_client(request, client, username, password):
-
-    django_client = Client(enforce_csrf_checks=True)
-    login_url = reverse('weblogin')
-
-    response = django_client.get(login_url)
-    assert response.status_code == 200
-    csrf_token = django_client.cookies['csrftoken'].value
-
-    data = {
-        'server': 1,
-        'username': username,
-        'password': password,
-        'csrfmiddlewaretoken': csrf_token
-    }
-    response = django_client.post(login_url, data)
-    assert response.status_code == 302
-
-    def finalizer():
-        logout_url = reverse('weblogout')
-        data = {'csrfmiddlewaretoken': csrf_token}
-        response = django_client.post(logout_url, data=data)
-        assert response.status_code == 302
-    request.addfinalizer(finalizer)
-    return django_client
