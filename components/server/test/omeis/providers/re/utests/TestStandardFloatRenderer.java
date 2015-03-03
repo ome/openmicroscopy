@@ -67,7 +67,7 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
         int n = 16;
         Float[] output = new Float[16];
         for (int i = 0; i < n/2; i++) {
-            output[i+n/2] = Float.MAX_VALUE;
+            output[i+n/2] = new Float(Integer.MAX_VALUE);
         }
         for (int i = 0; i < n/2; i++) {
             output[i] = 0.0f;
@@ -98,7 +98,8 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
             assertEquals(0.0, data.getPixelValue(i));
         }
         for (int i = 0; i < n/2; i++) {
-            assertEquals(qs.getPixelsTypeMax(), data.getPixelValue(i+n/2));
+            assertEquals(new Float(qs.getPixelsTypeMax()),
+                    new Float(data.getPixelValue(i+n/2)));
         }
 
         try
@@ -114,8 +115,8 @@ public class TestStandardFloatRenderer extends BaseRenderingTest
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
                 settings.getQuantization(), pixels.getPixelsType());
-        assertTrue(-Float.MAX_VALUE == qs.getPixelsTypeMin());
-        assertTrue(Float.MAX_VALUE == qs.getPixelsTypeMax());
+        assertTrue(Integer.MIN_VALUE == qs.getPixelsTypeMin());
+        assertTrue(Integer.MAX_VALUE == qs.getPixelsTypeMax());
     }
 
     @Test(timeOut=30000)

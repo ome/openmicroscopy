@@ -47,6 +47,7 @@
 
     {% if image.canDownload or filesetInfo %}
     <!-- download options -->
+    {% if not disableDownload %}
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
             <span></span>
@@ -105,7 +106,7 @@
               <a title="No original imported files to download">Download...</a>
             </li>
             {% endif %}
-            {% if image %}
+            {% if image and not omeTiffDisabled %}
             <li>
                 <a id="create-ometiff" href="{% url 'ome_tiff_script' image.id %}" 
                 title="Create OME-TIFF File for Download">Export as OME-TIFF...</a>
@@ -155,6 +156,7 @@
             {% endif %}
         </ul>
     </div>
+    {% endif %}
 
     {% if image.showOriginalFilePaths %}
       <!-- show original file paths -->

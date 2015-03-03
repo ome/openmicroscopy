@@ -83,7 +83,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.search.LuceneQueryBuilder;
 
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -100,6 +99,7 @@ import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
+import ome.util.search.LuceneQueryBuilder;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.ChecksumValidationException;
