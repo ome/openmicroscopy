@@ -30,8 +30,10 @@ import ome.security.ACLVoter;
 
 
 /**
- * 
- *
+ *  Policy which should be checked anytime access to original binary files in
+ *  OMERO is being attempted. This check is <em>in addition</em> to the
+ *  standard permission permission and is intended to allow customizing who
+ *  has access to widely shared data.
  */
 public class DownloadPolicy extends BasePolicy {
 

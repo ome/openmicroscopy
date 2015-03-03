@@ -17,11 +17,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * Extensible service and security policies which can influence
- * whether a user, group, or other agent can perform a certain
- * action.
- */
 package ome.security.policy;
 
 import java.util.Collections;
@@ -39,6 +34,11 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
+/**
+ * {@link PolicyService} which is configured with all {@link Policy} instances
+ * which are discovered in the Spring context and only focuses on a small
+ * subset of {@link IObject} types as specified by {@link #filterObject(IObject)}.
+ */
 public class DefaultPolicyService
     extends OnContextRefreshedEventListener
     implements PolicyService {

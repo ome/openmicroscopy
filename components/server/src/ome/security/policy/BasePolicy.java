@@ -17,16 +17,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * Extensible service and security policies which can influence
- * whether a user, group, or other agent can perform a certain
- * action.
- */
 package ome.security.policy;
 
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 
+/**
+ * Simple base class for {@link Policy} implementations which always returns
+ * true for {@link #isRestricted(IObject)} and always fails on
+ * {@link #checkRestriction(IObject)}.
+ */
 public abstract class BasePolicy implements Policy {
 
     public abstract String getName();

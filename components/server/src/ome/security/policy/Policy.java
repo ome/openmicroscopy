@@ -17,16 +17,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * Extensible service and security policies which can influence
- * whether a user, group, or other agent can perform a certain
- * action.
- */
 package ome.security.policy;
 
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 
+/**
+ * Strategy to permit the flexible restriction of certain actions
+ * throughout OMERO. Code which intends to allow such checks should
+ * create a new {@link Policy} class with a unique {@link #getName() name}
+ * and add checks within that code. For example:
+ *
+ * <pre>
+ *    public class MyPolicy implements Policy {
+ *
+ *        public final static string NAME = "MyPolicy";
+ *
+ *        public String getName() {
+ *            return NAME;
+ *        }
+ *    }
+ *
+ *    public void someImportantMethod() {
+ *        IObject objBeingAccessed = ...;
+ *        policyService.checkRestriction(MyPolicy.NAME, objBeingAccessed);
+ *        // Here an exception may be thrown
+ *    }
+ * </pre>
+ */
 public interface Policy {
 
     /**
