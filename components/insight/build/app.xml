@@ -132,6 +132,7 @@
           depends="app-init"
           description="Compile the whole app.">
     <javac srcdir="${base.src.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.dir}"
            includeantruntime="no"
@@ -144,6 +145,7 @@
       <patternset refid="app.sources"/>
     </javac>
     <javac srcdir="${base.src.util.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
@@ -156,6 +158,7 @@
       <patternset refid="app.sources"/>
     </javac>
     <javac srcdir="${base.src.svc.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
