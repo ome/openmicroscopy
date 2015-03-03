@@ -166,24 +166,28 @@ already be running. This may automatically restart some server components.""")
             """Send administrative emails to users.
 
 Administrators can contact OMERO users and groups of
-users based on configured email settings.
+users based on configured email settings. A subject
+and some text are required. If no text is passed on
+the command-line or if "-" is passed, then text will
+be read from the standard input.
 
 Examples:
 
   # Send the contents of a file to everyone
+  # except inactive users.
   bin/omero admin email --everyone Subject < some_file.text
 
+  # Include inactive users in the email
+  bin/omero admin email --everyone --inactive ...
+
   # Contact a single group
-  bin/omero admin email --group-name system Subject short message
+  bin/omero admin email --group-name system \\
+                        Subject short message
 
   # Contact a list of users
   bin/omero admin email --user-id 10 \\
                         --user-name ralph \\
                         Subject ...
-
-  # Include inactive users in the email
-  bin/omero admin email --inactive ...
-
 
             """).parser
         email.add_argument(
@@ -196,10 +200,11 @@ Examples:
                   "is given."))
         email.add_argument(
             "--everyone", action="store_true",
-            help="Contact everyone in the system.")
+            help=("Contact everyone in the system regardless "
+                  "of other arguments."))
         email.add_argument(
             "--inactive", action="store_true",
-            help="Contact inactive users.")
+            help="Do not filter inactive users.")
         self.add_user_and_group_arguments(email,
                                           action="append",
                                           exclusive=False)
@@ -1309,6 +1314,10 @@ OMERO Diagnostics %s
         if text == "-":
             stdin = FileType("r")("-")
             text = stdin.read()
+
+        if args.everyone:
+            if users or groups:
+                self.ctx.err("Warning: users and groups ignored")
 
         req = omero.cmd.SendEmailRequest(
             subject=args.subject,
