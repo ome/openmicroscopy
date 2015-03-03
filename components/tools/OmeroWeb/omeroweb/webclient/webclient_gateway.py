@@ -2390,7 +2390,9 @@ class DatasetWrapper(OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
 omero.gateway.DatasetWrapper = DatasetWrapper
 
 
-class ImageWrapper (OmeroWebObjectWrapper, OmeroRestrictionWrapper, omero.gateway.ImageWrapper):
+class ImageWrapper (OmeroWebObjectWrapper,
+                    OmeroRestrictionWrapper,
+                    omero.gateway.ImageWrapper):
     """
     omero_model_ImageI class wrapper overwrite omero.gateway.ImageWrapper
     and extends OmeroWebObjectWrapper.
@@ -2548,7 +2550,9 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
         if 'annotation_counter' in kwargs:
             self.annotation_counter = kwargs['annotation_counter']
 
-class FileAnnotationWrapper (OmeroRestrictionWrapper, omero.gateway.FileAnnotationWrapper):
+
+class FileAnnotationWrapper (OmeroRestrictionWrapper,
+                             omero.gateway.FileAnnotationWrapper):
     """
     omero_model_FileAnnotationI class wrapper extends AnnotationWrapper.
     """

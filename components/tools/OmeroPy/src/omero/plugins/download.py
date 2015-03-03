@@ -50,9 +50,10 @@ class DownloadControl(BaseControl):
     def __call__(self, args):
         client = self.ctx.conn(args)
         orig_file = self.get_filed(client.sf, args.object)
+        perms = orig_file.details.permissions
+        name = omero.constants.permissions.DOWNLOAD
 
-        if orig_file.details.permissions.isRestricted(
-            omero.constants.permissions.DOWNLOAD):
+        if perms.isRestricted(name):
             self.ctx.die(66, ("Download of OriginalFile:"
                               "%s is restricted") % orig_file.id.val)
         target_file = str(args.filename)
