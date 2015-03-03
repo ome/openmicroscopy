@@ -22,86 +22,36 @@ Test json methods of webgateway
 """
 
 import json
-import pytest
-import library as lib
 
-from urllib import urlencode
-from django.test import Client
 from django.core.urlresolvers import reverse
 
-
-@pytest.fixture(scope='function')
-def itest(request):
-    """
-    Returns a new L{test.integration.library.ITest} instance. With attached
-    finalizer so that pytest will clean it up.
-    """
-    o = lib.ITest()
-    o.setup_class()
-
-    def finalizer():
-        o.teardown_class()
-    request.addfinalizer(finalizer)
-    return o
+from weblibrary import IWebTest, _get_response
 
 
-@pytest.fixture(scope='function')
-def client(request, itest):
-    """Returns a new user client in a read-only group."""
-    # Use group read-only permissions (not private) by default
-    return itest.new_client(perms='rwr---')
-
-
-@pytest.fixture(scope='function')
-def django_client(request, client):
-    """Returns a logged in Django test client."""
-    django_client = Client(enforce_csrf_checks=True)
-    login_url = reverse('weblogin')
-
-    response = django_client.get(login_url)
-    assert response.status_code == 200
-    csrf_token = django_client.cookies['csrftoken'].value
-
-    data = {
-        'server': 1,
-        'username': client.getProperty('omero.user'),
-        'password': client.getProperty('omero.pass'),
-        'csrfmiddlewaretoken': csrf_token
-    }
-    response = django_client.post(login_url, data)
-    assert response.status_code == 302
-
-    def finalizer():
-        logout_url = reverse('weblogout')
-        data = {'csrfmiddlewaretoken': csrf_token}
-        response = django_client.post(logout_url, data=data)
-        assert response.status_code == 302
-    request.addfinalizer(finalizer)
-    return django_client
-
-
-class TestImgDetail(object):
+class TestImgDetail(IWebTest):
     """
     Tests json for webgateway/imgData/
     """
 
-    def test_image_detail(self, itest, client, django_client):
+    def test_image_detail(self):
         """
         Download of archived files for a non-SPW Image.
         """
+        client = self.client
+
         admin = client.sf.getAdminService()
         user = admin.getExperimenter(admin.getEventContext().userId)
         userName = "%s %s" % (user.getFirstName().val, user.getLastName().val)
 
         # Import "tinyTest.d3d.dv" and get ImageID
-        pids = itest.import_image(client=client)
+        pids = self.import_image(client=client)
         pixels = client.getSession().getQueryService().get("Pixels",
                                                            long(pids[0]))
         iid = pixels.image.id.val
 
         json_url = reverse('webgateway.views.imageData_json', args=[iid])
         data = {}
-        imgData = _get_response_json(django_client, json_url,
+        imgData = _get_response_json(self.django_client, json_url,
                                      data, status_code=200)
 
         # Useful for debugging
@@ -190,14 +140,6 @@ class TestImgDetail(object):
 
 
 # Helpers
-
-def _get_response(django_client, request_url, query_string, status_code=200):
-    query_string = urlencode(query_string.items())
-    response = django_client.get('%s?%s' % (request_url, query_string))
-    assert response.status_code == status_code
-    return response
-
-
 def _get_response_json(django_client, request_url,
                        query_string, status_code=200):
     rsp = _get_response(django_client, request_url, query_string, status_code)
