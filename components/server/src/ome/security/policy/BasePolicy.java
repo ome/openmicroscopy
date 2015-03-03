@@ -25,18 +25,19 @@
 package ome.security.policy;
 
 import ome.conditions.SecurityViolation;
+import ome.model.IObject;
 
 public abstract class BasePolicy implements Policy {
 
     public abstract String getName();
 
     @Override
-    public boolean isActive() {
+    public boolean isRestricted(IObject obj) {
         return true;
     }
 
     @Override
-    public void check() {
+    public void checkRestriction(IObject obj) {
         throw new SecurityViolation(getName()+ ":: disallowed.");
     }
 

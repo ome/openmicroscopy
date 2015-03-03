@@ -343,7 +343,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
             modified = false;
             file = iQuery.get(OriginalFile.class, fileId);
-            sec.checkRestriction(new DownloadPolicy(file));
+            sec.checkRestriction(DownloadPolicy.NAME, file);
 
             String mode = "r";
             try {

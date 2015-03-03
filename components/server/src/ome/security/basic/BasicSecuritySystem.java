@@ -648,8 +648,8 @@ public class BasicSecuritySystem implements SecuritySystem,
         return tokenHolder.hasPrivilegedToken(obj);
     }
 
-    public void checkRestriction(Policy policy) {
-        
+    public void checkRestriction(String name, IObject obj) {
+        policyService.checkRestriction(name, obj);
     }
 
     // ~ Configured Elements

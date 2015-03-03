@@ -166,14 +166,15 @@ public interface SecuritySystem {
 
     /**
      * Checks whether or not a {@link ome.sercurity.Policy} instance of matching
-     * type and name has been registered, considers itself active, <em>and</em>
-     * considers the passed context object(s) to be restricted.
+     * name has been registered, considers itself active, <em>and</em>
+     * considers the passed context object to be restricted.
      * 
-     * @param policy An instance of the {@link Policy} to be checked.
+     * @param name A non-null unique name for a class of policies.
+     * @param obj An instance which is to be checked against matching policies.
      * @throws a {@link SecurityViolation} if the given {@link Policy} is
      *      considered to be restricted.
      */
-    void checkRestriction(Policy policy) throws SecurityViolation;
+    void checkRestriction(String name, IObject obj) throws SecurityViolation;
 
     // ~ Subsystem disabling
     // =========================================================================

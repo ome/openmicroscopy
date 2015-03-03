@@ -29,12 +29,13 @@ import ome.security.ACLVoter;
 import ome.security.SecurityFilter;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.security.policy.PolicyService;
 import ome.system.EventContext;
 import ome.system.Roles;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
 import org.springframework.util.Assert;
 
 /**
@@ -76,20 +77,27 @@ public class BasicACLVoter implements ACLVoter {
 
     protected final SecurityFilter securityFilter;
 
+    protected final PolicyService policyService;
+
     protected final Roles roles;
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
-        TokenHolder tokenHolder, SecurityFilter securityFilter) {
-        this(cd, sysTypes, tokenHolder, securityFilter, new Roles());
+        TokenHolder tokenHolder, SecurityFilter securityFilter,
+        PolicyService policyService) {
+        this(cd, sysTypes, tokenHolder, securityFilter, policyService,
+                new Roles());
     }
 
     public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
-        TokenHolder tokenHolder, SecurityFilter securityFilter, Roles roles) {
+        TokenHolder tokenHolder, SecurityFilter securityFilter,
+        PolicyService policyService,
+        Roles roles) {
         this.currentUser = cd;
         this.sysTypes = sysTypes;
         this.securityFilter = securityFilter;
         this.tokenHolder = tokenHolder;
         this.roles = roles;
+        this.policyService = policyService;
     }
 
     // ~ Interface methods

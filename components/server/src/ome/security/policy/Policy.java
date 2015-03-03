@@ -24,12 +24,38 @@
  */
 package ome.security.policy;
 
+import ome.conditions.SecurityViolation;
+import ome.model.IObject;
+
 public interface Policy {
 
+    /**
+     * Unique name for this type of {@link Policy}. This string will be sent to
+     * clients via
+     * {@link ome.model.internal.Permissions#copyExtendedRestrictions()} in
+     * order to prevent exceptions.
+     */
     String getName();
 
-    boolean isActive();
+    /**
+     * Checks whether or not this instance would throw a
+     * {@link SecurityViolation} if the same instance were passed to
+     * {@link #checkRestriction(IObject)}. This is likely determined by first
+     * testing the type of the {@link IObject} and then that the
+     * current user context has access to the given context.
+     * 
+     * @param obj
+     *            a non-null {@link IObject} instance.
+     * 
+     * @return true if this {@link Policy} decides that a restriction should be
+     *         placed on the passed context.
+     */
+    boolean isRestricted(IObject obj);
 
-    void check();
+    /**
+     * Like {@link #isRestricted(Policy)} but throws an appropriate
+     * {@link SecurityViolation} subclass if the restriction is active.
+     */
+    void checkRestriction(IObject obj) throws SecurityViolation;
 
 }

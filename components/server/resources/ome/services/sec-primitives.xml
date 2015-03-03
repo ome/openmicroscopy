@@ -95,6 +95,7 @@
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="securityFilterHolder"/>
+    <constructor-arg ref="policyService"/>
     <constructor-arg ref="roles"/>
   </bean>
 

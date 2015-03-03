@@ -76,6 +76,7 @@
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="securityFilterHolder"/>
+    <constructor-arg><bean class="ome.security.policy.DefaultPolicyService"/></constructor-arg>
   </bean>
 
   <bean id="eventHandler" class="ome.security.basic.NullEventHandler">

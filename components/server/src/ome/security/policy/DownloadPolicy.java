@@ -19,7 +19,6 @@
 
 package ome.security.policy;
 
-import ome.model.core.OriginalFile;
 
 
 /**
@@ -39,20 +38,8 @@ public class DownloadPolicy extends BasePolicy {
         return NAME;
     }
 
-    /**
-     * Default constructor which is used to create the context-free
-     * {@link Policy} which performs the actual checks.
-     */
     public DownloadPolicy() {
         
-    }
-
-    /**
-     * {@link DownloadPolicy} with a particular file as the context.
-     * @param file
-     */
-    public DownloadPolicy(OriginalFile file) {
-
     }
 
 }

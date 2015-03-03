@@ -24,20 +24,26 @@
  */
 package ome.security.policy;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ome.model.IObject;
+import ome.model.core.Image;
+import ome.model.core.OriginalFile;
 import ome.tools.spring.OnContextRefreshedEventListener;
 
 import org.springframework.context.event.ContextRefreshedEvent;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 public class DefaultPolicyService
     extends OnContextRefreshedEventListener
     implements PolicyService {
 
-    private final Map<String, Policy> policies = new HashMap<String, Policy>();
+    private final ListMultimap<String, Policy> policies = ArrayListMultimap.create();
 
     /**
      * Loads all {@link Policy} instances from the context,
@@ -45,9 +51,10 @@ public class DefaultPolicyService
      */
     @Override
     public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
-        policies.putAll(
-                event.getApplicationContext()
-                    .getBeansOfType(Policy.class));
+        for (Policy policy : event.getApplicationContext()
+                .getBeansOfType(Policy.class).values()) {
+            policies.put(policy.getName(), policy);
+        }
     }
 
     //
@@ -55,17 +62,18 @@ public class DefaultPolicyService
     //
 
     @Override
-    public boolean isRestricted(String policyName) {
-        if (!policies.containsKey(policyName)) {
-            return false;
+    public boolean isRestricted(final String name, final IObject obj) {
+        for (Policy check : policies.get(name))
+            if (check.isRestricted(obj)) {
+                return true;
         }
-        return policies.get(policyName).isActive();
+        return false;
     }
 
     @Override
-    public void checkRestriction(String policyName) {
-        if (policies.containsKey(policyName)) {
-            policies.get(policyName).check();
+    public void checkRestriction(final String name, final IObject obj) {
+        for (Policy check : policies.get(name)) {
+            check.checkRestriction(obj);
         }
     }
 
@@ -75,13 +83,35 @@ public class DefaultPolicyService
     }
 
     @Override
-    public Set<String> listActiveRestrictions() {
-        Set<String> active = new HashSet<String>();
-        for (Map.Entry<String, Policy> entry : policies.entrySet()) {
-            if (entry.getValue().isActive()) {
-                active.add(entry.getKey());
+    public Set<String> listActiveRestrictions(IObject obj) {
+
+        if (filterObject(obj)) {
+            return Collections.emptySet();
+        }
+
+        Set<String> rv = new HashSet<String>();
+        for (Map.Entry<String, Policy> entry : policies.entries()) {
+            if (entry.getValue().isRestricted(obj)) {
+                rv.add(entry.getKey());
             }
         }
-        return active;
+        return rv;
     }
+
+    /**
+     * Limit the objects to which {@link Policy} instances are applied. This
+     * reduces the overhead of creating a {@link HashSet} for every object in
+     * a returned graph.
+     *
+     * @param obj e.g. the argument to {@link #listActiveRestrictions(IObject)}.
+     * @return true if the given object should <em>not</em> be restricted.
+     */
+    protected boolean filterObject(IObject obj) {
+        if (obj instanceof Image ||
+                obj instanceof OriginalFile) {
+            return false;
+        }
+        return true;
+    }
+
 }
