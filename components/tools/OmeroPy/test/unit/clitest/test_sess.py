@@ -465,11 +465,11 @@ class TestSessions(object):
 
         del cli
 
+    @pytest.mark.parametrize('port', [None, 4064])
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testCopiedSessionWorks(self, connection):
+    def testCopiedSessionWorks(self, connection, port):
         """
-        Found by Colin while using a session key from
-        a non-CLI-source.
+        Found by Colin while using a session key from a non-CLI-source.
         """
         cli = MyCLI()
 
@@ -482,7 +482,7 @@ class TestSessions(object):
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
         cli.set_client(None)  # Forcing new instance
         cli.creates_client(sess=MOCKKEY, new=False)
-        conn_args = self.get_conn_args(connection, port=None)
+        conn_args = self.get_conn_args(connection, port=port)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
 
     def assert5975(self, key, cli):
