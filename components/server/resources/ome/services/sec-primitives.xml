@@ -71,12 +71,13 @@
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
 
-  <alias name="${omero.security.policy_bean}" alias="policyService"/>
+  <alias name="${omero.policy.bean}" alias="policyService"/>
 
   <bean id="defaultPolicyService" class="ome.security.policy.DefaultPolicyService"/>
 
   <bean id="RESTRICT-DOWNLOAD" class="ome.security.policy.DownloadPolicy">
-      <constructor-arg ref="aclVoter"/>
+    <constructor-arg ref="aclVoter"/>
+    <constructor-arg value="${omero.policy.download}"/>
   </bean>
 
   <bean id="aclVoter" class="ome.security.CompositeACLVoter">

@@ -19,6 +19,10 @@
 
 package ome.security.policy;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.security.ACLVoter;
@@ -39,8 +43,19 @@ public class DownloadPolicy extends BasePolicy {
 
     private final ACLVoter voter;
 
+    private final List<String> config;
+
     public DownloadPolicy(ACLVoter voter) {
+        this(voter, null);
+    }
+
+    public DownloadPolicy(ACLVoter voter, String[] config) {
         this.voter = voter;
+        if (config == null) {
+            this.config = Collections.emptyList();
+        } else {
+            this.config = Arrays.asList(config);
+        }
     }
 
     @Override
@@ -50,8 +65,14 @@ public class DownloadPolicy extends BasePolicy {
 
     @Override
     public boolean isRestricted(IObject obj) {
-        if (voter.allowUpdate(obj, obj.getDetails())) {
+        if (config.isEmpty()) {
             return false;
+        } else if (config.contains("none")) {
+           return true;
+        } else if (config.contains("repository")) {
+            if (voter.allowUpdate(obj, obj.getDetails())) {
+                return false;
+            }
         }
         return true;
     }
