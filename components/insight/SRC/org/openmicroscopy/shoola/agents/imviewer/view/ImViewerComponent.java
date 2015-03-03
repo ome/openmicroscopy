@@ -32,9 +32,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,7 +60,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
@@ -76,7 +72,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -3141,46 +3136,7 @@ class ImViewerComponent
 		}
 		return false;
 	}
-	
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#displayFLIMResults(Map)
-	 */
-	public void displayFLIMResults(Map<FileAnnotationData, File> results)
-	{
-		if (results == null) return;
-		switch (model.getState()) {
-			case NEW:
-			case DISCARDED:
-				return;
-		}
-		IconManager icons = IconManager.getInstance();
-		FLIMResultsDialog d = new FLIMResultsDialog(view, 
-				EditorUtil.getPartialName(model.getImageName()),
-				icons.getIcon(IconManager.FLIM_48), results);
-		d.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				String name = evt.getPropertyName();
-				if (FLIMResultsDialog.SAVED_FLIM_RESULTS_PROPERTY.equals(
-						name)){
-					boolean b = (
-							(Boolean) evt.getNewValue()).booleanValue();
-					UserNotifier un = 
-						ImViewerAgent.getRegistry().getUserNotifier();
-					if (b) {
-						un.notifyInfo("Saving Results", "The file has " +
-								"successfully been saved.");
-					} else {
-						un.notifyInfo("Saving Results", "An error " +
-						"occurred while saving the results.");
-					}
-				}
-			}
-		});
-		UIUtilities.centerAndShow(d);
-	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setBirdEyeView(Object)

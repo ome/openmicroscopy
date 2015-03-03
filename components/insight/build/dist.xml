@@ -78,7 +78,6 @@
             location="${base.launch.dir}/INSTALL.txt"/>
   <basename property="dist.app.lib.dir.name" file="${app.lib.dir}"/>
   <basename property="dist.app.config.dir.name" file="${app.config.dir}"/>
-  <property name="dist.vmparameters" value="${app.vmparameters}"/>
   <property name="dist.osx.icon"
             location="${base.launch.dir}/osx/omeroinsight.icns"/>
   <property name="dist.osx.stub"
@@ -326,7 +325,7 @@
               <filter token="EXE_NAME" value="app/${dist@{type}.win.exename}"/>
               <filter token="APP_NAME" value="${dist@{type}.name}"/>
               <filter token="ICON_FILE" value="${dist@{type}.win.icon}"/>
-              <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+              <filter token="VM_PARAMETERS" value="${app.vmparameters}"/>
             </filterset>
           </copy>
           <exe4j projectfile="${build.dir}/@{type}.exe4j"/>
@@ -348,7 +347,7 @@
               <filter token="EXE_NAME" value="app/${dist@{type}.win64.exename}"/>
               <filter token="APP_NAME" value="${dist@{type}.name}"/>
               <filter token="ICON_FILE" value="${dist@{type}.win.icon}"/>
-              <filter token="VM_PARAMETERS" value="${dist.vmparameters}"/>
+              <filter token="VM_PARAMETERS" value="${app.vmparameters}"/>
             </filterset>
           </copy>
           <exe4j projectfile="${build.dir}/@{type}_64.exe4j"/>
@@ -420,6 +419,8 @@
       mainclassname="${app.mainclass}">
         <option value="-Dapple.laf.useScreenMenuBar=true"/>
         <option value="-Duser.dir=$APP_ROOT/Contents/Resources"/>
+        <option value="${app.vmparameters.xmx}" name = "Xmx"/>
+        <option value="${app.vmparameters.xms}" name = "Xms"/>
         <classpath refid="app.libs"/>
         <classpath dir="${dist.dir}" includes="${dist.jar.file}"/>
     </appbundler>
@@ -472,7 +473,7 @@
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}"
                	jvmversion="1.6+"
-                vmoptions="${dist.vmparameters}"
+                vmoptions="${app.vmparameters}"
                 workingdirectory="$APP_PACKAGE/Contents/Resources">
       <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
       <jarfileset refid="app.libs"/>
@@ -571,7 +572,7 @@
 	        icon="${distImporter.osx.icon}"
 	        stubfile="${dist.osx.stub}"
 	        jvmversion="1.6+"
-	  	    vmoptions="${dist.vmparameters}"
+	  	    vmoptions="${app.vmparameters}"
 	        arguments="containerImporter.xml"
 	        workingdirectory="$APP_PACKAGE/Contents/Resources">
 	  <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
@@ -626,6 +627,8 @@
       mainclassname="${app.mainclass}">
         <option value="-Dapple.laf.useScreenMenuBar=true"/>
         <option value="-Duser.dir=$APP_ROOT/Contents/Resources"/>
+        <option value="${app.vmparameters.xmx}" name = "Xmx"/>
+        <option value="${app.vmparameters.xms}" name = "Xms"/>
         <classpath refid="app.libs"/>
         <classpath dir="${dist.dir}" includes="${dist.jar.file}"/>
         <argument value="containerImporter.xml"/>

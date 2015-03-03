@@ -34,42 +34,34 @@
     </dependency>
     <!-- For build -->
     <dependency org="ome" name="appbundler" rev="${versions.appbundler}" conf="build->default"/>
-    <dependency org="insight" name="jarbundler" rev="${versions.jarbundler}" conf="build->default"/>
     <!-- From classpath -->
-    <dependency org="insight" name="ai_path" rev="${versions.ai_path}"/>
-    <dependency org="insight" name="axis" rev="${versions.axis}"/>
+    <dependency org="org.apache.axis" name="axis" rev="${versions.axis}"/>
     <dependency org="backport-util-concurrent" name="backport-util-concurrent" rev="${versions.backport}"/>
-    <dependency org="insight" name="commons-collections" rev="${versions.commons-collections}"/>
-    <dependency org="insight" name="commons-digester" rev="${versions.commons-digester}"/>
-    <dependency org="insight" name="commons-discovery" rev="${versions.commons-discovery}"/>
-    <dependency org="insight" name="commons-io" rev="${versions.commons-io}"/>
-    <dependency org="insight" name="commons-logging" rev="${versi:ons.commons-logging}"/>
-    <dependency org="insight" name="commons-validator" rev="${versions.commons-validator}"/>
-    <dependency org="insight" name="commons-logging" rev="${versions.commons-logging}"/>
-    <dependency org="insight" name="ehcache-core" rev="${versions.ehcache}"/>
-    <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
+    <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}"/>
+    <dependency org="commons-digester" name="commons-digester" rev="${versions.commons-digester}"/>
+    <dependency org="commons-discovery" name="commons-discovery" rev="${versions.commons-discovery}"/>
+    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
+    <dependency org="commons-logging" name="commons-logging" rev="${versi:ons.commons-logging}"/>
+    <dependency org="commons-validator" name="commons-validator" rev="${versions.commons-validator}"/>
+    <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}"/>
+    <dependency org="net.sf.ehcache" name="ehcache-core" rev="${versions.ehcache}"/>
     <dependency org="com.google.guava" name="guava" rev="${versions.guava}"/>
-    <dependency org="insight" name="httpclient" rev="${versions.httpclient}"/>
-    <dependency org="insight" name="httpcore" rev="${versions.httpcore}"/>
-    <dependency org="insight" name="httpmime" rev="${versions.httpmime}"/>
-    <dependency org="insight" name="ij" rev="${versions.ij}"/>
-    <dependency org="insight" name="jaxrpc" rev="${versions.jaxrpc}"/>
-    <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
-    <dependency org="insight" name="jfreechart" rev="${versions.jfreechart}"/>
+    <dependency org="org.apache.httpcomponents" name="httpclient" rev="${versions.httpclient}"/>
+    <dependency org="org.apache.httpcomponents" name="httpcore" rev="${versions.httpcore}"/>
+    <dependency org="org.apache.httpcomponents" name="httpmime" rev="${versions.httpmime}"/>
+    <dependency org="net.imagej" name="ij" rev="${versions.ij}"/>
+    <dependency org="javax.xml" name="jaxrpc" rev="${versions.jaxrpc}"/>
+    <dependency org="org.jfree" name="jcommon" rev="${versions.jcommon}"/>
+    <dependency org="org.jfree" name="jfreechart" rev="${versions.jfreechart}"/>
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
-    <dependency org="insight" name="ols-client" rev="${versions.ols-client}"/>
-    <dependency org="insight" name="physics" rev="${versions.physics}"/>
-    <dependency org="insight" name="poi" rev="${versions.poi}"/>
-    <dependency org="insight" name="processing-core" rev="${versions.processing-core}"/>
-    <dependency org="insight" name="processing-controlP5" rev="${versions.processing-controlP5}"/>
-    <dependency org="insight" name="saaj" rev="${versions.saaj}"/>
+    <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
+    <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}"/>
     <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
-    <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
+    <dependency org="axis" name="axis-wsdl4j" rev="${versions.wsdl4j}"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
-    <dependency org="insight" name="jna" rev="${versions.jna}"/>
-    <dependency org="insight" name="platform" rev="${versions.platform}"/>
-    <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
+    <dependency org="net.java.dev.jna" name="jna" rev="${versions.jna}"/>
+    <dependency org="net.java.dev.jna" name="platform" rev="${versions.platform}"/>
     <!-- Required for annotations in Permissions.java -->
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="${versions.persistence-api}" conf="build,client->default"/>
 

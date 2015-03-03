@@ -37,15 +37,12 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -127,9 +124,6 @@ class ViewerPane
 	/** Indicates that the channels are selected or not. */
 	private JCheckBox[] channels;
 	
-	/** The canvas. */
-	private BirdEyeCanvas birdEye;
-	
 	private double factor = 0.25;
 	
 	/**
@@ -186,7 +180,6 @@ class ViewerPane
 				img.setAccelerationPriority(1f);
 			}
              canvas.setImage(img);
-             birdEye.setImage(Factory.magnifyImage(factor, img));
 		} catch (Exception e) {
 		}
 	}
@@ -226,7 +219,7 @@ class ViewerPane
 	
 	private void setSelection(Point p)
 	{
-		birdEye.setSelection((float) (p.x*factor), (float) (p.y*factor));
+		
 	}
 	
 	/** 
@@ -247,36 +240,6 @@ class ViewerPane
 		{
 			case JAVA:
 				canvas = new ImageCanvas();
-				break;
-			case PROCESSING_OPENGL:
-				canvas = new ProcessingCanvas();
-				break;
-			case PROCESSING:
-				canvas = new ProcessingOnlyCanvas();
-				((ProcessingOnlyCanvas) canvas).addPropertyChangeListener(
-						new PropertyChangeListener() {
-					
-					public void propertyChange(PropertyChangeEvent evt) {
-						String name = evt.getPropertyName();
-						if (ProcessingOnlyCanvas.PANNING_OFFSET_PROPERTY.endsWith(name)) 
-						{
-							setSelection((Point) evt.getNewValue());
-						}
-						
-					}
-				});
-				birdEye = new BirdEyeCanvas();
-				birdEye.addPropertyChangeListener(new PropertyChangeListener() {
-					
-					public void propertyChange(PropertyChangeEvent evt) {
-						String name = evt.getPropertyName();
-						if (BirdEyeCanvas.RENDER_REGION_PROPERTY.endsWith(name)) 
-						{
-							renderRegion((Rectangle) evt.getNewValue());
-						}
-						
-					}
-				});
 		}
 		zSlider = new JSlider();
 		zSlider.setMinimum(0);
@@ -373,13 +336,7 @@ class ViewerPane
 		JPanel pp = new JPanel();
 		pp.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pp.add(p);
-		if (birdEye != null) {
-			JLayeredPane pane = new JLayeredPane();
-			pane.add(canvas.getCanvas(), Integer.valueOf(0));
-			pane.add(birdEye, Integer.valueOf(1));
-			add(pane);
-		} else
-			add(new JScrollPane(canvas.getCanvas()));
+		add(new JScrollPane(canvas.getCanvas()));
 		add(pp);
 	}
 	
@@ -414,10 +371,7 @@ class ViewerPane
 		int sizeY = pixels.getSizeY();
 		Dimension d = new Dimension(sizeX, sizeY);
 		canvas.setCanvasSize(d);
-		if (birdEye != null) {
-			birdEye.setCanvasSize((int) (sizeX*factor)+2*BirdEyeCanvas.BORDER, 
-					(int) (sizeY*factor)+2*BirdEyeCanvas.BORDER);
-		}
+
 		zSlider.removeChangeListener(this);
 		tSlider.removeChangeListener(this);
 		zSlider.setMaximum(pixels.getSizeZ());
