@@ -29,6 +29,7 @@ import ome.security.basic.CurrentDetails;
 import ome.security.basic.OmeroInterceptor;
 import ome.security.basic.OneGroupSecurityFilter;
 import ome.security.basic.TokenHolder;
+import ome.security.policy.DefaultPolicyService;
 import ome.server.utests.TestSessionCache;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.stats.NullSessionStats;
@@ -101,8 +102,9 @@ public abstract class AbstractBasicSecuritySystemTest extends
                 cd, th, new NullSessionStats());
         SecurityFilter filter = new OneGroupSecurityFilter();
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
-                th, filter);
-        aclVoter = new BasicACLVoter(cd, st, th, filter);
+                th, filter, new DefaultPolicyService());
+        aclVoter = new BasicACLVoter(cd, st, th, filter,
+                new DefaultPolicyService());
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {

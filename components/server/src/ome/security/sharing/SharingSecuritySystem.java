@@ -101,7 +101,8 @@ public class SharingSecuritySystem implements SecuritySystem {
         return false;
     }
 
-    public void checkRestriction(Policy policy) {
+    @Override
+    public void checkRestriction(String name, IObject obj) {
         // TODO Auto-generated method stub
     }
 

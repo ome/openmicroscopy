@@ -10,9 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.jmock.MockObjectTestCase;
-import org.testng.annotations.Test;
-
 import ome.model.core.Image;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -24,11 +21,15 @@ import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicEventContext;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.TokenHolder;
+import ome.security.policy.DefaultPolicyService;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.NullSessionStats;
 import ome.system.Principal;
+
+import org.jmock.MockObjectTestCase;
+import org.testng.annotations.Test;
 
 /**
  * Intended to test the "write-ability" granted to users based on the current
@@ -54,7 +55,7 @@ public class WritePermissionsTest extends MockObjectTestCase {
     final CurrentDetails cd = new CurrentDetails(cache);
 
     final BasicACLVoter voter = new BasicACLVoter(cd, new SystemTypes(),
-            new TokenHolder(), null);
+            new TokenHolder(), null, new DefaultPolicyService());
 
     protected Session login(String perms, long user, boolean leader) {
 

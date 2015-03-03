@@ -101,8 +101,9 @@ public class SecuritySystemHolder implements SecuritySystem {
         return choose().hasPrivilegedToken(obj);
     }
 
-    public void checkRestriction(Policy policy) {
-        choose().checkRestriction(policy);
+    @Override
+    public void checkRestriction(String name, IObject obj) {
+        choose().checkRestriction(name, obj);
     }
 
     public boolean isDisabled(String id) {
