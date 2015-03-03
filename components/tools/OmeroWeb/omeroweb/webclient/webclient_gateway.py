@@ -1947,7 +1947,8 @@ class OmeroRestrictionWrapper (object):
         :rtype:     Boolean
         :return:    True if user can download.
         """
-        return not self.getDetails().getPermissions().isRestricted('TEST')
+        return not self.getDetails().getPermissions().isRestricted(
+            omero.constants.permissions.DOWNLOAD)
 
 
 class OmeroWebObjectWrapper (object):
