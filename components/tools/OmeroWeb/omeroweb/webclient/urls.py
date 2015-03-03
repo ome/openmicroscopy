@@ -89,12 +89,12 @@ urlpatterns = patterns(
 
     # loading data
     url(r'^load_data/(?:(?P<o1_type>'
-        '((?i)project|dataset|image|screen|plate|well|orphaned))/)'
-        '?(?:(?P<o1_id>[0-9]+)/)'
-        '?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)'
-        '?(?:(?P<o2_id>[0-9]+)/)'
-        '?(?:(?P<o3_type>((?i)image|well))/)'
-        '?(?:(?P<o3_id>[0-9]+)/)?$',
+        r'((?i)project|dataset|image|screen|plate|well|orphaned))/)'
+        r'?(?:(?P<o1_id>[0-9]+)/)'
+        r'?(?:(?P<o2_type>((?i)dataset|image|plate|acquisition|well))/)'
+        r'?(?:(?P<o2_id>[0-9]+)/)'
+        r'?(?:(?P<o3_type>((?i)image|well))/)'
+        r'?(?:(?P<o3_id>[0-9]+)/)?$',
         views.load_data,
         name="load_data"),
 
@@ -104,7 +104,7 @@ urlpatterns = patterns(
         views.load_chgrp_groups,
         name="load_chgrp_groups"),  # Query E.g. ?Image=1,2&Dataset=3
     url(r'^load_chgrp_target/(?P<group_id>[0-9]+)/'
-        '(?P<target_type>((?i)project|dataset|screen))/$',
+        r'(?P<target_type>((?i)project|dataset|screen))/$',
         views.load_chgrp_target,
         name="load_chgrp_target"),
 
@@ -124,29 +124,29 @@ urlpatterns = patterns(
 
     # metadata
     url(r'^metadata_details/(?:(?P<c_type>[a-zA-Z]+)/'
-        '(?P<c_id>[0-9]+)/)?(?:(?P<share_id>[0-9]+)/)?$',
+        r'(?P<c_id>[0-9]+)/)?(?:(?P<share_id>[0-9]+)/)?$',
         views.load_metadata_details,
         name="load_metadata_details"),
     url(r'^metadata_acquisition/(?P<c_type>[a-zA-Z]+)/'
-        '(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
+        r'(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
         views.load_metadata_acquisition,
         name="load_metadata_acquisition"),
     url(r'^metadata_preview/(?P<c_type>((?i)image|well))/'
-        '(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
+        r'(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
         views.load_metadata_preview,
         name="load_metadata_preview"),
     url(r'^metadata_hierarchy/(?P<c_type>[a-zA-Z]+)/'
-        '(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
+        r'(?P<c_id>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
         views.load_metadata_hierarchy,
         name="load_metadata_hierarchy"),
 
     url(r'^render_thumbnail/(?P<iid>[0-9]+)/'
-        '(?:(?P<share_id>[0-9]+)/)?$',
+        r'(?:(?P<share_id>[0-9]+)/)?$',
         webgateway.render_thumbnail,
         {'w': 80, '_defcb': defaultThumbnail},
         name="render_thumbnail"),
     url(r'^render_thumbnail/size/(?P<w>[0-9]+)/'
-        '(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
+        r'(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$',
         webgateway.render_thumbnail,
         {'_defcb': defaultThumbnail},
         name="render_thumbnail_resize"),
@@ -156,19 +156,19 @@ urlpatterns = patterns(
 
     # image webgateway extention
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/'
-        '(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$',
+        r'(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$',
         webgateway.render_image_region,
         name="web_render_image_region"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_birds_eye_view/'
-        '(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$',
+        r'(?P<iid>[^/]+)/(?:(?P<size>[^/]+)/)?$',
         webgateway.render_birds_eye_view,
         name="web_render_birds_eye_view"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_image/(?P<iid>[^/]+)/'
-        '(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$',
+        r'(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$',
         webgateway.render_image,
         name="web_render_image"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_image_download/'
-        '(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$',
+        r'(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$',
         webgateway.render_image,
         {'download': True},
         name="web_render_image_download"),
@@ -179,15 +179,15 @@ urlpatterns = patterns(
         webgateway.imageData_json,
         name="web_imageData_json"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_row_plot/(?P<iid>[^/]+)/'
-        '(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$',
+        r'(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$',
         webgateway.render_row_plot,
         name="web_render_row_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_col_plot/(?P<iid>[^/]+)/'
-        '(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$',
+        r'(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$',
         webgateway.render_col_plot,
         name="web_render_col_plot"),
     url(r'^(?:(?P<share_id>[0-9]+)/)?render_split_channel/'
-        '(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$',
+        r'(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$',
         webgateway.render_split_channel,
         name="web_render_split_channel"),
     url(r'^saveImgRDef/(?P<iid>[^/]+)/$',
@@ -216,7 +216,7 @@ urlpatterns = patterns(
 
     # annotations
     url(r'^action/(?P<action>[a-zA-Z]+)/(?:(?P<o_type>[a-zA-Z]+)/)'
-        '?(?:(?P<o_id>[0-9]+)/)?$',
+        r'?(?:(?P<o_id>[0-9]+)/)?$',
         views.manage_action_containers,
         name="manage_action_containers"),
     url(r'^batch_annotate/$', views.batch_annotate, name="batch_annotate"),
@@ -245,7 +245,7 @@ urlpatterns = patterns(
 
     # Open Astex Viewer will try to show file as volume, e.g. mrc.map file.
     url(r'^open_astex_viewer/(?P<obj_type>((?i)image|image_8bit|file))/'
-        '(?P<obj_id>[0-9]+)/$',
+        r'(?P<obj_id>[0-9]+)/$',
         views.open_astex_viewer,
         name='open_astex_viewer'),  # 'data_url' to load in REQUEST
     url(r'^file/(?P<annId>[0-9]+)\.map$',
@@ -287,7 +287,7 @@ urlpatterns = patterns(
         views.get_original_file,
         name="get_original_file"),  # for stderr, stdout etc
     url(r'^figure_script/(?P<scriptName>'
-        '((?i)SplitView|RoiSplit|Thumbnail|MakeMovie))/$',
+        r'((?i)SplitView|RoiSplit|Thumbnail|MakeMovie))/$',
         views.figure_script,
         name='figure_script'),  # shows a form for running a script
 
