@@ -158,7 +158,6 @@ def imageMarshal(image, key=None):
 
     try:
         rv.update({
-            'tiles': tiles,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
                      'z': image.getSizeZ(),
