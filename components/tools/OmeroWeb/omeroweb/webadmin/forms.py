@@ -94,13 +94,17 @@ class ExperimenterForm(NonASCIIForm):
 
         try:
             self.fields['default_group'] = GroupModelChoiceField(
-                queryset=kwargs['initial']['groups'],
+                queryset=kwargs['initial']['my_groups'],
                 initial=kwargs['initial']['default_group'],
-                empty_label=u"---------", required=False)
+                empty_label=u"", required=False)
         except:
-            self.fields['default_group'] = GroupModelChoiceField(
-                queryset=kwargs['initial']['groups'],
-                empty_label=u"---------", required=False)
+            try:
+                self.fields['default_group'] = GroupModelChoiceField(
+                    queryset=kwargs['initial']['my_groups'],
+                    empty_label=u"", required=False)
+            except:
+                self.fields['default_group'] = GroupModelChoiceField(
+                    queryset=list(), empty_label=u"", required=False)
 
         if ('with_password' in kwargs['initial'] and
                 kwargs['initial']['with_password']):
@@ -177,6 +181,13 @@ class ExperimenterForm(NonASCIIForm):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
         return self.cleaned_data.get('email')
+
+    def clean_default_group(self):
+        if (self.cleaned_data.get('default_group') is None or
+                len(self.cleaned_data.get('default_group')) <= 0):
+            raise forms.ValidationError('No default group selected.')
+        else:
+            return self.cleaned_data.get('default_group')
 
     def clean_other_groups(self):
         if (self.cleaned_data.get('other_groups') is None or
