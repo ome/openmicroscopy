@@ -74,7 +74,7 @@ class TestWeb(object):
 
         n = 0
         for req in required:
-            if not compare(req, lines[n]):
+            while not compare(req, lines[n]):
                 n += 1
                 if n == len(lines):
                     return req
@@ -140,7 +140,7 @@ class TestWeb(object):
                 "location %s {" % static_prefix[:-1],
                 "location %s {" % (prefix or "/"),
                 ], lines)
-        assert not missing, 'Line not found: ' + missing
+        assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheConfig(self, prefix, capsys, monkeypatch):
@@ -155,10 +155,9 @@ class TestWeb(object):
 
         if prefix:
             missing = self.required_lines_in([
-                'RewriteEngine on',
-                'RewriteRule ^/?$ %s/ [R]' % prefix,
                 ('FastCGIExternalServer ',
                  'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60'),
+                ('Alias %s/error ' % prefix, 'etc/templates/error'),
                 ('Alias %s ' % static_prefix[:-1],
                  'lib/python/omeroweb/static'),
                 ('Alias %s "' % prefix, 'var/omero.fcgi/"'),
@@ -167,10 +166,11 @@ class TestWeb(object):
             missing = self.required_lines_in([
                 ('FastCGIExternalServer ',
                  'var/omero.fcgi" -host 0.0.0.0:4080 -idle-timeout 60'),
+                ('Alias /error ', 'etc/templates/error'),
                 ('Alias /static ', 'lib/python/omeroweb/static'),
                 ('Alias / "', 'var/omero.fcgi/"'),
                 ], lines)
-        assert not missing, 'Line not found: ' + missing
+        assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('prefix', [None, '/test'])
     def testApacheFcgiConfig(self, prefix, capsys, monkeypatch):
@@ -185,23 +185,25 @@ class TestWeb(object):
 
         if prefix:
             missing = self.required_lines_in([
+                ('Alias %s/error ' % prefix, 'etc/templates/error'),
                 ('Alias %s' % static_prefix[:-1],
                  'lib/python/omeroweb/static'),
-                'RewriteCond %%{REQUEST_URI} !^(%s|/\\.fcgi)' %
-                static_prefix[:-1],
+                'RewriteCond %%{REQUEST_URI} !^(%s|%s.fcgi|%s/error)' %
+                (static_prefix[:-1], prefix, prefix),
                 'RewriteRule ^%s(/|$)(.*) %s.fcgi/$2 [PT]' % (prefix, prefix),
                 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
                 'ProxyPass %s.fcgi/ fcgi://0.0.0.0:4080/' % prefix,
                 ], lines)
         else:
             missing = self.required_lines_in([
+                ('Alias /error ', 'etc/templates/error'),
                 ('Alias /static ', 'lib/python/omeroweb/static'),
-                'RewriteCond %%{REQUEST_URI} !^(/static|/\\.fcgi)',
+                'RewriteCond %{REQUEST_URI} !^(/static|/.fcgi|/error)',
                 'RewriteRule ^(/|$)(.*) /.fcgi/$2 [PT]',
                 'SetEnvIf Request_URI . proxy-fcgi-pathinfo=1',
                 'ProxyPass /.fcgi/ fcgi://0.0.0.0:4080/',
                 ], lines)
-        assert not missing, 'Line not found: ' + missing
+        assert not missing, 'Line not found: ' + str(missing)
 
     @pytest.mark.parametrize('server_type', [
         "nginx", "nginx-development", "apache", "apache-fcgi"])

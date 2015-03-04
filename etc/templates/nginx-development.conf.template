@@ -34,7 +34,7 @@ http {
         # maintenance page serve from here
         location @maintenance {
             root %(ROOT)s/etc/templates/error;
-            try_files $uri $uri/ /502.html =502;
+            try_files $uri /maintainance.html =502;
         }
 
         # weblitz django apps serve static content from here

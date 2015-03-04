@@ -50,11 +50,10 @@
 #
 #</VirtualHost>
 
-%(REWRITERULE)s
-
 ###
 ### Stanza for OMERO.web created %(NOW)s
 ###
+
 FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s -idle-timeout 60
 
 <Directory "%(ROOT)s/var">
@@ -69,5 +68,16 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s -idle-timeo
     Allow from all
 </Directory>
 
+<Directory "%(ROOT)s/etc/templates/error">
+    Options -Indexes FollowSymLinks
+    Order allow,deny
+    Allow from all
+</Directory>
+
+<Location %(WEB_PREFIX)s/>
+    ErrorDocument 500 %(WEB_PREFIX)s/error/maintainance.html
+</Location>
+
+Alias %(WEB_PREFIX)s/error %(ROOT)s/etc/templates/error
 Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
 Alias %(FORCE_SCRIPT_NAME)s "%(ROOT)s/var/omero.fcgi/"
