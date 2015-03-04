@@ -578,25 +578,20 @@ class FileSelectionTable
 	    File ff;
 	    while (i.hasNext()) {
 	        f = i.next();
-	        ff = null;
 	        if (allowAddToQueue(inQueue, f, gID, user.getId())) {
 	            element = new FileElement(f, model.getType(), group, user);
 	            element.setName(f.getName());
 	            inQueue.add(element);
 	            value = null;
 	            v = false;
-	            if (f.getFile() instanceof File) {
-	                ff = (File) f.getFile();
-	            }
+	            value = f.getFolderAsContainerName();
 	            if (f.isDirectory()) {
-	                value = ff.getName();
 	                v = fad;
 	                if (model.getType() == Importer.SCREEN_TYPE) {
 	                    value = null;
 	                }
 	            } else {
-	                if (fad && ff != null) {
-	                    value = ff.getParentFile().getName();
+	                if (fad) {
 	                    v = true;
 	                    element.setToggleContainer(v);
 	                }
