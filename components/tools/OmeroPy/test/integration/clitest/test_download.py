@@ -34,16 +34,24 @@ class TestDownload(CLITest):
         self.cli.register("download", DownloadControl, "TEST")
         self.args += ["download"]
 
-    def create_original_file(self, content):
+    def create_original_file(self, content, client=None):
         """
         Create an original file and upload it onto the server
         """
+
+        if client is None:
+            update = self.update
+            sf = self.sf
+        else:
+            update = client.sf.getUpdateService()
+            sf = client.sf
+
         ofile = omero.model.OriginalFileI()
         ofile.name = rstring("")
         ofile.path = rstring("")
-        ofile = self.update.saveAndReturnObject(ofile)
+        ofile = update.saveAndReturnObject(ofile)
 
-        rfs = self.sf.createRawFileStore()
+        rfs = sf.createRawFileStore()
         try:
             rfs.setFileId(ofile.id.val)
             rfs.write(content, 0, len(content))
@@ -203,3 +211,79 @@ class TestDownload(CLITest):
         with open(str(tmpfile)) as f:
             bytes2 = f.read()
         assert bytes1 == bytes2
+
+    # Download policy
+    # ========================================================================
+
+    class PolicyFixture(object):
+
+        def __init__(self, cfg, grp, for_user, will_pass):
+            self.cfg = cfg
+            self.grp = grp
+            self.for_user = for_user
+            self.will_pass = will_pass
+
+        def __str__(self):
+            grp = self.grp
+            if self.grp is None:
+                grp = ""
+            return "%s_%s_%s_%s" % (
+                self.cfg, grp, self.for_user, self.will_pass)
+
+    POLICY_FIXTURES = (
+        # Fixtures with no group setting
+        PolicyFixture("", None, "owner", True),
+        PolicyFixture("", None, "admin", True),
+        PolicyFixture("", None, "member", True),
+        PolicyFixture("none", None, "owner", False),
+        PolicyFixture("none", None, "admin", False),
+        PolicyFixture("none", None, "member", False),
+        PolicyFixture("repository", None, "owner", True),
+        PolicyFixture("repository", None, "admin", True),
+        PolicyFixture("repository", None, "member", False),
+
+        # Fixtures with group settings
+        # PolicyFixture("", "none", "owner", True),
+        # PolicyFixture("", "none", "admin", True),
+        # PolicyFixture("", "none", "member", False),
+        # PolicyFixture("none", "none", "owner", False),
+        # PolicyFixture("none", "none", "admin", False),
+        # PolicyFixture("none", "none", "member", False),
+        # PolicyFixture("repository", "none", "owner", True),
+        # PolicyFixture("repository", "none", "admin", True),
+        # PolicyFixture("repository", "none", "member", False),
+    )
+
+    @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
+                             ids=POLICY_FIXTURES)
+    def testPolicyRestriction(self, tmpdir, fixture):
+
+        tmpfile = tmpdir.join('%s.test' % fixture)
+        cfg = self.root.sf.getConfigService()
+        cfg = cfg.getConfigValue("omero.policy.download")
+
+        # Check that the config we have is at least tested
+        # by *some* fixture
+        assert cfg in [x.cfg for x in self.POLICY_FIXTURES]
+        # But if this isn't a check for this particular
+        # config, then skip.
+        if cfg != fixture.cfg:
+            pytest.skip("Found download policy: %s" % cfg)
+
+        group = self.new_group(perms='rwr---')
+        upper = self.new_client(group=group)
+        ofile = self.create_original_file("test", upper)
+
+        if fixture.for_user == "owner":
+            downer = upper
+        else:
+            downer = self.new_client(group=group)
+
+        self.args = ["download"]
+        self.args += self.login_args(downer)
+        self.args += [str(ofile.id.val), str(tmpfile)]
+        if fixture.will_pass:
+            self.cli.invoke(self.args, strict=True)
+        else:
+            with pytest.raises(NonZeroReturnCode):
+                self.cli.invoke(self.args, strict=True)
