@@ -176,9 +176,10 @@ public class SkipHeadI extends SkipHead implements IRequest {
                         final Class<? extends IObject> targetedClass;
                         try {
                             targetedClass = Class.forName(targetedClassName).asSubclass(IObject.class);
-                        } catch (ClassNotFoundException e) {
-                            throw helper.cancel(new ERR(), new IllegalStateException(),
+                        } catch (ClassNotFoundException cnfe) {
+                            final Exception e = new IllegalStateException(
                                     "response from " + graphRequestSkip.getClass() + " refers to class " + targetedClassName);
+                            throw helper.cancel(new ERR(), e, "bad-class");
                         }
                         if (startFromClass.isAssignableFrom(targetedClass)) {
                             final List<Long> ids = targetedObjectsByClass.getValue();
@@ -198,7 +199,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
                     throw e;
                 }
             } else {
-                throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
+                final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
+                throw helper.cancel(new ERR(), e, "bad-step");
             }
         }
         return null;

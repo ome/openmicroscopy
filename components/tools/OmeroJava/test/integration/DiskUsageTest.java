@@ -609,4 +609,15 @@ public class DiskUsageTest extends AbstractServerTest {
         }
         assertMapsEqual(response.totalFileCount, expected);
     }
+
+    /**
+     * Test that a bad class name causes an error response.
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testBadClassName() throws Exception {
+        final DiskUsage request = new DiskUsage();
+        request.objects = ImmutableMap.of("NoClass", Collections.singletonList(1L));
+        doChange(client, factory, request, false, null);
+    }
 }

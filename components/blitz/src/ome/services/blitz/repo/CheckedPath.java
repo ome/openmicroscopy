@@ -457,6 +457,7 @@ public class CheckedPath {
     /**
      * {@inheritDoc}
      * Instances are equal if their string representations match.
+     * On Windows systems the comparison is not case-sensitive.
      */
     @Override
     public boolean equals(Object object) {
@@ -464,14 +465,15 @@ public class CheckedPath {
             return true;
         if (!(object instanceof CheckedPath))
             return false;
-        return this.fsFile.equals(((CheckedPath) object).fsFile);
+        return this.file.equals(((CheckedPath) object).file);
     }
 
     /**
      * {@inheritDoc}
+     * On Windows systems the calculation is not case-sensitive.
      */
     @Override
     public int hashCode() {
-        return this.fsFile.hashCode() * 98;
+        return this.file.hashCode() * 98;
     }
 }
