@@ -203,26 +203,6 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
-    def isDownloadDisabled(self, objDict=None):
-        """
-        Returns True only if we have an SPW object(s) and
-        settings.PLATE_DOWNLOAD_ENABLED is false
-        """
-        # As used in batch_annotate panel
-        if objDict is not None:
-            spwData = False
-            for spw in ('screen', 'plate', 'well', 'acquisition'):
-                if spw in objDict and len(objDict[spw]) > 0:
-                    spwData = True
-            if not spwData:
-                return False
-        # As used in metadata_general panel
-        elif (self.screen is None and self.acquisition is None and
-                self.plate is None and self.well is None):
-            return False
-        if hasattr(settings, 'PLATE_DOWNLOAD_ENABLED'):
-            return (not settings.PLATE_DOWNLOAD_ENABLED)
-
     def listFigureScripts(self, objDict=None):
         """
         This configures all the Figure Scripts, setting their enabled status

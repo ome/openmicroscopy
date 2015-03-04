@@ -668,7 +668,7 @@
             
             {% if manager.well %}            
 
-            {% with image=manager.well.getWellSample.image disableDownload=manager.isDownloadDisabled omeTiffDisabled=True %}
+            {% with image=manager.well.getWellSample.image omeTiffDisabled=True %}
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 

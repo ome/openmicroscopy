@@ -45,9 +45,8 @@
     <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
     <!-- ... and for single images -->
 
-    {% if image.canDownload or filesetInfo %}
+    {% if image.canDownload or manager.well.canDownload or filesetInfo %}
     <!-- download options -->
-    {% if not disableDownload %}
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
             <span></span>
@@ -156,7 +155,6 @@
             {% endif %}
         </ul>
     </div>
-    {% endif %}
 
     {% if image.showOriginalFilePaths %}
       <!-- show original file paths -->
