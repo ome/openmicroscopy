@@ -83,6 +83,10 @@
 
     <script>
         $(document).ready(function(){
+
+            // setup in-line labels on top search field
+            $("#top_search_field label").inFieldLabels();
+
             // initially hidden
             $("#user_dropdown ul").css('visibility', 'hidden');
             // show on click
