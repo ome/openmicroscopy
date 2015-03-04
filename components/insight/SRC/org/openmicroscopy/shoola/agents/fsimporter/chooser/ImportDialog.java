@@ -619,7 +619,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		if (groupId < 0) groupId = ImporterAgent.getUserDetails().getGroupId();
 		
 		locationDialog = new LocationDialog(owner, selectedContainer, type,
-				objects, model, groupId);
+				objects, model, groupId, true);
 		locationDialog.addPropertyChangeListener(this);
 		
 		tagSelectionListener = new ActionListener() {
@@ -1527,12 +1527,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		locationDialog.setSelectedGroup(group);
 	}
 
-	   /**
+    /**
      * Adds the images from imageJ to the queue.
      *
-     * @param list The files to import
+     * @param list The files to import.
+     * @param settings The import settings or <code>null</code>.
      */
-    public void addImageJFiles(List<FileObject> list)
+    public void addImageJFiles(List<FileObject> list,
+            ImportLocationSettings settings)
     {
         int plugin = ImporterAgent.runAsPlugin();
         
@@ -1571,10 +1573,32 @@ public class ImportDialog extends ClosableTabbedPaneComponent
                     "Image Selection", "No images opened.");
             return;
         }
-        ImportLocationSettings settings = locationDialog.getImportSettings();
+        if (settings == null) {
+            settings = locationDialog.getImportSettings();
+        }
         table.addFiles(list, settings);
         importButton.setEnabled(table.hasFilesToImport());
    }
+
+    /**
+     * Creates and display a new location dialog.
+     *
+     * @return See above.
+     */
+    public ImportLocationSettings createLocationDialog()
+    {
+        long groupId = -1;
+        if (model.getSelectedGroup() != null)
+            groupId = model.getSelectedGroup().getGroupId();
+        if (groupId < 0) groupId = ImporterAgent.getUserDetails().getGroupId();
+
+        LocationDialog dialog = new LocationDialog(owner, selectedContainer, type,
+                objects, model, groupId, false);
+        if (dialog.centerLocation() == LocationDialog.CMD_ADD) {
+            return dialog.getImportSettings();
+        }
+        return null;
+    }
 
 	/**
 	 * Reacts to property fired by the table.
@@ -1619,7 +1643,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		} else if (LocationDialog.ADD_TO_QUEUE_PROPERTY.equals(name)) {
-		    addImageJFiles(null);
+		    addImageJFiles(null, null);
 		}
 	}
 

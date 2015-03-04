@@ -364,10 +364,12 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param model Reference to the model.
 	 * @param currentGroupId The id of the current user group.
 	 * @param userId The user to select when importing as.
+	 * @param ijoption This is only used in imagej mode.
+	 *                 Option indicating which window to select
 	 */
 	LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
-			Importer model, long currentGroupId)
+			Importer model, long currentGroupId, boolean ijoption)
 	{
 		super(parent);
 		this.container = selectedContainer;
@@ -379,7 +381,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		setTitle(TEXT_TITLE);
 		
 		initUIComponents();
-		layoutUI();
+		layoutUI(ijoption);
 		populateUIWithDisplayData(findWithId(groups, currentGroupId),
 		        model.getImportFor());
 	}
@@ -746,8 +748,11 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Builds and lays out the UI.
+	 *
+	 * @param ijoption This is only used in imagej mode.
+     *                 Option indicating which window to select
 	 */
-	private void layoutUI()
+	private void layoutUI(boolean ijoption)
 	{
 	    int plugin = ImporterAgent.runAsPlugin();
         JPanel pane;
@@ -773,7 +778,9 @@ class LocationDialog extends JDialog implements ActionListener,
             pane = new JPanel();
             pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
             pane.add(buildDataTypeTabbedPane());
-            pane.add(UIUtilities.buildComponentPanel(buttons));
+            if (ijoption) {
+                pane.add(UIUtilities.buildComponentPanel(buttons));
+            }
         } else {
             pane = buildDataTypeTabbedPane();
         }
