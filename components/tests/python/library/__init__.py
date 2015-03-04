@@ -133,7 +133,7 @@ class ITest(object):
             key = self.sf.ice_getIdentity().name
         else:
             key = client.sf.ice_getIdentity().name
-        return ["-s", host, "-k", key, "-p", port]
+        return ["-q", "-s", host, "-k", key, "-p", port]
 
     @classmethod
     def root_login_args(self):
