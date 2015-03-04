@@ -111,10 +111,11 @@ Create Edit User
     Input Text              last_name       ${user_name}
     Input Text              institution     ${user_name}
     
-    Click Element           xpath=//ul[@class='chosen-choices']
-    Page Should Contain Element             xpath=//ul[@class='chosen-results']
-    Click Element           xpath=//ul[@class='chosen-results']/li[contains(text(),'test_group')]
-
+    
+    Click Element           xpath=//div[@id='id_other_groups_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element             xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element           xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[contains(text(),'test_group')]
+    
     Click Button            Save
     Location Should Be      ${USERS URL}
     Page Should Contain     ${user_name}

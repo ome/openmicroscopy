@@ -407,8 +407,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         else:
             name_check = conn.checkOmeName(request.REQUEST.get('omename'))
             email_check = conn.checkEmail(request.REQUEST.get('email'))
-
+            my_groups = getSelectedGroups(
+                conn,
+                request.POST.getlist('other_groups'))
             initial = {'with_password': True,
+                       'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
             form = ExperimenterForm(
                 initial=initial, data=request.REQUEST.copy(),
@@ -471,6 +474,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'administrator': experimenter.isAdmin(),
             'active': experimenter.isActive(),
             'default_group': defaultGroupId,
+            'my_groups': otherGroups,
             'other_groups': [g.id for g in otherGroups],
             'groups': otherGroupsInitialList(groups)}
         system_users = [conn.getAdminService().getSecurityRoles().rootId,
@@ -502,7 +506,10 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                            experimenter.omeName)
             email_check = conn.checkEmail(request.REQUEST.get('email'),
                                           experimenter.email)
-            initial = {'active': True,
+            my_groups = getSelectedGroups(
+                conn,
+                request.POST.getlist('other_groups'))
+            initial = {'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
             form = ExperimenterForm(initial=initial, data=request.POST.copy(),
                                     name_check=name_check,
