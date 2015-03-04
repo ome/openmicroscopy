@@ -113,7 +113,8 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
         /* check that the user is a member of the destination group */
         final EventContext eventContext = helper.getEventContext();
         if (!(eventContext.isCurrentUserAdmin() || eventContext.getMemberOfGroupsList().contains(groupId))) {
-            throw helper.cancel(new ERR(), new IllegalArgumentException(), "not a member of the chgrp destination group");
+            final Exception e = new IllegalArgumentException("not a member of the chgrp destination group");
+            throw helper.cancel(new ERR(), e, "not-in-group");
         }
 
         final List<ChildOptionI> childOptions = ChildOptionI.castChildOptions(this.childOptions);
@@ -172,14 +173,15 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                 graphTraversal.processTargets();
                 return null;
             default:
-                throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
+                final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
+                throw helper.cancel(new ERR(), e, "bad-step");
             }
         } catch (GraphException ge) {
             final omero.cmd.GraphException graphERR = new omero.cmd.GraphException();
             graphERR.message = ge.message;
-            throw helper.cancel(graphERR, ge, "model object graph operation failed");
+            throw helper.cancel(graphERR, ge, "graph-fail");
         } catch (Throwable t) {
-            throw helper.cancel(new ERR(), t, "model object graph operation failed");
+            throw helper.cancel(new ERR(), t, "graph-fail");
         }
     }
 
@@ -198,7 +200,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                 try {
                     deletionInstance.deleteFiles(GraphUtil.trimPackageNames(result.getValue()));
                 } catch (Exception e) {
-                    helper.cancel(new ERR(), e, "file deletion error");
+                    helper.cancel(new ERR(), e, "file-delete-fail");
                 }
             }
             final Map<String, List<Long>> movedObjects = new HashMap<String, List<Long>>();

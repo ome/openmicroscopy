@@ -3,7 +3,7 @@
 #
 # OMERO Text handling utilities
 #
-# Copyright 2010 Glencoe Software, Inc.  All Rights Reserved.
+# Copyright 2010-2015 Glencoe Software, Inc.  All Rights Reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 
@@ -135,12 +135,24 @@ class TableBuilder(object):
         self.headers = list(headers)
         self.results = [[] for x in self.headers]
         self.page_info = None
+        self.align = None
 
     def page(self, offset, limit, total):
         self.page_info = (offset, limit, total)
 
     def set_style(self, style):
         self.style = find_style(style)
+
+    def set_align(self, align):
+        """
+        Set column alignments using alignments string, one char for each
+        column. 'r' for right-aligned columns, the default, anything else,
+        is left-aligned. If the argument list in too short it will be padded
+        with the default.
+        """
+        self.align = list(align)
+        if len(self.align) < len(self.headers):
+            self.align.extend(['l'] * (len(self.headers) - len(self.align)))
 
     def col(self, name):
         """
@@ -156,6 +168,36 @@ class TableBuilder(object):
         for name in names:
             if name not in self.headers:
                 self.col(name)
+
+    def get_col(self, name):
+        """
+        Return a column by header name.
+        """
+        if name not in self.headers:
+            raise KeyError("%s not in %s" % (name, self.headers))
+        idx = self.headers.index(name)
+        return self.results[idx]
+
+    def replace_col(self, name, col):
+        """
+        Replace a column by header name, it must be the same length.
+        """
+        if name not in self.headers:
+            raise KeyError("%s not in %s" % (name, self.headers))
+        idx = self.headers.index(name)
+        if len(self.results[idx]) != len(col):
+            raise ValueError("Size mismatch: %s != %s" %
+                             (self.results[idx], len(col)))
+        self.results[idx] = col
+
+    def replace_header(self, name, new_name):
+        """
+        Replace a header name with a new name.
+        """
+        if name not in self.headers:
+            raise KeyError("%s not in %s" % (name, self.headers))
+        idx = self.headers.index(name)
+        self.headers[idx] = new_name
 
     def row(self, *items, **by_name):
 
@@ -180,10 +222,29 @@ class TableBuilder(object):
                 if self.results[idx][-1] is None:
                     self.results[idx][-1] = ""
 
+    def sort(self, cols=[0], reverse=False):
+        """
+        Sort the results on a given column by transposing,
+        sorting and then transposing.
+        """
+        for col in cols:
+            if col+1 > len(self.headers):
+                raise ValueError("Column mismatch: %s of %s" %
+                                 (col, len(self.headers)))
+
+        from operator import itemgetter
+        tr = zip(*self.results)
+        tr.sort(key=itemgetter(*cols), reverse=reverse)
+        self.results = zip(*tr)
+
     def build(self):
         columns = []
         for i, x in enumerate(self.headers):
-            columns.append(Column(x, self.results[i], style=self.style))
+            align = ALIGN.LEFT
+            if self.align and self.align[i] == 'r':
+                align = ALIGN.RIGHT
+            columns.append(
+                Column(x, self.results[i], align=align, style=self.style))
         table = Table(*columns)
         if self.page_info:
             table.page(*self.page_info)

@@ -57,9 +57,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.util.FileAttachmentWarningDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptingDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnnotationLinkData;
@@ -1114,45 +1112,6 @@ class EditorComponent
 		analysis.notifyLoading(false);
 		model.removeAnalysisResultsLoading(analysis);
 		//now display results.
-		String name = analysis.getNameSpace();
-		if (FileAnnotationData.FLIM_NS.equals(name)) {
-			DataObject data = analysis.getData();
-			if (data instanceof ImageData) {
-				/*
-				FLIMResultsEvent event = new FLIMResultsEvent((ImageData) data, 
-						analysis.getResults());
-				EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-				bus.post(event);
-				*/
-				ImageData image = (ImageData) data;
-				IconManager icons = IconManager.getInstance();
-				FLIMResultsDialog d = new FLIMResultsDialog(null, 
-						EditorUtil.getPartialName(image.getName()),
-						icons.getIcon(IconManager.FLIM_48), 
-						analysis.getResults());
-				d.addPropertyChangeListener(new PropertyChangeListener() {
-					
-					public void propertyChange(PropertyChangeEvent evt) {
-						String name = evt.getPropertyName();
-						if (FLIMResultsDialog.SAVED_FLIM_RESULTS_PROPERTY.equals(
-								name)){
-							boolean b = (
-									(Boolean) evt.getNewValue()).booleanValue();
-							UserNotifier un = 
-							MetadataViewerAgent.getRegistry().getUserNotifier();
-							if (b) {
-								un.notifyInfo("Saving Results", "The file has " +
-										"successfully been saved.");
-							} else {
-								un.notifyInfo("Saving Results", "An error " +
-								"occurred while saving the results.");
-							}
-						}
-					}
-				});
-				UIUtilities.centerAndShow(d);	
-			}
-		}
 	}
 
 	/** 

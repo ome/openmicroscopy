@@ -23,6 +23,12 @@
 Library for managing user sessions.
 """
 
+import omero.constants
+from omero.util import get_user_dir, make_logname
+from path import path
+
+import logging
+
 """
  * Track last used
  * provide single library (with lock) which does all of this
@@ -39,12 +45,6 @@ from omero.cli import Arguments, BaseControl, VERSION
 from path import path
 
 """
-
-import omero.constants
-from omero.util import get_user_dir, make_logname
-from path import path
-
-import logging
 
 
 class SessionsStore(object):
@@ -122,6 +122,9 @@ class SessionsStore(object):
             old = old_props.get(key, None)
             new = new_props.get(key, None)
             if ignore_nulls and new is None:
+                continue
+            elif (key == "omero.port" and old is None and
+                    new == str(omero.constants.GLACIER2PORT)):
                 continue
             elif old != new:
                 conflicts += (key + (":%s!=%s;" % (old, new)))

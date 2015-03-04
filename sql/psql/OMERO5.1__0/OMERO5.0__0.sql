@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 development release upgrade from OMERO5.0__0 to OMERO5.1DEV__20.
+--- OMERO5 release upgrade from OMERO5.0__0 to OMERO5.1__0.
 ---
 
 BEGIN;
@@ -67,12 +67,12 @@ BEGIN
 
 END;$$ LANGUAGE plpgsql;
 
-SELECT assert_db_server_prerequisites(84000);
+SELECT assert_db_server_prerequisites(90200);
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1DEV',  20,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1',     0,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -1434,7 +1434,7 @@ CREATE TYPE UnitsLength AS ENUM ('Ym','Zm','Em','Pm','Tm','Gm','Mm','km','hm','d
 
 CREATE TYPE UnitsPower AS ENUM ('YW','ZW','EW','PW','TW','GW','MW','kW','hW','daW','W','dW','cW','mW','µW','nW','pW','fW','aW','zW','yW');
 
-CREATE TYPE UnitsPressure AS ENUM ('YPa','ZPa','EPa','PPa','TPa','GPa','MPa','kPa','hPa','daPa','Pa','dPa','cPa','mPa','µPa','nPa','pPa','fPa','aPa','zPa','yPa','bar','Mbar','kBar','dbar','cbar','mbar','atm','psi','Torr','mTorr','mm Hg');
+CREATE TYPE UnitsPressure AS ENUM ('YPa','ZPa','EPa','PPa','TPa','GPa','MPa','kPa','hPa','daPa','Pa','dPa','cPa','mPa','µPa','nPa','pPa','fPa','aPa','zPa','yPa','bar','Mbar','kbar','dbar','cbar','mbar','atm','psi','Torr','mTorr','mm Hg');
 
 CREATE TYPE UnitsTemperature AS ENUM ('K','°C','°F','°R');
 
@@ -2592,16 +2592,26 @@ CREATE TRIGGER image_series_default_zero
     BEFORE INSERT OR UPDATE ON image
     FOR EACH ROW EXECUTE PROCEDURE image_series_default_zero();
 
+-- Temporary workaround for the width of map types
+
+alter table annotation_mapvalue alter column name type text;
+alter table annotation_mapvalue alter column value type text;
+
+-- Add lookup table to channel and channel binding to
+-- contain a server-specific lookup for a LUT.
+alter table channel add column lookupTable varchar(255);
+alter table channelbinding add column lookupTable varchar(255);
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
-    WHERE currentVersion  = 'OMERO5.1DEV' AND
-          currentPatch    = 20            AND
+    WHERE currentVersion  = 'OMERO5.1'    AND
+          currentPatch    = 0             AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1DEV__20'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

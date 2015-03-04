@@ -95,8 +95,9 @@ public class ChgrpFacadeI extends Chgrp implements IRequest {
         actualChgrp.groupId = grp;
         try {
             GraphUtil.translateOptions(graphRequestFactory, options, actualChgrp, helper.getEventContext().isCurrentUserAdmin());
-        } catch (GraphException e) {
-            throw helper.cancel(new ERR(), new IllegalArgumentException(), "could not accept request options");
+        } catch (GraphException ge) {
+            final Exception e = new IllegalArgumentException("could not accept request options");
+            throw helper.cancel(new ERR(), e, "bad-options");
         }
         /* check for root-anchored subgraph */
         final int lastSlash = type.lastIndexOf('/');

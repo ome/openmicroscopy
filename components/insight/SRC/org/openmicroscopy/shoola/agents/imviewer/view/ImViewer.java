@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +46,6 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -1162,13 +1160,6 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	boolean includeROI();
-	
-	/** 
-	 * Displays the results of a FLIM analysis. 
-	 * 
-	 * @param results The results to display.
-	 */
-	void displayFLIMResults(Map<FileAnnotationData, File> results);
 
 	/**
 	 * Sets the image displayed in the bird eye view.

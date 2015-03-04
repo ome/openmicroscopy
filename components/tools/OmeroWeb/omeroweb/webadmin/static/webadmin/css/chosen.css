@@ -1,4 +1,4 @@
-.chzn-container-multi .chzn-choices .search-choice-current {
+.chosen-container-multi .chosen-choices li.search-choice-current {
   cursor: pointer;
   border: 1px solid hsl(210,30%,40%);
   color: hsl(210,80%,10%);
@@ -10,6 +10,18 @@
   background:linear-gradient(top, hsl(210,40%,70%) 0%,hsl(210,40%,60%) 100%); /* W3C */
     
 }
+
+
+.chosen-container-single {
+    width:320px;
+    min-width:320px;
+    max-width:320px;
+}
+
+.empty-choice {
+    color: #e3646f;
+}
+
 
 .standard_form .hidden {
     display: none;

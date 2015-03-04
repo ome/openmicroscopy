@@ -2042,7 +2042,7 @@ class PressureI(_omero_model.Pressure, UnitBase):
     SYMBOLS["FEMTOPASCAL"] = "fPa"
     SYMBOLS["GIGAPASCAL"] = "GPa"
     SYMBOLS["HECTOPASCAL"] = "hPa"
-    SYMBOLS["KILOBAR"] = "kBar"
+    SYMBOLS["KILOBAR"] = "kbar"
     SYMBOLS["KILOPASCAL"] = "kPa"
     SYMBOLS["MEGABAR"] = "Mbar"
     SYMBOLS["MEGAPASCAL"] = "MPa"

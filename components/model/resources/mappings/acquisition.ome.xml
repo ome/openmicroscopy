@@ -189,6 +189,7 @@
 			<optional name="green" type="int"/>
 			<optional name="blue" type="int"/>
 			<optional name="alpha" type="int"/>
+			<optional name="lookupTable" type="string"/>
 			<manyone name="logicalChannel" type="ome.model.core.LogicalChannel" inverse="channels"/>
 			<manyone name="pixels" type="ome.model.core.Pixels" ordered="true"/>
 		</properties>

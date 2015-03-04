@@ -7,6 +7,8 @@
 package omeis.providers.re.data;
 
 import java.io.IOException;
+
+import loci.formats.FormatTools;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
@@ -96,6 +98,18 @@ public class PlaneFactory {
     public static final int DOUBLE = 5;
 
     /**
+     * Returns the pixels type as a int.
+     *
+     * @param type The type.
+     * @return See above.
+     */
+    private static int getPixelType(PixelsType type)
+    {
+        if (type == null) return -1;
+        return FormatTools.pixelTypeFromString(type.getValue());
+    }
+
+    /**
      * A static helper method to check if a type is one of the elements in an
      * array.
      * 
@@ -123,43 +137,7 @@ public class PlaneFactory {
      * @return The number of bytes per pixel value.
      */
     static int bytesPerPixel(PixelsType type) {
-        if (in(type, new String[] { INT8, UINT8 })) {
-            return 1;
-        } else if (in(type, new String[] { INT16, UINT16 })) {
-            return 2;
-        } else if (in(type, new String[] { INT32, UINT32, FLOAT_TYPE })) {
-            return 4;
-        } else if (type.getValue().equals(DOUBLE_TYPE)) {
-            return 8;
-        } else {
-            throw new RuntimeException("Unknown pixel type: '"
-                    + type.getValue() + "'");
-        }
-    }
-
-    /**
-     * A static helper method to retrieve Java type mappings.
-     * 
-     * @param type
-     *            The pixels type for which you wish to know the mapped Java
-     *            type.
-     * @return The Java type as an enumerated integer.
-     */
-    static int javaType(PixelsType type) {
-        if (in(type, new String[] { INT8, UINT8 })) {
-            return BYTE;
-        } else if (in(type, new String[] { INT16, UINT16 })) {
-            return SHORT;
-        } else if (in(type, new String[] { INT32, UINT32 })) {
-            return INT;
-        } else if (type.getValue().equals(FLOAT_TYPE)) {
-            return FLOAT;
-        } else if (type.getValue().equals(DOUBLE_TYPE)) {
-            return DOUBLE;
-        } else {
-            throw new RuntimeException("Unknown pixel type: '"
-                    + type.getValue() + "'");
-        }
+        return FormatTools.getBytesPerPixel(getPixelType(type));
     }
 
     /**
@@ -170,15 +148,7 @@ public class PlaneFactory {
      * @return The number of bytes per pixel value.
      */
     public static boolean isTypeSigned(PixelsType type) {
-        if (in(type, new String[] { UINT8, UINT16, UINT32 })) {
-            return false;
-        } else if (in(type, new String[] { INT8, INT16, INT32, FLOAT_TYPE,
-        		DOUBLE_TYPE })) {
-            return true;
-        } else {
-            throw new RuntimeException("Unknown pixel type: '"
-                    + type.getValue() + "'");
-        }
+        return FormatTools.isSigned(getPixelType(type));
     }
 
     /**

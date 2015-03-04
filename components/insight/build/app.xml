@@ -45,7 +45,9 @@
   <property name="app.compiled.dir" location="${app.dir}/compiled"/>
   <property name="app.config.dir" location="${app.dir}/config"/>
   <property name="app.lib.dir" location="${app.dir}/libs"/>
-  <property name="app.vmparameters" value="-Xms256M -Xmx1024M"/>
+   <property name="app.vmparameters" value="-Xms256M -Xmx1024M"/>
+  <property name="app.vmparameters.xmx" value="-Xmx1024M"/>
+  <property name="app.vmparameters.xms" value="-Xms256M"/>
   <available classname="javax.media.j3d.SceneGraphObject" property="app.j3d"/>
   <patternset id="app.sources">
     <include name="**/*.java"/>
@@ -132,6 +134,7 @@
           depends="app-init"
           description="Compile the whole app.">
     <javac srcdir="${base.src.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.dir}"
            includeantruntime="no"
@@ -144,6 +147,7 @@
       <patternset refid="app.sources"/>
     </javac>
     <javac srcdir="${base.src.util.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
@@ -156,6 +160,7 @@
       <patternset refid="app.sources"/>
     </javac>
     <javac srcdir="${base.src.svc.dir}" target="1.6"
+           memoryMaximumSize="${javac.maxmem}"
            source="1.6"
            destdir="${app.compiled.util.dir}"
            includeantruntime="no"
