@@ -285,10 +285,14 @@ class PrefsControl(WriteableConfigControl):
 
     @with_rw_config
     def set(self, args, config):
-        if "=" in args.KEY and args.VALUE is None:
+        if "=" in args.KEY:
             k, v = args.KEY.split("=", 1)
-            self.ctx.err(""" "=" in key name. Did you mean "...set %s %s"?"""
-                         % (k, v))
+            msg = """ "=" in key name. Did you mean "...set %s %s"?"""
+            if args.VALUE is None:
+                k, v = args.KEY.split("=", 1)
+                self.ctx.err(msg % (k, v))
+            elif args.KEY.endswith("="):
+                self.ctx.err(msg % (k, args.VALUE))
         elif args.file:
             if args.file == "-":
                 # Read from standard input
