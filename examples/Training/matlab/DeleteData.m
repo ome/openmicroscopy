@@ -42,6 +42,40 @@ try
     assert(~isempty(image), 'OMERO:LoadMetadataAdvanced', 'Image Id not valid');
     fprintf(1, 'Image %g created\n', imageId);
     
+    %Create ROI. In this example, we create an ROI with a rectangular shape and
+    %attach it to an image to then test deleting the ROIs.
+    
+    % First create a rectangular shape
+    disp('Create rectangular shape');
+    rectangle = createRectangle(0, 0, 10, 20);
+    % indicate on which plane to attach the shape
+    rectangle = setShapeCoordinates(rectangle, 0, 0, 0);
+    
+    % Create the roi.
+    roi = omero.model.RoiI;
+    % Attach the shape to the roi, several shapes can be added.
+    roi.addShape(rectangle);
+    % Link the roi and the image
+    roi.setImage(omero.model.ImageI(imageId, false));
+    % Save the ROI
+    roi = session.getUpdateService().saveAndReturnObject(roi);
+    fprintf(1, 'Created ROI %g\n', roi.getId().getValue());
+    
+    % Retrieve the roi linked to an image.
+    fprintf(1, 'Reading ROIs attached to image %g\n', imageId);
+    roiResult =  session.getRoiService().findByImage(imageId, []);
+    rois = roiResult.rois;
+    nRois = rois.size;
+    fprintf(1, 'Found %g ROI(s)\n', nRois);
+    
+    % Delete ROI
+    roi = rois.get(0);
+    fprintf(1, 'Deleting ROI %g\n', roi.getId().getValue());
+    deleteCommand = omero.cmd.Delete('/Roi', roi.getId().getValue(), []);
+    doAll = omero.cmd.DoAll();
+    doAll.requests = toJavaList(deleteCommand);
+    session.submit(doAll);
+
     % Delete the image. You can delete more than one image at a time.
     fprintf(1, 'Deleting image %g\n', imageId);
     deleteImages(session, imageId);
