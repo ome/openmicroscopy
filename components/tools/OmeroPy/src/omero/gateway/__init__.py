@@ -137,6 +137,22 @@ def fileread_gen(fin, fsize, bufsize):
     fin.close()
 
 
+class OmeroRestrictionWrapper (object):
+
+    def canDownload(self):
+        """
+        Determines if the current user can Download raw data linked to this
+        object. The canDownload() property is set on objects:
+        Image, Plate and FileAnnotation as it is read from the server, based
+        on the current user, event context and group permissions.
+
+        :rtype:     Boolean
+        :return:    True if user can download.
+        """
+        return not self.getDetails().getPermissions().isRestricted(
+            omero.constants.permissions.DOWNLOAD)
+
+
 class BlitzObjectWrapper (object):
     """
     Object wrapper class which provides various methods for hierarchy
@@ -4520,7 +4536,7 @@ AnnotationLinkWrapper = _AnnotationLinkWrapper
 from omero_model_FileAnnotationI import FileAnnotationI
 
 
-class FileAnnotationWrapper (AnnotationWrapper):
+class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
     """
     omero_model_FileAnnotationI class wrapper extends AnnotationWrapper.
     """
@@ -5695,7 +5711,7 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
 
-class _WellWrapper (BlitzObjectWrapper):
+class _WellWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     """
     omero_model_WellI class wrapper extends BlitzObjectWrapper.
     """
@@ -6703,7 +6719,7 @@ def assert_pixels(func):
     return wrapped
 
 
-class _ImageWrapper (BlitzObjectWrapper):
+class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     """
     omero_model_ImageI class wrapper extends BlitzObjectWrapper.
     """
