@@ -402,13 +402,6 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    nsisant-*.jar
-  Project:      NsisAnt - An Ant Task used to compile NSIS scripts
-  Web Site:     http://nsisant.sourceforge.net/
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
-
-
   Artifacts:    PDFBox-*.jar
   Project:      Apache PDFBox - Java PDF Library
   Web Site:     http://incubator.apache.org/pdfbox
