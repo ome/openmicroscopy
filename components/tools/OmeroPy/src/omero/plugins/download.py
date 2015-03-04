@@ -98,15 +98,19 @@ class DownloadControl(BaseControl):
         # Assume input is of form FileAnnotation:id
         fa_id = self.parse_object_id("FileAnnotation", value)
         if fa_id:
+            fa = None
             try:
-                fa = query.findByString((
-                    "select fa from FileAnnotation fa join fetch "
-                    "fa.file where fa.id = :id"),
+                fa = query.findByQuery((
+                    "select fa from FileAnnotation fa "
+                    "left outer join fetch fa.file "
+                    "where fa.id = :id"),
                     omero.sys.ParametersI().addId(fa_id),
                     {'omero.group': '-1'})
-                return fa.getFile()
             except omero.ValidationException:
+                pass
+            if fa is None:
                 self.ctx.die(601, 'No FileAnnotation with input ID')
+            return fa.getFile()
 
         # Assume input is of form Image:id
         image_id = self.parse_object_id("Image", value)
