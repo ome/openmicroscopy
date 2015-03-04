@@ -49,7 +49,7 @@ class DownloadControl(BaseControl):
 
     def __call__(self, args):
         client = self.ctx.conn(args)
-        orig_file = self.get_filed(client.sf, args.object)
+        orig_file = self.get_file(client.sf, args.object)
         perms = orig_file.details.permissions
         name = omero.constants.permissions.DOWNLOAD
 
@@ -72,7 +72,7 @@ class DownloadControl(BaseControl):
             # ID exists in DB, but not on FS
             self.ctx.die(67, "ResourceError: %s" % re.message)
 
-    def get_filed(self, session, value):
+    def get_file(self, session, value):
 
         query = session.getQueryService()
         if ':' not in value:

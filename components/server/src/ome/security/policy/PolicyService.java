@@ -55,7 +55,7 @@ public interface PolicyService {
      * Give each configured {@link Policy} instance the chance to throw a
      * {@link SecurityViolation} from its
      * {@link Policy#checkRestriction(IObject)} method.
-     * 
+     *
      * @param name
      *            non-null identifier of a class of {@link Policy} instances.
      * @param obj
@@ -73,7 +73,7 @@ public interface PolicyService {
     /**
      * Return all identifier strings as would be passed as the first argument to
      * {@link #isRestricted(String, IObject)} or
-     * {@link #checkRestriction(String, IObject)} <em>which</which> considers
+     * {@link #checkRestriction(String, IObject)} <em>which</em> considers
      * itself active for the given argument.
      *
      * @param obj
