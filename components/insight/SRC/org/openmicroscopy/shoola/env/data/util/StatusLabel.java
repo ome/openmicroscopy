@@ -225,9 +225,6 @@ public class StatusLabel
     /** The file associated to that import.*/
     private FilesetData fileset;
 
-    /** Flag indicating if the image is a HCS file or not.*/
-    private boolean hcs;
-
     /** The callback. This should only be set when importing a directory.*/
     private Object callback;
 
@@ -354,21 +351,18 @@ public class StatusLabel
     }
 
     /**
-     * Sets to <code>true</code> if it is a HCS file, <code>false</code>
-     * otherwise.
-     * 
-     * @param hcs Pass <code>true</code> if it is a HCS file, <code>false</code>
-     * otherwise.
-     */
-    public void setHCS(boolean hcs) { this.hcs = hcs; }
-
-    /**
      * Returns <code>true</code> if it is a HCS file, <code>false</code>
      * otherwise.
-     * 
+     *
      * @return See above.
      */
-    public boolean isHCS() { return hcs; }
+    public boolean isHCS()
+    {
+        if (ic == null) return false;
+        Boolean b = ic.getIsSPW();
+        if (b == null) return false;
+        return b.booleanValue();
+    }
 
     /**
      * Returns the file set associated to the import.
@@ -619,6 +613,13 @@ public class StatusLabel
      * @return See above.
      */
     public ImportContainer getImportContainer() { return ic; }
+
+    /**
+     * Sets the import container.
+     *
+     * @param ic The value to set.
+     */
+    public void setImportContainer(ImportContainer ic) { this.ic = ic; }
 
     /**
      * Displays the status of an on-going import.

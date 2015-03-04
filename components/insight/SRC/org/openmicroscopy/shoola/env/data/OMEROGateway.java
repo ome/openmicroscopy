@@ -6647,7 +6647,7 @@ class OMEROGateway
             boolean close, boolean hcs, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
-    	status.setHCS(hcs);
+        status.setImportContainer(ic);
         ImportConfig config = new ImportConfig();
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
