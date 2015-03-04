@@ -97,7 +97,7 @@ def imageMarshal(image, key=None):
             'projectId': pr and pr.id or None,
             'projectDescription': pr and pr.description or '',
             'datasetName': ds and ds.name or 'Multiple',
-            'datasetId': ds and ds.id or '',
+            'datasetId': ds and ds.id or None,
             'datasetDescription': ds and ds.description or '',
             'wellSampleId': wellsample and wellsample.id or '',
             'wellId': well and well.id.val or '',
@@ -134,9 +134,18 @@ def imageMarshal(image, key=None):
 
     # big images
     tiles = image._re.requiresPixelsPyramid()
-    width, height = image._re.getTileSize()
-    levels = image._re.getResolutionLevels()
-    zoomLevelScaling = image.getZoomLevelScaling()
+    rv['tiles'] = tiles
+    if (tiles):
+        width, height = image._re.getTileSize()
+        levels = image._re.getResolutionLevels()
+        zoomLevelScaling = image.getZoomLevelScaling()
+
+        rv.update({'tile_size': {'width': width,
+                                 'height': height},
+                   'levels': levels})
+        if zoomLevelScaling is not None:
+            rv['zoomLevelScaling'] = zoomLevelScaling
+
     nominalMagnification = image.getObjectiveSettings() is not None \
         and image.getObjectiveSettings().getObjective().getNominalMagnification() \
         or None
@@ -149,10 +158,6 @@ def imageMarshal(image, key=None):
 
     try:
         rv.update({
-            'tiles': tiles,
-            'tile_size': {'width': width,
-                          'height': height},
-            'levels': levels,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
                      'z': image.getSizeZ(),
@@ -164,8 +169,6 @@ def imageMarshal(image, key=None):
             })
         if init_zoom is not None:
             rv['init_zoom'] = init_zoom
-        if zoomLevelScaling is not None:
-            rv.update({'zoomLevelScaling': zoomLevelScaling})
         if nominalMagnification is not None:
             rv.update({'nominalMagnification': nominalMagnification})
         try:
