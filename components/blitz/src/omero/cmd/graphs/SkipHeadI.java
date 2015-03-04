@@ -147,6 +147,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
         if (step < graphRequestSkipStatus.steps) {
             try {
                 /* do a skip-head step */
+                graphRequestSkipStatus.currentStep = step;
                 graphRequestSkipObjects.add(((IRequest) graphRequestSkip).step(step));
             } catch (Cancel e) {
                 /* the step failed, so propagate the error response to this request */
@@ -191,6 +192,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
             if (substep < graphRequestPerformStatus.steps) {
                 try {
                     /* do a tail step */
+                    graphRequestPerformStatus.currentStep = substep;
                     graphRequestPerformObjects.add(((IRequest) graphRequestPerform).step(substep));
                 } catch (Cancel e) {
                     /* the step failed, so propagate the error response to this request */
