@@ -910,6 +910,7 @@ PIPELINE_CSS = {
             'webgateway/css/ome.body.css',
             'webclient/css/dusty.css',
             'webgateway/css/ome.viewport.css',
+            'webgateway/css/ome.toolbar.css',
             'webgateway/css/ome.gs_slider.css',
             'webgateway/css/base.css',
             'webgateway/css/ome.snippet_header_logo.css',
