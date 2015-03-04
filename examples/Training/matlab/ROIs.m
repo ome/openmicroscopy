@@ -113,13 +113,7 @@ try
             roi = session.getUpdateService().saveAndReturnObject(roi);
         end
     end
-    
-    % Delete ROI
-    deleteCommand = omero.cmd.Delete('/Roi', roi.getId().getValue(), []);
-    doAll = omero.cmd.DoAll();
-    doAll.requests = toJavaList(deleteCommand);
-    session.submit(doAll);
-    
+
     % Create a mask covering half of the image
     pixels = image.getPrimaryPixels();
     sizeX = pixels.getSizeX().getValue();
