@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -707,7 +707,7 @@ class OmeroDataServiceImpl
 		        else {
 		            types = context.getTypes();
 		        }
-		        for(Class<? extends DataObject> type : context.getTypes()) {
+		        for(Class<? extends DataObject> type : types) {
 		            AdvancedSearchResult res = new AdvancedSearchResult();
 		            res.setObjectId(id);
 		            res.setType(type);
