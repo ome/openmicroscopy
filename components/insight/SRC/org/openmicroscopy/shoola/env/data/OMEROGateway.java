@@ -3452,6 +3452,53 @@ class OMEROGateway
 	}
 
 	/**
+     * Finds the links if any between the specified parent and children.
+     *
+     * @param ctx The security context.
+     * @param childID The id of the child.
+     * @param userID The id of the user.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    Set<DataObject> findPlateFromRun(SecurityContext ctx, long childID,
+            long userID)
+    throws DSOutOfServiceException, DSAccessException
+    {
+        Set<DataObject> data = new HashSet<DataObject>();
+        List<Long> ids = new ArrayList<Long>();
+        ParametersI param = new ParametersI();
+        param.addLong("acqId", childID);
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("select plate from Plate as plate where plate.id = (select acq.plate "
+                + "from PlateAcquisition acq where acq.id = :acqId)");
+
+        Connector c = getConnector(ctx, true, false);
+        try {
+            IQueryPrx service = c.getQueryService();
+            List results = service.findAllByQuery(sb.toString(), param);
+            Iterator i = results.iterator();
+            Plate plate;
+            long id;
+            while (i.hasNext()) {
+                plate =  (Plate) i.next();
+                id = plate.getId().getValue();
+                if (!ids.contains(id)) {
+                    data.add(PojoMapper.asDataObject(plate));
+                    ids.add(id);
+                }
+            }
+        } catch (Throwable t) {
+            handleException(t, "Cannot find the plates containing the image.");
+        }
+
+        return data;
+    }
+    
+	/**
 	 * Retrieves an updated version of the specified object.
 	 *
 	 * @param ctx The security context.

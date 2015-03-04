@@ -840,12 +840,18 @@ class OmeroDataServiceImpl
 			else if (WellSampleData.class.equals(type) ||
 					WellData.class.equals(type))
 				parentClass = Plate.class;
+			else if (PlateAcquisitionData.class.equals(type))
+                parentClass = Plate.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(ctx, parentClass, id, userID);
 			if (ImageData.class.equals(type) && (links == null ||
 					links.size() == 0)) {
 				return gateway.findPlateFromImage(ctx, id, userID);
 			}
+			if (PlateAcquisitionData.class.equals(type) && (links == null ||
+                    links.size() == 0)) {
+                return gateway.findPlateFromRun(ctx, id, userID);
+            }
 			if (links == null) return new HashSet();
 			Iterator i = links.iterator();
 			Set<DataObject> nodes = new HashSet<DataObject>();

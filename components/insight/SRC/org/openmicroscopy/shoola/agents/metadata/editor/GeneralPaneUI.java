@@ -32,8 +32,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -53,6 +55,7 @@ import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
+import pojos.PlateAcquisitionData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
@@ -254,7 +257,9 @@ class GeneralPaneUI
                 showBrowser = true;
             }
             
-            if((refObject instanceof DatasetData || refObject instanceof FileAnnotationData) && !multi) {
+            if ((refObject instanceof DatasetData
+                    || refObject instanceof FileAnnotationData || refObject instanceof PlateAcquisitionData)
+                    && !multi) {
                 showBrowser = true;
             }
     
