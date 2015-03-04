@@ -175,26 +175,16 @@ class WebControl(BaseControl):
             d["FASTCGI_PATH_SCRIPT_INFO"] = script_info_fallback
 
     def _set_apache_fastcgi(self, d, settings):
-        if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-            fastcgi_external = '-host %s:%s' % \
-                (settings.APPLICATION_SERVER_HOST,
-                 settings.APPLICATION_SERVER_PORT)
-        else:
-            fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
-                self.ctx.dir
-        d["FASTCGI_EXTERNAL"] = fastcgi_external
+        if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+            self.ctx.die(679, "Apache configuration requires fastcgi-tcp")
 
-    def _set_apache_fcgi_fastcgi(self, d, settings):
+        d["FASTCGI_EXTERNAL"] = '%s:%s' % (
+            settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
+
+        # Required by mod_proxy_fcgi:
         # OMERO.web requires the fastcgi PATH_INFO variable, which
         # mod_proxy_fcgi obtains by taking everything after the last
         # path component containing a dot.
-
-        if settings.APPLICATION_SERVER != settings.FASTCGITCP:
-            self.ctx.die(679, "Apache mod_proxy_fcgi requires fastcgi-tcp")
-        fastcgi_external = '%s:%s' % (
-            settings.APPLICATION_SERVER_HOST,
-            settings.APPLICATION_SERVER_PORT)
-        d["FASTCGI_EXTERNAL"] = fastcgi_external
         d["CGI_PREFIX"] = "%s.fcgi" % d["FORCE_SCRIPT_NAME"]
 
     def config(self, args):
@@ -251,11 +241,8 @@ class WebControl(BaseControl):
         if server in ("nginx", "nginx-development"):
             self._set_nginx_fastcgi(d, settings)
 
-        if server == "apache":
+        if server in ("apache", "apache-fcgi"):
             self._set_apache_fastcgi(d, settings)
-
-        if server == "apache-fcgi":
-            self._set_apache_fcgi_fastcgi(d, settings)
 
         template_file = "%s.conf.template" % server
         c = file(self._get_templates_dir() / template_file).read()
