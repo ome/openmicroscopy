@@ -42,6 +42,9 @@ module omero {
             StateList flags;
             StringMap parameters;
 
+            /** the latest step to be commenced, from 0 to steps-1 */
+            int currentStep;
+            /** the total number of steps */
             int steps;
             long startTime;
             Ice::LongSeq stepStartTimes;
