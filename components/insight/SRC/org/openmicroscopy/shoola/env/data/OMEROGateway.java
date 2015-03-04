@@ -5011,6 +5011,10 @@ class OMEROGateway
             
             int batchSize = context.getTypes().size()==1 ? 1000 : context.getTypes().size()*500;
             
+            // if search for Plates automatically include Plate Runs
+            if(context.getTypes().contains(PlateData.class))
+                context.getTypes().add(PlateAcquisitionData.class);
+            
             for (Class<? extends DataObject> type : context.getTypes()) {
                 try {
                     // set general parameters

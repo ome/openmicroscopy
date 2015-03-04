@@ -37,7 +37,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-
 //Third-party libraries
 
 
@@ -64,6 +63,8 @@ import omero.model.MapAnnotationI;
 import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionI;
 import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
@@ -92,6 +93,7 @@ import pojos.ImageData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
 import pojos.PixelsData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ROIData;
@@ -192,6 +194,8 @@ public class PojoMapper
         	return new ScreenData((Screen) object);
         else if (object instanceof Plate)
         	return new PlateData((Plate) object);
+        else if (object instanceof PlateAcquisition)
+            return new PlateAcquisitionData((PlateAcquisition) object);
         else if (object instanceof Well)
         	return new WellData((Well) object);
         else if (object instanceof WellSample)
@@ -444,6 +448,9 @@ public class PojoMapper
             else if (nodeType.equals(Plate.class) ||
                     nodeType.equals(PlateData.class))
                 return PlateI.class.getName();
+            else if (nodeType.equals(PlateAcquisition.class) ||
+                    nodeType.equals(PlateAcquisitionData.class))
+                return PlateAcquisitionI.class.getName();
             throw new IllegalArgumentException("type not supported");
     }
 }
