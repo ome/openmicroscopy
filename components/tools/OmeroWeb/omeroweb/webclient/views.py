@@ -120,7 +120,7 @@ def login(request):
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         server_id = form.cleaned_data['server']
-        is_secure = toBoolean(form.cleaned_data['ssl'])
+        is_secure = form.cleaned_data['ssl']
 
         connector = Connector(server_id, is_secure)
 
@@ -1872,7 +1872,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 expiration = form.cleaned_data['expiration']
                 members = form.cleaned_data['members']
                 #guests = request.REQUEST['guests']
-                enable = toBoolean(form.cleaned_data['enable'])
+                enable = form.cleaned_data['enable']
                 host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
                 manager.updateShareOrDiscussion(host, message, members, enable, expiration)
                 return HttpResponse("DONE")
@@ -2284,7 +2284,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
             expiration = form.cleaned_data['expiration']
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
-            enable = toBoolean(form.cleaned_data['enable'])
+            enable = form.cleaned_data['enable']
             host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
             sid = share.createShare(host, images, message, members, enable, expiration)
@@ -2311,7 +2311,7 @@ def basket_action (request, action=None, conn=None, **kwargs):
             expiration = form.cleaned_data['expiration']
             members = form.cleaned_data['members']
             #guests = request.REQUEST['guests']
-            enable = toBoolean(form.cleaned_data['enable'])
+            enable = form.cleaned_data['enable']
             host = "%s?server=%i" % (request.build_absolute_uri(reverse("load_template", args=["public"])), int(conn.server_id))
             share = BaseShare(conn)
             share.createDiscussion(host, message, members, enable, expiration)
