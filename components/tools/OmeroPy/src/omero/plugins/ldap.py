@@ -92,13 +92,6 @@ to users.""")
         for x in (active, list, getdn, setdn, discover, create):
             x.add_login_arguments()
 
-    def add_user_and_group_arguments(self, parser):
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument("--user-id", help="ID of the user.")
-        group.add_argument("--user-name", help="Name of the user.")
-        group.add_argument("--group-id", help="ID of the group.")
-        group.add_argument("--group-name", help="Name of the group.")
-
     @admin_only
     def active(self, args):
         c = self.ctx.conn(args)
