@@ -76,6 +76,15 @@
   <bean id="defaultPolicyService" class="ome.security.policy.DefaultPolicyService"/>
 
   <bean id="RESTRICT-DOWNLOAD" class="ome.security.policy.DownloadPolicy">
+    <constructor-arg>
+      <set>
+        <value>ome.model.annotations.FileAnnotation</value>
+        <value>ome.model.core.Image</value>
+        <value>ome.model.core.OriginalFile</value>
+        <value>ome.model.screen.Plate</value>
+        <value>ome.model.screen.Well</value>
+      </set>
+    </constructor-arg>
     <constructor-arg ref="aclVoter"/>
     <constructor-arg value="${omero.policy.download}"/>
   </bean>

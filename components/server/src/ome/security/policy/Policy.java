@@ -19,6 +19,8 @@
 
 package ome.security.policy;
 
+import java.util.Set;
+
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 
@@ -54,6 +56,13 @@ public interface Policy {
      * order to prevent exceptions.
      */
     String getName();
+
+    /**
+     * Each {@link Policy} should tell the {@link PolicyService} which types
+     * of {@link IObject} instances it cares about. Only those which are of
+     * interest to <em>some</em> {@link Policy} need be considered.
+     */
+    Set<Class<IObject>> getTypes();
 
     /**
      * Checks whether or not this instance would throw a

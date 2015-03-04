@@ -22,6 +22,7 @@ package ome.security.policy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -47,11 +48,13 @@ public class DownloadPolicy extends BasePolicy {
 
     private final List<String> config;
 
-    public DownloadPolicy(ACLVoter voter) {
-        this(voter, null);
+    public DownloadPolicy(Set<Class<IObject>> types, ACLVoter voter) {
+        this(types, voter, null);
     }
 
-    public DownloadPolicy(ACLVoter voter, String[] config) {
+    public DownloadPolicy(Set<Class<IObject>> types, ACLVoter voter,
+            String[] config) {
+        super(types);
         this.voter = voter;
         if (config == null) {
             this.config = Collections.emptyList();

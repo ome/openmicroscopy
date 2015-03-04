@@ -19,6 +19,10 @@
 
 package ome.security.policy;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 
@@ -26,10 +30,26 @@ import ome.model.IObject;
  * Simple base class for {@link Policy} implementations which always returns
  * true for {@link #isRestricted(IObject)} and always fails on
  * {@link #checkRestriction(IObject)}.
+ * @param <T>
  */
 public abstract class BasePolicy implements Policy {
 
+    final protected Set<Class<IObject>> types;
+
+    public BasePolicy(Set<Class<IObject>> types) {
+        if (types == null) {
+            this.types = Collections.emptySet();
+        } else {
+            this.types = Collections.unmodifiableSet(
+                    new HashSet<Class<IObject>>(types));
+        }
+    }
     public abstract String getName();
+
+    @Override
+    public Set<Class<IObject>> getTypes() {
+        return types;
+    }
 
     @Override
     public boolean isRestricted(IObject obj) {

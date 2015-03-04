@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.model.IObject;
-import ome.model.core.Image;
-import ome.model.core.OriginalFile;
 import ome.tools.spring.OnContextRefreshedEventListener;
 
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -43,6 +41,8 @@ public class DefaultPolicyService
     extends OnContextRefreshedEventListener
     implements PolicyService {
 
+    private final Set<Class<IObject>> types = new HashSet<Class<IObject>>();
+
     private final ListMultimap<String, Policy> policies = ArrayListMultimap.create();
 
     /**
@@ -54,6 +54,7 @@ public class DefaultPolicyService
         for (Policy policy : event.getApplicationContext()
                 .getBeansOfType(Policy.class).values()) {
             policies.put(policy.getName(), policy);
+            types.addAll(policy.getTypes());
         }
     }
 
@@ -107,11 +108,10 @@ public class DefaultPolicyService
      * @return true if the given object should <em>not</em> be restricted.
      */
     protected boolean filterObject(IObject obj) {
-        if (obj instanceof Image ||
-                obj instanceof OriginalFile) {
-            return false;
+        if (obj == null) {
+            return true;
         }
-        return true;
+        return !types.contains(obj.getClass());
     }
 
 }
