@@ -46,7 +46,7 @@ http {
 
             error_page 502 @maintenance;
 
-            fastcgi_pass %(FASTCGI_PASS)s;
+            fastcgi_pass %(FASTCGI_EXTERNAL)s;
 
             %(FASTCGI_PATH_SCRIPT_INFO)s
 

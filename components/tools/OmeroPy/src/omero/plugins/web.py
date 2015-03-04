@@ -30,7 +30,6 @@ Configuration:
 Example Nginx developer usage:
 
     omero config set omero.web.debug true
-    omero config set omero.web.application_server fastcgi
     omero web config nginx-development --http=8000 >> nginx.conf
     omero web start
     nginx -c `pwd`/nginx.conf
@@ -152,16 +151,6 @@ class WebControl(BaseControl):
         return self.ctx.dir / "etc" / "templates"
 
     def _set_nginx_fastcgi(self, d, settings):
-
-        if settings.APPLICATION_SERVER == settings.FASTCGITCP:
-            fastcgi_pass = "%s:%s" \
-                % (settings.APPLICATION_SERVER_HOST,
-                   settings.APPLICATION_SERVER_PORT)
-        else:
-            fastcgi_pass = "unix:%s/var/django_fcgi.sock" \
-                % self.ctx.dir
-        d["FASTCGI_PASS"] = fastcgi_pass
-
         script_info = (
             "fastcgi_split_path_info ^(%s)(.*)$;\n"
             "            fastcgi_param PATH_INFO $fastcgi_path_info;\n"
@@ -174,14 +163,7 @@ class WebControl(BaseControl):
         except:
             d["FASTCGI_PATH_SCRIPT_INFO"] = script_info_fallback
 
-    def _set_apache_fastcgi(self, d, settings):
-        if settings.APPLICATION_SERVER != settings.FASTCGITCP:
-            self.ctx.die(679, "Apache configuration requires fastcgi-tcp")
-
-        d["FASTCGI_EXTERNAL"] = '%s:%s' % (
-            settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
-
-        # Required by mod_proxy_fcgi:
+    def _set_apache_fcgi_fastcgi(self, d, settings):
         # OMERO.web requires the fastcgi PATH_INFO variable, which
         # mod_proxy_fcgi obtains by taking everything after the last
         # path component containing a dot.
@@ -238,11 +220,18 @@ class WebControl(BaseControl):
             except:
                 d["WEB_PREFIX"] = ""
 
+        if settings.APPLICATION_SERVER != settings.FASTCGITCP:
+            self.ctx.die(
+                679, "Web template configuration requires fastcgi-tcp")
+
+        d["FASTCGI_EXTERNAL"] = '%s:%s' % (
+            settings.APPLICATION_SERVER_HOST, settings.APPLICATION_SERVER_PORT)
+
         if server in ("nginx", "nginx-development"):
             self._set_nginx_fastcgi(d, settings)
 
-        if server in ("apache", "apache-fcgi"):
-            self._set_apache_fastcgi(d, settings)
+        if server == "apache-fcgi":
+            self._set_apache_fcgi_fastcgi(d, settings)
 
         template_file = "%s.conf.template" % server
         c = file(self._get_templates_dir() / template_file).read()
