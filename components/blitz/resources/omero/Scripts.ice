@@ -281,6 +281,19 @@ module omero {
              * </p>
              **/
             omero::api::StringSet namespaces;
+
+            /**
+             * A label which can be applied to this parameter in addition
+             * to its more programmatic name in the [omero::grid::JobParams]
+             * object.
+             **/
+             string displayName;
+
+            /**
+             * Whether or not this parameter should be displayed to users
+             * for entry.
+             **/
+             bool display;
         };
 
         dictionary<string, Param> ParamMap;
