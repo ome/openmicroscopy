@@ -54,7 +54,7 @@
 ### Stanza for OMERO.web created %(NOW)s
 ###
 
-FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s -idle-timeout 60
+FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" -host %(FASTCGI_EXTERNAL)s -idle-timeout 60
 
 <Directory "%(ROOT)s/var">
     Options -Indexes FollowSymLinks
