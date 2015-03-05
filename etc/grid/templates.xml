@@ -212,8 +212,9 @@
             <option>-Dcom.sun.management.jmxremote.ssl=false</option>
             <option>-Djava.rmi.server.hostname=${jmxhost}</option>
         </target>
-        <option>-jar</option>
-        <option>${OMERO_JARS}blitz.jar</option>
+        <option>-cp</option>
+        <option>${OMERO_JARS}*:${OMERO_ETC}:$${OMERO_PLUGINS}</option>
+        <option>ome.services.blitz.Entry</option>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
         <properties>
           <properties refid="JavaServer"/>
