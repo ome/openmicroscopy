@@ -343,7 +343,6 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
             modified = false;
             file = iQuery.get(OriginalFile.class, fileId);
-            sec.checkRestriction(DownloadPolicy.NAME, file);
 
             String mode = "r";
             try {
@@ -407,6 +406,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     public byte[] read(long position, int length) {
         errorIfNotLoaded();
+        sec.checkRestriction(DownloadPolicy.NAME, file);
+
         byte[] rawBuf = new byte[length];
         ByteBuffer buf = ByteBuffer.wrap(rawBuf);
 
