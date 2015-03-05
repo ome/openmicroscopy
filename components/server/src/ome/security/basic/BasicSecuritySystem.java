@@ -9,19 +9,9 @@ package ome.security.basic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.proxy.HibernateProxy;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.util.Assert;
+import java.util.Map;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -45,7 +35,6 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
-import ome.model.roi.Shape;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecurityFilter;
@@ -53,7 +42,6 @@ import ome.security.SecurityFilterHolder;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.messages.EventLogMessage;
-import ome.services.messages.ShapeChangeMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
@@ -65,6 +53,21 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
+
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.proxy.HibernateProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.util.Assert;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * simplest implementation of {@link SecuritySystem}. Uses an ctor-injected
@@ -466,36 +469,26 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
 
         boolean foundAdminType = false;
-        List<EventLog> foundShapes = new ArrayList<EventLog>();
-        for (EventLog log : getLogs()) {
-            String t = log.getEntityType();
-            String a = log.getAction();
+        Multimap<String, Long> typeIds = ArrayListMultimap.create();
+        for (EventLog el : getLogs()) {
+            String t = el.getEntityType();
             if (Experimenter.class.getName().equals(t)
                     || ExperimenterGroup.class.getName().equals(t)
                     || GroupExperimenterMap.class.getName().equals(t)) {
                 foundAdminType = true;
             }
-            try {
-                if (Shape.class.isAssignableFrom(Class.forName(t))) {
-                    if ("INSERT".equals(a) || "UPDATE".equals(a)) {
-                        foundShapes.add(log);
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                throw new InternalException("Shape != Class.forName: " + t);
-            }
+            typeIds.put(t, el.getEntityId());
         }
-        // publish message if administrative type is modified
-        if (foundAdminType) {
-            if (ctx == null) {
-                log.error("No context found for publishing");
-            } else {
+
+        if (ctx == null) {
+            log.error("No context found for publishing");
+        } else {
+            // publish message if administrative type is modified
+            if (foundAdminType) {
                 this.ctx.publishEvent(new UserGroupUpdateEvent(this));
             }
-        }
-        // publish message if shape is created or updated
-        if (foundShapes.size() > 0) {
-            this.ctx.publishEvent(new ShapeChangeMessage(this, foundShapes));
+            // FIXME: should publish some message here as well as in
+            // addLog below.
         }
         
         cd.clearLogs();

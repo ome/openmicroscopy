@@ -24,7 +24,6 @@ import ome.conditions.ApiUsageException;
 import ome.io.nio.PixelBuffer;
 import ome.model.IObject;
 import ome.model.core.Pixels;
-import ome.services.messages.ShapeChangeMessage;
 import ome.services.util.Executor;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.Filterable;
