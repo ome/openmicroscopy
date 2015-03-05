@@ -19,12 +19,12 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 
 /**
- * Static methods for dealing with the preparation of JavaMail MIME messages.
+ * Methods for dealing with the preparation of JavaMail MIME messages.
  * The corresponding send methods of JavaMailSender will take care of the actual
  * creation of a MimeMessage instance. Used primarily by asynchronous Ice
  * services: {@link omero.cmd.mail.SendEmailRequestI} and
  * {@link omero.cmd.mail.ResetPasswordRequestI}
- * 
+ *
  * @author Aleksandra Tarkowska, A (dot) Tarkowska at dundee.ac.uk
  * @since 5.1.0
  */
@@ -57,7 +57,7 @@ public class MailUtil {
     /**
      * Main method which takes typical email fields as arguments, to prepare and
      * populate the given new MimeMessage instance and send.
-     * 
+     *
      * @param from
      *            email address message is sent from
      * @param to
@@ -105,7 +105,7 @@ public class MailUtil {
      * Overloaded method which takes typical email fields as arguments, to
      * prepare and populate the given new MimeMessage instance and send. Sender
      * of the email is loaded from omero.mail.from
-     * 
+     *
      * @param to
      *            email address message is sent to
      * @param topic
@@ -130,7 +130,7 @@ public class MailUtil {
     /**
      * Helper Validate that this address conforms to the syntax rules of RFC
      * 822.
-     * 
+     *
      * @param email
      *            email address
      */
