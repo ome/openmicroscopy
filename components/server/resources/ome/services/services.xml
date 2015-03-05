@@ -60,10 +60,10 @@
     <bean id="selfManagingService" abstract="true"
         class="org.springframework.aop.framework.ProxyFactoryBean">
         <description>
-        A self managed service, which must take care to properly create 
+        A self managed service, which must take care to properly create
         sessions and transactions before using any other services. This
         can be achieved by properly using the Executor.Work interface.
-        
+
         See the "executor" bean.
         </description>
         <property name="interceptorNames">
@@ -72,7 +72,7 @@
             </list>
         </property>
     </bean>
-    
+
 	<bean id="managedService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="interceptorNames" ref="statelessInterceptors"/>
@@ -228,69 +228,6 @@
   <bean id="namingStrategy"
         class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
       <property name="attributeSource" ref="jmxAttributeSource"/>
-  </bean>
-
-
-<!--
-  Mail resources
-  =======================================================================
--->
-
-  <bean id="mailUtil" class="ome.services.util.MailUtil">
-    <constructor-arg index="0" value="${omero.mail.from}" />
-    <constructor-arg index="1" ref="mailSender"/>
-  </bean>
-
-  <alias name="${omero.mail.bean}" alias="mailSender"/>
-
-  <bean id="mailSenderTargetSource"
-      class="org.springframework.aop.target.HotSwappableTargetSource">
-      <constructor-arg ref="javaMailSenderImpl"/>
-  </bean>
-
-  <bean id="defaultMailSender" class="org.springframework.aop.framework.ProxyFactoryBean">
-      <description>
-          Default mail sender uses a swappable target source so that for
-          testing we can replace it with a no-op version.
-      </description>
-      <property name="targetSource" ref="mailSenderTargetSource"/>
-  </bean>
-
-  <!-- configure the MailSender with the authenticated session -->
-  <bean id="javaMailSenderImpl"
-      class="org.springframework.mail.javamail.JavaMailSenderImpl">
-      <property name="host" value="${omero.mail.host}" />
-      <property name="port" value="${omero.mail.port}" />
-      <property name="protocol" value="${omero.mail.transport.protocol}" />
-      <property name="session" ref="mailSession" />    
-  </bean>
-  
-  <!-- setup an authenticated session -->
-  <bean id="mailSession" class="javax.mail.Session" factory-method="getInstance">
-      <constructor-arg>
-          <props>
-              <prop key="mail.smtp.auth">${omero.mail.smtp.auth}</prop>
-              <prop key="mail.smtp.debug">${omero.mail.smtp.debug}</prop>
-              <prop key="mail.smtp.connectiontimeout">${omero.mail.smtp.connectiontimeout}</prop>
-              <prop key="mail.smtp.starttls.enable">${omero.mail.smtp.starttls.enable}</prop>
-              <prop key="mail.smtp.socketFactory.port">${omero.mail.smtp.socketFactory.port}</prop>
-              <prop key="mail.smtp.socketFactory.class">${omero.mail.smtp.socketFactory.class}</prop>
-              <prop key="mail.smtp.socketFactory.fallback">${omero.mail.smtp.socketFactory.fallback}</prop>
-              <prop key="mail.smtp.timeout">${omero.mail.smtp.timeout}</prop>
-          </props>
-      </constructor-arg>
-      <constructor-arg ref="smtpAuthenticator" />
-  </bean>
-  
-  <!-- Authenticator implementation -->
-  <bean id="smtpAuthenticator" class="ome.security.SmtpAuthenticator">
-      <constructor-arg value="${omero.mail.username}" />
-      <constructor-arg value="${omero.mail.password}" />
-  </bean>
-	
-  <!-- this is a template message that we can pre-load with default state -->
-  <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
-      <property name="from" value="${omero.mail.from}" />
   </bean>
 
 </beans>
