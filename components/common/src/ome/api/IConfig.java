@@ -9,6 +9,7 @@ package ome.api;
 
 // Java imports
 import java.util.Date;
+import java.util.Map;
 
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
@@ -113,6 +114,28 @@ public interface IConfig extends ServiceInterface {
      */
     String getConfigValue(@NotNull
     String key) throws ApiUsageException, SecurityViolation;
+
+    /**
+     * retrieve configuration values from the backend store which match the
+     * given regex. Any configuration value which would throw an exception
+     * on being loaded is omitted.
+     *
+     * @param keyRegex
+     *            The non-null regex of the desired configuration values
+     * @return a {@link Map} from the found keys to the linked values.
+     */
+    Map<String, String> getConfigValues(@NotNull
+    String keyRegex);
+
+    /**
+     * reads the etc/omero.properties file and returns all the key/value
+     * pairs that are found there. Since this file is not to be edited
+     * its assumed that these values are in the public domain and so
+     * there's no need to protect them.
+     *
+     * @return a {@link Map} from the found keys to the linked values.
+     */
+    Map<String, String> getConfigDefaults();
 
     /**
      * set a configuration value in the backend store. Permissions applied to
