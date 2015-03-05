@@ -50,10 +50,11 @@ import ome.model.IObject;
 public interface Policy {
 
     /**
-     * Unique name for this type of {@link Policy}. This string will be sent to
-     * clients via
+     * Unique name for a class of restrictions that this {@link Policy}
+     * will enforce. This string will be sent to clients via
      * {@link ome.model.internal.Permissions#copyExtendedRestrictions()} in
-     * order to prevent exceptions.
+     * order to prevent exceptions, and server-code will pass the same name
+     * to the check method to potentially have an exception thrown.
      */
     String getName();
 
@@ -70,10 +71,10 @@ public interface Policy {
      * {@link #checkRestriction(IObject)}. This is likely determined by first
      * testing the type of the {@link IObject} and then that the
      * current user context has access to the given context.
-     * 
+     *
      * @param obj
      *            a non-null {@link IObject} instance.
-     * 
+     *
      * @return true if this {@link Policy} decides that a restriction should be
      *         placed on the passed context.
      */

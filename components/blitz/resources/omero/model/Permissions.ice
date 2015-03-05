@@ -42,8 +42,8 @@ module omero {
        * which strings MAY NOT be present in this field for
        * execution to be successful. For example, if an
        * [omero::model::Image] contains a "DOWNLOAD" restriction,
-       * then attempt to call [omero::api::RawFileStore::read] will
-       * fail with an [omero::SecurityViolation].
+       * then an attempt to call [omero::api::RawFileStore::read]
+       * will fail with an [omero::SecurityViolation].
        **/
       omero::api::StringSet extendedRestrictions;
 

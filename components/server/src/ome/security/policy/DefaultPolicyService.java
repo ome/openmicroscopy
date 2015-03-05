@@ -64,6 +64,11 @@ public class DefaultPolicyService
 
     @Override
     public boolean isRestricted(final String name, final IObject obj) {
+
+        if (name == null) {
+            return false;
+        }
+
         for (Policy check : policies.get(name))
             if (check.isRestricted(obj)) {
                 return true;
