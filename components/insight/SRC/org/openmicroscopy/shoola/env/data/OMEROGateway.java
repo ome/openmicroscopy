@@ -2232,6 +2232,10 @@ class OMEROGateway
 	{
 	    Connector c = getConnector(ctx, true, false);
 		try {
+		    ExperimenterData exp = ctx.getExperimenterData();
+		    if (exp != null) {
+	            c = c.getConnector(exp.getUserName());
+	        }
 		    IContainerPrx service = c.getPojosService();
 			return PojoMapper.asDataObjects(
 					service.loadContainerHierarchy(

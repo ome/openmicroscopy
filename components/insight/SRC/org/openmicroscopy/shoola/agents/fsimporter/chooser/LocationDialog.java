@@ -1575,7 +1575,8 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 		}
 		ExperimenterData exp = getSelectedUser();
-		List<DataNode> l = map.get(exp.getId());
+		List<DataNode> l = null;
+		if (exp != null) l = map.get(exp.getId());
 		if (CollectionUtils.isNotEmpty(l))
 		    sorted.addAll(sort(l));
 		//items are ordered by users.
@@ -1583,10 +1584,13 @@ class LocationDialog extends JDialog implements ActionListener,
 		ExperimenterData user;
 		for (int j = 0; j < usersBox.getItemCount(); j++) {
 			user = getUser(j);
-			if (user != null) {
+			if (user != null && exp != null) {
 				id = user.getId();
-				if (id != exp.getId())
-					sorted.addAll(sort(map.get(id)));
+				if (id != exp.getId()) {
+				    l = map.get(id);
+				    if (l != null)
+				        sorted.addAll(sort(l));
+				}
 			}
 		}
 		return sorted;
@@ -1705,7 +1709,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			storeCurrentSelections();
 			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
 					null, new ImportLocationDetails(newDataType,
-							getSelectedUser().getId()));
+							getSelectedUser()));
 		}
 	}
 

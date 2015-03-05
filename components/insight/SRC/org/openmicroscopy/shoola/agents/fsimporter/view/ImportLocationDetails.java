@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -21,6 +21,8 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
+import pojos.ExperimenterData;
+
 /** 
  * Provides a transfer object for import location information
  *
@@ -29,39 +31,48 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
  */
 public class ImportLocationDetails {
 
-	public static final int UNSPECIFIED_USER = -1;
-	
-	/** The datatype being loaded */
-	private int dataType;
-	
-	/** The id of the user to laod data for. */
-	private long userId = UNSPECIFIED_USER;
 
-	public ImportLocationDetails(int dataType)
-	{
-		this(dataType, UNSPECIFIED_USER);
-		
-	}
-	
-	public ImportLocationDetails(int dataType, long userId)
-	{
-		this.dataType = dataType;
-		this.userId = userId;
-	}
+    /** The datatype being loaded */
+    private int dataType;
 
-	/**
-	 * Returns the data type to load.
-	 * @return see above.
-	 */
-	public long getDataType() {
-		return dataType;
-	}
-	
-	/**
-	 * Returns the user id to identify the data to load data for.
-	 * @return see above.
-	 */
-	public long getUserId() {
-		return userId;
-	}
+    /** The id of the user to load data for. */
+    private ExperimenterData user;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param dataType The type of data to retrieve.
+     */
+    public ImportLocationDetails(int dataType)
+    {
+        this(dataType, null);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param dataType The type of data to retrieve.
+     * @param user The user to retrieve the data for or <code>null</code>.
+     */
+    public ImportLocationDetails(int dataType, ExperimenterData user)
+    {
+        this.dataType = dataType;
+        this.user = user;
+    }
+
+    /**
+     * Returns the data type to load.
+     * @return see above.
+     */
+    public long getDataType() {
+        return dataType;
+    }
+
+    /**
+     * Returns the user to identify the data to load data for.
+     * @return see above.
+     */
+    public ExperimenterData getUser() {
+        return user;
+    }
 }
