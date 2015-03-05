@@ -488,8 +488,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox = new JComboBox();
 		
 		usersBox = new JComboBox();
-		//Currently only for the administrator otherwise to do show the option
-		usersBox.setVisible(ImporterAgent.isAdministrator());
+		usersBox.setVisible(model.canImportAs());
 		
 		refreshButton = new JButton(TEXT_REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND);
