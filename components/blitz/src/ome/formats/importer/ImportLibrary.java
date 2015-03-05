@@ -279,6 +279,11 @@ public class ImportLibrary implements IObservable
                     ic.setTarget(store.getTarget(
                             Screen.class, config.targetId.get()));
                 }
+                else if (config.template.get() != null)
+                {
+                    ImportTemplate it = new ImportTemplate(config, ic);
+                    ic.setTarget(store.getTarget(it));
+                }
 
                 if (config.checksumAlgorithm.get() != null) {
                     ic.setChecksumAlgorithm(config.checksumAlgorithm.get());
@@ -306,6 +311,22 @@ public class ImportLibrary implements IObservable
             }
         }
         return true;
+    }
+
+    /**
+     * Temporary helper method to parse filename.
+     * THIS IS NOT YET FILE SYSTEM AGNOSTIC!
+     * This should be relocated to some service class.
+     *
+     */
+    private Map<String, String> getTargetMap(String template, String filename)
+    {
+        Map<String, String> targetNames = new HashMap<String, String>();
+        String[] parts = template.split(":");
+        targetNames.put("group", parts[0]);
+        targetNames.put("outer", parts[1]);
+        targetNames.put("inner", parts[2]);
+        return targetNames;
     }
 
     /**
