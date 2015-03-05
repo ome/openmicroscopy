@@ -57,6 +57,7 @@ public class SendEmailRequestTest extends AbstractServantTest {
                 int j = 0;
                 while (j < status.steps) {
                     try {
+                        status.currentStep = j;
                         rv.add(req.step(j));
                     } catch (Cancel c) {
                         throw c;

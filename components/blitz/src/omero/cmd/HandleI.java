@@ -433,6 +433,7 @@ public class HandleI implements _HandleOperations, IHandle,
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
                         throw helper.cancel(new ERR(), null, "not-ready");
                     }
+                    status.currentStep = j;
                     rv.add(req.step(j));
                 } catch (Cancel c) {
                     throw c;

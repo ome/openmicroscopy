@@ -32,6 +32,7 @@ import omero.callbacks
 import Ice
 import sys
 import os
+from time import time
 from omero.rtypes import rstring, rtime, rlist, rlong
 
 
@@ -755,6 +756,37 @@ class TestDelete(lib.ITest):
         assert not query.find("Dataset", d1.id.val)
         assert query.find("Dataset", d2.id.val)
         assert not query.find("Image", i.id.val)
+
+    def testStepsDuringDelete(self):
+        img = omero.model.ImageI()
+        img.name = rstring("delete test")
+        img.acquisitionDate = rtime(0)
+
+        img = self.client.sf.getUpdateService().saveAndReturnObject(img)
+
+        command = omero.cmd.Delete("/Image", img.id.val, None)
+        handle = self.client.sf.submit(command)
+
+        end_by = time() + 5
+
+        latest_step = 0
+
+        try:
+            while time() < end_by:
+                # still within five seconds of request submission
+                status = handle.getStatus()
+                # current step increases monotonically
+                assert latest_step <= status.currentStep
+                latest_step = status.currentStep
+                if status.stopTime > 0:
+                    # request stops after last step commenced
+                    assert status.currentStep == status.steps - 1
+                    return
+        except:
+            handle.close()
+
+        raise Exception('delete did not complete within five seconds')
+
 
 if __name__ == '__main__':
     if "TRACE" in os.environ:
