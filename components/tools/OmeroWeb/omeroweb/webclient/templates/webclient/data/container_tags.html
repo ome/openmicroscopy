@@ -317,10 +317,14 @@
                     }
                 })
                 .delegate("a", "dblclick", function(e, data) {
-                    if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
+                    var $this = $(this),
+                        obj_rel = $this.parent().attr('rel'),
+                        ob_id = $this.parent().attr('id'),
+                        iid;
+                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                        iid = ob_id.split("-")[1];
+                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/" + iid + "/"));
                     }
-                    $("#dataTree").jstree("open_node", this);
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
