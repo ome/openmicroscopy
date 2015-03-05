@@ -39,9 +39,7 @@ import java.util.Map.Entry;
 import javax.swing.JButton;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
@@ -85,10 +83,7 @@ public class AdvancedFinder
 	extends SearchComponent
 	implements Finder, PropertyChangeListener
 {
-	
-        /** URL which links to the search help website */
-        private static final String HELP_URL = "http://help.openmicroscopy.org/search.html";
-    
+
 	/** The default title of the notification message. */
 	private static final String TITLE = "Search";
 	
@@ -331,28 +326,6 @@ public class AdvancedFinder
 		UIUtilities.centerAndShow(dialog);
 	}
 
-	/**
-	 * Creates a list of controls to add to the searching component.
-	 * 
-	 * @return See above.
-	 */
-	private List<JButton> createControls()
-	{
-		List<JButton> list = new ArrayList<JButton>();
-		IconManager icons = IconManager.getInstance();
-		JButton button = new JButton(icons.getIcon(IconManager.TAG));
-		UIUtilities.unifiedButtonLookAndFeel(button);
-		button.setToolTipText("Load existing Tags to search by.");
-		button.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				loadTags();
-			}
-		});
-		list.add(button);
-		return list;
-	}
-	
 	/** Loads the tags. */
 	private void loadTags()
 	{
@@ -412,33 +385,23 @@ public class AdvancedFinder
 
 	/**
 	 * Brings up the <code>Help</code> dialog.
-	 * @see #help()
+	 * @see #help(String)
 	 */
-	protected void help()
+	protected void help(String url)
 	{
-		SearchHelp help = new SearchHelp(FinderFactory.getRefFrame(), HELP_URL);
-		UIUtilities.centerAndShow(help);
-		
-		if(help.hasError()) {
-		    showWebbrowserError(HELP_URL);
-		}
+	    if (CommonsLangUtils.isBlank(url)) return;
+	    SearchHelp help = new SearchHelp(FinderFactory.getRefFrame(), url);
+	    UIUtilities.centerAndShow(help);
+
+	    if (help.hasError()) {
+	        FinderFactory.getRegistry().getUserNotifier()
+	        .notifyError(
+	                "Could not open web browser",
+	                "Please open your web browser and go to page: "
+	                        + url);
+	    }
 	}
-	
-	/**
-	 * Pops up an UserNotifier indicating that the webbrowser
-	 * for the help website couldn't be opened
-	 * @param url
-	 */
-	public void showWebbrowserError(String url) {
-	    TreeViewerAgent
-            .getRegistry()
-            .getUserNotifier()
-            .notifyError(
-                    "Could not open web browser",
-                    "Please open your web browser and go to page: "
-                            + url);
-	}
-	
+
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#cancel()
@@ -535,9 +498,9 @@ public class AdvancedFinder
 			else available.add(tag);
 		}
 		SelectionWizard wizard = new SelectionWizard(
-				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
+				FinderFactory.getRefFrame(), 
 				available, selected, TagAnnotationData.class, false, 
-				DataBrowserAgent.getUserDetails());
+				FinderFactory.getUserDetails());
 		wizard.setGroups(groups);
 		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_48));
 		wizard.addPropertyChangeListener(this);
