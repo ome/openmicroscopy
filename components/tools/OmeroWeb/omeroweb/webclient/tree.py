@@ -196,7 +196,7 @@ def marshal_projects(conn, experimenter_id):
                left join project.datasetLinks as pdlink
                left join pdlink.child dataset
         %s
-        order by lower(project.name), lower(dataset.name)
+        order by lower(project.name), project.id, lower(dataset.name)
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:
