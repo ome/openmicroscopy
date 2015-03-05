@@ -112,7 +112,11 @@ public class MailSender {
         }
 
         try {
-            getMailUtil().sendEmail("", getSubjectPrefix() + subject, text,
+            String from = getMailUtil().getSender();
+            // FIXME: Misusing from as the TO for BCCs. If there's no workaround
+            // then likely we'll need to break this into multiple sendEmail
+            // calls. (multi-threading?)
+            getMailUtil().sendEmail(from, getSubjectPrefix() + subject, text,
                 false /* not html */, null, new ArrayList<String>(addresses));
         } catch (Exception e) {
             log.error("Failed to send emails: {} ", addresses, e);
