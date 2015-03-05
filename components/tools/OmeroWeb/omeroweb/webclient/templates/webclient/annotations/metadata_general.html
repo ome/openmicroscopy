@@ -566,7 +566,7 @@
            
             {% if manager.image %}            
 
-            {% with image=manager.image %}
+            {% with image=manager.image canDownload=manager.image.canDownload %}
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 
@@ -668,7 +668,7 @@
             
             {% if manager.well %}            
 
-            {% with image=manager.well.getWellSample.image omeTiffDisabled=True %}
+            {% with image=manager.well.getWellSample.image canDownload=manager.well.canDownload omeTiffDisabled=True %}
                 {% include "webclient/annotations/includes/toolbar.html" %}
             {% endwith %}
 

@@ -1337,6 +1337,7 @@ def batch_annotate(request, conn=None, **kwargs):
     if len(groupIds) > 1:
         context['annotationBlocked'] = "Can't add annotations because objects are in different groups"
         context['differentGroups'] = True       # E.g. don't run scripts etc
+    context['canDownload'] = manager.canDownload(objs)
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context

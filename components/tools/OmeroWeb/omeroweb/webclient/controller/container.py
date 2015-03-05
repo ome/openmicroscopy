@@ -203,6 +203,23 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
 
+    def canDownload(self, objDict=None):
+        """
+        Returns False if any of selected object cannot be downloaded
+        """
+        # As used in batch_annotate panel
+        if objDict is not None:
+            for key in objDict:
+                for o in objDict[key]:
+                    if hasattr(o, 'canDownload'):
+                        if not o.canDownload():
+                            return False
+            return True
+        # As used in metadata_general panel
+        else:
+            return self.image.canDownload() or \
+                self.well.canDownload() or self.plate.canDonwload()
+
     def listFigureScripts(self, objDict=None):
         """
         This configures all the Figure Scripts, setting their enabled status

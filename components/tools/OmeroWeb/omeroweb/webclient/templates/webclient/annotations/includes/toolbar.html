@@ -45,13 +45,14 @@
     <!-- This is used for 'batch annotate' panel with 'filesetCount'... -->
     <!-- ... and for single images -->
 
-    {% if image.canDownload or manager.well.canDownload or filesetInfo %}
+    {% if image or filesetInfo %}
     <!-- download options -->
     <div class="toolbar_dropdown">
         <button class="btn silver btn_download" title="Download Image as...">
             <span></span>
         </button>
         <ul class="dropdown">
+            {% if canDownload %}
             <!-- Here we handle a single image (in metadata general) - see below for multiple images (batch annotate) -->
             {% if image.getImportedFilesInfo.count %}
               {% with filesetInfo=image.getImportedFilesInfo %}
@@ -117,7 +118,8 @@
             </li>
             <li>{{ manager.}}
             {% endif %}
-
+            {% endif %}
+            
             {% if image %}
               <li>
                 <a href="{% url 'web_render_image_download' image.id %}" title="Download as JPEG">
@@ -162,7 +164,6 @@
         <span></span>
       </button>
     {% endif %}
-
 
       <button id="show_image_hierarchy" class="btn silver btn_hierarchy" title="Show parent Projects & Datasets">
         <span></span>
