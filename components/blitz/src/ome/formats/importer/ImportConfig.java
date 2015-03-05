@@ -113,6 +113,7 @@ public class ImportConfig {
     public final StrValue userSpecifiedDescription;
     public final StrValue targetClass;
     public final LongValue targetId;
+    public final StrValue template;
 
     public final BoolValue debug;
     public final BoolValue contOnError;
@@ -254,6 +255,7 @@ public class ImportConfig {
         userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
         targetId     = new LongValue("targetId", this, 0L);
+        template     = new StrValue("template", this);
 
         savedProject = new LongValue("savedProject", this, 0L);
         savedDataset = new LongValue("savedDataset", this, 0L);
