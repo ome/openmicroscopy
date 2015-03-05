@@ -4632,7 +4632,7 @@ class FileAnnotationWrapper (AnnotationWrapper, OmeroRestrictionWrapper):
 AnnotationWrapper._register(FileAnnotationWrapper)
 
 
-class _OriginalFileWrapper (BlitzObjectWrapper):
+class _OriginalFileWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     """
     omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
     """
@@ -5473,7 +5473,7 @@ def _letterGridLabel(i):
     return r
 
 
-class _PlateWrapper (BlitzObjectWrapper):
+class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
     """
     omero_model_PlateI class wrapper extends BlitzObjectWrapper.
     """
