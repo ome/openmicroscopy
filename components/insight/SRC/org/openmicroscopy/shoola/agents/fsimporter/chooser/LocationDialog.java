@@ -712,18 +712,14 @@ class LocationDialog extends JDialog implements ActionListener,
 			GroupData selectedGroup) {
 		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
 		if (user.getId() == loggedInUser.getId()) return true;
-		if (selectedGroup.getPermissions().getPermissionsLevel()
-		        == GroupData.PERMISSIONS_PRIVATE) {
-		    return ImporterAgent.isAdministrator();
-		}
-		boolean isGroupOwner = false;
+		if (ImporterAgent.isAdministrator()) return true;
 		Set<ExperimenterData> leaders =
 				(Set<ExperimenterData>) selectedGroup.getLeaders();
 		for (ExperimenterData leader : leaders) {
 			if (leader.getId() == loggedInUser.getId())
-				isGroupOwner = true;
+				return true;
 		}
-		return ImporterAgent.isAdministrator() || isGroupOwner;
+		return false;
 	}
 
 	/**
