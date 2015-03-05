@@ -26,6 +26,7 @@ import java.util.Set;
 
 import ome.model.IObject;
 import ome.tools.spring.OnContextRefreshedEventListener;
+import ome.util.Utils;
 
 import org.springframework.context.event.ContextRefreshedEvent;
 
@@ -116,7 +117,8 @@ public class DefaultPolicyService
         if (obj == null) {
             return true;
         }
-        return !types.contains(obj.getClass());
+        return !types.contains(
+                Utils.trueClass(obj.getClass())); // Fix javassist
     }
 
 }

@@ -945,3 +945,55 @@ class TestPermissionProjections(lib.ITest):
             assert not fixture.canRead
         else:
             self.assertPerms(self._cache[key], fixture)
+
+    # extended restrictions
+    # ==================================================
+
+    RESTR_OBJS = (
+        omero.model.PlateI(),
+        omero.model.WellI(),
+        omero.model.ImageI(),
+        omero.model.FileAnnotationI(),
+        # File tested by test_downloads.py
+    )
+    RESTR_NAMES = [x.__class__.__name__ for x in RESTR_OBJS]
+
+    @pytest.mark.parametrize("obj", RESTR_OBJS,
+                             ids=RESTR_NAMES)
+    def testExtendedRestrictions(self, obj):
+
+        # Check if this test should run
+        x = self.root.sf.getConfigService().getConfigValue(
+            "omero.policy.download")
+
+        if x != "repository":
+            pytest.skip("Not repository")
+
+        # Now set up a shared group
+        admin = self.sf.getAdminService()
+        uid = admin.getEventContext().userId
+        user = admin.getExperimenter(uid)
+        group = self.new_group(experimenters=[user],
+                               perms="rwr---")
+        self.add_experimenters(group, [user])
+        admin.getEventContext()  # Refresh
+        other = self.new_client(group=group)
+        self.set_context(self.client, group.id.val)
+
+        # Save the object and see that the restriction is off
+        if "name" in obj._field_info._fields:
+            obj.name = omero.rtypes.rstring("restr-test")
+        elif "Well" in obj.__class__.__name__:
+            obj.setPlate(omero.model.PlateI())
+            obj.getPlate().setName(
+                omero.rtypes.rstring("restr-test"))
+        obj = self.update.saveAndReturnObject(obj)
+        assert not obj.details.permissions.isRestricted(
+            omero.constants.permissions.DOWNLOAD)
+
+        # Now see if the restriction is on for the other user
+        obj = other.sf.getQueryService().get(
+            obj.__class__.__name__, obj.id.val)
+
+        assert obj.details.permissions.isRestricted(
+            omero.constants.permissions.DOWNLOAD)
