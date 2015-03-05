@@ -557,13 +557,16 @@ public class CommandLineImporter {
         LongOpt exclude =
                 new LongOpt("exclude", LongOpt.REQUIRED_ARGUMENT, null, 20);
 
+        LongOpt template =
+                new LongOpt("template", LongOpt.REQUIRED_ARGUMENT, null, 21);
+
         LongOpt qaBaseURL = new LongOpt(
-                "qa-baseurl", LongOpt.REQUIRED_ARGUMENT, null, 21);
+                "qa-baseurl", LongOpt.REQUIRED_ARGUMENT, null, 22);
 
         LongOpt noStatsInfo =
-                new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 22);
+                new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 23);
         LongOpt noUpgradeCheck =
-                new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 23);
+                new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -588,7 +591,7 @@ public class CommandLineImporter {
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
-                                exclude, noStatsInfo,
+                                exclude, template, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL,
                                 plateName, plateDescription,
                                 noThumbnailsDeprecated,
@@ -714,15 +717,19 @@ public class CommandLineImporter {
                 break;
             }
             case 21: {
-                config.qaBaseURL.set(g.getOptarg());
+                config.template.set(g.getOptarg());
                 break;
             }
             case 22: {
+                config.qaBaseURL.set(g.getOptarg());
+                break;
+            }
+            case 23: {
                 log.info("Skipping minimum/maximum computation");
                 config.noStatsInfo.set(true);
                 break;
             }
-            case 23: {
+            case 24: {
                 log.info("Disabling upgrade check");
                 config.checkUpgrade.set(false);
                 break;
