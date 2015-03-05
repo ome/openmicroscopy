@@ -62,6 +62,7 @@ import loci.formats.meta.MetadataStore;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.ImportEvent;
+import ome.formats.importer.ImportTemplate;
 import ome.formats.importer.util.ClientKeepAlive;
 import ome.formats.model.BlitzInstanceProvider;
 import ome.formats.model.ChannelProcessor;
@@ -1923,8 +1924,197 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * @param projectId the ID of the project
-     * @return the project
+     * Helper method to retrieve an object from iQuery
+     *
+     * @param <T>
+     * @param it
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> T getTarget(ImportTemplate it)
+    {
+        if (it.getScreen() == null && it.getDataset() == null)
+        {
+            throw new RuntimeException(String.format("No dataset or screen in template: %s",
+                        it.getTemplate()));
+        }
+
+        try
+        {
+            Map<Long, String> groupMap = mapUserGroups();
+            Long groupId = null;
+            if (it.getGroup() != null)
+            {
+                for (Entry<Long, String> entry : groupMap.entrySet())
+                {
+                    if (entry.getValue().equals(it.getGroup()))
+                    {
+                        groupId = entry.getKey();
+                        break;
+                    }
+                }
+                if (groupId == null) {
+                    throw new RuntimeException(String.format("Cannot resolve group for: %s",
+                                it.getTemplate()));
+                }
+            }
+
+            // Map<String, String> groups = new HashMap<String, String>();
+            // if (groupId == null)
+            // {
+            //     log.info("No group found.");
+            //     groups.put("omero.group", "-1");
+            // }
+            // else
+            // {
+            //     log.info("Group found, id = " + groupId.toString());
+            //     groups.put("omero.group", groupId.toString());
+            //     // setCurrentGroup(groupId.longValue());
+            // }
+
+            T obj = null;
+            ParametersI p = new ParametersI();
+            p.exp(rlong(eventContext.userId));
+            if (groupId != null)
+            {
+                p.grp(rlong(groupId.longValue()));
+            }
+            p.page(0, 10);
+
+            if (it.getScreen() != null)
+            {
+                p.add("screen", rstring(it.getScreen()));
+                List<IObject> screens = iQuery.findAllByQuery(
+                    "select distinct s from Screen as s where s.name = :screen", p);
+                if (screens.size() == 0)
+                {
+                    log.info("Creating screen");
+                    obj = (T) addScreen(it.getScreen(), "");
+                }
+                else
+                {
+                    obj = (T) screens.get(0);
+                    if (screens.size() > 1)
+                    {
+                        log.info(String.format("Multiple matching Screens found, using id=%d", obj.getId().getValue()));
+                    }
+                    log.info(String.format("%d Screens found:", screens.size()));
+                    for (IObject o : screens)
+                    {
+                        log.info(String.format("Screen id = %d", o.getId().getValue()));
+                        log.info(String.format("   owner id %d", o.getDetails().getOwner().getId().getValue()));
+                        log.info(String.format("   group id %d", o.getDetails().getGroup().getId().getValue()));
+                    }
+                }
+            }
+            else
+            {
+                log.info("Resolving project/dataset");
+                if (it.getProject() == null)
+                {
+                    log.info("Resolving dataset");
+                    p.add("dataset", rstring(it.getDataset()));
+                    List<IObject> datasets = iQuery.findAllByQuery(
+                        "select distinct d from Dataset as d where d.name = :dataset", p);
+
+                    if (datasets.size() == 0)
+                    {
+                        log.info("Creating dataset");
+                        Project project = new ProjectI();
+                        obj = (T) addDataset(it.getDataset(), "", project);
+                    }
+                    else
+                    {
+                        obj = (T) datasets.get(0);
+                        if (datasets.size() > 1)
+                        {
+                            log.info(String.format("Multiple matching Datasets found, using id=%d", obj.getId().getValue()));
+                        }
+                        log.info(String.format("%d Datasets found:", datasets.size()));
+                        for (IObject o : datasets)
+                        {
+                            log.info(String.format("Dataset id = %d", o.getId().getValue()));
+                            log.info(String.format("   owner id %d", o.getDetails().getOwner().getId().getValue()));
+                            log.info(String.format("   group id %d", o.getDetails().getGroup().getId().getValue()));
+                        }
+                    }
+                }
+                else
+                {
+                    log.info("Resolving project");
+                    p.add("project", rstring(it.getProject()));
+                    p.add("dataset", rstring(it.getDataset()));
+                    List<IObject> datasets = iQuery.findAllByQuery(
+                        "select distinct d from Project as p, "
+                        + "ProjectDatasetLink as pdl, "
+                        + "Dataset as d where p.id = pdl.parent "
+                        + "and pdl.child = d.id "
+                        + "and p.name = :project "
+                        + "and d.name = :dataset", p);
+
+                    if (datasets.size() > 0)
+                    {
+                        obj = (T) datasets.get(0);
+                        if (datasets.size() > 1)
+                        {
+                            log.info(String.format("Multiple matching Datasets found, using id=%d", obj.getId().getValue()));
+                        }
+                        log.info(String.format("%d Datasets found:", datasets.size()));
+                        for (IObject o : datasets)
+                        {
+                            log.info(String.format("Dataset id = %d", o.getId().getValue()));
+                            log.info(String.format("   owner id %d", o.getDetails().getOwner().getId().getValue()));
+                            log.info(String.format("   group id %d", o.getDetails().getGroup().getId().getValue()));
+                        }
+                    }
+                    else
+                    {
+                        p.add("project", rstring(it.getProject()));
+                        List<IObject> projects = iQuery.findAllByQuery(
+                            "select distinct p from Project as p where p.name = :project", p);
+                        Project project = null;
+                        if (projects.size() == 0)
+                        {
+                            log.info("Creating project and dataset");
+                            project = addProject(it.getProject(), "");
+                        }
+                        else
+                        {
+                            project = (Project) projects.get(0);
+                            if (projects.size() > 1)
+                            {
+                                log.info(String.format("Multiple matching Projects found, using id=%d", project.getId().getValue()));
+                            }
+                            log.info(String.format("%d Projects found:", projects.size()));
+                            for (IObject o : projects)
+                            {
+                                log.info(String.format("Projects id = %d", o.getId().getValue()));
+                                log.info(String.format("   owner id %d", o.getDetails().getOwner().getId().getValue()));
+                                log.info(String.format("   group id %d", o.getDetails().getGroup().getId().getValue()));
+                            }
+                        }
+                        obj = (T) addDataset(it.getDataset(), "", project);
+
+                    }
+                }
+            }
+            if (obj == null) {
+                throw new RuntimeException(String.format("Cannot resolve target for: %s",
+                            it.getFilename()));
+            }
+            long grpID = obj.getDetails().getGroup().getId().getValue();
+            setCurrentGroup(grpID);
+            return obj;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param projectId
+     * @return
      */
     public Project getProject(long projectId)
     {
