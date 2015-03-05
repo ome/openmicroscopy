@@ -25,7 +25,7 @@ import json
 
 from django.core.urlresolvers import reverse
 
-from weblibrary import IWebTest, _get_reponse
+from weblibrary import IWebTest, _get_response
 
 
 class TestImgDetail(IWebTest):
@@ -142,7 +142,7 @@ class TestImgDetail(IWebTest):
 # Helpers
 def _get_response_json(django_client, request_url,
                        query_string, status_code=200):
-    rsp = _get_reponse(django_client, request_url, query_string, status_code)
+    rsp = _get_response(django_client, request_url, query_string, status_code)
     # allow 'text/javascript'?
     # assert rsp.get('Content-Type') == 'application/json'
     return json.loads(rsp.content)

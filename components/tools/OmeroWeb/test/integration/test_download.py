@@ -21,107 +21,45 @@
 Test download of data.
 """
 
-# import omero
-# import omero.clients
 from omero.model import PlateI, WellI, WellSampleI
 from omero.rtypes import rstring
 
 import pytest
-import library as lib
-
-from urllib import urlencode
-from django.test import Client
 from django.core.urlresolvers import reverse
 
-
-@pytest.fixture(scope='function')
-def itest(request):
-    """
-    Returns a new L{test.integration.library.ITest} instance. With attached
-    finalizer so that pytest will clean it up.
-    """
-    o = lib.ITest()
-    o.setup_class()
-
-    def finalizer():
-        o.teardown_class()
-    request.addfinalizer(finalizer)
-    return o
+from weblibrary import IWebTest, _get_response
 
 
-@pytest.fixture(scope='function')
-def client(request, itest):
-    """Returns a new user client in a read-only group."""
-    # Use group read-only permissions (not private) by default
-    return itest.new_client(perms='rwr---')
-
-
-@pytest.fixture(scope='function')
-def django_client(request, client):
-    """Returns a logged in Django test client."""
-    django_client = Client(enforce_csrf_checks=True)
-    login_url = reverse('weblogin')
-
-    response = django_client.get(login_url)
-    assert response.status_code == 200
-    csrf_token = django_client.cookies['csrftoken'].value
-
-    data = {
-        'server': 1,
-        'username': client.getProperty('omero.user'),
-        'password': client.getProperty('omero.pass'),
-        'csrfmiddlewaretoken': csrf_token
-    }
-    response = django_client.post(login_url, data)
-    assert response.status_code == 302
-
-    def finalizer():
-        logout_url = reverse('weblogout')
-        data = {'csrfmiddlewaretoken': csrf_token}
-        response = django_client.post(logout_url, data=data)
-        assert response.status_code == 302
-    request.addfinalizer(finalizer)
-    return django_client
-
-
-@pytest.fixture(scope='function')
-def update_service(request, client):
-    """Returns a new OMERO update service."""
-    return client.getSession().getUpdateService()
-
-
-@pytest.fixture(scope='function')
-def image_well_plate(request, itest, update_service):
-    """
-    Returns a new OMERO Project, linked Dataset and linked Image populated
-    by an L{test.integration.library.ITest} instance with required fields
-    set.
-    """
-    plate = PlateI()
-    plate.name = rstring(itest.uuid())
-    plate = update_service.saveAndReturnObject(plate)
-
-    well = WellI()
-    well.plate = plate
-    well = update_service.saveAndReturnObject(well)
-
-    image = itest.new_image(name=itest.uuid())
-
-    ws = WellSampleI()
-    ws.image = image
-    ws.well = well
-    well.addWellSample(ws)
-    ws = update_service.saveAndReturnObject(ws)
-    return ws.image
-
-
-class TestDownload(object):
+class TestDownload(IWebTest):
     """
     Tests to check download is disabled where specified.
     """
 
-    def test_spw_download(self, itest, client, django_client,
-                          image_well_plate):
+    @pytest.fixture
+    def image_well_plate(self):
+        """
+        Returns a new OMERO Project, linked Dataset and linked Image populated
+        by an L{test.integration.library.ITest} instance with required fields
+        set.
+        """
+        plate = PlateI()
+        plate.name = rstring(self.uuid())
+        plate = self.update.saveAndReturnObject(plate)
+
+        well = WellI()
+        well.plate = plate
+        well = self.update.saveAndReturnObject(well)
+
+        image = self.new_image(name=self.uuid())
+
+        ws = WellSampleI()
+        ws.image = image
+        ws.well = well
+        well.addWellSample(ws)
+        ws = self.update.saveAndReturnObject(ws)
+        return ws.image
+
+    def test_spw_download(self, image_well_plate):
         """
         Download of an Image that is part of a plate should be disabled,
         and return a 404 response.
@@ -131,28 +69,18 @@ class TestDownload(object):
         # download archived files
         request_url = reverse('webgateway.views.archived_files')
         data = {
-            "image": image.id.val
-        }
-        _get_reponse(django_client, request_url, data, status_code=404)
+            "image": image.id.val}
+        _get_response(self.django_client, request_url, data, status_code=404)
 
-    def test_image_download(self, itest, client, django_client):
+    def test_image_download(self):
         """
         Download of archived files for a non-SPW Image.
         """
 
-        image = itest.importSingleImage(client=client)
+        image = self.importSingleImage()
 
         # download archived files
         request_url = reverse('webgateway.views.archived_files')
         data = {
-            "image": image.id.val
-        }
-        _get_reponse(django_client, request_url, data, status_code=200)
-
-
-# Helpers
-def _get_reponse(django_client, request_url, query_string, status_code=405):
-    query_string = urlencode(query_string.items())
-    response = django_client.get('%s?%s' % (request_url, query_string))
-    assert response.status_code == status_code
-    return response
+            "image": image.id.val}
+        _get_response(self.django_client, request_url, data, status_code=200)

@@ -8,61 +8,7 @@ import pytest
 
 from webgateway.webgateway_cache import FileCache, WebGatewayCache
 from webgateway.webgateway_cache import WebGatewayTempFile
-from webgateway import views
-import omero
-
-from django.test.client import Client
-from django.core.handlers.wsgi import WSGIRequest
-from django.conf import settings
-from django.http import QueryDict
-
-CLIENT_BASE = 'test'
-
-
-def fakeRequest(**kwargs):
-    def bogus_request(self, **request):
-        """
-        The master request method. Composes the environment dictionary
-        and passes to the handler, returning the result of the handler.
-        Assumes defaults for the query environment, which can be overridden
-        using the arguments to the request.
-        """
-        environ = {
-            'HTTP_COOKIE':      self.cookies,
-            'PATH_INFO':         '/',
-            'QUERY_STRING':      '',
-            'REQUEST_METHOD':    'GET',
-            'SCRIPT_NAME':       '',
-            'SERVER_NAME':       'testserver',
-            'SERVER_PORT':       '80',
-            'SERVER_PROTOCOL':   'HTTP/1.1',
-            'HTTP_HOST':         'localhost',
-            'wsgi.version':      (1, 0),
-            'wsgi.url_scheme':   'http',
-            'wsgi.errors':       None,  # self.errors,
-            'wsgi.multiprocess': True,
-            'wsgi.multithread':  False,
-            'wsgi.run_once':     False,
-            'wsgi.input':        None,
-        }
-        environ.update(self.defaults)
-        environ.update(request)
-        r = WSGIRequest(environ)
-        if 'django.contrib.sessions' in settings.INSTALLED_APPS:
-            engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
-        r.session = engine.SessionStore()
-        qlen = len(r.REQUEST.dicts)
-
-        def setQuery(**query):
-            r.REQUEST.dicts = r.REQUEST.dicts[:qlen]
-            q = QueryDict('', mutable=True)
-            q.update(query)
-            r.REQUEST.dicts += (q,)
-        r.setQuery = setQuery
-        return r
-    Client.bogus_request = bogus_request
-    c = Client()
-    return c.bogus_request(**kwargs)
+import omero.gateway
 
 
 class TestHelperObjects(object):
@@ -138,7 +84,7 @@ class TestFileCache(object):
         assert (self.cache.get('date/test/1') == '1',
                 'Key not properly cached')
         time.sleep(4)
-        assert 'date/test/1' in self.cache
+        assert self.cache.has_key('date/test/1')  # noqa
         assert (self.cache.get('date/test/1') == '1',
                 'Key got timedout and should not')
 
@@ -209,8 +155,8 @@ class TestFileCache(object):
         assert self.cache.get('date/test/2') == '2', 'Key not properly cached'
         assert self.cache.get('date/test/3') == '3', 'Key not properly cached'
         # check has_key
-        assert 'date/test/1' in self
-        assert 'date/test/bogus' not in self.cache
+        assert self.cache.has_key('date/test/1')  # noqa
+        assert not self.cache.has_key('date/test/bogus')  # noqa
         # assert wipe() nukes the whole thing
         assert self.cache._num_entries == 3
         self.cache.wipe()
@@ -445,40 +391,3 @@ class TestWebGatewayCache(object):
         assert self.wcache._json_cache._num_entries != 0
         self.wcache.clear()
         assert self.wcache._json_cache._num_entries == 0
-
-
-def testImageDataJson(gatewaywrapper, author_testimg):
-    iid = author_testimg.getId()
-    r = fakeRequest()
-    v = views.imageData_json(r, iid=iid, server_id=1,
-                             conn=gatewaywrapper.gateway, _internal=True)
-    assert isinstance(v, str)
-    assert '"width": 512' in v
-    assert '"split_channel":' in v
-    assert '"pixel_range": [-32768, 32767]' in v
-
-
-def testListChildrenJson(gatewaywrapper, author_testimg):
-    img = author_testimg
-    did = img.getParent().getId()
-    r = fakeRequest()
-    v = views.listImages_json(r, did=did, server_id=1,
-                              conn=gatewaywrapper.gateway, _internal=True)
-    assert isinstance(v, str)
-    assert '"id": %d,' % img.getId() in v
-    assert '"tiled: "' not in v
-    r.setQuery(tiled='1')
-    v = views.listImages_json(r, did=did, server_id=1,
-                              conn=gatewaywrapper.gateway, _internal=True)
-    assert isinstance(v, str)
-    assert '"id": %d,' % img.getId() in v
-    assert '"tiled": false' in v
-
-
-def testUserProxy(gatewaywrapper):
-    gatewaywrapper.loginAsAuthor()
-    user = gatewaywrapper.gateway.getUser()
-    assert user.isAdmin() is False
-    int(user.getId())
-    assert user.getName() == gatewaywrapper.AUTHOR.name
-    assert user.getFirstName() == gatewaywrapper.AUTHOR.firstname
