@@ -19,7 +19,7 @@ import ome.util.messages.InternalMessage;
  * {@link Experimenter}, {@link ExperimenterGroup}, or
  * {@link GroupExperimenterMap} is inserted or updated.
  * 
- * This is signals the {@link SessionManager} to update its cache.
+ * This signals the {@link SessionManager} to update its cache.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
