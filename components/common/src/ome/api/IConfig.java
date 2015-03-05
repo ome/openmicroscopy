@@ -9,6 +9,7 @@ package ome.api;
 
 // Java imports
 import java.util.Date;
+import java.util.Map;
 
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
@@ -113,6 +114,18 @@ public interface IConfig extends ServiceInterface {
      */
     String getConfigValue(@NotNull
     String key) throws ApiUsageException, SecurityViolation;
+
+    /**
+     * retrieve configuration values from the backend store which match the
+     * given regex. Any configuration value which would throw an exception
+     * on being loaded is omitted.
+     *
+     * @param keyRegex
+     *            The non-null regex of the desired configuration values
+     * @return a {@link Map} from the found keys to the linked values.
+     */
+    Map<String, String> getConfigValues(@NotNull
+    String keyRegex);
 
     /**
      * set a configuration value in the backend store. Permissions applied to

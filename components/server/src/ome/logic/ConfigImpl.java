@@ -14,7 +14,12 @@
 
 package ome.logic;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
@@ -216,6 +221,27 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
         }
 
         return getInternalValue(key);
+    }
+
+    @PermitAll
+    public Map<String, String> getConfigValues(String keyRegex) {
+        if (keyRegex == null) {
+            return Collections.emptyMap();
+        }
+
+        Pattern p = Pattern.compile(keyRegex);
+        Map<String, String> rv = new HashMap<String, String>();
+        Set<String> keys = prefs.getKeySet();
+        // Not resolving aliases since these come straight-from the prefs
+        for (String key : keys) {
+            if (p.matcher(key).find()) {
+                if (prefs.canRead(
+                        currentDetails.getCurrentEventContext(), key)) {
+                    rv.put(key, getInternalValue(key));
+                }
+            }
+        }
+        return rv;
     }
 
     public String getInternalValue(String key) {

@@ -12,6 +12,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -144,6 +145,10 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
         }
 
         return key;
+    }
+
+    public Set<String> getKeySet() {
+        return preferences.keySet();
     }
 
     public boolean checkDatabase(String key) {
