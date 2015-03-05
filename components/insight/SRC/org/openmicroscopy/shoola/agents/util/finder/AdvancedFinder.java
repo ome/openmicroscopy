@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.util.finder;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
@@ -36,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.JButton;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
@@ -110,25 +107,7 @@ public class AdvancedFinder
 	
 	/** The display mode e.g. Experimenter/Group.*/
 	private int displayMode;
-	
-	/**
-	 * Returns the name of the group corresponding to the security context.
-	 * 
-	 * @param ctx The context to handle.
-	 * @return See above
-	 */
-	private String getGroupName(SecurityContext ctx)
-	{
-		Iterator<GroupData> i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = i.next();
-			if (g.getId() == ctx.getGroupID())
-				return g.getName();
-		}
-		return null;
-	}
-	
+
 	/**
 	 * Determines the scope of the search.
 	 * 
@@ -178,66 +157,7 @@ public class AdvancedFinder
 				return null;
 		}
 	}
-	
-	/**
-	 * Creates and returns the list of users corresponding to the collection
-	 * of names.
-	 * 
-	 * @param names Collection of names to handle.
-	 * @return See above.
-	 */
-	private List<ExperimenterData> fillUsersList(List<Long> names)
-	{
-		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
-		if (names == null) return l;
-		Iterator i = names.iterator();
-		Long id;
-		ExperimenterData user;
-		while (i.hasNext()) {
-			id = (Long) i.next();
-			user = users.get(id);
-			if (user != null && !l.contains(user))
-				l.add(user);
-		}
-		return l;
-	}
-	
-	/**
-	 * Fills the passed lists depending on the specified context.
-	 * 
-	 * @param usersContext	The context.
-	 * @param toKeep		The users to consider.
-	 * @param toExclude		The users to exclude.
-	 */
-	private void fillUsersList(List<Integer> usersContext, 
-			List<ExperimenterData> toKeep, List<ExperimenterData> toExclude)
-	{
-		if (usersContext == null) {
-			toKeep.clear();
-			toExclude.clear();
-			return;
-		}
-		switch (usersContext.size()) {
-			case 2:
-				if (toKeep.size() >= 0)
-					toKeep.add(getUserDetails());
-				else {
-					toKeep.clear();
-					toExclude.clear();
-				}
-				break;
-			case 1:
-				if (usersContext.contains(SearchContext.CURRENT_USER)) {
-					toKeep.clear();
-					toExclude.clear();
-					toKeep.add(getUserDetails());
-				} else {
-					if (toKeep.size() == 0)
-					toExclude.add(getUserDetails());
-				}
-		}
-	}
-	
+
 	/**
 	 * Converts the UI context into a context to search for.
 	 * 
@@ -287,7 +207,8 @@ public class AdvancedFinder
 		SecurityContext secCtx;
 		
 		if (ctx.getSelectedGroup() == GroupContext.ALL_GROUPS_ID) {
-		    secCtx = new SecurityContext(getUserDetails().getGroupId());
+		    secCtx = new SecurityContext(
+		            FinderFactory.getUserDetails().getGroupId());
 		    searchContext.setGroupId(SearchParameters.ALL_GROUPS_ID);
 		}
 		else {
@@ -299,31 +220,6 @@ public class AdvancedFinder
 		loader.load();
 		state = Finder.SEARCH;
 		setSearchEnabled(true);
-	}
-	
-	/**
-	 * Returns the current user's details.
-	 * 
-	 * @return See above.
-	 */
-	private ExperimenterData getUserDetails()
-	{ 
-		return (ExperimenterData) FinderFactory.getRegistry().lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-	}
-	
-	/** Displays the widget allowing the select users. */
-	private void showUserSelection()
-	{
-		IconManager icons = IconManager.getInstance();
-		UserManagerDialog dialog = new UserManagerDialog(
-				FinderFactory.getRefFrame(), getUserDetails(), 
-				getUserDetails().getDefaultGroup(), null,
-				icons.getIcon(IconManager.OWNER),
-				icons.getIcon(IconManager.OWNER_48));
-		dialog.addPropertyChangeListener(this);
-		dialog.setDefaultSize();
-		UIUtilities.centerAndShow(dialog);
 	}
 
 	/** Loads the tags. */
