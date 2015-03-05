@@ -41,12 +41,19 @@ try
     % First create a rectangular shape.
     disp('Create rectangular shape');
     rectangle = createRectangle(0, 0, 10, 20);
+    rectangle.setFillColor(rint(hex2dec('7DFF0000')));    % 'aRGB' - 50% red
+    rectangle.setStrokeColor(rint(hex2dec('FF000000')));  % 'aRGB' - 100% black
+    rectangle.setTextValue(rstring('Rectangle'));
     % indicate on which plane to attach the shape
     rectangle = setShapeCoordinates(rectangle, 0, 0, 0);
+
     
     % Create an ellipse shape.
     disp('Create ellipsoidal shape');
     ellipse = createEllipse(10, 10, 10, 10);
+    ellipse.setFillColor(rint(hex2dec('7D0000FF')));    % 'aRGB' - 50% blue
+    ellipse.setStrokeColor(rint(hex2dec('FF000000')));  % 'aRGB' - 100% black
+    ellipse.setTextValue(rstring('Ellipse'));
     % indicate on which plane to attach the shape
     ellipse = setShapeCoordinates(ellipse, 0, 1, 0);
     
@@ -106,13 +113,7 @@ try
             roi = session.getUpdateService().saveAndReturnObject(roi);
         end
     end
-    
-    % Delete ROI
-    deleteCommand = omero.cmd.Delete('/Roi', roi.getId().getValue(), []);
-    doAll = omero.cmd.DoAll();
-    doAll.requests = toJavaList(deleteCommand);
-    session.submit(doAll);
-    
+
     % Create a mask covering half of the image
     pixels = image.getPrimaryPixels();
     sizeX = pixels.getSizeX().getValue();
