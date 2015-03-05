@@ -128,6 +128,16 @@ public interface IConfig extends ServiceInterface {
     String keyRegex);
 
     /**
+     * reads the etc/omero.properties file and returns all the key/value
+     * pairs that are found there. Since this file is not to be edited
+     * its assumed that these values are in the public domain and so
+     * there's no need to protect them.
+     *
+     * @return a {@link Map} from the found keys to the linked values.
+     */
+    Map<String, String> getConfigDefaults();
+
+    /**
      * set a configuration value in the backend store. Permissions applied to
      * the configuration value may cause a {@link SecurityViolation} to be
      * thrown. If the value is null or empty, then the configuration will be

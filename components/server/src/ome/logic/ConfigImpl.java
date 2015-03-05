@@ -15,10 +15,13 @@
 package ome.logic;
 
 import java.io.File;
+import java.io.FileReader;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -242,6 +245,27 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
             }
         }
         return rv;
+    }
+
+    @PermitAll
+    public Map<String, String> getConfigDefaults() {
+        File etc = new File("etc");
+        File omero = new File(etc, "omero.properties");
+        Properties p = new Properties();
+        Map<String, String> rv = new HashMap<String, String>();
+        try {
+            FileReader r = new FileReader(omero);
+            p.load(r);
+            for (Entry<Object, Object> entry : p.entrySet()) {
+                    rv.put(entry.getKey().toString(),
+                            entry.getValue().toString());
+            }
+            return rv;
+        } catch (Exception e) {
+            InternalException ie = new InternalException(e.getMessage());
+            ie.initCause(e);
+            throw ie;
+        }
     }
 
     public String getInternalValue(String key) {

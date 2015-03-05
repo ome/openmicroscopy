@@ -36,6 +36,7 @@ class TestConfig(lib.ITest):
         (".*router.*", ("omero.router.insecure",)),
         ("omero.db", ("omero.db.authority",)),
     )
+
     @pytest.mark.parametrize("data", EXPECTS)
     def testValuesRegex(self, data):
         regex, contains = data
@@ -43,3 +44,12 @@ class TestConfig(lib.ITest):
         rv = cfg.getConfigValues(regex)
         for c in contains:
             assert c in rv
+
+    def testDefaults(self):
+        cfg = self.sf.getConfigService()
+        defs = cfg.getConfigDefaults()
+        for x in (
+            "omero.version",
+            "omero.db.name",
+        ):
+            assert x in defs

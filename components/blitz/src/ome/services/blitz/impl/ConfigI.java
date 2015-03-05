@@ -12,6 +12,7 @@ import ome.api.IConfig;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_IConfig_getConfigValue;
+import omero.api.AMD_IConfig_getConfigDefaults;
 import omero.api.AMD_IConfig_getConfigValues;
 import omero.api.AMD_IConfig_getDatabaseTime;
 import omero.api.AMD_IConfig_getDatabaseUuid;
@@ -46,6 +47,11 @@ public class ConfigI extends AbstractAmdServant implements _IConfigOperations {
     public void getConfigValues_async(AMD_IConfig_getConfigValues __cb,
             String keyRegex, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, keyRegex);
+    }
+
+    public void getConfigDefaults_async(AMD_IConfig_getConfigDefaults __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
     }
 
     public void getDatabaseTime_async(AMD_IConfig_getDatabaseTime __cb,
