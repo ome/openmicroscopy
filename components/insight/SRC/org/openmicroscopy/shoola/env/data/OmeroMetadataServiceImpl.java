@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.Request;
 import omero.model.Annotation;
@@ -62,6 +63,7 @@ import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.Pressure;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
@@ -323,15 +325,37 @@ class OmeroMetadataServiceImpl
 				toUpdate.add(label);
 			}
 			label.setName(omero.rtypes.rstring(data.getLabelName()));
-			Length o = data.getPositionX(UnitsFactory.StageLabel_X);
-			if (o != null)
-				label.setPositionX(o);
-			o = data.getPositionY(UnitsFactory.StageLabel_Y);
-			if (o != null)
-				label.setPositionY(o);
-			o = data.getPositionZ(UnitsFactory.StageLabel_Z);
-			if (o != null)
-				label.setPositionZ(o);
+            Length o = null;
+            try {
+                o = data.getPositionX(UnitsFactory.StageLabel_X);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get X position in "
+                                + UnitsFactory.StageLabel_X);
+            }
+            if (o != null)
+                label.setPositionX(o);
+            try {
+                o = data.getPositionY(UnitsFactory.StageLabel_Y);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get Y position in "
+                                + UnitsFactory.StageLabel_Y);
+            }
+            if (o != null)
+                label.setPositionY(o);
+            try {
+                o = data.getPositionZ(UnitsFactory.StageLabel_Z);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get Z position in "
+                                + UnitsFactory.StageLabel_Z);
+            }
+            if (o != null)
+                label.setPositionZ(o);
 		}
 		//Environment
 		if (data.isImagingEnvironmentDirty()) {
@@ -345,12 +369,30 @@ class OmeroMetadataServiceImpl
 						ImagingEnvironment.class.getName(), id);
 				toUpdate.add(condition);
 			}
-			condition.setAirPressure(data.getAirPressure(UnitsFactory.ImagingEnvironment_AirPressure));
+            try {
+                Pressure press = data
+                        .getAirPressure(UnitsFactory.ImagingEnvironment_AirPressure);
+                if (press != null)
+                    condition.setAirPressure(press);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get pressure in "
+                                + UnitsFactory.ImagingEnvironment_AirPressure);
+            }
 			condition.setHumidity(omero.rtypes.rdouble(
 					data.getHumidity()));
-			Temperature o = data.getTemperature(UnitsFactory.ImagingEnvironment_Temperature);
-			if (o != null)
-				condition.setTemperature(o);
+            try {
+                Temperature o = data
+                        .getTemperature(UnitsFactory.ImagingEnvironment_Temperature);
+                if (o != null)
+                    condition.setTemperature(o);
+            } catch (BigResult e) {
+                context.getLogger().warn(
+                        this,
+                        "Could not get temperature in "
+                                + UnitsFactory.ImagingEnvironment_Temperature);
+            }
 			condition.setCo2percent(omero.rtypes.rdouble(
 					data.getCo2Percent()));
 		}

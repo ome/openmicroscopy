@@ -35,1999 +35,2010 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsPressure
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.conversions import Add  # nopep8
+from omero.conversions import Int  # nopep8
+from omero.conversions import Mul  # nopep8
+from omero.conversions import Pow  # nopep8
+from omero.conversions import Rat  # nopep8
+from omero.conversions import Sym  # nopep8
 
 
 class PressureI(_omero_model.Pressure, UnitBase):
 
+    try:
+        UNIT_VALUES = sorted(UnitsPressure._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UNIT_VALUES = [x for x in sorted(UnitsPressure._names)]
+        UNIT_VALUES = [getattr(UnitsPressure, x) for x in UNIT_VALUES]
     CONVERSIONS = dict()
-    CONVERSIONS["ATMOSPHERE:ATTOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "ATTOPASCAL")
-    CONVERSIONS["ATMOSPHERE:BAR"] = \
-        lambda: noconversion("ATMOSPHERE", "BAR")
-    CONVERSIONS["ATMOSPHERE:CENTIBAR"] = \
-        lambda: noconversion("ATMOSPHERE", "CENTIBAR")
-    CONVERSIONS["ATMOSPHERE:CENTIPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "CENTIPASCAL")
-    CONVERSIONS["ATMOSPHERE:DECAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "DECAPASCAL")
-    CONVERSIONS["ATMOSPHERE:DECIBAR"] = \
-        lambda: noconversion("ATMOSPHERE", "DECIBAR")
-    CONVERSIONS["ATMOSPHERE:DECIPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "DECIPASCAL")
-    CONVERSIONS["ATMOSPHERE:EXAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "EXAPASCAL")
-    CONVERSIONS["ATMOSPHERE:FEMTOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "FEMTOPASCAL")
-    CONVERSIONS["ATMOSPHERE:GIGAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "GIGAPASCAL")
-    CONVERSIONS["ATMOSPHERE:HECTOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "HECTOPASCAL")
-    CONVERSIONS["ATMOSPHERE:KILOBAR"] = \
-        lambda: noconversion("ATMOSPHERE", "KILOBAR")
-    CONVERSIONS["ATMOSPHERE:KILOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "KILOPASCAL")
-    CONVERSIONS["ATMOSPHERE:MEGABAR"] = \
-        lambda: noconversion("ATMOSPHERE", "MEGABAR")
-    CONVERSIONS["ATMOSPHERE:MEGAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "MEGAPASCAL")
-    CONVERSIONS["ATMOSPHERE:MICROPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "MICROPASCAL")
-    CONVERSIONS["ATMOSPHERE:MILLIBAR"] = \
-        lambda: noconversion("ATMOSPHERE", "MILLIBAR")
-    CONVERSIONS["ATMOSPHERE:MILLIPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "MILLIPASCAL")
-    CONVERSIONS["ATMOSPHERE:MILLITORR"] = \
-        lambda: noconversion("ATMOSPHERE", "MILLITORR")
-    CONVERSIONS["ATMOSPHERE:MMHG"] = \
-        lambda: noconversion("ATMOSPHERE", "MMHG")
-    CONVERSIONS["ATMOSPHERE:NANOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "NANOPASCAL")
-    CONVERSIONS["ATMOSPHERE:PETAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "PETAPASCAL")
-    CONVERSIONS["ATMOSPHERE:PICOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "PICOPASCAL")
-    CONVERSIONS["ATMOSPHERE:PSI"] = \
-        lambda: noconversion("ATMOSPHERE", "PSI")
-    CONVERSIONS["ATMOSPHERE:Pascal"] = \
-        lambda: noconversion("ATMOSPHERE", "Pascal")
-    CONVERSIONS["ATMOSPHERE:TERAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "TERAPASCAL")
-    CONVERSIONS["ATMOSPHERE:TORR"] = \
-        lambda: noconversion("ATMOSPHERE", "TORR")
-    CONVERSIONS["ATMOSPHERE:YOCTOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "YOCTOPASCAL")
-    CONVERSIONS["ATMOSPHERE:YOTTAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "YOTTAPASCAL")
-    CONVERSIONS["ATMOSPHERE:ZEPTOPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "ZEPTOPASCAL")
-    CONVERSIONS["ATMOSPHERE:ZETTAPASCAL"] = \
-        lambda: noconversion("ATMOSPHERE", "ZETTAPASCAL")
-    CONVERSIONS["ATTOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("ATTOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["ATTOPASCAL:BAR"] = \
-        lambda: noconversion("ATTOPASCAL", "BAR")
-    CONVERSIONS["ATTOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("ATTOPASCAL", "CENTIBAR")
-    CONVERSIONS["ATTOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["ATTOPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["ATTOPASCAL:DECIBAR"] = \
-        lambda: noconversion("ATTOPASCAL", "DECIBAR")
-    CONVERSIONS["ATTOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["ATTOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["ATTOPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ATTOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["ATTOPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ATTOPASCAL:KILOBAR"] = \
-        lambda: noconversion("ATTOPASCAL", "KILOBAR")
-    CONVERSIONS["ATTOPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ATTOPASCAL:MEGABAR"] = \
-        lambda: noconversion("ATTOPASCAL", "MEGABAR")
-    CONVERSIONS["ATTOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ATTOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ATTOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("ATTOPASCAL", "MILLIBAR")
-    CONVERSIONS["ATTOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["ATTOPASCAL:MILLITORR"] = \
-        lambda: noconversion("ATTOPASCAL", "MILLITORR")
-    CONVERSIONS["ATTOPASCAL:MMHG"] = \
-        lambda: noconversion("ATTOPASCAL", "MMHG")
-    CONVERSIONS["ATTOPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ATTOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["ATTOPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ATTOPASCAL:PSI"] = \
-        lambda: noconversion("ATTOPASCAL", "PSI")
-    CONVERSIONS["ATTOPASCAL:Pascal"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ATTOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["ATTOPASCAL:TORR"] = \
-        lambda: noconversion("ATTOPASCAL", "TORR")
-    CONVERSIONS["ATTOPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ATTOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["ATTOPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ATTOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["BAR:ATMOSPHERE"] = \
-        lambda: noconversion("BAR", "ATMOSPHERE")
-    CONVERSIONS["BAR:ATTOPASCAL"] = \
-        lambda: noconversion("BAR", "ATTOPASCAL")
-    CONVERSIONS["BAR:CENTIBAR"] = \
-        lambda: noconversion("BAR", "CENTIBAR")
-    CONVERSIONS["BAR:CENTIPASCAL"] = \
-        lambda: noconversion("BAR", "CENTIPASCAL")
-    CONVERSIONS["BAR:DECAPASCAL"] = \
-        lambda: noconversion("BAR", "DECAPASCAL")
-    CONVERSIONS["BAR:DECIBAR"] = \
-        lambda: noconversion("BAR", "DECIBAR")
-    CONVERSIONS["BAR:DECIPASCAL"] = \
-        lambda: noconversion("BAR", "DECIPASCAL")
-    CONVERSIONS["BAR:EXAPASCAL"] = \
-        lambda: noconversion("BAR", "EXAPASCAL")
-    CONVERSIONS["BAR:FEMTOPASCAL"] = \
-        lambda: noconversion("BAR", "FEMTOPASCAL")
-    CONVERSIONS["BAR:GIGAPASCAL"] = \
-        lambda: noconversion("BAR", "GIGAPASCAL")
-    CONVERSIONS["BAR:HECTOPASCAL"] = \
-        lambda: noconversion("BAR", "HECTOPASCAL")
-    CONVERSIONS["BAR:KILOBAR"] = \
-        lambda: noconversion("BAR", "KILOBAR")
-    CONVERSIONS["BAR:KILOPASCAL"] = \
-        lambda: noconversion("BAR", "KILOPASCAL")
-    CONVERSIONS["BAR:MEGABAR"] = \
-        lambda: noconversion("BAR", "MEGABAR")
-    CONVERSIONS["BAR:MEGAPASCAL"] = \
-        lambda: noconversion("BAR", "MEGAPASCAL")
-    CONVERSIONS["BAR:MICROPASCAL"] = \
-        lambda: noconversion("BAR", "MICROPASCAL")
-    CONVERSIONS["BAR:MILLIBAR"] = \
-        lambda: noconversion("BAR", "MILLIBAR")
-    CONVERSIONS["BAR:MILLIPASCAL"] = \
-        lambda: noconversion("BAR", "MILLIPASCAL")
-    CONVERSIONS["BAR:MILLITORR"] = \
-        lambda: noconversion("BAR", "MILLITORR")
-    CONVERSIONS["BAR:MMHG"] = \
-        lambda: noconversion("BAR", "MMHG")
-    CONVERSIONS["BAR:NANOPASCAL"] = \
-        lambda: noconversion("BAR", "NANOPASCAL")
-    CONVERSIONS["BAR:PETAPASCAL"] = \
-        lambda: noconversion("BAR", "PETAPASCAL")
-    CONVERSIONS["BAR:PICOPASCAL"] = \
-        lambda: noconversion("BAR", "PICOPASCAL")
-    CONVERSIONS["BAR:PSI"] = \
-        lambda: noconversion("BAR", "PSI")
-    CONVERSIONS["BAR:Pascal"] = \
-        lambda: noconversion("BAR", "Pascal")
-    CONVERSIONS["BAR:TERAPASCAL"] = \
-        lambda: noconversion("BAR", "TERAPASCAL")
-    CONVERSIONS["BAR:TORR"] = \
-        lambda: noconversion("BAR", "TORR")
-    CONVERSIONS["BAR:YOCTOPASCAL"] = \
-        lambda: noconversion("BAR", "YOCTOPASCAL")
-    CONVERSIONS["BAR:YOTTAPASCAL"] = \
-        lambda: noconversion("BAR", "YOTTAPASCAL")
-    CONVERSIONS["BAR:ZEPTOPASCAL"] = \
-        lambda: noconversion("BAR", "ZEPTOPASCAL")
-    CONVERSIONS["BAR:ZETTAPASCAL"] = \
-        lambda: noconversion("BAR", "ZETTAPASCAL")
-    CONVERSIONS["CENTIBAR:ATMOSPHERE"] = \
-        lambda: noconversion("CENTIBAR", "ATMOSPHERE")
-    CONVERSIONS["CENTIBAR:ATTOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "ATTOPASCAL")
-    CONVERSIONS["CENTIBAR:BAR"] = \
-        lambda: noconversion("CENTIBAR", "BAR")
-    CONVERSIONS["CENTIBAR:CENTIPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "CENTIPASCAL")
-    CONVERSIONS["CENTIBAR:DECAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "DECAPASCAL")
-    CONVERSIONS["CENTIBAR:DECIBAR"] = \
-        lambda: noconversion("CENTIBAR", "DECIBAR")
-    CONVERSIONS["CENTIBAR:DECIPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "DECIPASCAL")
-    CONVERSIONS["CENTIBAR:EXAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "EXAPASCAL")
-    CONVERSIONS["CENTIBAR:FEMTOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "FEMTOPASCAL")
-    CONVERSIONS["CENTIBAR:GIGAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "GIGAPASCAL")
-    CONVERSIONS["CENTIBAR:HECTOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "HECTOPASCAL")
-    CONVERSIONS["CENTIBAR:KILOBAR"] = \
-        lambda: noconversion("CENTIBAR", "KILOBAR")
-    CONVERSIONS["CENTIBAR:KILOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "KILOPASCAL")
-    CONVERSIONS["CENTIBAR:MEGABAR"] = \
-        lambda: noconversion("CENTIBAR", "MEGABAR")
-    CONVERSIONS["CENTIBAR:MEGAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "MEGAPASCAL")
-    CONVERSIONS["CENTIBAR:MICROPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "MICROPASCAL")
-    CONVERSIONS["CENTIBAR:MILLIBAR"] = \
-        lambda: noconversion("CENTIBAR", "MILLIBAR")
-    CONVERSIONS["CENTIBAR:MILLIPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "MILLIPASCAL")
-    CONVERSIONS["CENTIBAR:MILLITORR"] = \
-        lambda: noconversion("CENTIBAR", "MILLITORR")
-    CONVERSIONS["CENTIBAR:MMHG"] = \
-        lambda: noconversion("CENTIBAR", "MMHG")
-    CONVERSIONS["CENTIBAR:NANOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "NANOPASCAL")
-    CONVERSIONS["CENTIBAR:PETAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "PETAPASCAL")
-    CONVERSIONS["CENTIBAR:PICOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "PICOPASCAL")
-    CONVERSIONS["CENTIBAR:PSI"] = \
-        lambda: noconversion("CENTIBAR", "PSI")
-    CONVERSIONS["CENTIBAR:Pascal"] = \
-        lambda: noconversion("CENTIBAR", "Pascal")
-    CONVERSIONS["CENTIBAR:TERAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "TERAPASCAL")
-    CONVERSIONS["CENTIBAR:TORR"] = \
-        lambda: noconversion("CENTIBAR", "TORR")
-    CONVERSIONS["CENTIBAR:YOCTOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "YOCTOPASCAL")
-    CONVERSIONS["CENTIBAR:YOTTAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "YOTTAPASCAL")
-    CONVERSIONS["CENTIBAR:ZEPTOPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "ZEPTOPASCAL")
-    CONVERSIONS["CENTIBAR:ZETTAPASCAL"] = \
-        lambda: noconversion("CENTIBAR", "ZETTAPASCAL")
-    CONVERSIONS["CENTIPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("CENTIPASCAL", "ATMOSPHERE")
-    CONVERSIONS["CENTIPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["CENTIPASCAL:BAR"] = \
-        lambda: noconversion("CENTIPASCAL", "BAR")
-    CONVERSIONS["CENTIPASCAL:CENTIBAR"] = \
-        lambda: noconversion("CENTIPASCAL", "CENTIBAR")
-    CONVERSIONS["CENTIPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["CENTIPASCAL:DECIBAR"] = \
-        lambda: noconversion("CENTIPASCAL", "DECIBAR")
-    CONVERSIONS["CENTIPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["CENTIPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["CENTIPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["CENTIPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["CENTIPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["CENTIPASCAL:KILOBAR"] = \
-        lambda: noconversion("CENTIPASCAL", "KILOBAR")
-    CONVERSIONS["CENTIPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["CENTIPASCAL:MEGABAR"] = \
-        lambda: noconversion("CENTIPASCAL", "MEGABAR")
-    CONVERSIONS["CENTIPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["CENTIPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["CENTIPASCAL:MILLIBAR"] = \
-        lambda: noconversion("CENTIPASCAL", "MILLIBAR")
-    CONVERSIONS["CENTIPASCAL:MILLIPASCAL"] = \
-        lambda value: 10 * value
-    CONVERSIONS["CENTIPASCAL:MILLITORR"] = \
-        lambda: noconversion("CENTIPASCAL", "MILLITORR")
-    CONVERSIONS["CENTIPASCAL:MMHG"] = \
-        lambda: noconversion("CENTIPASCAL", "MMHG")
-    CONVERSIONS["CENTIPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["CENTIPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["CENTIPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["CENTIPASCAL:PSI"] = \
-        lambda: noconversion("CENTIPASCAL", "PSI")
-    CONVERSIONS["CENTIPASCAL:Pascal"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["CENTIPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["CENTIPASCAL:TORR"] = \
-        lambda: noconversion("CENTIPASCAL", "TORR")
-    CONVERSIONS["CENTIPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["CENTIPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -26) * value
-    CONVERSIONS["CENTIPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["CENTIPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DECAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("DECAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["DECAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["DECAPASCAL:BAR"] = \
-        lambda: noconversion("DECAPASCAL", "BAR")
-    CONVERSIONS["DECAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("DECAPASCAL", "CENTIBAR")
-    CONVERSIONS["DECAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["DECAPASCAL:DECIBAR"] = \
-        lambda: noconversion("DECAPASCAL", "DECIBAR")
-    CONVERSIONS["DECAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DECAPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["DECAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["DECAPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["DECAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DECAPASCAL:KILOBAR"] = \
-        lambda: noconversion("DECAPASCAL", "KILOBAR")
-    CONVERSIONS["DECAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DECAPASCAL:MEGABAR"] = \
-        lambda: noconversion("DECAPASCAL", "MEGABAR")
-    CONVERSIONS["DECAPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["DECAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["DECAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("DECAPASCAL", "MILLIBAR")
-    CONVERSIONS["DECAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["DECAPASCAL:MILLITORR"] = \
-        lambda: noconversion("DECAPASCAL", "MILLITORR")
-    CONVERSIONS["DECAPASCAL:MMHG"] = \
-        lambda: noconversion("DECAPASCAL", "MMHG")
-    CONVERSIONS["DECAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["DECAPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["DECAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["DECAPASCAL:PSI"] = \
-        lambda: noconversion("DECAPASCAL", "PSI")
-    CONVERSIONS["DECAPASCAL:Pascal"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DECAPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["DECAPASCAL:TORR"] = \
-        lambda: noconversion("DECAPASCAL", "TORR")
-    CONVERSIONS["DECAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["DECAPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["DECAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["DECAPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["DECIBAR:ATMOSPHERE"] = \
-        lambda: noconversion("DECIBAR", "ATMOSPHERE")
-    CONVERSIONS["DECIBAR:ATTOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "ATTOPASCAL")
-    CONVERSIONS["DECIBAR:BAR"] = \
-        lambda: noconversion("DECIBAR", "BAR")
-    CONVERSIONS["DECIBAR:CENTIBAR"] = \
-        lambda: noconversion("DECIBAR", "CENTIBAR")
-    CONVERSIONS["DECIBAR:CENTIPASCAL"] = \
-        lambda: noconversion("DECIBAR", "CENTIPASCAL")
-    CONVERSIONS["DECIBAR:DECAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "DECAPASCAL")
-    CONVERSIONS["DECIBAR:DECIPASCAL"] = \
-        lambda: noconversion("DECIBAR", "DECIPASCAL")
-    CONVERSIONS["DECIBAR:EXAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "EXAPASCAL")
-    CONVERSIONS["DECIBAR:FEMTOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "FEMTOPASCAL")
-    CONVERSIONS["DECIBAR:GIGAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "GIGAPASCAL")
-    CONVERSIONS["DECIBAR:HECTOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "HECTOPASCAL")
-    CONVERSIONS["DECIBAR:KILOBAR"] = \
-        lambda: noconversion("DECIBAR", "KILOBAR")
-    CONVERSIONS["DECIBAR:KILOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "KILOPASCAL")
-    CONVERSIONS["DECIBAR:MEGABAR"] = \
-        lambda: noconversion("DECIBAR", "MEGABAR")
-    CONVERSIONS["DECIBAR:MEGAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "MEGAPASCAL")
-    CONVERSIONS["DECIBAR:MICROPASCAL"] = \
-        lambda: noconversion("DECIBAR", "MICROPASCAL")
-    CONVERSIONS["DECIBAR:MILLIBAR"] = \
-        lambda: noconversion("DECIBAR", "MILLIBAR")
-    CONVERSIONS["DECIBAR:MILLIPASCAL"] = \
-        lambda: noconversion("DECIBAR", "MILLIPASCAL")
-    CONVERSIONS["DECIBAR:MILLITORR"] = \
-        lambda: noconversion("DECIBAR", "MILLITORR")
-    CONVERSIONS["DECIBAR:MMHG"] = \
-        lambda: noconversion("DECIBAR", "MMHG")
-    CONVERSIONS["DECIBAR:NANOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "NANOPASCAL")
-    CONVERSIONS["DECIBAR:PETAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "PETAPASCAL")
-    CONVERSIONS["DECIBAR:PICOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "PICOPASCAL")
-    CONVERSIONS["DECIBAR:PSI"] = \
-        lambda: noconversion("DECIBAR", "PSI")
-    CONVERSIONS["DECIBAR:Pascal"] = \
-        lambda: noconversion("DECIBAR", "Pascal")
-    CONVERSIONS["DECIBAR:TERAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "TERAPASCAL")
-    CONVERSIONS["DECIBAR:TORR"] = \
-        lambda: noconversion("DECIBAR", "TORR")
-    CONVERSIONS["DECIBAR:YOCTOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "YOCTOPASCAL")
-    CONVERSIONS["DECIBAR:YOTTAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "YOTTAPASCAL")
-    CONVERSIONS["DECIBAR:ZEPTOPASCAL"] = \
-        lambda: noconversion("DECIBAR", "ZEPTOPASCAL")
-    CONVERSIONS["DECIBAR:ZETTAPASCAL"] = \
-        lambda: noconversion("DECIBAR", "ZETTAPASCAL")
-    CONVERSIONS["DECIPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("DECIPASCAL", "ATMOSPHERE")
-    CONVERSIONS["DECIPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["DECIPASCAL:BAR"] = \
-        lambda: noconversion("DECIPASCAL", "BAR")
-    CONVERSIONS["DECIPASCAL:CENTIBAR"] = \
-        lambda: noconversion("DECIPASCAL", "CENTIBAR")
-    CONVERSIONS["DECIPASCAL:CENTIPASCAL"] = \
-        lambda value: 10 * value
-    CONVERSIONS["DECIPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["DECIPASCAL:DECIBAR"] = \
-        lambda: noconversion("DECIPASCAL", "DECIBAR")
-    CONVERSIONS["DECIPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["DECIPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["DECIPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["DECIPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["DECIPASCAL:KILOBAR"] = \
-        lambda: noconversion("DECIPASCAL", "KILOBAR")
-    CONVERSIONS["DECIPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["DECIPASCAL:MEGABAR"] = \
-        lambda: noconversion("DECIPASCAL", "MEGABAR")
-    CONVERSIONS["DECIPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["DECIPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["DECIPASCAL:MILLIBAR"] = \
-        lambda: noconversion("DECIPASCAL", "MILLIBAR")
-    CONVERSIONS["DECIPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["DECIPASCAL:MILLITORR"] = \
-        lambda: noconversion("DECIPASCAL", "MILLITORR")
-    CONVERSIONS["DECIPASCAL:MMHG"] = \
-        lambda: noconversion("DECIPASCAL", "MMHG")
-    CONVERSIONS["DECIPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["DECIPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["DECIPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["DECIPASCAL:PSI"] = \
-        lambda: noconversion("DECIPASCAL", "PSI")
-    CONVERSIONS["DECIPASCAL:Pascal"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["DECIPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["DECIPASCAL:TORR"] = \
-        lambda: noconversion("DECIPASCAL", "TORR")
-    CONVERSIONS["DECIPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["DECIPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -25) * value
-    CONVERSIONS["DECIPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["DECIPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["EXAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("EXAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["EXAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["EXAPASCAL:BAR"] = \
-        lambda: noconversion("EXAPASCAL", "BAR")
-    CONVERSIONS["EXAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("EXAPASCAL", "CENTIBAR")
-    CONVERSIONS["EXAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["EXAPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["EXAPASCAL:DECIBAR"] = \
-        lambda: noconversion("EXAPASCAL", "DECIBAR")
-    CONVERSIONS["EXAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["EXAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["EXAPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["EXAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["EXAPASCAL:KILOBAR"] = \
-        lambda: noconversion("EXAPASCAL", "KILOBAR")
-    CONVERSIONS["EXAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["EXAPASCAL:MEGABAR"] = \
-        lambda: noconversion("EXAPASCAL", "MEGABAR")
-    CONVERSIONS["EXAPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["EXAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["EXAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("EXAPASCAL", "MILLIBAR")
-    CONVERSIONS["EXAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["EXAPASCAL:MILLITORR"] = \
-        lambda: noconversion("EXAPASCAL", "MILLITORR")
-    CONVERSIONS["EXAPASCAL:MMHG"] = \
-        lambda: noconversion("EXAPASCAL", "MMHG")
-    CONVERSIONS["EXAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["EXAPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["EXAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["EXAPASCAL:PSI"] = \
-        lambda: noconversion("EXAPASCAL", "PSI")
-    CONVERSIONS["EXAPASCAL:Pascal"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["EXAPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["EXAPASCAL:TORR"] = \
-        lambda: noconversion("EXAPASCAL", "TORR")
-    CONVERSIONS["EXAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["EXAPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["EXAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["EXAPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["FEMTOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("FEMTOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["FEMTOPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["FEMTOPASCAL:BAR"] = \
-        lambda: noconversion("FEMTOPASCAL", "BAR")
-    CONVERSIONS["FEMTOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("FEMTOPASCAL", "CENTIBAR")
-    CONVERSIONS["FEMTOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["FEMTOPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["FEMTOPASCAL:DECIBAR"] = \
-        lambda: noconversion("FEMTOPASCAL", "DECIBAR")
-    CONVERSIONS["FEMTOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["FEMTOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["FEMTOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["FEMTOPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -17) * value
-    CONVERSIONS["FEMTOPASCAL:KILOBAR"] = \
-        lambda: noconversion("FEMTOPASCAL", "KILOBAR")
-    CONVERSIONS["FEMTOPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["FEMTOPASCAL:MEGABAR"] = \
-        lambda: noconversion("FEMTOPASCAL", "MEGABAR")
-    CONVERSIONS["FEMTOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["FEMTOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["FEMTOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("FEMTOPASCAL", "MILLIBAR")
-    CONVERSIONS["FEMTOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["FEMTOPASCAL:MILLITORR"] = \
-        lambda: noconversion("FEMTOPASCAL", "MILLITORR")
-    CONVERSIONS["FEMTOPASCAL:MMHG"] = \
-        lambda: noconversion("FEMTOPASCAL", "MMHG")
-    CONVERSIONS["FEMTOPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["FEMTOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["FEMTOPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["FEMTOPASCAL:PSI"] = \
-        lambda: noconversion("FEMTOPASCAL", "PSI")
-    CONVERSIONS["FEMTOPASCAL:Pascal"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["FEMTOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["FEMTOPASCAL:TORR"] = \
-        lambda: noconversion("FEMTOPASCAL", "TORR")
-    CONVERSIONS["FEMTOPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["FEMTOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["FEMTOPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["FEMTOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["GIGAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("GIGAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["GIGAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["GIGAPASCAL:BAR"] = \
-        lambda: noconversion("GIGAPASCAL", "BAR")
-    CONVERSIONS["GIGAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("GIGAPASCAL", "CENTIBAR")
-    CONVERSIONS["GIGAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["GIGAPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["GIGAPASCAL:DECIBAR"] = \
-        lambda: noconversion("GIGAPASCAL", "DECIBAR")
-    CONVERSIONS["GIGAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["GIGAPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["GIGAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["GIGAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["GIGAPASCAL:KILOBAR"] = \
-        lambda: noconversion("GIGAPASCAL", "KILOBAR")
-    CONVERSIONS["GIGAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["GIGAPASCAL:MEGABAR"] = \
-        lambda: noconversion("GIGAPASCAL", "MEGABAR")
-    CONVERSIONS["GIGAPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["GIGAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["GIGAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("GIGAPASCAL", "MILLIBAR")
-    CONVERSIONS["GIGAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["GIGAPASCAL:MILLITORR"] = \
-        lambda: noconversion("GIGAPASCAL", "MILLITORR")
-    CONVERSIONS["GIGAPASCAL:MMHG"] = \
-        lambda: noconversion("GIGAPASCAL", "MMHG")
-    CONVERSIONS["GIGAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["GIGAPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["GIGAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["GIGAPASCAL:PSI"] = \
-        lambda: noconversion("GIGAPASCAL", "PSI")
-    CONVERSIONS["GIGAPASCAL:Pascal"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["GIGAPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["GIGAPASCAL:TORR"] = \
-        lambda: noconversion("GIGAPASCAL", "TORR")
-    CONVERSIONS["GIGAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["GIGAPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["GIGAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["GIGAPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["HECTOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("HECTOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["HECTOPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["HECTOPASCAL:BAR"] = \
-        lambda: noconversion("HECTOPASCAL", "BAR")
-    CONVERSIONS["HECTOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("HECTOPASCAL", "CENTIBAR")
-    CONVERSIONS["HECTOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["HECTOPASCAL:DECAPASCAL"] = \
-        lambda value: 10 * value
-    CONVERSIONS["HECTOPASCAL:DECIBAR"] = \
-        lambda: noconversion("HECTOPASCAL", "DECIBAR")
-    CONVERSIONS["HECTOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["HECTOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -16) * value
-    CONVERSIONS["HECTOPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["HECTOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["HECTOPASCAL:KILOBAR"] = \
-        lambda: noconversion("HECTOPASCAL", "KILOBAR")
-    CONVERSIONS["HECTOPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["HECTOPASCAL:MEGABAR"] = \
-        lambda: noconversion("HECTOPASCAL", "MEGABAR")
-    CONVERSIONS["HECTOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["HECTOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["HECTOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("HECTOPASCAL", "MILLIBAR")
-    CONVERSIONS["HECTOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["HECTOPASCAL:MILLITORR"] = \
-        lambda: noconversion("HECTOPASCAL", "MILLITORR")
-    CONVERSIONS["HECTOPASCAL:MMHG"] = \
-        lambda: noconversion("HECTOPASCAL", "MMHG")
-    CONVERSIONS["HECTOPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["HECTOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["HECTOPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["HECTOPASCAL:PSI"] = \
-        lambda: noconversion("HECTOPASCAL", "PSI")
-    CONVERSIONS["HECTOPASCAL:Pascal"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["HECTOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["HECTOPASCAL:TORR"] = \
-        lambda: noconversion("HECTOPASCAL", "TORR")
-    CONVERSIONS["HECTOPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 26) * value
-    CONVERSIONS["HECTOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["HECTOPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["HECTOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["KILOBAR:ATMOSPHERE"] = \
-        lambda: noconversion("KILOBAR", "ATMOSPHERE")
-    CONVERSIONS["KILOBAR:ATTOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "ATTOPASCAL")
-    CONVERSIONS["KILOBAR:BAR"] = \
-        lambda: noconversion("KILOBAR", "BAR")
-    CONVERSIONS["KILOBAR:CENTIBAR"] = \
-        lambda: noconversion("KILOBAR", "CENTIBAR")
-    CONVERSIONS["KILOBAR:CENTIPASCAL"] = \
-        lambda: noconversion("KILOBAR", "CENTIPASCAL")
-    CONVERSIONS["KILOBAR:DECAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "DECAPASCAL")
-    CONVERSIONS["KILOBAR:DECIBAR"] = \
-        lambda: noconversion("KILOBAR", "DECIBAR")
-    CONVERSIONS["KILOBAR:DECIPASCAL"] = \
-        lambda: noconversion("KILOBAR", "DECIPASCAL")
-    CONVERSIONS["KILOBAR:EXAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "EXAPASCAL")
-    CONVERSIONS["KILOBAR:FEMTOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "FEMTOPASCAL")
-    CONVERSIONS["KILOBAR:GIGAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "GIGAPASCAL")
-    CONVERSIONS["KILOBAR:HECTOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "HECTOPASCAL")
-    CONVERSIONS["KILOBAR:KILOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "KILOPASCAL")
-    CONVERSIONS["KILOBAR:MEGABAR"] = \
-        lambda: noconversion("KILOBAR", "MEGABAR")
-    CONVERSIONS["KILOBAR:MEGAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "MEGAPASCAL")
-    CONVERSIONS["KILOBAR:MICROPASCAL"] = \
-        lambda: noconversion("KILOBAR", "MICROPASCAL")
-    CONVERSIONS["KILOBAR:MILLIBAR"] = \
-        lambda: noconversion("KILOBAR", "MILLIBAR")
-    CONVERSIONS["KILOBAR:MILLIPASCAL"] = \
-        lambda: noconversion("KILOBAR", "MILLIPASCAL")
-    CONVERSIONS["KILOBAR:MILLITORR"] = \
-        lambda: noconversion("KILOBAR", "MILLITORR")
-    CONVERSIONS["KILOBAR:MMHG"] = \
-        lambda: noconversion("KILOBAR", "MMHG")
-    CONVERSIONS["KILOBAR:NANOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "NANOPASCAL")
-    CONVERSIONS["KILOBAR:PETAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "PETAPASCAL")
-    CONVERSIONS["KILOBAR:PICOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "PICOPASCAL")
-    CONVERSIONS["KILOBAR:PSI"] = \
-        lambda: noconversion("KILOBAR", "PSI")
-    CONVERSIONS["KILOBAR:Pascal"] = \
-        lambda: noconversion("KILOBAR", "Pascal")
-    CONVERSIONS["KILOBAR:TERAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "TERAPASCAL")
-    CONVERSIONS["KILOBAR:TORR"] = \
-        lambda: noconversion("KILOBAR", "TORR")
-    CONVERSIONS["KILOBAR:YOCTOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "YOCTOPASCAL")
-    CONVERSIONS["KILOBAR:YOTTAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "YOTTAPASCAL")
-    CONVERSIONS["KILOBAR:ZEPTOPASCAL"] = \
-        lambda: noconversion("KILOBAR", "ZEPTOPASCAL")
-    CONVERSIONS["KILOBAR:ZETTAPASCAL"] = \
-        lambda: noconversion("KILOBAR", "ZETTAPASCAL")
-    CONVERSIONS["KILOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("KILOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["KILOPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["KILOPASCAL:BAR"] = \
-        lambda: noconversion("KILOPASCAL", "BAR")
-    CONVERSIONS["KILOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("KILOPASCAL", "CENTIBAR")
-    CONVERSIONS["KILOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["KILOPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["KILOPASCAL:DECIBAR"] = \
-        lambda: noconversion("KILOPASCAL", "DECIBAR")
-    CONVERSIONS["KILOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["KILOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["KILOPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["KILOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["KILOPASCAL:HECTOPASCAL"] = \
-        lambda value: 10 * value
-    CONVERSIONS["KILOPASCAL:KILOBAR"] = \
-        lambda: noconversion("KILOPASCAL", "KILOBAR")
-    CONVERSIONS["KILOPASCAL:MEGABAR"] = \
-        lambda: noconversion("KILOPASCAL", "MEGABAR")
-    CONVERSIONS["KILOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["KILOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["KILOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("KILOPASCAL", "MILLIBAR")
-    CONVERSIONS["KILOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["KILOPASCAL:MILLITORR"] = \
-        lambda: noconversion("KILOPASCAL", "MILLITORR")
-    CONVERSIONS["KILOPASCAL:MMHG"] = \
-        lambda: noconversion("KILOPASCAL", "MMHG")
-    CONVERSIONS["KILOPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["KILOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["KILOPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["KILOPASCAL:PSI"] = \
-        lambda: noconversion("KILOPASCAL", "PSI")
-    CONVERSIONS["KILOPASCAL:Pascal"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["KILOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["KILOPASCAL:TORR"] = \
-        lambda: noconversion("KILOPASCAL", "TORR")
-    CONVERSIONS["KILOPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["KILOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["KILOPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["KILOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGABAR:ATMOSPHERE"] = \
-        lambda: noconversion("MEGABAR", "ATMOSPHERE")
-    CONVERSIONS["MEGABAR:ATTOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "ATTOPASCAL")
-    CONVERSIONS["MEGABAR:BAR"] = \
-        lambda: noconversion("MEGABAR", "BAR")
-    CONVERSIONS["MEGABAR:CENTIBAR"] = \
-        lambda: noconversion("MEGABAR", "CENTIBAR")
-    CONVERSIONS["MEGABAR:CENTIPASCAL"] = \
-        lambda: noconversion("MEGABAR", "CENTIPASCAL")
-    CONVERSIONS["MEGABAR:DECAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "DECAPASCAL")
-    CONVERSIONS["MEGABAR:DECIBAR"] = \
-        lambda: noconversion("MEGABAR", "DECIBAR")
-    CONVERSIONS["MEGABAR:DECIPASCAL"] = \
-        lambda: noconversion("MEGABAR", "DECIPASCAL")
-    CONVERSIONS["MEGABAR:EXAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "EXAPASCAL")
-    CONVERSIONS["MEGABAR:FEMTOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "FEMTOPASCAL")
-    CONVERSIONS["MEGABAR:GIGAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "GIGAPASCAL")
-    CONVERSIONS["MEGABAR:HECTOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "HECTOPASCAL")
-    CONVERSIONS["MEGABAR:KILOBAR"] = \
-        lambda: noconversion("MEGABAR", "KILOBAR")
-    CONVERSIONS["MEGABAR:KILOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "KILOPASCAL")
-    CONVERSIONS["MEGABAR:MEGAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "MEGAPASCAL")
-    CONVERSIONS["MEGABAR:MICROPASCAL"] = \
-        lambda: noconversion("MEGABAR", "MICROPASCAL")
-    CONVERSIONS["MEGABAR:MILLIBAR"] = \
-        lambda: noconversion("MEGABAR", "MILLIBAR")
-    CONVERSIONS["MEGABAR:MILLIPASCAL"] = \
-        lambda: noconversion("MEGABAR", "MILLIPASCAL")
-    CONVERSIONS["MEGABAR:MILLITORR"] = \
-        lambda: noconversion("MEGABAR", "MILLITORR")
-    CONVERSIONS["MEGABAR:MMHG"] = \
-        lambda: noconversion("MEGABAR", "MMHG")
-    CONVERSIONS["MEGABAR:NANOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "NANOPASCAL")
-    CONVERSIONS["MEGABAR:PETAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "PETAPASCAL")
-    CONVERSIONS["MEGABAR:PICOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "PICOPASCAL")
-    CONVERSIONS["MEGABAR:PSI"] = \
-        lambda: noconversion("MEGABAR", "PSI")
-    CONVERSIONS["MEGABAR:Pascal"] = \
-        lambda: noconversion("MEGABAR", "Pascal")
-    CONVERSIONS["MEGABAR:TERAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "TERAPASCAL")
-    CONVERSIONS["MEGABAR:TORR"] = \
-        lambda: noconversion("MEGABAR", "TORR")
-    CONVERSIONS["MEGABAR:YOCTOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "YOCTOPASCAL")
-    CONVERSIONS["MEGABAR:YOTTAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "YOTTAPASCAL")
-    CONVERSIONS["MEGABAR:ZEPTOPASCAL"] = \
-        lambda: noconversion("MEGABAR", "ZEPTOPASCAL")
-    CONVERSIONS["MEGABAR:ZETTAPASCAL"] = \
-        lambda: noconversion("MEGABAR", "ZETTAPASCAL")
-    CONVERSIONS["MEGAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("MEGAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["MEGAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["MEGAPASCAL:BAR"] = \
-        lambda: noconversion("MEGAPASCAL", "BAR")
-    CONVERSIONS["MEGAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("MEGAPASCAL", "CENTIBAR")
-    CONVERSIONS["MEGAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 8) * value
-    CONVERSIONS["MEGAPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 5) * value
-    CONVERSIONS["MEGAPASCAL:DECIBAR"] = \
-        lambda: noconversion("MEGAPASCAL", "DECIBAR")
-    CONVERSIONS["MEGAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 7) * value
-    CONVERSIONS["MEGAPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["MEGAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["MEGAPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MEGAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** 4) * value
-    CONVERSIONS["MEGAPASCAL:KILOBAR"] = \
-        lambda: noconversion("MEGAPASCAL", "KILOBAR")
-    CONVERSIONS["MEGAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["MEGAPASCAL:MEGABAR"] = \
-        lambda: noconversion("MEGAPASCAL", "MEGABAR")
-    CONVERSIONS["MEGAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MEGAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("MEGAPASCAL", "MILLIBAR")
-    CONVERSIONS["MEGAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MEGAPASCAL:MILLITORR"] = \
-        lambda: noconversion("MEGAPASCAL", "MILLITORR")
-    CONVERSIONS["MEGAPASCAL:MMHG"] = \
-        lambda: noconversion("MEGAPASCAL", "MMHG")
-    CONVERSIONS["MEGAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MEGAPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["MEGAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["MEGAPASCAL:PSI"] = \
-        lambda: noconversion("MEGAPASCAL", "PSI")
-    CONVERSIONS["MEGAPASCAL:Pascal"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MEGAPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MEGAPASCAL:TORR"] = \
-        lambda: noconversion("MEGAPASCAL", "TORR")
-    CONVERSIONS["MEGAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["MEGAPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MEGAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["MEGAPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("MICROPASCAL", "ATMOSPHERE")
-    CONVERSIONS["MICROPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MICROPASCAL:BAR"] = \
-        lambda: noconversion("MICROPASCAL", "BAR")
-    CONVERSIONS["MICROPASCAL:CENTIBAR"] = \
-        lambda: noconversion("MICROPASCAL", "CENTIBAR")
-    CONVERSIONS["MICROPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MICROPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["MICROPASCAL:DECIBAR"] = \
-        lambda: noconversion("MICROPASCAL", "DECIBAR")
-    CONVERSIONS["MICROPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MICROPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MICROPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MICROPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MICROPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["MICROPASCAL:KILOBAR"] = \
-        lambda: noconversion("MICROPASCAL", "KILOBAR")
-    CONVERSIONS["MICROPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["MICROPASCAL:MEGABAR"] = \
-        lambda: noconversion("MICROPASCAL", "MEGABAR")
-    CONVERSIONS["MICROPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["MICROPASCAL:MILLIBAR"] = \
-        lambda: noconversion("MICROPASCAL", "MILLIBAR")
-    CONVERSIONS["MICROPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MICROPASCAL:MILLITORR"] = \
-        lambda: noconversion("MICROPASCAL", "MILLITORR")
-    CONVERSIONS["MICROPASCAL:MMHG"] = \
-        lambda: noconversion("MICROPASCAL", "MMHG")
-    CONVERSIONS["MICROPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["MICROPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["MICROPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MICROPASCAL:PSI"] = \
-        lambda: noconversion("MICROPASCAL", "PSI")
-    CONVERSIONS["MICROPASCAL:Pascal"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MICROPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MICROPASCAL:TORR"] = \
-        lambda: noconversion("MICROPASCAL", "TORR")
-    CONVERSIONS["MICROPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["MICROPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["MICROPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MICROPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MILLIBAR:ATMOSPHERE"] = \
-        lambda: noconversion("MILLIBAR", "ATMOSPHERE")
-    CONVERSIONS["MILLIBAR:ATTOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "ATTOPASCAL")
-    CONVERSIONS["MILLIBAR:BAR"] = \
-        lambda: noconversion("MILLIBAR", "BAR")
-    CONVERSIONS["MILLIBAR:CENTIBAR"] = \
-        lambda: noconversion("MILLIBAR", "CENTIBAR")
-    CONVERSIONS["MILLIBAR:CENTIPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "CENTIPASCAL")
-    CONVERSIONS["MILLIBAR:DECAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "DECAPASCAL")
-    CONVERSIONS["MILLIBAR:DECIBAR"] = \
-        lambda: noconversion("MILLIBAR", "DECIBAR")
-    CONVERSIONS["MILLIBAR:DECIPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "DECIPASCAL")
-    CONVERSIONS["MILLIBAR:EXAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "EXAPASCAL")
-    CONVERSIONS["MILLIBAR:FEMTOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "FEMTOPASCAL")
-    CONVERSIONS["MILLIBAR:GIGAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "GIGAPASCAL")
-    CONVERSIONS["MILLIBAR:HECTOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "HECTOPASCAL")
-    CONVERSIONS["MILLIBAR:KILOBAR"] = \
-        lambda: noconversion("MILLIBAR", "KILOBAR")
-    CONVERSIONS["MILLIBAR:KILOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "KILOPASCAL")
-    CONVERSIONS["MILLIBAR:MEGABAR"] = \
-        lambda: noconversion("MILLIBAR", "MEGABAR")
-    CONVERSIONS["MILLIBAR:MEGAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "MEGAPASCAL")
-    CONVERSIONS["MILLIBAR:MICROPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "MICROPASCAL")
-    CONVERSIONS["MILLIBAR:MILLIPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "MILLIPASCAL")
-    CONVERSIONS["MILLIBAR:MILLITORR"] = \
-        lambda: noconversion("MILLIBAR", "MILLITORR")
-    CONVERSIONS["MILLIBAR:MMHG"] = \
-        lambda: noconversion("MILLIBAR", "MMHG")
-    CONVERSIONS["MILLIBAR:NANOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "NANOPASCAL")
-    CONVERSIONS["MILLIBAR:PETAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "PETAPASCAL")
-    CONVERSIONS["MILLIBAR:PICOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "PICOPASCAL")
-    CONVERSIONS["MILLIBAR:PSI"] = \
-        lambda: noconversion("MILLIBAR", "PSI")
-    CONVERSIONS["MILLIBAR:Pascal"] = \
-        lambda: noconversion("MILLIBAR", "Pascal")
-    CONVERSIONS["MILLIBAR:TERAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "TERAPASCAL")
-    CONVERSIONS["MILLIBAR:TORR"] = \
-        lambda: noconversion("MILLIBAR", "TORR")
-    CONVERSIONS["MILLIBAR:YOCTOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "YOCTOPASCAL")
-    CONVERSIONS["MILLIBAR:YOTTAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "YOTTAPASCAL")
-    CONVERSIONS["MILLIBAR:ZEPTOPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "ZEPTOPASCAL")
-    CONVERSIONS["MILLIBAR:ZETTAPASCAL"] = \
-        lambda: noconversion("MILLIBAR", "ZETTAPASCAL")
-    CONVERSIONS["MILLIPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("MILLIPASCAL", "ATMOSPHERE")
-    CONVERSIONS["MILLIPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["MILLIPASCAL:BAR"] = \
-        lambda: noconversion("MILLIPASCAL", "BAR")
-    CONVERSIONS["MILLIPASCAL:CENTIBAR"] = \
-        lambda: noconversion("MILLIPASCAL", "CENTIBAR")
-    CONVERSIONS["MILLIPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["MILLIPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -4) * value
-    CONVERSIONS["MILLIPASCAL:DECIBAR"] = \
-        lambda: noconversion("MILLIPASCAL", "DECIBAR")
-    CONVERSIONS["MILLIPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["MILLIPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["MILLIPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["MILLIPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["MILLIPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -5) * value
-    CONVERSIONS["MILLIPASCAL:KILOBAR"] = \
-        lambda: noconversion("MILLIPASCAL", "KILOBAR")
-    CONVERSIONS["MILLIPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["MILLIPASCAL:MEGABAR"] = \
-        lambda: noconversion("MILLIPASCAL", "MEGABAR")
-    CONVERSIONS["MILLIPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["MILLIPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["MILLIPASCAL:MILLIBAR"] = \
-        lambda: noconversion("MILLIPASCAL", "MILLIBAR")
-    CONVERSIONS["MILLIPASCAL:MILLITORR"] = \
-        lambda: noconversion("MILLIPASCAL", "MILLITORR")
-    CONVERSIONS["MILLIPASCAL:MMHG"] = \
-        lambda: noconversion("MILLIPASCAL", "MMHG")
-    CONVERSIONS["MILLIPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["MILLIPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["MILLIPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["MILLIPASCAL:PSI"] = \
-        lambda: noconversion("MILLIPASCAL", "PSI")
-    CONVERSIONS["MILLIPASCAL:Pascal"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["MILLIPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["MILLIPASCAL:TORR"] = \
-        lambda: noconversion("MILLIPASCAL", "TORR")
-    CONVERSIONS["MILLIPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["MILLIPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["MILLIPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["MILLIPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["MILLITORR:ATMOSPHERE"] = \
-        lambda: noconversion("MILLITORR", "ATMOSPHERE")
-    CONVERSIONS["MILLITORR:ATTOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "ATTOPASCAL")
-    CONVERSIONS["MILLITORR:BAR"] = \
-        lambda: noconversion("MILLITORR", "BAR")
-    CONVERSIONS["MILLITORR:CENTIBAR"] = \
-        lambda: noconversion("MILLITORR", "CENTIBAR")
-    CONVERSIONS["MILLITORR:CENTIPASCAL"] = \
-        lambda: noconversion("MILLITORR", "CENTIPASCAL")
-    CONVERSIONS["MILLITORR:DECAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "DECAPASCAL")
-    CONVERSIONS["MILLITORR:DECIBAR"] = \
-        lambda: noconversion("MILLITORR", "DECIBAR")
-    CONVERSIONS["MILLITORR:DECIPASCAL"] = \
-        lambda: noconversion("MILLITORR", "DECIPASCAL")
-    CONVERSIONS["MILLITORR:EXAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "EXAPASCAL")
-    CONVERSIONS["MILLITORR:FEMTOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "FEMTOPASCAL")
-    CONVERSIONS["MILLITORR:GIGAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "GIGAPASCAL")
-    CONVERSIONS["MILLITORR:HECTOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "HECTOPASCAL")
-    CONVERSIONS["MILLITORR:KILOBAR"] = \
-        lambda: noconversion("MILLITORR", "KILOBAR")
-    CONVERSIONS["MILLITORR:KILOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "KILOPASCAL")
-    CONVERSIONS["MILLITORR:MEGABAR"] = \
-        lambda: noconversion("MILLITORR", "MEGABAR")
-    CONVERSIONS["MILLITORR:MEGAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "MEGAPASCAL")
-    CONVERSIONS["MILLITORR:MICROPASCAL"] = \
-        lambda: noconversion("MILLITORR", "MICROPASCAL")
-    CONVERSIONS["MILLITORR:MILLIBAR"] = \
-        lambda: noconversion("MILLITORR", "MILLIBAR")
-    CONVERSIONS["MILLITORR:MILLIPASCAL"] = \
-        lambda: noconversion("MILLITORR", "MILLIPASCAL")
-    CONVERSIONS["MILLITORR:MMHG"] = \
-        lambda: noconversion("MILLITORR", "MMHG")
-    CONVERSIONS["MILLITORR:NANOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "NANOPASCAL")
-    CONVERSIONS["MILLITORR:PETAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "PETAPASCAL")
-    CONVERSIONS["MILLITORR:PICOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "PICOPASCAL")
-    CONVERSIONS["MILLITORR:PSI"] = \
-        lambda: noconversion("MILLITORR", "PSI")
-    CONVERSIONS["MILLITORR:Pascal"] = \
-        lambda: noconversion("MILLITORR", "Pascal")
-    CONVERSIONS["MILLITORR:TERAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "TERAPASCAL")
-    CONVERSIONS["MILLITORR:TORR"] = \
-        lambda: noconversion("MILLITORR", "TORR")
-    CONVERSIONS["MILLITORR:YOCTOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "YOCTOPASCAL")
-    CONVERSIONS["MILLITORR:YOTTAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "YOTTAPASCAL")
-    CONVERSIONS["MILLITORR:ZEPTOPASCAL"] = \
-        lambda: noconversion("MILLITORR", "ZEPTOPASCAL")
-    CONVERSIONS["MILLITORR:ZETTAPASCAL"] = \
-        lambda: noconversion("MILLITORR", "ZETTAPASCAL")
-    CONVERSIONS["MMHG:ATMOSPHERE"] = \
-        lambda: noconversion("MMHG", "ATMOSPHERE")
-    CONVERSIONS["MMHG:ATTOPASCAL"] = \
-        lambda: noconversion("MMHG", "ATTOPASCAL")
-    CONVERSIONS["MMHG:BAR"] = \
-        lambda: noconversion("MMHG", "BAR")
-    CONVERSIONS["MMHG:CENTIBAR"] = \
-        lambda: noconversion("MMHG", "CENTIBAR")
-    CONVERSIONS["MMHG:CENTIPASCAL"] = \
-        lambda: noconversion("MMHG", "CENTIPASCAL")
-    CONVERSIONS["MMHG:DECAPASCAL"] = \
-        lambda: noconversion("MMHG", "DECAPASCAL")
-    CONVERSIONS["MMHG:DECIBAR"] = \
-        lambda: noconversion("MMHG", "DECIBAR")
-    CONVERSIONS["MMHG:DECIPASCAL"] = \
-        lambda: noconversion("MMHG", "DECIPASCAL")
-    CONVERSIONS["MMHG:EXAPASCAL"] = \
-        lambda: noconversion("MMHG", "EXAPASCAL")
-    CONVERSIONS["MMHG:FEMTOPASCAL"] = \
-        lambda: noconversion("MMHG", "FEMTOPASCAL")
-    CONVERSIONS["MMHG:GIGAPASCAL"] = \
-        lambda: noconversion("MMHG", "GIGAPASCAL")
-    CONVERSIONS["MMHG:HECTOPASCAL"] = \
-        lambda: noconversion("MMHG", "HECTOPASCAL")
-    CONVERSIONS["MMHG:KILOBAR"] = \
-        lambda: noconversion("MMHG", "KILOBAR")
-    CONVERSIONS["MMHG:KILOPASCAL"] = \
-        lambda: noconversion("MMHG", "KILOPASCAL")
-    CONVERSIONS["MMHG:MEGABAR"] = \
-        lambda: noconversion("MMHG", "MEGABAR")
-    CONVERSIONS["MMHG:MEGAPASCAL"] = \
-        lambda: noconversion("MMHG", "MEGAPASCAL")
-    CONVERSIONS["MMHG:MICROPASCAL"] = \
-        lambda: noconversion("MMHG", "MICROPASCAL")
-    CONVERSIONS["MMHG:MILLIBAR"] = \
-        lambda: noconversion("MMHG", "MILLIBAR")
-    CONVERSIONS["MMHG:MILLIPASCAL"] = \
-        lambda: noconversion("MMHG", "MILLIPASCAL")
-    CONVERSIONS["MMHG:MILLITORR"] = \
-        lambda: noconversion("MMHG", "MILLITORR")
-    CONVERSIONS["MMHG:NANOPASCAL"] = \
-        lambda: noconversion("MMHG", "NANOPASCAL")
-    CONVERSIONS["MMHG:PETAPASCAL"] = \
-        lambda: noconversion("MMHG", "PETAPASCAL")
-    CONVERSIONS["MMHG:PICOPASCAL"] = \
-        lambda: noconversion("MMHG", "PICOPASCAL")
-    CONVERSIONS["MMHG:PSI"] = \
-        lambda: noconversion("MMHG", "PSI")
-    CONVERSIONS["MMHG:Pascal"] = \
-        lambda: noconversion("MMHG", "Pascal")
-    CONVERSIONS["MMHG:TERAPASCAL"] = \
-        lambda: noconversion("MMHG", "TERAPASCAL")
-    CONVERSIONS["MMHG:TORR"] = \
-        lambda: noconversion("MMHG", "TORR")
-    CONVERSIONS["MMHG:YOCTOPASCAL"] = \
-        lambda: noconversion("MMHG", "YOCTOPASCAL")
-    CONVERSIONS["MMHG:YOTTAPASCAL"] = \
-        lambda: noconversion("MMHG", "YOTTAPASCAL")
-    CONVERSIONS["MMHG:ZEPTOPASCAL"] = \
-        lambda: noconversion("MMHG", "ZEPTOPASCAL")
-    CONVERSIONS["MMHG:ZETTAPASCAL"] = \
-        lambda: noconversion("MMHG", "ZETTAPASCAL")
-    CONVERSIONS["NANOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("NANOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["NANOPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["NANOPASCAL:BAR"] = \
-        lambda: noconversion("NANOPASCAL", "BAR")
-    CONVERSIONS["NANOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("NANOPASCAL", "CENTIBAR")
-    CONVERSIONS["NANOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -7) * value
-    CONVERSIONS["NANOPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["NANOPASCAL:DECIBAR"] = \
-        lambda: noconversion("NANOPASCAL", "DECIBAR")
-    CONVERSIONS["NANOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -8) * value
-    CONVERSIONS["NANOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["NANOPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["NANOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["NANOPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["NANOPASCAL:KILOBAR"] = \
-        lambda: noconversion("NANOPASCAL", "KILOBAR")
-    CONVERSIONS["NANOPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["NANOPASCAL:MEGABAR"] = \
-        lambda: noconversion("NANOPASCAL", "MEGABAR")
-    CONVERSIONS["NANOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["NANOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["NANOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("NANOPASCAL", "MILLIBAR")
-    CONVERSIONS["NANOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["NANOPASCAL:MILLITORR"] = \
-        lambda: noconversion("NANOPASCAL", "MILLITORR")
-    CONVERSIONS["NANOPASCAL:MMHG"] = \
-        lambda: noconversion("NANOPASCAL", "MMHG")
-    CONVERSIONS["NANOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["NANOPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["NANOPASCAL:PSI"] = \
-        lambda: noconversion("NANOPASCAL", "PSI")
-    CONVERSIONS["NANOPASCAL:Pascal"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["NANOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["NANOPASCAL:TORR"] = \
-        lambda: noconversion("NANOPASCAL", "TORR")
-    CONVERSIONS["NANOPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["NANOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["NANOPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["NANOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["PETAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("PETAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["PETAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["PETAPASCAL:BAR"] = \
-        lambda: noconversion("PETAPASCAL", "BAR")
-    CONVERSIONS["PETAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("PETAPASCAL", "CENTIBAR")
-    CONVERSIONS["PETAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 17) * value
-    CONVERSIONS["PETAPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["PETAPASCAL:DECIBAR"] = \
-        lambda: noconversion("PETAPASCAL", "DECIBAR")
-    CONVERSIONS["PETAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 16) * value
-    CONVERSIONS["PETAPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PETAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["PETAPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PETAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["PETAPASCAL:KILOBAR"] = \
-        lambda: noconversion("PETAPASCAL", "KILOBAR")
-    CONVERSIONS["PETAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PETAPASCAL:MEGABAR"] = \
-        lambda: noconversion("PETAPASCAL", "MEGABAR")
-    CONVERSIONS["PETAPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["PETAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["PETAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("PETAPASCAL", "MILLIBAR")
-    CONVERSIONS["PETAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["PETAPASCAL:MILLITORR"] = \
-        lambda: noconversion("PETAPASCAL", "MILLITORR")
-    CONVERSIONS["PETAPASCAL:MMHG"] = \
-        lambda: noconversion("PETAPASCAL", "MMHG")
-    CONVERSIONS["PETAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["PETAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["PETAPASCAL:PSI"] = \
-        lambda: noconversion("PETAPASCAL", "PSI")
-    CONVERSIONS["PETAPASCAL:Pascal"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["PETAPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PETAPASCAL:TORR"] = \
-        lambda: noconversion("PETAPASCAL", "TORR")
-    CONVERSIONS["PETAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["PETAPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PETAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["PETAPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PICOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("PICOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["PICOPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["PICOPASCAL:BAR"] = \
-        lambda: noconversion("PICOPASCAL", "BAR")
-    CONVERSIONS["PICOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("PICOPASCAL", "CENTIBAR")
-    CONVERSIONS["PICOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -10) * value
-    CONVERSIONS["PICOPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -13) * value
-    CONVERSIONS["PICOPASCAL:DECIBAR"] = \
-        lambda: noconversion("PICOPASCAL", "DECIBAR")
-    CONVERSIONS["PICOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -11) * value
-    CONVERSIONS["PICOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["PICOPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["PICOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["PICOPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -14) * value
-    CONVERSIONS["PICOPASCAL:KILOBAR"] = \
-        lambda: noconversion("PICOPASCAL", "KILOBAR")
-    CONVERSIONS["PICOPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["PICOPASCAL:MEGABAR"] = \
-        lambda: noconversion("PICOPASCAL", "MEGABAR")
-    CONVERSIONS["PICOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["PICOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["PICOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("PICOPASCAL", "MILLIBAR")
-    CONVERSIONS["PICOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["PICOPASCAL:MILLITORR"] = \
-        lambda: noconversion("PICOPASCAL", "MILLITORR")
-    CONVERSIONS["PICOPASCAL:MMHG"] = \
-        lambda: noconversion("PICOPASCAL", "MMHG")
-    CONVERSIONS["PICOPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["PICOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["PICOPASCAL:PSI"] = \
-        lambda: noconversion("PICOPASCAL", "PSI")
-    CONVERSIONS["PICOPASCAL:Pascal"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["PICOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["PICOPASCAL:TORR"] = \
-        lambda: noconversion("PICOPASCAL", "TORR")
-    CONVERSIONS["PICOPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["PICOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["PICOPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["PICOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["PSI:ATMOSPHERE"] = \
-        lambda: noconversion("PSI", "ATMOSPHERE")
-    CONVERSIONS["PSI:ATTOPASCAL"] = \
-        lambda: noconversion("PSI", "ATTOPASCAL")
-    CONVERSIONS["PSI:BAR"] = \
-        lambda: noconversion("PSI", "BAR")
-    CONVERSIONS["PSI:CENTIBAR"] = \
-        lambda: noconversion("PSI", "CENTIBAR")
-    CONVERSIONS["PSI:CENTIPASCAL"] = \
-        lambda: noconversion("PSI", "CENTIPASCAL")
-    CONVERSIONS["PSI:DECAPASCAL"] = \
-        lambda: noconversion("PSI", "DECAPASCAL")
-    CONVERSIONS["PSI:DECIBAR"] = \
-        lambda: noconversion("PSI", "DECIBAR")
-    CONVERSIONS["PSI:DECIPASCAL"] = \
-        lambda: noconversion("PSI", "DECIPASCAL")
-    CONVERSIONS["PSI:EXAPASCAL"] = \
-        lambda: noconversion("PSI", "EXAPASCAL")
-    CONVERSIONS["PSI:FEMTOPASCAL"] = \
-        lambda: noconversion("PSI", "FEMTOPASCAL")
-    CONVERSIONS["PSI:GIGAPASCAL"] = \
-        lambda: noconversion("PSI", "GIGAPASCAL")
-    CONVERSIONS["PSI:HECTOPASCAL"] = \
-        lambda: noconversion("PSI", "HECTOPASCAL")
-    CONVERSIONS["PSI:KILOBAR"] = \
-        lambda: noconversion("PSI", "KILOBAR")
-    CONVERSIONS["PSI:KILOPASCAL"] = \
-        lambda: noconversion("PSI", "KILOPASCAL")
-    CONVERSIONS["PSI:MEGABAR"] = \
-        lambda: noconversion("PSI", "MEGABAR")
-    CONVERSIONS["PSI:MEGAPASCAL"] = \
-        lambda: noconversion("PSI", "MEGAPASCAL")
-    CONVERSIONS["PSI:MICROPASCAL"] = \
-        lambda: noconversion("PSI", "MICROPASCAL")
-    CONVERSIONS["PSI:MILLIBAR"] = \
-        lambda: noconversion("PSI", "MILLIBAR")
-    CONVERSIONS["PSI:MILLIPASCAL"] = \
-        lambda: noconversion("PSI", "MILLIPASCAL")
-    CONVERSIONS["PSI:MILLITORR"] = \
-        lambda: noconversion("PSI", "MILLITORR")
-    CONVERSIONS["PSI:MMHG"] = \
-        lambda: noconversion("PSI", "MMHG")
-    CONVERSIONS["PSI:NANOPASCAL"] = \
-        lambda: noconversion("PSI", "NANOPASCAL")
-    CONVERSIONS["PSI:PETAPASCAL"] = \
-        lambda: noconversion("PSI", "PETAPASCAL")
-    CONVERSIONS["PSI:PICOPASCAL"] = \
-        lambda: noconversion("PSI", "PICOPASCAL")
-    CONVERSIONS["PSI:Pascal"] = \
-        lambda: noconversion("PSI", "Pascal")
-    CONVERSIONS["PSI:TERAPASCAL"] = \
-        lambda: noconversion("PSI", "TERAPASCAL")
-    CONVERSIONS["PSI:TORR"] = \
-        lambda: noconversion("PSI", "TORR")
-    CONVERSIONS["PSI:YOCTOPASCAL"] = \
-        lambda: noconversion("PSI", "YOCTOPASCAL")
-    CONVERSIONS["PSI:YOTTAPASCAL"] = \
-        lambda: noconversion("PSI", "YOTTAPASCAL")
-    CONVERSIONS["PSI:ZEPTOPASCAL"] = \
-        lambda: noconversion("PSI", "ZEPTOPASCAL")
-    CONVERSIONS["PSI:ZETTAPASCAL"] = \
-        lambda: noconversion("PSI", "ZETTAPASCAL")
-    CONVERSIONS["Pascal:ATMOSPHERE"] = \
-        lambda: noconversion("Pascal", "ATMOSPHERE")
-    CONVERSIONS["Pascal:ATTOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["Pascal:BAR"] = \
-        lambda: noconversion("Pascal", "BAR")
-    CONVERSIONS["Pascal:CENTIBAR"] = \
-        lambda: noconversion("Pascal", "CENTIBAR")
-    CONVERSIONS["Pascal:CENTIPASCAL"] = \
-        lambda value: (10 ** 2) * value
-    CONVERSIONS["Pascal:DECAPASCAL"] = \
-        lambda value: (10 ** -1) * value
-    CONVERSIONS["Pascal:DECIBAR"] = \
-        lambda: noconversion("Pascal", "DECIBAR")
-    CONVERSIONS["Pascal:DECIPASCAL"] = \
-        lambda value: 10 * value
-    CONVERSIONS["Pascal:EXAPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["Pascal:FEMTOPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["Pascal:GIGAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["Pascal:HECTOPASCAL"] = \
-        lambda value: (10 ** -2) * value
-    CONVERSIONS["Pascal:KILOBAR"] = \
-        lambda: noconversion("Pascal", "KILOBAR")
-    CONVERSIONS["Pascal:KILOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["Pascal:MEGABAR"] = \
-        lambda: noconversion("Pascal", "MEGABAR")
-    CONVERSIONS["Pascal:MEGAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["Pascal:MICROPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["Pascal:MILLIBAR"] = \
-        lambda: noconversion("Pascal", "MILLIBAR")
-    CONVERSIONS["Pascal:MILLIPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["Pascal:MILLITORR"] = \
-        lambda: noconversion("Pascal", "MILLITORR")
-    CONVERSIONS["Pascal:MMHG"] = \
-        lambda: noconversion("Pascal", "MMHG")
-    CONVERSIONS["Pascal:NANOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["Pascal:PETAPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["Pascal:PICOPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["Pascal:PSI"] = \
-        lambda: noconversion("Pascal", "PSI")
-    CONVERSIONS["Pascal:TERAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["Pascal:TORR"] = \
-        lambda: noconversion("Pascal", "TORR")
-    CONVERSIONS["Pascal:YOCTOPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["Pascal:YOTTAPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["Pascal:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["Pascal:ZETTAPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["TERAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("TERAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["TERAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["TERAPASCAL:BAR"] = \
-        lambda: noconversion("TERAPASCAL", "BAR")
-    CONVERSIONS["TERAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("TERAPASCAL", "CENTIBAR")
-    CONVERSIONS["TERAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 14) * value
-    CONVERSIONS["TERAPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 11) * value
-    CONVERSIONS["TERAPASCAL:DECIBAR"] = \
-        lambda: noconversion("TERAPASCAL", "DECIBAR")
-    CONVERSIONS["TERAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 13) * value
-    CONVERSIONS["TERAPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["TERAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["TERAPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["TERAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** 10) * value
-    CONVERSIONS["TERAPASCAL:KILOBAR"] = \
-        lambda: noconversion("TERAPASCAL", "KILOBAR")
-    CONVERSIONS["TERAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["TERAPASCAL:MEGABAR"] = \
-        lambda: noconversion("TERAPASCAL", "MEGABAR")
-    CONVERSIONS["TERAPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["TERAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["TERAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("TERAPASCAL", "MILLIBAR")
-    CONVERSIONS["TERAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["TERAPASCAL:MILLITORR"] = \
-        lambda: noconversion("TERAPASCAL", "MILLITORR")
-    CONVERSIONS["TERAPASCAL:MMHG"] = \
-        lambda: noconversion("TERAPASCAL", "MMHG")
-    CONVERSIONS["TERAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["TERAPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["TERAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["TERAPASCAL:PSI"] = \
-        lambda: noconversion("TERAPASCAL", "PSI")
-    CONVERSIONS["TERAPASCAL:Pascal"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["TERAPASCAL:TORR"] = \
-        lambda: noconversion("TERAPASCAL", "TORR")
-    CONVERSIONS["TERAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["TERAPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["TERAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["TERAPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["TORR:ATMOSPHERE"] = \
-        lambda: noconversion("TORR", "ATMOSPHERE")
-    CONVERSIONS["TORR:ATTOPASCAL"] = \
-        lambda: noconversion("TORR", "ATTOPASCAL")
-    CONVERSIONS["TORR:BAR"] = \
-        lambda: noconversion("TORR", "BAR")
-    CONVERSIONS["TORR:CENTIBAR"] = \
-        lambda: noconversion("TORR", "CENTIBAR")
-    CONVERSIONS["TORR:CENTIPASCAL"] = \
-        lambda: noconversion("TORR", "CENTIPASCAL")
-    CONVERSIONS["TORR:DECAPASCAL"] = \
-        lambda: noconversion("TORR", "DECAPASCAL")
-    CONVERSIONS["TORR:DECIBAR"] = \
-        lambda: noconversion("TORR", "DECIBAR")
-    CONVERSIONS["TORR:DECIPASCAL"] = \
-        lambda: noconversion("TORR", "DECIPASCAL")
-    CONVERSIONS["TORR:EXAPASCAL"] = \
-        lambda: noconversion("TORR", "EXAPASCAL")
-    CONVERSIONS["TORR:FEMTOPASCAL"] = \
-        lambda: noconversion("TORR", "FEMTOPASCAL")
-    CONVERSIONS["TORR:GIGAPASCAL"] = \
-        lambda: noconversion("TORR", "GIGAPASCAL")
-    CONVERSIONS["TORR:HECTOPASCAL"] = \
-        lambda: noconversion("TORR", "HECTOPASCAL")
-    CONVERSIONS["TORR:KILOBAR"] = \
-        lambda: noconversion("TORR", "KILOBAR")
-    CONVERSIONS["TORR:KILOPASCAL"] = \
-        lambda: noconversion("TORR", "KILOPASCAL")
-    CONVERSIONS["TORR:MEGABAR"] = \
-        lambda: noconversion("TORR", "MEGABAR")
-    CONVERSIONS["TORR:MEGAPASCAL"] = \
-        lambda: noconversion("TORR", "MEGAPASCAL")
-    CONVERSIONS["TORR:MICROPASCAL"] = \
-        lambda: noconversion("TORR", "MICROPASCAL")
-    CONVERSIONS["TORR:MILLIBAR"] = \
-        lambda: noconversion("TORR", "MILLIBAR")
-    CONVERSIONS["TORR:MILLIPASCAL"] = \
-        lambda: noconversion("TORR", "MILLIPASCAL")
-    CONVERSIONS["TORR:MILLITORR"] = \
-        lambda: noconversion("TORR", "MILLITORR")
-    CONVERSIONS["TORR:MMHG"] = \
-        lambda: noconversion("TORR", "MMHG")
-    CONVERSIONS["TORR:NANOPASCAL"] = \
-        lambda: noconversion("TORR", "NANOPASCAL")
-    CONVERSIONS["TORR:PETAPASCAL"] = \
-        lambda: noconversion("TORR", "PETAPASCAL")
-    CONVERSIONS["TORR:PICOPASCAL"] = \
-        lambda: noconversion("TORR", "PICOPASCAL")
-    CONVERSIONS["TORR:PSI"] = \
-        lambda: noconversion("TORR", "PSI")
-    CONVERSIONS["TORR:Pascal"] = \
-        lambda: noconversion("TORR", "Pascal")
-    CONVERSIONS["TORR:TERAPASCAL"] = \
-        lambda: noconversion("TORR", "TERAPASCAL")
-    CONVERSIONS["TORR:YOCTOPASCAL"] = \
-        lambda: noconversion("TORR", "YOCTOPASCAL")
-    CONVERSIONS["TORR:YOTTAPASCAL"] = \
-        lambda: noconversion("TORR", "YOTTAPASCAL")
-    CONVERSIONS["TORR:ZEPTOPASCAL"] = \
-        lambda: noconversion("TORR", "ZEPTOPASCAL")
-    CONVERSIONS["TORR:ZETTAPASCAL"] = \
-        lambda: noconversion("TORR", "ZETTAPASCAL")
-    CONVERSIONS["YOCTOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("YOCTOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["YOCTOPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["YOCTOPASCAL:BAR"] = \
-        lambda: noconversion("YOCTOPASCAL", "BAR")
-    CONVERSIONS["YOCTOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("YOCTOPASCAL", "CENTIBAR")
-    CONVERSIONS["YOCTOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["YOCTOPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -25) * value
-    CONVERSIONS["YOCTOPASCAL:DECIBAR"] = \
-        lambda: noconversion("YOCTOPASCAL", "DECIBAR")
-    CONVERSIONS["YOCTOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["YOCTOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["YOCTOPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["YOCTOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["YOCTOPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -26) * value
-    CONVERSIONS["YOCTOPASCAL:KILOBAR"] = \
-        lambda: noconversion("YOCTOPASCAL", "KILOBAR")
-    CONVERSIONS["YOCTOPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["YOCTOPASCAL:MEGABAR"] = \
-        lambda: noconversion("YOCTOPASCAL", "MEGABAR")
-    CONVERSIONS["YOCTOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["YOCTOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["YOCTOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("YOCTOPASCAL", "MILLIBAR")
-    CONVERSIONS["YOCTOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["YOCTOPASCAL:MILLITORR"] = \
-        lambda: noconversion("YOCTOPASCAL", "MILLITORR")
-    CONVERSIONS["YOCTOPASCAL:MMHG"] = \
-        lambda: noconversion("YOCTOPASCAL", "MMHG")
-    CONVERSIONS["YOCTOPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["YOCTOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["YOCTOPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["YOCTOPASCAL:PSI"] = \
-        lambda: noconversion("YOCTOPASCAL", "PSI")
-    CONVERSIONS["YOCTOPASCAL:Pascal"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["YOCTOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["YOCTOPASCAL:TORR"] = \
-        lambda: noconversion("YOCTOPASCAL", "TORR")
-    CONVERSIONS["YOCTOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -48) * value
-    CONVERSIONS["YOCTOPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["YOCTOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["YOTTAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("YOTTAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["YOTTAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 42) * value
-    CONVERSIONS["YOTTAPASCAL:BAR"] = \
-        lambda: noconversion("YOTTAPASCAL", "BAR")
-    CONVERSIONS["YOTTAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("YOTTAPASCAL", "CENTIBAR")
-    CONVERSIONS["YOTTAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 26) * value
-    CONVERSIONS["YOTTAPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["YOTTAPASCAL:DECIBAR"] = \
-        lambda: noconversion("YOTTAPASCAL", "DECIBAR")
-    CONVERSIONS["YOTTAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 25) * value
-    CONVERSIONS["YOTTAPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["YOTTAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["YOTTAPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["YOTTAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["YOTTAPASCAL:KILOBAR"] = \
-        lambda: noconversion("YOTTAPASCAL", "KILOBAR")
-    CONVERSIONS["YOTTAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["YOTTAPASCAL:MEGABAR"] = \
-        lambda: noconversion("YOTTAPASCAL", "MEGABAR")
-    CONVERSIONS["YOTTAPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["YOTTAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["YOTTAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("YOTTAPASCAL", "MILLIBAR")
-    CONVERSIONS["YOTTAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["YOTTAPASCAL:MILLITORR"] = \
-        lambda: noconversion("YOTTAPASCAL", "MILLITORR")
-    CONVERSIONS["YOTTAPASCAL:MMHG"] = \
-        lambda: noconversion("YOTTAPASCAL", "MMHG")
-    CONVERSIONS["YOTTAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["YOTTAPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["YOTTAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["YOTTAPASCAL:PSI"] = \
-        lambda: noconversion("YOTTAPASCAL", "PSI")
-    CONVERSIONS["YOTTAPASCAL:Pascal"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["YOTTAPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["YOTTAPASCAL:TORR"] = \
-        lambda: noconversion("YOTTAPASCAL", "TORR")
-    CONVERSIONS["YOTTAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 48) * value
-    CONVERSIONS["YOTTAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["YOTTAPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZEPTOPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("ZEPTOPASCAL", "ATMOSPHERE")
-    CONVERSIONS["ZEPTOPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZEPTOPASCAL:BAR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "BAR")
-    CONVERSIONS["ZEPTOPASCAL:CENTIBAR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "CENTIBAR")
-    CONVERSIONS["ZEPTOPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** -19) * value
-    CONVERSIONS["ZEPTOPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** -22) * value
-    CONVERSIONS["ZEPTOPASCAL:DECIBAR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "DECIBAR")
-    CONVERSIONS["ZEPTOPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** -20) * value
-    CONVERSIONS["ZEPTOPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** -39) * value
-    CONVERSIONS["ZEPTOPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** -6) * value
-    CONVERSIONS["ZEPTOPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** -30) * value
-    CONVERSIONS["ZEPTOPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** -23) * value
-    CONVERSIONS["ZEPTOPASCAL:KILOBAR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "KILOBAR")
-    CONVERSIONS["ZEPTOPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** -24) * value
-    CONVERSIONS["ZEPTOPASCAL:MEGABAR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "MEGABAR")
-    CONVERSIONS["ZEPTOPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** -27) * value
-    CONVERSIONS["ZEPTOPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** -15) * value
-    CONVERSIONS["ZEPTOPASCAL:MILLIBAR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "MILLIBAR")
-    CONVERSIONS["ZEPTOPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** -18) * value
-    CONVERSIONS["ZEPTOPASCAL:MILLITORR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "MILLITORR")
-    CONVERSIONS["ZEPTOPASCAL:MMHG"] = \
-        lambda: noconversion("ZEPTOPASCAL", "MMHG")
-    CONVERSIONS["ZEPTOPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** -12) * value
-    CONVERSIONS["ZEPTOPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** -36) * value
-    CONVERSIONS["ZEPTOPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** -9) * value
-    CONVERSIONS["ZEPTOPASCAL:PSI"] = \
-        lambda: noconversion("ZEPTOPASCAL", "PSI")
-    CONVERSIONS["ZEPTOPASCAL:Pascal"] = \
-        lambda value: (10 ** -21) * value
-    CONVERSIONS["ZEPTOPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** -33) * value
-    CONVERSIONS["ZEPTOPASCAL:TORR"] = \
-        lambda: noconversion("ZEPTOPASCAL", "TORR")
-    CONVERSIONS["ZEPTOPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZEPTOPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -45) * value
-    CONVERSIONS["ZEPTOPASCAL:ZETTAPASCAL"] = \
-        lambda value: (10 ** -42) * value
-    CONVERSIONS["ZETTAPASCAL:ATMOSPHERE"] = \
-        lambda: noconversion("ZETTAPASCAL", "ATMOSPHERE")
-    CONVERSIONS["ZETTAPASCAL:ATTOPASCAL"] = \
-        lambda value: (10 ** 39) * value
-    CONVERSIONS["ZETTAPASCAL:BAR"] = \
-        lambda: noconversion("ZETTAPASCAL", "BAR")
-    CONVERSIONS["ZETTAPASCAL:CENTIBAR"] = \
-        lambda: noconversion("ZETTAPASCAL", "CENTIBAR")
-    CONVERSIONS["ZETTAPASCAL:CENTIPASCAL"] = \
-        lambda value: (10 ** 23) * value
-    CONVERSIONS["ZETTAPASCAL:DECAPASCAL"] = \
-        lambda value: (10 ** 20) * value
-    CONVERSIONS["ZETTAPASCAL:DECIBAR"] = \
-        lambda: noconversion("ZETTAPASCAL", "DECIBAR")
-    CONVERSIONS["ZETTAPASCAL:DECIPASCAL"] = \
-        lambda value: (10 ** 22) * value
-    CONVERSIONS["ZETTAPASCAL:EXAPASCAL"] = \
-        lambda value: (10 ** 3) * value
-    CONVERSIONS["ZETTAPASCAL:FEMTOPASCAL"] = \
-        lambda value: (10 ** 36) * value
-    CONVERSIONS["ZETTAPASCAL:GIGAPASCAL"] = \
-        lambda value: (10 ** 12) * value
-    CONVERSIONS["ZETTAPASCAL:HECTOPASCAL"] = \
-        lambda value: (10 ** 19) * value
-    CONVERSIONS["ZETTAPASCAL:KILOBAR"] = \
-        lambda: noconversion("ZETTAPASCAL", "KILOBAR")
-    CONVERSIONS["ZETTAPASCAL:KILOPASCAL"] = \
-        lambda value: (10 ** 18) * value
-    CONVERSIONS["ZETTAPASCAL:MEGABAR"] = \
-        lambda: noconversion("ZETTAPASCAL", "MEGABAR")
-    CONVERSIONS["ZETTAPASCAL:MEGAPASCAL"] = \
-        lambda value: (10 ** 15) * value
-    CONVERSIONS["ZETTAPASCAL:MICROPASCAL"] = \
-        lambda value: (10 ** 27) * value
-    CONVERSIONS["ZETTAPASCAL:MILLIBAR"] = \
-        lambda: noconversion("ZETTAPASCAL", "MILLIBAR")
-    CONVERSIONS["ZETTAPASCAL:MILLIPASCAL"] = \
-        lambda value: (10 ** 24) * value
-    CONVERSIONS["ZETTAPASCAL:MILLITORR"] = \
-        lambda: noconversion("ZETTAPASCAL", "MILLITORR")
-    CONVERSIONS["ZETTAPASCAL:MMHG"] = \
-        lambda: noconversion("ZETTAPASCAL", "MMHG")
-    CONVERSIONS["ZETTAPASCAL:NANOPASCAL"] = \
-        lambda value: (10 ** 30) * value
-    CONVERSIONS["ZETTAPASCAL:PETAPASCAL"] = \
-        lambda value: (10 ** 6) * value
-    CONVERSIONS["ZETTAPASCAL:PICOPASCAL"] = \
-        lambda value: (10 ** 33) * value
-    CONVERSIONS["ZETTAPASCAL:PSI"] = \
-        lambda: noconversion("ZETTAPASCAL", "PSI")
-    CONVERSIONS["ZETTAPASCAL:Pascal"] = \
-        lambda value: (10 ** 21) * value
-    CONVERSIONS["ZETTAPASCAL:TERAPASCAL"] = \
-        lambda value: (10 ** 9) * value
-    CONVERSIONS["ZETTAPASCAL:TORR"] = \
-        lambda: noconversion("ZETTAPASCAL", "TORR")
-    CONVERSIONS["ZETTAPASCAL:YOCTOPASCAL"] = \
-        lambda value: (10 ** 45) * value
-    CONVERSIONS["ZETTAPASCAL:YOTTAPASCAL"] = \
-        lambda value: (10 ** -3) * value
-    CONVERSIONS["ZETTAPASCAL:ZEPTOPASCAL"] = \
-        lambda value: (10 ** 42) * value
+    for val in UNIT_VALUES:
+        CONVERSIONS[val] = dict()
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 18))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.BAR] = \
+        Mul(Rat(Int(4000), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(40), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Int(10132500)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(2), Int(20265)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(400), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Int(1013250)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.EXAPASCAL] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 16)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 15))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 7)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(4), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 6)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(40), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 9)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 4)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 6))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(4), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Int(101325000)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(1), Mul(Int(76), Pow(10, 4))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.MMHG] = \
+        Mul(Rat(Int(1269737023), Mul(Int(965), Pow(10, 9))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 9))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 13)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 12))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.PSI] = \
+        Mul(Rat(Int("8208044396629"), Mul(Int(120625), Pow(10, 9))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Int(101325)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 10)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.TORR] = \
+        Mul(Rat(Int(1), Int(760)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 24))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 22)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 21))), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATMOSPHERE][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Rat(Mul(Int(4), Pow(10, 19)), Int(4053)), Sym("atm"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(101325), Pow(10, 18)), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 23), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 21), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Pow(10, 16), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 19), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 22), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Pow(10, 17), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 36), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Int(1000), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 27), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 20), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 26), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 21), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 29), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 24), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Pow(10, 12), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 20), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Pow(10, 15), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 12)), Int(19)), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Mul(Int("133322387415"), Pow(10, 9)), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Pow(10, 9), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 33), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Pow(10, 6), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.PSI] = \
+        Mul(Mul(Int("689475729316836"), Pow(10, 7)), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Pow(10, 18), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 30), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 15)), Int(19)), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 42), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ATTOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 39), Sym("attopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Int(4000)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Int(100)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Int(10)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 13), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 4), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.KILOBAR] = \
+        Mul(Int(1000), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 6), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Int(10), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 7))), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 13))), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 10), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 14))), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 7), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 4))), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 29)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 19), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.BAR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 16), Sym("bar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Int(40)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.BAR] = \
+        Mul(Int(100), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.DECIBAR] = \
+        Mul(Int(10), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 15), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 6), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 5), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.KILOPASCAL] = \
+        Sym("cbar")  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 8), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Int(1000), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Int(10)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 5))), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 11))), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 12), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 12))), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 9), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Int(30400)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 21), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIBAR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 18), Sym("cbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Int(10132500), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 7), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 5), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Int(1000), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 6), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Int(10), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 20), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 11), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 4), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 10), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 5), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 13), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 8), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 4), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Int(304)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 6))), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 17), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 7))), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.Pascal] = \
+        Mul(Int(100), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 14), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(506625), Int(38)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 26), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.CENTIPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 23), Sym("centipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(20265), Int(2)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 4), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Int(100), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Int(1000), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 17), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 8), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Int(10), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 7), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Int(100), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 10), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 5), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Int(10), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Int(304000)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 9))), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 14), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 10))), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Int(10)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 11), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Int(304)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 23), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECAPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 20), Sym("decapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Int(400)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.BAR] = \
+        Mul(Int(10), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Int(10)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 14), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 5), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 4), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 7), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Int(100), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Int(100)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 6))), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 12))), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 11), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 13))), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 8), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Int(304000)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 28)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 20), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIBAR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 17), Sym("dbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Int(1013250), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 6), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 4), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Int(100), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 5), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 19), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 10), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Int(1000), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 9), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 4), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 12), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 7), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Int(1000), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Int(3040)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 7))), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 16), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 8))), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.Pascal] = \
+        Mul(Int(10), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 13), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(101325), Int(76)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 25), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.DECIPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 22), Sym("decipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 16))), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 20))), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 26))), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 27))), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 17))), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 6), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.EXAPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Int(1000), Sym("exapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(101325), Pow(10, 15)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 20), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 18), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Pow(10, 13), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 16), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 19), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Pow(10, 14), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 33), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 24), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 17), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 23), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 18), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 26), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 21), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Pow(10, 9), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 17), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Pow(10, 12), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 9)), Int(19)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Mul(Int("133322387415"), Pow(10, 6)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Pow(10, 6), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 30), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Int(1000), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.PSI] = \
+        Mul(Mul(Int("689475729316836"), Pow(10, 4)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Pow(10, 15), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 27), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 12)), Int(19)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 39), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.FEMTOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 36), Sym("femtopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 7))), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 9), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Int(1), Int(10)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Int(100), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 17))), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 6), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 18))), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Int(1000), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 8))), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 15), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.GIGAPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 12), Sym("gigapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Int(4)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.BAR] = \
+        Mul(Int(1000), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Int(10), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Int(100), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 16), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 7), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 6), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Int(10), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 9), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 4), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.MILLIBAR] = \
+        Sym("hectopa")  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 4))), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 10))), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 13), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 11))), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Int(100)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 10), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Int(3040)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 22), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.HECTOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 19), Sym("hectopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 6))), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 10), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Int(10), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.MEGABAR] = \
+        Mul(Int(1000), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 10))), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 16))), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 7), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 17))), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 4), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 7))), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 32)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 16), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 29)), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOBAR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 13), Sym("kbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Int(40)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.BAR] = \
+        Mul(Int(100), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.CENTIBAR] = \
+        Sym("kilopa")  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Int(10), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 15), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 6), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 5), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 8), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Int(1000), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Int(10)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 5))), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 11))), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 12), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 12))), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 9), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Int(30400)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 21), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.KILOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 18), Sym("kilopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 9))), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 29)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 7), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 13))), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 19))), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 4), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 20))), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.TERAPASCAL] = \
+        Mul(Int(10), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 10))), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 35)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 13), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 32)), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGABAR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 10), Sym("megabar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 4))), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Int(10)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Int(100)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 12), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Int(1000), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Int(100), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 5), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 8))), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 14))), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 9), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 15))), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 6), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 5))), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 18), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MEGAPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 15), Sym("megapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(101325), Pow(10, 6)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 11), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 9), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Pow(10, 4), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 7), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 10), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Pow(10, 5), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 24), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 15), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 8), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 14), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 9), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 17), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 12), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 8), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Int(1000), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(2533125), Int(19)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Int(200)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 21), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Int(25000)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.Pascal] = \
+        Mul(Pow(10, 6), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 18), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int("2533125000"), Int(19)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 30), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MICROPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 27), Sym("micropa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Int(4)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.BAR] = \
+        Mul(Int(1000), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.CENTIBAR] = \
+        Mul(Int(10), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.DECIBAR] = \
+        Mul(Int(100), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 16), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 7), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.HECTOPASCAL] = \
+        Sym("mbar")  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 6), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.KILOPASCAL] = \
+        Mul(Int(10), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 9), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 4), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 5)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 4))), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 10))), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 13), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 11))), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Int(100)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 10), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Int(3040)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 22), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIBAR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 19), Sym("mbar"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Int(101325000), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 8), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 6), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Int(10), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 4), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 7), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Int(100), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 21), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 12), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 5), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 11), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 6), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 14), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 9), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 5), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(20265), Int(152)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 5))), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 18), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 6))), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.Pascal] = \
+        Mul(Int(1000), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 15), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(2533125), Int(19)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 27), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLIPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 24), Sym("millipa"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(76), Pow(10, 4)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 12))), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.BAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 7)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(304), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(304000), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 6)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(3040), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.EXAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 20)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 9))), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 11)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 10)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 13)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 8)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(19), Int(2533125)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(152), Int(20265)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("24125003437"), Int(24125000)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(19), Int("2533125000")), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 17)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 6))), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("155952843535951"), Int("3015625000")), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(30400), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 14)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.TORR] = \
+        Mul(Int(1000), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 18))), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 26)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 15))), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MILLITORR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 23)), Int(4053)), Sym("mtorr"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Mul(Int(965), Pow(10, 9)), Int(1269737023)), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 9))), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.BAR] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 13)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 11)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 6)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 9)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 12)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 7)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.EXAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 26)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 6))), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 17)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 10)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 16)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 11)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 19)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 14)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(200), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 10)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 5)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(24125000), Int("24125003437")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Int("133322387415")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 23)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Int("133322387415000")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.PSI] = \
+        Mul(Rat(Int("8208044396629"), Int("158717127875")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.Pascal] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 8)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 20)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(24125), Pow(10, 6)), Int("24125003437")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 15))), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 32)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 12))), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.MMHG][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Rat(Mul(Int(2), Pow(10, 29)), Int("26664477483")), Sym("mmhg"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(101325), Pow(10, 9)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 14), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 12), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Pow(10, 7), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 10), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 13), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Pow(10, 8), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 27), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 18), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 11), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 17), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 12), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 20), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 15), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Int(1000), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 11), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Pow(10, 6), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int("2533125000"), Int(19)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Int("133322387415"), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 24), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Int(25)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Pow(10, 9), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 21), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 6)), Int(19)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 33), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.NANOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 30), Sym("nanopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 13))), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Int(1000), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 17))), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 23))), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 24))), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 14))), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 9), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PETAPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 6), Sym("petapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(101325), Pow(10, 12)), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 17), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 15), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Pow(10, 10), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 13), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 16), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Pow(10, 11), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 30), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 21), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 14), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 20), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 15), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 23), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 18), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Pow(10, 6), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 14), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Pow(10, 9), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 6)), Int(19)), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Int("133322387415000"), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Int(1000), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 27), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.PSI] = \
+        Mul(Int("6894757293168360"), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Pow(10, 12), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 24), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 9)), Int(19)), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 36), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PICOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 33), Sym("picopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Mul(Int(120625), Pow(10, 9)), Int("8208044396629")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 7))), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.BAR] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 14)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 7)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 10)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 13)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 8)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.EXAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 27)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 4))), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 18)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 17)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 20)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 15)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(25000), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 6)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int("3015625000"), Int("155952843535951")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("158717127875"), Int("8208044396629")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(25), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 24)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Int("6894757293168360")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.Pascal] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 9)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 21)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(3015625), Pow(10, 6)), Int("155952843535951")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 13))), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 33)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 10))), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.PSI][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Rat(Mul(Int(25), Pow(10, 30)), Int("172368932329209")), Sym("psi"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ATMOSPHERE] = \
+        Mul(Int(101325), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.BAR] = \
+        Mul(Pow(10, 5), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.CENTIBAR] = \
+        Mul(Int(1000), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Int(100)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.DECAPASCAL] = \
+        Mul(Int(10), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 4), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Int(10)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 18), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 9), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.HECTOPASCAL] = \
+        Mul(Int(100), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 8), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.KILOPASCAL] = \
+        Mul(Int(1000), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 11), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 6), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MILLIBAR] = \
+        Mul(Int(100), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Int(30400)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 8))), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 15), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 9))), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 12), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.TORR] = \
+        Mul(Rat(Int(20265), Int(152)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 24), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.Pascal][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 21), Sym("pa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 10))), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Pow(10, 7)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 14)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 11)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 8)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 6), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Int(1), Pow(10, 4)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Int(1), Int(10)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 14))), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 20))), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Int(1000), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 21))), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 12), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TERAPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 9), Sym("terapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.ATMOSPHERE] = \
+        Mul(Int(760), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 15))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.BAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(30400), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(38), Int(506625)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(304), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(304000), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(76), Int(101325)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.EXAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 17)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 12))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 8)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(3040), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 7)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(30400), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 10)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(19), Int("2533125000")), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(3040), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(19), Int(2533125)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("24125003437"), Mul(Int(24125), Pow(10, 6))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 6))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 14)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 9))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.PSI] = \
+        Mul(Rat(Int("155952843535951"), Mul(Int(3015625), Pow(10, 6))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(152), Int(20265)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 11)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 21))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 23)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 18))), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.TORR][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Rat(Mul(Int(304), Pow(10, 20)), Int(4053)), Sym("torr"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(101325), Pow(10, 24)), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Pow(10, 6), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 29), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 27), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Pow(10, 22), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 25), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 28), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Pow(10, 23), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 42), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Pow(10, 9), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 33), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 26), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 32), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 27), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 35), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 30), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Pow(10, 18), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 26), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Pow(10, 21), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 18)), Int(19)), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Mul(Int("133322387415"), Pow(10, 15)), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Pow(10, 15), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 39), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Pow(10, 12), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.PSI] = \
+        Mul(Mul(Int("689475729316836"), Pow(10, 13)), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Pow(10, 24), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 36), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 21)), Int(19)), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 48), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Int(1000), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOCTOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 45), Sym("yoctopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 22))), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 26)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 25)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 26))), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 32))), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 33))), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 23))), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 48)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.YOTTAPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("yottapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Mul(Int(101325), Pow(10, 21)), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Int(1000), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.BAR] = \
+        Mul(Pow(10, 26), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Pow(10, 24), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Pow(10, 19), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Pow(10, 22), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Pow(10, 25), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Pow(10, 20), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Pow(10, 39), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Pow(10, 6), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Pow(10, 30), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Pow(10, 23), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Pow(10, 29), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Pow(10, 24), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Pow(10, 32), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Pow(10, 27), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Pow(10, 15), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Pow(10, 23), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Pow(10, 18), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 15)), Int(19)), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.MMHG] = \
+        Mul(Mul(Int("133322387415"), Pow(10, 12)), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Pow(10, 12), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Pow(10, 36), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Pow(10, 9), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.PSI] = \
+        Mul(Mul(Int("689475729316836"), Pow(10, 10)), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.Pascal] = \
+        Mul(Pow(10, 21), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Pow(10, 33), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Mul(Int(2533125), Pow(10, 18)), Int(19)), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Pow(10, 45), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZEPTOPASCAL][UnitsPressure.ZETTAPASCAL] = \
+        Mul(Pow(10, 42), Sym("zeptopa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.ATMOSPHERE] = \
+        Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 19))), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.ATTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 39)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.BAR] = \
+        Mul(Rat(Int(1), Pow(10, 16)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.CENTIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.CENTIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 23)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.DECAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 20)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.DECIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 17)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.DECIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 22)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.EXAPASCAL] = \
+        Mul(Rat(Int(1), Int(1000)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.FEMTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 36)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.GIGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 12)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.HECTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.KILOBAR] = \
+        Mul(Rat(Int(1), Pow(10, 13)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.KILOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 18)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.MEGABAR] = \
+        Mul(Rat(Int(1), Pow(10, 10)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.MEGAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 15)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.MICROPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 27)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.MILLIBAR] = \
+        Mul(Rat(Int(1), Pow(10, 19)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.MILLIPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 24)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.MILLITORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 23))), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.MMHG] = \
+        Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 29))), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.NANOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 30)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.PETAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 6)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.PICOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 33)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.PSI] = \
+        Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 30))), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.Pascal] = \
+        Mul(Rat(Int(1), Pow(10, 21)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.TERAPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 9)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.TORR] = \
+        Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 20))), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.YOCTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 45)), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.YOTTAPASCAL] = \
+        Mul(Int(1000), Sym("zettapa"))  # nopep8
+    CONVERSIONS[UnitsPressure.ZETTAPASCAL][UnitsPressure.ZEPTOPASCAL] = \
+        Mul(Rat(Int(1), Pow(10, 42)), Sym("zettapa"))  # nopep8
 
     SYMBOLS = dict()
     SYMBOLS["ATMOSPHERE"] = "atm"
@@ -2068,18 +2079,20 @@ class PressureI(_omero_model.Pressure, UnitBase):
         if isinstance(value, _omero_model.PressureI):
             # This is a copy-constructor call.
             target = str(unit)
-            source = str(value.getUnit())
+            targetUnit = getattr(UnitsPressure, str(target))
+            sourceUnit = value.getUnit()
+            source = str(sourceUnit)
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                c = self.CONVERSIONS.get(targetUnit).get(sourceUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(getattr(UnitsPressure, str(target)))
+                self.setUnit(targetUnit)
         else:
             self.setValue(value)
             self.setUnit(unit)

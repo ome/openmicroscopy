@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -58,6 +59,9 @@ import omero.model.Illumination;
 import omero.model.LengthI;
 import omero.model.PlaneInfo;
 import ome.formats.model.UnitsFactory;
+import ome.model.units.BigResult;
+
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -498,15 +502,27 @@ class ChannelAcquisitionComponent
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
 			notSet = (List<String>) details.get(EditorUtil.NOT_SET);	
-			if (!notSet.contains(EditorUtil.DELTA_T))
+			if (!notSet.contains(EditorUtil.DELTA_T)) {
+			    if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
+			        MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T) , EditorUtil.DELTA_T);
+			        values[0][i] = "N/A";
+			    } else {
 				values[0][i] = details.get(EditorUtil.DELTA_T)
 						+ EditorUtil.TIME_UNIT;
+			    }
+			}
 			else
 				values[0][i] = "--";
 
-			if (!notSet.contains(EditorUtil.EXPOSURE_TIME))
+			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
+			    if(details.get(EditorUtil.EXPOSURE_TIME) instanceof BigResult) {
+                    MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.EXPOSURE_TIME) , EditorUtil.EXPOSURE_TIME);
+                    values[1][i] = "N/A";
+                } else {
 				values[1][i] = details.get(EditorUtil.EXPOSURE_TIME)
 						+ EditorUtil.TIME_UNIT;
+                }
+			}
 			else
 				values[1][i] = "--";
 			names[i] = "t="+(i-1);

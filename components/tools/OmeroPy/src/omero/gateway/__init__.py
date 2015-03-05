@@ -1206,8 +1206,11 @@ class BlitzObjectWrapper (object):
         if hasattr(self._obj, attr):
             rv = getattr(self._obj, attr)
             if hasattr(rv, 'val'):   # unwrap rtypes
-                return (isinstance(rv.val, StringType)
-                        and rv.val.decode('utf8') or rv.val)
+                # If this is a _unit, then we ignore val
+                # since it's not an rtype to unwrap.
+                if not hasattr(rv, "_unit"):
+                    return (isinstance(rv.val, StringType)
+                            and rv.val.decode('utf8') or rv.val)
             return rv
         raise AttributeError(
             "'%s' object has no attribute '%s'"

@@ -43,7 +43,7 @@ public enum UnitsTime {
     NANOSECOND("ns"),
     PICOSECOND("ps"),
     FEMTOSECOND("fs"),
-    ATOOSECOND("as"),
+    ATTOSECOND("as"),
     ZEPTOSECOND("zs"),
     YOCTOSECOND("ys"),
     MINUTE("min"),

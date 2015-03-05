@@ -19,11 +19,23 @@
 
 package omero.model;
 
+import static ome.model.units.Conversion.Mul;
+import static ome.model.units.Conversion.Add;
+import static ome.model.units.Conversion.Int;
+import static ome.model.units.Conversion.Pow;
+import static ome.model.units.Conversion.Rat;
+import static ome.model.units.Conversion.Sym;
+
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
+import ome.model.units.BigResult;
+import ome.model.units.Conversion;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -44,437 +56,739 @@ public class TimeI extends Time implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, double[][]> conversions;
-    static {
-        Map<String, double[][]> c = new HashMap<String, double[][]>();
+    private static Map<UnitsTime, Conversion> createMapATTOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.CENTISECOND, Mul(Pow(10, 16), Sym("attos")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 20)), Sym("attos")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 19), Sym("attos")));
+        c.put(UnitsTime.DECISECOND, Mul(Pow(10, 17), Sym("attos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 36), Sym("attos")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Int(1000), Sym("attos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 27), Sym("attos")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 20), Sym("attos")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 20)), Sym("attos")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 21), Sym("attos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 24), Sym("attos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Pow(10, 12), Sym("attos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Pow(10, 15), Sym("attos")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 19)), Sym("attos")));
+        c.put(UnitsTime.NANOSECOND, Mul(Pow(10, 9), Sym("attos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 33), Sym("attos")));
+        c.put(UnitsTime.PICOSECOND, Mul(Pow(10, 6), Sym("attos")));
+        c.put(UnitsTime.SECOND, Mul(Pow(10, 18), Sym("attos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 30), Sym("attos")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("attos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 42), Sym("attos")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Int(1000)), Sym("attos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 39), Sym("attos")));
+        return Collections.unmodifiableMap(c);
+    }
 
-        c.put("ATOOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("ATOOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ATOOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("ATOOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ATOOSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ATOOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ATOOSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ATOOSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ATOOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ATOOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ATOOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ATOOSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ATOOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ATOOSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ATOOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ATOOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ATOOSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ATOOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ATOOSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ATOOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("CENTISECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("CENTISECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("CENTISECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("CENTISECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("CENTISECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("CENTISECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("CENTISECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("CENTISECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("CENTISECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("CENTISECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("CENTISECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("CENTISECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("CENTISECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("CENTISECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("CENTISECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("CENTISECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("CENTISECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("CENTISECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("CENTISECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("CENTISECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("DECASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("DECASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECASECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("DECASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("DECASECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("DECASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECASECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("DECASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("DECASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("DECASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("DECASECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("DECASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("DECASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECASECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("DECASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("DECASECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("DECASECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("DECISECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("DECISECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECISECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECISECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("DECISECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("DECISECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("DECISECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("DECISECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("DECISECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("DECISECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("DECISECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECISECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("DECISECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("DECISECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("DECISECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECISECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("DECISECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("DECISECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("DECISECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("DECISECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("EXASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("EXASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("EXASECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("EXASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("EXASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("EXASECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("EXASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("EXASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("EXASECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("EXASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("EXASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("EXASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("EXASECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("EXASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("EXASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("EXASECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("EXASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("EXASECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("EXASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("EXASECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("FEMTOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("FEMTOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("FEMTOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("FEMTOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("FEMTOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("FEMTOSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("FEMTOSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("FEMTOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("FEMTOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("FEMTOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("FEMTOSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("FEMTOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("FEMTOSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("FEMTOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("FEMTOSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("FEMTOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("FEMTOSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("FEMTOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("GIGASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("GIGASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("GIGASECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("GIGASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("GIGASECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("GIGASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("GIGASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("GIGASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("GIGASECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("GIGASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("GIGASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("GIGASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("GIGASECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("GIGASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("GIGASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("GIGASECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("GIGASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("GIGASECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("GIGASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("GIGASECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("HECTOSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("HECTOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("HECTOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("HECTOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("HECTOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("HECTOSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("HECTOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("HECTOSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("HECTOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("HECTOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("HECTOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("HECTOSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("HECTOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("HECTOSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("HECTOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("HECTOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("HECTOSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("HECTOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("HECTOSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("HECTOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("KILOSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("KILOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("KILOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("KILOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("KILOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("KILOSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("KILOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("KILOSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("KILOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("KILOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("KILOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("KILOSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("KILOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("KILOSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("KILOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("KILOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("KILOSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("KILOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("KILOSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("KILOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("MEGASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("MEGASECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("MEGASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("MEGASECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MEGASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MEGASECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MEGASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("MEGASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MEGASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MEGASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MEGASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MEGASECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MEGASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MEGASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MEGASECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MEGASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("MEGASECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("MEGASECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MICROSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MICROSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("MICROSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MICROSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("MICROSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MICROSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("MICROSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MICROSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MICROSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MICROSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MICROSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MICROSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MICROSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MICROSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MICROSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MICROSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("MICROSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MICROSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLISECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MILLISECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("MILLISECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MILLISECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("MILLISECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MILLISECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MILLISECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MILLISECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MILLISECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MILLISECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MILLISECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MILLISECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MILLISECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MILLISECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MILLISECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MILLISECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MILLISECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MILLISECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLISECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MILLISECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("NANOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("NANOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("NANOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("NANOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("NANOSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("NANOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("NANOSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("NANOSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("NANOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("NANOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("NANOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("NANOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("NANOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("NANOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("NANOSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("NANOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("NANOSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("NANOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PETASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("PETASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("PETASECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("PETASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("PETASECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PETASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("PETASECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PETASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("PETASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PETASECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PETASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("PETASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("PETASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("PETASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("PETASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("PETASECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PETASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("PETASECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PETASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("PETASECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PICOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("PICOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("PICOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("PICOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PICOSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PICOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("PICOSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("PICOSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("PICOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("PICOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PICOSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PICOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("PICOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("PICOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("PICOSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PICOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("PICOSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PICOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("SECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("SECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("SECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("SECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("SECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("SECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("SECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("SECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("SECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("SECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("SECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("SECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("SECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("SECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("SECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("SECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("SECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("SECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("SECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("SECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("TERASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("TERASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("TERASECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("TERASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("TERASECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("TERASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("TERASECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("TERASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("TERASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("TERASECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("TERASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("TERASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("TERASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("TERASECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("TERASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("TERASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("TERASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("TERASECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("TERASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("TERASECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("YOCTOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("YOCTOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("YOCTOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("YOCTOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("YOCTOSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("YOCTOSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("YOCTOSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("YOCTOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("YOCTOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("YOCTOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("YOCTOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("YOCTOSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("YOCTOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("YOCTOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("YOCTOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
-        c.put("YOCTOSECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("YOCTOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("YOTTASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("YOTTASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("YOTTASECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("YOTTASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("YOTTASECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("YOTTASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("YOTTASECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("YOTTASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("YOTTASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("YOTTASECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("YOTTASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("YOTTASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("YOTTASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("YOTTASECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("YOTTASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("YOTTASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("YOTTASECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("YOTTASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
-        c.put("YOTTASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("YOTTASECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOSECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZEPTOSECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ZEPTOSECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("ZEPTOSECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ZEPTOSECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("ZEPTOSECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ZEPTOSECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ZEPTOSECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("ZEPTOSECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ZEPTOSECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ZEPTOSECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ZEPTOSECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ZEPTOSECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ZEPTOSECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ZEPTOSECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ZEPTOSECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ZEPTOSECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ZEPTOSECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOSECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("ZEPTOSECOND:ZETTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ZETTASECOND:ATOOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("ZETTASECOND:CENTISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("ZETTASECOND:DECASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("ZETTASECOND:DECISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("ZETTASECOND:EXASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZETTASECOND:FEMTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("ZETTASECOND:GIGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("ZETTASECOND:HECTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("ZETTASECOND:KILOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("ZETTASECOND:MEGASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("ZETTASECOND:MICROSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("ZETTASECOND:MILLISECOND", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("ZETTASECOND:NANOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("ZETTASECOND:PETASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ZETTASECOND:PICOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("ZETTASECOND:SECOND", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("ZETTASECOND:TERASECOND", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("ZETTASECOND:YOCTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("ZETTASECOND:YOTTASECOND", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZETTASECOND:ZEPTOSECOND", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+    private static Map<UnitsTime, Conversion> createMapCENTISECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 16)), Sym("centis")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 4)), Sym("centis")));
+        c.put(UnitsTime.DECASECOND, Mul(Int(1000), Sym("centis")));
+        c.put(UnitsTime.DECISECOND, Mul(Int(10), Sym("centis")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 20), Sym("centis")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 13)), Sym("centis")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 11), Sym("centis")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 4), Sym("centis")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 4)), Sym("centis")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 5), Sym("centis")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 8), Sym("centis")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 4)), Sym("centis")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Int(10)), Sym("centis")));
+        c.put(UnitsTime.MINUTE, Mul(Int(6000), Sym("centis")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 7)), Sym("centis")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 17), Sym("centis")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 10)), Sym("centis")));
+        c.put(UnitsTime.SECOND, Mul(Int(100), Sym("centis")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 14), Sym("centis")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 22)), Sym("centis")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 26), Sym("centis")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 19)), Sym("centis")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 23), Sym("centis")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapDAY() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 20))), Sym("d")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 4))), Sym("d")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Int(8640)), Sym("d")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Int(864000)), Sym("d")));
+        c.put(UnitsTime.EXASECOND, Mul(Rat(Mul(Int(3125), Pow(10, 11)), Int(27)), Sym("d")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 17))), Sym("d")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Int(312500), Int(27)), Sym("d")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Int(864)), Sym("d")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(1), Int(24)), Sym("d")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(5), Int(432)), Sym("d")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(625), Int(54)), Sym("d")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 8))), Sym("d")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 5))), Sym("d")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(1), Int(1440)), Sym("d")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 11))), Sym("d")));
+        c.put(UnitsTime.PETASECOND, Mul(Rat(Mul(Int(3125), Pow(10, 8)), Int(27)), Sym("d")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 14))), Sym("d")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Int(86400)), Sym("d")));
+        c.put(UnitsTime.TERASECOND, Mul(Rat(Mul(Int(3125), Pow(10, 5)), Int(27)), Sym("d")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 26))), Sym("d")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Rat(Mul(Int(3125), Pow(10, 17)), Int(27)), Sym("d")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Mul(Int(864), Pow(10, 23))), Sym("d")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Rat(Mul(Int(3125), Pow(10, 14)), Int(27)), Sym("d")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapDECASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 19)), Sym("decas")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Int(1000)), Sym("decas")));
+        c.put(UnitsTime.DAY, Mul(Int(8640), Sym("decas")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Int(100)), Sym("decas")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 17), Sym("decas")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 16)), Sym("decas")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 8), Sym("decas")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Int(10), Sym("decas")));
+        c.put(UnitsTime.HOUR, Mul(Int(360), Sym("decas")));
+        c.put(UnitsTime.KILOSECOND, Mul(Int(100), Sym("decas")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 5), Sym("decas")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 7)), Sym("decas")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 4)), Sym("decas")));
+        c.put(UnitsTime.MINUTE, Mul(Int(6), Sym("decas")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 10)), Sym("decas")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 14), Sym("decas")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 13)), Sym("decas")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Int(10)), Sym("decas")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 11), Sym("decas")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 25)), Sym("decas")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 23), Sym("decas")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 22)), Sym("decas")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 20), Sym("decas")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapDECISECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 17)), Sym("decis")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Int(10)), Sym("decis")));
+        c.put(UnitsTime.DAY, Mul(Int(864000), Sym("decis")));
+        c.put(UnitsTime.DECASECOND, Mul(Int(100), Sym("decis")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 19), Sym("decis")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 14)), Sym("decis")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 10), Sym("decis")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Int(1000), Sym("decis")));
+        c.put(UnitsTime.HOUR, Mul(Int(36000), Sym("decis")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 4), Sym("decis")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 7), Sym("decis")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 5)), Sym("decis")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Int(100)), Sym("decis")));
+        c.put(UnitsTime.MINUTE, Mul(Int(600), Sym("decis")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 8)), Sym("decis")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 16), Sym("decis")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 11)), Sym("decis")));
+        c.put(UnitsTime.SECOND, Mul(Int(10), Sym("decis")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 13), Sym("decis")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 23)), Sym("decis")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 25), Sym("decis")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 20)), Sym("decis")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 22), Sym("decis")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapEXASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 36)), Sym("exas")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 20)), Sym("exas")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 11))), Sym("exas")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Pow(10, 17)), Sym("exas")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 19)), Sym("exas")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 33)), Sym("exas")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("exas")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Pow(10, 16)), Sym("exas")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(9), Mul(Int(25), Pow(10, 14))), Sym("exas")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("exas")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("exas")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("exas")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("exas")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Mul(Int(5), Pow(10, 16))), Sym("exas")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("exas")));
+        c.put(UnitsTime.PETASECOND, Mul(Rat(Int(1), Int(1000)), Sym("exas")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 30)), Sym("exas")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("exas")));
+        c.put(UnitsTime.TERASECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("exas")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 42)), Sym("exas")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 6), Sym("exas")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 39)), Sym("exas")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Int(1000), Sym("exas")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapFEMTOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Int(1000)), Sym("femtos")));
+        c.put(UnitsTime.CENTISECOND, Mul(Pow(10, 13), Sym("femtos")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 17)), Sym("femtos")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 16), Sym("femtos")));
+        c.put(UnitsTime.DECISECOND, Mul(Pow(10, 14), Sym("femtos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 33), Sym("femtos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 24), Sym("femtos")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 17), Sym("femtos")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 17)), Sym("femtos")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 18), Sym("femtos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 21), Sym("femtos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Pow(10, 9), Sym("femtos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Pow(10, 12), Sym("femtos")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 16)), Sym("femtos")));
+        c.put(UnitsTime.NANOSECOND, Mul(Pow(10, 6), Sym("femtos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 30), Sym("femtos")));
+        c.put(UnitsTime.PICOSECOND, Mul(Int(1000), Sym("femtos")));
+        c.put(UnitsTime.SECOND, Mul(Pow(10, 15), Sym("femtos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 27), Sym("femtos")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("femtos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 39), Sym("femtos")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("femtos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 36), Sym("femtos")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapGIGASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("gigas")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 11)), Sym("gigas")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(27), Int(312500)), Sym("gigas")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Pow(10, 8)), Sym("gigas")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 10)), Sym("gigas")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 9), Sym("gigas")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("gigas")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Pow(10, 7)), Sym("gigas")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(9), Mul(Int(25), Pow(10, 5))), Sym("gigas")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigas")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(1), Int(1000)), Sym("gigas")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("gigas")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("gigas")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Mul(Int(5), Pow(10, 7))), Sym("gigas")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("gigas")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 6), Sym("gigas")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("gigas")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("gigas")));
+        c.put(UnitsTime.TERASECOND, Mul(Int(1000), Sym("gigas")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 33)), Sym("gigas")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 15), Sym("gigas")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 30)), Sym("gigas")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 12), Sym("gigas")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapHECTOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 20)), Sym("hectos")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 4)), Sym("hectos")));
+        c.put(UnitsTime.DAY, Mul(Int(864), Sym("hectos")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Int(10)), Sym("hectos")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Int(1000)), Sym("hectos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 16), Sym("hectos")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 17)), Sym("hectos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 7), Sym("hectos")));
+        c.put(UnitsTime.HOUR, Mul(Int(36), Sym("hectos")));
+        c.put(UnitsTime.KILOSECOND, Mul(Int(10), Sym("hectos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 4), Sym("hectos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 8)), Sym("hectos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 5)), Sym("hectos")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Int(5)), Sym("hectos")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 11)), Sym("hectos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 13), Sym("hectos")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 14)), Sym("hectos")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Int(100)), Sym("hectos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 10), Sym("hectos")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 26)), Sym("hectos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 22), Sym("hectos")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 23)), Sym("hectos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 19), Sym("hectos")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapHOUR() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 20))), Sym("h")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 4))), Sym("h")));
+        c.put(UnitsTime.DAY, Mul(Int(24), Sym("h")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Int(360)), Sym("h")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Int(36000)), Sym("h")));
+        c.put(UnitsTime.EXASECOND, Mul(Rat(Mul(Int(25), Pow(10, 14)), Int(9)), Sym("h")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 17))), Sym("h")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Mul(Int(25), Pow(10, 5)), Int(9)), Sym("h")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Int(36)), Sym("h")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(5), Int(18)), Sym("h")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(2500), Int(9)), Sym("h")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 8))), Sym("h")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 5))), Sym("h")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(1), Int(60)), Sym("h")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 11))), Sym("h")));
+        c.put(UnitsTime.PETASECOND, Mul(Rat(Mul(Int(25), Pow(10, 11)), Int(9)), Sym("h")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 14))), Sym("h")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Int(3600)), Sym("h")));
+        c.put(UnitsTime.TERASECOND, Mul(Rat(Mul(Int(25), Pow(10, 8)), Int(9)), Sym("h")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 26))), Sym("h")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Rat(Mul(Int(25), Pow(10, 20)), Int(9)), Sym("h")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Mul(Int(36), Pow(10, 23))), Sym("h")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Rat(Mul(Int(25), Pow(10, 17)), Int(9)), Sym("h")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapKILOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("kilos")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 5)), Sym("kilos")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(432), Int(5)), Sym("kilos")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Int(100)), Sym("kilos")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 4)), Sym("kilos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 15), Sym("kilos")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("kilos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 6), Sym("kilos")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Int(10)), Sym("kilos")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(18), Int(5)), Sym("kilos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Int(1000), Sym("kilos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("kilos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("kilos")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Int(50)), Sym("kilos")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("kilos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 12), Sym("kilos")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("kilos")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Int(1000)), Sym("kilos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 9), Sym("kilos")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("kilos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 21), Sym("kilos")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("kilos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 18), Sym("kilos")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapMEGASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("megas")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 8)), Sym("megas")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(54), Int(625)), Sym("megas")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Pow(10, 5)), Sym("megas")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 7)), Sym("megas")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 12), Sym("megas")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("megas")));
+        c.put(UnitsTime.GIGASECOND, Mul(Int(1000), Sym("megas")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Pow(10, 4)), Sym("megas")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(9), Int(2500)), Sym("megas")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(1), Int(1000)), Sym("megas")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("megas")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("megas")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Mul(Int(5), Pow(10, 4))), Sym("megas")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("megas")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 9), Sym("megas")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("megas")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("megas")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 6), Sym("megas")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 30)), Sym("megas")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 18), Sym("megas")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("megas")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 15), Sym("megas")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapMICROSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("micros")));
+        c.put(UnitsTime.CENTISECOND, Mul(Pow(10, 4), Sym("micros")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 8)), Sym("micros")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 7), Sym("micros")));
+        c.put(UnitsTime.DECISECOND, Mul(Pow(10, 5), Sym("micros")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 24), Sym("micros")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("micros")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 15), Sym("micros")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 8), Sym("micros")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 8)), Sym("micros")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 9), Sym("micros")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 12), Sym("micros")));
+        c.put(UnitsTime.MILLISECOND, Mul(Int(1000), Sym("micros")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 7)), Sym("micros")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Int(1000)), Sym("micros")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 21), Sym("micros")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("micros")));
+        c.put(UnitsTime.SECOND, Mul(Pow(10, 6), Sym("micros")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 18), Sym("micros")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("micros")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 30), Sym("micros")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("micros")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 27), Sym("micros")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapMILLISECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("millis")));
+        c.put(UnitsTime.CENTISECOND, Mul(Int(10), Sym("millis")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 5)), Sym("millis")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 4), Sym("millis")));
+        c.put(UnitsTime.DECISECOND, Mul(Int(100), Sym("millis")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 21), Sym("millis")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("millis")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 12), Sym("millis")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 5), Sym("millis")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 5)), Sym("millis")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 6), Sym("millis")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 9), Sym("millis")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Int(1000)), Sym("millis")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 4)), Sym("millis")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("millis")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 18), Sym("millis")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("millis")));
+        c.put(UnitsTime.SECOND, Mul(Int(1000), Sym("millis")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 15), Sym("millis")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("millis")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 27), Sym("millis")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("millis")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 24), Sym("millis")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapMINUTE() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 19))), Sym("m")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Int(6000)), Sym("m")));
+        c.put(UnitsTime.DAY, Mul(Int(1440), Sym("m")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Int(6)), Sym("m")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Int(600)), Sym("m")));
+        c.put(UnitsTime.EXASECOND, Mul(Rat(Mul(Int(5), Pow(10, 16)), Int(3)), Sym("m")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 16))), Sym("m")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Mul(Int(5), Pow(10, 7)), Int(3)), Sym("m")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(5), Int(3)), Sym("m")));
+        c.put(UnitsTime.HOUR, Mul(Int(60), Sym("m")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(50), Int(3)), Sym("m")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(3)), Sym("m")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 7))), Sym("m")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 4))), Sym("m")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 10))), Sym("m")));
+        c.put(UnitsTime.PETASECOND, Mul(Rat(Mul(Int(5), Pow(10, 13)), Int(3)), Sym("m")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 13))), Sym("m")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Int(60)), Sym("m")));
+        c.put(UnitsTime.TERASECOND, Mul(Rat(Mul(Int(5), Pow(10, 10)), Int(3)), Sym("m")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 25))), Sym("m")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Rat(Mul(Int(5), Pow(10, 22)), Int(3)), Sym("m")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Mul(Int(6), Pow(10, 22))), Sym("m")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Rat(Mul(Int(5), Pow(10, 19)), Int(3)), Sym("m")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapNANOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanos")));
+        c.put(UnitsTime.CENTISECOND, Mul(Pow(10, 7), Sym("nanos")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 11)), Sym("nanos")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 10), Sym("nanos")));
+        c.put(UnitsTime.DECISECOND, Mul(Pow(10, 8), Sym("nanos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 27), Sym("nanos")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("nanos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 18), Sym("nanos")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 11), Sym("nanos")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 11)), Sym("nanos")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 12), Sym("nanos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 15), Sym("nanos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Int(1000), Sym("nanos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Pow(10, 6), Sym("nanos")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 10)), Sym("nanos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 24), Sym("nanos")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Int(1000)), Sym("nanos")));
+        c.put(UnitsTime.SECOND, Mul(Pow(10, 9), Sym("nanos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 21), Sym("nanos")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("nanos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 33), Sym("nanos")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("nanos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 30), Sym("nanos")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapPETASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 33)), Sym("petas")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 17)), Sym("petas")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 8))), Sym("petas")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Pow(10, 14)), Sym("petas")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 16)), Sym("petas")));
+        c.put(UnitsTime.EXASECOND, Mul(Int(1000), Sym("petas")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 30)), Sym("petas")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("petas")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Pow(10, 13)), Sym("petas")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(9), Mul(Int(25), Pow(10, 11))), Sym("petas")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("petas")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("petas")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("petas")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("petas")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Mul(Int(5), Pow(10, 13))), Sym("petas")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("petas")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("petas")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("petas")));
+        c.put(UnitsTime.TERASECOND, Mul(Rat(Int(1), Int(1000)), Sym("petas")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 39)), Sym("petas")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 9), Sym("petas")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 36)), Sym("petas")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 6), Sym("petas")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapPICOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("picos")));
+        c.put(UnitsTime.CENTISECOND, Mul(Pow(10, 10), Sym("picos")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 14)), Sym("picos")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 13), Sym("picos")));
+        c.put(UnitsTime.DECISECOND, Mul(Pow(10, 11), Sym("picos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 30), Sym("picos")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Int(1000)), Sym("picos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 21), Sym("picos")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 14), Sym("picos")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 14)), Sym("picos")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 15), Sym("picos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 18), Sym("picos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Pow(10, 6), Sym("picos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Pow(10, 9), Sym("picos")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 13)), Sym("picos")));
+        c.put(UnitsTime.NANOSECOND, Mul(Int(1000), Sym("picos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 27), Sym("picos")));
+        c.put(UnitsTime.SECOND, Mul(Pow(10, 12), Sym("picos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 24), Sym("picos")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("picos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 36), Sym("picos")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("picos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 33), Sym("picos")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("s")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Int(100)), Sym("s")));
+        c.put(UnitsTime.DAY, Mul(Int(86400), Sym("s")));
+        c.put(UnitsTime.DECASECOND, Mul(Int(10), Sym("s")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Int(10)), Sym("s")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 18), Sym("s")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("s")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 9), Sym("s")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Int(100), Sym("s")));
+        c.put(UnitsTime.HOUR, Mul(Int(3600), Sym("s")));
+        c.put(UnitsTime.KILOSECOND, Mul(Int(1000), Sym("s")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 6), Sym("s")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("s")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Int(1000)), Sym("s")));
+        c.put(UnitsTime.MINUTE, Mul(Int(60), Sym("s")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("s")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 15), Sym("s")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("s")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 12), Sym("s")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("s")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 24), Sym("s")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("s")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 21), Sym("s")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapTERASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 30)), Sym("teras")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 14)), Sym("teras")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 5))), Sym("teras")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Pow(10, 11)), Sym("teras")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 13)), Sym("teras")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 6), Sym("teras")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("teras")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Int(1), Int(1000)), Sym("teras")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Pow(10, 10)), Sym("teras")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(9), Mul(Int(25), Pow(10, 8))), Sym("teras")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("teras")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("teras")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("teras")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("teras")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Mul(Int(5), Pow(10, 10))), Sym("teras")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("teras")));
+        c.put(UnitsTime.PETASECOND, Mul(Int(1000), Sym("teras")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("teras")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("teras")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 36)), Sym("teras")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 12), Sym("teras")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 33)), Sym("teras")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 9), Sym("teras")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapYOCTOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Pow(10, 6), Sym("yoctos")));
+        c.put(UnitsTime.CENTISECOND, Mul(Pow(10, 22), Sym("yoctos")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 26)), Sym("yoctos")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 25), Sym("yoctos")));
+        c.put(UnitsTime.DECISECOND, Mul(Pow(10, 23), Sym("yoctos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 42), Sym("yoctos")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Pow(10, 9), Sym("yoctos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 33), Sym("yoctos")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 26), Sym("yoctos")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 26)), Sym("yoctos")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 27), Sym("yoctos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 30), Sym("yoctos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Pow(10, 18), Sym("yoctos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Pow(10, 21), Sym("yoctos")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 25)), Sym("yoctos")));
+        c.put(UnitsTime.NANOSECOND, Mul(Pow(10, 15), Sym("yoctos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 39), Sym("yoctos")));
+        c.put(UnitsTime.PICOSECOND, Mul(Pow(10, 12), Sym("yoctos")));
+        c.put(UnitsTime.SECOND, Mul(Pow(10, 24), Sym("yoctos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 36), Sym("yoctos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 48), Sym("yoctos")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Int(1000), Sym("yoctos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 45), Sym("yoctos")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapYOTTASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 42)), Sym("yottas")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 26)), Sym("yottas")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 17))), Sym("yottas")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Pow(10, 23)), Sym("yottas")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 25)), Sym("yottas")));
+        c.put(UnitsTime.EXASECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("yottas")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 39)), Sym("yottas")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("yottas")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Pow(10, 22)), Sym("yottas")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(9), Mul(Int(25), Pow(10, 20))), Sym("yottas")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("yottas")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("yottas")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 30)), Sym("yottas")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("yottas")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Mul(Int(5), Pow(10, 22))), Sym("yottas")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 33)), Sym("yottas")));
+        c.put(UnitsTime.PETASECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("yottas")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 36)), Sym("yottas")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("yottas")));
+        c.put(UnitsTime.TERASECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("yottas")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 48)), Sym("yottas")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 45)), Sym("yottas")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Rat(Int(1), Int(1000)), Sym("yottas")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapZEPTOSECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Int(1000), Sym("zeptos")));
+        c.put(UnitsTime.CENTISECOND, Mul(Pow(10, 19), Sym("zeptos")));
+        c.put(UnitsTime.DAY, Mul(Mul(Int(864), Pow(10, 23)), Sym("zeptos")));
+        c.put(UnitsTime.DECASECOND, Mul(Pow(10, 22), Sym("zeptos")));
+        c.put(UnitsTime.DECISECOND, Mul(Pow(10, 20), Sym("zeptos")));
+        c.put(UnitsTime.EXASECOND, Mul(Pow(10, 39), Sym("zeptos")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Pow(10, 6), Sym("zeptos")));
+        c.put(UnitsTime.GIGASECOND, Mul(Pow(10, 30), Sym("zeptos")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Pow(10, 23), Sym("zeptos")));
+        c.put(UnitsTime.HOUR, Mul(Mul(Int(36), Pow(10, 23)), Sym("zeptos")));
+        c.put(UnitsTime.KILOSECOND, Mul(Pow(10, 24), Sym("zeptos")));
+        c.put(UnitsTime.MEGASECOND, Mul(Pow(10, 27), Sym("zeptos")));
+        c.put(UnitsTime.MICROSECOND, Mul(Pow(10, 15), Sym("zeptos")));
+        c.put(UnitsTime.MILLISECOND, Mul(Pow(10, 18), Sym("zeptos")));
+        c.put(UnitsTime.MINUTE, Mul(Mul(Int(6), Pow(10, 22)), Sym("zeptos")));
+        c.put(UnitsTime.NANOSECOND, Mul(Pow(10, 12), Sym("zeptos")));
+        c.put(UnitsTime.PETASECOND, Mul(Pow(10, 36), Sym("zeptos")));
+        c.put(UnitsTime.PICOSECOND, Mul(Pow(10, 9), Sym("zeptos")));
+        c.put(UnitsTime.SECOND, Mul(Pow(10, 21), Sym("zeptos")));
+        c.put(UnitsTime.TERASECOND, Mul(Pow(10, 33), Sym("zeptos")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Int(1000)), Sym("zeptos")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Pow(10, 45), Sym("zeptos")));
+        c.put(UnitsTime.ZETTASECOND, Mul(Pow(10, 42), Sym("zeptos")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsTime, Conversion> createMapZETTASECOND() {
+        EnumMap<UnitsTime, Conversion> c =
+            new EnumMap<UnitsTime, Conversion>(UnitsTime.class);
+        c.put(UnitsTime.ATTOSECOND, Mul(Rat(Int(1), Pow(10, 39)), Sym("zettas")));
+        c.put(UnitsTime.CENTISECOND, Mul(Rat(Int(1), Pow(10, 23)), Sym("zettas")));
+        c.put(UnitsTime.DAY, Mul(Rat(Int(27), Mul(Int(3125), Pow(10, 14))), Sym("zettas")));
+        c.put(UnitsTime.DECASECOND, Mul(Rat(Int(1), Pow(10, 20)), Sym("zettas")));
+        c.put(UnitsTime.DECISECOND, Mul(Rat(Int(1), Pow(10, 22)), Sym("zettas")));
+        c.put(UnitsTime.EXASECOND, Mul(Rat(Int(1), Int(1000)), Sym("zettas")));
+        c.put(UnitsTime.FEMTOSECOND, Mul(Rat(Int(1), Pow(10, 36)), Sym("zettas")));
+        c.put(UnitsTime.GIGASECOND, Mul(Rat(Int(1), Pow(10, 12)), Sym("zettas")));
+        c.put(UnitsTime.HECTOSECOND, Mul(Rat(Int(1), Pow(10, 19)), Sym("zettas")));
+        c.put(UnitsTime.HOUR, Mul(Rat(Int(9), Mul(Int(25), Pow(10, 17))), Sym("zettas")));
+        c.put(UnitsTime.KILOSECOND, Mul(Rat(Int(1), Pow(10, 18)), Sym("zettas")));
+        c.put(UnitsTime.MEGASECOND, Mul(Rat(Int(1), Pow(10, 15)), Sym("zettas")));
+        c.put(UnitsTime.MICROSECOND, Mul(Rat(Int(1), Pow(10, 27)), Sym("zettas")));
+        c.put(UnitsTime.MILLISECOND, Mul(Rat(Int(1), Pow(10, 24)), Sym("zettas")));
+        c.put(UnitsTime.MINUTE, Mul(Rat(Int(3), Mul(Int(5), Pow(10, 19))), Sym("zettas")));
+        c.put(UnitsTime.NANOSECOND, Mul(Rat(Int(1), Pow(10, 30)), Sym("zettas")));
+        c.put(UnitsTime.PETASECOND, Mul(Rat(Int(1), Pow(10, 6)), Sym("zettas")));
+        c.put(UnitsTime.PICOSECOND, Mul(Rat(Int(1), Pow(10, 33)), Sym("zettas")));
+        c.put(UnitsTime.SECOND, Mul(Rat(Int(1), Pow(10, 21)), Sym("zettas")));
+        c.put(UnitsTime.TERASECOND, Mul(Rat(Int(1), Pow(10, 9)), Sym("zettas")));
+        c.put(UnitsTime.YOCTOSECOND, Mul(Rat(Int(1), Pow(10, 45)), Sym("zettas")));
+        c.put(UnitsTime.YOTTASECOND, Mul(Int(1000), Sym("zettas")));
+        c.put(UnitsTime.ZEPTOSECOND, Mul(Rat(Int(1), Pow(10, 42)), Sym("zettas")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsTime, Map<UnitsTime, Conversion>> conversions;
+    static {
+
+        Map<UnitsTime, Map<UnitsTime, Conversion>> c
+            = new EnumMap<UnitsTime, Map<UnitsTime, Conversion>>(UnitsTime.class);
+
+        c.put(UnitsTime.ATTOSECOND, createMapATTOSECOND());
+        c.put(UnitsTime.CENTISECOND, createMapCENTISECOND());
+        c.put(UnitsTime.DAY, createMapDAY());
+        c.put(UnitsTime.DECASECOND, createMapDECASECOND());
+        c.put(UnitsTime.DECISECOND, createMapDECISECOND());
+        c.put(UnitsTime.EXASECOND, createMapEXASECOND());
+        c.put(UnitsTime.FEMTOSECOND, createMapFEMTOSECOND());
+        c.put(UnitsTime.GIGASECOND, createMapGIGASECOND());
+        c.put(UnitsTime.HECTOSECOND, createMapHECTOSECOND());
+        c.put(UnitsTime.HOUR, createMapHOUR());
+        c.put(UnitsTime.KILOSECOND, createMapKILOSECOND());
+        c.put(UnitsTime.MEGASECOND, createMapMEGASECOND());
+        c.put(UnitsTime.MICROSECOND, createMapMICROSECOND());
+        c.put(UnitsTime.MILLISECOND, createMapMILLISECOND());
+        c.put(UnitsTime.MINUTE, createMapMINUTE());
+        c.put(UnitsTime.NANOSECOND, createMapNANOSECOND());
+        c.put(UnitsTime.PETASECOND, createMapPETASECOND());
+        c.put(UnitsTime.PICOSECOND, createMapPICOSECOND());
+        c.put(UnitsTime.SECOND, createMapSECOND());
+        c.put(UnitsTime.TERASECOND, createMapTERASECOND());
+        c.put(UnitsTime.YOCTOSECOND, createMapYOCTOSECOND());
+        c.put(UnitsTime.YOTTASECOND, createMapYOTTASECOND());
+        c.put(UnitsTime.ZEPTOSECOND, createMapZEPTOSECOND());
+        c.put(UnitsTime.ZETTASECOND, createMapZETTASECOND());
         conversions = Collections.unmodifiableMap(c);
     }
 
     private static final Map<UnitsTime, String> SYMBOLS;
     static {
         Map<UnitsTime, String> s = new HashMap<UnitsTime, String>();
-        s.put(UnitsTime.ATOOSECOND, "as");
+        s.put(UnitsTime.ATTOSECOND, "as");
         s.put(UnitsTime.CENTISECOND, "cs");
         s.put(UnitsTime.DAY, "d");
         s.put(UnitsTime.DECASECOND, "das");
@@ -593,7 +907,7 @@ public class TimeI extends Time implements ModelBased {
     * Copy constructor that converts the given {@link omero.model.Time}
     * based on the given ome-xml enum
     */
-   public TimeI(Time value, Unit<ome.units.quantity.Time> ul) {
+   public TimeI(Time value, Unit<ome.units.quantity.Time> ul) throws BigResult {
        this(value,
             ome.model.enums.UnitsTime.bySymbol(ul.getSymbol()).toString());
    }
@@ -612,36 +926,29 @@ public class TimeI extends Time implements ModelBased {
     *
     * @param target String representation of the CODE enum
     */
-    public TimeI(Time value, String target) {
+    public TimeI(Time value, String target) throws BigResult {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            double[][] coeffs = conversions.get(source + ":" + target);
-            if (coeffs == null) {
+            UnitsTime targetUnit = UnitsTime.valueOf(target);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
+            if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
             double orig = value.getValue();
-            double k, p, v;
-            if (coeffs.length == 0) {
-                v = orig;
-            } else if (coeffs.length == 2){
-                k = coeffs[0][0];
-                p = coeffs[0][1];
-                v = Math.pow(k, p);
-
-                k = coeffs[1][0];
-                p = coeffs[1][1];
-                v += Math.pow(k, p) * orig;
-            } else {
-                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            BigDecimal big = conversion.convert(orig);
+            double converted = big.doubleValue();
+            if (Double.isInfinite(converted)) {
+                throw new BigResult(big,
+                        "Failed to convert " + source + ":" + target);
             }
 
-            setValue(v);
-            setUnit(UnitsTime.valueOf(target));
+            setValue(converted);
+            setUnit(targetUnit);
        }
     }
 
@@ -650,7 +957,7 @@ public class TimeI extends Time implements ModelBased {
     *
     * @param target unit that is desired. non-null.
     */
-    public TimeI(Time value, UnitsTime target) {
+    public TimeI(Time value, UnitsTime target) throws BigResult {
         this(value, target.toString());
     }
 

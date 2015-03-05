@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
@@ -49,6 +50,8 @@ import org.openmicroscopy.shoola.util.roi.model.util.UnitPoint;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
+
+import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -207,7 +210,12 @@ public class MeasurePointFigure
      */
     public Length getMeasurementY()
     {
-        return new LengthI(transformY(getY()), getUnit());
+        try {
+            return new LengthI(transformY(getY()), getUnit());
+        } catch (BigResult result) {
+            // FIXME: temporarily returning infinity
+            return  new LengthI(Double.POSITIVE_INFINITY, getUnit());
+        }
     }
 
     /** 

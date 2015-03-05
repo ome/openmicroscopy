@@ -2,7 +2,7 @@
  * pojos.ObjectiveData
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.units.BigResult;
 import omero.RBool;
 import omero.RDouble;
 import omero.RString;
@@ -73,8 +74,9 @@ public class ObjectiveData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
 	 */
-	public Length getWorkingDistance(UnitsLength unit)
+	public Length getWorkingDistance(UnitsLength unit) throws BigResult
 	{
 		Objective obj = ((Objective) asIObject());
 		Length l = obj.getWorkingDistance();

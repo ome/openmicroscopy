@@ -2,7 +2,7 @@
  * pojos.LightSourceData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
  */
 package pojos;
 
+import ome.model.units.BigResult;
 import omero.RBool;
 import omero.RInt;
 import omero.RString;
@@ -153,8 +154,9 @@ public class LightSourceData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred 
 	 */
-	public Power getPower(UnitsPower unit)
+	public Power getPower(UnitsPower unit) throws BigResult
 	{
 		LightSource light = (LightSource) asIObject();
 		if (light == null)
@@ -224,8 +226,9 @@ public class LightSourceData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getLaserWavelength(UnitsLength unit)
+	public Length getLaserWavelength(UnitsLength unit) throws BigResult
 	{
 		if (!LASER.equals(getKind())) 
 			return null;
@@ -346,8 +349,9 @@ public class LightSourceData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Frequency getLaserRepetitionRate(UnitsFrequency unit)
+	public Frequency getLaserRepetitionRate(UnitsFrequency unit) throws BigResult
 	{
 		if (!LASER.equals(getKind())) return null;
 		Laser laser = (Laser) asIObject();

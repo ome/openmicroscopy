@@ -35,39 +35,50 @@ __name__ = "omero.model"
 from omero_model_UnitBase import UnitBase
 from omero.model.enums import UnitsTemperature
 
-
-def noconversion(cfrom, cto):
-    raise Exception(("Unsupported conversion: "
-                     "%s:%s") % cfrom, cto)
+from omero.conversions import Add  # nopep8
+from omero.conversions import Int  # nopep8
+from omero.conversions import Mul  # nopep8
+from omero.conversions import Pow  # nopep8
+from omero.conversions import Rat  # nopep8
+from omero.conversions import Sym  # nopep8
 
 
 class TemperatureI(_omero_model.Temperature, UnitBase):
 
+    try:
+        UNIT_VALUES = sorted(UnitsTemperature._enumerators.values())
+    except:
+        # TODO: this occurs on Ice 3.4 and can be removed
+        # once it has been dropped.
+        UNIT_VALUES = [x for x in sorted(UnitsTemperature._names)]
+        UNIT_VALUES = [getattr(UnitsTemperature, x) for x in UNIT_VALUES]
     CONVERSIONS = dict()
-    CONVERSIONS["CELSIUS:FAHRENHEIT"] = \
-        lambda value: 32+1.8 * value
-    CONVERSIONS["CELSIUS:KELVIN"] = \
-        lambda value: 273.15
-    CONVERSIONS["CELSIUS:RANKINE"] = \
-        lambda: noconversion("CELSIUS", "RANKINE")
-    CONVERSIONS["FAHRENHEIT:CELSIUS"] = \
-        lambda value: -17.777777777+0.55555555555 * value
-    CONVERSIONS["FAHRENHEIT:KELVIN"] = \
-        lambda: noconversion("FAHRENHEIT", "KELVIN")
-    CONVERSIONS["FAHRENHEIT:RANKINE"] = \
-        lambda: noconversion("FAHRENHEIT", "RANKINE")
-    CONVERSIONS["KELVIN:CELSIUS"] = \
-        lambda value: -273.15
-    CONVERSIONS["KELVIN:FAHRENHEIT"] = \
-        lambda: noconversion("KELVIN", "FAHRENHEIT")
-    CONVERSIONS["KELVIN:RANKINE"] = \
-        lambda: noconversion("KELVIN", "RANKINE")
-    CONVERSIONS["RANKINE:CELSIUS"] = \
-        lambda: noconversion("RANKINE", "CELSIUS")
-    CONVERSIONS["RANKINE:FAHRENHEIT"] = \
-        lambda: noconversion("RANKINE", "FAHRENHEIT")
-    CONVERSIONS["RANKINE:KELVIN"] = \
-        lambda: noconversion("RANKINE", "KELVIN")
+    for val in UNIT_VALUES:
+        CONVERSIONS[val] = dict()
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.FAHRENHEIT] = \
+        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Int(32))  # nopep8
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.KELVIN] = \
+        Add(Sym("c"), Rat(Int(5463), Int(20)))  # nopep8
+    CONVERSIONS[UnitsTemperature.CELSIUS][UnitsTemperature.RANKINE] = \
+        Add(Mul(Rat(Int(9), Int(5)), Sym("c")), Rat(Int(49167), Int(100)))  # nopep8
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.CELSIUS] = \
+        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(-160), Int(9)))  # nopep8
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.KELVIN] = \
+        Add(Mul(Rat(Int(5), Int(9)), Sym("f")), Rat(Int(45967), Int(180)))  # nopep8
+    CONVERSIONS[UnitsTemperature.FAHRENHEIT][UnitsTemperature.RANKINE] = \
+        Add(Sym("f"), Rat(Int(45967), Int(100)))  # nopep8
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.CELSIUS] = \
+        Add(Sym("k"), Rat(Int(-5463), Int(20)))  # nopep8
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.FAHRENHEIT] = \
+        Add(Mul(Rat(Int(9), Int(5)), Sym("k")), Rat(Int(-45967), Int(100)))  # nopep8
+    CONVERSIONS[UnitsTemperature.KELVIN][UnitsTemperature.RANKINE] = \
+        Mul(Rat(Int(9), Int(5)), Sym("k"))  # nopep8
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.CELSIUS] = \
+        Add(Mul(Rat(Int(5), Int(9)), Sym("r")), Rat(Int(-5463), Int(20)))  # nopep8
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.FAHRENHEIT] = \
+        Add(Sym("r"), Rat(Int(-45967), Int(100)))  # nopep8
+    CONVERSIONS[UnitsTemperature.RANKINE][UnitsTemperature.KELVIN] = \
+        Mul(Rat(Int(5), Int(9)), Sym("r"))  # nopep8
 
     SYMBOLS = dict()
     SYMBOLS["CELSIUS"] = "°C"
@@ -80,18 +91,20 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
         if isinstance(value, _omero_model.TemperatureI):
             # This is a copy-constructor call.
             target = str(unit)
-            source = str(value.getUnit())
+            targetUnit = getattr(UnitsTemperature, str(target))
+            sourceUnit = value.getUnit()
+            source = str(sourceUnit)
             if target == source:
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get("%s:%s" % (source, target))
+                c = self.CONVERSIONS.get(targetUnit).get(sourceUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(getattr(UnitsTemperature, str(target)))
+                self.setUnit(targetUnit)
         else:
             self.setValue(value)
             self.setUnit(unit)

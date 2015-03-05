@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.ImViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,6 +30,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
+
+
+import ome.model.units.BigResult;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -186,6 +189,31 @@ public class ImViewerAgent
             view.activate(object.getSettings(), object.getSelectedUserID(),
                     displayMode);
             view.setContext(object.getParent(), object.getGrandParent());
+        }
+    }
+    
+    /**
+     * Convenience method for logging BigResult exceptions
+     * 
+     * @param src
+     *            The origin of the exception
+     * @param exception
+     *            The exception
+     * @param property
+     *            The property which conversion triggered the exception
+     */
+    public static void logBigResultExeption(Object src, Object exception,
+            String property) {
+        if (exception instanceof BigResult) {
+            ImViewerAgent
+                    .getRegistry()
+                    .getLogger()
+                    .warn(src,
+                            "Arithmetic overflow; "
+                                    + property
+                                    + " is "
+                                    + ((BigResult) exception).result
+                                            .doubleValue());
         }
     }
 
