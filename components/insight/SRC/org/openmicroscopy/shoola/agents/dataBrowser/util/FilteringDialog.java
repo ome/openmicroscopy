@@ -64,6 +64,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 
+
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
 
@@ -71,6 +72,7 @@ import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
@@ -79,6 +81,7 @@ import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
 import pojos.DataObject;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -370,8 +373,8 @@ public class FilteringDialog
 		roiOptions = new JComboBox(COMPARISON_OPTIONS);
 		rating = new RatingComponent(5, RatingComponent.HIGH_SIZE);
 		roiSpinner = new JSpinner(new SpinnerNumberModel(1, 0, Integer.MAX_VALUE, 1));
-		fromDate = UIUtilities.createDatePicker(false);
-		toDate = UIUtilities.createDatePicker(false);
+		fromDate = UIUtilities.createDatePicker(false, EditorUtil.DATE_PICKER_FORMAT);
+		toDate = UIUtilities.createDatePicker(false, EditorUtil.DATE_PICKER_FORMAT);
 		IconManager icons = IconManager.getInstance();
 		loadTagsButton = new JButton(icons.getIcon(IconManager.TAG_FILTER));
 		UIUtilities.unifiedButtonLookAndFeel(loadTagsButton);

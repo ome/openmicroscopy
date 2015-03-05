@@ -107,6 +107,9 @@ import pojos.WellSampleData;
 public class EditorUtil
 {
 
+    /** The date format for the date pickers */
+    public static final String DATE_PICKER_FORMAT = "yyyy-MM-dd";
+
     /** The maximum number of characters.*/
     public static final int MAX_CHAR = 256;
 
