@@ -61,6 +61,12 @@ public interface SqlAction {
         }
     }
 
+    public static class StringRowMapper implements RowMapper<String> {
+        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return rs.getString(1);
+        }
+    }
+
     public static class LoggingSqlAction implements MethodInterceptor {
 
         final private static Logger log = LoggerFactory.getLogger(SqlAction.class);
@@ -446,6 +452,13 @@ public interface SqlAction {
      * @return their name, or {@code null} if they cannot be found
      */
     String getUsername(long userId);
+
+    /**
+     * Load all the non-empty email addresses for users in a given group.
+     * @param group id
+     * @return a non-null {@link Collection} of non-empty user email addresses.
+     */
+    Collection<String> getUserEmailsByGroup(long groupId);
 
     /**
      * Gets the experimenters who have the <code>ldap</code> attribute enabled.
@@ -888,6 +901,15 @@ public interface SqlAction {
                 id = null; // This means there's not one.
             }
             return id;
+        }
+
+        public Collection<String> getUserEmailsByGroup(long groupId) {
+            try {
+                return _jdbc().query(_lookup("user_emails_by_group"), //$NON-NLS-1$
+                        new StringRowMapper(), groupId);
+            } catch (EmptyResultDataAccessException e) {
+                return Collections.emptyList();
+            }
         }
 
         @Override
