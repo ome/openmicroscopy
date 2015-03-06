@@ -2,14 +2,15 @@ function ma = writeMapAnnotation(session, keys, values, varargin)
 % WRITEMAPANNOTATION Create and upload a map annotation onto OMERO
 %
 %    ma = writeMapAnnotation(session, keys, values) creates and uploads a
-%    map annotation owned by the session user containing a list of
-%    key/value pairs.
+%    map annotation owned by the session user containing one or multiple
+%    key/value pair(s). The keys and values input must be either strings or
+%    cell arrays of strings with the same number of elements.
 %
 %    ma = writeMapAnnotation(session, keys, values, 'description',
 %    description) also specifies the description of the map annotation.
 %
-%    xa = writeMapAnnotation(session, keys, values, 'namespace', namespace)
-%    also sets the namespace of the XML annotation.
+%    ma = writeMapAnnotation(session, keys, values, 'namespace', namespace)
+%    also sets the namespace of the map annotation.
 %
 %    Examples:
 %
@@ -48,13 +49,13 @@ ip.addParamValue('namespace', '', @ischar);
 ip.addParamValue('description', '', @ischar);
 ip.parse(session, keys, values, varargin{:});
 
-if ischar(keys)
-    assert(isschar(values), 'Values must be');
-    keys = {keys};
-    values = {values};
-end
-assert(numel(keys) == numel(values));
-% Create list of named values
+% Convert keys and values into cell arrays
+if ischar(keys), keys = {keys}; end
+if ischar(values), values = {values}; end
+assert(numel(keys) == numel(values),...
+    'Keys and values input should have the same number of elements');
+
+% Create java ArrayList of NamedValue objects
 nv = java.util.ArrayList();
 for i = 1 : numel(keys)
     nv.add(omero.model.NamedValue(keys{i}, values{i}));
@@ -63,7 +64,6 @@ end
 % Create a map annotation
 ma = omero.model.MapAnnotationI();
 ma.setMapValue(nv);
-
 
 if ~isempty(ip.Results.description),
     ma.setDescription(rstring(ip.Results.description));
