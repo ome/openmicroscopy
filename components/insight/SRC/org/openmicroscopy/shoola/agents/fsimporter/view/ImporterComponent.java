@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import ij.IJ;
+
 import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;

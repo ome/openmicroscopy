@@ -23,7 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
-import ij.ImagePlus;
+import ij.IJ;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
@@ -353,6 +353,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	private LocationDialog locationDialog;
 
+	/** The dialog used when in imagej mode.*/
+	private LocationDialog detachedDialog;
+
 	/** Stores the currently active file filter */
 	private FileFilter currentFilter;
 
@@ -386,7 +389,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Displays the location of the import.*/
 	private void showLocationDialog()
 	{
-		if (checkFileCount() && (locationDialog.centerLocation() == LocationDialog.CMD_ADD)) {
+		if (checkFileCount() && 
+		        locationDialog.centerLocation() == LocationDialog.CMD_ADD) {
 			addFiles(locationDialog.getImportSettings());
 		}
 	}
@@ -622,6 +626,14 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				objects, model, groupId, true);
 		locationDialog.addPropertyChangeListener(this);
 		
+		int plugin = ImporterAgent.runAsPlugin();
+        
+        if (plugin == LookupNames.IMAGE_J_IMPORT ||
+                plugin == LookupNames.IMAGE_J) {
+            detachedDialog = new LocationDialog(owner, selectedContainer, type,
+                    objects, model, groupId, false);
+            detachedDialog.addPropertyChangeListener(this);
+        }
 		tagSelectionListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -1418,7 +1430,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 		locationDialog.reset(this.selectedContainer, this.type, this.objects,
 				currentGroupId, userID);
-
+		if (detachedDialog != null) {
+		    detachedDialog.reset(this.selectedContainer, this.type, this.objects,
+	                currentGroupId, userID);
+		}
 		tagsPane.removeAll();
 		tagsMap.clear();
 	}
@@ -1501,10 +1516,22 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * @param parent The parent of the object.
 	 */
 	public void onDataObjectSaved(DataObject d, DataObject parent) {
-		if (d instanceof ProjectData) locationDialog.createProject(d);
-		else if (d instanceof ScreenData) locationDialog.createScreen(d);
-		else if (d instanceof DatasetData) 
-			locationDialog.createDataset((DatasetData) d);
+		if (d instanceof ProjectData) {
+		    locationDialog.createProject(d);
+		    if (detachedDialog != null) {
+                detachedDialog.createProject(d);
+            }
+		} else if (d instanceof ScreenData) {
+		    locationDialog.createScreen(d);
+		    if (detachedDialog != null) {
+                detachedDialog.createScreen(d);
+            }
+		} else if (d instanceof DatasetData) {
+		    locationDialog.createDataset((DatasetData) d);
+		    if (detachedDialog != null) {
+		        detachedDialog.createDataset((DatasetData) d);
+		    }
+		}
 	}
 
 	/**
@@ -1525,6 +1552,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public void setSelectedGroup(GroupData group) {
 		locationDialog.setSelectedGroup(group);
+		if (detachedDialog != null) {
+		    detachedDialog.setSelectedGroup(group);
+		}
 	}
 
     /**
@@ -1587,15 +1617,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
      */
     public ImportLocationSettings createLocationDialog()
     {
-        long groupId = -1;
-        if (model.getSelectedGroup() != null)
-            groupId = model.getSelectedGroup().getGroupId();
-        if (groupId < 0) groupId = ImporterAgent.getUserDetails().getGroupId();
-
-        LocationDialog dialog = new LocationDialog(owner, selectedContainer, type,
-                objects, model, groupId, false);
-        if (dialog.centerLocation() == LocationDialog.CMD_ADD) {
-            return dialog.getImportSettings();
+        if (detachedDialog == null) return null;
+        if (detachedDialog.centerLocation() == LocationDialog.CMD_ADD) {
+            return detachedDialog.getImportSettings();
         }
         return null;
     }

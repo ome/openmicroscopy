@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 
 import java.util.Collection;
@@ -219,10 +220,10 @@ class ImporterModel
 	{ 
 		this.groupId = groupId;
 		ExperimenterData exp = ImporterAgent.getUserDetails();
-		if (this.groupId < 0) {
+		if (groupId < 0) {
 		    this.groupId = exp.getDefaultGroup().getGroupId();
 		}
-		ctx = new SecurityContext(groupId);
+		ctx = new SecurityContext(this.groupId);
 		experimenterId = exp.getId();
 		tags = null;
 	}

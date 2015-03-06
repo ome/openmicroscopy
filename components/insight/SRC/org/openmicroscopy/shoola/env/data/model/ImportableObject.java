@@ -392,7 +392,6 @@ public class ImportableObject
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
 		String name = f.getFolderAsContainerName();
-		IJ.log("name: "+name);
 		if (CommonsLangUtils.isBlank(name)) return null;
 		if (DatasetData.class.equals(klass)) {
 			DatasetData dataset = new DatasetData();
