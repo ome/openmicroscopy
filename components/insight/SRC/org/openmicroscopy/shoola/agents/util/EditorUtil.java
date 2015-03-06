@@ -640,6 +640,20 @@ public class EditorUtil
     }
 
     /**
+     * Rounds the value.
+     *
+     * @param v The value to handle.
+     * @return See above.
+     */
+    private static double roundValue(double v)
+    {
+        if (v <= 0) return UIUtilities.roundTwoDecimals(v);
+        int decimal = UIUtilities.findDecimal(v, 1);
+        if (decimal <= 2) return UIUtilities.roundTwoDecimals(v);
+        return UIUtilities.ceil(v, decimal+1);
+    }
+    
+    /**
      * Transforms the specified {@link ExperimenterData} object into
      * a visualization form.
      *
@@ -2284,7 +2298,7 @@ public class EditorUtil
             if (t != null)  {
                 notSet.remove(DELTA_T);
                 try {
-                    details.put(DELTA_T, NF.format(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                    details.put(DELTA_T, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
                 } catch (BigResult e) {
                     details.put(DELTA_T, e);
                 }
@@ -2293,7 +2307,7 @@ public class EditorUtil
             if (t != null) {
                 notSet.remove(EXPOSURE_TIME);
                 try {
-                    details.put(EXPOSURE_TIME, NF.format(UnitsFactory.convertTime(t, UNITS.S).getValue()));
+                    details.put(EXPOSURE_TIME, roundValue(UnitsFactory.convertTime(t, UNITS.S).getValue()));
                 } catch (BigResult e) {
                     details.put(EXPOSURE_TIME, e);
                 }
