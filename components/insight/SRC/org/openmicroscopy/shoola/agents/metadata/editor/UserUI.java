@@ -94,7 +94,7 @@ class UserUI
 		profile.addPropertyChangeListener(control);
 		
 		JXTaskPane pane = EditorUtil.createTaskPane(TITLE_DETAILS);
-		pane.add(profile, null, 0);
+		//pane.add(profile, null, 0);
 		pane.setCollapsed(false);
 		
 		diskSpace = new UserDiskSpace(this);
@@ -111,7 +111,7 @@ class UserUI
 		container.add(pane);
 		//container.add(diskTask);
 		setLayout(new BorderLayout());
-		add(container, BorderLayout.NORTH);
+		add(profile, BorderLayout.NORTH);
 	}
 	
 	/**
