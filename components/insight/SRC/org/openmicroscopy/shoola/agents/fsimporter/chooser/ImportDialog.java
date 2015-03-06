@@ -1667,7 +1667,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				|| ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		} else if (LocationDialog.ADD_TO_QUEUE_PROPERTY.equals(name)) {
-		    addImageJFiles(null, null);
+		    Object src = evt.getSource();
+		    if (src != detachedDialog) {
+		        addImageJFiles(null, null);
+		    }
 		}
 	}
 
