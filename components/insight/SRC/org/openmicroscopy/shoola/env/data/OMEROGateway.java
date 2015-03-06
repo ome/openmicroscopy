@@ -1868,17 +1868,16 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Lookup a property from the config service
-	 * @return The value or <code>null</code> if the config
-	 *        service has not been initialized yet.
+	 * Get the omero client properties from the server
+	 * @return See above.
 	 */
-	String lookupConfig(String key) throws DSOutOfServiceException,
+	Map<String, String> getOmeroClientProperties() throws DSOutOfServiceException,
 			DSAccessException {
 		if (configService == null)
 			return null;
 
 		try {
-			return configService.getConfigValue(key);
+			return configService.getConfigValues("omero\\.client\\..*");
 		} catch (Exception e) {
 			handleException(e, "Cannot access config service. ");
 			return null;

@@ -72,6 +72,5 @@ public class NullRegistry
     public AdminService getAdminService() { return null; }
 	public CacheService getCacheService() { return null; }
 	public String lookupRemote(String name) { return null; }
-	public ConfigService getConfigService() { return null; }
 
 }

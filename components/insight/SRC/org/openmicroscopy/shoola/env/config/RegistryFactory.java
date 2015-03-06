@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.config.RegistryFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.ConfigService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -206,14 +205,4 @@ public class RegistryFactory
 		((RegistryImpl) reg).setCacheService(cache);
 	}
 	
-	/**
-	 * Adds the {@link ConfigService} instance to the specified {@link Registry}.
-	 * 
-	 * @param cache	The {@link ConfigService} instance.
-	 * @param reg		The {@link Registry}.
-	 */
-	public static void linkCS(ConfigService cs, Registry reg)
-	{
-		((RegistryImpl) reg).setConfigService(cs);
-	}
 }

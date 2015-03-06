@@ -141,9 +141,6 @@ public class DataServicesFactory
 	/** The Administration service adapter. */
 	private AdminService				admin;
 	
-	/** Reference to the ConfigService */
-	private ConfigService				cs;
-	
     /** Keeps the client's session alive. */
 	private ScheduledThreadPoolExecutor	executor;
 
@@ -170,14 +167,12 @@ public class DataServicesFactory
         is = new OmeroImageServiceImpl(omeroGateway, registry);
         ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
         admin = new AdminServiceImpl(omeroGateway, registry);
-        cs = new ConfigServiceImpl(omeroGateway, registry);
         
         // pass the adapters on to the registry
         RegistryFactory.linkOS(ds, registry);
         RegistryFactory.linkMS(ms, registry);
         RegistryFactory.linkAdmin(admin, registry);
         RegistryFactory.linkIS(is, registry);
-        RegistryFactory.linkCS(cs, registry);
         
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
@@ -614,6 +609,25 @@ public class DataServicesFactory
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
         
+        try {
+            // Load the omero client properties from the server
+            List agents = (List) registry.lookup(LookupNames.AGENTS);
+            Map<String, String> props = omeroGateway.getOmeroClientProperties();
+            for (String key : props.keySet()) {
+                if (registry.lookup(key) == null)
+                    registry.bind(key, props.get(key));
+
+                Registry agentReg;
+                for (Object agent : agents) {
+                    agentReg = ((AgentInfo) agent).getRegistry();
+                    if (agentReg.lookup(key) == null)
+                        agentReg.bind(key, props.get(key));
+                }
+            }
+        } catch (DSAccessException e1) {
+            registry.getLogger().warn(this, "Could not load omero client properties from the server");
+        }
+        
         Collection<GroupData> groups;
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
@@ -813,13 +827,4 @@ public class DataServicesFactory
 		PixelsServicesFactory.checkRenderingControls(container.getRegistry());
 	}
 
-	/**
-	 * Gets the reference to the {@link ConfigService}
-	 * @return See above.
-	 */
-	public ConfigService getCs() {
-		return cs;
-	}
-
-	
 }

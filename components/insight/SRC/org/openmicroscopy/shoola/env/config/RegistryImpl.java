@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.config.RegistryImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,9 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.AdminService;
-import org.openmicroscopy.shoola.env.data.ConfigService;
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -74,9 +71,6 @@ class RegistryImpl
     /** The name-value map. */
     private Map<String, Object>	entriesMap;
     
-    /** The name-value map for server-side config properties. */
-    private Map<String, String>	configMap;
-    
     /** Reference to container's service. */
     private EventBus                eb;
     
@@ -104,14 +98,10 @@ class RegistryImpl
     /** Reference to the Cache service. */
     private CacheService			cache;
     
-    /** Reference to the Config service. */
-    private ConfigService cs;
-    
     /** Creates an empty map. */
     RegistryImpl()
     {
         entriesMap = new ConcurrentHashMap<String, Object>();
-        configMap = new ConcurrentHashMap<String, String>();
     }
     
 	/** 
@@ -127,21 +117,17 @@ class RegistryImpl
 		}
 	}
 	
-	/**
-	 * Implemented as specified by {@link Registry}.
-	 * 
-	 * @see Registry#lookup(String)
-	 */
-	public Object lookup(String name) {
-		Entry entry = (Entry) entriesMap.get(name);
-		Object ret = null;
-		if (entry != null)
-			ret = entry.getValue();
-		if (ret == null) {
-			ret = lookupRemote(name);
-		}
-		return ret;
-	}
+	/** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#lookup(String)
+     */
+    public Object lookup(String name)
+    {
+        Entry entry = (Entry) entriesMap.get(name);
+        Object ret = null;
+        if (entry != null)	ret = entry.getValue();
+        return ret;
+    }
     
 	/** 
      * Implemented as specified by {@link Registry}.
@@ -276,55 +262,5 @@ class RegistryImpl
      * @param cache The {@link CacheService}.
      */
     void setCacheService(CacheService cache) { this.cache = cache; }
-
-    /**
-     * Returns the reference to the {@link ConfigService}
-     * 
-     * @return See above.
-     */
-	public ConfigService getConfigService() {
-		return cs;
-	}
-	
-	/**
-	 * Sets the reference to the {@link ConfigService}
-	 * 
-	 * @param cs The {@link ConfigService}
-	 */
-	void setConfigService(ConfigService cs) {
-		this.cs = cs;
-	}
     
-	/**
-	 * Tries to lookup a server-side config value
-	 * @param name The name of the property to look up
-	 * @return The value or <code>null</code> if it's not set
-	 * 				or {@link ConfigService} couldn't be accessed.
-	 */
-	private String lookupRemote(String name) {
-		if (cs != null && isRemoteProperty(name)) {
-			try {
-				String value = configMap.get(name);
-				if (value == null) {
-					value = cs.lookup(name);
-					if (value != null)
-						configMap.put(name, value);
-				}
-				return value;
-			} catch (DSOutOfServiceException e) {
-				logger.error(this, "Could not access config service");
-			} catch (DSAccessException e) {
-				logger.error(this, "Could not access config service");
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Checks if a property is a server-side config property
-	 * @return See above.
-	 */
-	private boolean isRemoteProperty(String name) {
-		return name.startsWith("omero.client.");
-	}
 }

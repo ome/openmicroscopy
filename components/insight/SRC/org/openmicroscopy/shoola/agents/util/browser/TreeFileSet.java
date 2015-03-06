@@ -79,7 +79,8 @@ public class TreeFileSet
 		
 		switch (type) {
 			case MOVIE: return "Movies";
-			case ORPHANED_IMAGES: return (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
+			case ORPHANED_IMAGES: 
+			    return (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
 			case TAG:
 				return "Tags used not owned";
 			case OTHER:
