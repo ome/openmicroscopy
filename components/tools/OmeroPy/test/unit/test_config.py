@@ -272,7 +272,7 @@ class TestConfig(object):
             # Include a property to indicate version is post-4.2.0
             SubElement(
                 properties, "property", name="omero.config.version",
-                value="4.2.0")
+                value="4.2.1")
             SubElement(
                 properties, "property", name="omero.web.ui.top_links",
                 value=beforeUpdate)

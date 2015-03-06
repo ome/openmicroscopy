@@ -81,7 +81,7 @@ class ConfigXml(object):
     in etc/grid. For a copy of the dict, use "as_map"
     """
     KEY = "omero.config.version"
-    VERSION = "4.2.1"
+    VERSION = "5.1.0"
     INTERNAL = "__ACTIVE__"
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
@@ -190,12 +190,13 @@ class ConfigXml(object):
     def version_check(self):
         for k, v in self.properties(None, True):
             version = self.version(k)
-            if version != self.VERSION:
+            if version == "4.2.0":
                 self.version_fix(v, version)
 
     def toplinks_check(self):
         for k, v in self.properties(None, True):
-            if v is not None:
+            version = self.version(k)
+            if version == "4.2.1" and v is not None:
                 for x in v.getchildren():
                     if x.get("name") == "omero.web.ui.top_links":
                         val = x.get("value", "")
