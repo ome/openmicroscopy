@@ -49,6 +49,7 @@ import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
+import ome.model.units.BigResult;
 import omero.model.enums.UnitsLength;
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
@@ -570,11 +571,23 @@ class InputServerStrategy
 	 */
 	private void addShapeSettings(ROIFigure figure, ShapeSettingsData data)
 	{
-		STROKE_WIDTH.set(figure, data.getStrokeWidth(UnitsLength.PIXEL).getValue());
+	    Double value;
+        try {
+            value = data.getStrokeWidth(UnitsLength.PIXEL).getValue();
+        } catch (BigResult e) {
+            value = 1d;
+        }
+		STROKE_WIDTH.set(figure, value);
 		STROKE_COLOR.set(figure, data.getStroke());
 		FILL_COLOR.set(figure, data.getFill());
 		FONT_FACE.set(figure, data.getFont());
-		FONT_SIZE.set(figure, data.getFontSize(UnitsLength.POINT).getValue());
+		
+		try {
+            value = data.getFontSize(UnitsLength.POINT).getValue();
+        } catch (BigResult e) {
+            value = 10d;
+        }
+		FONT_SIZE.set(figure, value);
 		FONT_ITALIC.set(figure, data.isFontItalic());
 		FONT_BOLD.set(figure, data.isFontBold());
 		STROKE_CAP.set(figure, data.getLineCap());

@@ -2,7 +2,7 @@
  * pojos.FilterData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.units.BigResult;
 import omero.RDouble;
 import omero.RString;
 import omero.model.Filter;
@@ -73,8 +74,9 @@ public class FilterData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getCutIn(UnitsLength unit)
+	public Length getCutIn(UnitsLength unit) throws BigResult
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
@@ -108,8 +110,9 @@ public class FilterData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getCutInTolerance(UnitsLength unit)
+	public Length getCutInTolerance(UnitsLength unit) throws BigResult
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
@@ -145,8 +148,9 @@ public class FilterData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getCutOut(UnitsLength unit)
+	public Length getCutOut(UnitsLength unit) throws BigResult
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();
@@ -180,8 +184,9 @@ public class FilterData
 	 *            The unit (may be null, in which case no conversion will be
 	 *            performed)
 	 * @return See above.
+	 * @throws BigResult If an arithmetic under-/overflow occurred
 	 */
-	public Length getCutOutTolerance(UnitsLength unit)
+	public Length getCutOutTolerance(UnitsLength unit) throws BigResult
 	{
 		Filter f = (Filter) asIObject();
 		TransmittanceRange range = f.getTransmittanceRange();

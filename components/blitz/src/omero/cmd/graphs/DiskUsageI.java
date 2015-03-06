@@ -45,7 +45,9 @@ import ome.api.IQuery;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
+import ome.model.IObject;
 import ome.parameters.Parameters;
+import ome.services.graphs.GraphPathBean;
 import ome.system.Login;
 import omero.api.LongPair;
 import omero.cmd.DiskUsage;
@@ -77,8 +79,11 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     private static final ImmutableSet<String> OWNED_OBJECTS;
     private static final ImmutableSet<String> ANNOTATABLE_OBJECTS;
 
+    private static final Map<String, String> classIdProperties = Collections.synchronizedMap(new HashMap<String, String>());
+
     private final PixelsService pixelsService;
     private final ThumbnailService thumbnailService;
+    private final GraphPathBean graphPathBean;
 
     private Helper helper;
 
@@ -86,10 +91,12 @@ public class DiskUsageI extends DiskUsage implements IRequest {
      * Construct a disk usage request.
      * @param pixelsService the pixels service
      * @param thumbnailService the thumbnail service
+     * @param graphPathBean the graph path bean
      */
-    public DiskUsageI(PixelsService pixelsService, ThumbnailService thumbnailService) {
+    public DiskUsageI(PixelsService pixelsService, ThumbnailService thumbnailService, GraphPathBean graphPathBean) {
         this.pixelsService = pixelsService;
         this.thumbnailService = thumbnailService;
+        this.graphPathBean = graphPathBean;
     }
 
     /* NAVIGATION OF MODEL OBJECT GRAPH */
@@ -360,6 +367,8 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         }
         try {
             return getDiskUsage();
+        } catch (Cancel c) {
+            throw c;
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "disk usage operation failed");
         }
@@ -423,6 +432,30 @@ public class DiskUsageI extends DiskUsage implements IRequest {
     }
 
     /**
+     * Look up the identifier property for the given class.
+     * @param className a class name
+     * @return the identifier property, never {@code null}
+     * @throws Cancel if an identifier property could not be found for the given class
+     */
+    private String getIdPropertyFor(String className) throws Cancel {
+        String idProperty = classIdProperties.get(className);
+        if (idProperty == null) {
+            final Class<? extends IObject> actualClass = graphPathBean.getClassForSimpleName(className);
+            if (actualClass == null) {
+                final Exception e = new IllegalArgumentException("class " + className + " is unknown");
+                throw helper.cancel(new ERR(), e, "bad-class");
+            }
+            idProperty = graphPathBean.getIdentifierProperty(actualClass.getName());
+            if (idProperty == null) {
+                final Exception e = new IllegalArgumentException("no identifier property is known for class " + className);
+                throw helper.cancel(new ERR(), e, "bad-class");
+            }
+            classIdProperties.put(className, idProperty);
+        }
+        return idProperty;
+    }
+
+    /**
      * Calculate the disk usage of the model objects specified in the request.
      * @return the total usage, in bytes
      */
@@ -443,7 +476,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
         /* note the objects to process */
 
         for (final String className : classes) {
-            final String hql = "SELECT id FROM " + className;
+            final String hql = "SELECT " + getIdPropertyFor(className) + " FROM " + className;
             for (final Object[] resultRow : queryService.projection(hql, null)) {
                 if (resultRow != null) {
                     final Long objectId = (Long) resultRow[0];
@@ -460,6 +493,12 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 Collections.sort(ids);
                 LOGGER.debug("size calculator to process " + objectList.getKey() + " " + Joiner.on(", ").join(ids));
             }
+        }
+
+        /* check that the objects' class names are valid */
+
+        for (final String className : objectsToProcess.keySet()) {
+            getIdPropertyFor(className);
         }
 
         /* iteratively process objects, descending the model graph */
@@ -487,7 +526,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
 
             if ("Pixels".equals(className)) {
                 /* Pixels may have /OMERO/Pixels/<id> files */
-                final String hql = "SELECT id, details.owner.id, details.group.id FROM " + className + " WHERE id IN (:ids)";
+                final String hql = "SELECT id, details.owner.id, details.group.id FROM Pixels WHERE id IN (:ids)";
                 for (final Object[] resultRow : queryService.projection(hql, parameters)) {
                     if (resultRow != null) {
                         final Long pixelsId = (Long) resultRow[0];
@@ -502,7 +541,7 @@ public class DiskUsageI extends DiskUsage implements IRequest {
                 }
             } else if ("Thumbnail".equals(className)) {
                 /* Thumbnails may have /OMERO/Thumbnails/<id> files */
-                final String hql = "SELECT id, details.owner.id, details.group.id FROM " + className + " WHERE id IN (:ids)";
+                final String hql = "SELECT id, details.owner.id, details.group.id FROM Thumbnail WHERE id IN (:ids)";
                 for (final Object[] resultRow : queryService.projection(hql, parameters)) {
                     if (resultRow != null) {
                         final Long thumbnailId = (Long) resultRow[0];
@@ -527,7 +566,8 @@ public class DiskUsageI extends DiskUsage implements IRequest {
             } else if ("Experimenter".equals(className)) {
                 /* for an experimenter, use the list of owned objects */
                 for (final String resultClassName : OWNED_OBJECTS) {
-                    final String hql = "SELECT id FROM " + resultClassName + " WHERE details.owner.id IN (:ids)";
+                    final String hql = "SELECT " + getIdPropertyFor(resultClassName) + " FROM " + resultClassName +
+                            " WHERE details.owner.id IN (:ids)";
                     for (final Object[] resultRow : queryService.projection(hql, parameters)) {
                         objectsToProcess.put(resultClassName, (Long) resultRow[0]);
                     }
@@ -535,7 +575,8 @@ public class DiskUsageI extends DiskUsage implements IRequest {
             } else if ("ExperimenterGroup".equals(className)) {
                 /* for an experimenter group, use the list of owned objects */
                 for (final String resultClassName : OWNED_OBJECTS) {
-                    final String hql = "SELECT id FROM " + resultClassName + " WHERE details.group.id IN (:ids)";
+                    final String hql = "SELECT " + getIdPropertyFor(resultClassName) + " FROM " + resultClassName +
+                            " WHERE details.group.id IN (:ids)";
                     for (final Object[] resultRow : queryService.projection(hql, parameters)) {
                         objectsToProcess.put(resultClassName, (Long) resultRow[0]);
                     }

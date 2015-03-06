@@ -1,9 +1,9 @@
-  
   Open Microscopy Environment - Install Notes (Java Client - Mac OS X)
   --------------------------------------------------------------------
 
-  _________________
+
   Install Procedure
+  _________________
 
   Extract the downloaded bundle in any directory on your local file system.
   After doing this, your directory should contain:
@@ -12,14 +12,12 @@
     * This install file.
 
 
-  ____________________
+
   Running The Software
+  ____________________
 
   Double-click one of the application icons within the installation
-  directory. A splash screen will pop up.  Enter your OMERO user name, password
-  and the name of the server then press the log in button. 
-  You should not have to modify the port value. 
+  directory. A splash screen will pop up. Enter your OMERO user name, password
+  and the name of the server then press the log in button.
+  You should not have to modify the port value.
   Enjoy OMERO!
-
-  
-  

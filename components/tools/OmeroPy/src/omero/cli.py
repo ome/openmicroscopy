@@ -2069,6 +2069,29 @@ class UserGroupControl(BaseControl):
             "--name", help="Name of the %s" % objtype)
         return group
 
+    def add_user_and_group_arguments(self, parser, *args,
+                                     **kwargs):
+
+        group = parser
+        try:
+            if kwargs.pop("exclusive"):
+                group = parser.add_mutually_exclusive_group()
+        except:
+            pass
+
+        group.add_argument("--user-id",
+                           help="ID of the user.",
+                           *args, **kwargs)
+        group.add_argument("--user-name",
+                           help="Name of the user.",
+                           *args, **kwargs)
+        group.add_argument("--group-id",
+                           help="ID of the group.",
+                           *args, **kwargs)
+        group.add_argument("--group-name",
+                           help="Name of the group.",
+                           *args, **kwargs)
+
     def add_user_arguments(self, parser, action=""):
         group = parser.add_argument_group('User arguments')
         group.add_argument("user_id_or_name",  metavar="user", nargs="*",
@@ -2185,3 +2208,37 @@ class UserGroupControl(BaseControl):
                 g_list.append(g)
 
         return gid_list, g_list
+
+    def get_users_groups(self, args, iadmin):
+        users = []
+        groups = []
+
+        if args.user_name:
+            for user_name in args.user_name:
+                uid, u = self.find_user_by_name(
+                    iadmin, user_name, fatal=False)
+                if uid is not None:
+                    users.append(uid)
+
+        if args.user_id:
+            for user_id in args.user_id:
+                uid, u = self.find_user_by_id(
+                    iadmin, user_id, fatal=False)
+                if uid is not None:
+                    users.append(uid)
+
+        if args.group_name:
+            for group_name in args.group_name:
+                gid, g = self.find_group_by_name(
+                    iadmin, group_name, fatal=False)
+                if gid is not None:
+                    groups.append(gid)
+
+        if args.group_id:
+            for group_id in args.group_id:
+                gid, g = self.find_group_by_id(
+                    iadmin, group_id, fatal=False)
+                if gid is not None:
+                    groups.append(gid)
+
+        return users, groups

@@ -56,7 +56,7 @@
                         $.grep($('#id_owners').data('chosen').results_data, function(item){
                             if(item.selected && item.value === data.deselected) {
                                 $('#id_owners option[value='+data.deselected+']').prop('selected', false);
-                                $("#id_owners").trigger("liszt:updated");
+                                $("#id_owners").trigger("chosen:updated");
                                 highlightCurrent();
                             }
                         });

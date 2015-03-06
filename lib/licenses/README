@@ -224,12 +224,6 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    gicentreUtils-*.jar
-  Project:      giCentreUtils
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl.txt
-
-
   Artifacts:    grib-*.jar
   Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
   License:      Lesser General Public License (LGPL) v2.1
@@ -408,29 +402,6 @@
   License File: lgpl-v2.1.txt
 
 
-  Artifacts:    nanoxml-*.jar
-  Project:      NanoXML is a small XML parser for Java. NanoXML comes in three different components
-  Web Site:     http://devkix.com/nanoxml.php
-  License:      zlib/libpng License
-  License File: zlib-libpng.txt
-
-
-  Artifacts:    nsisant-*.jar
-  Project:      NsisAnt - An Ant Task used to compile NSIS scripts
-  Web Site:     http://nsisant.sourceforge.net/
-  License:      General Public License (GPL), Version 2
-  License File: gpl.txt
-
-
-  Artifacts:    ols-client-*.jar
-  Project:      The Ontology Lookup service. A spin-off the PRIDE project.
-                Provides a web service interface to query multiple ontologies from a single
-                location with a unified output format.
-  Web Site:     http://www.ebi.ac.uk/ontology-lookup/
-  License:      Apache License, Version 2.0
-  License File: apache-v2.0.txt
-
-
   Artifacts:    PDFBox-*.jar
   Project:      Apache PDFBox - Java PDF Library
   Web Site:     http://incubator.apache.org/pdfbox
@@ -463,20 +434,6 @@
   Web Site:     http://jdbc.postgresql.org
   License:      BSD
   License File: postgresql.txt
-
-
-  Artifacts:    processing-core-*.jar
-  Project:      Processing is an open source programming language and environment for people who want to create images, animations, and interactions.
-  Web Site:     http://processing.org/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
-
-  Artifacts:    processing-controlP5-*.jar
-  Project:      controlp5, a gui library for the programming environment processing
-  Web Site:     http://www.sojamo.de/libraries/controlP5/
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
 
 
   Artifacts:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar

@@ -19,11 +19,23 @@
 
 package omero.model;
 
+import static ome.model.units.Conversion.Mul;
+import static ome.model.units.Conversion.Add;
+import static ome.model.units.Conversion.Int;
+import static ome.model.units.Conversion.Pow;
+import static ome.model.units.Conversion.Rat;
+import static ome.model.units.Conversion.Sym;
+
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
+import ome.model.units.BigResult;
+import ome.model.units.Conversion;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -44,430 +56,579 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, double[][]> conversions;
-    static {
-        Map<String, double[][]> c = new HashMap<String, double[][]>();
+    private static Map<UnitsElectricPotential, Conversion> createMapATTOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Pow(10, 16), Sym("attov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 19), Sym("attov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Pow(10, 17), Sym("attov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 36), Sym("attov")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Int(1000), Sym("attov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 27), Sym("attov")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 20), Sym("attov")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 21), Sym("attov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 24), Sym("attov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Pow(10, 12), Sym("attov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Pow(10, 15), Sym("attov")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Pow(10, 9), Sym("attov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 33), Sym("attov")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Pow(10, 6), Sym("attov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 30), Sym("attov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Pow(10, 18), Sym("attov")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("attov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 42), Sym("attov")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Int(1000)), Sym("attov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 39), Sym("attov")));
+        return Collections.unmodifiableMap(c);
+    }
 
-        c.put("ATTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("ATTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ATTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("ATTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ATTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ATTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ATTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ATTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ATTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ATTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ATTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ATTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ATTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ATTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ATTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ATTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ATTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ATTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ATTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ATTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("CENTIVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("CENTIVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("CENTIVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("CENTIVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("CENTIVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("CENTIVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("CENTIVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("CENTIVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("CENTIVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("CENTIVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("CENTIVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("CENTIVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("CENTIVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("CENTIVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("CENTIVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("CENTIVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("CENTIVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("CENTIVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("CENTIVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("CENTIVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("DECAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("DECAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("DECAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("DECAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("DECAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("DECAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("DECAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("DECAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("DECAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("DECAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("DECAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("DECAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("DECAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("DECAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("DECIVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("DECIVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECIVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECIVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("DECIVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("DECIVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("DECIVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("DECIVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("DECIVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("DECIVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("DECIVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECIVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("DECIVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("DECIVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("DECIVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("DECIVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECIVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("DECIVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("DECIVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("DECIVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("EXAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("EXAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("EXAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("EXAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("EXAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("EXAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("EXAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("EXAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("EXAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("EXAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("EXAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("EXAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("EXAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("EXAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("EXAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("EXAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("EXAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("EXAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("EXAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("EXAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("FEMTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("FEMTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("FEMTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("FEMTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("FEMTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("FEMTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("FEMTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("FEMTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("FEMTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("FEMTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("FEMTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("FEMTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("FEMTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("FEMTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("FEMTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("FEMTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("FEMTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("FEMTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("GIGAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("GIGAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("GIGAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("GIGAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("GIGAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("GIGAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("GIGAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("GIGAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("GIGAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("GIGAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("GIGAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("GIGAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("GIGAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("GIGAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("GIGAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("GIGAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("GIGAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("GIGAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("GIGAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("GIGAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("HECTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("HECTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("HECTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("HECTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("HECTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("HECTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("HECTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("HECTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("HECTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("HECTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("HECTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("HECTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("HECTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("HECTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("HECTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("HECTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("HECTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("HECTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("HECTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("HECTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("KILOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("KILOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("KILOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("KILOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("KILOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("KILOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("KILOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("KILOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("KILOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("KILOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("KILOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("KILOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("KILOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("KILOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("KILOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("KILOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("KILOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("KILOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("KILOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("KILOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("MEGAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("MEGAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("MEGAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("MEGAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MEGAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MEGAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MEGAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("MEGAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MEGAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MEGAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MEGAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MEGAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MEGAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MEGAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MEGAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MEGAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("MEGAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("MEGAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MICROVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MICROVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("MICROVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MICROVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("MICROVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MICROVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("MICROVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MICROVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MICROVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MICROVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MICROVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MICROVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MICROVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MICROVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MICROVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MICROVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("MICROVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MICROVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MILLIVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("MILLIVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MILLIVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("MILLIVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MILLIVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MILLIVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MILLIVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MILLIVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MILLIVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MILLIVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MILLIVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MILLIVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MILLIVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MILLIVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MILLIVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MILLIVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MILLIVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MILLIVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("NANOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("NANOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("NANOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("NANOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("NANOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("NANOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("NANOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("NANOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("NANOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("NANOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("NANOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("NANOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("NANOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("NANOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("NANOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("NANOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("NANOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("NANOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PETAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("PETAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("PETAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("PETAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("PETAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PETAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("PETAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PETAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("PETAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PETAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PETAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("PETAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("PETAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("PETAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("PETAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PETAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("PETAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("PETAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PETAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("PETAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PICOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("PICOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("PICOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("PICOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PICOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PICOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("PICOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("PICOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("PICOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("PICOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PICOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PICOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("PICOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("PICOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("PICOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PICOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("PICOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PICOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("TERAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("TERAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("TERAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("TERAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("TERAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("TERAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("TERAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("TERAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("TERAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("TERAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("TERAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("TERAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("TERAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("TERAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("TERAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("TERAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("TERAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("TERAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("TERAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("TERAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("VOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("VOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("VOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("VOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("VOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("VOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("VOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("VOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("VOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("VOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("VOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("VOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("VOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("VOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("VOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("VOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("VOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("VOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("VOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("VOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("YOCTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("YOCTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("YOCTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("YOCTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("YOCTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("YOCTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("YOCTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("YOCTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("YOCTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("YOCTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("YOCTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("YOCTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("YOCTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("YOCTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("YOCTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
-        c.put("YOCTOVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("YOCTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("YOTTAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("YOTTAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("YOTTAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("YOTTAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("YOTTAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("YOTTAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("YOTTAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("YOTTAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("YOTTAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("YOTTAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("YOTTAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("YOTTAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("YOTTAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("YOTTAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("YOTTAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("YOTTAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("YOTTAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("YOTTAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
-        c.put("YOTTAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("YOTTAVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZEPTOVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ZEPTOVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("ZEPTOVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ZEPTOVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("ZEPTOVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ZEPTOVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ZEPTOVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("ZEPTOVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ZEPTOVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ZEPTOVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ZEPTOVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ZEPTOVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ZEPTOVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ZEPTOVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ZEPTOVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ZEPTOVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ZEPTOVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("ZEPTOVOLT:ZETTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ZETTAVOLT:ATTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("ZETTAVOLT:CENTIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("ZETTAVOLT:DECAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("ZETTAVOLT:DECIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("ZETTAVOLT:EXAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZETTAVOLT:FEMTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("ZETTAVOLT:GIGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("ZETTAVOLT:HECTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("ZETTAVOLT:KILOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("ZETTAVOLT:MEGAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("ZETTAVOLT:MICROVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("ZETTAVOLT:MILLIVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("ZETTAVOLT:NANOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("ZETTAVOLT:PETAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ZETTAVOLT:PICOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("ZETTAVOLT:TERAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("ZETTAVOLT:VOLT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("ZETTAVOLT:YOCTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("ZETTAVOLT:YOTTAVOLT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZETTAVOLT:ZEPTOVOLT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+    private static Map<UnitsElectricPotential, Conversion> createMapCENTIVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 16)), Sym("centiv")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Int(1000), Sym("centiv")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Int(10), Sym("centiv")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 20), Sym("centiv")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 13)), Sym("centiv")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 11), Sym("centiv")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 4), Sym("centiv")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 5), Sym("centiv")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 8), Sym("centiv")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 4)), Sym("centiv")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Int(10)), Sym("centiv")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 7)), Sym("centiv")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 17), Sym("centiv")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 10)), Sym("centiv")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 14), Sym("centiv")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Int(100), Sym("centiv")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 22)), Sym("centiv")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 26), Sym("centiv")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 19)), Sym("centiv")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 23), Sym("centiv")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapDECAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 19)), Sym("decav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Int(1000)), Sym("decav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Int(100)), Sym("decav")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 17), Sym("decav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 16)), Sym("decav")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 8), Sym("decav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Int(10), Sym("decav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Int(100), Sym("decav")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 5), Sym("decav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 7)), Sym("decav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 4)), Sym("decav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 10)), Sym("decav")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 14), Sym("decav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 13)), Sym("decav")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 11), Sym("decav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Int(10)), Sym("decav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 25)), Sym("decav")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 23), Sym("decav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 22)), Sym("decav")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 20), Sym("decav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapDECIVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 17)), Sym("deciv")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Int(10)), Sym("deciv")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Int(100), Sym("deciv")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 19), Sym("deciv")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 14)), Sym("deciv")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 10), Sym("deciv")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Int(1000), Sym("deciv")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 4), Sym("deciv")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 7), Sym("deciv")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 5)), Sym("deciv")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Int(100)), Sym("deciv")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 8)), Sym("deciv")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 16), Sym("deciv")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 11)), Sym("deciv")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 13), Sym("deciv")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Int(10), Sym("deciv")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 23)), Sym("deciv")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 25), Sym("deciv")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 20)), Sym("deciv")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 22), Sym("deciv")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapEXAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 36)), Sym("exav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 20)), Sym("exav")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Pow(10, 17)), Sym("exav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 19)), Sym("exav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 33)), Sym("exav")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("exav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Pow(10, 16)), Sym("exav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("exav")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("exav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("exav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("exav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("exav")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Rat(Int(1), Int(1000)), Sym("exav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 30)), Sym("exav")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("exav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("exav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 42)), Sym("exav")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 6), Sym("exav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 39)), Sym("exav")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Int(1000), Sym("exav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapFEMTOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Int(1000)), Sym("femtov")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Pow(10, 13), Sym("femtov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 16), Sym("femtov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Pow(10, 14), Sym("femtov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 33), Sym("femtov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 24), Sym("femtov")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 17), Sym("femtov")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 18), Sym("femtov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 21), Sym("femtov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Pow(10, 9), Sym("femtov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Pow(10, 12), Sym("femtov")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Pow(10, 6), Sym("femtov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 30), Sym("femtov")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Int(1000), Sym("femtov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 27), Sym("femtov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Pow(10, 15), Sym("femtov")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("femtov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 39), Sym("femtov")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("femtov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 36), Sym("femtov")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapGIGAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("gigav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 11)), Sym("gigav")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Pow(10, 8)), Sym("gigav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 10)), Sym("gigav")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 9), Sym("gigav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("gigav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Pow(10, 7)), Sym("gigav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigav")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Rat(Int(1), Int(1000)), Sym("gigav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("gigav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("gigav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("gigav")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 6), Sym("gigav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("gigav")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Int(1000), Sym("gigav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("gigav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 33)), Sym("gigav")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 15), Sym("gigav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 30)), Sym("gigav")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 12), Sym("gigav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapHECTOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 20)), Sym("hectov")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 4)), Sym("hectov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Int(10)), Sym("hectov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Int(1000)), Sym("hectov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 16), Sym("hectov")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 17)), Sym("hectov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 7), Sym("hectov")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Int(10), Sym("hectov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 4), Sym("hectov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 8)), Sym("hectov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 5)), Sym("hectov")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 11)), Sym("hectov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 13), Sym("hectov")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 14)), Sym("hectov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 10), Sym("hectov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Int(100)), Sym("hectov")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 26)), Sym("hectov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 22), Sym("hectov")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 23)), Sym("hectov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 19), Sym("hectov")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapKILOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("kilov")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 5)), Sym("kilov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Int(100)), Sym("kilov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 4)), Sym("kilov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 15), Sym("kilov")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("kilov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 6), Sym("kilov")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Int(10)), Sym("kilov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Int(1000), Sym("kilov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("kilov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("kilov")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("kilov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 12), Sym("kilov")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("kilov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 9), Sym("kilov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Int(1000)), Sym("kilov")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("kilov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 21), Sym("kilov")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("kilov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 18), Sym("kilov")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapMEGAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("megav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 8)), Sym("megav")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Pow(10, 5)), Sym("megav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 7)), Sym("megav")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 12), Sym("megav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("megav")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Int(1000), Sym("megav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Pow(10, 4)), Sym("megav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Rat(Int(1), Int(1000)), Sym("megav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("megav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("megav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("megav")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 9), Sym("megav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("megav")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 6), Sym("megav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("megav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 30)), Sym("megav")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 18), Sym("megav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("megav")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 15), Sym("megav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapMICROVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("microv")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Pow(10, 4), Sym("microv")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 7), Sym("microv")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Pow(10, 5), Sym("microv")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 24), Sym("microv")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("microv")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 15), Sym("microv")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 8), Sym("microv")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 9), Sym("microv")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 12), Sym("microv")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Int(1000), Sym("microv")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Int(1000)), Sym("microv")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 21), Sym("microv")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("microv")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 18), Sym("microv")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Pow(10, 6), Sym("microv")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("microv")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 30), Sym("microv")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("microv")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 27), Sym("microv")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapMILLIVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("milliv")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Int(10), Sym("milliv")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 4), Sym("milliv")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Int(100), Sym("milliv")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 21), Sym("milliv")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("milliv")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 12), Sym("milliv")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 5), Sym("milliv")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 6), Sym("milliv")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 9), Sym("milliv")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Int(1000)), Sym("milliv")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("milliv")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 18), Sym("milliv")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("milliv")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 15), Sym("milliv")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Int(1000), Sym("milliv")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("milliv")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 27), Sym("milliv")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("milliv")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 24), Sym("milliv")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapNANOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanov")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Pow(10, 7), Sym("nanov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 10), Sym("nanov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Pow(10, 8), Sym("nanov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 27), Sym("nanov")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("nanov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 18), Sym("nanov")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 11), Sym("nanov")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 12), Sym("nanov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 15), Sym("nanov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Int(1000), Sym("nanov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Pow(10, 6), Sym("nanov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 24), Sym("nanov")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Int(1000)), Sym("nanov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 21), Sym("nanov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Pow(10, 9), Sym("nanov")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("nanov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 33), Sym("nanov")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("nanov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 30), Sym("nanov")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapPETAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 33)), Sym("petav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 17)), Sym("petav")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Pow(10, 14)), Sym("petav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 16)), Sym("petav")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Int(1000), Sym("petav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 30)), Sym("petav")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("petav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Pow(10, 13)), Sym("petav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("petav")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("petav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("petav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("petav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("petav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("petav")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Rat(Int(1), Int(1000)), Sym("petav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("petav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 39)), Sym("petav")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 9), Sym("petav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 36)), Sym("petav")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 6), Sym("petav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapPICOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("picov")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Pow(10, 10), Sym("picov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 13), Sym("picov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Pow(10, 11), Sym("picov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 30), Sym("picov")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Int(1000)), Sym("picov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 21), Sym("picov")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 14), Sym("picov")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 15), Sym("picov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 18), Sym("picov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Pow(10, 6), Sym("picov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Pow(10, 9), Sym("picov")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Int(1000), Sym("picov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 27), Sym("picov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 24), Sym("picov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Pow(10, 12), Sym("picov")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("picov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 36), Sym("picov")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("picov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 33), Sym("picov")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapTERAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 30)), Sym("terav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 14)), Sym("terav")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Pow(10, 11)), Sym("terav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 13)), Sym("terav")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 6), Sym("terav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("terav")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Rat(Int(1), Int(1000)), Sym("terav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Pow(10, 10)), Sym("terav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("terav")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("terav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("terav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("terav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("terav")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Int(1000), Sym("terav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("terav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("terav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 36)), Sym("terav")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 12), Sym("terav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 33)), Sym("terav")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 9), Sym("terav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("v")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Int(100)), Sym("v")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Int(10), Sym("v")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Int(10)), Sym("v")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 18), Sym("v")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("v")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 9), Sym("v")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Int(100), Sym("v")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Int(1000), Sym("v")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 6), Sym("v")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("v")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Int(1000)), Sym("v")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("v")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 15), Sym("v")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("v")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 12), Sym("v")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("v")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 24), Sym("v")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("v")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 21), Sym("v")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapYOCTOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Pow(10, 6), Sym("yoctov")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Pow(10, 22), Sym("yoctov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 25), Sym("yoctov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Pow(10, 23), Sym("yoctov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 42), Sym("yoctov")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Pow(10, 9), Sym("yoctov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 33), Sym("yoctov")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 26), Sym("yoctov")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 27), Sym("yoctov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 30), Sym("yoctov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Pow(10, 18), Sym("yoctov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Pow(10, 21), Sym("yoctov")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Pow(10, 15), Sym("yoctov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 39), Sym("yoctov")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Pow(10, 12), Sym("yoctov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 36), Sym("yoctov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Pow(10, 24), Sym("yoctov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 48), Sym("yoctov")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Int(1000), Sym("yoctov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 45), Sym("yoctov")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapYOTTAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 42)), Sym("yottav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 26)), Sym("yottav")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Pow(10, 23)), Sym("yottav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 25)), Sym("yottav")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("yottav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 39)), Sym("yottav")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("yottav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Pow(10, 22)), Sym("yottav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("yottav")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("yottav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 30)), Sym("yottav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("yottav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 33)), Sym("yottav")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("yottav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 36)), Sym("yottav")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("yottav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("yottav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 48)), Sym("yottav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 45)), Sym("yottav")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Rat(Int(1), Int(1000)), Sym("yottav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapZEPTOVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Int(1000), Sym("zeptov")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Pow(10, 19), Sym("zeptov")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Pow(10, 22), Sym("zeptov")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Pow(10, 20), Sym("zeptov")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Pow(10, 39), Sym("zeptov")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Pow(10, 6), Sym("zeptov")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Pow(10, 30), Sym("zeptov")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Pow(10, 23), Sym("zeptov")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Pow(10, 24), Sym("zeptov")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Pow(10, 27), Sym("zeptov")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Pow(10, 15), Sym("zeptov")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Pow(10, 18), Sym("zeptov")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Pow(10, 12), Sym("zeptov")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Pow(10, 36), Sym("zeptov")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Pow(10, 9), Sym("zeptov")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Pow(10, 33), Sym("zeptov")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Pow(10, 21), Sym("zeptov")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Int(1000)), Sym("zeptov")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Pow(10, 45), Sym("zeptov")));
+        c.put(UnitsElectricPotential.ZETTAVOLT, Mul(Pow(10, 42), Sym("zeptov")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsElectricPotential, Conversion> createMapZETTAVOLT() {
+        EnumMap<UnitsElectricPotential, Conversion> c =
+            new EnumMap<UnitsElectricPotential, Conversion>(UnitsElectricPotential.class);
+        c.put(UnitsElectricPotential.ATTOVOLT, Mul(Rat(Int(1), Pow(10, 39)), Sym("zettav")));
+        c.put(UnitsElectricPotential.CENTIVOLT, Mul(Rat(Int(1), Pow(10, 23)), Sym("zettav")));
+        c.put(UnitsElectricPotential.DECAVOLT, Mul(Rat(Int(1), Pow(10, 20)), Sym("zettav")));
+        c.put(UnitsElectricPotential.DECIVOLT, Mul(Rat(Int(1), Pow(10, 22)), Sym("zettav")));
+        c.put(UnitsElectricPotential.EXAVOLT, Mul(Rat(Int(1), Int(1000)), Sym("zettav")));
+        c.put(UnitsElectricPotential.FEMTOVOLT, Mul(Rat(Int(1), Pow(10, 36)), Sym("zettav")));
+        c.put(UnitsElectricPotential.GIGAVOLT, Mul(Rat(Int(1), Pow(10, 12)), Sym("zettav")));
+        c.put(UnitsElectricPotential.HECTOVOLT, Mul(Rat(Int(1), Pow(10, 19)), Sym("zettav")));
+        c.put(UnitsElectricPotential.KILOVOLT, Mul(Rat(Int(1), Pow(10, 18)), Sym("zettav")));
+        c.put(UnitsElectricPotential.MEGAVOLT, Mul(Rat(Int(1), Pow(10, 15)), Sym("zettav")));
+        c.put(UnitsElectricPotential.MICROVOLT, Mul(Rat(Int(1), Pow(10, 27)), Sym("zettav")));
+        c.put(UnitsElectricPotential.MILLIVOLT, Mul(Rat(Int(1), Pow(10, 24)), Sym("zettav")));
+        c.put(UnitsElectricPotential.NANOVOLT, Mul(Rat(Int(1), Pow(10, 30)), Sym("zettav")));
+        c.put(UnitsElectricPotential.PETAVOLT, Mul(Rat(Int(1), Pow(10, 6)), Sym("zettav")));
+        c.put(UnitsElectricPotential.PICOVOLT, Mul(Rat(Int(1), Pow(10, 33)), Sym("zettav")));
+        c.put(UnitsElectricPotential.TERAVOLT, Mul(Rat(Int(1), Pow(10, 9)), Sym("zettav")));
+        c.put(UnitsElectricPotential.VOLT, Mul(Rat(Int(1), Pow(10, 21)), Sym("zettav")));
+        c.put(UnitsElectricPotential.YOCTOVOLT, Mul(Rat(Int(1), Pow(10, 45)), Sym("zettav")));
+        c.put(UnitsElectricPotential.YOTTAVOLT, Mul(Int(1000), Sym("zettav")));
+        c.put(UnitsElectricPotential.ZEPTOVOLT, Mul(Rat(Int(1), Pow(10, 42)), Sym("zettav")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsElectricPotential, Map<UnitsElectricPotential, Conversion>> conversions;
+    static {
+
+        Map<UnitsElectricPotential, Map<UnitsElectricPotential, Conversion>> c
+            = new EnumMap<UnitsElectricPotential, Map<UnitsElectricPotential, Conversion>>(UnitsElectricPotential.class);
+
+        c.put(UnitsElectricPotential.ATTOVOLT, createMapATTOVOLT());
+        c.put(UnitsElectricPotential.CENTIVOLT, createMapCENTIVOLT());
+        c.put(UnitsElectricPotential.DECAVOLT, createMapDECAVOLT());
+        c.put(UnitsElectricPotential.DECIVOLT, createMapDECIVOLT());
+        c.put(UnitsElectricPotential.EXAVOLT, createMapEXAVOLT());
+        c.put(UnitsElectricPotential.FEMTOVOLT, createMapFEMTOVOLT());
+        c.put(UnitsElectricPotential.GIGAVOLT, createMapGIGAVOLT());
+        c.put(UnitsElectricPotential.HECTOVOLT, createMapHECTOVOLT());
+        c.put(UnitsElectricPotential.KILOVOLT, createMapKILOVOLT());
+        c.put(UnitsElectricPotential.MEGAVOLT, createMapMEGAVOLT());
+        c.put(UnitsElectricPotential.MICROVOLT, createMapMICROVOLT());
+        c.put(UnitsElectricPotential.MILLIVOLT, createMapMILLIVOLT());
+        c.put(UnitsElectricPotential.NANOVOLT, createMapNANOVOLT());
+        c.put(UnitsElectricPotential.PETAVOLT, createMapPETAVOLT());
+        c.put(UnitsElectricPotential.PICOVOLT, createMapPICOVOLT());
+        c.put(UnitsElectricPotential.TERAVOLT, createMapTERAVOLT());
+        c.put(UnitsElectricPotential.VOLT, createMapVOLT());
+        c.put(UnitsElectricPotential.YOCTOVOLT, createMapYOCTOVOLT());
+        c.put(UnitsElectricPotential.YOTTAVOLT, createMapYOTTAVOLT());
+        c.put(UnitsElectricPotential.ZEPTOVOLT, createMapZEPTOVOLT());
+        c.put(UnitsElectricPotential.ZETTAVOLT, createMapZETTAVOLT());
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -590,7 +751,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
     * Copy constructor that converts the given {@link omero.model.ElectricPotential}
     * based on the given ome-xml enum
     */
-   public ElectricPotentialI(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) {
+   public ElectricPotentialI(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) throws BigResult {
        this(value,
             ome.model.enums.UnitsElectricPotential.bySymbol(ul.getSymbol()).toString());
    }
@@ -609,36 +770,29 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
     *
     * @param target String representation of the CODE enum
     */
-    public ElectricPotentialI(ElectricPotential value, String target) {
+    public ElectricPotentialI(ElectricPotential value, String target) throws BigResult {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            double[][] coeffs = conversions.get(source + ":" + target);
-            if (coeffs == null) {
+            UnitsElectricPotential targetUnit = UnitsElectricPotential.valueOf(target);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
+            if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
             double orig = value.getValue();
-            double k, p, v;
-            if (coeffs.length == 0) {
-                v = orig;
-            } else if (coeffs.length == 2){
-                k = coeffs[0][0];
-                p = coeffs[0][1];
-                v = Math.pow(k, p);
-
-                k = coeffs[1][0];
-                p = coeffs[1][1];
-                v += Math.pow(k, p) * orig;
-            } else {
-                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            BigDecimal big = conversion.convert(orig);
+            double converted = big.doubleValue();
+            if (Double.isInfinite(converted)) {
+                throw new BigResult(big,
+                        "Failed to convert " + source + ":" + target);
             }
 
-            setValue(v);
-            setUnit(UnitsElectricPotential.valueOf(target));
+            setValue(converted);
+            setUnit(targetUnit);
        }
     }
 
@@ -647,7 +801,7 @@ public class ElectricPotentialI extends ElectricPotential implements ModelBased 
     *
     * @param target unit that is desired. non-null.
     */
-    public ElectricPotentialI(ElectricPotential value, UnitsElectricPotential target) {
+    public ElectricPotentialI(ElectricPotential value, UnitsElectricPotential target) throws BigResult {
         this(value, target.toString());
     }
 

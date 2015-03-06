@@ -26,7 +26,7 @@ import omero
 import omero.clients
 
 from weblibrary import IWebTest
-from weblibrary import _csrf_post_reponse, _get_reponse
+from weblibrary import _csrf_post_response, _get_response
 
 from django.core.urlresolvers import reverse
 
@@ -57,25 +57,25 @@ class TestCsrf(IWebTest):
         image2.saveDefaults()
         image2 = conn.getObject("Image", iid2)
 
-        assert False == image1.isGreyscaleRenderingModel()
-        assert True == image2.isGreyscaleRenderingModel()
+        assert image1.isGreyscaleRenderingModel() is False
+        assert image2.isGreyscaleRenderingModel() is True
 
         # copy rendering settings from image1 via ID
         request_url = reverse('webgateway.views.copy_image_rdef_json')
         data = {
             "fromid": iid1
         }
-        _get_reponse(self.django_client, request_url, data, status_code=200)
+        _get_response(self.django_client, request_url, data, status_code=200)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
 
-        _csrf_post_reponse(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
 
         image2 = conn.getObject("Image", iid2)
-        assert False == image2.isGreyscaleRenderingModel()
+        assert image2.isGreyscaleRenderingModel() is False
 
     def test_copy_past_rendering_settings_from_url(self):
         # Create 2 images with 2 channels each
@@ -97,8 +97,8 @@ class TestCsrf(IWebTest):
         image2.saveDefaults()
         image2 = conn.getObject("Image", iid2)
 
-        assert False == image1.isGreyscaleRenderingModel()
-        assert True == image2.isGreyscaleRenderingModel()
+        assert image1.isGreyscaleRenderingModel() is False
+        assert image2.isGreyscaleRenderingModel() is True
 
         def buildParamC(im):
             chs = []
@@ -128,13 +128,13 @@ class TestCsrf(IWebTest):
             "z": 1,
             "zm": 100
         }
-        _get_reponse(self.django_client, request_url, data, status_code=200)
+        _get_response(self.django_client, request_url, data, status_code=200)
 
         # paste rendering settings to image2
         data = {
             'toids': iid2
         }
-        _csrf_post_reponse(self.django_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
 
         # reload image1
         image1 = conn.getObject("Image", iid1)
@@ -150,4 +150,4 @@ class TestCsrf(IWebTest):
         # image2 1|0:15$FF0000,2|0:15$00FF00
         assert old_c1 == new_c2
         # check if image2 rendering model changed from greyscale to color
-        assert False == image2.isGreyscaleRenderingModel()
+        assert image2.isGreyscaleRenderingModel() is False

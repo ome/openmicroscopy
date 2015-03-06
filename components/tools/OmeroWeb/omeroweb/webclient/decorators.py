@@ -35,12 +35,14 @@ from omeroweb.webclient.forms import GlobalSearchForm
 
 logger = logging.getLogger('omeroweb.webclient.decorators')
 
+
 class login_required(omeroweb.decorators.login_required):
     """
     webclient specific extension of the OMERO.web login_required() decorator.
     """
 
-    def __init__(self, ignore_login_fail=False, setGroupContext=False, login_redirect=None, **kwargs):
+    def __init__(self, ignore_login_fail=False, setGroupContext=False,
+                 login_redirect=None, **kwargs):
         """
         Initialises the decorator.
         """
@@ -55,12 +57,17 @@ class login_required(omeroweb.decorators.login_required):
         self.prepare_session(request)
         if self.setGroupContext:
             if request.session.get('active_group'):
-                conn.SERVICE_OPTS.setOmeroGroup(request.session.get('active_group'))
+                conn.SERVICE_OPTS.setOmeroGroup(
+                    request.session.get('active_group'))
             else:
-                conn.SERVICE_OPTS.setOmeroGroup(conn.getEventContext().groupId)
+                conn.SERVICE_OPTS.setOmeroGroup(
+                    conn.getEventContext().groupId)
 
     def on_not_logged_in(self, request, url, error=None):
-        """ This can be used to fail silently (not return 403, 500 etc. E.g. keepalive ping)"""
+        """
+        This can be used to fail silently (not return 403, 500 etc. E.g.
+        keepalive ping)
+        """
         if self.ignore_login_fail:
             return HttpResponse("Connection Failed")
         if self.login_redirect is not None:
@@ -68,7 +75,8 @@ class login_required(omeroweb.decorators.login_required):
                 url = reverse(self.login_redirect)
             except:
                 pass
-        return super(login_required, self).on_not_logged_in(request, url, error)
+        return super(
+            login_required, self).on_not_logged_in(request, url, error)
 
     def prepare_session(self, request):
         """Prepares various session variables."""
@@ -88,16 +96,24 @@ class login_required(omeroweb.decorators.login_required):
         if changes:
             request.session.modified = True
 
+
 class render_response(omeroweb.decorators.render_response):
-    """ Subclass for adding additional data to the 'context' dict passed to templates """
+    """
+    Subclass for adding additional data to the 'context' dict passed to
+    templates
+    """
 
     def prepare_context(self, request, context, *args, **kwargs):
         """
-        This allows templates to access the current eventContext and user from the L{omero.gateway.BlitzGateway}.
+        This allows templates to access the current eventContext and user from
+        the L{omero.gateway.BlitzGateway}.
         E.g. <h1>{{ ome.user.getFullName }}</h1>
-        If these are not required by the template, then they will not need to be loaded by the Blitz Gateway.
-        The results are cached by Blitz Gateway, so repeated calls have no additional cost.
-        We also process some values from settings and add these to the context.
+        If these are not required by the template, then they will not need to
+        be loaded by the Blitz Gateway.
+        The results are cached by Blitz Gateway, so repeated calls have no
+        additional cost.
+        We also process some values from settings and add these to the
+        context.
         """
 
         # we expect @login_required to pass us 'conn', but just in case...
@@ -108,26 +124,34 @@ class render_response(omeroweb.decorators.render_response):
         context.setdefault('ome', {})   # don't overwrite existing ome
         context['ome']['eventContext'] = conn.getEventContext
         context['ome']['user'] = conn.getUser
-        context['ome']['basket_counter'] = request.session.get('basket_counter', 0)
+        context['ome']['basket_counter'] = request.session.get(
+            'basket_counter', 0)
         context['ome']['user_id'] = request.session.get('user_id', None)
         context['ome']['group_id'] = request.session.get('group_id', None)
-        context['ome']['active_group'] = request.session.get('active_group', conn.getEventContext().groupId)
+        context['ome']['active_group'] = request.session.get(
+            'active_group', conn.getEventContext().groupId)
         context['global_search_form'] = GlobalSearchForm()
         # UI server preferences
         if request.session.get('server_settings'):
-            context['ome']['email'] =  request.session.get('server_settings').get('email', False)
+            context['ome']['email'] = request.session.get(
+                'server_settings').get('email', False)
             if request.session.get('server_settings').get('ui'):
-                context.setdefault('ui', {})   # don't overwrite existing ui
-                context['ui']['orphans_name'] = request.session.get('server_settings').get('ui').get('orphans_name')
-                context['ui']['orphans_desc'] = request.session.get('server_settings').get('ui').get('orphans_desc')
-                context['ui']['dropdown_menu'] = request.session.get('server_settings').get('ui').get('dropdown_menu')
+                context.setdefault('ui', {})  # don't overwrite existing ui
+                context['ui']['orphans_name'] = request.session.get(
+                    'server_settings').get('ui').get('orphans_name')
+                context['ui']['orphans_desc'] = request.session.get(
+                    'server_settings').get('ui').get('orphans_desc')
+                context['ui']['dropdown_menu'] = request.session.get(
+                    'server_settings').get('ui').get('dropdown_menu')
 
-        if settings.WEBSTART and (not settings.WEBSTART_ADMINS_ONLY \
-            or (conn.isAdmin() or (settings.WEBSTART_ADMINS_ONLY and len(list(conn.listOwnedGroups())) > 0))):
-            
-            context['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
+        if (settings.WEBSTART and
+            (not settings.WEBSTART_ADMINS_ONLY or
+             (conn.isAdmin() or (settings.WEBSTART_ADMINS_ONLY and
+                                 len(list(conn.listOwnedGroups())) > 0)))):
+
+            context['insight_url'] = request.build_absolute_uri(
+                reverse("webstart_insight"))
         self.load_settings(request, context, conn)
-
 
     def load_settings(self, request, context, conn):
 
@@ -140,7 +164,7 @@ class render_response(omeroweb.decorators.render_response):
         links = []
         for tl in top_links:
             if len(tl) < 2:
-                continue;
+                continue
             l = {}
             l["label"] = tl[0]
             link_id = tl[1]
@@ -161,7 +185,8 @@ class render_response(omeroweb.decorators.render_response):
             label = rt[0]
             include = rt[1]
             plugin_id = rt[2]
-            r_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+            r_plugins.append({
+                "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['right_plugins'] = r_plugins
 
         center_plugins = settings.CENTER_PLUGINS
@@ -170,5 +195,6 @@ class render_response(omeroweb.decorators.render_response):
             label = cp[0]
             include = cp[1]
             plugin_id = cp[2]
-            c_plugins.append( {"label":label, "include":include, "plugin_id": plugin_id} )
+            c_plugins.append({
+                "label": label, "include": include, "plugin_id": plugin_id})
         context['ome']['center_plugins'] = c_plugins

@@ -112,8 +112,9 @@ class TestPrefs(object):
             'omero.Y.password=********\n'
             'omero.Z=val'))
 
-    def testSetFails(self, capsys):
-        self.invoke("set A=B")
+    @pytest.mark.parametrize('argument', ['A=B', 'A= B'])
+    def testSetFails(self, capsys, argument):
+        self.invoke("set %s" % argument)
         self.assertStdoutStderr(
             capsys, err="\"=\" in key name. Did you mean \"...set A B\"?")
 

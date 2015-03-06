@@ -147,6 +147,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
         if (step < graphRequestSkipStatus.steps) {
             try {
                 /* do a skip-head step */
+                graphRequestSkipStatus.currentStep = step;
                 graphRequestSkipObjects.add(((IRequest) graphRequestSkip).step(step));
             } catch (Cancel e) {
                 /* the step failed, so propagate the error response to this request */
@@ -176,9 +177,10 @@ public class SkipHeadI extends SkipHead implements IRequest {
                         final Class<? extends IObject> targetedClass;
                         try {
                             targetedClass = Class.forName(targetedClassName).asSubclass(IObject.class);
-                        } catch (ClassNotFoundException e) {
-                            throw helper.cancel(new ERR(), new IllegalStateException(),
+                        } catch (ClassNotFoundException cnfe) {
+                            final Exception e = new IllegalStateException(
                                     "response from " + graphRequestSkip.getClass() + " refers to class " + targetedClassName);
+                            throw helper.cancel(new ERR(), e, "bad-class");
                         }
                         if (startFromClass.isAssignableFrom(targetedClass)) {
                             final List<Long> ids = targetedObjectsByClass.getValue();
@@ -190,6 +192,7 @@ public class SkipHeadI extends SkipHead implements IRequest {
             if (substep < graphRequestPerformStatus.steps) {
                 try {
                     /* do a tail step */
+                    graphRequestPerformStatus.currentStep = substep;
                     graphRequestPerformObjects.add(((IRequest) graphRequestPerform).step(substep));
                 } catch (Cancel e) {
                     /* the step failed, so propagate the error response to this request */
@@ -198,7 +201,8 @@ public class SkipHeadI extends SkipHead implements IRequest {
                     throw e;
                 }
             } else {
-                throw helper.cancel(new ERR(), new IllegalArgumentException(), "model object graph operation has no step " + step);
+                final Exception e = new IllegalArgumentException("model object graph operation has no step " + step);
+                throw helper.cancel(new ERR(), e, "bad-step");
             }
         }
         return null;

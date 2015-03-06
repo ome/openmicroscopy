@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -103,6 +103,13 @@ public class GraphRequestFactory {
             LOGGER.warn("substituting Chgrp, Delete requests with Chgrp2, Delete2 requests");
         }
         this.isGraphsWrap = isGraphsWrap;
+    }
+
+    /**
+     * @return the graph path bean used by this instance
+     */
+    public GraphPathBean getGraphPathBean() {
+        return graphPathBean;
     }
 
     /**

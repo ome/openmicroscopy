@@ -534,8 +534,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         pixList = (List) objects.get(Pixels.class.getSimpleName());
         imageList = (List) objects.get(Image.class.getSimpleName());
         plateList = (List) objects.get(Plate.class.getSimpleName());
-        //TODO: below line has to be moved to store.saveToDB()
-        store.attachCompanionFilesToImage(activity.getParent(), imageList);
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 

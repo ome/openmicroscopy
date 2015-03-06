@@ -48,11 +48,10 @@
                 var highlightCurrent = function() {
                     var userId = {{ userId }};
                     var selected = $.grep($('#id_members').data('chosen').results_data, function(item){
-                        if (parseInt(item.value) === userId) {
-                            $("#id_owners_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                            $("#id_members_chzn_c_"+item.array_index).addClass('search-choice-current').find("a").first().unbind("click").remove();                            
-                        }
+                        return item.value == userId;
                     });
+                    $("#id_owners_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
+                    $("#id_members_chosen a[data-option-array-index='"+selected[0].options_index+"']").parent().addClass('search-choice-current').find("a").first().unbind("click").remove();
                 }
                 
                 // Since we want to disable removal of 'system' users from chosen, this hides the 'X'
@@ -71,7 +70,7 @@
                         var selected = $.grep($('#id_owners').data('chosen').results_data, function(item){
                             if(item.selected && item.value === data.deselected) {
                                 $('#id_owners option[value='+data.deselected+']').prop('selected', false);
-                                $("#id_owners").trigger("liszt:updated");
+                                $("#id_owners").trigger("chosen:updated");
                                 highlightCurrent();
                             }
                         });

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.util.FigureDialog 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -91,6 +91,7 @@ import org.jhotdraw.draw.Drawing;
 //Application-internal dependencies
 import omero.model.PlaneInfo;
 import omero.romio.PlaneDef;
+import ome.model.units.BigResult;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -2115,8 +2116,13 @@ public class FigureDialog
 			details = EditorUtil.transformPlaneInfo(pi);
 			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 			if (!notSet.contains(EditorUtil.DELTA_T)) {
+			    if(details.get(EditorUtil.DELTA_T) instanceof BigResult) {
+			        MetadataViewerAgent.logBigResultExeption(this, details.get(EditorUtil.DELTA_T), EditorUtil.DELTA_T);
+			        value = "N/A";
+			    } else {
 				value = EditorUtil.formatTimeInSeconds(
 						(Double) details.get(EditorUtil.DELTA_T));
+			    }
 				values.put(pi.getTheT().getValue(), value);
 			}
 		}

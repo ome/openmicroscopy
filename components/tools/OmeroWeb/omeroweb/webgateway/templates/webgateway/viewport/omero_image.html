@@ -27,6 +27,7 @@
     {% endfor %}
 
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.viewport.css" %}" media="all" />
+    <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar.css" %}" media="all"/>
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.gs_slider.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/base.css" %}" media="all" />
     <link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.snippet_header_logo.css" %}" media="all" />
@@ -756,9 +757,9 @@
       <h1> Rendering Details </h1>
       <div id="rdef-active-area">
 
-        <ul class="buttonbar preview-toolbar" style="border-right-width: 0; margin-top: 5px;">
+        <ul class="toolbar borderless labels">
           <li>
-            <button id="rdef-setdef-btn" class="toolbar-btn" disabled='true'
+            <button id="rdef-setdef-btn" class="button" disabled="disabled"
                 {% if manager.image.canAnnotate %}
                   title="Save the current settings."
                 {% else %}
@@ -771,12 +772,14 @@
 
           </li>
 
-          <li><button id="rdef-undo-btn" class="toolbar-btn" title="Undo the last changes to settings"
+          <li><button id="rdef-undo-btn" class="button button-disabled"
+              disabled="disabled" title="Undo the last changes to settings"
               onclick="return undoRDCW();">
             <img src="{% static "webclient/image/icon_undo16.png" %}" /><br>
             Undo
           </button> </li>
-          <li><button id="rdef-redo-btn" class="toolbar-btn" title="Redo the last changes to settings"
+          <li><button id="rdef-redo-btn" class="button button-disabled"
+              disabled="disabled" title="Redo the last changes to settings"
               onclick="return redoRDCW();">
             <img src="{% static "webclient/image/icon_redo16.png" %}" /><br>
             Redo
@@ -784,11 +787,11 @@
 
           <li class="seperator"></li>
 
-          <li><button class="copy_rdef button toolbar-btn" title="Copy Rendering Settings">
+          <li><button class="copy_rdef button" title="Copy Rendering Settings">
             <img src="{% static "webclient/image/icon_toolbar_copy.png" %}"/><br>
             Copy
           </button></li>
-          <li><button class="paste_rdef button toolbar-btn"
+          <li><button class="paste_rdef button button-disabled"
              title="Paste Rendering Settings" disabled="disabled">
             <img src="{% static "webclient/image/icon_toolbar_paste.png" %}"/><br>
             Paste
@@ -1023,14 +1026,14 @@
                     .attr('title', 'Copied settings are not compatible with this image');
                   return;
                 }
-                $("button.paste_rdef").removeAttr('disabled');
+                $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
             }
         }
       );
 
       // disable 'Full Range' button if pixelsType is 'float' or 'double'
       if ($.inArray(viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
-        $("#rdef-fullrange-btn").attr("disabled", "disabled");
+        $("#rdef-fullrange-btn").attr("disabled", "disabled").addClass("button-disabled");
       }
     });
 
@@ -1142,6 +1145,7 @@
     var copy_paste_rdef_url = "{% url 'webgateway.views.copy_image_rdef_json' %}";
     $(".copy_rdef").click(function() {
         copyRdefs(viewport);
+        $("button.paste_rdef").removeAttr('disabled').removeClass("button-disabled");
     });
 
     $(".paste_rdef").click(function() {

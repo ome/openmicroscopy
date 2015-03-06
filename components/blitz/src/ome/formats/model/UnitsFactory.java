@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 
 package ome.formats.model;
 
+import ome.model.units.BigResult;
 import ome.units.unit.Unit;
 import omero.model.ElectricPotential;
 import omero.model.ElectricPotentialI;
@@ -90,11 +91,11 @@ public class UnitsFactory {
         return ElectricPotentialI.convert(t);
     }
 
-    public static ElectricPotential convertElectricPotential(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) {
+    public static ElectricPotential convertElectricPotential(ElectricPotential value, Unit<ome.units.quantity.ElectricPotential> ul) throws BigResult {
         return convertElectricPotentialXML(value, ul.getSymbol());
     }
 
-    public static ElectricPotential convertElectricPotentialXML(ElectricPotential value, String xml) {
+    public static ElectricPotential convertElectricPotentialXML(ElectricPotential value, String xml) throws BigResult {
         String omero = xmlElectricPotentialEnumToOMERO(xml);
         return new ElectricPotentialI(value, omero);
     }
@@ -145,11 +146,11 @@ public class UnitsFactory {
         return FrequencyI.convert(t);
     }
 
-    public static Frequency convertFrequency(Frequency value, Unit<ome.units.quantity.Frequency> ul) {
+    public static Frequency convertFrequency(Frequency value, Unit<ome.units.quantity.Frequency> ul) throws BigResult {
         return convertFrequencyXML(value, ul.getSymbol());
     }
 
-    public static Frequency convertFrequencyXML(Frequency value, String xml) {
+    public static Frequency convertFrequencyXML(Frequency value, String xml) throws BigResult {
         String omero = xmlFrequencyEnumToOMERO(xml);
         return new FrequencyI(value, omero);
     }
@@ -200,11 +201,11 @@ public class UnitsFactory {
         return LengthI.convert(t);
     }
 
-    public static Length convertLength(Length value, Unit<ome.units.quantity.Length> ul) {
+    public static Length convertLength(Length value, Unit<ome.units.quantity.Length> ul) throws BigResult {
         return convertLengthXML(value, ul.getSymbol());
     }
 
-    public static Length convertLengthXML(Length value, String xml) {
+    public static Length convertLengthXML(Length value, String xml) throws BigResult {
         String omero = xmlLengthEnumToOMERO(xml);
         return new LengthI(value, omero);
     }
@@ -255,11 +256,11 @@ public class UnitsFactory {
         return PowerI.convert(t);
     }
 
-    public static Power convertPower(Power value, Unit<ome.units.quantity.Power> ul) {
+    public static Power convertPower(Power value, Unit<ome.units.quantity.Power> ul) throws BigResult {
         return convertPowerXML(value, ul.getSymbol());
     }
 
-    public static Power convertPowerXML(Power value, String xml) {
+    public static Power convertPowerXML(Power value, String xml) throws BigResult {
         String omero = xmlPowerEnumToOMERO(xml);
         return new PowerI(value, omero);
     }
@@ -310,11 +311,11 @@ public class UnitsFactory {
         return PressureI.convert(t);
     }
 
-    public static Pressure convertPressure(Pressure value, Unit<ome.units.quantity.Pressure> ul) {
+    public static Pressure convertPressure(Pressure value, Unit<ome.units.quantity.Pressure> ul) throws BigResult {
         return convertPressureXML(value, ul.getSymbol());
     }
 
-    public static Pressure convertPressureXML(Pressure value, String xml) {
+    public static Pressure convertPressureXML(Pressure value, String xml) throws BigResult {
         String omero = xmlPressureEnumToOMERO(xml);
         return new PressureI(value, omero);
     }
@@ -365,11 +366,11 @@ public class UnitsFactory {
         return TemperatureI.convert(t);
     }
 
-    public static Temperature convertTemperature(Temperature value, Unit<ome.units.quantity.Temperature> ul) {
+    public static Temperature convertTemperature(Temperature value, Unit<ome.units.quantity.Temperature> ul) throws BigResult {
         return convertTemperatureXML(value, ul.getSymbol());
     }
 
-    public static Temperature convertTemperatureXML(Temperature value, String xml) {
+    public static Temperature convertTemperatureXML(Temperature value, String xml) throws BigResult {
         String omero = xmlTemperatureEnumToOMERO(xml);
         return new TemperatureI(value, omero);
     }
@@ -420,11 +421,11 @@ public class UnitsFactory {
         return TimeI.convert(t);
     }
 
-    public static Time convertTime(Time value, Unit<ome.units.quantity.Time> ul) {
+    public static Time convertTime(Time value, Unit<ome.units.quantity.Time> ul) throws BigResult {
         return convertTimeXML(value, ul.getSymbol());
     }
 
-    public static Time convertTimeXML(Time value, String xml) {
+    public static Time convertTimeXML(Time value, String xml) throws BigResult {
         String omero = xmlTimeEnumToOMERO(xml);
         return new TimeI(value, omero);
     }

@@ -19,11 +19,23 @@
 
 package omero.model;
 
+import static ome.model.units.Conversion.Mul;
+import static ome.model.units.Conversion.Add;
+import static ome.model.units.Conversion.Int;
+import static ome.model.units.Conversion.Pow;
+import static ome.model.units.Conversion.Rat;
+import static ome.model.units.Conversion.Sym;
+
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
+import ome.model.units.BigResult;
+import ome.model.units.Conversion;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -44,430 +56,1228 @@ public class PressureI extends Pressure implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, double[][]> conversions;
-    static {
-        Map<String, double[][]> c = new HashMap<String, double[][]>();
+    private static Map<UnitsPressure, Conversion> createMapATMOSPHERE() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 18))), Sym("atm")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(4000), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(40), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Int(10132500)), Sym("atm")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(2), Int(20265)), Sym("atm")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(400), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Int(1013250)), Sym("atm")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Rat(Mul(Int(4), Pow(10, 16)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 15))), Sym("atm")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Mul(Int(4), Pow(10, 7)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(4), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Mul(Int(4), Pow(10, 6)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(40), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Mul(Int(4), Pow(10, 9)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Mul(Int(4), Pow(10, 4)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 6))), Sym("atm")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(4), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Int(101325000)), Sym("atm")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(1), Mul(Int(76), Pow(10, 4))), Sym("atm")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int(1269737023), Mul(Int(965), Pow(10, 9))), Sym("atm")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 9))), Sym("atm")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Mul(Int(4), Pow(10, 13)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 12))), Sym("atm")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("8208044396629"), Mul(Int(120625), Pow(10, 9))), Sym("atm")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(101325)), Sym("atm")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Mul(Int(4), Pow(10, 10)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(1), Int(760)), Sym("atm")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 24))), Sym("atm")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Mul(Int(4), Pow(10, 22)), Int(4053)), Sym("atm")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Mul(Int(101325), Pow(10, 21))), Sym("atm")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Rat(Mul(Int(4), Pow(10, 19)), Int(4053)), Sym("atm")));
+        return Collections.unmodifiableMap(c);
+    }
 
-        c.put("ATTOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("ATTOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ATTOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("ATTOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ATTOPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ATTOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ATTOPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ATTOPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ATTOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ATTOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ATTOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ATTOPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ATTOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ATTOPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ATTOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ATTOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ATTOPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ATTOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ATTOPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ATTOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("CENTIPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("CENTIPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("CENTIPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("CENTIPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("CENTIPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("CENTIPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("CENTIPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("CENTIPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("CENTIPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("CENTIPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("CENTIPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("CENTIPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("CENTIPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("CENTIPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("CENTIPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("CENTIPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("CENTIPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("CENTIPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("CENTIPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("CENTIPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("DECAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("DECAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECAPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("DECAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("DECAPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("DECAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECAPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("DECAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("DECAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("DECAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("DECAPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("DECAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("DECAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECAPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("DECAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("DECAPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("DECAPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("DECIPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("DECIPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECIPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECIPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("DECIPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("DECIPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("DECIPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("DECIPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("DECIPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("DECIPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("DECIPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECIPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("DECIPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("DECIPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("DECIPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECIPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("DECIPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("DECIPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("DECIPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("DECIPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("EXAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("EXAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("EXAPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("EXAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("EXAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("EXAPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("EXAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("EXAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("EXAPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("EXAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("EXAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("EXAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("EXAPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("EXAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("EXAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("EXAPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("EXAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("EXAPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("EXAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("EXAPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("FEMTOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("FEMTOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("FEMTOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("FEMTOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("FEMTOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("FEMTOPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("FEMTOPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("FEMTOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("FEMTOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("FEMTOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("FEMTOPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("FEMTOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("FEMTOPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("FEMTOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("FEMTOPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("FEMTOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("FEMTOPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("FEMTOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("GIGAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("GIGAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("GIGAPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("GIGAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("GIGAPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("GIGAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("GIGAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("GIGAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("GIGAPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("GIGAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("GIGAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("GIGAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("GIGAPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("GIGAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("GIGAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("GIGAPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("GIGAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("GIGAPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("GIGAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("GIGAPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("HECTOPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("HECTOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("HECTOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("HECTOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("HECTOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("HECTOPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("HECTOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("HECTOPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("HECTOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("HECTOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("HECTOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("HECTOPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("HECTOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("HECTOPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("HECTOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("HECTOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("HECTOPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("HECTOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("HECTOPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("HECTOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("KILOPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("KILOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("KILOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("KILOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("KILOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("KILOPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("KILOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("KILOPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("KILOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("KILOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("KILOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("KILOPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("KILOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("KILOPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("KILOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("KILOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("KILOPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("KILOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("KILOPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("KILOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("MEGAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("MEGAPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("MEGAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("MEGAPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MEGAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MEGAPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MEGAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("MEGAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MEGAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MEGAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MEGAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MEGAPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MEGAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MEGAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MEGAPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MEGAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("MEGAPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("MEGAPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MICROPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MICROPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("MICROPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MICROPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("MICROPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MICROPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("MICROPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MICROPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MICROPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MICROPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MICROPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MICROPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MICROPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MICROPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MICROPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MICROPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("MICROPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MICROPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MILLIPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("MILLIPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MILLIPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("MILLIPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MILLIPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MILLIPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MILLIPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MILLIPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MILLIPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MILLIPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MILLIPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MILLIPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MILLIPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MILLIPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MILLIPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MILLIPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MILLIPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MILLIPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("NANOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("NANOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("NANOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("NANOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("NANOPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("NANOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("NANOPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("NANOPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("NANOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("NANOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("NANOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("NANOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("NANOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("NANOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("NANOPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("NANOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("NANOPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("NANOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PETAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("PETAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("PETAPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("PETAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("PETAPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PETAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("PETAPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PETAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("PETAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PETAPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PETAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("PETAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("PETAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("PETAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("PETAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("PETAPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PETAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("PETAPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PETAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("PETAPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PICOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("PICOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("PICOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("PICOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PICOPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PICOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("PICOPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("PICOPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("PICOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("PICOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PICOPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PICOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("PICOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("PICOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("PICOPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PICOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("PICOPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PICOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("Pascal:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("Pascal:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("Pascal:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("Pascal:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("Pascal:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("Pascal:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("Pascal:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("Pascal:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("Pascal:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("Pascal:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("Pascal:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("Pascal:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("Pascal:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("Pascal:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("Pascal:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("Pascal:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("Pascal:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("Pascal:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("Pascal:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("Pascal:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("TERAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("TERAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("TERAPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("TERAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("TERAPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("TERAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("TERAPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("TERAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("TERAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("TERAPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("TERAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("TERAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("TERAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("TERAPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("TERAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("TERAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("TERAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("TERAPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("TERAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("TERAPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("YOCTOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("YOCTOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("YOCTOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("YOCTOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("YOCTOPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("YOCTOPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("YOCTOPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("YOCTOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("YOCTOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("YOCTOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("YOCTOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("YOCTOPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("YOCTOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("YOCTOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("YOCTOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
-        c.put("YOCTOPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("YOCTOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("YOTTAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("YOTTAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("YOTTAPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("YOTTAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("YOTTAPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("YOTTAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("YOTTAPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("YOTTAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("YOTTAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("YOTTAPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("YOTTAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("YOTTAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("YOTTAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("YOTTAPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("YOTTAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("YOTTAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("YOTTAPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("YOTTAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
-        c.put("YOTTAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("YOTTAPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZEPTOPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ZEPTOPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("ZEPTOPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ZEPTOPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("ZEPTOPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ZEPTOPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ZEPTOPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("ZEPTOPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ZEPTOPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ZEPTOPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ZEPTOPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ZEPTOPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ZEPTOPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ZEPTOPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ZEPTOPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ZEPTOPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ZEPTOPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("ZEPTOPASCAL:ZETTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ZETTAPASCAL:ATTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("ZETTAPASCAL:CENTIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("ZETTAPASCAL:DECAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("ZETTAPASCAL:DECIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("ZETTAPASCAL:EXAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZETTAPASCAL:FEMTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("ZETTAPASCAL:GIGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("ZETTAPASCAL:HECTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("ZETTAPASCAL:KILOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("ZETTAPASCAL:MEGAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("ZETTAPASCAL:MICROPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("ZETTAPASCAL:MILLIPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("ZETTAPASCAL:NANOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("ZETTAPASCAL:PETAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ZETTAPASCAL:PICOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("ZETTAPASCAL:Pascal", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("ZETTAPASCAL:TERAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("ZETTAPASCAL:YOCTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("ZETTAPASCAL:YOTTAPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZETTAPASCAL:ZEPTOPASCAL", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+    private static Map<UnitsPressure, Conversion> createMapATTOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(101325), Pow(10, 18)), Sym("attopa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 23), Sym("attopa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 21), Sym("attopa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Pow(10, 16), Sym("attopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 19), Sym("attopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 22), Sym("attopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Pow(10, 17), Sym("attopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 36), Sym("attopa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Int(1000), Sym("attopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 27), Sym("attopa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 20), Sym("attopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 26), Sym("attopa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 21), Sym("attopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 29), Sym("attopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 24), Sym("attopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Pow(10, 12), Sym("attopa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 20), Sym("attopa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Pow(10, 15), Sym("attopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Mul(Int(2533125), Pow(10, 12)), Int(19)), Sym("attopa")));
+        c.put(UnitsPressure.MMHG, Mul(Mul(Int("133322387415"), Pow(10, 9)), Sym("attopa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Pow(10, 9), Sym("attopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 33), Sym("attopa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 6), Sym("attopa")));
+        c.put(UnitsPressure.PSI, Mul(Mul(Int("689475729316836"), Pow(10, 7)), Sym("attopa")));
+        c.put(UnitsPressure.Pascal, Mul(Pow(10, 18), Sym("attopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 30), Sym("attopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(2533125), Pow(10, 15)), Int(19)), Sym("attopa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("attopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 42), Sym("attopa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("attopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 39), Sym("attopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapBAR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Int(4000)), Sym("bar")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("bar")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Int(100)), Sym("bar")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("bar")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("bar")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Int(10)), Sym("bar")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("bar")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 13), Sym("bar")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("bar")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 4), Sym("bar")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("bar")));
+        c.put(UnitsPressure.KILOBAR, Mul(Int(1000), Sym("bar")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Int(100)), Sym("bar")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 6), Sym("bar")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Int(10), Sym("bar")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("bar")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Int(1000)), Sym("bar")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("bar")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 7))), Sym("bar")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 13))), Sym("bar")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("bar")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 10), Sym("bar")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("bar")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 14))), Sym("bar")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 5)), Sym("bar")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 7), Sym("bar")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 4))), Sym("bar")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 29)), Sym("bar")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 19), Sym("bar")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 26)), Sym("bar")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 16), Sym("bar")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapCENTIBAR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Int(40)), Sym("cbar")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("cbar")));
+        c.put(UnitsPressure.BAR, Mul(Int(100), Sym("cbar")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("cbar")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Int(100)), Sym("cbar")));
+        c.put(UnitsPressure.DECIBAR, Mul(Int(10), Sym("cbar")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("cbar")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 15), Sym("cbar")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("cbar")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 6), Sym("cbar")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Int(10)), Sym("cbar")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 5), Sym("cbar")));
+        c.put(UnitsPressure.KILOPASCAL, Sym("cbar"));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 8), Sym("cbar")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Int(1000), Sym("cbar")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("cbar")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Int(10)), Sym("cbar")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("cbar")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 5))), Sym("cbar")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 11))), Sym("cbar")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("cbar")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 12), Sym("cbar")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("cbar")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 12))), Sym("cbar")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(1000)), Sym("cbar")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 9), Sym("cbar")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Int(30400)), Sym("cbar")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("cbar")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 21), Sym("cbar")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("cbar")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 18), Sym("cbar")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapCENTIPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Int(10132500), Sym("centipa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 16)), Sym("centipa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 7), Sym("centipa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 5), Sym("centipa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Int(1000), Sym("centipa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 6), Sym("centipa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Int(10), Sym("centipa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 20), Sym("centipa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("centipa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 11), Sym("centipa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 4), Sym("centipa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 10), Sym("centipa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 5), Sym("centipa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 13), Sym("centipa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 8), Sym("centipa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("centipa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 4), Sym("centipa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Int(10)), Sym("centipa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Int(304)), Sym("centipa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 6))), Sym("centipa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("centipa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 17), Sym("centipa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("centipa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 7))), Sym("centipa")));
+        c.put(UnitsPressure.Pascal, Mul(Int(100), Sym("centipa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 14), Sym("centipa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(506625), Int(38)), Sym("centipa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 22)), Sym("centipa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 26), Sym("centipa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 19)), Sym("centipa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 23), Sym("centipa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapDECAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(20265), Int(2)), Sym("decapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 19)), Sym("decapa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 4), Sym("decapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Int(100), Sym("decapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("decapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Int(1000), Sym("decapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Int(100)), Sym("decapa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 17), Sym("decapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 16)), Sym("decapa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 8), Sym("decapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Int(10), Sym("decapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 7), Sym("decapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Int(100), Sym("decapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 10), Sym("decapa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 5), Sym("decapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("decapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Int(10), Sym("decapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("decapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Int(304000)), Sym("decapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 9))), Sym("decapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("decapa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 14), Sym("decapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("decapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 10))), Sym("decapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(10)), Sym("decapa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 11), Sym("decapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Int(304)), Sym("decapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 25)), Sym("decapa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 23), Sym("decapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 22)), Sym("decapa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 20), Sym("decapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapDECIBAR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Int(400)), Sym("dbar")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 22)), Sym("dbar")));
+        c.put(UnitsPressure.BAR, Mul(Int(10), Sym("dbar")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Int(10)), Sym("dbar")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("dbar")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("dbar")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("dbar")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 14), Sym("dbar")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 19)), Sym("dbar")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 5), Sym("dbar")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Int(100)), Sym("dbar")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 4), Sym("dbar")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Int(10)), Sym("dbar")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 7), Sym("dbar")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Int(100), Sym("dbar")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("dbar")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Int(100)), Sym("dbar")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("dbar")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 6))), Sym("dbar")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 12))), Sym("dbar")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("dbar")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 11), Sym("dbar")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 16)), Sym("dbar")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 13))), Sym("dbar")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 4)), Sym("dbar")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 8), Sym("dbar")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Int(304000)), Sym("dbar")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 28)), Sym("dbar")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 20), Sym("dbar")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 25)), Sym("dbar")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 17), Sym("dbar")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapDECIPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Int(1013250), Sym("decipa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("decipa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 6), Sym("decipa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 4), Sym("decipa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Int(10)), Sym("decipa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Int(100), Sym("decipa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 5), Sym("decipa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 19), Sym("decipa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("decipa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 10), Sym("decipa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Int(1000), Sym("decipa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 9), Sym("decipa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 4), Sym("decipa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 12), Sym("decipa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 7), Sym("decipa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("decipa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Int(1000), Sym("decipa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Int(100)), Sym("decipa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Int(3040)), Sym("decipa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 7))), Sym("decipa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("decipa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 16), Sym("decipa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("decipa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 8))), Sym("decipa")));
+        c.put(UnitsPressure.Pascal, Mul(Int(10), Sym("decipa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 13), Sym("decipa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(101325), Int(76)), Sym("decipa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("decipa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 25), Sym("decipa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("decipa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 22), Sym("decipa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapEXAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 16))), Sym("exapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 36)), Sym("exapa")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Pow(10, 13)), Sym("exapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 15)), Sym("exapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("exapa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("exapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 14)), Sym("exapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 19)), Sym("exapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("exapa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("exapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 16)), Sym("exapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Int(1), Pow(10, 10)), Sym("exapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("exapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Int(1), Pow(10, 7)), Sym("exapa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("exapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("exapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 16)), Sym("exapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("exapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 20))), Sym("exapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 26))), Sym("exapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("exapa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("exapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("exapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 27))), Sym("exapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 18)), Sym("exapa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("exapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 17))), Sym("exapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 42)), Sym("exapa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 6), Sym("exapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 39)), Sym("exapa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Int(1000), Sym("exapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapFEMTOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(101325), Pow(10, 15)), Sym("femtopa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("femtopa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 20), Sym("femtopa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 18), Sym("femtopa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Pow(10, 13), Sym("femtopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 16), Sym("femtopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 19), Sym("femtopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Pow(10, 14), Sym("femtopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 33), Sym("femtopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 24), Sym("femtopa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 17), Sym("femtopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 23), Sym("femtopa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 18), Sym("femtopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 26), Sym("femtopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 21), Sym("femtopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Pow(10, 9), Sym("femtopa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 17), Sym("femtopa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Pow(10, 12), Sym("femtopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Mul(Int(2533125), Pow(10, 9)), Int(19)), Sym("femtopa")));
+        c.put(UnitsPressure.MMHG, Mul(Mul(Int("133322387415"), Pow(10, 6)), Sym("femtopa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Pow(10, 6), Sym("femtopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 30), Sym("femtopa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Int(1000), Sym("femtopa")));
+        c.put(UnitsPressure.PSI, Mul(Mul(Int("689475729316836"), Pow(10, 4)), Sym("femtopa")));
+        c.put(UnitsPressure.Pascal, Mul(Pow(10, 15), Sym("femtopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 27), Sym("femtopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(2533125), Pow(10, 12)), Int(19)), Sym("femtopa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("femtopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 39), Sym("femtopa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("femtopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 36), Sym("femtopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapGIGAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 7))), Sym("gigapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("gigapa")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Pow(10, 4)), Sym("gigapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("gigapa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("gigapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 5)), Sym("gigapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("gigapa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 9), Sym("gigapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("gigapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("gigapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Int(1), Int(10)), Sym("gigapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Int(100), Sym("gigapa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("gigapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("gigapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 7)), Sym("gigapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("gigapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("gigapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 17))), Sym("gigapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("gigapa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 6), Sym("gigapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("gigapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 18))), Sym("gigapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 9)), Sym("gigapa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Int(1000), Sym("gigapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 8))), Sym("gigapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("gigapa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 15), Sym("gigapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("gigapa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 12), Sym("gigapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapHECTOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Int(4)), Sym("hectopa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("hectopa")));
+        c.put(UnitsPressure.BAR, Mul(Int(1000), Sym("hectopa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Int(10), Sym("hectopa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("hectopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Int(10)), Sym("hectopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Int(100), Sym("hectopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("hectopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 16), Sym("hectopa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("hectopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 7), Sym("hectopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 6), Sym("hectopa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Int(10), Sym("hectopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 9), Sym("hectopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 4), Sym("hectopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("hectopa")));
+        c.put(UnitsPressure.MILLIBAR, Sym("hectopa"));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("hectopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 4))), Sym("hectopa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 10))), Sym("hectopa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("hectopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 13), Sym("hectopa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("hectopa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 11))), Sym("hectopa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(100)), Sym("hectopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 10), Sym("hectopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Int(3040)), Sym("hectopa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 26)), Sym("hectopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 22), Sym("hectopa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("hectopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 19), Sym("hectopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapKILOBAR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 6))), Sym("kbar")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 26)), Sym("kbar")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Int(1000)), Sym("kbar")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 5)), Sym("kbar")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("kbar")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("kbar")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 4)), Sym("kbar")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("kbar")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 10), Sym("kbar")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("kbar")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Int(10), Sym("kbar")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("kbar")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("kbar")));
+        c.put(UnitsPressure.MEGABAR, Mul(Int(1000), Sym("kbar")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Int(100)), Sym("kbar")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("kbar")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 6)), Sym("kbar")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("kbar")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 10))), Sym("kbar")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 16))), Sym("kbar")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("kbar")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 7), Sym("kbar")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("kbar")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 17))), Sym("kbar")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 8)), Sym("kbar")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 4), Sym("kbar")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 7))), Sym("kbar")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 32)), Sym("kbar")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 16), Sym("kbar")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 29)), Sym("kbar")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 13), Sym("kbar")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapKILOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Int(40)), Sym("kilopa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("kilopa")));
+        c.put(UnitsPressure.BAR, Mul(Int(100), Sym("kilopa")));
+        c.put(UnitsPressure.CENTIBAR, Sym("kilopa"));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("kilopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Int(100)), Sym("kilopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Int(10), Sym("kilopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("kilopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 15), Sym("kilopa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("kilopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 6), Sym("kilopa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Int(10)), Sym("kilopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 5), Sym("kilopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 8), Sym("kilopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Int(1000), Sym("kilopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("kilopa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Int(10)), Sym("kilopa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("kilopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 5))), Sym("kilopa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 11))), Sym("kilopa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("kilopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 12), Sym("kilopa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("kilopa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 12))), Sym("kilopa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(1000)), Sym("kilopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 9), Sym("kilopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Int(30400)), Sym("kilopa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("kilopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 21), Sym("kilopa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("kilopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 18), Sym("kilopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapMEGABAR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 9))), Sym("megabar")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 29)), Sym("megabar")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Pow(10, 6)), Sym("megabar")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 8)), Sym("megabar")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("megabar")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("megabar")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 7)), Sym("megabar")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("megabar")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 7), Sym("megabar")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 26)), Sym("megabar")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Int(1), Int(100)), Sym("megabar")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("megabar")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Int(1), Int(1000)), Sym("megabar")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("megabar")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("megabar")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("megabar")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 9)), Sym("megabar")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("megabar")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 13))), Sym("megabar")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 19))), Sym("megabar")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("megabar")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 4), Sym("megabar")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("megabar")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 20))), Sym("megabar")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 11)), Sym("megabar")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Int(10), Sym("megabar")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 10))), Sym("megabar")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 35)), Sym("megabar")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 13), Sym("megabar")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 32)), Sym("megabar")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 10), Sym("megabar")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapMEGAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 4))), Sym("megapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("megapa")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Int(10)), Sym("megapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Int(1000)), Sym("megapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("megapa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("megapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Int(100)), Sym("megapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 7)), Sym("megapa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 12), Sym("megapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("megapa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Int(1000), Sym("megapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("megapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Int(100), Sym("megapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("megapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 5), Sym("megapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("megapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 4)), Sym("megapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("megapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 8))), Sym("megapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 14))), Sym("megapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("megapa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 9), Sym("megapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("megapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 15))), Sym("megapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 6)), Sym("megapa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 6), Sym("megapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 5))), Sym("megapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("megapa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 18), Sym("megapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("megapa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 15), Sym("megapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapMICROPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(101325), Pow(10, 6)), Sym("micropa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("micropa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 11), Sym("micropa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 9), Sym("micropa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Pow(10, 4), Sym("micropa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 7), Sym("micropa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 10), Sym("micropa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Pow(10, 5), Sym("micropa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 24), Sym("micropa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("micropa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 15), Sym("micropa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 8), Sym("micropa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 14), Sym("micropa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 9), Sym("micropa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 17), Sym("micropa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 12), Sym("micropa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 8), Sym("micropa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Int(1000), Sym("micropa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(2533125), Int(19)), Sym("micropa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Int(200)), Sym("micropa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("micropa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 21), Sym("micropa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("micropa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Int(25000)), Sym("micropa")));
+        c.put(UnitsPressure.Pascal, Mul(Pow(10, 6), Sym("micropa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 18), Sym("micropa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int("2533125000"), Int(19)), Sym("micropa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("micropa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 30), Sym("micropa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("micropa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 27), Sym("micropa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapMILLIBAR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Int(4)), Sym("mbar")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("mbar")));
+        c.put(UnitsPressure.BAR, Mul(Int(1000), Sym("mbar")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Int(10), Sym("mbar")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 4)), Sym("mbar")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Int(10)), Sym("mbar")));
+        c.put(UnitsPressure.DECIBAR, Mul(Int(100), Sym("mbar")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("mbar")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 16), Sym("mbar")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("mbar")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 7), Sym("mbar")));
+        c.put(UnitsPressure.HECTOPASCAL, Sym("mbar"));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 6), Sym("mbar")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Int(10), Sym("mbar")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 9), Sym("mbar")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 4), Sym("mbar")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 8)), Sym("mbar")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 5)), Sym("mbar")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 4))), Sym("mbar")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 10))), Sym("mbar")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("mbar")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 13), Sym("mbar")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("mbar")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 11))), Sym("mbar")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Int(100)), Sym("mbar")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 10), Sym("mbar")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Int(3040)), Sym("mbar")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 26)), Sym("mbar")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 22), Sym("mbar")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("mbar")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 19), Sym("mbar")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapMILLIPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Int(101325000), Sym("millipa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("millipa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 8), Sym("millipa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 6), Sym("millipa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Int(10), Sym("millipa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 4), Sym("millipa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 7), Sym("millipa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Int(100), Sym("millipa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 21), Sym("millipa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("millipa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 12), Sym("millipa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 5), Sym("millipa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 11), Sym("millipa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 6), Sym("millipa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 14), Sym("millipa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 9), Sym("millipa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("millipa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 5), Sym("millipa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(20265), Int(152)), Sym("millipa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 5))), Sym("millipa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("millipa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 18), Sym("millipa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("millipa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 6))), Sym("millipa")));
+        c.put(UnitsPressure.Pascal, Mul(Int(1000), Sym("millipa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 15), Sym("millipa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(2533125), Int(19)), Sym("millipa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("millipa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 27), Sym("millipa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("millipa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 24), Sym("millipa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapMILLITORR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(76), Pow(10, 4)), Sym("mtorr")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 12))), Sym("mtorr")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Mul(Int(304), Pow(10, 7)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(304), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(304000), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Mul(Int(304), Pow(10, 6)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(3040), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 20)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 9))), Sym("mtorr")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 11)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Mul(Int(304), Pow(10, 10)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Mul(Int(304), Pow(10, 13)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 8)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(19), Int(2533125)), Sym("mtorr")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(152), Int(20265)), Sym("mtorr")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("24125003437"), Int(24125000)), Sym("mtorr")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(19), Int("2533125000")), Sym("mtorr")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 17)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 6))), Sym("mtorr")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("155952843535951"), Int("3015625000")), Sym("mtorr")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(30400), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 14)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.TORR, Mul(Int(1000), Sym("mtorr")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 18))), Sym("mtorr")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 26)), Int(4053)), Sym("mtorr")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 15))), Sym("mtorr")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 23)), Int(4053)), Sym("mtorr")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapMMHG() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Mul(Int(965), Pow(10, 9)), Int(1269737023)), Sym("mmhg")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 9))), Sym("mmhg")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Mul(Int(2), Pow(10, 13)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Mul(Int(2), Pow(10, 11)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 6)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 9)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Mul(Int(2), Pow(10, 12)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 7)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 26)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 6))), Sym("mmhg")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 17)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 10)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Mul(Int(2), Pow(10, 16)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 11)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Mul(Int(2), Pow(10, 19)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 14)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(200), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Mul(Int(2), Pow(10, 10)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 5)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(24125000), Int("24125003437")), Sym("mmhg")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Int("133322387415")), Sym("mmhg")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 23)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Int("133322387415000")), Sym("mmhg")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("8208044396629"), Int("158717127875")), Sym("mmhg")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Mul(Int(2), Pow(10, 8)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 20)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(24125), Pow(10, 6)), Int("24125003437")), Sym("mmhg")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 15))), Sym("mmhg")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 32)), Int("26664477483")), Sym("mmhg")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Mul(Int("133322387415"), Pow(10, 12))), Sym("mmhg")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Rat(Mul(Int(2), Pow(10, 29)), Int("26664477483")), Sym("mmhg")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapNANOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(101325), Pow(10, 9)), Sym("nanopa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanopa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 14), Sym("nanopa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 12), Sym("nanopa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Pow(10, 7), Sym("nanopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 10), Sym("nanopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 13), Sym("nanopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Pow(10, 8), Sym("nanopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 27), Sym("nanopa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("nanopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 18), Sym("nanopa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 11), Sym("nanopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 17), Sym("nanopa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 12), Sym("nanopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 20), Sym("nanopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 15), Sym("nanopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Int(1000), Sym("nanopa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 11), Sym("nanopa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Pow(10, 6), Sym("nanopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int("2533125000"), Int(19)), Sym("nanopa")));
+        c.put(UnitsPressure.MMHG, Mul(Int("133322387415"), Sym("nanopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 24), Sym("nanopa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("nanopa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Int(25)), Sym("nanopa")));
+        c.put(UnitsPressure.Pascal, Mul(Pow(10, 9), Sym("nanopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 21), Sym("nanopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(2533125), Pow(10, 6)), Int(19)), Sym("nanopa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("nanopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 33), Sym("nanopa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("nanopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 30), Sym("nanopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapPETAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 13))), Sym("petapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("petapa")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Pow(10, 10)), Sym("petapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 12)), Sym("petapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 17)), Sym("petapa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("petapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 11)), Sym("petapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 16)), Sym("petapa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Int(1000), Sym("petapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("petapa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("petapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("petapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Int(1), Pow(10, 7)), Sym("petapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("petapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Int(1), Pow(10, 4)), Sym("petapa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("petapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("petapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 13)), Sym("petapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("petapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 17))), Sym("petapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 23))), Sym("petapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("petapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("petapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 24))), Sym("petapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 15)), Sym("petapa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("petapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 14))), Sym("petapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 39)), Sym("petapa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 9), Sym("petapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 36)), Sym("petapa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 6), Sym("petapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapPICOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(101325), Pow(10, 12)), Sym("picopa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("picopa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 17), Sym("picopa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 15), Sym("picopa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Pow(10, 10), Sym("picopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 13), Sym("picopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 16), Sym("picopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Pow(10, 11), Sym("picopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 30), Sym("picopa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("picopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 21), Sym("picopa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 14), Sym("picopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 20), Sym("picopa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 15), Sym("picopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 23), Sym("picopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 18), Sym("picopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Pow(10, 6), Sym("picopa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 14), Sym("picopa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Pow(10, 9), Sym("picopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Mul(Int(2533125), Pow(10, 6)), Int(19)), Sym("picopa")));
+        c.put(UnitsPressure.MMHG, Mul(Int("133322387415000"), Sym("picopa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Int(1000), Sym("picopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 27), Sym("picopa")));
+        c.put(UnitsPressure.PSI, Mul(Int("6894757293168360"), Sym("picopa")));
+        c.put(UnitsPressure.Pascal, Mul(Pow(10, 12), Sym("picopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 24), Sym("picopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(2533125), Pow(10, 9)), Int(19)), Sym("picopa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("picopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 36), Sym("picopa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("picopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 33), Sym("picopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapPSI() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Mul(Int(120625), Pow(10, 9)), Int("8208044396629")), Sym("psi")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 7))), Sym("psi")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Mul(Int(25), Pow(10, 14)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 7)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 10)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Mul(Int(25), Pow(10, 13)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 8)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 27)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 4))), Sym("psi")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 18)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Mul(Int(25), Pow(10, 17)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 12)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Mul(Int(25), Pow(10, 20)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 15)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(25000), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Mul(Int(25), Pow(10, 11)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 6)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int("3015625000"), Int("155952843535951")), Sym("psi")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("158717127875"), Int("8208044396629")), Sym("psi")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(25), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 24)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Int("6894757293168360")), Sym("psi")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Mul(Int(25), Pow(10, 9)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 21)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(3015625), Pow(10, 6)), Int("155952843535951")), Sym("psi")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 13))), Sym("psi")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 33)), Int("172368932329209")), Sym("psi")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Mul(Int("689475729316836"), Pow(10, 10))), Sym("psi")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Rat(Mul(Int(25), Pow(10, 30)), Int("172368932329209")), Sym("psi")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapPascal() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Int(101325), Sym("pa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("pa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 5), Sym("pa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Int(1000), Sym("pa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Int(100)), Sym("pa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Int(10), Sym("pa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 4), Sym("pa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Int(10)), Sym("pa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 18), Sym("pa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("pa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 9), Sym("pa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Int(100), Sym("pa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 8), Sym("pa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Int(1000), Sym("pa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 11), Sym("pa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 6), Sym("pa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("pa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Int(100), Sym("pa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("pa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Int(30400)), Sym("pa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 8))), Sym("pa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("pa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 15), Sym("pa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("pa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 9))), Sym("pa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 12), Sym("pa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(20265), Int(152)), Sym("pa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("pa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 24), Sym("pa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("pa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 21), Sym("pa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapTERAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 10))), Sym("terapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("terapa")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Pow(10, 7)), Sym("terapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 9)), Sym("terapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 14)), Sym("terapa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 11)), Sym("terapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 8)), Sym("terapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 13)), Sym("terapa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 6), Sym("terapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("terapa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("terapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 10)), Sym("terapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Int(1), Pow(10, 4)), Sym("terapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("terapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Int(1), Int(10)), Sym("terapa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("terapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("terapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 10)), Sym("terapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("terapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 14))), Sym("terapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 20))), Sym("terapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("terapa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Int(1000), Sym("terapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("terapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 21))), Sym("terapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 12)), Sym("terapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 11))), Sym("terapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 36)), Sym("terapa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 12), Sym("terapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("terapa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 9), Sym("terapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapTORR() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Int(760), Sym("torr")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 15))), Sym("torr")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Mul(Int(304), Pow(10, 4)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(30400), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(38), Int(506625)), Sym("torr")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(304), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(304000), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(76), Int(101325)), Sym("torr")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 17)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 12))), Sym("torr")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 8)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(3040), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Mul(Int(304), Pow(10, 7)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(30400), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Mul(Int(304), Pow(10, 10)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 5)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(19), Int("2533125000")), Sym("torr")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(3040), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(19), Int(2533125)), Sym("torr")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(1), Int(1000)), Sym("torr")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("24125003437"), Mul(Int(24125), Pow(10, 6))), Sym("torr")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 6))), Sym("torr")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 14)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 9))), Sym("torr")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("155952843535951"), Mul(Int(3015625), Pow(10, 6))), Sym("torr")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(152), Int(20265)), Sym("torr")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 11)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 21))), Sym("torr")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 23)), Int(4053)), Sym("torr")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(19), Mul(Int(2533125), Pow(10, 18))), Sym("torr")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Rat(Mul(Int(304), Pow(10, 20)), Int(4053)), Sym("torr")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapYOCTOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(101325), Pow(10, 24)), Sym("yoctopa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Pow(10, 6), Sym("yoctopa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 29), Sym("yoctopa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 27), Sym("yoctopa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Pow(10, 22), Sym("yoctopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 25), Sym("yoctopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 28), Sym("yoctopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Pow(10, 23), Sym("yoctopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 42), Sym("yoctopa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Pow(10, 9), Sym("yoctopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 33), Sym("yoctopa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 26), Sym("yoctopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 32), Sym("yoctopa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 27), Sym("yoctopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 35), Sym("yoctopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 30), Sym("yoctopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Pow(10, 18), Sym("yoctopa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 26), Sym("yoctopa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Pow(10, 21), Sym("yoctopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Mul(Int(2533125), Pow(10, 18)), Int(19)), Sym("yoctopa")));
+        c.put(UnitsPressure.MMHG, Mul(Mul(Int("133322387415"), Pow(10, 15)), Sym("yoctopa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Pow(10, 15), Sym("yoctopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 39), Sym("yoctopa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 12), Sym("yoctopa")));
+        c.put(UnitsPressure.PSI, Mul(Mul(Int("689475729316836"), Pow(10, 13)), Sym("yoctopa")));
+        c.put(UnitsPressure.Pascal, Mul(Pow(10, 24), Sym("yoctopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 36), Sym("yoctopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(2533125), Pow(10, 21)), Int(19)), Sym("yoctopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 48), Sym("yoctopa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Int(1000), Sym("yoctopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 45), Sym("yoctopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapYOTTAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 22))), Sym("yottapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 42)), Sym("yottapa")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Pow(10, 19)), Sym("yottapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 21)), Sym("yottapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 26)), Sym("yottapa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("yottapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 20)), Sym("yottapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 25)), Sym("yottapa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("yottapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 39)), Sym("yottapa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("yottapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 22)), Sym("yottapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Int(1), Pow(10, 16)), Sym("yottapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 21)), Sym("yottapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Int(1), Pow(10, 13)), Sym("yottapa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("yottapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("yottapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 22)), Sym("yottapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("yottapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 26))), Sym("yottapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 32))), Sym("yottapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("yottapa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("yottapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 36)), Sym("yottapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 33))), Sym("yottapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 24)), Sym("yottapa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("yottapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 23))), Sym("yottapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 48)), Sym("yottapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 45)), Sym("yottapa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("yottapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapZEPTOPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Mul(Int(101325), Pow(10, 21)), Sym("zeptopa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Int(1000), Sym("zeptopa")));
+        c.put(UnitsPressure.BAR, Mul(Pow(10, 26), Sym("zeptopa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Pow(10, 24), Sym("zeptopa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Pow(10, 19), Sym("zeptopa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Pow(10, 22), Sym("zeptopa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Pow(10, 25), Sym("zeptopa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Pow(10, 20), Sym("zeptopa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Pow(10, 39), Sym("zeptopa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Pow(10, 6), Sym("zeptopa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Pow(10, 30), Sym("zeptopa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Pow(10, 23), Sym("zeptopa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Pow(10, 29), Sym("zeptopa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Pow(10, 24), Sym("zeptopa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Pow(10, 32), Sym("zeptopa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Pow(10, 27), Sym("zeptopa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Pow(10, 15), Sym("zeptopa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Pow(10, 23), Sym("zeptopa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Pow(10, 18), Sym("zeptopa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Mul(Int(2533125), Pow(10, 15)), Int(19)), Sym("zeptopa")));
+        c.put(UnitsPressure.MMHG, Mul(Mul(Int("133322387415"), Pow(10, 12)), Sym("zeptopa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Pow(10, 12), Sym("zeptopa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Pow(10, 36), Sym("zeptopa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Pow(10, 9), Sym("zeptopa")));
+        c.put(UnitsPressure.PSI, Mul(Mul(Int("689475729316836"), Pow(10, 10)), Sym("zeptopa")));
+        c.put(UnitsPressure.Pascal, Mul(Pow(10, 21), Sym("zeptopa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Pow(10, 33), Sym("zeptopa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Mul(Int(2533125), Pow(10, 18)), Int(19)), Sym("zeptopa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("zeptopa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Pow(10, 45), Sym("zeptopa")));
+        c.put(UnitsPressure.ZETTAPASCAL, Mul(Pow(10, 42), Sym("zeptopa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPressure, Conversion> createMapZETTAPASCAL() {
+        EnumMap<UnitsPressure, Conversion> c =
+            new EnumMap<UnitsPressure, Conversion>(UnitsPressure.class);
+        c.put(UnitsPressure.ATMOSPHERE, Mul(Rat(Int(4053), Mul(Int(4), Pow(10, 19))), Sym("zettapa")));
+        c.put(UnitsPressure.ATTOPASCAL, Mul(Rat(Int(1), Pow(10, 39)), Sym("zettapa")));
+        c.put(UnitsPressure.BAR, Mul(Rat(Int(1), Pow(10, 16)), Sym("zettapa")));
+        c.put(UnitsPressure.CENTIBAR, Mul(Rat(Int(1), Pow(10, 18)), Sym("zettapa")));
+        c.put(UnitsPressure.CENTIPASCAL, Mul(Rat(Int(1), Pow(10, 23)), Sym("zettapa")));
+        c.put(UnitsPressure.DECAPASCAL, Mul(Rat(Int(1), Pow(10, 20)), Sym("zettapa")));
+        c.put(UnitsPressure.DECIBAR, Mul(Rat(Int(1), Pow(10, 17)), Sym("zettapa")));
+        c.put(UnitsPressure.DECIPASCAL, Mul(Rat(Int(1), Pow(10, 22)), Sym("zettapa")));
+        c.put(UnitsPressure.EXAPASCAL, Mul(Rat(Int(1), Int(1000)), Sym("zettapa")));
+        c.put(UnitsPressure.FEMTOPASCAL, Mul(Rat(Int(1), Pow(10, 36)), Sym("zettapa")));
+        c.put(UnitsPressure.GIGAPASCAL, Mul(Rat(Int(1), Pow(10, 12)), Sym("zettapa")));
+        c.put(UnitsPressure.HECTOPASCAL, Mul(Rat(Int(1), Pow(10, 19)), Sym("zettapa")));
+        c.put(UnitsPressure.KILOBAR, Mul(Rat(Int(1), Pow(10, 13)), Sym("zettapa")));
+        c.put(UnitsPressure.KILOPASCAL, Mul(Rat(Int(1), Pow(10, 18)), Sym("zettapa")));
+        c.put(UnitsPressure.MEGABAR, Mul(Rat(Int(1), Pow(10, 10)), Sym("zettapa")));
+        c.put(UnitsPressure.MEGAPASCAL, Mul(Rat(Int(1), Pow(10, 15)), Sym("zettapa")));
+        c.put(UnitsPressure.MICROPASCAL, Mul(Rat(Int(1), Pow(10, 27)), Sym("zettapa")));
+        c.put(UnitsPressure.MILLIBAR, Mul(Rat(Int(1), Pow(10, 19)), Sym("zettapa")));
+        c.put(UnitsPressure.MILLIPASCAL, Mul(Rat(Int(1), Pow(10, 24)), Sym("zettapa")));
+        c.put(UnitsPressure.MILLITORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 23))), Sym("zettapa")));
+        c.put(UnitsPressure.MMHG, Mul(Rat(Int("26664477483"), Mul(Int(2), Pow(10, 29))), Sym("zettapa")));
+        c.put(UnitsPressure.NANOPASCAL, Mul(Rat(Int(1), Pow(10, 30)), Sym("zettapa")));
+        c.put(UnitsPressure.PETAPASCAL, Mul(Rat(Int(1), Pow(10, 6)), Sym("zettapa")));
+        c.put(UnitsPressure.PICOPASCAL, Mul(Rat(Int(1), Pow(10, 33)), Sym("zettapa")));
+        c.put(UnitsPressure.PSI, Mul(Rat(Int("172368932329209"), Mul(Int(25), Pow(10, 30))), Sym("zettapa")));
+        c.put(UnitsPressure.Pascal, Mul(Rat(Int(1), Pow(10, 21)), Sym("zettapa")));
+        c.put(UnitsPressure.TERAPASCAL, Mul(Rat(Int(1), Pow(10, 9)), Sym("zettapa")));
+        c.put(UnitsPressure.TORR, Mul(Rat(Int(4053), Mul(Int(304), Pow(10, 20))), Sym("zettapa")));
+        c.put(UnitsPressure.YOCTOPASCAL, Mul(Rat(Int(1), Pow(10, 45)), Sym("zettapa")));
+        c.put(UnitsPressure.YOTTAPASCAL, Mul(Int(1000), Sym("zettapa")));
+        c.put(UnitsPressure.ZEPTOPASCAL, Mul(Rat(Int(1), Pow(10, 42)), Sym("zettapa")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsPressure, Map<UnitsPressure, Conversion>> conversions;
+    static {
+
+        Map<UnitsPressure, Map<UnitsPressure, Conversion>> c
+            = new EnumMap<UnitsPressure, Map<UnitsPressure, Conversion>>(UnitsPressure.class);
+
+        c.put(UnitsPressure.ATMOSPHERE, createMapATMOSPHERE());
+        c.put(UnitsPressure.ATTOPASCAL, createMapATTOPASCAL());
+        c.put(UnitsPressure.BAR, createMapBAR());
+        c.put(UnitsPressure.CENTIBAR, createMapCENTIBAR());
+        c.put(UnitsPressure.CENTIPASCAL, createMapCENTIPASCAL());
+        c.put(UnitsPressure.DECAPASCAL, createMapDECAPASCAL());
+        c.put(UnitsPressure.DECIBAR, createMapDECIBAR());
+        c.put(UnitsPressure.DECIPASCAL, createMapDECIPASCAL());
+        c.put(UnitsPressure.EXAPASCAL, createMapEXAPASCAL());
+        c.put(UnitsPressure.FEMTOPASCAL, createMapFEMTOPASCAL());
+        c.put(UnitsPressure.GIGAPASCAL, createMapGIGAPASCAL());
+        c.put(UnitsPressure.HECTOPASCAL, createMapHECTOPASCAL());
+        c.put(UnitsPressure.KILOBAR, createMapKILOBAR());
+        c.put(UnitsPressure.KILOPASCAL, createMapKILOPASCAL());
+        c.put(UnitsPressure.MEGABAR, createMapMEGABAR());
+        c.put(UnitsPressure.MEGAPASCAL, createMapMEGAPASCAL());
+        c.put(UnitsPressure.MICROPASCAL, createMapMICROPASCAL());
+        c.put(UnitsPressure.MILLIBAR, createMapMILLIBAR());
+        c.put(UnitsPressure.MILLIPASCAL, createMapMILLIPASCAL());
+        c.put(UnitsPressure.MILLITORR, createMapMILLITORR());
+        c.put(UnitsPressure.MMHG, createMapMMHG());
+        c.put(UnitsPressure.NANOPASCAL, createMapNANOPASCAL());
+        c.put(UnitsPressure.PETAPASCAL, createMapPETAPASCAL());
+        c.put(UnitsPressure.PICOPASCAL, createMapPICOPASCAL());
+        c.put(UnitsPressure.PSI, createMapPSI());
+        c.put(UnitsPressure.Pascal, createMapPascal());
+        c.put(UnitsPressure.TERAPASCAL, createMapTERAPASCAL());
+        c.put(UnitsPressure.TORR, createMapTORR());
+        c.put(UnitsPressure.YOCTOPASCAL, createMapYOCTOPASCAL());
+        c.put(UnitsPressure.YOTTAPASCAL, createMapYOTTAPASCAL());
+        c.put(UnitsPressure.ZEPTOPASCAL, createMapZEPTOPASCAL());
+        c.put(UnitsPressure.ZETTAPASCAL, createMapZETTAPASCAL());
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -486,7 +1296,7 @@ public class PressureI extends Pressure implements ModelBased {
         s.put(UnitsPressure.FEMTOPASCAL, "fPa");
         s.put(UnitsPressure.GIGAPASCAL, "GPa");
         s.put(UnitsPressure.HECTOPASCAL, "hPa");
-        s.put(UnitsPressure.KILOBAR, "kBar");
+        s.put(UnitsPressure.KILOBAR, "kbar");
         s.put(UnitsPressure.KILOPASCAL, "kPa");
         s.put(UnitsPressure.MEGABAR, "Mbar");
         s.put(UnitsPressure.MEGAPASCAL, "MPa");
@@ -601,7 +1411,7 @@ public class PressureI extends Pressure implements ModelBased {
     * Copy constructor that converts the given {@link omero.model.Pressure}
     * based on the given ome-xml enum
     */
-   public PressureI(Pressure value, Unit<ome.units.quantity.Pressure> ul) {
+   public PressureI(Pressure value, Unit<ome.units.quantity.Pressure> ul) throws BigResult {
        this(value,
             ome.model.enums.UnitsPressure.bySymbol(ul.getSymbol()).toString());
    }
@@ -620,36 +1430,29 @@ public class PressureI extends Pressure implements ModelBased {
     *
     * @param target String representation of the CODE enum
     */
-    public PressureI(Pressure value, String target) {
+    public PressureI(Pressure value, String target) throws BigResult {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            double[][] coeffs = conversions.get(source + ":" + target);
-            if (coeffs == null) {
+            UnitsPressure targetUnit = UnitsPressure.valueOf(target);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
+            if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
             double orig = value.getValue();
-            double k, p, v;
-            if (coeffs.length == 0) {
-                v = orig;
-            } else if (coeffs.length == 2){
-                k = coeffs[0][0];
-                p = coeffs[0][1];
-                v = Math.pow(k, p);
-
-                k = coeffs[1][0];
-                p = coeffs[1][1];
-                v += Math.pow(k, p) * orig;
-            } else {
-                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            BigDecimal big = conversion.convert(orig);
+            double converted = big.doubleValue();
+            if (Double.isInfinite(converted)) {
+                throw new BigResult(big,
+                        "Failed to convert " + source + ":" + target);
             }
 
-            setValue(v);
-            setUnit(UnitsPressure.valueOf(target));
+            setValue(converted);
+            setUnit(targetUnit);
        }
     }
 
@@ -658,7 +1461,7 @@ public class PressureI extends Pressure implements ModelBased {
     *
     * @param target unit that is desired. non-null.
     */
-    public PressureI(Pressure value, UnitsPressure target) {
+    public PressureI(Pressure value, UnitsPressure target) throws BigResult {
         this(value, target.toString());
     }
 

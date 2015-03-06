@@ -780,58 +780,6 @@ public class OMEROMetadataStoreClient
         iUpdate.saveObject(file);
     }
 
-    /**
-     * Uses the {@link ManagedImportRequestI#reader reader} object to obtain
-     * a list of companion files from the current image. Resolves the name of
-     * the file into an OriginalFile and tries to link to the image in the DB.
-     * @param imageList A list of image to which companion files will be
-     *                  attached.
-     */
-    public void attachCompanionFilesToImage(Fileset fs, List<Image> imageList)
-        throws ServerError {
-
-        final String[] companionFiles = reader.getUsedFiles(true);
-        if (companionFiles == null || companionFiles.length == 0) {
-            return; // EARLY EXIT
-        }
-
-        final List<List<IObject>> linkBatches = new ArrayList<List<IObject>>();
-        List<IObject> links = new ArrayList<IObject>();
-        linkBatches.add(links);
-        for (int i = 0; i < fs.sizeOfUsedFiles(); i++) {
-            OriginalFile of = fs.getFilesetEntry(i).getOriginalFile();
-            String fileName = FilenameUtils.concat(
-                    of.getPath().getValue(), of.getName().getValue());
-            for (String companionFile : companionFiles) {
-                if (companionFile.endsWith(fileName)) {
-                    for (Image image : imageList) {
-                        ImageAnnotationLink iali =
-                                new ImageAnnotationLinkI();
-                        FileAnnotation fa = new FileAnnotationI();
-                        fa.setNs(rstring(NSCOMPANIONFILE.value));
-                        fa.setFile(new OriginalFileI(
-                                of.getId().getValue(), false));
-                        iali.setParent(new ImageI(
-                                image.getId().getValue(), false));
-                        iali.setChild(fa);
-                        links.add(iali);
-                        if (links.size() > 1000) {
-                            log.info("Batch#{} of companion files", linkBatches.size());
-                            links = new ArrayList<IObject>();
-                            linkBatches.add(links);
-                        }
-                    }
-                }
-            }
-        }
-        for (List<IObject> batch : linkBatches) {
-            if (batch.size() > 0) {
-                iUpdate.saveCollection(batch);
-            }
-        }
-    }
-
-
     //
     // ENUMERATIONS
     //

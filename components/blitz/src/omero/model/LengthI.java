@@ -19,11 +19,23 @@
 
 package omero.model;
 
+import static ome.model.units.Conversion.Mul;
+import static ome.model.units.Conversion.Add;
+import static ome.model.units.Conversion.Int;
+import static ome.model.units.Conversion.Pow;
+import static ome.model.units.Conversion.Rat;
+import static ome.model.units.Conversion.Sym;
+
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
+import ome.model.units.BigResult;
+import ome.model.units.Conversion;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -44,472 +56,1228 @@ public class LengthI extends Length implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, double[][]> conversions;
-    static {
-        Map<String, double[][]> c = new HashMap<String, double[][]>();
+    private static Map<UnitsLength, Conversion> createMapANGSTROM() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 12)), Sym("ang")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 8)), Sym("ang")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 8), Sym("ang")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 11), Sym("ang")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 9), Sym("ang")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 28), Sym("ang")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 5)), Sym("ang")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 6)), Sym("ang")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 19), Sym("ang")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 12), Sym("ang")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 6)), Sym("ang")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 13), Sym("ang")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 12)), Sym("ang")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 5)), Int(3)), Sym("ang")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 16), Sym("ang")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 10), Sym("ang")));
+        c.put(UnitsLength.MICROMETER, Mul(Pow(10, 4), Sym("ang")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 7)), Sym("ang")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 7), Sym("ang")));
+        c.put(UnitsLength.NANOMETER, Mul(Int(10), Sym("ang")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 19)), Sym("ang")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 25), Sym("ang")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Int(100)), Sym("ang")));
+        c.put(UnitsLength.POINT, Mul(Rat(Mul(Int(3175), Pow(10, 4)), Int(9)), Sym("ang")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 22), Sym("ang")));
+        c.put(UnitsLength.THOU, Mul(Int(254000), Sym("ang")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 6)), Sym("ang")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 14)), Sym("ang")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 34), Sym("ang")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 11)), Sym("ang")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 31), Sym("ang")));
+        return Collections.unmodifiableMap(c);
+    }
 
-        c.put("ANGSTROM:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("ANGSTROM:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("ANGSTROM:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("ANGSTROM:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ANGSTROM:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -28}});
-        c.put("ANGSTROM:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("ANGSTROM:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ANGSTROM:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ANGSTROM:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("ANGSTROM:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("ANGSTROM:METER", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("ANGSTROM:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("ANGSTROM:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("ANGSTROM:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("ANGSTROM:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("ANGSTROM:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("ANGSTROM:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("ANGSTROM:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("ANGSTROM:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -34}});
-        c.put("ANGSTROM:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("ANGSTROM:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -31}});
-        c.put("ATTOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("ATTOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("ATTOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ATTOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("ATTOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ATTOMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ATTOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ATTOMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ATTOMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ATTOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ATTOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ATTOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ATTOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ATTOMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ATTOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ATTOMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ATTOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ATTOMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ATTOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ATTOMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ATTOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("CENTIMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("CENTIMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("CENTIMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("CENTIMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("CENTIMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("CENTIMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("CENTIMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("CENTIMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("CENTIMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("CENTIMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("CENTIMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("CENTIMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("CENTIMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("CENTIMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("CENTIMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("CENTIMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("CENTIMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("CENTIMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("CENTIMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("CENTIMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("CENTIMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("DECAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("DECAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("DECAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECAMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("DECAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("DECAMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("DECAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECAMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("DECAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("DECAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("DECAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("DECAMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("DECAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("DECAMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("DECAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("DECAMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("DECAMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("DECIMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("DECIMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("DECIMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECIMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECIMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("DECIMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("DECIMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("DECIMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("DECIMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("DECIMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("DECIMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECIMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("DECIMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECIMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("DECIMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("DECIMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("DECIMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("DECIMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("DECIMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("DECIMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("DECIMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("EXAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 28}});
-        c.put("EXAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("EXAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("EXAMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("EXAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("EXAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("EXAMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("EXAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("EXAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("EXAMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("EXAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("EXAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("EXAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("EXAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("EXAMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("EXAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("EXAMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("EXAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("EXAMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("EXAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("EXAMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("FEMTOMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("FEMTOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("FEMTOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("FEMTOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("FEMTOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("FEMTOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("FEMTOMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("FEMTOMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("FEMTOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("FEMTOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("FEMTOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("FEMTOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("FEMTOMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("FEMTOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("FEMTOMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("FEMTOMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("FEMTOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("FEMTOMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("FEMTOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("GIGAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("GIGAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("GIGAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("GIGAMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("GIGAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("GIGAMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("GIGAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("GIGAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("GIGAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("GIGAMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("GIGAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("GIGAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("GIGAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("GIGAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("GIGAMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("GIGAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("GIGAMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("GIGAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("GIGAMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("GIGAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("GIGAMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("HECTOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("HECTOMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("HECTOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("HECTOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("HECTOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("HECTOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("HECTOMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("HECTOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("HECTOMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("HECTOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("HECTOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("HECTOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("HECTOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("HECTOMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("HECTOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("HECTOMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("HECTOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("HECTOMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("HECTOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("HECTOMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("HECTOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("KILOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("KILOMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("KILOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("KILOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("KILOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("KILOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("KILOMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("KILOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("KILOMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("KILOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("KILOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("KILOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("KILOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("KILOMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("KILOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("KILOMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("KILOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("KILOMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("KILOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("KILOMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("KILOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("MEGAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("MEGAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("MEGAMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("MEGAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("MEGAMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MEGAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MEGAMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MEGAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("MEGAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MEGAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MEGAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MEGAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MEGAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MEGAMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MEGAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MEGAMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MEGAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("MEGAMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("MEGAMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("METER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("METER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("METER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("METER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("METER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("METER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("METER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("METER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("METER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("METER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("METER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("METER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("METER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("METER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("METER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("METER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("METER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("METER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("METER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("METER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("METER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MICROMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("MICROMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MICROMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MICROMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("MICROMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MICROMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("MICROMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MICROMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("MICROMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MICROMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MICROMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MICROMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MICROMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MICROMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MICROMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MICROMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MICROMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MICROMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("MICROMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MICROMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("MILLIMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MILLIMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("MILLIMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MILLIMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("MILLIMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MILLIMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MILLIMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MILLIMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MILLIMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MILLIMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MILLIMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MILLIMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MILLIMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MILLIMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MILLIMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MILLIMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MILLIMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MILLIMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MILLIMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("NANOMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("NANOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("NANOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("NANOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("NANOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("NANOMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("NANOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("NANOMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("NANOMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("NANOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("NANOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("NANOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("NANOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("NANOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("NANOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("NANOMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("NANOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("NANOMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("NANOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PETAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("PETAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("PETAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("PETAMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("PETAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("PETAMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PETAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("PETAMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PETAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("PETAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PETAMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PETAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("PETAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("PETAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("PETAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("PETAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("PETAMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PETAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("PETAMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PETAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("PETAMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("PICOMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PICOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("PICOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("PICOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("PICOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PICOMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PICOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("PICOMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("PICOMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("PICOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("PICOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("PICOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PICOMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PICOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("PICOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("PICOMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PICOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("PICOMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PICOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("TERAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("TERAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("TERAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("TERAMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("TERAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("TERAMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("TERAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("TERAMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("TERAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("TERAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("TERAMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("TERAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("TERAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("TERAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("TERAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("TERAMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("TERAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("TERAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("TERAMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("TERAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("TERAMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("YOCTOMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("YOCTOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("YOCTOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("YOCTOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("YOCTOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("YOCTOMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("YOCTOMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("YOCTOMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("YOCTOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("YOCTOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("YOCTOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("YOCTOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("YOCTOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("YOCTOMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("YOCTOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("YOCTOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
-        c.put("YOCTOMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("YOCTOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("YOTTAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 34}});
-        c.put("YOTTAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("YOTTAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("YOTTAMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("YOTTAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("YOTTAMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("YOTTAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("YOTTAMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("YOTTAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("YOTTAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("YOTTAMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("YOTTAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("YOTTAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("YOTTAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("YOTTAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("YOTTAMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("YOTTAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("YOTTAMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("YOTTAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
-        c.put("YOTTAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("YOTTAMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("ZEPTOMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZEPTOMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ZEPTOMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("ZEPTOMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ZEPTOMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("ZEPTOMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ZEPTOMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ZEPTOMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("ZEPTOMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ZEPTOMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ZEPTOMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ZEPTOMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ZEPTOMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ZEPTOMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ZEPTOMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ZEPTOMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ZEPTOMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ZEPTOMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("ZEPTOMETER:ZETTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ZETTAMETER:ANGSTROM", new double[][]{new double[]{0, 1}, new double[]{10, 31}});
-        c.put("ZETTAMETER:ATTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("ZETTAMETER:CENTIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("ZETTAMETER:DECAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("ZETTAMETER:DECIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("ZETTAMETER:EXAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZETTAMETER:FEMTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("ZETTAMETER:GIGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("ZETTAMETER:HECTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("ZETTAMETER:KILOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("ZETTAMETER:MEGAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("ZETTAMETER:METER", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("ZETTAMETER:MICROMETER", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("ZETTAMETER:MILLIMETER", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("ZETTAMETER:NANOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("ZETTAMETER:PETAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ZETTAMETER:PICOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("ZETTAMETER:TERAMETER", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("ZETTAMETER:YOCTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("ZETTAMETER:YOTTAMETER", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZETTAMETER:ZEPTOMETER", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+    private static Map<UnitsLength, Conversion> createMapASTRONOMICALUNIT() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 12))), Sym("ua")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 20))), Sym("ua")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 4))), Sym("ua")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Int("14959787070")), Sym("ua")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Int("1495978707000")), Sym("ua")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Pow(10, 16), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 17))), Sym("ua")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(127), Int("62332446125000")), Sym("ua")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Pow(10, 7), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 5))), Sym("ua")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(10), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("431996825232"), Int(6830953)), Sym("ua")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int("8975872242"), Pow(10, 6))), Sym("ua")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Pow(10, 4), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Int("149597870700")), Sym("ua")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 8))), Sym("ua")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(16764), Int("1558311153125")), Sym("ua")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 5))), Sym("ua")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 11))), Sym("ua")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(10285592), Pow(10, 7)), Int(498659569)), Sym("ua")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Pow(10, 13), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 14))), Sym("ua")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int("53855233452"), Pow(10, 6))), Sym("ua")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Pow(10, 10), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int("7479893535"), Pow(10, 8))), Sym("ua")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(381), Int("62332446125000")), Sym("ua")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 26))), Sym("ua")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Pow(10, 22), Int(1495978707)), Sym("ua")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int(1495978707), Pow(10, 23))), Sym("ua")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Pow(10, 19), Int(1495978707)), Sym("ua")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapATTOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 8), Sym("attom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 20)), Sym("attom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 16), Sym("attom")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 19), Sym("attom")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 17), Sym("attom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 36), Sym("attom")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Int(1000), Sym("attom")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 14)), Sym("attom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 27), Sym("attom")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 20), Sym("attom")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 14)), Sym("attom")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 21), Sym("attom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 20)), Sym("attom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 13)), Int(3)), Sym("attom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 24), Sym("attom")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 18), Sym("attom")));
+        c.put(UnitsLength.MICROMETER, Mul(Pow(10, 12), Sym("attom")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 15)), Sym("attom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 15), Sym("attom")));
+        c.put(UnitsLength.NANOMETER, Mul(Pow(10, 9), Sym("attom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 27)), Sym("attom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 33), Sym("attom")));
+        c.put(UnitsLength.PICOMETER, Mul(Pow(10, 6), Sym("attom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Mul(Int(3175), Pow(10, 12)), Int(9)), Sym("attom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 30), Sym("attom")));
+        c.put(UnitsLength.THOU, Mul(Mul(Int(254), Pow(10, 11)), Sym("attom")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 14)), Sym("attom")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("attom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 42), Sym("attom")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Int(1000)), Sym("attom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 39), Sym("attom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapCENTIMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 8)), Sym("centim")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 4)), Sym("centim")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 16)), Sym("centim")));
+        c.put(UnitsLength.DECAMETER, Mul(Int(1000), Sym("centim")));
+        c.put(UnitsLength.DECIMETER, Mul(Int(10), Sym("centim")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 20), Sym("centim")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 13)), Sym("centim")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(762), Int(25)), Sym("centim")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 11), Sym("centim")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 4), Sym("centim")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Int(50)), Sym("centim")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 5), Sym("centim")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 4)), Sym("centim")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Int(600)), Sym("centim")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 8), Sym("centim")));
+        c.put(UnitsLength.METER, Mul(Int(100), Sym("centim")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 4)), Sym("centim")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(804672), Int(5)), Sym("centim")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Int(10)), Sym("centim")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 7)), Sym("centim")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 11)), Sym("centim")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 17), Sym("centim")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 10)), Sym("centim")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Int(3600)), Sym("centim")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 14), Sym("centim")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 4))), Sym("centim")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(2286), Int(25)), Sym("centim")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 22)), Sym("centim")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 26), Sym("centim")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 19)), Sym("centim")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 23), Sym("centim")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapDECAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 11)), Sym("decam")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int("14959787070"), Sym("decam")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 19)), Sym("decam")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Int(1000)), Sym("decam")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Int(100)), Sym("decam")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 17), Sym("decam")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 16)), Sym("decam")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Int(12500)), Sym("decam")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 8), Sym("decam")));
+        c.put(UnitsLength.HECTOMETER, Mul(Int(10), Sym("decam")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 4))), Sym("decam")));
+        c.put(UnitsLength.KILOMETER, Mul(Int(100), Sym("decam")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Int("946073047258080"), Sym("decam")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 5))), Sym("decam")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 5), Sym("decam")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Int(10)), Sym("decam")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 7)), Sym("decam")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(100584), Int(625)), Sym("decam")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 4)), Sym("decam")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 10)), Sym("decam")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 8)), Sym("decam")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 14), Sym("decam")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 13)), Sym("decam")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 5))), Sym("decam")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 11), Sym("decam")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 7))), Sym("decam")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Int(12500)), Sym("decam")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 25)), Sym("decam")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 23), Sym("decam")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 22)), Sym("decam")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 20), Sym("decam")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapDECIMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 9)), Sym("decim")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int("1495978707000"), Sym("decim")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 17)), Sym("decim")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Int(10)), Sym("decim")));
+        c.put(UnitsLength.DECAMETER, Mul(Int(100), Sym("decim")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 19), Sym("decim")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 14)), Sym("decim")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Int(125)), Sym("decim")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 10), Sym("decim")));
+        c.put(UnitsLength.HECTOMETER, Mul(Int(1000), Sym("decim")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Int(500)), Sym("decim")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 4), Sym("decim")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Int("94607304725808000"), Sym("decim")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Int(6000)), Sym("decim")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 7), Sym("decim")));
+        c.put(UnitsLength.METER, Mul(Int(10), Sym("decim")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 5)), Sym("decim")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(402336), Int(25)), Sym("decim")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Int(100)), Sym("decim")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 8)), Sym("decim")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 10)), Sym("decim")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 16), Sym("decim")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 11)), Sym("decim")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Int(36000)), Sym("decim")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 13), Sym("decim")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 5))), Sym("decim")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Int(125)), Sym("decim")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 23)), Sym("decim")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 25), Sym("decim")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 20)), Sym("decim")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 22), Sym("decim")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapEXAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 28)), Sym("exam")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 16)), Sym("exam")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 36)), Sym("exam")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 20)), Sym("exam")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Pow(10, 17)), Sym("exam")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 19)), Sym("exam")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 33)), Sym("exam")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 19))), Sym("exam")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("exam")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Pow(10, 16)), Sym("exam")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 21))), Sym("exam")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("exam")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 12))), Sym("exam")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 22))), Sym("exam")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("exam")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Pow(10, 18)), Sym("exam")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("exam")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 14))), Sym("exam")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("exam")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("exam")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 6))), Sym("exam")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Int(1), Int(1000)), Sym("exam")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("exam")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 22))), Sym("exam")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("exam")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 24))), Sym("exam")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 19))), Sym("exam")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 42)), Sym("exam")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 6), Sym("exam")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 39)), Sym("exam")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Int(1000), Sym("exam")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapFEMTOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 5), Sym("femtom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 17)), Sym("femtom")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Int(1000)), Sym("femtom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 13), Sym("femtom")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 16), Sym("femtom")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 14), Sym("femtom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 33), Sym("femtom")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 11)), Sym("femtom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 24), Sym("femtom")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 17), Sym("femtom")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 11)), Sym("femtom")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 18), Sym("femtom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 17)), Sym("femtom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 10)), Int(3)), Sym("femtom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 21), Sym("femtom")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 15), Sym("femtom")));
+        c.put(UnitsLength.MICROMETER, Mul(Pow(10, 9), Sym("femtom")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 12)), Sym("femtom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 12), Sym("femtom")));
+        c.put(UnitsLength.NANOMETER, Mul(Pow(10, 6), Sym("femtom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 24)), Sym("femtom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 30), Sym("femtom")));
+        c.put(UnitsLength.PICOMETER, Mul(Int(1000), Sym("femtom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Mul(Int(3175), Pow(10, 9)), Int(9)), Sym("femtom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 27), Sym("femtom")));
+        c.put(UnitsLength.THOU, Mul(Mul(Int(254), Pow(10, 8)), Sym("femtom")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 11)), Sym("femtom")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("femtom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 39), Sym("femtom")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("femtom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 36), Sym("femtom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapFOOT() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 6))), Sym("ft")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int("62332446125000"), Int(127)), Sym("ft")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 14))), Sym("ft")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(25), Int(762)), Sym("ft")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(12500), Int(381)), Sym("ft")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(125), Int(381)), Sym("ft")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(125), Pow(10, 19)), Int(381)), Sym("ft")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 11))), Sym("ft")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Mul(Int(125), Pow(10, 10)), Int(381)), Sym("ft")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(125000), Int(381)), Sym("ft")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(1), Int(12)), Sym("ft")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Mul(Int(125), Pow(10, 4)), Int(381)), Sym("ft")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Mul(Int("3941971030242"), Pow(10, 6)), Int(127)), Sym("ft")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(1), Int(144)), Sym("ft")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Mul(Int(125), Pow(10, 7)), Int(381)), Sym("ft")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1250), Int(381)), Sym("ft")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Int(304800)), Sym("ft")));
+        c.put(UnitsLength.MILE, Mul(Int(5280), Sym("ft")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(5), Int(1524)), Sym("ft")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 5))), Sym("ft")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(1285699), Pow(10, 13)), Int(127)), Sym("ft")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(125), Pow(10, 16)), Int(381)), Sym("ft")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 8))), Sym("ft")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(1), Int(864)), Sym("ft")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(125), Pow(10, 13)), Int(381)), Sym("ft")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(1), Int(12000)), Sym("ft")));
+        c.put(UnitsLength.YARD, Mul(Int(3), Sym("ft")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 20))), Sym("ft")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(125), Pow(10, 25)), Int(381)), Sym("ft")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int(3048), Pow(10, 17))), Sym("ft")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(381)), Sym("ft")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapGIGAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 19)), Sym("gigam")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 7)), Sym("gigam")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("gigam")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 11)), Sym("gigam")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Pow(10, 8)), Sym("gigam")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 10)), Sym("gigam")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 9), Sym("gigam")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("gigam")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 10))), Sym("gigam")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Pow(10, 7)), Sym("gigam")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 12))), Sym("gigam")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigam")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("5912956545363"), Int(625000)), Sym("gigam")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 13))), Sym("gigam")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(1), Int(1000)), Sym("gigam")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Pow(10, 9)), Sym("gigam")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("gigam")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 5))), Sym("gigam")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("gigam")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("gigam")));
+        c.put(UnitsLength.PARSEC, Mul(Int(30856776), Sym("gigam")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 6), Sym("gigam")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("gigam")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 13))), Sym("gigam")));
+        c.put(UnitsLength.TERAMETER, Mul(Int(1000), Sym("gigam")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 15))), Sym("gigam")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 10))), Sym("gigam")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 33)), Sym("gigam")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 15), Sym("gigam")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("gigam")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 12), Sym("gigam")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapHECTOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 12)), Sym("hectom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int(1495978707), Sym("hectom")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 20)), Sym("hectom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 4)), Sym("hectom")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Int(10)), Sym("hectom")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Int(1000)), Sym("hectom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 16), Sym("hectom")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 17)), Sym("hectom")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Int(125000)), Sym("hectom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 7), Sym("hectom")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 5))), Sym("hectom")));
+        c.put(UnitsLength.KILOMETER, Mul(Int(10), Sym("hectom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Int("94607304725808"), Sym("hectom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 6))), Sym("hectom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 4), Sym("hectom")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Int(100)), Sym("hectom")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 8)), Sym("hectom")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(50292), Int(3125)), Sym("hectom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 5)), Sym("hectom")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 11)), Sym("hectom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 7)), Sym("hectom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 13), Sym("hectom")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 14)), Sym("hectom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 6))), Sym("hectom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 10), Sym("hectom")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 8))), Sym("hectom")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Int(125000)), Sym("hectom")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 26)), Sym("hectom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 22), Sym("hectom")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 23)), Sym("hectom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 19), Sym("hectom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapINCH() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 6))), Sym("in")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("7479893535"), Pow(10, 5)), Int(127)), Sym("in")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("in")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(50), Int(127)), Sym("in")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(127)), Sym("in")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(500), Int(127)), Sym("in")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(5), Pow(10, 21)), Int(127)), Sym("in")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("in")));
+        c.put(UnitsLength.FOOT, Mul(Int(12), Sym("in")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Mul(Int(5), Pow(10, 12)), Int(127)), Sym("in")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Mul(Int(5), Pow(10, 5)), Int(127)), Sym("in")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Mul(Int(5), Pow(10, 6)), Int(127)), Sym("in")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Mul(Int("47303652362904"), Pow(10, 6)), Int(127)), Sym("in")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(1), Int(12)), Sym("in")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Mul(Int(5), Pow(10, 9)), Int(127)), Sym("in")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(5000), Int(127)), Sym("in")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Int(25400)), Sym("in")));
+        c.put(UnitsLength.MILE, Mul(Int(63360), Sym("in")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(5), Int(127)), Sym("in")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 5))), Sym("in")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(15428388), Pow(10, 13)), Int(127)), Sym("in")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(5), Pow(10, 18)), Int(127)), Sym("in")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 8))), Sym("in")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(1), Int(72)), Sym("in")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(5), Pow(10, 15)), Int(127)), Sym("in")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(1), Int(1000)), Sym("in")));
+        c.put(UnitsLength.YARD, Mul(Int(36), Sym("in")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 20))), Sym("in")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("in")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 17))), Sym("in")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("in")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapKILOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 13)), Sym("kilom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Int(10)), Sym("kilom")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("kilom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 5)), Sym("kilom")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Int(100)), Sym("kilom")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 4)), Sym("kilom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 15), Sym("kilom")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("kilom")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 4))), Sym("kilom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 6), Sym("kilom")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Int(10)), Sym("kilom")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 6))), Sym("kilom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("47303652362904"), Int(5)), Sym("kilom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 7))), Sym("kilom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Int(1000), Sym("kilom")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Int(1000)), Sym("kilom")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("kilom")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(25146), Int(15625)), Sym("kilom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("kilom")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("kilom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 6)), Sym("kilom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 12), Sym("kilom")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("kilom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 7))), Sym("kilom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 9), Sym("kilom")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 9))), Sym("kilom")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 4))), Sym("kilom")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("kilom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 21), Sym("kilom")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("kilom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 18), Sym("kilom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapLIGHTYEAR() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 12))), Sym("ly")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(6830953), Int("431996825232")), Sym("ly")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 20))), Sym("ly")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 4))), Sym("ly")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Int("946073047258080")), Sym("ly")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Int("94607304725808000")), Sym("ly")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(625), Pow(10, 12)), Int("5912956545363")), Sym("ly")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 17))), Sym("ly")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(127), Mul(Int("3941971030242"), Pow(10, 6))), Sym("ly")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Int(625000), Int("5912956545363")), Sym("ly")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Int("94607304725808")), Sym("ly")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int("47303652362904"), Pow(10, 6))), Sym("ly")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(5), Int("47303652362904")), Sym("ly")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int("567643828354848"), Pow(10, 6))), Sym("ly")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(625), Int("5912956545363")), Sym("ly")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Int("9460730472580800")), Sym("ly")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 8))), Sym("ly")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(1397), Int("8212439646337500")), Sym("ly")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 5))), Sym("ly")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 11))), Sym("ly")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(6428495), Pow(10, 6)), Int("1970985515121")), Sym("ly")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(625), Pow(10, 9)), Int("5912956545363")), Sym("ly")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 14))), Sym("ly")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int("3405862970129088"), Pow(10, 6))), Sym("ly")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(625), Pow(10, 6)), Int("5912956545363")), Sym("ly")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int("47303652362904"), Pow(10, 9))), Sym("ly")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(127), Mul(Int("1313990343414"), Pow(10, 6))), Sym("ly")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 26))), Sym("ly")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(625), Pow(10, 18)), Int("5912956545363")), Sym("ly")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int("94607304725808"), Pow(10, 23))), Sym("ly")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(625), Pow(10, 15)), Int("5912956545363")), Sym("ly")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapLINE() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 5))), Sym("li")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("8975872242"), Pow(10, 6)), Int(127)), Sym("li")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 13))), Sym("li")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(600), Int(127)), Sym("li")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Mul(Int(6), Pow(10, 5)), Int(127)), Sym("li")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(6000), Int(127)), Sym("li")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(6), Pow(10, 22)), Int(127)), Sym("li")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 10))), Sym("li")));
+        c.put(UnitsLength.FOOT, Mul(Int(144), Sym("li")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Mul(Int(6), Pow(10, 13)), Int(127)), Sym("li")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Mul(Int(6), Pow(10, 6)), Int(127)), Sym("li")));
+        c.put(UnitsLength.INCH, Mul(Int(12), Sym("li")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Mul(Int(6), Pow(10, 7)), Int(127)), Sym("li")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Mul(Int("567643828354848"), Pow(10, 6)), Int(127)), Sym("li")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Mul(Int(6), Pow(10, 10)), Int(127)), Sym("li")));
+        c.put(UnitsLength.METER, Mul(Rat(Mul(Int(6), Pow(10, 4)), Int(127)), Sym("li")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(3), Int(6350)), Sym("li")));
+        c.put(UnitsLength.MILE, Mul(Int(760320), Sym("li")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(60), Int(127)), Sym("li")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 4))), Sym("li")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(185140656), Pow(10, 13)), Int(127)), Sym("li")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(6), Pow(10, 19)), Int(127)), Sym("li")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 7))), Sym("li")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(1), Int(6)), Sym("li")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(6), Pow(10, 16)), Int(127)), Sym("li")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(3), Int(250)), Sym("li")));
+        c.put(UnitsLength.YARD, Mul(Int(432), Sym("li")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 19))), Sym("li")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(6), Pow(10, 28)), Int(127)), Sym("li")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(3), Mul(Int(635), Pow(10, 16))), Sym("li")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(6), Pow(10, 25)), Int(127)), Sym("li")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapMEGAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 16)), Sym("megam")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 4)), Sym("megam")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("megam")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 8)), Sym("megam")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Pow(10, 5)), Sym("megam")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 7)), Sym("megam")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 12), Sym("megam")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("megam")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 7))), Sym("megam")));
+        c.put(UnitsLength.GIGAMETER, Mul(Int(1000), Sym("megam")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Pow(10, 4)), Sym("megam")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 9))), Sym("megam")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Int(1000)), Sym("megam")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("5912956545363"), Int(625)), Sym("megam")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 10))), Sym("megam")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Pow(10, 6)), Sym("megam")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("megam")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(12573), Int(7812500)), Sym("megam")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("megam")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("megam")));
+        c.put(UnitsLength.PARSEC, Mul(Int("30856776000"), Sym("megam")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 9), Sym("megam")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("megam")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 10))), Sym("megam")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 6), Sym("megam")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 12))), Sym("megam")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 7))), Sym("megam")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("megam")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 18), Sym("megam")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("megam")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 15), Sym("megam")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 10)), Sym("m")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Int("149597870700"), Sym("m")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("m")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Int(100)), Sym("m")));
+        c.put(UnitsLength.DECAMETER, Mul(Int(10), Sym("m")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Int(10)), Sym("m")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 18), Sym("m")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("m")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Int(1250)), Sym("m")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 9), Sym("m")));
+        c.put(UnitsLength.HECTOMETER, Mul(Int(100), Sym("m")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Int(5000)), Sym("m")));
+        c.put(UnitsLength.KILOMETER, Mul(Int(1000), Sym("m")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Int("9460730472580800"), Sym("m")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 4))), Sym("m")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 6), Sym("m")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("m")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(201168), Int(125)), Sym("m")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Int(1000)), Sym("m")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("m")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 9)), Sym("m")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 15), Sym("m")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("m")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 4))), Sym("m")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 12), Sym("m")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 6))), Sym("m")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Int(1250)), Sym("m")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("m")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 24), Sym("m")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("m")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 21), Sym("m")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapMICROMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 4)), Sym("microm")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 8)), Sym("microm")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("microm")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 4), Sym("microm")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 7), Sym("microm")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 5), Sym("microm")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 24), Sym("microm")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("microm")));
+        c.put(UnitsLength.FOOT, Mul(Int(304800), Sym("microm")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 15), Sym("microm")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 8), Sym("microm")));
+        c.put(UnitsLength.INCH, Mul(Int(25400), Sym("microm")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 9), Sym("microm")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 8)), Sym("microm")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(6350), Int(3)), Sym("microm")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 12), Sym("microm")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 6), Sym("microm")));
+        c.put(UnitsLength.MILE, Mul(Int(1609344000), Sym("microm")));
+        c.put(UnitsLength.MILLIMETER, Mul(Int(1000), Sym("microm")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Int(1000)), Sym("microm")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 15)), Sym("microm")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 21), Sym("microm")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("microm")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(3175), Int(9)), Sym("microm")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 18), Sym("microm")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Int(5)), Sym("microm")));
+        c.put(UnitsLength.YARD, Mul(Int(914400), Sym("microm")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("microm")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 30), Sym("microm")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("microm")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 27), Sym("microm")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapMILE() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 7))), Sym("mi")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int("1558311153125"), Int(16764)), Sym("mi")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 15))), Sym("mi")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(5), Int(804672)), Sym("mi")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(625), Int(100584)), Sym("mi")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(25), Int(402336)), Sym("mi")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(78125), Pow(10, 14)), Int(12573)), Sym("mi")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 12))), Sym("mi")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(1), Int(5280)), Sym("mi")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Mul(Int(78125), Pow(10, 5)), Int(12573)), Sym("mi")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(3125), Int(50292)), Sym("mi")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(1), Int(63360)), Sym("mi")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(15625), Int(25146)), Sym("mi")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("8212439646337500"), Int(1397)), Sym("mi")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(1), Int(760320)), Sym("mi")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(7812500), Int(12573)), Sym("mi")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(125), Int(201168)), Sym("mi")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Int(1609344000)), Sym("mi")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Int(1609344)), Sym("mi")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 6))), Sym("mi")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(803561875), Pow(10, 8)), Int(4191)), Sym("mi")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(78125), Pow(10, 11)), Int(12573)), Sym("mi")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 9))), Sym("mi")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(1), Int(4561920)), Sym("mi")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(78125), Pow(10, 8)), Int(12573)), Sym("mi")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(1), Mul(Int(6336), Pow(10, 4))), Sym("mi")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1), Int(1760)), Sym("mi")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 21))), Sym("mi")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(78125), Pow(10, 20)), Int(12573)), Sym("mi")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int(1609344), Pow(10, 18))), Sym("mi")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(78125), Pow(10, 17)), Int(12573)), Sym("mi")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapMILLIMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 7)), Sym("millim")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 5)), Sym("millim")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("millim")));
+        c.put(UnitsLength.CENTIMETER, Mul(Int(10), Sym("millim")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 4), Sym("millim")));
+        c.put(UnitsLength.DECIMETER, Mul(Int(100), Sym("millim")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 21), Sym("millim")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("millim")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(1524), Int(5)), Sym("millim")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 12), Sym("millim")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 5), Sym("millim")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Int(5)), Sym("millim")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 6), Sym("millim")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 5)), Sym("millim")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Int(60)), Sym("millim")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 9), Sym("millim")));
+        c.put(UnitsLength.METER, Mul(Int(1000), Sym("millim")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Int(1000)), Sym("millim")));
+        c.put(UnitsLength.MILE, Mul(Int(1609344), Sym("millim")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("millim")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 12)), Sym("millim")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 18), Sym("millim")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("millim")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Int(360)), Sym("millim")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 15), Sym("millim")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Int(5000)), Sym("millim")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(4572), Int(5)), Sym("millim")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("millim")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 27), Sym("millim")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("millim")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 24), Sym("millim")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapNANOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Int(10)), Sym("nanom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 11)), Sym("nanom")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 7), Sym("nanom")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 10), Sym("nanom")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 8), Sym("nanom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 27), Sym("nanom")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("nanom")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 5)), Sym("nanom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 18), Sym("nanom")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 11), Sym("nanom")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 5)), Sym("nanom")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 12), Sym("nanom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 11)), Sym("nanom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 4)), Int(3)), Sym("nanom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 15), Sym("nanom")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 9), Sym("nanom")));
+        c.put(UnitsLength.MICROMETER, Mul(Int(1000), Sym("nanom")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 6)), Sym("nanom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 6), Sym("nanom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 18)), Sym("nanom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 24), Sym("nanom")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Int(1000)), Sym("nanom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(3175000), Int(9)), Sym("nanom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 21), Sym("nanom")));
+        c.put(UnitsLength.THOU, Mul(Int(25400), Sym("nanom")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 5)), Sym("nanom")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("nanom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 33), Sym("nanom")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("nanom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 30), Sym("nanom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapPARSEC() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 19))), Sym("pc")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(498659569), Mul(Int(10285592), Pow(10, 7))), Sym("pc")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 27))), Sym("pc")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 11))), Sym("pc")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 8))), Sym("pc")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 10))), Sym("pc")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(125), Pow(10, 6)), Int(3857097)), Sym("pc")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 24))), Sym("pc")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(127), Mul(Int(1285699), Pow(10, 13))), Sym("pc")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Int(1), Int(30856776)), Sym("pc")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 7))), Sym("pc")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(15428388), Pow(10, 13))), Sym("pc")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 6))), Sym("pc")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("1970985515121"), Mul(Int(6428495), Pow(10, 6))), Sym("pc")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(185140656), Pow(10, 13))), Sym("pc")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(1), Int("30856776000")), Sym("pc")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 9))), Sym("pc")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 15))), Sym("pc")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(4191), Mul(Int(803561875), Pow(10, 8))), Sym("pc")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 12))), Sym("pc")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 18))), Sym("pc")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Int(125000), Int(3857097)), Sym("pc")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 21))), Sym("pc")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(1110843936), Pow(10, 13))), Sym("pc")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Int(125), Int(3857097)), Sym("pc")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(15428388), Pow(10, 16))), Sym("pc")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(381), Mul(Int(1285699), Pow(10, 13))), Sym("pc")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 33))), Sym("pc")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(125), Pow(10, 12)), Int(3857097)), Sym("pc")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int(30856776), Pow(10, 30))), Sym("pc")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(125), Pow(10, 9)), Int(3857097)), Sym("pc")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapPETAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 25)), Sym("petam")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 13)), Sym("petam")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 33)), Sym("petam")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 17)), Sym("petam")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Pow(10, 14)), Sym("petam")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 16)), Sym("petam")));
+        c.put(UnitsLength.EXAMETER, Mul(Int(1000), Sym("petam")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("petam")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 16))), Sym("petam")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("petam")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Pow(10, 13)), Sym("petam")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 18))), Sym("petam")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("petam")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 9))), Sym("petam")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 19))), Sym("petam")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("petam")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Pow(10, 15)), Sym("petam")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("petam")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 11))), Sym("petam")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("petam")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("petam")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Int(3857097), Int(125000)), Sym("petam")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("petam")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 19))), Sym("petam")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Int(1), Int(1000)), Sym("petam")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 21))), Sym("petam")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 16))), Sym("petam")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 39)), Sym("petam")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 9), Sym("petam")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 36)), Sym("petam")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 6), Sym("petam")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapPICOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Int(100), Sym("picom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 14)), Sym("picom")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("picom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 10), Sym("picom")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 13), Sym("picom")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 11), Sym("picom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 30), Sym("picom")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Int(1000)), Sym("picom")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 8)), Sym("picom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 21), Sym("picom")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 14), Sym("picom")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 8)), Sym("picom")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 15), Sym("picom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 14)), Sym("picom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 7)), Int(3)), Sym("picom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 18), Sym("picom")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 12), Sym("picom")));
+        c.put(UnitsLength.MICROMETER, Mul(Pow(10, 6), Sym("picom")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 9)), Sym("picom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 9), Sym("picom")));
+        c.put(UnitsLength.NANOMETER, Mul(Int(1000), Sym("picom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 21)), Sym("picom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 27), Sym("picom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Mul(Int(3175), Pow(10, 6)), Int(9)), Sym("picom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 24), Sym("picom")));
+        c.put(UnitsLength.THOU, Mul(Mul(Int(254), Pow(10, 5)), Sym("picom")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 8)), Sym("picom")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("picom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 36), Sym("picom")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("picom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 33), Sym("picom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapPOINT() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 4))), Sym("pt")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("53855233452"), Pow(10, 6)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 12))), Sym("pt")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(3600), Int(127)), Sym("pt")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Mul(Int(36), Pow(10, 5)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(36000), Int(127)), Sym("pt")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(36), Pow(10, 22)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 9))), Sym("pt")));
+        c.put(UnitsLength.FOOT, Mul(Int(864), Sym("pt")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Mul(Int(36), Pow(10, 13)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Mul(Int(36), Pow(10, 6)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.INCH, Mul(Int(72), Sym("pt")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Mul(Int(36), Pow(10, 7)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Mul(Int("3405862970129088"), Pow(10, 6)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.LINE, Mul(Int(6), Sym("pt")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Mul(Int(36), Pow(10, 10)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.METER, Mul(Rat(Mul(Int(36), Pow(10, 4)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(9), Int(3175)), Sym("pt")));
+        c.put(UnitsLength.MILE, Mul(Int(4561920), Sym("pt")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(360), Int(127)), Sym("pt")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(9), Int(3175000)), Sym("pt")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(1110843936), Pow(10, 13)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(36), Pow(10, 19)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 6))), Sym("pt")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(36), Pow(10, 16)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(9), Int(125)), Sym("pt")));
+        c.put(UnitsLength.YARD, Mul(Int(2592), Sym("pt")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 18))), Sym("pt")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(36), Pow(10, 28)), Int(127)), Sym("pt")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(9), Mul(Int(3175), Pow(10, 15))), Sym("pt")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(36), Pow(10, 25)), Int(127)), Sym("pt")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapTERAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 22)), Sym("teram")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 10)), Sym("teram")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("teram")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 14)), Sym("teram")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Pow(10, 11)), Sym("teram")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 13)), Sym("teram")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 6), Sym("teram")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("teram")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 13))), Sym("teram")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Int(1), Int(1000)), Sym("teram")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Pow(10, 10)), Sym("teram")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 15))), Sym("teram")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("teram")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 6))), Sym("teram")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 16))), Sym("teram")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("teram")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Pow(10, 12)), Sym("teram")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("teram")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 8))), Sym("teram")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("teram")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("teram")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Int(3857097), Int(125)), Sym("teram")));
+        c.put(UnitsLength.PETAMETER, Mul(Int(1000), Sym("teram")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("teram")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 16))), Sym("teram")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 18))), Sym("teram")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 13))), Sym("teram")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 36)), Sym("teram")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 12), Sym("teram")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 33)), Sym("teram")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 9), Sym("teram")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapTHOU() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Int(254000)), Sym("thou")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Mul(Int("7479893535"), Pow(10, 8)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 11))), Sym("thou")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Mul(Int(5), Pow(10, 4)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Mul(Int(5), Pow(10, 7)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Mul(Int(5), Pow(10, 5)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(5), Pow(10, 24)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 8))), Sym("thou")));
+        c.put(UnitsLength.FOOT, Mul(Int(12000), Sym("thou")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Mul(Int(5), Pow(10, 15)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Mul(Int(5), Pow(10, 8)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.INCH, Mul(Int(1000), Sym("thou")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Mul(Int(5), Pow(10, 9)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Mul(Int("47303652362904"), Pow(10, 9)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(250), Int(3)), Sym("thou")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Mul(Int(5), Pow(10, 12)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.METER, Mul(Rat(Mul(Int(5), Pow(10, 6)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(5), Int(127)), Sym("thou")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(6336), Pow(10, 4)), Sym("thou")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(5000), Int(127)), Sym("thou")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Int(25400)), Sym("thou")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(15428388), Pow(10, 16)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(5), Pow(10, 21)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 5))), Sym("thou")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(125), Int(9)), Sym("thou")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(5), Pow(10, 18)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.YARD, Mul(Int(36000), Sym("thou")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 17))), Sym("thou")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(5), Pow(10, 30)), Int(127)), Sym("thou")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int(254), Pow(10, 14))), Sym("thou")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(5), Pow(10, 27)), Int(127)), Sym("thou")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapYARD() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 6))), Sym("yd")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int("62332446125000"), Int(381)), Sym("yd")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 14))), Sym("yd")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(25), Int(2286)), Sym("yd")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(12500), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(125), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Mul(Int(125), Pow(10, 19)), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 11))), Sym("yd")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(1), Int(3)), Sym("yd")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Mul(Int(125), Pow(10, 10)), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(125000), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(1), Int(36)), Sym("yd")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Mul(Int(125), Pow(10, 4)), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Mul(Int("1313990343414"), Pow(10, 6)), Int(127)), Sym("yd")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(1), Int(432)), Sym("yd")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Mul(Int(125), Pow(10, 7)), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1250), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Int(914400)), Sym("yd")));
+        c.put(UnitsLength.MILE, Mul(Int(1760), Sym("yd")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(5), Int(4572)), Sym("yd")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 5))), Sym("yd")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Mul(Int(1285699), Pow(10, 13)), Int(381)), Sym("yd")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Mul(Int(125), Pow(10, 16)), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 8))), Sym("yd")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(1), Int(2592)), Sym("yd")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Mul(Int(125), Pow(10, 13)), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(1), Int(36000)), Sym("yd")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 20))), Sym("yd")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Rat(Mul(Int(125), Pow(10, 25)), Int(1143)), Sym("yd")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Mul(Int(9144), Pow(10, 17))), Sym("yd")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Mul(Int(125), Pow(10, 22)), Int(1143)), Sym("yd")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapYOCTOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 14), Sym("yoctom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 26)), Sym("yoctom")));
+        c.put(UnitsLength.ATTOMETER, Mul(Pow(10, 6), Sym("yoctom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 22), Sym("yoctom")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 25), Sym("yoctom")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 23), Sym("yoctom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 42), Sym("yoctom")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Pow(10, 9), Sym("yoctom")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 20)), Sym("yoctom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 33), Sym("yoctom")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 26), Sym("yoctom")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 20)), Sym("yoctom")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 27), Sym("yoctom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 26)), Sym("yoctom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 19)), Int(3)), Sym("yoctom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 30), Sym("yoctom")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 24), Sym("yoctom")));
+        c.put(UnitsLength.MICROMETER, Mul(Pow(10, 18), Sym("yoctom")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 21)), Sym("yoctom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 21), Sym("yoctom")));
+        c.put(UnitsLength.NANOMETER, Mul(Pow(10, 15), Sym("yoctom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 33)), Sym("yoctom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 39), Sym("yoctom")));
+        c.put(UnitsLength.PICOMETER, Mul(Pow(10, 12), Sym("yoctom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Mul(Int(3175), Pow(10, 18)), Int(9)), Sym("yoctom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 36), Sym("yoctom")));
+        c.put(UnitsLength.THOU, Mul(Mul(Int(254), Pow(10, 17)), Sym("yoctom")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 20)), Sym("yoctom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 48), Sym("yoctom")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Int(1000), Sym("yoctom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 45), Sym("yoctom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapYOTTAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 34)), Sym("yottam")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 22)), Sym("yottam")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 42)), Sym("yottam")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 26)), Sym("yottam")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Pow(10, 23)), Sym("yottam")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 25)), Sym("yottam")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("yottam")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 39)), Sym("yottam")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 25))), Sym("yottam")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("yottam")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Pow(10, 22)), Sym("yottam")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 27))), Sym("yottam")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Pow(10, 21)), Sym("yottam")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 18))), Sym("yottam")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 28))), Sym("yottam")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("yottam")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Pow(10, 24)), Sym("yottam")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("yottam")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 20))), Sym("yottam")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("yottam")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 33)), Sym("yottam")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 12))), Sym("yottam")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("yottam")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 36)), Sym("yottam")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 28))), Sym("yottam")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("yottam")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 30))), Sym("yottam")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 25))), Sym("yottam")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 48)), Sym("yottam")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 45)), Sym("yottam")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Rat(Int(1), Int(1000)), Sym("yottam")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapZEPTOMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Pow(10, 11), Sym("zeptom")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Mul(Int(1495978707), Pow(10, 23)), Sym("zeptom")));
+        c.put(UnitsLength.ATTOMETER, Mul(Int(1000), Sym("zeptom")));
+        c.put(UnitsLength.CENTIMETER, Mul(Pow(10, 19), Sym("zeptom")));
+        c.put(UnitsLength.DECAMETER, Mul(Pow(10, 22), Sym("zeptom")));
+        c.put(UnitsLength.DECIMETER, Mul(Pow(10, 20), Sym("zeptom")));
+        c.put(UnitsLength.EXAMETER, Mul(Pow(10, 39), Sym("zeptom")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Pow(10, 6), Sym("zeptom")));
+        c.put(UnitsLength.FOOT, Mul(Mul(Int(3048), Pow(10, 17)), Sym("zeptom")));
+        c.put(UnitsLength.GIGAMETER, Mul(Pow(10, 30), Sym("zeptom")));
+        c.put(UnitsLength.HECTOMETER, Mul(Pow(10, 23), Sym("zeptom")));
+        c.put(UnitsLength.INCH, Mul(Mul(Int(254), Pow(10, 17)), Sym("zeptom")));
+        c.put(UnitsLength.KILOMETER, Mul(Pow(10, 24), Sym("zeptom")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Mul(Int("94607304725808"), Pow(10, 23)), Sym("zeptom")));
+        c.put(UnitsLength.LINE, Mul(Rat(Mul(Int(635), Pow(10, 16)), Int(3)), Sym("zeptom")));
+        c.put(UnitsLength.MEGAMETER, Mul(Pow(10, 27), Sym("zeptom")));
+        c.put(UnitsLength.METER, Mul(Pow(10, 21), Sym("zeptom")));
+        c.put(UnitsLength.MICROMETER, Mul(Pow(10, 15), Sym("zeptom")));
+        c.put(UnitsLength.MILE, Mul(Mul(Int(1609344), Pow(10, 18)), Sym("zeptom")));
+        c.put(UnitsLength.MILLIMETER, Mul(Pow(10, 18), Sym("zeptom")));
+        c.put(UnitsLength.NANOMETER, Mul(Pow(10, 12), Sym("zeptom")));
+        c.put(UnitsLength.PARSEC, Mul(Mul(Int(30856776), Pow(10, 30)), Sym("zeptom")));
+        c.put(UnitsLength.PETAMETER, Mul(Pow(10, 36), Sym("zeptom")));
+        c.put(UnitsLength.PICOMETER, Mul(Pow(10, 9), Sym("zeptom")));
+        c.put(UnitsLength.POINT, Mul(Rat(Mul(Int(3175), Pow(10, 15)), Int(9)), Sym("zeptom")));
+        c.put(UnitsLength.TERAMETER, Mul(Pow(10, 33), Sym("zeptom")));
+        c.put(UnitsLength.THOU, Mul(Mul(Int(254), Pow(10, 14)), Sym("zeptom")));
+        c.put(UnitsLength.YARD, Mul(Mul(Int(9144), Pow(10, 17)), Sym("zeptom")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Int(1000)), Sym("zeptom")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Pow(10, 45), Sym("zeptom")));
+        c.put(UnitsLength.ZETTAMETER, Mul(Pow(10, 42), Sym("zeptom")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsLength, Conversion> createMapZETTAMETER() {
+        EnumMap<UnitsLength, Conversion> c =
+            new EnumMap<UnitsLength, Conversion>(UnitsLength.class);
+        c.put(UnitsLength.ANGSTROM, Mul(Rat(Int(1), Pow(10, 31)), Sym("zettam")));
+        c.put(UnitsLength.ASTRONOMICALUNIT, Mul(Rat(Int(1495978707), Pow(10, 19)), Sym("zettam")));
+        c.put(UnitsLength.ATTOMETER, Mul(Rat(Int(1), Pow(10, 39)), Sym("zettam")));
+        c.put(UnitsLength.CENTIMETER, Mul(Rat(Int(1), Pow(10, 23)), Sym("zettam")));
+        c.put(UnitsLength.DECAMETER, Mul(Rat(Int(1), Pow(10, 20)), Sym("zettam")));
+        c.put(UnitsLength.DECIMETER, Mul(Rat(Int(1), Pow(10, 22)), Sym("zettam")));
+        c.put(UnitsLength.EXAMETER, Mul(Rat(Int(1), Int(1000)), Sym("zettam")));
+        c.put(UnitsLength.FEMTOMETER, Mul(Rat(Int(1), Pow(10, 36)), Sym("zettam")));
+        c.put(UnitsLength.FOOT, Mul(Rat(Int(381), Mul(Int(125), Pow(10, 22))), Sym("zettam")));
+        c.put(UnitsLength.GIGAMETER, Mul(Rat(Int(1), Pow(10, 12)), Sym("zettam")));
+        c.put(UnitsLength.HECTOMETER, Mul(Rat(Int(1), Pow(10, 19)), Sym("zettam")));
+        c.put(UnitsLength.INCH, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 24))), Sym("zettam")));
+        c.put(UnitsLength.KILOMETER, Mul(Rat(Int(1), Pow(10, 18)), Sym("zettam")));
+        c.put(UnitsLength.LIGHTYEAR, Mul(Rat(Int("5912956545363"), Mul(Int(625), Pow(10, 15))), Sym("zettam")));
+        c.put(UnitsLength.LINE, Mul(Rat(Int(127), Mul(Int(6), Pow(10, 25))), Sym("zettam")));
+        c.put(UnitsLength.MEGAMETER, Mul(Rat(Int(1), Pow(10, 15)), Sym("zettam")));
+        c.put(UnitsLength.METER, Mul(Rat(Int(1), Pow(10, 21)), Sym("zettam")));
+        c.put(UnitsLength.MICROMETER, Mul(Rat(Int(1), Pow(10, 27)), Sym("zettam")));
+        c.put(UnitsLength.MILE, Mul(Rat(Int(12573), Mul(Int(78125), Pow(10, 17))), Sym("zettam")));
+        c.put(UnitsLength.MILLIMETER, Mul(Rat(Int(1), Pow(10, 24)), Sym("zettam")));
+        c.put(UnitsLength.NANOMETER, Mul(Rat(Int(1), Pow(10, 30)), Sym("zettam")));
+        c.put(UnitsLength.PARSEC, Mul(Rat(Int(3857097), Mul(Int(125), Pow(10, 9))), Sym("zettam")));
+        c.put(UnitsLength.PETAMETER, Mul(Rat(Int(1), Pow(10, 6)), Sym("zettam")));
+        c.put(UnitsLength.PICOMETER, Mul(Rat(Int(1), Pow(10, 33)), Sym("zettam")));
+        c.put(UnitsLength.POINT, Mul(Rat(Int(127), Mul(Int(36), Pow(10, 25))), Sym("zettam")));
+        c.put(UnitsLength.TERAMETER, Mul(Rat(Int(1), Pow(10, 9)), Sym("zettam")));
+        c.put(UnitsLength.THOU, Mul(Rat(Int(127), Mul(Int(5), Pow(10, 27))), Sym("zettam")));
+        c.put(UnitsLength.YARD, Mul(Rat(Int(1143), Mul(Int(125), Pow(10, 22))), Sym("zettam")));
+        c.put(UnitsLength.YOCTOMETER, Mul(Rat(Int(1), Pow(10, 45)), Sym("zettam")));
+        c.put(UnitsLength.YOTTAMETER, Mul(Int(1000), Sym("zettam")));
+        c.put(UnitsLength.ZEPTOMETER, Mul(Rat(Int(1), Pow(10, 42)), Sym("zettam")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsLength, Map<UnitsLength, Conversion>> conversions;
+    static {
+
+        Map<UnitsLength, Map<UnitsLength, Conversion>> c
+            = new EnumMap<UnitsLength, Map<UnitsLength, Conversion>>(UnitsLength.class);
+
+        c.put(UnitsLength.ANGSTROM, createMapANGSTROM());
+        c.put(UnitsLength.ASTRONOMICALUNIT, createMapASTRONOMICALUNIT());
+        c.put(UnitsLength.ATTOMETER, createMapATTOMETER());
+        c.put(UnitsLength.CENTIMETER, createMapCENTIMETER());
+        c.put(UnitsLength.DECAMETER, createMapDECAMETER());
+        c.put(UnitsLength.DECIMETER, createMapDECIMETER());
+        c.put(UnitsLength.EXAMETER, createMapEXAMETER());
+        c.put(UnitsLength.FEMTOMETER, createMapFEMTOMETER());
+        c.put(UnitsLength.FOOT, createMapFOOT());
+        c.put(UnitsLength.GIGAMETER, createMapGIGAMETER());
+        c.put(UnitsLength.HECTOMETER, createMapHECTOMETER());
+        c.put(UnitsLength.INCH, createMapINCH());
+        c.put(UnitsLength.KILOMETER, createMapKILOMETER());
+        c.put(UnitsLength.LIGHTYEAR, createMapLIGHTYEAR());
+        c.put(UnitsLength.LINE, createMapLINE());
+        c.put(UnitsLength.MEGAMETER, createMapMEGAMETER());
+        c.put(UnitsLength.METER, createMapMETER());
+        c.put(UnitsLength.MICROMETER, createMapMICROMETER());
+        c.put(UnitsLength.MILE, createMapMILE());
+        c.put(UnitsLength.MILLIMETER, createMapMILLIMETER());
+        c.put(UnitsLength.NANOMETER, createMapNANOMETER());
+        c.put(UnitsLength.PARSEC, createMapPARSEC());
+        c.put(UnitsLength.PETAMETER, createMapPETAMETER());
+        c.put(UnitsLength.PICOMETER, createMapPICOMETER());
+        c.put(UnitsLength.POINT, createMapPOINT());
+        c.put(UnitsLength.TERAMETER, createMapTERAMETER());
+        c.put(UnitsLength.THOU, createMapTHOU());
+        c.put(UnitsLength.YARD, createMapYARD());
+        c.put(UnitsLength.YOCTOMETER, createMapYOCTOMETER());
+        c.put(UnitsLength.YOTTAMETER, createMapYOTTAMETER());
+        c.put(UnitsLength.ZEPTOMETER, createMapZEPTOMETER());
+        c.put(UnitsLength.ZETTAMETER, createMapZETTAMETER());
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -645,7 +1413,7 @@ public class LengthI extends Length implements ModelBased {
     * Copy constructor that converts the given {@link omero.model.Length}
     * based on the given ome-xml enum
     */
-   public LengthI(Length value, Unit<ome.units.quantity.Length> ul) {
+   public LengthI(Length value, Unit<ome.units.quantity.Length> ul) throws BigResult {
        this(value,
             ome.model.enums.UnitsLength.bySymbol(ul.getSymbol()).toString());
    }
@@ -664,36 +1432,29 @@ public class LengthI extends Length implements ModelBased {
     *
     * @param target String representation of the CODE enum
     */
-    public LengthI(Length value, String target) {
+    public LengthI(Length value, String target) throws BigResult {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            double[][] coeffs = conversions.get(source + ":" + target);
-            if (coeffs == null) {
+            UnitsLength targetUnit = UnitsLength.valueOf(target);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
+            if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
             double orig = value.getValue();
-            double k, p, v;
-            if (coeffs.length == 0) {
-                v = orig;
-            } else if (coeffs.length == 2){
-                k = coeffs[0][0];
-                p = coeffs[0][1];
-                v = Math.pow(k, p);
-
-                k = coeffs[1][0];
-                p = coeffs[1][1];
-                v += Math.pow(k, p) * orig;
-            } else {
-                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            BigDecimal big = conversion.convert(orig);
+            double converted = big.doubleValue();
+            if (Double.isInfinite(converted)) {
+                throw new BigResult(big,
+                        "Failed to convert " + source + ":" + target);
             }
 
-            setValue(v);
-            setUnit(UnitsLength.valueOf(target));
+            setValue(converted);
+            setUnit(targetUnit);
        }
     }
 
@@ -702,7 +1463,7 @@ public class LengthI extends Length implements ModelBased {
     *
     * @param target unit that is desired. non-null.
     */
-    public LengthI(Length value, UnitsLength target) {
+    public LengthI(Length value, UnitsLength target) throws BigResult {
         this(value, target.toString());
     }
 

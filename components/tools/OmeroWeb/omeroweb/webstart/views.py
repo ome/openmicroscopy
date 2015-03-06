@@ -98,11 +98,6 @@ def insight(request):
         jarlist.pop(idx)
         jarlist.insert(0, settings.WEBSTART_JAR)
 
-    idy = jarlist.index(settings.NANOXML_JAR)
-    if idy > 0:
-        jarlist.pop(idy)
-        jarlist.insert(len(jarlist)-1, settings.NANOXML_JAR)
-
     context = {
         'codebase': codebase, 'href': href, 'jarlist': jarlist,
         'icon': settings.WEBSTART_ICON,

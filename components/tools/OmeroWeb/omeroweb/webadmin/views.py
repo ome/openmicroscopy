@@ -49,8 +49,6 @@ from forms import ForgottonPasswordForm, ExperimenterForm, GroupForm
 from forms import GroupOwnerForm, MyAccountForm, ChangePassword
 from forms import UploadPhotoForm, EmailForm
 
-from omero.gateway.utils import toBoolean
-
 from omeroweb.http import HttpJPEGResponse
 from omeroweb.webclient.decorators import login_required, render_response
 from omeroweb.connector import Connector
@@ -409,8 +407,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
         else:
             name_check = conn.checkOmeName(request.REQUEST.get('omename'))
             email_check = conn.checkEmail(request.REQUEST.get('email'))
-
+            my_groups = getSelectedGroups(
+                conn,
+                request.POST.getlist('other_groups'))
             initial = {'with_password': True,
+                       'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
             form = ExperimenterForm(
                 initial=initial, data=request.REQUEST.copy(),
@@ -424,8 +425,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = toBoolean(form.cleaned_data['administrator'])
-                active = toBoolean(form.cleaned_data['active'])
+                admin = form.cleaned_data['administrator']
+                active = form.cleaned_data['active']
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
                 password = form.cleaned_data['password']
@@ -473,6 +474,7 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
             'administrator': experimenter.isAdmin(),
             'active': experimenter.isActive(),
             'default_group': defaultGroupId,
+            'my_groups': otherGroups,
             'other_groups': [g.id for g in otherGroups],
             'groups': otherGroupsInitialList(groups)}
         system_users = [conn.getAdminService().getSecurityRoles().rootId,
@@ -504,7 +506,10 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                                            experimenter.omeName)
             email_check = conn.checkEmail(request.REQUEST.get('email'),
                                           experimenter.email)
-            initial = {'active': True,
+            my_groups = getSelectedGroups(
+                conn,
+                request.POST.getlist('other_groups'))
+            initial = {'my_groups': my_groups,
                        'groups': otherGroupsInitialList(groups)}
             form = ExperimenterForm(initial=initial, data=request.POST.copy(),
                                     name_check=name_check,
@@ -519,8 +524,8 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = toBoolean(form.cleaned_data['administrator'])
-                active = toBoolean(form.cleaned_data['active'])
+                admin = form.cleaned_data['administrator']
+                active = form.cleaned_data['active']
                 if experimenter.getId() == conn.getUserId():
                     active = True   # don't allow user to disable themselves!
                 defaultGroup = form.cleaned_data['default_group']
@@ -991,8 +996,8 @@ def email(request, conn=None, **kwargs):
             message = form.cleaned_data['message']
             experimenters = form.cleaned_data['experimenters']
             groups = form.cleaned_data['groups']
-            everyone = toBoolean(form.cleaned_data['everyone'])
-            inactive = toBoolean(form.cleaned_data['inactive'])
+            everyone = form.cleaned_data['everyone']
+            inactive = form.cleaned_data['inactive']
 
             req = omero.cmd.SendEmailRequest(subject=subject, body=message,
                                              groupIds=groups,

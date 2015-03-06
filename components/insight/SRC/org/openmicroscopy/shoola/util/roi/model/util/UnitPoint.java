@@ -3,6 +3,7 @@ package org.openmicroscopy.shoola.util.roi.model.util;
 
 import java.awt.geom.Point2D;
 
+import ome.model.units.BigResult;
 import omero.model.Length;
 import omero.model.LengthI;
 import omero.model.enums.UnitsLength;
@@ -73,14 +74,19 @@ public class UnitPoint {
 	 */
 	public Length getDistance(UnitPoint other) {
 		// make sure all vars have the same unit, taking x as base unit
-		Length myX = new LengthI(x, x.getUnit());
-		Length myY = new LengthI(y, x.getUnit());
-		Length otherX = new LengthI(other.x, x.getUnit());
-		Length otherY = new LengthI(other.y, x.getUnit());
+		try {
+			Length myX = new LengthI(x, x.getUnit());
+			Length myY = new LengthI(y, x.getUnit());
+			Length otherX = new LengthI(other.x, x.getUnit());
+			Length otherY = new LengthI(other.y, x.getUnit());
 
-		Point2D p1 = new Point2D.Double(myX.getValue(), myY.getValue());
-		Point2D p2 = new Point2D.Double(otherX.getValue(), otherY.getValue());
-		return new LengthI(p1.distance(p2), getUnit());
+			Point2D p1 = new Point2D.Double(myX.getValue(), myY.getValue());
+			Point2D p2 = new Point2D.Double(otherX.getValue(), otherY.getValue());
+			return new LengthI(p1.distance(p2), getUnit());
+		} catch (BigResult result) {
+			// FIXME: temporarily just returning inifinity.
+			return new LengthI(Double.POSITIVE_INFINITY, getUnit());
+		}
 	}
 	
 	/**

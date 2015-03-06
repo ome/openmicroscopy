@@ -100,8 +100,15 @@ public class ReferenceProcessor implements ModelProcessor
 				}
 				else if (targetClass.equals(LightSettings.class))
 				{
-					indexes.put(Index.IMAGE_INDEX, indexArray[0]);
-					indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
+					if (indexArray.length == 2) {
+						indexes.put(Index.IMAGE_INDEX, indexArray[0]);
+						indexes.put(Index.CHANNEL_INDEX, indexArray[1]);
+					}
+					else if (indexArray.length == 3) {
+						indexes.put(Index.EXPERIMENT_INDEX, indexArray[0]);
+						indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, indexArray[1]);
+						indexes.put(Index.LIGHT_SOURCE_SETTINGS_INDEX, indexArray[2]);
+					}
 				}
 				else if (targetClass.equals(ObjectiveSettings.class))
 				{

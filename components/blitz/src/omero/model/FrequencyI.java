@@ -19,11 +19,23 @@
 
 package omero.model;
 
+import static ome.model.units.Conversion.Mul;
+import static ome.model.units.Conversion.Add;
+import static ome.model.units.Conversion.Int;
+import static ome.model.units.Conversion.Pow;
+import static ome.model.units.Conversion.Rat;
+import static ome.model.units.Conversion.Sym;
+
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
+import ome.model.units.BigResult;
+import ome.model.units.Conversion;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -44,430 +56,579 @@ public class FrequencyI extends Frequency implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, double[][]> conversions;
-    static {
-        Map<String, double[][]> c = new HashMap<String, double[][]>();
+    private static Map<UnitsFrequency, Conversion> createMapATTOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Pow(10, 16), Sym("attohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 19), Sym("attohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Pow(10, 17), Sym("attohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 36), Sym("attohz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Int(1000), Sym("attohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 27), Sym("attohz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 20), Sym("attohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Pow(10, 18), Sym("attohz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 21), Sym("attohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 24), Sym("attohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Pow(10, 12), Sym("attohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Pow(10, 15), Sym("attohz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Pow(10, 9), Sym("attohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 33), Sym("attohz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Pow(10, 6), Sym("attohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 30), Sym("attohz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("attohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 42), Sym("attohz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("attohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 39), Sym("attohz")));
+        return Collections.unmodifiableMap(c);
+    }
 
-        c.put("ATTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("ATTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ATTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("ATTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ATTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ATTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ATTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ATTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ATTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ATTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ATTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ATTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ATTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ATTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ATTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ATTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ATTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ATTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ATTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ATTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("CENTIHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("CENTIHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("CENTIHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("CENTIHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("CENTIHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("CENTIHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("CENTIHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("CENTIHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("CENTIHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("CENTIHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("CENTIHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("CENTIHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("CENTIHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("CENTIHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("CENTIHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("CENTIHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("CENTIHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("CENTIHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("CENTIHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("CENTIHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("DECAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("DECAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("DECAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("DECAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("DECAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("DECAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("DECAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("DECAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("DECAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("DECAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("DECAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("DECAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("DECAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("DECAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("DECIHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("DECIHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECIHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECIHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("DECIHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("DECIHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("DECIHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("DECIHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECIHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("DECIHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("DECIHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("DECIHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECIHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("DECIHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("DECIHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("DECIHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("DECIHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("DECIHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("DECIHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("DECIHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("EXAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("EXAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("EXAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("EXAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("EXAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("EXAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("EXAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("EXAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("EXAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("EXAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("EXAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("EXAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("EXAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("EXAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("EXAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("EXAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("EXAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("EXAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("EXAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("EXAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("FEMTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("FEMTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("FEMTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("FEMTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("FEMTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("FEMTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("FEMTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("FEMTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("FEMTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("FEMTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("FEMTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("FEMTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("FEMTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("FEMTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("FEMTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("FEMTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("FEMTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("FEMTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("GIGAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("GIGAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("GIGAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("GIGAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("GIGAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("GIGAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("GIGAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("GIGAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("GIGAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("GIGAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("GIGAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("GIGAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("GIGAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("GIGAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("GIGAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("GIGAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("GIGAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("GIGAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("GIGAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("GIGAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("HECTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("HECTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("HECTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("HECTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("HECTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("HECTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("HECTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("HECTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("HECTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("HECTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("HECTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("HECTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("HECTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("HECTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("HECTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("HECTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("HECTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("HECTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("HECTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("HECTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("HERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("HERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("HERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("HERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("HERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("HERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("HERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("HERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("HERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("HERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("HERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("HERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("HERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("HERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("HERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("HERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("HERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("HERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("HERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("HERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("KILOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("KILOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("KILOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("KILOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("KILOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("KILOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("KILOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("KILOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("KILOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("KILOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("KILOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("KILOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("KILOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("KILOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("KILOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("KILOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("KILOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("KILOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("KILOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("KILOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("MEGAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("MEGAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("MEGAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("MEGAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MEGAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MEGAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MEGAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("MEGAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MEGAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MEGAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MEGAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MEGAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MEGAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MEGAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MEGAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MEGAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("MEGAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("MEGAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MICROHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MICROHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("MICROHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MICROHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("MICROHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MICROHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("MICROHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MICROHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MICROHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MICROHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MICROHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MICROHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MICROHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MICROHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MICROHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MICROHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("MICROHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MICROHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MILLIHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("MILLIHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MILLIHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("MILLIHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MILLIHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MILLIHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MILLIHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MILLIHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MILLIHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MILLIHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MILLIHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MILLIHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MILLIHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MILLIHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MILLIHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MILLIHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MILLIHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MILLIHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("NANOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("NANOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("NANOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("NANOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("NANOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("NANOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("NANOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("NANOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("NANOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("NANOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("NANOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("NANOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("NANOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("NANOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("NANOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("NANOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("NANOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("NANOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PETAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("PETAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("PETAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("PETAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("PETAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PETAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("PETAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PETAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("PETAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("PETAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PETAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PETAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("PETAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("PETAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("PETAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("PETAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PETAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("PETAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PETAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("PETAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PICOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("PICOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("PICOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("PICOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PICOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PICOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("PICOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("PICOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("PICOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("PICOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("PICOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PICOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PICOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("PICOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("PICOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PICOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("PICOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PICOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("TERAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("TERAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("TERAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("TERAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("TERAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("TERAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("TERAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("TERAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("TERAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("TERAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("TERAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("TERAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("TERAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("TERAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("TERAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("TERAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("TERAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("TERAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("TERAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("TERAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("YOCTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("YOCTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("YOCTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("YOCTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("YOCTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("YOCTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("YOCTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("YOCTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("YOCTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("YOCTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("YOCTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("YOCTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("YOCTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("YOCTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("YOCTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
-        c.put("YOCTOHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("YOCTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("YOTTAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("YOTTAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("YOTTAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("YOTTAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("YOTTAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("YOTTAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("YOTTAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("YOTTAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("YOTTAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("YOTTAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("YOTTAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("YOTTAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("YOTTAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("YOTTAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("YOTTAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("YOTTAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("YOTTAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("YOTTAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
-        c.put("YOTTAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("YOTTAHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZEPTOHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ZEPTOHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("ZEPTOHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ZEPTOHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("ZEPTOHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ZEPTOHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ZEPTOHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("ZEPTOHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ZEPTOHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ZEPTOHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ZEPTOHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ZEPTOHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ZEPTOHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ZEPTOHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ZEPTOHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ZEPTOHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ZEPTOHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("ZEPTOHERTZ:ZETTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ZETTAHERTZ:ATTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("ZETTAHERTZ:CENTIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("ZETTAHERTZ:DECAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("ZETTAHERTZ:DECIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("ZETTAHERTZ:EXAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZETTAHERTZ:FEMTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("ZETTAHERTZ:GIGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("ZETTAHERTZ:HECTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("ZETTAHERTZ:HERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("ZETTAHERTZ:KILOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("ZETTAHERTZ:MEGAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("ZETTAHERTZ:MICROHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("ZETTAHERTZ:MILLIHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("ZETTAHERTZ:NANOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("ZETTAHERTZ:PETAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ZETTAHERTZ:PICOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("ZETTAHERTZ:TERAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("ZETTAHERTZ:YOCTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("ZETTAHERTZ:YOTTAHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZETTAHERTZ:ZEPTOHERTZ", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+    private static Map<UnitsFrequency, Conversion> createMapCENTIHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 16)), Sym("centihz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Int(1000), Sym("centihz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Int(10), Sym("centihz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 20), Sym("centihz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 13)), Sym("centihz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 11), Sym("centihz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 4), Sym("centihz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Int(100), Sym("centihz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 5), Sym("centihz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 8), Sym("centihz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 4)), Sym("centihz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Int(10)), Sym("centihz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 7)), Sym("centihz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 17), Sym("centihz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 10)), Sym("centihz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 14), Sym("centihz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 22)), Sym("centihz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 26), Sym("centihz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 19)), Sym("centihz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 23), Sym("centihz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapDECAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 19)), Sym("decahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("decahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Int(100)), Sym("decahz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 17), Sym("decahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 16)), Sym("decahz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 8), Sym("decahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Int(10), Sym("decahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Int(10)), Sym("decahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Int(100), Sym("decahz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 5), Sym("decahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 7)), Sym("decahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 4)), Sym("decahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 10)), Sym("decahz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 14), Sym("decahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 13)), Sym("decahz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 11), Sym("decahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 25)), Sym("decahz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 23), Sym("decahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 22)), Sym("decahz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 20), Sym("decahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapDECIHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 17)), Sym("decihz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Int(10)), Sym("decihz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Int(100), Sym("decihz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 19), Sym("decihz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 14)), Sym("decihz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 10), Sym("decihz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Int(1000), Sym("decihz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Int(10), Sym("decihz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 4), Sym("decihz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 7), Sym("decihz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 5)), Sym("decihz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Int(100)), Sym("decihz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 8)), Sym("decihz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 16), Sym("decihz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 11)), Sym("decihz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 13), Sym("decihz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 23)), Sym("decihz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 25), Sym("decihz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 20)), Sym("decihz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 22), Sym("decihz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapEXAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 36)), Sym("exahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 20)), Sym("exahz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Pow(10, 17)), Sym("exahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 19)), Sym("exahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 33)), Sym("exahz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("exahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Pow(10, 16)), Sym("exahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("exahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("exahz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("exahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("exahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("exahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("exahz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("exahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 30)), Sym("exahz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("exahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 42)), Sym("exahz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 6), Sym("exahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 39)), Sym("exahz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Int(1000), Sym("exahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapFEMTOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("femtohz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Pow(10, 13), Sym("femtohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 16), Sym("femtohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Pow(10, 14), Sym("femtohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 33), Sym("femtohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 24), Sym("femtohz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 17), Sym("femtohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Pow(10, 15), Sym("femtohz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 18), Sym("femtohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 21), Sym("femtohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Pow(10, 9), Sym("femtohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Pow(10, 12), Sym("femtohz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Pow(10, 6), Sym("femtohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 30), Sym("femtohz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Int(1000), Sym("femtohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 27), Sym("femtohz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("femtohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 39), Sym("femtohz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("femtohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 36), Sym("femtohz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapGIGAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("gigahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 11)), Sym("gigahz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Pow(10, 8)), Sym("gigahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 10)), Sym("gigahz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 9), Sym("gigahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("gigahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Pow(10, 7)), Sym("gigahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("gigahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigahz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("gigahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("gigahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("gigahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("gigahz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 6), Sym("gigahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("gigahz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Int(1000), Sym("gigahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 33)), Sym("gigahz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 15), Sym("gigahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 30)), Sym("gigahz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 12), Sym("gigahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapHECTOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 20)), Sym("hectohz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 4)), Sym("hectohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Int(10)), Sym("hectohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("hectohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 16), Sym("hectohz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 17)), Sym("hectohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 7), Sym("hectohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Int(100)), Sym("hectohz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Int(10), Sym("hectohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 4), Sym("hectohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 8)), Sym("hectohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 5)), Sym("hectohz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 11)), Sym("hectohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 13), Sym("hectohz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 14)), Sym("hectohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 10), Sym("hectohz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 26)), Sym("hectohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 22), Sym("hectohz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 23)), Sym("hectohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 19), Sym("hectohz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("hz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Int(100)), Sym("hz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Int(10), Sym("hz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Int(10)), Sym("hz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 18), Sym("hz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("hz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 9), Sym("hz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Int(100), Sym("hz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Int(1000), Sym("hz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 6), Sym("hz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("hz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("hz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("hz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 15), Sym("hz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("hz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 12), Sym("hz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("hz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 24), Sym("hz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("hz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 21), Sym("hz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapKILOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("kilohz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 5)), Sym("kilohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Int(100)), Sym("kilohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 4)), Sym("kilohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 15), Sym("kilohz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("kilohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 6), Sym("kilohz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Int(10)), Sym("kilohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Int(1000)), Sym("kilohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Int(1000), Sym("kilohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("kilohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("kilohz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("kilohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 12), Sym("kilohz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("kilohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 9), Sym("kilohz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("kilohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 21), Sym("kilohz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("kilohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 18), Sym("kilohz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapMEGAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("megahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 8)), Sym("megahz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Pow(10, 5)), Sym("megahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 7)), Sym("megahz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 12), Sym("megahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("megahz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Int(1000), Sym("megahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Pow(10, 4)), Sym("megahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("megahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("megahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("megahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("megahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("megahz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 9), Sym("megahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("megahz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 6), Sym("megahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 30)), Sym("megahz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 18), Sym("megahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("megahz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 15), Sym("megahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapMICROHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("microhz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Pow(10, 4), Sym("microhz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 7), Sym("microhz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Pow(10, 5), Sym("microhz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 24), Sym("microhz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("microhz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 15), Sym("microhz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 8), Sym("microhz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Pow(10, 6), Sym("microhz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 9), Sym("microhz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 12), Sym("microhz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Int(1000), Sym("microhz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("microhz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 21), Sym("microhz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("microhz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 18), Sym("microhz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("microhz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 30), Sym("microhz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("microhz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 27), Sym("microhz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapMILLIHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("millihz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Int(10), Sym("millihz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 4), Sym("millihz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Int(100), Sym("millihz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 21), Sym("millihz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("millihz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 12), Sym("millihz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 5), Sym("millihz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Int(1000), Sym("millihz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 6), Sym("millihz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 9), Sym("millihz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("millihz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("millihz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 18), Sym("millihz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("millihz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 15), Sym("millihz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("millihz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 27), Sym("millihz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("millihz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 24), Sym("millihz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapNANOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanohz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Pow(10, 7), Sym("nanohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 10), Sym("nanohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Pow(10, 8), Sym("nanohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 27), Sym("nanohz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("nanohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 18), Sym("nanohz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 11), Sym("nanohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Pow(10, 9), Sym("nanohz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 12), Sym("nanohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 15), Sym("nanohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Int(1000), Sym("nanohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Pow(10, 6), Sym("nanohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 24), Sym("nanohz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("nanohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 21), Sym("nanohz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("nanohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 33), Sym("nanohz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("nanohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 30), Sym("nanohz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapPETAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 33)), Sym("petahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 17)), Sym("petahz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Pow(10, 14)), Sym("petahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 16)), Sym("petahz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Int(1000), Sym("petahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 30)), Sym("petahz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("petahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Pow(10, 13)), Sym("petahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("petahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("petahz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("petahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("petahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("petahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("petahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("petahz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("petahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 39)), Sym("petahz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 9), Sym("petahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 36)), Sym("petahz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 6), Sym("petahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapPICOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("picohz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Pow(10, 10), Sym("picohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 13), Sym("picohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Pow(10, 11), Sym("picohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 30), Sym("picohz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("picohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 21), Sym("picohz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 14), Sym("picohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Pow(10, 12), Sym("picohz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 15), Sym("picohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 18), Sym("picohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Pow(10, 6), Sym("picohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Pow(10, 9), Sym("picohz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Int(1000), Sym("picohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 27), Sym("picohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 24), Sym("picohz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("picohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 36), Sym("picohz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("picohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 33), Sym("picohz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapTERAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 30)), Sym("terahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 14)), Sym("terahz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Pow(10, 11)), Sym("terahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 13)), Sym("terahz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 6), Sym("terahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("terahz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("terahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Pow(10, 10)), Sym("terahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("terahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("terahz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("terahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("terahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("terahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("terahz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Int(1000), Sym("terahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("terahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 36)), Sym("terahz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 12), Sym("terahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 33)), Sym("terahz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 9), Sym("terahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapYOCTOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Pow(10, 6), Sym("yoctohz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Pow(10, 22), Sym("yoctohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 25), Sym("yoctohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Pow(10, 23), Sym("yoctohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 42), Sym("yoctohz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Pow(10, 9), Sym("yoctohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 33), Sym("yoctohz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 26), Sym("yoctohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Pow(10, 24), Sym("yoctohz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 27), Sym("yoctohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 30), Sym("yoctohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Pow(10, 18), Sym("yoctohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Pow(10, 21), Sym("yoctohz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Pow(10, 15), Sym("yoctohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 39), Sym("yoctohz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Pow(10, 12), Sym("yoctohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 36), Sym("yoctohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 48), Sym("yoctohz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Int(1000), Sym("yoctohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 45), Sym("yoctohz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapYOTTAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 42)), Sym("yottahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 26)), Sym("yottahz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Pow(10, 23)), Sym("yottahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 25)), Sym("yottahz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("yottahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 39)), Sym("yottahz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("yottahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Pow(10, 22)), Sym("yottahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("yottahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("yottahz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("yottahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 30)), Sym("yottahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("yottahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 33)), Sym("yottahz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("yottahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 36)), Sym("yottahz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("yottahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 48)), Sym("yottahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 45)), Sym("yottahz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("yottahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapZEPTOHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Int(1000), Sym("zeptohz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Pow(10, 19), Sym("zeptohz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Pow(10, 22), Sym("zeptohz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Pow(10, 20), Sym("zeptohz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Pow(10, 39), Sym("zeptohz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Pow(10, 6), Sym("zeptohz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Pow(10, 30), Sym("zeptohz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Pow(10, 23), Sym("zeptohz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Pow(10, 21), Sym("zeptohz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Pow(10, 24), Sym("zeptohz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Pow(10, 27), Sym("zeptohz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Pow(10, 15), Sym("zeptohz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Pow(10, 18), Sym("zeptohz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Pow(10, 12), Sym("zeptohz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Pow(10, 36), Sym("zeptohz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Pow(10, 9), Sym("zeptohz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Pow(10, 33), Sym("zeptohz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("zeptohz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Pow(10, 45), Sym("zeptohz")));
+        c.put(UnitsFrequency.ZETTAHERTZ, Mul(Pow(10, 42), Sym("zeptohz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsFrequency, Conversion> createMapZETTAHERTZ() {
+        EnumMap<UnitsFrequency, Conversion> c =
+            new EnumMap<UnitsFrequency, Conversion>(UnitsFrequency.class);
+        c.put(UnitsFrequency.ATTOHERTZ, Mul(Rat(Int(1), Pow(10, 39)), Sym("zettahz")));
+        c.put(UnitsFrequency.CENTIHERTZ, Mul(Rat(Int(1), Pow(10, 23)), Sym("zettahz")));
+        c.put(UnitsFrequency.DECAHERTZ, Mul(Rat(Int(1), Pow(10, 20)), Sym("zettahz")));
+        c.put(UnitsFrequency.DECIHERTZ, Mul(Rat(Int(1), Pow(10, 22)), Sym("zettahz")));
+        c.put(UnitsFrequency.EXAHERTZ, Mul(Rat(Int(1), Int(1000)), Sym("zettahz")));
+        c.put(UnitsFrequency.FEMTOHERTZ, Mul(Rat(Int(1), Pow(10, 36)), Sym("zettahz")));
+        c.put(UnitsFrequency.GIGAHERTZ, Mul(Rat(Int(1), Pow(10, 12)), Sym("zettahz")));
+        c.put(UnitsFrequency.HECTOHERTZ, Mul(Rat(Int(1), Pow(10, 19)), Sym("zettahz")));
+        c.put(UnitsFrequency.HERTZ, Mul(Rat(Int(1), Pow(10, 21)), Sym("zettahz")));
+        c.put(UnitsFrequency.KILOHERTZ, Mul(Rat(Int(1), Pow(10, 18)), Sym("zettahz")));
+        c.put(UnitsFrequency.MEGAHERTZ, Mul(Rat(Int(1), Pow(10, 15)), Sym("zettahz")));
+        c.put(UnitsFrequency.MICROHERTZ, Mul(Rat(Int(1), Pow(10, 27)), Sym("zettahz")));
+        c.put(UnitsFrequency.MILLIHERTZ, Mul(Rat(Int(1), Pow(10, 24)), Sym("zettahz")));
+        c.put(UnitsFrequency.NANOHERTZ, Mul(Rat(Int(1), Pow(10, 30)), Sym("zettahz")));
+        c.put(UnitsFrequency.PETAHERTZ, Mul(Rat(Int(1), Pow(10, 6)), Sym("zettahz")));
+        c.put(UnitsFrequency.PICOHERTZ, Mul(Rat(Int(1), Pow(10, 33)), Sym("zettahz")));
+        c.put(UnitsFrequency.TERAHERTZ, Mul(Rat(Int(1), Pow(10, 9)), Sym("zettahz")));
+        c.put(UnitsFrequency.YOCTOHERTZ, Mul(Rat(Int(1), Pow(10, 45)), Sym("zettahz")));
+        c.put(UnitsFrequency.YOTTAHERTZ, Mul(Int(1000), Sym("zettahz")));
+        c.put(UnitsFrequency.ZEPTOHERTZ, Mul(Rat(Int(1), Pow(10, 42)), Sym("zettahz")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsFrequency, Map<UnitsFrequency, Conversion>> conversions;
+    static {
+
+        Map<UnitsFrequency, Map<UnitsFrequency, Conversion>> c
+            = new EnumMap<UnitsFrequency, Map<UnitsFrequency, Conversion>>(UnitsFrequency.class);
+
+        c.put(UnitsFrequency.ATTOHERTZ, createMapATTOHERTZ());
+        c.put(UnitsFrequency.CENTIHERTZ, createMapCENTIHERTZ());
+        c.put(UnitsFrequency.DECAHERTZ, createMapDECAHERTZ());
+        c.put(UnitsFrequency.DECIHERTZ, createMapDECIHERTZ());
+        c.put(UnitsFrequency.EXAHERTZ, createMapEXAHERTZ());
+        c.put(UnitsFrequency.FEMTOHERTZ, createMapFEMTOHERTZ());
+        c.put(UnitsFrequency.GIGAHERTZ, createMapGIGAHERTZ());
+        c.put(UnitsFrequency.HECTOHERTZ, createMapHECTOHERTZ());
+        c.put(UnitsFrequency.HERTZ, createMapHERTZ());
+        c.put(UnitsFrequency.KILOHERTZ, createMapKILOHERTZ());
+        c.put(UnitsFrequency.MEGAHERTZ, createMapMEGAHERTZ());
+        c.put(UnitsFrequency.MICROHERTZ, createMapMICROHERTZ());
+        c.put(UnitsFrequency.MILLIHERTZ, createMapMILLIHERTZ());
+        c.put(UnitsFrequency.NANOHERTZ, createMapNANOHERTZ());
+        c.put(UnitsFrequency.PETAHERTZ, createMapPETAHERTZ());
+        c.put(UnitsFrequency.PICOHERTZ, createMapPICOHERTZ());
+        c.put(UnitsFrequency.TERAHERTZ, createMapTERAHERTZ());
+        c.put(UnitsFrequency.YOCTOHERTZ, createMapYOCTOHERTZ());
+        c.put(UnitsFrequency.YOTTAHERTZ, createMapYOTTAHERTZ());
+        c.put(UnitsFrequency.ZEPTOHERTZ, createMapZEPTOHERTZ());
+        c.put(UnitsFrequency.ZETTAHERTZ, createMapZETTAHERTZ());
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -590,7 +751,7 @@ public class FrequencyI extends Frequency implements ModelBased {
     * Copy constructor that converts the given {@link omero.model.Frequency}
     * based on the given ome-xml enum
     */
-   public FrequencyI(Frequency value, Unit<ome.units.quantity.Frequency> ul) {
+   public FrequencyI(Frequency value, Unit<ome.units.quantity.Frequency> ul) throws BigResult {
        this(value,
             ome.model.enums.UnitsFrequency.bySymbol(ul.getSymbol()).toString());
    }
@@ -609,36 +770,29 @@ public class FrequencyI extends Frequency implements ModelBased {
     *
     * @param target String representation of the CODE enum
     */
-    public FrequencyI(Frequency value, String target) {
+    public FrequencyI(Frequency value, String target) throws BigResult {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            double[][] coeffs = conversions.get(source + ":" + target);
-            if (coeffs == null) {
+            UnitsFrequency targetUnit = UnitsFrequency.valueOf(target);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
+            if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
             double orig = value.getValue();
-            double k, p, v;
-            if (coeffs.length == 0) {
-                v = orig;
-            } else if (coeffs.length == 2){
-                k = coeffs[0][0];
-                p = coeffs[0][1];
-                v = Math.pow(k, p);
-
-                k = coeffs[1][0];
-                p = coeffs[1][1];
-                v += Math.pow(k, p) * orig;
-            } else {
-                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            BigDecimal big = conversion.convert(orig);
+            double converted = big.doubleValue();
+            if (Double.isInfinite(converted)) {
+                throw new BigResult(big,
+                        "Failed to convert " + source + ":" + target);
             }
 
-            setValue(v);
-            setUnit(UnitsFrequency.valueOf(target));
+            setValue(converted);
+            setUnit(targetUnit);
        }
     }
 
@@ -647,7 +801,7 @@ public class FrequencyI extends Frequency implements ModelBased {
     *
     * @param target unit that is desired. non-null.
     */
-    public FrequencyI(Frequency value, UnitsFrequency target) {
+    public FrequencyI(Frequency value, UnitsFrequency target) throws BigResult {
         this(value, target.toString());
     }
 

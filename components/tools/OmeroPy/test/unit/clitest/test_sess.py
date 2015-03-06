@@ -279,13 +279,23 @@ class TestSessions(object):
 
     def get_conn_args(self, conn_type, host="testhost", name="testuser",
                       port=None):
-        if conn_type == "string":
-            pattern = "%s@%s"
-        elif conn_type == "prefixed_string":
-            pattern = "-s %s@%s"
+
+        if name:
+            if conn_type == "string":
+                pattern = "%s@%s"
+            elif conn_type == "prefixed_string":
+                pattern = "-s %s@%s"
+            else:
+                pattern = "-u %s -s %s"
+            args = pattern % (name, host)
         else:
-            pattern = "-u %s -s %s"
-        args = pattern % (name, host)
+            if conn_type == "string":
+                pattern = "%s"
+            elif conn_type == "prefixed_string":
+                pattern = "-s %s"
+            else:
+                pattern = "-s %s"
+            args = pattern % host
 
         if port:
             if conn_type == "options":
@@ -326,7 +336,7 @@ class TestSessions(object):
         cli = MyCLI()
         cli.STORE.add("testhost", "testuser", "key", {})
         cli.creates_client(sess="key", new=False)
-        conn_args = self.get_conn_args(connection)
+        conn_args = self.get_conn_args(connection, name=None)
         cli.invoke(["s", "login", "-k", "key"] + conn_args)
         assert 0 == cli.rv
 
@@ -438,7 +448,8 @@ class TestSessions(object):
 
         # Now try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=False)
-        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
+        key_conn_args = self.get_conn_args(connection, name=None)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
         cli.set_client(None)  # Forcing new instance
 
         # Don't do creates_client, so the session key
@@ -446,7 +457,7 @@ class TestSessions(object):
         cli.throw_on_create(
             Glacier2.PermissionDeniedException("MOCKKEY EXPIRED"))
         try:
-            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
             assert False, "This must throw 'Bad session key'"
         except NonZeroReturnCode:
             pass
@@ -454,11 +465,11 @@ class TestSessions(object):
 
         del cli
 
+    @pytest.mark.parametrize('port', [None, 4064])
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testCopiedSessionWorks(self, connection):
+    def testCopiedSessionWorks(self, connection, port):
         """
-        Found by Colin while using a session key from
-        a non-CLI-source.
+        Found by Colin while using a session key from a non-CLI-source.
         """
         cli = MyCLI()
 
@@ -466,9 +477,13 @@ class TestSessions(object):
 
         # Try with session when it's still available
         cli.creates_client(sess=MOCKKEY, new=True)
-        conn_args = self.get_conn_args(connection)
+
+        conn_args = self.get_conn_args(connection, name=None, port=None)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
         cli.set_client(None)  # Forcing new instance
+        cli.creates_client(sess=MOCKKEY, new=False)
+        conn_args = self.get_conn_args(connection, port=port)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
 
     def assert5975(self, key, cli):
         host, name, uuid, port = cli.STORE.get_current()
@@ -483,7 +498,7 @@ class TestSessions(object):
         cli = MyCLI()
         key = str(uuid.uuid4())
         cli.creates_client(sess=key, new=True)
-        conn_args = self.get_conn_args(connection)
+        conn_args = self.get_conn_args(connection, name=None)
         cli.invoke(["s", "login", "-k", "%s" % key] + conn_args)
         self.assert5975(key, cli)
 

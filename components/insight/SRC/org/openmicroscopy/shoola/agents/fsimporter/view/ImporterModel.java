@@ -602,7 +602,6 @@ class ImporterModel
                 }
                 //check roi manager
                 if (CollectionUtils.isEmpty(rois)) {
-                    
                     rois = reader.readImageJROI(id);
                 }
                 if (CollectionUtils.isNotEmpty(rois)) {

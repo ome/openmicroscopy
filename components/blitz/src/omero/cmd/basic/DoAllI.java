@@ -105,7 +105,9 @@ public class DoAllI extends DoAll implements IRequest {
          * value after being calculated via {@link #offset}
          */
         Object step(int step) {
-            return r.step(step - offset);
+            final int substep = step - offset;
+            h.getStatus().currentStep = substep;
+            return r.step(substep);
         }
 
         /**

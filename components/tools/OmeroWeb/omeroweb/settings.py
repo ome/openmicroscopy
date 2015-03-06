@@ -270,8 +270,6 @@ INTERNAL_SETTINGS_MAPPING = {
         ["WEBSTART_VENDOR", "The Open Microscopy Environment", str, None],
     "omero.web.webstart_homepage":
         ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str, None],
-    "omero.web.nanoxml_jar":
-        ["NANOXML_JAR", "nanoxml.jar", str, None],
     "omero.web.webstart_admins_only":
         ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
 
@@ -912,6 +910,7 @@ PIPELINE_CSS = {
             'webgateway/css/ome.body.css',
             'webclient/css/dusty.css',
             'webgateway/css/ome.viewport.css',
+            'webgateway/css/ome.toolbar.css',
             'webgateway/css/ome.gs_slider.css',
             'webgateway/css/base.css',
             'webgateway/css/ome.snippet_header_logo.css',

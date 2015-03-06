@@ -19,11 +19,23 @@
 
 package omero.model;
 
+import static ome.model.units.Conversion.Mul;
+import static ome.model.units.Conversion.Add;
+import static ome.model.units.Conversion.Int;
+import static ome.model.units.Conversion.Pow;
+import static ome.model.units.Conversion.Rat;
+import static ome.model.units.Conversion.Sym;
+
+import java.math.BigDecimal;
+
 import java.util.Collections;
 import java.util.Map;
+import java.util.EnumMap;
 import java.util.HashMap;
 
 import ome.model.ModelBased;
+import ome.model.units.BigResult;
+import ome.model.units.Conversion;
 import ome.units.unit.Unit;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
@@ -44,430 +56,579 @@ public class PowerI extends Power implements ModelBased {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Map<String, double[][]> conversions;
-    static {
-        Map<String, double[][]> c = new HashMap<String, double[][]>();
+    private static Map<UnitsPower, Conversion> createMapATTOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.CENTIWATT, Mul(Pow(10, 16), Sym("attow")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 19), Sym("attow")));
+        c.put(UnitsPower.DECIWATT, Mul(Pow(10, 17), Sym("attow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 36), Sym("attow")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Int(1000), Sym("attow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 27), Sym("attow")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 20), Sym("attow")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 21), Sym("attow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 24), Sym("attow")));
+        c.put(UnitsPower.MICROWATT, Mul(Pow(10, 12), Sym("attow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Pow(10, 15), Sym("attow")));
+        c.put(UnitsPower.NANOWATT, Mul(Pow(10, 9), Sym("attow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 33), Sym("attow")));
+        c.put(UnitsPower.PICOWATT, Mul(Pow(10, 6), Sym("attow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 30), Sym("attow")));
+        c.put(UnitsPower.WATT, Mul(Pow(10, 18), Sym("attow")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("attow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 42), Sym("attow")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Int(1000)), Sym("attow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 39), Sym("attow")));
+        return Collections.unmodifiableMap(c);
+    }
 
-        c.put("ATTOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("ATTOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ATTOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("ATTOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ATTOWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ATTOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ATTOWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ATTOWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ATTOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ATTOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ATTOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ATTOWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ATTOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ATTOWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ATTOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ATTOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ATTOWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ATTOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ATTOWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ATTOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("CENTIWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("CENTIWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("CENTIWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("CENTIWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("CENTIWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("CENTIWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("CENTIWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("CENTIWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("CENTIWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("CENTIWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("CENTIWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("CENTIWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("CENTIWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("CENTIWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("CENTIWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("CENTIWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("CENTIWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("CENTIWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("CENTIWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("CENTIWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("DECAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("DECAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECAWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("DECAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("DECAWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("DECAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECAWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("DECAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("DECAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("DECAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("DECAWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("DECAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("DECAWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("DECAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("DECAWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("DECAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("DECAWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("DECIWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("DECIWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("DECIWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("DECIWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("DECIWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("DECIWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("DECIWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("DECIWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("DECIWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("DECIWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("DECIWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("DECIWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("DECIWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("DECIWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("DECIWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("DECIWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("DECIWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("DECIWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("DECIWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("DECIWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("EXAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("EXAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("EXAWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("EXAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("EXAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("EXAWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("EXAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("EXAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("EXAWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("EXAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("EXAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("EXAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("EXAWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("EXAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("EXAWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("EXAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("EXAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("EXAWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("EXAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("EXAWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("FEMTOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("FEMTOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("FEMTOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("FEMTOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("FEMTOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("FEMTOWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -17}});
-        c.put("FEMTOWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("FEMTOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("FEMTOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("FEMTOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("FEMTOWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("FEMTOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("FEMTOWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("FEMTOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("FEMTOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("FEMTOWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("FEMTOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("FEMTOWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("FEMTOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("GIGAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("GIGAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("GIGAWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("GIGAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("GIGAWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("GIGAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("GIGAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("GIGAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("GIGAWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("GIGAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("GIGAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("GIGAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("GIGAWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("GIGAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("GIGAWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("GIGAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("GIGAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("GIGAWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("GIGAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("GIGAWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("HECTOWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("HECTOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("HECTOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("HECTOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("HECTOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -16}});
-        c.put("HECTOWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("HECTOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("HECTOWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("HECTOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("HECTOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("HECTOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("HECTOWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("HECTOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("HECTOWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("HECTOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("HECTOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("HECTOWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("HECTOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("HECTOWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("HECTOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("KILOWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("KILOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("KILOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("KILOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("KILOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("KILOWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("KILOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("KILOWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("KILOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("KILOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("KILOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("KILOWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("KILOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("KILOWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("KILOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("KILOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("KILOWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("KILOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("KILOWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("KILOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("MEGAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 8}});
-        c.put("MEGAWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 5}});
-        c.put("MEGAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 7}});
-        c.put("MEGAWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MEGAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MEGAWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MEGAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 4}});
-        c.put("MEGAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MEGAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MEGAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MEGAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MEGAWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MEGAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MEGAWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MEGAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MEGAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("MEGAWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MEGAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("MEGAWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MICROWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MICROWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("MICROWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MICROWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("MICROWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MICROWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MICROWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("MICROWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MICROWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MICROWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MICROWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MICROWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MICROWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MICROWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MICROWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MICROWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MICROWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("MICROWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MICROWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("MILLIWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("MILLIWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -4}});
-        c.put("MILLIWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("MILLIWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("MILLIWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("MILLIWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("MILLIWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -5}});
-        c.put("MILLIWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("MILLIWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("MILLIWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("MILLIWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("MILLIWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("MILLIWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("MILLIWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("MILLIWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("MILLIWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("MILLIWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("MILLIWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("MILLIWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("NANOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -7}});
-        c.put("NANOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("NANOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -8}});
-        c.put("NANOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("NANOWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("NANOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("NANOWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("NANOWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("NANOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("NANOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("NANOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("NANOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("NANOWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("NANOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("NANOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("NANOWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("NANOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("NANOWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("NANOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PETAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("PETAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 17}});
-        c.put("PETAWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("PETAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 16}});
-        c.put("PETAWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PETAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("PETAWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PETAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("PETAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PETAWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PETAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("PETAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("PETAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("PETAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("PETAWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PETAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("PETAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("PETAWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PETAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("PETAWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("PICOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -10}});
-        c.put("PICOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -13}});
-        c.put("PICOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -11}});
-        c.put("PICOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("PICOWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("PICOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("PICOWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -14}});
-        c.put("PICOWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("PICOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("PICOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("PICOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("PICOWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("PICOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("PICOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("PICOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("PICOWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("PICOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("PICOWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("PICOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("TERAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("TERAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 14}});
-        c.put("TERAWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 11}});
-        c.put("TERAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 13}});
-        c.put("TERAWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("TERAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("TERAWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("TERAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 10}});
-        c.put("TERAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("TERAWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("TERAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("TERAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("TERAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("TERAWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("TERAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("TERAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("TERAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("TERAWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("TERAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("TERAWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("WATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("WATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 2}});
-        c.put("WATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -1}});
-        c.put("WATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 1}});
-        c.put("WATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("WATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("WATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("WATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -2}});
-        c.put("WATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("WATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("WATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("WATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("WATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("WATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("WATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("WATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("WATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("WATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("WATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("WATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("YOCTOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("YOCTOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -25}});
-        c.put("YOCTOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("YOCTOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("YOCTOWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("YOCTOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("YOCTOWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -26}});
-        c.put("YOCTOWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("YOCTOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("YOCTOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("YOCTOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("YOCTOWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("YOCTOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("YOCTOWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("YOCTOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("YOCTOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("YOCTOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -48}});
-        c.put("YOCTOWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("YOCTOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("YOTTAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
-        c.put("YOTTAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 26}});
-        c.put("YOTTAWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("YOTTAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 25}});
-        c.put("YOTTAWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("YOTTAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("YOTTAWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("YOTTAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("YOTTAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("YOTTAWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("YOTTAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("YOTTAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("YOTTAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("YOTTAWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("YOTTAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("YOTTAWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("YOTTAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("YOTTAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 48}});
-        c.put("YOTTAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("YOTTAWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZEPTOWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -19}});
-        c.put("ZEPTOWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -22}});
-        c.put("ZEPTOWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -20}});
-        c.put("ZEPTOWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -39}});
-        c.put("ZEPTOWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -6}});
-        c.put("ZEPTOWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -30}});
-        c.put("ZEPTOWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -23}});
-        c.put("ZEPTOWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -24}});
-        c.put("ZEPTOWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -27}});
-        c.put("ZEPTOWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, -15}});
-        c.put("ZEPTOWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, -18}});
-        c.put("ZEPTOWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -12}});
-        c.put("ZEPTOWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -36}});
-        c.put("ZEPTOWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, -9}});
-        c.put("ZEPTOWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -33}});
-        c.put("ZEPTOWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, -21}});
-        c.put("ZEPTOWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZEPTOWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -45}});
-        c.put("ZEPTOWATT:ZETTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -42}});
-        c.put("ZETTAWATT:ATTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 39}});
-        c.put("ZETTAWATT:CENTIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 23}});
-        c.put("ZETTAWATT:DECAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 20}});
-        c.put("ZETTAWATT:DECIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 22}});
-        c.put("ZETTAWATT:EXAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 3}});
-        c.put("ZETTAWATT:FEMTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 36}});
-        c.put("ZETTAWATT:GIGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 12}});
-        c.put("ZETTAWATT:HECTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 19}});
-        c.put("ZETTAWATT:KILOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 18}});
-        c.put("ZETTAWATT:MEGAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 15}});
-        c.put("ZETTAWATT:MICROWATT", new double[][]{new double[]{0, 1}, new double[]{10, 27}});
-        c.put("ZETTAWATT:MILLIWATT", new double[][]{new double[]{0, 1}, new double[]{10, 24}});
-        c.put("ZETTAWATT:NANOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 30}});
-        c.put("ZETTAWATT:PETAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 6}});
-        c.put("ZETTAWATT:PICOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 33}});
-        c.put("ZETTAWATT:TERAWATT", new double[][]{new double[]{0, 1}, new double[]{10, 9}});
-        c.put("ZETTAWATT:WATT", new double[][]{new double[]{0, 1}, new double[]{10, 21}});
-        c.put("ZETTAWATT:YOCTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 45}});
-        c.put("ZETTAWATT:YOTTAWATT", new double[][]{new double[]{0, 1}, new double[]{10, -3}});
-        c.put("ZETTAWATT:ZEPTOWATT", new double[][]{new double[]{0, 1}, new double[]{10, 42}});
+    private static Map<UnitsPower, Conversion> createMapCENTIWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 16)), Sym("centiw")));
+        c.put(UnitsPower.DECAWATT, Mul(Int(1000), Sym("centiw")));
+        c.put(UnitsPower.DECIWATT, Mul(Int(10), Sym("centiw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 20), Sym("centiw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 13)), Sym("centiw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 11), Sym("centiw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 4), Sym("centiw")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 5), Sym("centiw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 8), Sym("centiw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 4)), Sym("centiw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Int(10)), Sym("centiw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 7)), Sym("centiw")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 17), Sym("centiw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 10)), Sym("centiw")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 14), Sym("centiw")));
+        c.put(UnitsPower.WATT, Mul(Int(100), Sym("centiw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 22)), Sym("centiw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 26), Sym("centiw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 19)), Sym("centiw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 23), Sym("centiw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapDECAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 19)), Sym("decaw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Int(1000)), Sym("decaw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Int(100)), Sym("decaw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 17), Sym("decaw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 16)), Sym("decaw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 8), Sym("decaw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Int(10), Sym("decaw")));
+        c.put(UnitsPower.KILOWATT, Mul(Int(100), Sym("decaw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 5), Sym("decaw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 7)), Sym("decaw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 4)), Sym("decaw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 10)), Sym("decaw")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 14), Sym("decaw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 13)), Sym("decaw")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 11), Sym("decaw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Int(10)), Sym("decaw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 25)), Sym("decaw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 23), Sym("decaw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 22)), Sym("decaw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 20), Sym("decaw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapDECIWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 17)), Sym("deciw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Int(10)), Sym("deciw")));
+        c.put(UnitsPower.DECAWATT, Mul(Int(100), Sym("deciw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 19), Sym("deciw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 14)), Sym("deciw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 10), Sym("deciw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Int(1000), Sym("deciw")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 4), Sym("deciw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 7), Sym("deciw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 5)), Sym("deciw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Int(100)), Sym("deciw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 8)), Sym("deciw")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 16), Sym("deciw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 11)), Sym("deciw")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 13), Sym("deciw")));
+        c.put(UnitsPower.WATT, Mul(Int(10), Sym("deciw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 23)), Sym("deciw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 25), Sym("deciw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 20)), Sym("deciw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 22), Sym("deciw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapEXAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 36)), Sym("exaw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 20)), Sym("exaw")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Pow(10, 17)), Sym("exaw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 19)), Sym("exaw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 33)), Sym("exaw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("exaw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Pow(10, 16)), Sym("exaw")));
+        c.put(UnitsPower.KILOWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("exaw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("exaw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("exaw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("exaw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("exaw")));
+        c.put(UnitsPower.PETAWATT, Mul(Rat(Int(1), Int(1000)), Sym("exaw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 30)), Sym("exaw")));
+        c.put(UnitsPower.TERAWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("exaw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("exaw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 42)), Sym("exaw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 6), Sym("exaw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 39)), Sym("exaw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Int(1000), Sym("exaw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapFEMTOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Int(1000)), Sym("femtow")));
+        c.put(UnitsPower.CENTIWATT, Mul(Pow(10, 13), Sym("femtow")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 16), Sym("femtow")));
+        c.put(UnitsPower.DECIWATT, Mul(Pow(10, 14), Sym("femtow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 33), Sym("femtow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 24), Sym("femtow")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 17), Sym("femtow")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 18), Sym("femtow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 21), Sym("femtow")));
+        c.put(UnitsPower.MICROWATT, Mul(Pow(10, 9), Sym("femtow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Pow(10, 12), Sym("femtow")));
+        c.put(UnitsPower.NANOWATT, Mul(Pow(10, 6), Sym("femtow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 30), Sym("femtow")));
+        c.put(UnitsPower.PICOWATT, Mul(Int(1000), Sym("femtow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 27), Sym("femtow")));
+        c.put(UnitsPower.WATT, Mul(Pow(10, 15), Sym("femtow")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("femtow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 39), Sym("femtow")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("femtow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 36), Sym("femtow")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapGIGAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("gigaw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 11)), Sym("gigaw")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Pow(10, 8)), Sym("gigaw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 10)), Sym("gigaw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 9), Sym("gigaw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("gigaw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Pow(10, 7)), Sym("gigaw")));
+        c.put(UnitsPower.KILOWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("gigaw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Rat(Int(1), Int(1000)), Sym("gigaw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("gigaw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("gigaw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("gigaw")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 6), Sym("gigaw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("gigaw")));
+        c.put(UnitsPower.TERAWATT, Mul(Int(1000), Sym("gigaw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("gigaw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 33)), Sym("gigaw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 15), Sym("gigaw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 30)), Sym("gigaw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 12), Sym("gigaw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapHECTOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 20)), Sym("hectow")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 4)), Sym("hectow")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Int(10)), Sym("hectow")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Int(1000)), Sym("hectow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 16), Sym("hectow")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 17)), Sym("hectow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 7), Sym("hectow")));
+        c.put(UnitsPower.KILOWATT, Mul(Int(10), Sym("hectow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 4), Sym("hectow")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 8)), Sym("hectow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 5)), Sym("hectow")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 11)), Sym("hectow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 13), Sym("hectow")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 14)), Sym("hectow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 10), Sym("hectow")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Int(100)), Sym("hectow")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 26)), Sym("hectow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 22), Sym("hectow")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 23)), Sym("hectow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 19), Sym("hectow")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapKILOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("kilow")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 5)), Sym("kilow")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Int(100)), Sym("kilow")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 4)), Sym("kilow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 15), Sym("kilow")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("kilow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 6), Sym("kilow")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Int(10)), Sym("kilow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Int(1000), Sym("kilow")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("kilow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("kilow")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("kilow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 12), Sym("kilow")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("kilow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 9), Sym("kilow")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Int(1000)), Sym("kilow")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("kilow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 21), Sym("kilow")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("kilow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 18), Sym("kilow")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapMEGAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("megaw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 8)), Sym("megaw")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Pow(10, 5)), Sym("megaw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 7)), Sym("megaw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 12), Sym("megaw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("megaw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Int(1000), Sym("megaw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Pow(10, 4)), Sym("megaw")));
+        c.put(UnitsPower.KILOWATT, Mul(Rat(Int(1), Int(1000)), Sym("megaw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("megaw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("megaw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("megaw")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 9), Sym("megaw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("megaw")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 6), Sym("megaw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("megaw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 30)), Sym("megaw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 18), Sym("megaw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("megaw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 15), Sym("megaw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapMICROWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("microw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Pow(10, 4), Sym("microw")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 7), Sym("microw")));
+        c.put(UnitsPower.DECIWATT, Mul(Pow(10, 5), Sym("microw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 24), Sym("microw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("microw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 15), Sym("microw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 8), Sym("microw")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 9), Sym("microw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 12), Sym("microw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Int(1000), Sym("microw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Int(1000)), Sym("microw")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 21), Sym("microw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("microw")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 18), Sym("microw")));
+        c.put(UnitsPower.WATT, Mul(Pow(10, 6), Sym("microw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("microw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 30), Sym("microw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("microw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 27), Sym("microw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapMILLIWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("milliw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Int(10), Sym("milliw")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 4), Sym("milliw")));
+        c.put(UnitsPower.DECIWATT, Mul(Int(100), Sym("milliw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 21), Sym("milliw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("milliw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 12), Sym("milliw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 5), Sym("milliw")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 6), Sym("milliw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 9), Sym("milliw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Int(1000)), Sym("milliw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("milliw")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 18), Sym("milliw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("milliw")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 15), Sym("milliw")));
+        c.put(UnitsPower.WATT, Mul(Int(1000), Sym("milliw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("milliw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 27), Sym("milliw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("milliw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 24), Sym("milliw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapNANOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("nanow")));
+        c.put(UnitsPower.CENTIWATT, Mul(Pow(10, 7), Sym("nanow")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 10), Sym("nanow")));
+        c.put(UnitsPower.DECIWATT, Mul(Pow(10, 8), Sym("nanow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 27), Sym("nanow")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("nanow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 18), Sym("nanow")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 11), Sym("nanow")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 12), Sym("nanow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 15), Sym("nanow")));
+        c.put(UnitsPower.MICROWATT, Mul(Int(1000), Sym("nanow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Pow(10, 6), Sym("nanow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 24), Sym("nanow")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Int(1000)), Sym("nanow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 21), Sym("nanow")));
+        c.put(UnitsPower.WATT, Mul(Pow(10, 9), Sym("nanow")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("nanow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 33), Sym("nanow")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("nanow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 30), Sym("nanow")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapPETAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 33)), Sym("petaw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 17)), Sym("petaw")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Pow(10, 14)), Sym("petaw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 16)), Sym("petaw")));
+        c.put(UnitsPower.EXAWATT, Mul(Int(1000), Sym("petaw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 30)), Sym("petaw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("petaw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Pow(10, 13)), Sym("petaw")));
+        c.put(UnitsPower.KILOWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("petaw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("petaw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("petaw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("petaw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("petaw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("petaw")));
+        c.put(UnitsPower.TERAWATT, Mul(Rat(Int(1), Int(1000)), Sym("petaw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("petaw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 39)), Sym("petaw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 9), Sym("petaw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 36)), Sym("petaw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 6), Sym("petaw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapPICOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("picow")));
+        c.put(UnitsPower.CENTIWATT, Mul(Pow(10, 10), Sym("picow")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 13), Sym("picow")));
+        c.put(UnitsPower.DECIWATT, Mul(Pow(10, 11), Sym("picow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 30), Sym("picow")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Int(1000)), Sym("picow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 21), Sym("picow")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 14), Sym("picow")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 15), Sym("picow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 18), Sym("picow")));
+        c.put(UnitsPower.MICROWATT, Mul(Pow(10, 6), Sym("picow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Pow(10, 9), Sym("picow")));
+        c.put(UnitsPower.NANOWATT, Mul(Int(1000), Sym("picow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 27), Sym("picow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 24), Sym("picow")));
+        c.put(UnitsPower.WATT, Mul(Pow(10, 12), Sym("picow")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("picow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 36), Sym("picow")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("picow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 33), Sym("picow")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapTERAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 30)), Sym("teraw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 14)), Sym("teraw")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Pow(10, 11)), Sym("teraw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 13)), Sym("teraw")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 6), Sym("teraw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("teraw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Rat(Int(1), Int(1000)), Sym("teraw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Pow(10, 10)), Sym("teraw")));
+        c.put(UnitsPower.KILOWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("teraw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("teraw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("teraw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("teraw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("teraw")));
+        c.put(UnitsPower.PETAWATT, Mul(Int(1000), Sym("teraw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("teraw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("teraw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 36)), Sym("teraw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 12), Sym("teraw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 33)), Sym("teraw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 9), Sym("teraw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("w")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Int(100)), Sym("w")));
+        c.put(UnitsPower.DECAWATT, Mul(Int(10), Sym("w")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Int(10)), Sym("w")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 18), Sym("w")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("w")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 9), Sym("w")));
+        c.put(UnitsPower.HECTOWATT, Mul(Int(100), Sym("w")));
+        c.put(UnitsPower.KILOWATT, Mul(Int(1000), Sym("w")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 6), Sym("w")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("w")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Int(1000)), Sym("w")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("w")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 15), Sym("w")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("w")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 12), Sym("w")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("w")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 24), Sym("w")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("w")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 21), Sym("w")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapYOCTOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Pow(10, 6), Sym("yoctow")));
+        c.put(UnitsPower.CENTIWATT, Mul(Pow(10, 22), Sym("yoctow")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 25), Sym("yoctow")));
+        c.put(UnitsPower.DECIWATT, Mul(Pow(10, 23), Sym("yoctow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 42), Sym("yoctow")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Pow(10, 9), Sym("yoctow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 33), Sym("yoctow")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 26), Sym("yoctow")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 27), Sym("yoctow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 30), Sym("yoctow")));
+        c.put(UnitsPower.MICROWATT, Mul(Pow(10, 18), Sym("yoctow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Pow(10, 21), Sym("yoctow")));
+        c.put(UnitsPower.NANOWATT, Mul(Pow(10, 15), Sym("yoctow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 39), Sym("yoctow")));
+        c.put(UnitsPower.PICOWATT, Mul(Pow(10, 12), Sym("yoctow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 36), Sym("yoctow")));
+        c.put(UnitsPower.WATT, Mul(Pow(10, 24), Sym("yoctow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 48), Sym("yoctow")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Int(1000), Sym("yoctow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 45), Sym("yoctow")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapYOTTAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 42)), Sym("yottaw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 26)), Sym("yottaw")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Pow(10, 23)), Sym("yottaw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 25)), Sym("yottaw")));
+        c.put(UnitsPower.EXAWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("yottaw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 39)), Sym("yottaw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("yottaw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Pow(10, 22)), Sym("yottaw")));
+        c.put(UnitsPower.KILOWATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("yottaw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("yottaw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 30)), Sym("yottaw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("yottaw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 33)), Sym("yottaw")));
+        c.put(UnitsPower.PETAWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("yottaw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 36)), Sym("yottaw")));
+        c.put(UnitsPower.TERAWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("yottaw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("yottaw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 48)), Sym("yottaw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 45)), Sym("yottaw")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Rat(Int(1), Int(1000)), Sym("yottaw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapZEPTOWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Int(1000), Sym("zeptow")));
+        c.put(UnitsPower.CENTIWATT, Mul(Pow(10, 19), Sym("zeptow")));
+        c.put(UnitsPower.DECAWATT, Mul(Pow(10, 22), Sym("zeptow")));
+        c.put(UnitsPower.DECIWATT, Mul(Pow(10, 20), Sym("zeptow")));
+        c.put(UnitsPower.EXAWATT, Mul(Pow(10, 39), Sym("zeptow")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Pow(10, 6), Sym("zeptow")));
+        c.put(UnitsPower.GIGAWATT, Mul(Pow(10, 30), Sym("zeptow")));
+        c.put(UnitsPower.HECTOWATT, Mul(Pow(10, 23), Sym("zeptow")));
+        c.put(UnitsPower.KILOWATT, Mul(Pow(10, 24), Sym("zeptow")));
+        c.put(UnitsPower.MEGAWATT, Mul(Pow(10, 27), Sym("zeptow")));
+        c.put(UnitsPower.MICROWATT, Mul(Pow(10, 15), Sym("zeptow")));
+        c.put(UnitsPower.MILLIWATT, Mul(Pow(10, 18), Sym("zeptow")));
+        c.put(UnitsPower.NANOWATT, Mul(Pow(10, 12), Sym("zeptow")));
+        c.put(UnitsPower.PETAWATT, Mul(Pow(10, 36), Sym("zeptow")));
+        c.put(UnitsPower.PICOWATT, Mul(Pow(10, 9), Sym("zeptow")));
+        c.put(UnitsPower.TERAWATT, Mul(Pow(10, 33), Sym("zeptow")));
+        c.put(UnitsPower.WATT, Mul(Pow(10, 21), Sym("zeptow")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Int(1000)), Sym("zeptow")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Pow(10, 45), Sym("zeptow")));
+        c.put(UnitsPower.ZETTAWATT, Mul(Pow(10, 42), Sym("zeptow")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static Map<UnitsPower, Conversion> createMapZETTAWATT() {
+        EnumMap<UnitsPower, Conversion> c =
+            new EnumMap<UnitsPower, Conversion>(UnitsPower.class);
+        c.put(UnitsPower.ATTOWATT, Mul(Rat(Int(1), Pow(10, 39)), Sym("zettaw")));
+        c.put(UnitsPower.CENTIWATT, Mul(Rat(Int(1), Pow(10, 23)), Sym("zettaw")));
+        c.put(UnitsPower.DECAWATT, Mul(Rat(Int(1), Pow(10, 20)), Sym("zettaw")));
+        c.put(UnitsPower.DECIWATT, Mul(Rat(Int(1), Pow(10, 22)), Sym("zettaw")));
+        c.put(UnitsPower.EXAWATT, Mul(Rat(Int(1), Int(1000)), Sym("zettaw")));
+        c.put(UnitsPower.FEMTOWATT, Mul(Rat(Int(1), Pow(10, 36)), Sym("zettaw")));
+        c.put(UnitsPower.GIGAWATT, Mul(Rat(Int(1), Pow(10, 12)), Sym("zettaw")));
+        c.put(UnitsPower.HECTOWATT, Mul(Rat(Int(1), Pow(10, 19)), Sym("zettaw")));
+        c.put(UnitsPower.KILOWATT, Mul(Rat(Int(1), Pow(10, 18)), Sym("zettaw")));
+        c.put(UnitsPower.MEGAWATT, Mul(Rat(Int(1), Pow(10, 15)), Sym("zettaw")));
+        c.put(UnitsPower.MICROWATT, Mul(Rat(Int(1), Pow(10, 27)), Sym("zettaw")));
+        c.put(UnitsPower.MILLIWATT, Mul(Rat(Int(1), Pow(10, 24)), Sym("zettaw")));
+        c.put(UnitsPower.NANOWATT, Mul(Rat(Int(1), Pow(10, 30)), Sym("zettaw")));
+        c.put(UnitsPower.PETAWATT, Mul(Rat(Int(1), Pow(10, 6)), Sym("zettaw")));
+        c.put(UnitsPower.PICOWATT, Mul(Rat(Int(1), Pow(10, 33)), Sym("zettaw")));
+        c.put(UnitsPower.TERAWATT, Mul(Rat(Int(1), Pow(10, 9)), Sym("zettaw")));
+        c.put(UnitsPower.WATT, Mul(Rat(Int(1), Pow(10, 21)), Sym("zettaw")));
+        c.put(UnitsPower.YOCTOWATT, Mul(Rat(Int(1), Pow(10, 45)), Sym("zettaw")));
+        c.put(UnitsPower.YOTTAWATT, Mul(Int(1000), Sym("zettaw")));
+        c.put(UnitsPower.ZEPTOWATT, Mul(Rat(Int(1), Pow(10, 42)), Sym("zettaw")));
+        return Collections.unmodifiableMap(c);
+    }
+
+    private static final Map<UnitsPower, Map<UnitsPower, Conversion>> conversions;
+    static {
+
+        Map<UnitsPower, Map<UnitsPower, Conversion>> c
+            = new EnumMap<UnitsPower, Map<UnitsPower, Conversion>>(UnitsPower.class);
+
+        c.put(UnitsPower.ATTOWATT, createMapATTOWATT());
+        c.put(UnitsPower.CENTIWATT, createMapCENTIWATT());
+        c.put(UnitsPower.DECAWATT, createMapDECAWATT());
+        c.put(UnitsPower.DECIWATT, createMapDECIWATT());
+        c.put(UnitsPower.EXAWATT, createMapEXAWATT());
+        c.put(UnitsPower.FEMTOWATT, createMapFEMTOWATT());
+        c.put(UnitsPower.GIGAWATT, createMapGIGAWATT());
+        c.put(UnitsPower.HECTOWATT, createMapHECTOWATT());
+        c.put(UnitsPower.KILOWATT, createMapKILOWATT());
+        c.put(UnitsPower.MEGAWATT, createMapMEGAWATT());
+        c.put(UnitsPower.MICROWATT, createMapMICROWATT());
+        c.put(UnitsPower.MILLIWATT, createMapMILLIWATT());
+        c.put(UnitsPower.NANOWATT, createMapNANOWATT());
+        c.put(UnitsPower.PETAWATT, createMapPETAWATT());
+        c.put(UnitsPower.PICOWATT, createMapPICOWATT());
+        c.put(UnitsPower.TERAWATT, createMapTERAWATT());
+        c.put(UnitsPower.WATT, createMapWATT());
+        c.put(UnitsPower.YOCTOWATT, createMapYOCTOWATT());
+        c.put(UnitsPower.YOTTAWATT, createMapYOTTAWATT());
+        c.put(UnitsPower.ZEPTOWATT, createMapZEPTOWATT());
+        c.put(UnitsPower.ZETTAWATT, createMapZETTAWATT());
         conversions = Collections.unmodifiableMap(c);
     }
 
@@ -590,7 +751,7 @@ public class PowerI extends Power implements ModelBased {
     * Copy constructor that converts the given {@link omero.model.Power}
     * based on the given ome-xml enum
     */
-   public PowerI(Power value, Unit<ome.units.quantity.Power> ul) {
+   public PowerI(Power value, Unit<ome.units.quantity.Power> ul) throws BigResult {
        this(value,
             ome.model.enums.UnitsPower.bySymbol(ul.getSymbol()).toString());
    }
@@ -609,36 +770,29 @@ public class PowerI extends Power implements ModelBased {
     *
     * @param target String representation of the CODE enum
     */
-    public PowerI(Power value, String target) {
+    public PowerI(Power value, String target) throws BigResult {
        String source = value.getUnit().toString();
        if (target.equals(source)) {
            setValue(value.getValue());
            setUnit(value.getUnit());
         } else {
-            double[][] coeffs = conversions.get(source + ":" + target);
-            if (coeffs == null) {
+            UnitsPower targetUnit = UnitsPower.valueOf(target);
+            Conversion conversion = conversions.get(targetUnit).get(value.getUnit());
+            if (conversion == null) {
                 throw new RuntimeException(String.format(
                     "%f %s cannot be converted to %s",
                         value.getValue(), value.getUnit(), target));
             }
             double orig = value.getValue();
-            double k, p, v;
-            if (coeffs.length == 0) {
-                v = orig;
-            } else if (coeffs.length == 2){
-                k = coeffs[0][0];
-                p = coeffs[0][1];
-                v = Math.pow(k, p);
-
-                k = coeffs[1][0];
-                p = coeffs[1][1];
-                v += Math.pow(k, p) * orig;
-            } else {
-                throw new RuntimeException("coefficients of unknown length: " +  coeffs.length);
+            BigDecimal big = conversion.convert(orig);
+            double converted = big.doubleValue();
+            if (Double.isInfinite(converted)) {
+                throw new BigResult(big,
+                        "Failed to convert " + source + ":" + target);
             }
 
-            setValue(v);
-            setUnit(UnitsPower.valueOf(target));
+            setValue(converted);
+            setUnit(targetUnit);
        }
     }
 
@@ -647,7 +801,7 @@ public class PowerI extends Power implements ModelBased {
     *
     * @param target unit that is desired. non-null.
     */
-    public PowerI(Power value, UnitsPower target) {
+    public PowerI(Power value, UnitsPower target) throws BigResult {
         this(value, target.toString());
     }
 

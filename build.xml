@@ -734,22 +734,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="nobf.buildpath" target="artifactory"/>
     </target>
 
-    <target name="release-nsis" description="Creates a Windows installer with NSIS">
-        <taskdef name="nsis" classname="net.sf.nsisant.Task">
-            <classpath location="lib/repository/nsisant-${versions.nsisant}.jar"/>
-        </taskdef>
-        <property name="nsis.dir" value="${omero.home}/components/antlib/nsis"/>
-        <nsis script="${nsis.dir}/omero.nsi" verbosity="4" noconfig="yes" nocd="yes"><!-- out="target/nsis.log"-->
-            <define name="VERSION" value="4.1.0.0"/><!--${omero.version} Last digit build?"-->
-            <define name="OMERO_VERSION" value="${omero.version}"/>
-            <define name="DBVERSION" value="${omero.db.version}"/>
-            <define name="DBPATCH" value="${omero.db.patch}"/>
-            <define name="INCLUDE_DIR" value="${nsis.dir}"/>
-            <define name="INSTALLER_NAME" value="${omero.home}/target/omero_installer-${omero.version}.exe"/>
-            <!--scriptcmd cmd="AutoCloseWindow true"/-->
-        </nsis>
-    </target>
-
     <target name="release-training" description="Produces a zip with the examples/Training files">
         <zip destfile="${omero.home}/target/OMERO.training-${omero.version}.zip">
             <zipfileset dir="${omero.home}/examples/Training" prefix="OMERO.training-${omero.version}" includes="**" excludes="markup.py"/>
