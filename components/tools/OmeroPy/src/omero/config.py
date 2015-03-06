@@ -28,6 +28,7 @@ import xml.dom.minidom
 from xml.etree.ElementTree import XML, Element, SubElement, Comment
 from xml.etree.ElementTree import tostring
 from omero_ext import portalocker
+import json
 
 
 class Environment(object):
@@ -80,7 +81,7 @@ class ConfigXml(object):
     in etc/grid. For a copy of the dict, use "as_map"
     """
     KEY = "omero.config.version"
-    VERSION = "4.2.1"
+    VERSION = "5.1.0"
     INTERNAL = "__ACTIVE__"
     DEFAULT = "omero.config.profile"
     IGNORE = (KEY, DEFAULT)
@@ -116,6 +117,7 @@ class ConfigXml(object):
             self.XML = XML(text)
             try:
                 self.version_check()
+                self.toplinks_check()
             except:
                 self.close()
                 raise
@@ -188,8 +190,29 @@ class ConfigXml(object):
     def version_check(self):
         for k, v in self.properties(None, True):
             version = self.version(k)
-            if version != self.VERSION:
+            if version == "4.2.0":
                 self.version_fix(v, version)
+
+    def toplinks_check(self):
+        for k, v in self.properties(None, True):
+            version = self.version(k)
+            if version == "4.2.1" and v is not None:
+                for x in v.getchildren():
+                    if x.get("name") == "omero.web.ui.top_links":
+                        val = x.get("value", "")
+                        toplinks = json.loads(val)
+                        defaultlinks = [
+                            ["Data", "webindex",
+                                {"title":
+                                 "Browse Data via Projects, Tags etc"}],
+                            ["History", "history",
+                                {"title": "History"}],
+                            ["Help", "http://help.openmicroscopy.org/",
+                                {"target": "new", "title":
+                                    "Open OMERO user guide in a new tab"}]]
+                        toplinks = defaultlinks + toplinks
+                        val = json.dumps(toplinks)
+                        x.set("value", val)
 
     def version_fix(self, props, version):
         """
