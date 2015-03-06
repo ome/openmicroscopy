@@ -410,6 +410,18 @@ class TestTree(lib.ITest):
         marshaled = marshal_projects(self.conn, self.conn.getUserId())
         assert marshaled == expected
 
+    def test_marshal_projects_datasets_duplicates(self, projects_datasets):
+        """
+        Test that same-named Projects are not duplicated in marshaled data.
+        See https://trac.openmicroscopy.org/ome/ticket/12771
+        """
+        # Re-name projects with all the same name
+        for p in projects_datasets:
+            p.name = rstring("Test_Duplicates")
+        projects_datasets = self.update.saveAndReturnArray(projects_datasets)
+        marshaled = marshal_projects(self.conn, self.conn.getUserId())
+        assert len(marshaled) == len(projects_datasets)
+
     def test_marshal_projects_different_users_as_other_user(
             self, projects_different_users):
         project_a, project_b = projects_different_users

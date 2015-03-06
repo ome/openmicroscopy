@@ -196,7 +196,7 @@ def marshal_projects(conn, experimenter_id):
                left join project.datasetLinks as pdlink
                left join pdlink.child dataset
         %s
-        order by lower(project.name), lower(dataset.name)
+        order by lower(project.name), project.id, lower(dataset.name)
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:
@@ -339,7 +339,7 @@ def marshal_screens(conn, experimenter_id=None):
                left join splink.child plate
                left join plate.plateAcquisitions pa
         %s
-        order by lower(screen.name), lower(plate.name), pa.id
+        order by lower(screen.name), screen.id, lower(plate.name), pa.id
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:
@@ -449,7 +449,7 @@ def marshal_plates(conn, experimenter_id):
             select splink from ScreenPlateLink as splink
             where splink.child = plate.id
         ) %s
-        order by lower(plate.name), pa.id
+        order by lower(plate.name), plate.id, pa.id
         """ % (where_clause)
 
     # TODO Remove this when fixed. Workaround for bug:
