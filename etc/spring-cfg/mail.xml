@@ -90,6 +90,24 @@
       <property name="from" value="${omero.mail.from}" />
   </bean>
 
+  <!-- TESTING: The following bean can be uncommented or copied to another
+       location on the OMERO classpath to activate a testing mail server.
+  -->
+  <!--
+  <bean id="subethaSMTP" class="ome.services.mail.SubethaSMTP"
+      init-method="start" destroy-method="stop">
+      <constructor-arg>
+          <bean class="org.subethamail.smtp.helper.SimpleMessageListenerAdapter">
+              <constructor-arg>
+                  <bean class="ome.services.mail.MapAnnotationSubethaListener">
+                      <constructor-arg ref="executor"/>
+                      <constructor-arg ref="uuid"/>
+                  </bean>
+              </constructor-arg>
+          </bean>
+      </constructor-arg>
+      <constructor-arg value="${omero.mail.port}"/>
+  </bean>
+  -->
+
 </beans>
-
-
