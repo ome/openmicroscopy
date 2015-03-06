@@ -1877,7 +1877,7 @@ class OMEROGateway
 			return null;
 
 		try {
-			return configService.getConfigValues("omero\\.client\\..*");
+			return configService.getClientConfigValues();
 		} catch (Exception e) {
 			handleException(e, "Cannot access config service. ");
 			return null;
