@@ -705,7 +705,8 @@ public class SearchPanel extends JPanel {
         Iterator<String> i = terms.iterator();
         while (i.hasNext()) {
             text.append(i.next());
-            text.append(SearchUtil.SPACE_SEPARATOR);
+            if(i.hasNext())
+                text.append(SearchUtil.SPACE_SEPARATOR);
         }
 
         fullTextArea.setText(text.toString());

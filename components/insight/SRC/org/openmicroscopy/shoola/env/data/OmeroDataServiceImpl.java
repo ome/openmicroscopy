@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroDataServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -707,7 +707,7 @@ class OmeroDataServiceImpl
 		        else {
 		            types = context.getTypes();
 		        }
-		        for(Class<? extends DataObject> type : context.getTypes()) {
+		        for(Class<? extends DataObject> type : types) {
 		            AdvancedSearchResult res = new AdvancedSearchResult();
 		            res.setObjectId(id);
 		            res.setType(type);
@@ -840,12 +840,18 @@ class OmeroDataServiceImpl
 			else if (WellSampleData.class.equals(type) ||
 					WellData.class.equals(type))
 				parentClass = Plate.class;
+			else if (PlateAcquisitionData.class.equals(type))
+                parentClass = Plate.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(ctx, parentClass, id, userID);
 			if (ImageData.class.equals(type) && (links == null ||
 					links.size() == 0)) {
 				return gateway.findPlateFromImage(ctx, id, userID);
 			}
+			if (PlateAcquisitionData.class.equals(type) && (links == null ||
+                    links.size() == 0)) {
+                return gateway.findPlateFromRun(ctx, id, userID);
+            }
 			if (links == null) return new HashSet();
 			Iterator i = links.iterator();
 			Set<DataObject> nodes = new HashSet<DataObject>();

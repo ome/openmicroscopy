@@ -283,7 +283,7 @@ public class SearchComponent
 	{
 		firePropertyChange(CANCEL_SEARCH_PROPERTY,
 				Boolean.valueOf(false), Boolean.valueOf(true));
-		setSearchEnabled(false);
+		setSearchEnabled(-1);
 	}
 	
 	/** Sets the default contexts. */
@@ -479,17 +479,19 @@ public class SearchComponent
 		return groupsContext; 
 	}
 	
-	/**
-	 * Sets the buttons enabled when performing  search.
-	 * 
-	 * @param b Pass <code>true</code> to enable the {@link #searchButton}, 
-	 * 			<code>false</code>otherwise, and modifies the cursor.
-	 */
-	public void setSearchEnabled(boolean b)
-	{
-		if (b) setSearchEnabled("Searching", b);
-		else setSearchEnabled("", b);
-	}
+    /**
+     * Sets the buttons enabled when performing search.
+     * 
+     * @param resultSize
+     *            Number of results found, pass <code>-1</code> if search still
+     *            in progress
+     */
+    public void setSearchEnabled(int resultSize) {
+        if (resultSize == -1)
+            setSearchEnabled("Searching...", false);
+        else
+            setSearchEnabled(resultSize + " results found", false);
+    }
 	
 	/**
 	 * Sets the buttons enabled when performing  search.
