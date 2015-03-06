@@ -110,7 +110,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, fa, 'dataset', datasetId);
-    fprintf(1, 'Linked file annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked file annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving file annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     fas = getDatasetFileAnnotations(session, datasetId, 'include', ns);
@@ -163,7 +163,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, ca, 'dataset', datasetId);
-    fprintf(1, 'Linked comment annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked comment annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving comment annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     cas = getDatasetCommentAnnotations(session, datasetId, 'include', ns);
@@ -216,7 +216,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, da, 'dataset', datasetId);
-    fprintf(1, 'Linked double annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked double annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving double annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     das = getDatasetDoubleAnnotations(session, datasetId, 'include', ns);
@@ -269,7 +269,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, la, 'dataset', datasetId);
-    fprintf(1, 'Linked long annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked long annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving long annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     las = getDatasetLongAnnotations(session, datasetId, 'include', ns);
@@ -375,7 +375,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, ta, 'dataset', datasetId);
-    fprintf(1, 'Linked tag annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked tag annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving tag annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     tas = getDatasetTagAnnotations(session, datasetId, 'include', ns);
@@ -428,7 +428,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, ta, 'dataset', datasetId);
-    fprintf(1, 'Linked timestamp annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked timestamp annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving timestamp annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     tas = getDatasetTimestampAnnotations(session, datasetId, 'include', ns);
@@ -481,7 +481,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, xa, 'dataset', datasetId);
-    fprintf(1, 'Linked XML annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked XML annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving XML annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     xas = getDatasetXmlAnnotations(session, datasetId, 'include', ns);
