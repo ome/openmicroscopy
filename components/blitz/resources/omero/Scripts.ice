@@ -432,6 +432,14 @@ module omero {
              *
              **/
             omero::api::StringSet namespaces;
+
+            /**
+             * Defines where this script is intended for presentation to
+             * clients. Some scripts may be more for internal consumption
+             * or use by backend tools in which case they need not appear
+             * in the UI.
+             **/
+             bool display;
         };
 
         /**
