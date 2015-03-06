@@ -400,8 +400,10 @@ class ImporterModel
 	{
 		if (!(ProjectData.class.equals(rootType) ||
 			ScreenData.class.equals(rootType))) return;
-		if (user != null)
+		if (user != null) {
 		    ctx.setExperimenter(user);
+		    ctx.sudo();
+		}
 		DataLoader loader = new DataLoader(component, ctx, rootType,
 				refreshImport, changeGroup);
 		loader.load();

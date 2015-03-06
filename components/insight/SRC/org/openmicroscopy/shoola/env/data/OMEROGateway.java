@@ -2233,7 +2233,7 @@ class OMEROGateway
 	    Connector c = getConnector(ctx, true, false);
 		try {
 		    ExperimenterData exp = ctx.getExperimenterData();
-		    if (exp != null) {
+		    if (exp != null && ctx.isSudo()) {
 	            c = c.getConnector(exp.getUserName());
 	        }
 		    IContainerPrx service = c.getPojosService();
