@@ -118,6 +118,12 @@ class PermissionsI(_omero_model.Permissions):
 
     # Calculated values
 
+    def isRestricted(self, restriction, current=None):
+        rs = self._extendedRestrictions
+        if rs is not None:
+            return restriction in rs
+        return False
+
     def isDisallow(self, restriction, current=None):
         rs = self._restrictions
         if rs is not None and len(rs) > restriction:

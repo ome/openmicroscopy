@@ -26,6 +26,7 @@ import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.policy.Policy;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -98,6 +99,11 @@ public class SharingSecuritySystem implements SecuritySystem {
     public boolean hasPrivilegedToken(IObject obj) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public void checkRestriction(String name, IObject obj) {
+        // TODO Auto-generated method stub
     }
 
     public boolean isDisabled(String id) {

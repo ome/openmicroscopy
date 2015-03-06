@@ -48,12 +48,14 @@ class DownloadControl(BaseControl):
         parser.add_login_arguments()
 
     def __call__(self, args):
-        from omero_model_OriginalFileI import OriginalFileI as OFile
-
-        # Retrieve connection
         client = self.ctx.conn(args)
-        file_id = self.get_file_id(client.sf, args.object)
-        orig_file = OFile(file_id)
+        orig_file = self.get_file(client.sf, args.object)
+        perms = orig_file.details.permissions
+        name = omero.constants.permissions.DOWNLOAD
+
+        if perms.isRestricted(name):
+            self.ctx.die(66, ("Download of OriginalFile:"
+                              "%s is restricted") % orig_file.id.val)
         target_file = str(args.filename)
 
         try:
@@ -70,14 +72,14 @@ class DownloadControl(BaseControl):
             # ID exists in DB, but not on FS
             self.ctx.die(67, "ResourceError: %s" % re.message)
 
-    def get_file_id(self, session, value):
+    def get_file(self, session, value):
 
         query = session.getQueryService()
         if ':' not in value:
             try:
                 ofile = query.get("OriginalFile", long(value),
                                   {'omero.group': '-1'})
-                return ofile.id.val
+                return ofile
             except ValueError:
                 self.ctx.die(601, 'Invalid OriginalFile ID input')
             except omero.ValidationException:
@@ -89,18 +91,26 @@ class DownloadControl(BaseControl):
             try:
                 ofile = query.get("OriginalFile", file_id,
                                   {'omero.group': '-1'})
+                return ofile
             except omero.ValidationException:
                 self.ctx.die(601, 'No OriginalFile with input ID')
-            return ofile.id.val
 
         # Assume input is of form FileAnnotation:id
         fa_id = self.parse_object_id("FileAnnotation", value)
         if fa_id:
+            fa = None
             try:
-                fa = query.get("FileAnnotation", fa_id, {'omero.group': '-1'})
+                fa = query.findByQuery((
+                    "select fa from FileAnnotation fa "
+                    "left outer join fetch fa.file "
+                    "where fa.id = :id"),
+                    omero.sys.ParametersI().addId(fa_id),
+                    {'omero.group': '-1'})
             except omero.ValidationException:
+                pass
+            if fa is None:
                 self.ctx.die(601, 'No FileAnnotation with input ID')
-            return fa.getFile().id.val
+            return fa.getFile()
 
         # Assume input is of form Image:id
         image_id = self.parse_object_id("Image", value)
@@ -118,7 +128,7 @@ class DownloadControl(BaseControl):
             if len(query_out) > 1:
                 self.ctx.die(603, 'Input image has more than 1 associated '
                              'file: %s' % len(query_out))
-            return unwrap(query_out[0])[0].id.val
+            return unwrap(query_out[0])[0]
 
         self.ctx.die(601, 'Invalid object input')
 

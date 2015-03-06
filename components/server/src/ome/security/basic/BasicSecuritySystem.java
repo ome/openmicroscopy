@@ -52,6 +52,9 @@ import ome.security.SecurityFilter;
 import ome.security.SecurityFilterHolder;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.security.policy.DefaultPolicyService;
+import ome.security.policy.Policy;
+import ome.security.policy.PolicyService;
 import ome.services.messages.EventLogMessage;
 import ome.services.messages.ShapeChangeMessage;
 import ome.services.sessions.SessionManager;
@@ -103,6 +106,8 @@ public class BasicSecuritySystem implements SecuritySystem,
 
     protected final SecurityFilter filter;
 
+    protected final PolicyService policyService;
+
     protected/* final */OmeroContext ctx;
 
     protected/* final */ShareStore store;
@@ -124,7 +129,7 @@ public class BasicSecuritySystem implements SecuritySystem,
                 cd, new OneGroupSecurityFilter(roles),
                 new AllGroupsSecurityFilter(null, roles));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
-                roles, sf, new TokenHolder(), holder);
+                roles, sf, new TokenHolder(), holder, new DefaultPolicyService());
         return sec;
     }
 
@@ -134,8 +139,10 @@ public class BasicSecuritySystem implements SecuritySystem,
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
             SessionManager sessionManager, Roles roles, ServiceFactory sf,
-            TokenHolder tokenHolder, SecurityFilter filter) {
+            TokenHolder tokenHolder, SecurityFilter filter,
+            PolicyService policyService) {
         this.sessionManager = sessionManager;
+        this.policyService = policyService;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
         this.sysTypes = sysTypes;
@@ -639,6 +646,10 @@ public class BasicSecuritySystem implements SecuritySystem,
      */
     public boolean hasPrivilegedToken(IObject obj) {
         return tokenHolder.hasPrivilegedToken(obj);
+    }
+
+    public void checkRestriction(String name, IObject obj) {
+        policyService.checkRestriction(name, obj);
     }
 
     // ~ Configured Elements

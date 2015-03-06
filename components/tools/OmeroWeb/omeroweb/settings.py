@@ -585,15 +585,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
          leave_none_unset_int,
          ("Configuration options for the viewer. -1: zoom in fully,"
           " 0: zoom out fully, unset: zoom to fit window")],
-    "omero.web.plate_download.enabled":
-        ["PLATE_DOWNLOAD_ENABLED",
-         "false",
-         parse_boolean,
-         ("Enable download of Plates when Wells are selected."
-          " Disabled by default since compiling of multiple SPW"
-          " original files into a zip for download is unfeasible"
-          " except for small Plates")],
-
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
@@ -639,6 +630,11 @@ DEPRECATED_SETTINGS_MAPPINGS = {
          parse_boolean,
          ("Use omero.mail.smtp.* instead to set up"
           " javax.mail.Session properties.")],
+    "omero.web.plate_download.enabled":
+        ["PLATE_DOWNLOAD_ENABLED",
+         "false",
+         parse_boolean,
+         ("Use omero.policy.download instead to restrict download.")],
 }
 
 del CUSTOM_HOST

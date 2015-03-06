@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
@@ -173,11 +174,19 @@ public class Permissions implements Serializable {
     public static final int EDITRESTRICTION = 1;
     public static final int DELETERESTRICTION = 2;
     public static final int ANNOTATERESTRICTION = 3;
+
     /**
      * Calculated restrictions which are based on both the store
      * representation({@link #perm1}) and the current calling context.
      */
     private boolean[] restrictions;
+
+    /**
+     * Further calculated restrictions which can be defined individually by
+     * any service. Individual service methods should specify in their
+     * documentation which strings must be checked by clients.
+     */
+    private String[] extendedRestrictions;
 
     // ~ Getters
     // =========================================================================
@@ -304,6 +313,19 @@ public class Permissions implements Serializable {
     }
 
     /**
+     * Produce a copy of restrictions for use elsewhere.
+     */
+    public String[] copyExtendedRestrictions() {
+        if (extendedRestrictions == null) {
+            return null;
+        }
+        String[] copy = new String[extendedRestrictions.length];
+        System.arraycopy(extendedRestrictions, 0,
+                copy, 0, extendedRestrictions.length);
+        return copy;
+    }
+
+    /**
      * Safely copy the source array. If it is null or contains no "true" values,
      * then the restrictions field will remain null.
      */
@@ -321,7 +343,14 @@ public class Permissions implements Serializable {
     /**
      * Copy restrictions based on the integer returned by BasicACLVoter.
      */
-    public void copyRestrictions(int allow) {
+    public void copyRestrictions(int allow, Set<String> extendedRestrictions) {
+
+        if (extendedRestrictions == null || extendedRestrictions.isEmpty()) {
+            this.extendedRestrictions = null;
+        } else {
+            this.extendedRestrictions = extendedRestrictions.toArray(
+                    new String[extendedRestrictions.size()]);
+        }
         if (allow == 15) { // Would be all false.
             this.restrictions = null;
             return;

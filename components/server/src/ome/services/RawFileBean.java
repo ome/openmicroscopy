@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.NonWritableChannelException;
-import java.security.MessageDigest;
 import java.sql.SQLException;
 
 import ome.annotations.RolesAllowed;
@@ -41,12 +40,11 @@ import ome.conditions.SecurityViolation;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
+import ome.security.policy.DownloadPolicy;
 import ome.util.ShallowCopy;
-import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
@@ -408,6 +406,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     public byte[] read(long position, int length) {
         errorIfNotLoaded();
+        sec.checkRestriction(DownloadPolicy.NAME, file);
+
         byte[] rawBuf = new byte[length];
         ByteBuffer buf = ByteBuffer.wrap(rawBuf);
 

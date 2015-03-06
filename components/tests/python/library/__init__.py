@@ -133,7 +133,7 @@ class ITest(object):
             key = self.sf.ice_getIdentity().name
         else:
             key = client.sf.ice_getIdentity().name
-        return ["-s", host, "-k", key, "-p", port]
+        return ["-q", "-s", host, "-k", key, "-p", port]
 
     @classmethod
     def root_login_args(self):
@@ -530,7 +530,10 @@ class ITest(object):
     def group_and_name(self, group):
         group = unwrap(group)
         admin = self.root.sf.getAdminService()
-        if isinstance(group, ExperimenterGroup):
+        if isinstance(group, (int, long)):
+            group = admin.getGroup(group)
+            name = group.name.val
+        elif isinstance(group, ExperimenterGroup):
             if group.isLoaded():
                 name = group.name.val
                 group = admin.lookupGroup(name)

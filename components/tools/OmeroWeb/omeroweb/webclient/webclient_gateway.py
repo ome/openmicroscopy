@@ -2374,7 +2374,8 @@ class DatasetWrapper(OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
 omero.gateway.DatasetWrapper = DatasetWrapper
 
 
-class ImageWrapper(OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
+class ImageWrapper (OmeroWebObjectWrapper,
+                    omero.gateway.ImageWrapper):
     """
     omero_model_ImageI class wrapper overwrite omero.gateway.ImageWrapper
     and extends OmeroWebObjectWrapper.
@@ -2497,6 +2498,10 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
             self.annotation_counter = kwargs['annotation_counter']
         if 'link' in kwargs:
             self.link = 'link' in kwargs and kwargs['link'] or None
+
+    def canDownload(self):
+        return False
+
 
 omero.gateway.WellWrapper = WellWrapper
 
