@@ -116,7 +116,7 @@ public interface IConfig extends ServiceInterface {
     String key) throws ApiUsageException, SecurityViolation;
 
     /**
-     * retrieve configuration values from the backend store which match the
+     * retrieves configuration values from the backend store which match the
      * given regex. Any configuration value which would throw an exception
      * on being loaded is omitted.
      *
@@ -136,6 +136,22 @@ public interface IConfig extends ServiceInterface {
      * @return a {@link Map} from the found keys to the linked values.
      */
     Map<String, String> getConfigDefaults();
+
+    /**
+     * retrieves configuration values like {@link getConfigValues(String)}
+     * but only those with the prefix "omero.client".
+     *
+     * @return a {@link Map} from the found keys to the linked values.
+     */
+    Map<String, String> getClientConfigValues();
+
+    /**
+     * reads the etc/omero.properties file and returns all the key/value
+     * pairs that are found there which match the prefix "omero.client".
+     *
+     * @return a {@link Map} from the found keys to the linked values.
+     */
+    Map<String, String> getClientConfigDefaults();
 
     /**
      * set a configuration value in the backend store. Permissions applied to

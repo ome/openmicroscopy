@@ -24,6 +24,7 @@
 
 """
 
+import omero
 import pytest
 import library as lib
 
@@ -47,9 +48,25 @@ class TestConfig(lib.ITest):
 
     def testDefaults(self):
         cfg = self.sf.getConfigService()
+        with pytest.raises(omero.SecurityViolation):
+            defs = cfg.getConfigDefaults()
+
+    def testRootDefaults(self):
+        cfg = self.root.sf.getConfigService()
         defs = cfg.getConfigDefaults()
         for x in (
             "omero.version",
             "omero.db.name",
         ):
             assert x in defs
+
+    def testClientDefaults(self):
+        cfg = self.sf.getConfigService()
+        defs = cfg.getClientConfigDefaults()
+        assert "omero.client.ui.menu.dropdown.colleagues" in defs
+
+    def testClientValues(self):
+        # Not sure what's in this so just calling
+        cfg = self.sf.getConfigService()
+        defs = cfg.getClientConfigValues()
+        assert defs is not None

@@ -25,6 +25,8 @@ module omero {
                 idempotent string getConfigValue(string key) throws ServerError;
                 idempotent omero::api::StringStringMap getConfigValues(string keyRegex) throws ServerError;
                 idempotent omero::api::StringStringMap getConfigDefaults() throws ServerError;
+                idempotent omero::api::StringStringMap getClientConfigValues() throws ServerError;
+                idempotent omero::api::StringStringMap getClientConfigDefaults() throws ServerError;
                 idempotent void setConfigValue(string key, string value) throws ServerError;
                 idempotent bool setConfigValueIfEquals(string key, string value, string test) throws ServerError;
                 idempotent string getDatabaseUuid() throws ServerError;

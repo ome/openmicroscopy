@@ -247,7 +247,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
         return rv;
     }
 
-    @PermitAll
+    @RolesAllowed("system")
     public Map<String, String> getConfigDefaults() {
         File etc = new File("etc");
         File omero = new File(etc, "omero.properties");
@@ -266,6 +266,23 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
             ie.initCause(e);
             throw ie;
         }
+    }
+
+    @PermitAll
+    public Map<String, String> getClientConfigValues() {
+        return getConfigValues("^omero\\.client\\.");
+    }
+
+    @PermitAll
+    public Map<String, String> getClientConfigDefaults() {
+        Map<String, String> rv = getConfigDefaults();
+        Map<String, String> copy = new HashMap<String, String>();
+        for (Map.Entry<String, String> e : rv.entrySet()) {
+            if (e.getKey().startsWith("omero.client")) {
+                copy.put(e.getKey(), e.getValue());
+            }
+        }
+        return copy;
     }
 
     public String getInternalValue(String key) {
