@@ -55,6 +55,8 @@ class BaseSearch(BaseController):
                                    "file.contents"))
         fields = list(fields)
 
+        if 'plates' in onlyTypes:
+            onlyTypes.append('plateacquisitions')
         created = None
         batchSize = 500
         if len(onlyTypes) == 1:
@@ -105,7 +107,7 @@ class BaseSearch(BaseController):
             for dt in onlyTypes:
                 dt = str(dt)
                 if dt in ['projects', 'datasets', 'images', 'screens',
-                          'plates']:
+                          'plateacquisitions', 'plates']:
                     self.containers[dt] = doSearch(dt)
                     resultCount += len(self.containers[dt])
         except Exception, x:

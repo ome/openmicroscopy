@@ -180,6 +180,20 @@
                     </a></td>
                 </tr>
             {% endfor %}
+            {% for c in manager.containers.plateacquisitions %}
+                <tr id="acquisition-{{ c.id }}" class="{{ c.getPermsCss }}">
+                    <td class="image">
+                        <img id="{{ c.id }}" src="{% static "webclient/image/image16.png" %}" alt="plate" title="{{ c.name }}"/>
+                    </td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
+                    <td class="date"></td>
+                    <td class="date">{{ c.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                    <td class="group">{{ c.getDetails.group.name.val }}</td>
+                    <td><a href="{% url 'webindex' %}?show=run-{{ c.id }}" title="{% trans 'Show in hierarchy view' %}">
+                        {% trans "Browse" %}
+                    </a></td>
+                </tr>
+            {% endfor %}
             {% for c in manager.containers.images %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
