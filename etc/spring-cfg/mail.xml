@@ -90,7 +90,7 @@
       <property name="from" value="${omero.mail.from}" />
   </bean>
 
-  <!-- TESTING: The following bean can be uncommented or copied to another
+  <!-- TESTING: The following beans can be uncommented or copied to another
        location on the OMERO classpath to activate a testing mail server.
   -->
   <!--
@@ -107,6 +107,25 @@
           </bean>
       </constructor-arg>
       <constructor-arg value="${omero.mail.port}"/>
+  </bean>
+
+  <bean
+    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <description>
+    This beans set a property that integration tests can check for.
+    </description>
+    <property name="targetObject">
+        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="targetClass" value="java.lang.System" />
+            <property name="targetMethod" value="getProperties" />
+        </bean>
+    </property>
+    <property name="targetMethod" value="putAll" />
+    <property name="arguments">
+        <util:properties>
+            <prop key="omero.mail.fake">true</prop>
+        </util:properties>
+    </property>
   </bean>
   -->
 
