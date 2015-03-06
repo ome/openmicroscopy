@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.listeners;
+package ome.services.mail;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -30,7 +30,6 @@ import ome.api.IQuery;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.services.util.Executor;
-import ome.services.util.MailUtil;
 import ome.system.Roles;
 import ome.util.SqlAction;
 

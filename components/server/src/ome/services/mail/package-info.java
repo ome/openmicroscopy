@@ -18,7 +18,10 @@
  */
 
 /**
- * Background action handlers which wait for message events
+ * General mail services.
+ *
+ * Background action handlers are also available
+ * which wait for message events
  * to be raised and possibly act on them.
  */
-package ome.services.listeners;
+package ome.services.mail;

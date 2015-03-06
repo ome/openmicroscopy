@@ -24,7 +24,7 @@ import ome.security.auth.PasswordUtil;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.services.delete.Deletion;
-import ome.services.util.MailUtil;
+import ome.services.mail.MailUtil;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;

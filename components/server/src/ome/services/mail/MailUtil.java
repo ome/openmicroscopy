@@ -3,7 +3,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.util;
+package ome.services.mail;
 
 import java.util.List;
 

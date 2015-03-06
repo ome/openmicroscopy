@@ -27,7 +27,7 @@
 
   </description>
 
-  <bean id="mailUtil" class="ome.services.util.MailUtil">
+  <bean id="mailUtil" class="ome.services.mail.MailUtil">
     <constructor-arg index="0" value="${omero.mail.from}" />
     <constructor-arg index="1" ref="mailSender"/>
   </bean>

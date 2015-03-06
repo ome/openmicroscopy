@@ -41,19 +41,19 @@
   </bean>
 
   <bean id="newGroupMailSender" parent="abstractMailSender"
-      class="ome.services.listeners.ObjectMailSender">
+      class="ome.services.mail.ObjectMailSender">
       <property name="action" value="INSERT"/>
       <property name="objectClass" value="ome.model.meta.ExperimenterGroup"/>
       <property name="queryString" value="select g from ExperimenterGroup where g.id = :systemGroupId"/>
   </bean>
 
-  <bean id="serverUpMailSender" class="ome.services.listeners.ServerUpMailSender">
+  <bean id="serverUpMailSender" class="ome.services.mail.ServerUpMailSender">
       <constructor-arg>
-          <bean class="ome.services.listeners.MailSender" parent="abstractMailSender"/>
+          <bean class="ome.services.mail.MailSender" parent="abstractMailSender"/>
       </constructor-arg>
   </bean>
 
   <bean id="serverDownMailSender" parent="abstractMailSender"
-      class="ome.services.listeners.ServerDownMailSender"/>
+      class="ome.services.mail.ServerDownMailSender"/>
 
 </beans>
