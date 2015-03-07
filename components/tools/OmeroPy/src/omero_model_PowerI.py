@@ -922,7 +922,9 @@ class PowerI(_omero_model.Power, UnitBase):
     def __init__(self, value=None, unit=None):
         _omero_model.Power.__init__(self)
 
-        if isinstance(unit, UnitsPower):
+        if unit is None:
+            target = None
+        elif isinstance(unit, UnitsPower):
             target = unit
         elif isinstance(unit, (str, unicode)):
             target = getattr(UnitsPower, unit)
@@ -936,6 +938,8 @@ class PowerI(_omero_model.Power, UnitBase):
 
             source = value.getUnit()
 
+            if target is None:
+                raise Exception("Null target unit")
             if source is None:
                 raise Exception("Null source unit")
 

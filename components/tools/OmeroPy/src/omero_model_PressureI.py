@@ -2077,7 +2077,9 @@ class PressureI(_omero_model.Pressure, UnitBase):
     def __init__(self, value=None, unit=None):
         _omero_model.Pressure.__init__(self)
 
-        if isinstance(unit, UnitsPressure):
+        if unit is None:
+            target = None
+        elif isinstance(unit, UnitsPressure):
             target = unit
         elif isinstance(unit, (str, unicode)):
             target = getattr(UnitsPressure, unit)
@@ -2091,6 +2093,8 @@ class PressureI(_omero_model.Pressure, UnitBase):
 
             source = value.getUnit()
 
+            if target is None:
+                raise Exception("Null target unit")
             if source is None:
                 raise Exception("Null source unit")
 

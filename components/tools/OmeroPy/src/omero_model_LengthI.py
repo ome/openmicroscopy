@@ -2079,7 +2079,9 @@ class LengthI(_omero_model.Length, UnitBase):
     def __init__(self, value=None, unit=None):
         _omero_model.Length.__init__(self)
 
-        if isinstance(unit, UnitsLength):
+        if unit is None:
+            target = None
+        elif isinstance(unit, UnitsLength):
             target = unit
         elif isinstance(unit, (str, unicode)):
             target = getattr(UnitsLength, unit)
@@ -2093,6 +2095,8 @@ class LengthI(_omero_model.Length, UnitBase):
 
             source = value.getUnit()
 
+            if target is None:
+                raise Exception("Null target unit")
             if source is None:
                 raise Exception("Null source unit")
 

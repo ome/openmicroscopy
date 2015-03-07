@@ -89,7 +89,9 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
     def __init__(self, value=None, unit=None):
         _omero_model.Temperature.__init__(self)
 
-        if isinstance(unit, UnitsTemperature):
+        if unit is None:
+            target = None
+        elif isinstance(unit, UnitsTemperature):
             target = unit
         elif isinstance(unit, (str, unicode)):
             target = getattr(UnitsTemperature, unit)
@@ -103,6 +105,8 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
 
             source = value.getUnit()
 
+            if target is None:
+                raise Exception("Null target unit")
             if source is None:
                 raise Exception("Null source unit")
 

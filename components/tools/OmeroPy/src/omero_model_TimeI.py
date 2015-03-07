@@ -1189,7 +1189,9 @@ class TimeI(_omero_model.Time, UnitBase):
     def __init__(self, value=None, unit=None):
         _omero_model.Time.__init__(self)
 
-        if isinstance(unit, UnitsTime):
+        if unit is None:
+            target = None
+        elif isinstance(unit, UnitsTime):
             target = unit
         elif isinstance(unit, (str, unicode)):
             target = getattr(UnitsTime, unit)
@@ -1203,6 +1205,8 @@ class TimeI(_omero_model.Time, UnitBase):
 
             source = value.getUnit()
 
+            if target is None:
+                raise Exception("Null target unit")
             if source is None:
                 raise Exception("Null source unit")
 

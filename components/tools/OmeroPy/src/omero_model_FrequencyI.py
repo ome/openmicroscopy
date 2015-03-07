@@ -922,7 +922,9 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
     def __init__(self, value=None, unit=None):
         _omero_model.Frequency.__init__(self)
 
-        if isinstance(unit, UnitsFrequency):
+        if unit is None:
+            target = None
+        elif isinstance(unit, UnitsFrequency):
             target = unit
         elif isinstance(unit, (str, unicode)):
             target = getattr(UnitsFrequency, unit)
@@ -936,6 +938,8 @@ class FrequencyI(_omero_model.Frequency, UnitBase):
 
             source = value.getUnit()
 
+            if target is None:
+                raise Exception("Null target unit")
             if source is None:
                 raise Exception("Null source unit")
 
