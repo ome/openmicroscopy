@@ -361,6 +361,7 @@ set(OMERO_CLIENT_STATIC_SOURCES
     src/omero/clientF.cpp
     src/omero/ObjectFactory.cpp
     src/omero/util/concurrency.cpp
+    src/omero/conversions.cpp
     src/omero/util/tiles.cpp
     src/omero/util/uuid.cpp)
 
