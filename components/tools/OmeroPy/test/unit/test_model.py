@@ -23,8 +23,15 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
+
+from omero_model_ElectricPotentialI import ElectricPotentialI
+from omero_model_FrequencyI import FrequencyI
 from omero_model_LengthI import LengthI
+from omero_model_PowerI import PowerI
+from omero_model_PressureI import PressureI
 from omero_model_TemperatureI import TemperatureI
+from omero_model_TimeI import TimeI
+
 from omero.rtypes import rbool
 from omero.rtypes import rlong
 from omero.rtypes import rstring
@@ -362,13 +369,38 @@ class TestModel(object):
         sym = LengthI.lookupSymbol(um)
         assert "µm" == sym
 
-    TEMP_DATA = (
-        (0, 'CELSIUS', 32, 'FAHRENHEIT'),
+    CONV_DATA = (
+        (ElectricPotentialI, 1, 'VOLT', 100, 'CENTIVOLT'),
+        (FrequencyI, 1, 'HERTZ', 1000, 'MILLIHERTZ'),
+        (FrequencyI, 1, 'HERTZ', 1000, 'MILLIHERTZ'),
+        (LengthI, 10, 'METER', 393.701, 'INCH'),
+        (LengthI, 12, 'INCH', 1, 'FOOT'),
+        (LengthI, 3, 'FOOT', 1, 'YARD'),
+        (LengthI, 1, 'NANOMETER', 10, 'ANGSTROM'),
+        (PowerI, 1, 'WATT', 10, 'DECIWATT'),
+        (PowerI, 1, 'WATT', .1, 'DECAWATT'),
+        (PressureI, 1, 'BAR', 100, 'KILOPASCAL'),
+        (PressureI, 1, 'TORR', 133.32236842, 'Pascal'),  # Win hack
+        (TemperatureI, 0, 'CELSIUS', 32, 'FAHRENHEIT'),
+        (TemperatureI, -40, 'CELSIUS', -40, 'FAHRENHEIT'),
+        (TemperatureI, 100, 'CELSIUS', 212, 'FAHRENHEIT'),
+        (TemperatureI, 10, 'KELVIN', 18, 'RANKINE'),
+        (TemperatureI, 200, 'RANKINE', 111.11111111, 'KELVIN'),
+        (TimeI, 1, 'DAY', 24, 'HOUR'),
+        (TimeI, 1, 'HOUR', 3600, 'SECOND'),
+        (TimeI, 1, 'SECOND', 10**6, 'MICROSECOND'),
     )
 
-    @pytest.mark.parametrize("data", TEMP_DATA)
-    def testTemperatureSamples(self, data):
-        v_from, u_from, v_to, u_to = data
-        q_from = TemperatureI(v_from, u_from)
-        q_to = TemperatureI(q_from, u_to)
-        assert v_to == q_to.getValue()
+    CONV_IDS = ["%s_%s_%s_%s" % tuple(x[1:]) for x in CONV_DATA]
+
+    @pytest.mark.parametrize("data", CONV_DATA, ids=CONV_IDS)
+    def testConversionData(self, data):
+        Type, v_from, u_from, v_to, u_to = data
+
+        q_from = Type(v_from, u_from)
+        q_to = Type(q_from, u_to)
+        pytest.assertAlmostEqual(v_to, q_to.getValue(), places=4)
+
+        q_to= Type(v_to, u_to)
+        q_from = Type(q_to, u_from)
+        pytest.assertAlmostEqual(v_from, q_from.getValue(), places=4)
