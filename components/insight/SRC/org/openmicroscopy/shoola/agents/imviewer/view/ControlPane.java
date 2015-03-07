@@ -526,8 +526,7 @@ class ControlPane
             names[index] = entry.getValue();
             index++;
         }
-        projectionTypesBox = EditorUtil.createComboBox(names, 0,
-                getBackground());
+        projectionTypesBox = new JComboBox(names);
         projectionTypesBox.setBackground(getBackground());
         projectionTypesBox.setToolTipText(PROJECTION_DESCRIPTION);
         projectionTypesBox.setActionCommand(""+TYPE);
