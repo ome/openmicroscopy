@@ -401,6 +401,6 @@ class TestModel(object):
         q_to = Type(q_from, u_to)
         pytest.assertAlmostEqual(v_to, q_to.getValue(), places=4)
 
-        q_to= Type(v_to, u_to)
+        q_to = Type(v_to, u_to)
         q_from = Type(q_to, u_from)
         pytest.assertAlmostEqual(v_from, q_from.getValue(), places=4)
