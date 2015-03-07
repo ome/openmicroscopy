@@ -762,13 +762,14 @@ class ITest(object):
 
         if test_should_pass:
             if isinstance(rsp, ERR):
-                assert False,\
-                    "Found ERR when test_should_pass==true: %s (%s) params=%s" %\
-                    (rsp.category, rsp.name, rsp.parameters)
+                assert False, (
+                    "Found ERR when test_should_pass==true: %s (%s) params=%s"
+                    % (rsp.category, rsp.name, rsp.parameters))
             assert State.FAILURE not in prx.getStatus().flags
         else:
             if isinstance(rsp, OK):
-                assert False, "Found OK when test_should_pass==false: %s" % rsp
+                assert False, (
+                    "Found OK when test_should_pass==false: %s" % rsp)
             assert State.FAILURE in prx.getStatus().flags
 
         return rsp
