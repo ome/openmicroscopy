@@ -70,6 +70,9 @@ class Clients(object):
 class ITest(object):
 
     log = logging.getLogger("ITest")
+    # Default permissions for the group created in setup_class
+    # Can be overriden by test instances
+    DEFAULT_PERMS = 'rw----'
 
     @classmethod
     def setup_class(cls):
@@ -78,6 +81,7 @@ class ITest(object):
 
         cls.__clients = Clients()
 
+        # Create a root client
         p = Ice.createProperties(sys.argv)
         rootpass = p.getProperty("omero.rootpass")
 
@@ -89,13 +93,14 @@ class ITest(object):
         except:
             raise Exception("Could not initiate a root connection")
 
-        newuser = cls.new_user()
-        name = newuser.omeName.val
+        cls.group = cls.new_group(perms=cls.DEFAULT_PERMS)
+        cls.user = cls.new_user(group=cls.group)
         cls.client = omero.client()  # ok because adds self
         cls.__clients.add(cls.client)
         cls.client.setAgent("OMERO.py.test")
-        cls.sf = cls.client.createSession(name, name)
-
+        cls.sf = cls.client.createSession(
+            cls.user.omeName.val, cls.user.omeName.val)
+        cls.ctx = cls.sf.getAdminService().getEventContext()
         cls.update = cls.sf.getUpdateService()
         cls.query = cls.sf.getQueryService()
 
