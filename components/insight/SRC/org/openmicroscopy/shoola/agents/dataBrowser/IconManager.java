@@ -322,8 +322,8 @@ public class IconManager
         relPaths[OWNER] = "nuvola_kdmconfig_modified16.png";
         relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_modified_grey16.png";
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
-        relPaths[DOWNLOAD] = "nuvola_download_manager_rotated16.png";
-        relPaths[DOWNLOAD_48] = "nuvola_download_manager_rotated16.png";
+        relPaths[DOWNLOAD] = "nuvola_download_manager16.png";
+        relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
     }
 
     /** The sole instance. */
