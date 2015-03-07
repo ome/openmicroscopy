@@ -49,7 +49,7 @@ class TestConfig(lib.ITest):
     def testDefaults(self):
         cfg = self.sf.getConfigService()
         with pytest.raises(omero.SecurityViolation):
-            defs = cfg.getConfigDefaults()
+            cfg.getConfigDefaults()
 
     def testRootDefaults(self):
         cfg = self.root.sf.getConfigService()
