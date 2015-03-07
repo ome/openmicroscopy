@@ -25,6 +25,8 @@
 #include <omero/model/Units.h>
 #include <omero/IceNoWarnPop.h>
 
+#include <omero/conversions.h>
+
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
 #       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
@@ -52,15 +54,23 @@ namespace omero {
 
     protected:
         virtual ~FrequencyI(); // protected as outlined in Ice docs.
-        static std::map<omero::model::enums::UnitsFrequency, std::string> SYMBOLS;
+        static std::map<enums::UnitsFrequency,
+            std::map<enums::UnitsFrequency,
+                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+        static std::map<enums::UnitsFrequency, std::string> SYMBOLS;
 
     public:
 
-        static std::string lookupSymbol(omero::model::enums::UnitsFrequency unit) {
+        static std::string lookupSymbol(enums::UnitsFrequency unit) {
             return SYMBOLS[unit];
         }
 
         FrequencyI();
+
+        FrequencyI(const double& value, const enums::UnitsFrequency& unit);
+
+        // Conversion constructor
+        FrequencyI(const FrequencyPtr& value, const enums::UnitsFrequency& target);
 
         virtual Ice::Double getValue(
                 const Ice::Current& current = Ice::Current());
@@ -69,11 +79,11 @@ namespace omero {
                 Ice::Double value,
                 const Ice::Current& current = Ice::Current());
 
-        virtual omero::model::enums::UnitsFrequency getUnit(
+        virtual enums::UnitsFrequency getUnit(
                 const Ice::Current& current = Ice::Current());
 
         virtual void setUnit(
-                omero::model::enums::UnitsFrequency unit,
+                enums::UnitsFrequency unit,
                 const Ice::Current& current = Ice::Current());
 
         virtual std::string getSymbol(

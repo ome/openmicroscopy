@@ -25,6 +25,8 @@
 #include <omero/model/Units.h>
 #include <omero/IceNoWarnPop.h>
 
+#include <omero/conversions.h>
+
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
 #       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
@@ -52,15 +54,23 @@ namespace omero {
 
     protected:
         virtual ~ElectricPotentialI(); // protected as outlined in Ice docs.
-        static std::map<omero::model::enums::UnitsElectricPotential, std::string> SYMBOLS;
+        static std::map<enums::UnitsElectricPotential,
+            std::map<enums::UnitsElectricPotential,
+                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+        static std::map<enums::UnitsElectricPotential, std::string> SYMBOLS;
 
     public:
 
-        static std::string lookupSymbol(omero::model::enums::UnitsElectricPotential unit) {
+        static std::string lookupSymbol(enums::UnitsElectricPotential unit) {
             return SYMBOLS[unit];
         }
 
         ElectricPotentialI();
+
+        ElectricPotentialI(const double& value, const enums::UnitsElectricPotential& unit);
+
+        // Conversion constructor
+        ElectricPotentialI(const ElectricPotentialPtr& value, const enums::UnitsElectricPotential& target);
 
         virtual Ice::Double getValue(
                 const Ice::Current& current = Ice::Current());
@@ -69,11 +79,11 @@ namespace omero {
                 Ice::Double value,
                 const Ice::Current& current = Ice::Current());
 
-        virtual omero::model::enums::UnitsElectricPotential getUnit(
+        virtual enums::UnitsElectricPotential getUnit(
                 const Ice::Current& current = Ice::Current());
 
         virtual void setUnit(
-                omero::model::enums::UnitsElectricPotential unit,
+                enums::UnitsElectricPotential unit,
                 const Ice::Current& current = Ice::Current());
 
         virtual std::string getSymbol(

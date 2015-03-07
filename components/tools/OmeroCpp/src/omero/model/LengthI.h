@@ -25,6 +25,8 @@
 #include <omero/model/Units.h>
 #include <omero/IceNoWarnPop.h>
 
+#include <omero/conversions.h>
+
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
 #       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
@@ -52,15 +54,23 @@ namespace omero {
 
     protected:
         virtual ~LengthI(); // protected as outlined in Ice docs.
-        static std::map<omero::model::enums::UnitsLength, std::string> SYMBOLS;
+        static std::map<enums::UnitsLength,
+            std::map<enums::UnitsLength,
+                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+        static std::map<enums::UnitsLength, std::string> SYMBOLS;
 
     public:
 
-        static std::string lookupSymbol(omero::model::enums::UnitsLength unit) {
+        static std::string lookupSymbol(enums::UnitsLength unit) {
             return SYMBOLS[unit];
         }
 
         LengthI();
+
+        LengthI(const double& value, const enums::UnitsLength& unit);
+
+        // Conversion constructor
+        LengthI(const LengthPtr& value, const enums::UnitsLength& target);
 
         virtual Ice::Double getValue(
                 const Ice::Current& current = Ice::Current());
@@ -69,11 +79,11 @@ namespace omero {
                 Ice::Double value,
                 const Ice::Current& current = Ice::Current());
 
-        virtual omero::model::enums::UnitsLength getUnit(
+        virtual enums::UnitsLength getUnit(
                 const Ice::Current& current = Ice::Current());
 
         virtual void setUnit(
-                omero::model::enums::UnitsLength unit,
+                enums::UnitsLength unit,
                 const Ice::Current& current = Ice::Current());
 
         virtual std::string getSymbol(

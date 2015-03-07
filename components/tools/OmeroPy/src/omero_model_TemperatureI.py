@@ -98,7 +98,7 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
                 self.setValue(value.getValue())
                 self.setUnit(value.getUnit())
             else:
-                c = self.CONVERSIONS.get(targetUnit).get(sourceUnit)
+                c = self.CONVERSIONS.get(sourceUnit).get(targetUnit)
                 if c is None:
                     t = (value.getValue(), value.getUnit(), target)
                     msg = "%s %s cannot be converted to %s" % t
