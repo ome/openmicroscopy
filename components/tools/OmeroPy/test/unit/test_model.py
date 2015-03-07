@@ -24,6 +24,7 @@ from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ScriptJobI import ScriptJobI
 from omero_model_DetailsI import DetailsI
 from omero_model_LengthI import LengthI
+from omero_model_TemperatureI import TemperatureI
 from omero.rtypes import rbool
 from omero.rtypes import rlong
 from omero.rtypes import rstring
@@ -360,3 +361,14 @@ class TestModel(object):
         um = omero.model.enums.UnitsLength.MICROMETER
         sym = LengthI.lookupSymbol(um)
         assert "µm" == sym
+
+    TEMP_DATA = (
+        (0, 'CELSIUS', 32, 'FAHRENHEIT'),
+    )
+
+    @pytest.mark.parametrize("data", TEMP_DATA)
+    def testTemperatureSamples(self, data):
+        v_from, u_from, v_to, u_to = data
+        q_from = TemperatureI(v_from, u_from)
+        q_to = TemperatureI(q_from, u_to)
+        assert v_to == q_to.getValue()
