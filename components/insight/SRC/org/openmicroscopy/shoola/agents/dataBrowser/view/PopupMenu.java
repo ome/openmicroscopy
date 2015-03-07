@@ -101,6 +101,9 @@ class PopupMenu
     /** Button to reset the password. */
     private JMenuItem resetPassword;
 
+    /** Button to download the files.*/
+    private JMenuItem download;
+
     /** Button to activate or not user. */
     private JCheckBoxMenuItem activatedUser;
 
@@ -168,6 +171,8 @@ class PopupMenu
         tagElement = new JMenuItem(controller.getAction(
                 DataBrowserControl.TAG));
         view = new JMenuItem(controller.getAction(DataBrowserControl.VIEW));
+        download = new JMenuItem(controller.getAction(
+                DataBrowserControl.DOWNLOAD));
         copyElement = new JMenuItem(
                 controller.getAction(DataBrowserControl.COPY_OBJECT));
         cutElement = new JMenuItem(
@@ -256,6 +261,7 @@ class PopupMenu
                 add(view);
             };
             add(openWithMenu);
+            add(download);
             add(new JSeparator(JSeparator.HORIZONTAL));
             add(buildEditMenu());
             add(removeElement);
