@@ -93,6 +93,7 @@ public class DownloadAction
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager icons = IconManager.getInstance();
         putValue(Action.SMALL_ICON, icons.getIcon(IconManager.DOWNLOAD));
+        putValue(Action.NAME, NAME);
     }
 
     /**
