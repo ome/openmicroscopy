@@ -23,8 +23,6 @@
 
 using namespace omero::conversions;
 
-typedef omero::conversion_types::ConversionPtr ConversionPtr;
-
 TEST(ConversionsTest, testSimplAdd)
 {
     ConversionPtr add = Add(Rat(1, 2), Rat(1,2));

@@ -56,7 +56,7 @@ namespace omero {
         virtual ~LengthI(); // protected as outlined in Ice docs.
         static std::map<enums::UnitsLength,
             std::map<enums::UnitsLength,
-                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+                omero::conversions::ConversionPtr> > CONVERSIONS;
         static std::map<enums::UnitsLength, std::string> SYMBOLS;
 
     public:

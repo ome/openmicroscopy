@@ -56,7 +56,7 @@ namespace omero {
         virtual ~TemperatureI(); // protected as outlined in Ice docs.
         static std::map<enums::UnitsTemperature,
             std::map<enums::UnitsTemperature,
-                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+                omero::conversions::ConversionPtr> > CONVERSIONS;
         static std::map<enums::UnitsTemperature, std::string> SYMBOLS;
 
     public:

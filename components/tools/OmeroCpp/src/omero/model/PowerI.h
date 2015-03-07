@@ -56,7 +56,7 @@ namespace omero {
         virtual ~PowerI(); // protected as outlined in Ice docs.
         static std::map<enums::UnitsPower,
             std::map<enums::UnitsPower,
-                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+                omero::conversions::ConversionPtr> > CONVERSIONS;
         static std::map<enums::UnitsPower, std::string> SYMBOLS;
 
     public:

@@ -22,7 +22,7 @@
 
 namespace omero {
 
-  namespace conversion_types {
+  namespace conversions {
 
       Conversion::Conversion(const ConversionPtr& c1, const ConversionPtr& c2) {
         conversions.push_back(c1);
@@ -41,11 +41,11 @@ namespace omero {
 
       }
 
-      Add::Add(const ConversionPtr& c1, const ConversionPtr& c2)
+      _Add::_Add(const ConversionPtr& c1, const ConversionPtr& c2)
           : Conversion(c1, c2) {
       }
 
-      double Add::convert(double original) {
+      double _Add::convert(double original) {
           double rv = 0.0;
           std::vector<ConversionPtr>::iterator beg = conversions.begin();
           std::vector<ConversionPtr>::iterator end = conversions.end();
@@ -55,23 +55,23 @@ namespace omero {
           return rv;
       }
 
-      Int::Int(long i) : i(i) {
+      _Int::_Int(long i) : i(i) {
 
       }
 
-      Int::Int(std::string s) : s(s) {
+      _Int::_Int(std::string s) : s(s) {
 
       }
 
-      double Int::convert(double) {
+      double _Int::convert(double) {
           return i;
       }
 
-      Mul::Mul(const ConversionPtr& c1, const ConversionPtr& c2)
+      _Mul::_Mul(const ConversionPtr& c1, const ConversionPtr& c2)
           : Conversion(c1, c2) {
       }
 
-      double Mul::convert(double original) {
+      double _Mul::convert(double original) {
           double rv = 1.0;
           std::vector<ConversionPtr>::iterator beg = conversions.begin();
           std::vector<ConversionPtr>::iterator end = conversions.end();
@@ -81,11 +81,11 @@ namespace omero {
           return rv;
       }
 
-      Pow::Pow(long base, int exp) : base(base), exp(exp) {
+      _Pow::_Pow(long base, int exp) : base(base), exp(exp) {
 
       }
 
-      double Pow::convert(double original) {
+      double _Pow::convert(double original) {
           if (conversions.size() > 0) {
             return pow(
                     conversions[0]->convert(original),
@@ -95,16 +95,16 @@ namespace omero {
           }
       }
 
-      Rat::Rat(long num, long denom) : num(num), denom(denom) {
+      _Rat::_Rat(long num, long denom) : num(num), denom(denom) {
 
       }
 
-      Rat::Rat(const ConversionPtr& c1, const ConversionPtr& c2) :
+      _Rat::_Rat(const ConversionPtr& c1, const ConversionPtr& c2) :
           Conversion(c1, c2) {
 
       }
 
-      double Rat::convert(double original) {
+      double _Rat::convert(double original) {
           if (conversions.size() > 0) {
             return conversions[0]->convert(original) /
                    conversions[1]->convert(original);
@@ -113,15 +113,15 @@ namespace omero {
           }
       }
 
-      Sym::Sym(char) {
+      _Sym::_Sym(char) {
 
       }
 
-      Sym::Sym(std::string) {
+      _Sym::_Sym(std::string) {
 
       }
 
-      double Sym::convert(double original) {
+      double _Sym::convert(double original) {
           return original;
       }
 

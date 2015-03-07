@@ -24,7 +24,6 @@
 
 using namespace omero::conversions;
 
-typedef omero::conversion_types::ConversionPtr ConversionPtr;
 typedef omero::model::enums::UnitsPressure UnitsPressure;
 
 namespace omero {

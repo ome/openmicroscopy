@@ -56,7 +56,7 @@ namespace omero {
         virtual ~PressureI(); // protected as outlined in Ice docs.
         static std::map<enums::UnitsPressure,
             std::map<enums::UnitsPressure,
-                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+                omero::conversions::ConversionPtr> > CONVERSIONS;
         static std::map<enums::UnitsPressure, std::string> SYMBOLS;
 
     public:

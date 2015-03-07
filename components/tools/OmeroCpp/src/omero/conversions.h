@@ -38,19 +38,19 @@
 
 
 namespace omero {
-  namespace conversion_types {
+  namespace conversions {
     class Conversion;
     typedef IceUtil::Handle<Conversion> ConversionPtr;
   }
 }
 
 namespace IceInternal {
-  OMERO_CLIENT ::Ice::LocalObject* upCast(::omero::conversion_types::Conversion*);
+  OMERO_CLIENT ::Ice::LocalObject* upCast(::omero::conversions::Conversion*);
 }
 
 namespace omero {
 
-  namespace conversion_types {
+  namespace conversions {
 
     /**
      * Base-functor like object which can be used for preparing complex
@@ -117,33 +117,33 @@ namespace omero {
     /**
      * Sums all {@link Conversion} instances via {@link BigDecimal#add(BigDecimal)}.
      */
-    class OMERO_CLIENT Add : virtual public Conversion {
+    class OMERO_CLIENT _Add : virtual public Conversion {
 
     private:
-        Add& operator=(const Add& rv);
-        Add(Add&);
+        _Add& operator=(const _Add& rv);
+        _Add(_Add&);
 
     public:
-        Add(const ConversionPtr& c1, const ConversionPtr& c2);
+        _Add(const ConversionPtr& c1, const ConversionPtr& c2);
         double convert(double original);
     };
 
     /**
      * Simply is a representation of a possibly large integer.
      */
-    class OMERO_CLIENT Int : virtual public Conversion {
+    class OMERO_CLIENT _Int : virtual public Conversion {
 
     private:
-        Int& operator=(const Int& rv);
-        Int(Int&);
+        _Int& operator=(const _Int& rv);
+        _Int(_Int&);
 
     private:
         long i;
         std::string s;
 
     public:
-        Int(long i);
-        Int(std::string s);
+        _Int(long i);
+        _Int(std::string s);
         double convert(double original);
     };
 
@@ -151,14 +151,14 @@ namespace omero {
      * Multiplies all {@link Conversion} instances via
      * {@link BigDecimal#multiply(BigDecimal)}.
      */
-    class OMERO_CLIENT Mul : virtual public Conversion {
+    class OMERO_CLIENT _Mul : virtual public Conversion {
 
     private:
-        Mul& operator=(const Mul& rv);
-        Mul(Mul&);
+        _Mul& operator=(const _Mul& rv);
+        _Mul(_Mul&);
 
     public:
-        Mul(const ConversionPtr& c1, const ConversionPtr& c2);
+        _Mul(const ConversionPtr& c1, const ConversionPtr& c2);
         double convert(double original);
     };
 
@@ -166,18 +166,18 @@ namespace omero {
      * Exponentiates two {@link Conversion} instances via
      * {@link BigDecimal#pow(BigDecimal)}.
      */
-    class OMERO_CLIENT Pow : virtual public Conversion {
+    class OMERO_CLIENT _Pow : virtual public Conversion {
 
     private:
-        Pow& operator=(const Pow& rv);
-        Pow(Pow&);
+        _Pow& operator=(const _Pow& rv);
+        _Pow(_Pow&);
 
     private:
         long base;
         int exp;
 
     public:
-        Pow(long base, int exp);
+        _Pow(long base, int exp);
         double convert(double original);
 
     };
@@ -186,11 +186,11 @@ namespace omero {
      * Divides two {@link Conversion} instances via
      * {@link BigDecimal#divide(BigDecimal, MathContext)}.
      */
-    class OMERO_CLIENT Rat : virtual public Conversion {
+    class OMERO_CLIENT _Rat : virtual public Conversion {
 
     private:
-        Rat& operator=(const Rat& rv);
-        Rat(Rat&);
+        _Rat& operator=(const _Rat& rv);
+        _Rat(_Rat&);
 
     private:
         long num;
@@ -198,8 +198,8 @@ namespace omero {
         bool delay;
 
     public:
-        Rat(long num, long denom);
-        Rat(const ConversionPtr& c1, const ConversionPtr& c2);
+        _Rat(long num, long denom);
+        _Rat(const ConversionPtr& c1, const ConversionPtr& c2);
         double convert(double original);
 
     };
@@ -208,21 +208,17 @@ namespace omero {
      * Simply represents the variable of the source unit so that
      * {@link Sym#convert(double)} just returns the value passed in.
      */
-    class OMERO_CLIENT Sym : virtual public Conversion {
+    class OMERO_CLIENT _Sym : virtual public Conversion {
 
     private:
-        Sym& operator=(const Sym& rv);
-        Sym(Sym&);
+        _Sym& operator=(const _Sym& rv);
+        _Sym(_Sym&);
 
     public:
-        Sym(char sym);
-        Sym(std::string sym);
+        _Sym(char sym);
+        _Sym(std::string sym);
         double convert(double original);
     };
-
-  }
-
-  namespace conversions {
 
     // =======================================================
     // Helper static methods which prevent the need for "new"
@@ -232,63 +228,63 @@ namespace omero {
     /**
      * Static helper for creating {@link Add} instances.
      */
-    static inline omero::conversion_types::ConversionPtr Add(
-            const omero::conversion_types::ConversionPtr& c1,
-            const omero::conversion_types::ConversionPtr& c2) {
-        return new omero::conversion_types::Add(c1, c2);
+    static inline ConversionPtr Add(
+            const ConversionPtr& c1,
+            const ConversionPtr& c2) {
+        return new _Add(c1, c2);
     }
 
     /**
      * Static helper for creating {@link Int} instances.
      */
-    static inline omero::conversion_types::ConversionPtr Int(long i) {
-        return new omero::conversion_types::Int(i);
+    static inline ConversionPtr Int(long i) {
+        return new _Int(i);
     }
 
     /**
      * Static helper for creating {@link Int} instances.
      */
-    static inline omero::conversion_types::ConversionPtr Int(std::string i) {
-        return new omero::conversion_types::Int(i);
+    static inline ConversionPtr Int(std::string i) {
+        return new _Int(i);
     }
 
     /**
      * Static helper for creating {@link Mul} instances.
      */
-    static inline omero::conversion_types::ConversionPtr Mul(
-            const omero::conversion_types::ConversionPtr& c1,
-            const omero::conversion_types::ConversionPtr& c2) {
-        return new omero::conversion_types::Mul(c1, c2);
+    static inline ConversionPtr Mul(
+            const ConversionPtr& c1,
+            const ConversionPtr& c2) {
+        return new _Mul(c1, c2);
     }
 
     /**
      * Static helper for creating {@link Pow} instances.
      */
-    static inline omero::conversion_types::ConversionPtr Pow(long num, int den) {
-        return new omero::conversion_types::Pow(num, den);
+    static inline ConversionPtr Pow(long num, int den) {
+        return new _Pow(num, den);
     }
 
    /**
     * Static helper for creating {@link Rat} instances.
     */
-    static inline omero::conversion_types::ConversionPtr Rat(long num, long den) {
-        return new omero::conversion_types::Rat(num, den);
+    static inline ConversionPtr Rat(long num, long den) {
+        return new _Rat(num, den);
     }
 
     /**
      * Static helper for creating {@link Rat} instances.
      */
-    static inline omero::conversion_types::ConversionPtr Rat(
-            const omero::conversion_types::ConversionPtr& c1,
-            const omero::conversion_types::ConversionPtr& c2) {
-        return new omero::conversion_types::Rat(c1, c2);
+    static inline ConversionPtr Rat(
+            const ConversionPtr& c1,
+            const ConversionPtr& c2) {
+        return new _Rat(c1, c2);
     }
 
    /**
     * Static helper for creating {@link Sym} instances.
     */
-    static inline omero::conversion_types::ConversionPtr Sym(std::string sym) {
-        return new omero::conversion_types::Sym(sym);
+    static inline ConversionPtr Sym(std::string sym) {
+        return new _Sym(sym);
     }
 
   }

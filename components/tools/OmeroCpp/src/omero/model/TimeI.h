@@ -56,7 +56,7 @@ namespace omero {
         virtual ~TimeI(); // protected as outlined in Ice docs.
         static std::map<enums::UnitsTime,
             std::map<enums::UnitsTime,
-                omero::conversion_types::ConversionPtr> > CONVERSIONS;
+                omero::conversions::ConversionPtr> > CONVERSIONS;
         static std::map<enums::UnitsTime, std::string> SYMBOLS;
 
     public:

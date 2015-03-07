@@ -24,7 +24,6 @@
 
 using namespace omero::conversions;
 
-typedef omero::conversion_types::ConversionPtr ConversionPtr;
 typedef omero::model::enums::UnitsTime UnitsTime;
 
 namespace omero {

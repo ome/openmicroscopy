@@ -26,8 +26,6 @@
 using namespace omero::model;
 using namespace omero::model::enums;
 
-typedef omero::conversion_types::ConversionPtr ConversionPtr;
-
 TEST(UnitsTest, testPowerConversion)
 {
     PowerPtr p1 = new PowerI(100.1, CENTIWATT);
