@@ -247,11 +247,13 @@ public class IconManager
     /** The <code>Download</code> icon. */
     public static final int DOWNLOAD = 63;
 
+    /** The <code>Download</code> icon. */
+    public static final int DOWNLOAD_48 = 64;
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing.
      */
-    private static final int MAX_ID = 63;
+    private static final int MAX_ID = 64;
 
     /** Paths of the icon files. */
     private static String[] relPaths = new String[MAX_ID+1];
@@ -321,6 +323,7 @@ public class IconManager
         relPaths[OWNER_NOT_ACTIVE] = "nuvola_kdmconfig_modified_grey16.png";
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
         relPaths[DOWNLOAD] = "nuvola_download_manager_rotated16.png";
+        relPaths[DOWNLOAD_48] = "nuvola_download_manager_rotated16.png";
     }
 
     /** The sole instance. */

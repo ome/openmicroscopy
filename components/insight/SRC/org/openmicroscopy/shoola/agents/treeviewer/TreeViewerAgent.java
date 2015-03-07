@@ -45,6 +45,8 @@ import javax.swing.JComponent;
 
 
 
+
+import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
@@ -508,6 +510,21 @@ public class TreeViewerAgent
     }
 
     /**
+     * Downloads the files.
+     * @param evt The event to handle.
+     */
+    private void handleDownloadEvent(DownloadEvent evt)
+    {
+        if (evt == null) return;
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) 
+            return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.download(evt.getFolder(), evt.isOverride());
+    }
+
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
      */
@@ -574,6 +591,7 @@ public class TreeViewerAgent
         bus.register(this, SearchEvent.class);
         bus.register(this, SearchSelectionEvent.class);
         bus.register(this, SaveEvent.class);
+        bus.register(this, DownloadEvent.class);
     }
 
     /**
@@ -636,8 +654,10 @@ public class TreeViewerAgent
 		    handleSearchEvent((SearchEvent) e);
 		else if (e instanceof SearchSelectionEvent) 
             handleSearchSelectionEvent((SearchSelectionEvent) e);
-		else if (e instanceof SaveEvent) 
+		else if (e instanceof SaveEvent)
             handleSaveEvent((SaveEvent) e);
+		else if (e instanceof DownloadEvent)
+            handleDownloadEvent((DownloadEvent) e);
 	}
 
 }
