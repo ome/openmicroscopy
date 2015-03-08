@@ -47,11 +47,12 @@ class TestChgrp(IWebTest):
         """Returns a logged in Django test client."""
         super(TestChgrp, cls).setup_class()
         # Add user to secondary group
-        userName = cls.sf.getAdminService().getEventContext().userName
-        cls.group2 = cls.new_group(experimenters=[userName], perms=PRIVATE)
+        cls.group2 = cls.new_group(
+            experimenters=[cls.ctx.userName], perms=PRIVATE)
         # Refresh client
-        cls.sf.getAdminService().getEventContext()
-        cls.django_client = cls.new_django_client(userName, userName)
+        cls.ctx = cls.sf.getAdminService().getEventContext()
+        cls.django_client = cls.new_django_client(
+            cls.ctx.userName, cls.ctx.userName)
 
     def get_django_client(self, credentials):
         if credentials == 'user':
