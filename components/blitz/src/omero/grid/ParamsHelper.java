@@ -96,7 +96,11 @@ public class ParamsHelper {
         ome.model.jobs.ParseJob job = getParseJobForScript(scriptId, __current);
 
         if (job != null) {
-            return parse(job.getParams(), __current);
+            try {
+                return parse(job.getParams(), __current);
+            } catch (CorruptJob e) {
+                // pass
+            }
         }
         return null;
     }
@@ -176,7 +180,7 @@ public class ParamsHelper {
         return bytes;
     }
 
-    JobParams parse(byte[] data, Ice.Current current) {
+    JobParams parse(byte[] data, Ice.Current current) throws CorruptJob {
 
         if (data == null) {
             return null; // EARLY EXIT!
@@ -193,16 +197,21 @@ public class ParamsHelper {
             });
             is.readPendingObjects();
         } catch (UnmarshalOutOfBoundsException oob) {
-            // ok, returning null.
+            // ok, asking for deletion
+            log.error(String.format("UnmarshalOutOfBoundsException: %s",
+                    oob.reason));
+            throw new CorruptJob();
         } catch (Ice.MarshalException me) {
-            // less specific than oob; not great, but returning null. #5662
+            // less specific than oob; not great, but also asking for delete. #5662
             log.error(String.format("MarshalException: %s (len=%s)",
                     me.reason, data.length));
+            throw new CorruptJob();
         } catch (OutOfMemoryError oom) {
             // Not ok, but not much we can do.
             // This is caused by changes to slice files.
             // See:
-            log.warn("http://www.zeroc.com/forums/bug-reports/4782-3-3-1-outofmemory-client-when-slice-definition-modified.html");
+            log.error("http://www.zeroc.com/forums/bug-reports/4782-3-3-1-outofmemory-client-when-slice-definition-modified.html");
+            throw new CorruptJob();
         } finally {
             is.destroy();
         }
@@ -220,4 +229,15 @@ public class ParamsHelper {
                 int seconds, final Current current) throws ServerError;
     }
 
+    /**
+     * Exception raised by {@link ParamsHelper#parse(byte[], Current)} when
+     * an error occurs. Under some conditions the params[0] variable can be
+     * filled with an incomplete but non-null entry, making it safer to never
+     * let the variable escape.
+     */
+    private class CorruptJob extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+    }
 }
