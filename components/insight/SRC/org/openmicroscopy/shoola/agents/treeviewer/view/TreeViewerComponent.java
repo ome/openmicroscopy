@@ -4484,6 +4484,9 @@ class TreeViewerComponent
 	                        if (exp.getId() == userID) {
 	                            target = null;
 	                            list.add(n);
+	                            data = (DataObject) os;
+	                            if (!groupIds.contains(data.getGroupId()))
+                                    groupIds.add(data.getGroupId());
 	                        }
 	                    } else {
 	                        if (canEdit(os)) {
