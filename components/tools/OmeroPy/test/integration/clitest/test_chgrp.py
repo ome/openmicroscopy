@@ -33,6 +33,14 @@ group_prefixes = ["", "Group:", "ExperimenterGroup:"]
 
 class TestChgrp(CLITest):
 
+    @classmethod
+    def setup_class(cls):
+        super(TestChgrp, cls).setup_class()
+        exp = cls.sf.getAdminService().getExperimenter(cls.user.id.val)
+        cls.target_groups = {}
+        for p in permissions:
+            cls.target_groups[p] = cls.new_group([exp], p)
+
     def setup_method(self, method):
         super(TestChgrp, self).setup_method(method)
         self.cli.register("chgrp", ChgrpControl, "TEST")
@@ -59,12 +67,6 @@ class TestChgrp(CLITest):
 
         return new_object.id.val
 
-    def add_new_group(self, perms=None):
-        admin = self.sf.getAdminService()
-        exp = admin.lookupExperimenter(admin.getEventContext().userName)
-        group = self.new_group([exp], perms)
-        return group
-
     @pytest.mark.parametrize("object_type", object_types)
     @pytest.mark.parametrize("target_group_perms", permissions)
     @pytest.mark.parametrize("group_prefix", group_prefixes)
@@ -72,14 +74,14 @@ class TestChgrp(CLITest):
         oid = self.create_object(object_type)
 
         # create a new group and move the object to the new group
-        group = self.add_new_group(perms=target_group_perms)
-        self.args += ['%s%s' % (group_prefix, group.id.val),
+        target_group = self.target_groups[target_group_perms]
+        self.args += ['%s%s' % (group_prefix, target_group.id.val),
                       '/%s:%s' % (object_type, oid)]
         self.cli.invoke(self.args, strict=True)
 
-        # change the session context and check the object has been moved
-        self.set_context(self.client, group.id.val)
-        new_object = self.query.get(object_type, oid)
+        # check the object has been moved
+        new_object = self.query.get(object_type, oid,
+                                    {'omero.group': str(target_group.id.val)})
         assert new_object.id.val == oid
 
     def testNonMember(self):
@@ -96,16 +98,13 @@ class TestChgrp(CLITest):
     def testGroupName(self):
         iid = self.create_object("Image")
 
-        # create a new group which the current user is not member of
-        group = self.add_new_group()
-
         # try to move the image to the new group
-        self.args += ['%s' % group.name.val, '/Image:%s' % iid]
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.name.val, '/Image:%s' % iid]
         self.cli.invoke(self.args, strict=True)
 
-        # change the session context and check the image has been moved
-        self.set_context(self.client, group.id.val)
-        img = self.query.get("Image", iid)
+        # check the image has been moved
+        img = self.query.get("Image", iid, {'omero.group': '-1'})
         assert img.id.val == iid
 
     def testFileset(self):
@@ -116,28 +115,29 @@ class TestChgrp(CLITest):
         fileset = self.query.get('Fileset', filesetId)
         assert fileset is not None
 
-        # create a new group and move the fileset to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Fileset:%s' % filesetId]
+        # move the fileset to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val, '/Fileset:%s' % filesetId]
         self.cli.invoke(self.args, strict=True)
 
-        # change the session context and check the image has been moved
+        # check the image has been moved
         ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
-            assert img.details.group.id.val == group.id.val
+            assert img.details.group.id.val == target_group.id.val
 
     def testFilesetPartialFailing(self):
         images = self.importMIF(2)  # 2 images sharing a fileset
 
-        # create a new group and try to move only one image to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val]
+        # try to move only one image to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val,
+                      '/Image:%s' % images[0].id.val]
         self.cli.invoke(self.args, strict=True)
 
         # check the images are still in the current group
-        ctx = {'omero.group': '-1'}  # query across groups
         gid = self.sf.getAdminService().getEventContext().groupId
+        ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
             assert img.details.group.id.val == gid
@@ -145,23 +145,25 @@ class TestChgrp(CLITest):
     def testFilesetOneImage(self):
         images = self.importMIF(1)  # One image in a fileset
 
-        # create a new group and try to move only one image to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val]
+        # try to move only one image to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val,
+                      '/Image:%s' % images[0].id.val]
         self.cli.invoke(self.args, strict=True)
 
         # check the image has been moved
         ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
-            assert img.details.group.id.val == group.id.val
+            assert img.details.group.id.val == target_group.id.val
 
     def testFilesetAllImagesMoveImages(self):
         images = self.importMIF(2)  # 2 images sharing a fileset
 
-        # create a new group and try to move both the images to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Image:%s' % images[0].id.val,
+        # try to move both the images to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val,
+                      '/Image:%s' % images[0].id.val,
                       '/Image:%s' % images[1].id.val]
         self.cli.invoke(self.args, strict=True)
 
@@ -169,7 +171,7 @@ class TestChgrp(CLITest):
         ctx = {'omero.group': '-1'}  # query across groups
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
-            assert img.details.group.id.val == group.id.val
+            assert img.details.group.id.val == target_group.id.val
 
     def testFilesetAllImagesMoveDataset(self):
         images = self.importMIF(2)  # 2 images sharing a fileset
@@ -182,9 +184,9 @@ class TestChgrp(CLITest):
             link.child = omero.model.ImageI(image.id.val, False)
             self.update.saveObject(link)
 
-        # create a new group and try to move the dataset to the new group
-        group = self.add_new_group()
-        self.args += ['%s' % group.id.val, '/Dataset:%s' % dataset_id]
+        # try to move the dataset to the new group
+        target_group = self.target_groups['rw----']
+        self.args += ['%s' % target_group.id.val, '/Dataset:%s' % dataset_id]
         self.cli.invoke(self.args, strict=True)
 
         # query across groups
@@ -192,12 +194,12 @@ class TestChgrp(CLITest):
 
         # check the dataset been moved
         ds = self.query.get('Dataset', dataset_id, ctx)
-        assert ds.details.group.id.val == group.id.val
+        assert ds.details.group.id.val == target_group.id.val
 
         # check the images have been moved
         for i in images:
             img = self.query.get('Image', i.id.val, ctx)
-            assert img.details.group.id.val == group.id.val
+            assert img.details.group.id.val == target_group.id.val
 
     @pytest.mark.parametrize("group_prefix", group_prefixes)
     def testNonExistingGroupId(self, group_prefix):
