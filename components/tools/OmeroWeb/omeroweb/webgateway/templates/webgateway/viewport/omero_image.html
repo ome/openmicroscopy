@@ -242,10 +242,7 @@
       // disable line-plot for max projection, split-view etc
       $('#wblitz-lp-enable').prop('disabled', p != 'normal');
       //$('#wblitz-channels-box button').prop('disabled', p == 'split');
-      var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
-      $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
     }
-
     //nosync || syncRDCW(viewport);
   };
 
@@ -835,7 +832,7 @@
               <!-- multiselect hidden for big images in jquery-plugin-viewportImage.js -->
             <div class="multiselect selected">
               Normal
-              <input type="radio" value="normal" name="wblitz-proj" onclick="return setProjection(this);" />
+              <input type="radio" value="normal" name="wblitz-proj" checked onclick="return setProjection(this);" />
             </div>
             <div class="multiselect">
               Max Intensity
@@ -1035,6 +1032,11 @@
       if ($.inArray(viewport.loadedImg.meta.pixelsType, ["float", "double"]) > -1) {
         $("#rdef-fullrange-btn").attr("disabled", "disabled").addClass("button-disabled");
       }
+
+      // disable 'Max Intensity' projection for single-Z images
+      var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
+      $('[name="wblitz-proj"][value=intmax]').prop('disabled', disable_intmax);
+
     });
 
     // 'Color' checkbox to left of image
