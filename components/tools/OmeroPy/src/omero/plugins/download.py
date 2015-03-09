@@ -51,7 +51,7 @@ class DownloadControl(BaseControl):
         client = self.ctx.conn(args)
         orig_file = self.get_file(client.sf, args.object)
         perms = orig_file.details.permissions
-        name = omero.constants.permissions.DOWNLOAD
+        name = omero.constants.permissions.BINARYACCESS
 
         if perms.isRestricted(name):
             self.ctx.die(66, ("Download of OriginalFile:"

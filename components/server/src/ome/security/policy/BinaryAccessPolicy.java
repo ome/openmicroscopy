@@ -39,23 +39,23 @@ import ome.security.ACLVoter;
  *  standard permission permission and is intended to allow customizing who
  *  has access to widely shared data.
  */
-public class DownloadPolicy extends BasePolicy {
+public class BinaryAccessPolicy extends BasePolicy {
 
     /**
      * This string can also be found in the Constants.ice file in the
      * blitz package.
      */
-    public final static String NAME = "RESTRICT-DOWNLOAD";
+    public final static String NAME = "RESTRICT-BINARY-ACCESS";
 
     private final ACLVoter voter;
 
     private final List<String> config;
 
-    public DownloadPolicy(Set<Class<IObject>> types, ACLVoter voter) {
+    public BinaryAccessPolicy(Set<Class<IObject>> types, ACLVoter voter) {
         this(types, voter, null);
     }
 
-    public DownloadPolicy(Set<Class<IObject>> types, ACLVoter voter,
+    public BinaryAccessPolicy(Set<Class<IObject>> types, ACLVoter voter,
             String[] config) {
         super(types);
         this.voter = voter;
@@ -89,7 +89,7 @@ public class DownloadPolicy extends BasePolicy {
         if (grp != null && grp.getConfig() != null && grp.getConfig().size() > 0) {
             Set<String> rv = null;
             for (NamedValue nv : grp.getConfig()) {
-                if ("omero.policy.download".equals(nv.getName())) {
+                if ("omero.policy.binary_access".equals(nv.getName())) {
                     if (rv == null) {
                         rv = new HashSet<String>();
                     }

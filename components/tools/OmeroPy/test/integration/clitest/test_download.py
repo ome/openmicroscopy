@@ -264,7 +264,7 @@ class TestDownload(CLITest):
 
         tmpfile = tmpdir.join('%s.test' % fixture)
         cfg = self.root.sf.getConfigService()
-        cfg = cfg.getConfigValue("omero.policy.download")
+        cfg = cfg.getConfigValue("omero.policy.binary_access")
 
         # Check that the config we have is at least tested
         # by *some* fixture
@@ -272,11 +272,11 @@ class TestDownload(CLITest):
         # But if this isn't a check for this particular
         # config, then skip.
         if cfg != fixture.cfg:
-            pytest.skip("Found download policy: %s" % cfg)
+            pytest.skip("Found binary access policy: %s" % cfg)
 
         config = None
         if fixture.grp is not None:
-            config = [NV("omero.policy.download", fixture.grp)]
+            config = [NV("omero.policy.binary_access", fixture.grp)]
 
         group = self.new_group(perms='rwr---', config=config)
         upper = self.new_client(group=group)
@@ -292,7 +292,7 @@ class TestDownload(CLITest):
         downer_q = downer.sf.getQueryService()
         downer_f = downer_q.get("OriginalFile", ofile.id.val)
         assert downer_f.details.permissions.isRestricted(
-            omero.constants.permissions.DOWNLOAD) != fixture.will_pass
+            omero.constants.permissions.BINARYACCESS) != fixture.will_pass
 
         self.args = ["download"]
         self.args += self.login_args(downer)
