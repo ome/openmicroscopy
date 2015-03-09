@@ -183,18 +183,20 @@ $.fn.roi_display = function(options) {
             for (var i=0; i<shape_objects.length; i++) {
                 var s = shape_objects[i];
                 var shape_id = parseInt(s.id);
-                
                 if (shape_id == selected_shape_id) {
                     if (s.type == 'text') {
                         selectedClone = null;
-                        s.attr({'stroke': '#00a8ff'});
+                        strokeWidth = Math.ceil(s.attr('font-size')/10);
+                        s.attr({'stroke': '#00a8ff', 'stroke-width': strokeWidth});
                     } else {
+                        strokeWidth = (s.attr('stroke-width') > 0) ? Math.ceil(s.attr('stroke-width')/2) : 1;
                         selectedClone = s.clone();
-                        selectedClone.attr({'stroke': '#00a8ff', 'fill': null});
+                        selectedClone.attr({'stroke': '#00a8ff', 'stroke-width': strokeWidth,
+                                            'fill-opacity': 0});
                     }
                 } else {
                     if (s.type == 'text') {
-                        s.attr({'stroke': null});   // remove stroke
+                        s.attr({'stroke': null, 'stroke-width': null}); // remove stroke
                     }
                 }
             }
