@@ -287,6 +287,20 @@ class TestConfig(object):
         finally:
             config.close()
 
+        # After config.close() calls config.save() new version should be 5.1.0
+        # NB: this ONLY works if we specify "__ACTIVE__" which is not what
+        # happens in real usage
+        config = ConfigXml(filename=str(p), env_config="__ACTIVE__")
+        try:
+            # Check version has been updated
+            assert config.version() == "5.1.0"
+            m = config.as_map()
+            # And that top_links has not been modified further
+            assert m["omero.web.ui.top_links"] == afterUpdate
+        finally:
+            config.close()
+
+
     def testReadOnlyConfigSimple(self):
         p = create_path()
         p.chmod(0444)  # r--r--r--
