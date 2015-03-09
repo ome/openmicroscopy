@@ -364,10 +364,12 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param model Reference to the model.
 	 * @param currentGroupId The id of the current user group.
 	 * @param userId The user to select when importing as.
+	 * @param ijoption This is only used in imagej mode.
+	 *                 Option indicating which window to select
 	 */
 	LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
-			Importer model, long currentGroupId)
+			Importer model, long currentGroupId, boolean ijoption)
 	{
 		super(parent);
 		this.container = selectedContainer;
@@ -379,7 +381,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		setTitle(TEXT_TITLE);
 		
 		initUIComponents();
-		layoutUI();
+		layoutUI(ijoption);
 		populateUIWithDisplayData(findWithId(groups, currentGroupId),
 		        model.getImportFor());
 	}
@@ -535,18 +537,26 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Builds a JPanel holding the main action buttons
+	 * Builds a JPanel holding the main action buttons.
+	 *
+	 * @param ijoption This is only used in imagej mode.
 	 * @return The JPanel holding the lower main action buttons.
 	 */
-	private JPanel buildLowerButtonPanel()
+	private JPanel buildLowerButtonPanel(boolean ijoption)
 	{
 		TableLayout buttonLayout =
 				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF);
 		JPanel buttonPanel = new JPanel(buttonLayout);
 		int plugin = ImporterAgent.runAsPlugin();
-		if (plugin != LookupNames.IMAGE_J_IMPORT) {
-	        buttonPanel.add(closeButton, "0, 0, l, c");
+		if (plugin != LookupNames.IMAGE_J_IMPORT &&
+		        plugin != LookupNames.IMAGE_J) {
+		    buttonPanel.add(closeButton, "0, 0, l, c");
 	        buttonPanel.add(refreshButton, "1, 0, l, c");
+		} else {
+		    if (!ijoption) {
+		        buttonPanel.add(closeButton, "0, 0, l, c");
+            }
+		    buttonPanel.add(refreshButton, "1, 0, l, c");
 		}
 		buttonPanel.add(addButton, "2, 0, r, c");
 		JPanel buttonWrapper = wrapInPaddedPanel(buttonPanel, UI_GAP, 0, 0, 0);
@@ -743,8 +753,11 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Builds and lays out the UI.
+	 *
+	 * @param ijoption This is only used in imagej mode.
+     *                 Option indicating which window to select.
 	 */
-	private void layoutUI()
+	private void layoutUI(boolean ijoption)
 	{
 	    int plugin = ImporterAgent.runAsPlugin();
         JPanel pane;
@@ -770,7 +783,9 @@ class LocationDialog extends JDialog implements ActionListener,
             pane = new JPanel();
             pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
             pane.add(buildDataTypeTabbedPane());
-            pane.add(UIUtilities.buildComponentPanel(buttons));
+            if (ijoption) {
+                pane.add(UIUtilities.buildComponentPanel(buttons));
+            }
         } else {
             pane = buildDataTypeTabbedPane();
         }
@@ -782,7 +797,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		JPanel mainPanel = new JPanel(layout);
 		mainPanel.add(buildGroupSelectionPanel(),BorderLayout.NORTH);
 		mainPanel.add(pane, BorderLayout.CENTER);
-		mainPanel.add(buildLowerButtonPanel(), BorderLayout.SOUTH);
+		mainPanel.add(buildLowerButtonPanel(ijoption), BorderLayout.SOUTH);
 		
 		TableLayout containerLayout = createTableLayout(TABLE_GAP);
 		Container contentPane = this.getContentPane();
@@ -880,6 +895,11 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void close()
 	{
+	    int plugin = ImporterAgent.runAsPlugin();
+        if (plugin == LookupNames.IMAGE_J_IMPORT ||
+                plugin == LookupNames.IMAGE_J_IMPORT) {
+            return;
+        }
 		setVisible(false);
 		dispose();
 	}

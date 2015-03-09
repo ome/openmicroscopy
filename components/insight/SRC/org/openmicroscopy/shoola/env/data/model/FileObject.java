@@ -327,4 +327,29 @@ public class FileObject
             return ((Long) value).longValue();
         return -1;
     }
+
+    /**
+     * Returns the name as container if option is on.
+     *
+     * @return See above.
+     */
+    public String getFolderAsContainerName()
+    {
+        File parentFile;
+        if (file instanceof File) {
+            File f = (File) file;
+            if (f.isFile()) {
+                parentFile = f.getParentFile();
+                if (parentFile == null)
+                    return null;
+                return parentFile.getName();
+            }
+            return f.getName();
+        } else {
+            File f = getTrueFile();//image plus
+            if (f != null && f.getParentFile() != null)
+                return f.getParentFile().getName();
+            return getName();
+        }
+    }
 }

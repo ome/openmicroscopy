@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import ij.IJ;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
+
 //Third-party libraries
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
@@ -45,6 +49,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -381,31 +386,20 @@ public class ImportableObject
 	public DataObject createFolderAsContainer(ImportableFile file, boolean hcs)
 	{
 		if (file == null) return null;
-		Class klass = type;
+		Class<?> klass = type;
 		if (hcs) klass = ScreenData.class;
 		FileObject f = file.getFile();
-		if (!(f.getFile() instanceof File)) return null;
-		File ff = (File) f.getFile();
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
-		File parentFile;
+		String name = f.getFolderAsContainerName();
+		if (CommonsLangUtils.isBlank(name)) return null;
 		if (DatasetData.class.equals(klass)) {
 			DatasetData dataset = new DatasetData();
-			if (ff.isFile()) {
-				parentFile = ff.getParentFile();
-				if (parentFile == null)
-					return null;
-				dataset.setName(parentFile.getName());
-			} else dataset.setName(ff.getName());
+			dataset.setName(name);
 			return dataset;
 		} else if (ScreenData.class.equals(klass)) {
 			ScreenData screen = new ScreenData();
-			if (ff.isFile()) {
-				parentFile = ff.getParentFile();
-				if (parentFile == null)
-					return null;
-				screen.setName(parentFile.getName());
-			} else screen.setName(ff.getName());
+			screen.setName(name);
 			return screen;
 		}
 		return null;

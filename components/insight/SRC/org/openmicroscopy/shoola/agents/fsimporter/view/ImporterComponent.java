@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import ij.IJ;
+
 import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportLocationSettings;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -305,6 +308,35 @@ class ImporterComponent
         return sortedGroups;
 	}
 
+    private void activate(int type, TreeImageDisplay selectedContainer,
+           Collection<TreeImageDisplay> objects, long userId, boolean display)
+    {
+        if (model.getState() == DISCARDED) return;
+        boolean reactivate = chooser != null;
+        model.setImportFor(userId);
+        if (chooser == null) {
+            chooser = new ImportDialog(view, model.getSupportedFormats(),
+                    selectedContainer, objects, type,
+                    controller.getAction(ImporterControl.CANCEL_BUTTON), this);
+            chooser.addPropertyChangeListener(controller);
+            view.addComponent(chooser);
+        } else {
+            chooser.reset(selectedContainer, objects, type, model.getGroupId(),
+                    model.getImportFor());
+            chooser.requestFocusInWindow();
+            view.selectChooser();
+        }
+        chooser.setSelectedGroup(getSelectedGroup());
+        if (model.isMaster() || CollectionUtils.isEmpty(objects) || !reactivate)
+            refreshContainers(new ImportLocationDetails(type));
+        //load available disk space
+        model.fireDiskSpaceLoading();
+        if (display) {
+            view.setOnScreen();
+            view.toFront();
+        }
+    }
+
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#activate(int, TreeImageDisplay, Collection, long)
@@ -312,28 +344,7 @@ class ImporterComponent
 	public void activate(int type, TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects, long userId)
 	{
-		if (model.getState() == DISCARDED) return;
-		boolean reactivate = chooser != null;
-		model.setImportFor(userId);
-		if (chooser == null) {
-			chooser = new ImportDialog(view, model.getSupportedFormats(),
-					selectedContainer, objects, type,
-					controller.getAction(ImporterControl.CANCEL_BUTTON), this);
-			chooser.addPropertyChangeListener(controller);
-			view.addComponent(chooser);
-		} else {
-			chooser.reset(selectedContainer, objects, type, model.getGroupId(),
-					model.getImportFor());
-			chooser.requestFocusInWindow();
-			view.selectChooser();
-		}
-		chooser.setSelectedGroup(getSelectedGroup());
-		if (model.isMaster() || CollectionUtils.isEmpty(objects) || !reactivate)
-			refreshContainers(new ImportLocationDetails(type));
-		//load available disk space
-		model.fireDiskSpaceLoading();
-		view.setOnScreen();
-		view.toFront();
+		activate(type, selectedContainer, objects, userId, true);
 	}
 
 	/** 
@@ -942,10 +953,15 @@ class ImporterComponent
         if (object == null) return;
         if (importImage) {
             //Import images first
-            activate(Importer.PROJECT_TYPE, null, null, getImportFor());
+            activate(Importer.PROJECT_TYPE, null, null, getImportFor(), false);
             List<FileObject> files = (List) object.getRefObjects();
-            chooser.addImageJFiles(files);
-            chooser.importFiles();
+            ImportLocationSettings settings = chooser.createLocationDialog();
+            if (settings != null) {
+                view.setOnScreen();
+                view.toFront();
+                chooser.addImageJFiles(files, settings);
+                chooser.importFiles();
+            }
         }
     }
 }
