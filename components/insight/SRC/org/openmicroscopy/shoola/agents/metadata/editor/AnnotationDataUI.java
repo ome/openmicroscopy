@@ -104,16 +104,16 @@ class AnnotationDataUI
 {
 
 	/** Indicates to display all the annotations linked to the object. */
-	private static final int				SHOW_ALL = 0;
+	public static final int				SHOW_ALL = 0;
 	
 	/** 
 	 * Indicates to display the annotations linked by current user to 
 	 * the object. 
 	 */
-	private static final int				ADDED_BY_ME = 1;
+	public static final int				ADDED_BY_ME = 1;
 	
 	/** Indicates to display the annotations linked by others to the object. */
-	private static final int				ADDED_BY_OTHERS = 2;
+	public static final int				ADDED_BY_OTHERS = 2;
 	
 	/** The maximum number of elements displayed at a time. */
 	private static final int				MAX = 3;
@@ -568,7 +568,7 @@ class AnnotationDataUI
 		c.gridy++;
 
 		if(!model.isMultiSelection()) {
-			mapsPane.reload();
+			mapsPane.reload(filter);
 			content.add(mapsPane, c);
 			c.gridy++;
 		}
