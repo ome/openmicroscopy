@@ -38,6 +38,9 @@ public class ServerUpMailSender extends OnContextRefreshedEventListener {
 
     @Override
     public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+        if (!sender.isEnabled()) {
+            return;
+        }
         Set<String> addresses = sender.getAllSystemUsers(true);
         sender.sendBlind(addresses, "Server up", "");
     }

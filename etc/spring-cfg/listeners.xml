@@ -34,6 +34,7 @@
   -->
 
   <bean id="abstractMailSender" abstract="true">
+      <property name="enabled" value="${omero.mail.config}"/>
       <property name="executor" ref="executor"/>
       <property name="queryService" ref="internal-ome.api.IQuery"/>
       <property name="mailUtil" ref="mailUtil"/>

@@ -83,6 +83,10 @@ public class ObjectMailSender extends MailSender implements
     @Override
     public void onApplicationEvent(EventLogMessage elm) {
 
+        if (!isEnabled()) {
+            return;
+        }
+
         if (!elm.entityType.isAssignableFrom(klass)) {
             return;
         }
@@ -90,6 +94,7 @@ public class ObjectMailSender extends MailSender implements
         if (!isEmpty(this.queryString) && !elm.action.equals(this.action)) {
             return;
         }
+
         sendEmail(elm);
     }
 

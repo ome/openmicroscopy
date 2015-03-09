@@ -45,6 +45,8 @@ public class MailSender {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
+    private boolean enabled;
+
     private Executor executor;
 
     private MailUtil util;
@@ -58,6 +60,14 @@ public class MailSender {
     //
     // GETTERS & SETTERS
     //
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public Executor getExecutor() {
         return executor;
@@ -104,6 +114,12 @@ public class MailSender {
     //
 
     protected void sendBlind(Set<String> addresses, String subject, String text) {
+
+        if (!isEnabled()) {
+            // Printing warning since the enabled mail check should happen
+            // as early as possible to prevent wasting resources.
+            log.warn("sendBlind called when mail is disabled.");
+        }
 
         if (addresses == null || addresses.isEmpty()) {
             log.debug("No emails found.");

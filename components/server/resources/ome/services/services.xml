@@ -299,7 +299,4 @@
       <property name="from" value="${omero.mail.from}" />
   </bean>
 
-
 </beans>
-
-

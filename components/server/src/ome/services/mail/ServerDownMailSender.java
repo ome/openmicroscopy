@@ -34,6 +34,9 @@ public class ServerDownMailSender extends MailSender implements
 
     @Override
     public void onApplicationEvent(ShutdownMessage sm) {
+        if (!isEnabled()) {
+            return;
+        }
         Set<String> addresses = getAllSystemUsers(true);
         sendBlind(addresses, "Server shutdown", "body");
     }
