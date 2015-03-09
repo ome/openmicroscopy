@@ -9,6 +9,8 @@ package omeis.providers.re.data;
 
 // Java imports
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 // Third-party libraries
 
@@ -70,10 +72,16 @@ public class PlaneDef implements Serializable {
 
     /** The region to retrieve i.e. a rectangular section of the plane. */
     private RegionDef region;
-    
+
     /** The step size. */
     private int stride;
-    
+
+    /** Render shapes (masks) assosiated with this plane? */
+    private boolean renderShapes;
+
+    /** List of shape Ids to render. */
+    private List<Long> shapeIds;
+
     /**
      * Creates a new instance. This new object will identify the plane belonging
      * to the set specified by <code>slice</code> and <code>t</code> and
@@ -105,6 +113,8 @@ public class PlaneDef implements Serializable {
         }
         this.t = t;
         stride = 0;
+        renderShapes = false;
+        shapeIds = new ArrayList<Long>();
     }
 
     /**
@@ -250,7 +260,43 @@ public class PlaneDef implements Serializable {
      * @return See above.
      */
     public int getStride() { return stride; }
-    
+
+    /**
+     * Returns weather or not the shapes (masks) will be rendered.
+     * 
+     * @return See above.
+     */
+    public boolean getRenderShapes() {
+        return renderShapes;
+    }
+
+    /**
+     * Sets weather or not to render the shapes (masks).
+     * 
+     * @param renderShapes The value to set.
+     */
+    public void setRenderShapes(boolean renderShapes) {
+        this.renderShapes = renderShapes;
+    }
+
+    /**
+     * Returns weather or not the shapes (masks) will be rendered.
+     * 
+     * @return See above.
+     */
+    public List<Long> getShapeIds() {
+        return shapeIds;
+    }
+
+    /**
+     * Sets weather or not to render the shapes (masks).
+     * 
+     * @param renderShapes The value to set.
+     */
+    public void setShapeIds(List<Long> shapeIds) {
+        this.shapeIds = shapeIds;
+    }
+
     /**
      * Overridden to reflect equality of abstract values (data object) as
      * opposite to object identity.
@@ -350,6 +396,8 @@ public class PlaneDef implements Serializable {
         if (region != null) {
             buf.append("; Region: " + region.toString());
         }
+        buf.append(", renderShapes=" + renderShapes);
+        buf.append(", shapeIds=" + shapeIds);
         return buf.toString();
     }
 
