@@ -453,7 +453,7 @@ class DocComponent
 		
 		Timestamp created = annotation.getCreated();
 		if(created !=null) {
-		    tt.addLine("Date", UIUtilities.formatShortDateTime(created), true);
+		    tt.addLine("Date", UIUtilities.formatDefaultDate(created), true);
 		}
 		
 		if (data instanceof FileAnnotationData) {

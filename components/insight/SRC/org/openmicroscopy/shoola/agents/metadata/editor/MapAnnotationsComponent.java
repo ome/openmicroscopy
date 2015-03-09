@@ -434,7 +434,7 @@ public class MapAnnotationsComponent extends JPanel implements
         
         Timestamp created = ma.getCreated();
         if(created !=null) {
-            tt.addLine("Date", UIUtilities.formatShortDateTime(created), true);
+            tt.addLine("Date", UIUtilities.formatDefaultDate(created), true);
         }
         
         return tt.toString();
