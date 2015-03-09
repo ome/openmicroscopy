@@ -110,7 +110,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, fa, 'dataset', datasetId);
-    fprintf(1, 'Linked file annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked file annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving file annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     fas = getDatasetFileAnnotations(session, datasetId, 'include', ns);
@@ -163,7 +163,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, ca, 'dataset', datasetId);
-    fprintf(1, 'Linked comment annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked comment annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving comment annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     cas = getDatasetCommentAnnotations(session, datasetId, 'include', ns);
@@ -216,7 +216,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, da, 'dataset', datasetId);
-    fprintf(1, 'Linked double annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked double annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving double annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     das = getDatasetDoubleAnnotations(session, datasetId, 'include', ns);
@@ -269,7 +269,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, la, 'dataset', datasetId);
-    fprintf(1, 'Linked long annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked long annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving long annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     las = getDatasetLongAnnotations(session, datasetId, 'include', ns);
@@ -299,6 +299,59 @@ try
     las = getScreenLongAnnotations(session, screenId, 'include', ns);
     assert(hasAnnotation(la, las), 'WriteData: Could not find annotation');
  
+    %% Map Annotation
+    disp('Map annotation');
+    mapAnnotation = writeMapAnnotation(session, 'key', 'value',...
+        'description', 'map description', 'namespace', ns);
+    fprintf(1, 'Created map annotation %g\n',...
+        mapAnnotation.getId().getValue());
+    fprintf(1, 'Retrieving map annotation %g\n',...
+        mapAnnotation.getId().getValue());
+    annotation = getAnnotations(session,...
+        mapAnnotation.getId().getValue(), 'map');
+    assert(~isempty(annotation), 'WriteData: Could not find annotation');
+    
+    % Project - Annotation link
+    ma = omero.model.MapAnnotationI(mapAnnotation.getId().getValue(), false);
+    linkAnnotation(session, ma, 'project', projectId);
+    fprintf(1, 'Linked map annotation to project %g\n', projectId);
+    fprintf(1, 'Retrieving map annotations attached to project %g with namespace %s\n',...
+        projectId, ns);
+    mas = getObjectAnnotations(session, 'map', 'project', projectId, 'include', ns);
+    assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
+    
+    % Dataset - Annotation link
+    linkAnnotation(session, ma, 'dataset', datasetId);
+    fprintf(1, 'Linked map annotation to dataset %g\n', datasetId);
+    fprintf(1, 'Retrieving map annotations attached to dataset %g with namespace %s\n',...
+        datasetId, ns);
+    mas = getObjectAnnotations(session, 'map', 'dataset', datasetId, 'include', ns);
+    assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
+    
+    % Image - Annotation link
+    linkAnnotation(session, ma, 'image', imageId);
+    fprintf(1, 'Linked map annotation to image %g\n', imageId);
+    fprintf(1, 'Retrieving map annotations attached to image %g with namespace %s\n',...
+        imageId, ns);
+    mas = getObjectAnnotations(session, 'map', 'image', imageId, 'include', ns);
+    assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
+    
+    % Plate - Annotation link
+    linkAnnotation(session, ma, 'plate', plateId);
+    fprintf(1, 'Linked map annotation to plate %g\n', plateId);
+    fprintf(1, 'Retrieving map annotations attached to plate %g with namespace %s\n',...
+        plateId, ns);
+    mas = getObjectAnnotations(session, 'map', 'plate', plateId, 'include', ns);
+    assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
+    
+    % Screen - Annotation link
+    linkAnnotation(session, ma, 'screen', screenId);
+    fprintf(1, 'Linked map annotation to screen %g\n', screenId);
+    fprintf(1, 'Retrieving map annotations attached to screen %g with namespace %s\n',...
+        screenId, ns);
+    mas = getObjectAnnotations(session, 'map', 'screen', screenId, 'include', ns);
+    assert(hasAnnotation(ma, mas), 'WriteData: Could not find annotation');
+ 
     %% Tag Annotation
     disp('Tag annotation');
     tagAnnotation = writeTagAnnotation(session, 'tag value',...
@@ -322,7 +375,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, ta, 'dataset', datasetId);
-    fprintf(1, 'Linked tag annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked tag annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving tag annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     tas = getDatasetTagAnnotations(session, datasetId, 'include', ns);
@@ -375,7 +428,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, ta, 'dataset', datasetId);
-    fprintf(1, 'Linked timestamp annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked timestamp annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving timestamp annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     tas = getDatasetTimestampAnnotations(session, datasetId, 'include', ns);
@@ -428,7 +481,7 @@ try
     
     % Dataset - Annotation link
     linkAnnotation(session, xa, 'dataset', datasetId);
-    fprintf(1, 'Linked XML annotation to project %g\n', datasetId);
+    fprintf(1, 'Linked XML annotation to dataset %g\n', datasetId);
     fprintf(1, 'Retrieving XML annotations attached to dataset %g with namespace %s\n',...
         datasetId, ns);
     xas = getDatasetXmlAnnotations(session, datasetId, 'include', ns);
