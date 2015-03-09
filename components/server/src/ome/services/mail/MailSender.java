@@ -138,6 +138,15 @@ public class MailSender {
         }
     }
 
+    protected String getUserEmail(String user) {
+        Experimenter e = getQueryService().findByString(Experimenter.class,
+                "omeName", user);
+        if (e == null) {
+            return null;
+        }
+        return e.getEmail();
+    }
+
     protected void addUser(Set<String> addresses, Experimenter exp) {
         String email = exp.getEmail();
         if (!isEmpty(email)) {

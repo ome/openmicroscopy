@@ -48,6 +48,12 @@
       <property name="queryString" value="select g from ExperimenterGroup where g.id = :systemGroupId"/>
   </bean>
 
+  <bean id="failedLoginMailSender" parent="abstractMailSender"
+      class="ome.services.mail.FailedLoginMailSender">
+      <property name="contactSystem" value="true"/>
+      <property name="onSpecificUsers" value="root"/>
+  </bean>
+
   <bean id="serverUpMailSender" class="ome.services.mail.ServerUpMailSender">
       <constructor-arg>
           <bean class="ome.services.mail.MailSender" parent="abstractMailSender"/>
