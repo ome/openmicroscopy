@@ -438,7 +438,7 @@ class DocComponent
 		}
 		
 		String ns = annotation.getNameSpace();
-		if(!CommonsLangUtils.isEmpty(ns) && !isInternalNS(ns)) {
+		if(!CommonsLangUtils.isEmpty(ns) && !EditorUtil.isInternalNS(ns)) {
 		    tt.addLine("Namespace", ns, true);
 		}
 		
@@ -470,17 +470,6 @@ class DocComponent
 			checkAnnotators(tt, annotation);
 		}
 		return tt.toString();
-	}
-
-	/**
-	 * Checks if the given namespace is an internal one.
-	 * 
-	 * @param ns
-	 *            The namespace to check
-	 * @return See above
-	 */
-	private boolean isInternalNS(String ns) {
-		return ns.startsWith("openmicroscopy.org") || ns.startsWith("omero.");
 	}
 	
 	/** Initializes the various buttons. */
