@@ -416,6 +416,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
      * @see RenderingEngine#setOverlays()
+     * @deprecated As of release 5.1.0, replaced by
+     * {@link omeis.providers.re.data.PlaneDef#setShapeIds(List)}.
      */
     @RolesAllowed("user")
     public void setOverlays(Map<byte[], Integer> overlays)
