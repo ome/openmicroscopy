@@ -41,6 +41,8 @@ class BaseSearch(BaseController):
     prSize = 0
 
     c_size = 0
+    # Indicates that search returned a full page of batchSize
+    moreResults = False
 
     def __init__(self, conn, **kw):
         BaseController.__init__(self, conn)
@@ -56,6 +58,7 @@ class BaseSearch(BaseController):
         fields = list(fields)
 
         created = None
+        self.moreResults = False
         batchSize = 500
         if len(onlyTypes) == 1:
             batchSize = 1000
@@ -78,6 +81,7 @@ class BaseSearch(BaseController):
         def doSearch(searchType):
             """ E.g. searchType is 'images' """
             objType = searchType[0:-1]  # remove 's'
+
             obj_list = list(self.conn.searchObjects(
                 [objType],
                 query,
@@ -87,15 +91,7 @@ class BaseSearch(BaseController):
                 searchGroup=searchGroup,
                 ownedBy=ownedBy,
                 useAcquisitionDate=useAcquisitionDate))
-            obj_ids = [o.id for o in obj_list]
-            im_annotation_counter = self.conn.getCollectionCount(
-                objType.title(), "annotationLinks", obj_ids)
-
-            im_list_with_counters = []
-            for o in obj_list:
-                o.annotation_counter = im_annotation_counter.get(o.id)
-                im_list_with_counters.append(o)
-            return im_list_with_counters
+            return obj_list
 
         self.containers = {}
         resultCount = 0
@@ -107,6 +103,9 @@ class BaseSearch(BaseController):
                 if dt in ['projects', 'datasets', 'images', 'screens',
                           'plates']:
                     self.containers[dt] = doSearch(dt)
+                    # If we get a full page of results, we know there are more
+                    if len(self.containers[dt]) == batchSize:
+                        self.moreResults = True
                     resultCount += len(self.containers[dt])
         except Exception, x:
             if isinstance(x, omero.ServerError):

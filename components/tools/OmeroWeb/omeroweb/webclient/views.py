@@ -721,7 +721,8 @@ def load_searching(request, form=None, conn=None, **kwargs):
         template = "webclient/search/search.html"
 
 
-    context = {'manager':manager, 'foundById': foundById}
+    context = {'manager':manager, 'foundById': foundById,
+               'resultCount':manager.c_size + len(foundById)}
     context['template'] = template
     return context
 
