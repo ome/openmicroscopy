@@ -44,10 +44,12 @@ import javax.swing.Action;
 //Third-party libraries
 
 
+
 import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ActivatedUserAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
@@ -166,6 +168,9 @@ class DataBrowserControl
     /** Identifies the <code>USER ACTIVATED action</code>.*/
     static final Integer USER_ACTIVATED = Integer.valueOf(20);
 
+    /** Identifies the <code>Download action</code>.*/
+    static final Integer DOWNLOAD = Integer.valueOf(21);
+
     /** 
      * Reference to the {@link DataBrowser} component, which, in this context,
      * is regarded as the Model.
@@ -217,6 +222,7 @@ class DataBrowserControl
         actionsMap.put(SEND_FEEDBACK, new SendFeedbackAction(model));
         actionsMap.put(USER_ACTIVATED, new ActivatedUserAction(model));
         actionsMap.put(RESET_PASSWORD, new PasswordResetAction(model));
+        actionsMap.put(DOWNLOAD, new DownloadAction(model));
     }
 
     /** 
