@@ -461,12 +461,8 @@ $.fn.roi_display = function(options) {
                                     txt_box = txt.getBBox();
                                     var txt_w = txt_box.width*1.3;
                                     var txt_h = txt_box.height*1.3;
-                                    var txt_bg = paper.rect(textx-txt_w/2, texty-txt_h/2, txt_w, txt_h);
-                                    txt_bg.attr({'cursor':'default', 'fill': '#FFFCB7', 'fill-opacity': 0.78, 'stroke': null});
                                     txt.toFront();
-                                    // clicking the text (or text background) should do the same as clicking the shape
-                                    txt_bg.id = shape['id'] + "_text_bg";
-                                    txt_bg.click(handle_shape_click);
+                                    // clicking the text should do the same as clicking the shape
                                     txt.id = shape['id'] + "_shape_text";
                                     txt.click(handle_shape_click);
                                     
