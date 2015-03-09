@@ -25,6 +25,7 @@ from omero.plugins.download import DownloadControl
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring
+from omero.model import NamedValue as NV
 
 
 class TestDownload(CLITest):
@@ -243,15 +244,18 @@ class TestDownload(CLITest):
         PolicyFixture("repository", None, "member", False),
 
         # Fixtures with group settings
-        # PolicyFixture("", "none", "owner", True),
-        # PolicyFixture("", "none", "admin", True),
-        # PolicyFixture("", "none", "member", False),
-        # PolicyFixture("none", "none", "owner", False),
-        # PolicyFixture("none", "none", "admin", False),
-        # PolicyFixture("none", "none", "member", False),
-        # PolicyFixture("repository", "none", "owner", True),
-        # PolicyFixture("repository", "none", "admin", True),
-        # PolicyFixture("repository", "none", "member", False),
+        PolicyFixture("", "none", "owner", False),
+        PolicyFixture("", "none", "admin", False),
+        PolicyFixture("", "none", "member", False),
+        PolicyFixture("", "repository", "owner", True),
+        PolicyFixture("", "repository", "admin", True),
+        PolicyFixture("", "repository", "member", False),
+        PolicyFixture("none", "none", "owner", False),
+        PolicyFixture("none", "none", "admin", False),
+        PolicyFixture("none", "none", "member", False),
+        PolicyFixture("repository", "none", "owner", True),
+        PolicyFixture("repository", "none", "admin", True),
+        PolicyFixture("repository", "none", "member", False),
     )
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
@@ -270,14 +274,25 @@ class TestDownload(CLITest):
         if cfg != fixture.cfg:
             pytest.skip("Found download policy: %s" % cfg)
 
-        group = self.new_group(perms='rwr---')
+        config = None
+        if fixture.grp is not None:
+            config = [NV("omero.policy.download", fixture.grp)]
+
+        group = self.new_group(perms='rwr---', config=config)
         upper = self.new_client(group=group)
         ofile = self.create_original_file("test", upper)
 
         if fixture.for_user == "owner":
             downer = upper
         else:
-            downer = self.new_client(group=group)
+            system = fixture.for_user == "admin"
+            downer = self.new_client(group=group,
+                                     system=system)
+
+        downer_q = downer.sf.getQueryService()
+        downer_f = downer_q.get("OriginalFile", ofile.id.val)
+        assert downer_f.details.permissions.isRestricted(
+            omero.constants.permissions.DOWNLOAD) != fixture.will_pass
 
         self.args = ["download"]
         self.args += self.login_args(downer)

@@ -21,11 +21,14 @@ package ome.security.policy;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.internal.NamedValue;
+import ome.model.meta.ExperimenterGroup;
 import ome.security.ACLVoter;
 
 
@@ -70,16 +73,35 @@ public class DownloadPolicy extends BasePolicy {
 
     @Override
     public boolean isRestricted(IObject obj) {
-        if (config.isEmpty()) {
-            return false;
-        } else if (config.contains("none")) {
-           return true;
-        } else if (config.contains("repository")) {
-            if (voter.allowUpdate(obj, obj.getDetails())) {
-                return false;
+        final Set<String> groupConfig = groupRestrictions(obj);
+        if (groupConfig.contains("none") ||
+                config.contains("none")) {
+            return true;
+        } else if (groupConfig.contains("repository") ||
+                config.contains("repository")) {
+            return !voter.allowUpdate(obj, obj.getDetails());
+        }
+        return false;
+    }
+
+    protected Set<String> groupRestrictions(IObject obj) {
+        ExperimenterGroup grp = obj.getDetails().getGroup();
+        if (grp != null && grp.getConfig() != null && grp.getConfig().size() > 0) {
+            Set<String> rv = null;
+            for (NamedValue nv : grp.getConfig()) {
+                if ("omero.policy.download".equals(nv.getName())) {
+                    if (rv == null) {
+                        rv = new HashSet<String>();
+                    }
+                    String setting = nv.getValue();
+                    rv.add(setting);
+                }
+            }
+            if (rv != null) {
+                return rv;
             }
         }
-        return true;
+        return Collections.emptySet();
     }
 
     @Override
