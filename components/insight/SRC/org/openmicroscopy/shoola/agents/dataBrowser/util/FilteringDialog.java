@@ -65,18 +65,22 @@ import javax.swing.event.DocumentListener;
 
 
 
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchPanel;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -161,8 +165,8 @@ public class FilteringDialog
 	private JCheckBox		tagsBox;
 	
 	/** The component to select a time interval. */
-	private JCheckBox		calendarBox;
-	
+	private JComboBox timeOptions;
+
 	/** The component to select the number of ROIs. */
 	private JCheckBox              roiBox;
 	
@@ -357,8 +361,10 @@ public class FilteringDialog
 	private void initComponents()
 	{
 		ratingBox = new JCheckBox("Rating:");
-		//ratingBox.setSelected(true);
-		calendarBox = new JCheckBox("Calendar:");
+		timeOptions = new JComboBox();
+		timeOptions.setToolTipText(SearchPanel.DATE_TYPE_TOOLTIP);
+		timeOptions.addItem(SearchPanel.ITEM_IMPORTDATE);
+		timeOptions.addItem(SearchPanel.ITEM_ACQUISITIONDATE);
 		commentsBox = new JCheckBox("Comments");
 		nameBox = new JCheckBox("Name");
 		tagsBox = new JCheckBox("Tags");
@@ -455,15 +461,17 @@ public class FilteringDialog
                     };
                     context.setRois(index, ((Number)roiSpinner.getValue()).intValue());
                 }
-		if (calendarBox.isSelected()) {
-			Date d = fromDate.getDate();
-			Timestamp start = null;
-			if (d != null) start = new Timestamp(d.getTime());
-			Timestamp end = null;
-			d = toDate.getDate();
-			if (d != null) end = new Timestamp(d.getTime());
-			context.setTimeInterval(start, end);
-		}
+        Date d = fromDate.getDate();
+        Timestamp start = null;
+        if (d != null) start = new Timestamp(d.getTime());
+        Timestamp end = null;
+        d = toDate.getDate();
+        if (d != null) end = new Timestamp(d.getTime());
+        context.setTimeInterval(start, end);
+        context.setTimeType(timeOptions.getSelectedItem().equals(
+                SearchPanel.ITEM_ACQUISITIONDATE) ?
+                        SearchParameters.DATE_ACQUISITION :
+                            SearchParameters.DATE_IMPORT);
 		if (tagsBox.isSelected()) {
 			List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
 					SearchUtil.COMMA_SEPARATOR);
@@ -530,7 +538,7 @@ public class FilteringDialog
 		date.add(toDate);
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(calendarBox);
+		p.add(timeOptions);
 		p.add(date);
 		return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
@@ -713,7 +721,6 @@ public class FilteringDialog
 	 * Unselects all checkboxes
 	 */
 	public void unselectAll() {
-	    calendarBox.setSelected(false);
 	    commentsBox.setSelected(false);
 	    nameBox.setSelected(false);
 	    ratingBox.setSelected(false);

@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.env.data.util.FilterContext 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -118,7 +118,10 @@ public class FilterContext
 	
 	/** The collection of name to filter by. */
 	private List<String>				names;
-	
+
+	/** The time interval to check.*/
+	private int timeType;
+
 	/** Creates a new instance. */
 	public FilterContext()
 	{
@@ -253,7 +256,24 @@ public class FilterContext
 			this.toDate = toDate;
 		}
 	}
-	
+
+	/**
+	 * Sets the time interval to check.
+	 *
+	 * @param type The value to set.
+	 */
+	public void setTimeType(int type)
+	{
+	    timeType = type;
+	}
+
+	/**
+	 * Return the time interval to check.
+	 *
+	 * @return See above.
+	 */
+	public int getTimeType() { return timeType; }
+
 	/**
 	 * Returns the lower bound of the time interval.
 	 * 

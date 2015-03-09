@@ -96,7 +96,7 @@ public class SearchPanel extends JPanel {
 
     private static final String DATE_TOOLTIP = "<html>Please select a date from the drop-down menu or enter<br> a date in the format YYYY-MM-DD (e. g. 2014-07-10)</html>";
  
-    private static final String DATE_TYPE_TOOLTIP = "Select the type of date (Acquisition date applies to images only)";
+    public static final String DATE_TYPE_TOOLTIP = "Select the type of date (Acquisition date applies to images only)";
 
     /** The terms to search for. */
     private JTextField fullTextArea;
