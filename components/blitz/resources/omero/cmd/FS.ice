@@ -40,7 +40,7 @@ module omero {
 
         /**
          * Successful response for [OriginalMetadataRequest]. Contains
-         * boths the global and the series metadata as maps. Only one
+         * both the global and the series metadata as maps. Only one
          * of [filesetId] or [filesetAnnotationId] will be set. Pre-FS
          * images will have [filesetAnnotationId] set; otherwise
          * [filesetId] will be set.
@@ -71,6 +71,70 @@ module omero {
              * series metadata applies only to this specific one.
              **/
             omero::RTypeDict seriesMetadata;
+        };
+
+        /**
+         * Request to determine the original files associated with the given
+         * image. The image must have an associated Pixels object and may not
+         * be from a pre-FS plate.
+         **/
+        class UsedFilesRequest extends Request {
+            /**
+             * an image ID
+             **/
+            long imageId;
+        };
+
+        /**
+         * The used files associated with a pre-FS image.
+         **/
+        class UsedFilesResponsePreFs extends Response {
+            /**
+             * The original file IDs of any archived files associated with
+             * the image.
+             **/
+            omero::api::LongList archivedFiles;
+
+            /**
+             * The original file IDs of any companion files associated with
+             * the image.
+             **/
+            omero::api::LongList companionFiles;
+
+            /**
+             * The original file IDs of any original metadata files associated
+             * with the image.
+             **/
+            omero::api::LongList originalMetadataFiles;
+        };
+
+        /**
+         * The used files associated with an FS image.
+         **/
+        class UsedFilesResponse extends Response {
+            /**
+             * The original file IDs of any binary files associated with the
+             * image's particular series.
+             **/
+            omero::api::LongList binaryFilesThisSeries;
+
+            /**
+             * The original file IDs of any binary files associated with the
+             * image's fileset but not with its particular series.
+             **/
+            omero::api::LongList binaryFilesOtherSeries;
+
+            /**
+             * The original file IDs of any companion files associated with the
+             * image's particular series.
+             **/
+            omero::api::LongList companionFilesThisSeries;
+
+            /**
+             * The original file IDs of any companion files associated with the
+             * image's fileset but not with its particular series.
+             **/
+            omero::api::LongList companionFilesOtherSeries;
         };
 
         /**
