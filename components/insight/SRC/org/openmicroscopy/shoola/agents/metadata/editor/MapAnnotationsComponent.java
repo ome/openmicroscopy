@@ -36,6 +36,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,8 +65,10 @@ import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableSelectionModel;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ToolTipGenerator;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ExperimenterData;
 import pojos.MapAnnotationData;
 
 /**
@@ -375,6 +378,7 @@ public class MapAnnotationsComponent extends JPanel implements
 				JPanel p = new JPanel();
 				p.setBackground(UIUtilities.BACKGROUND_COLOR);
 				UIUtilities.setBoldTitledBorder(title, p);
+				p.setToolTipText(generateToolTip(ma));
 				p.setLayout(new BorderLayout());
 				t = createMapTable(ma);
 
@@ -405,6 +409,37 @@ public class MapAnnotationsComponent extends JPanel implements
 		adjustScrollPane();
 	}
 
+	private String generateToolTip(MapAnnotationData ma) {
+	    ToolTipGenerator tt = new ToolTipGenerator();
+        ExperimenterData exp = null;
+        
+        if(ma.getId()>0) {
+            exp = model.getOwner(ma);
+            tt.addLine("ID", ""+ma.getId(), true);
+        }
+        
+        String ns = ma.getNameSpace();
+        if(!CommonsLangUtils.isEmpty(ns) && !EditorUtil.isInternalNS(ns)) {
+            tt.addLine("Namespace", ns, true);
+        }
+        
+        String desc = ma.getDescription();
+        if(!CommonsLangUtils.isEmpty(desc)) {
+            tt.addLine("Description", desc, true);
+        }
+        
+        if(exp!=null) {
+            tt.addLine("Owner", EditorUtil.formatExperimenter(exp), true);
+        }
+        
+        Timestamp created = ma.getCreated();
+        if(created !=null) {
+            tt.addLine("Date", UIUtilities.formatShortDateTime(created), true);
+        }
+        
+        return tt.toString();
+	}
+	
 	/**
 	 * En-/Disables the toolbar buttons with respect to the current model state
 	 */
