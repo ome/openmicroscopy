@@ -7,6 +7,8 @@
 
 package ome.security.sharing;
 
+import java.util.Set;
+
 import ome.api.IShare;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -109,6 +111,11 @@ public class SharingACLVoter implements ACLVoter {
 
     public void throwDeleteViolation(IObject iObject) throws SecurityViolation {
         throwDisabled("Delete");
+    }
+
+    @Override
+    public Set<String> restrictions(IObject object) {
+        return null;
     }
 
     // Helpers

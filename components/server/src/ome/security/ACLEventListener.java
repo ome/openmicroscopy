@@ -10,14 +10,14 @@ package ome.security;
 // Java imports
 
 // Third-party imports
+import java.util.Set;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.tools.hibernate.HibernateUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
@@ -34,6 +34,8 @@ import org.hibernate.event.PreLoadEvent;
 import org.hibernate.event.PreLoadEventListener;
 import org.hibernate.event.PreUpdateEvent;
 import org.hibernate.event.PreUpdateEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * responsible for intercepting all pre-INSERT, pre-UPDATE, pre-DELETE, and
@@ -103,6 +105,9 @@ public class ACLEventListener implements
             if (!aclVoter.allowLoad(event.getSession(), o.getClass(), o.getDetails(), o.getId())) {
                 aclVoter.throwLoadViolation(o);
             }
+            Set<String> restrictions = aclVoter.restrictions(o);
+            ((IObject) entity).getDetails().getPermissions()
+                .addExtendedRestrictions(restrictions);
         }
     }
 

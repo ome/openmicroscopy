@@ -12,7 +12,7 @@ package ome.security;
 // Third-party libraries
 
 // Application-internal dependencies
-import org.hibernate.Session;
+import java.util.Set;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -20,6 +20,8 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.system.EventContext;
+
+import org.hibernate.Session;
 
 /**
  * helper security interface for all decisions on access control
@@ -173,4 +175,12 @@ public interface ACLVoter {
      */
     void throwDeleteViolation(IObject iObject) throws SecurityViolation;
 
+    /**
+     * Provide the active restrictions for this {@link IObject}.
+     *
+     * See {@link ome.security.policy.PolicyService for further details.
+     * @param object
+     * @return
+     */
+    Set<String> restrictions(IObject object);
 }
