@@ -28,6 +28,7 @@ module omero {
                 void saveArray(IObjectList graph) throws ServerError;
                 IObjectList saveAndReturnArray(IObjectList graph) throws ServerError;
                 omero::sys::LongList saveAndReturnIds(IObjectList graph) throws ServerError;
+                ["deprecated:use omero::cmd::Delete2 instead"]
                 void deleteObject(omero::model::IObject row) throws ServerError;
                 idempotent void indexObject(omero::model::IObject row) throws ServerError;
             };
