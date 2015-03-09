@@ -26,9 +26,15 @@ package org.openmicroscopy.shoola.agents.metadata.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.Action;
 
 //Third-party libraries
+
+
+
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -43,6 +49,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+
+import pojos.ChannelData;
 
 /** 
  * Handles the rendering settings.
@@ -255,6 +263,18 @@ public class ManageRndSettingsAction
 		setEnabled(true);
 		checkIndex(index);
 		this.index = index;
+		//check if we have stats for channel
+		if (index == MIN_MAX) {
+		    List<ChannelData> channels = model.getChannelData();
+		    Iterator<ChannelData> i = channels.iterator();
+		    while (i.hasNext()) {
+		        ChannelData c = i.next();
+                if (!c.hasStats()) {
+                    setEnabled(false);
+                    break;
+                }
+            }
+		}
 	}
 	
 	/**
