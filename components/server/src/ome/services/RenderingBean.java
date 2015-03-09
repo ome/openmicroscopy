@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -41,6 +42,8 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.internal.Permissions;
+import ome.model.roi.Mask;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.services.util.Executor;
@@ -457,6 +460,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.readLock().lock();
 
         try {
+            final Map<byte[], Integer> overlays = getMasks(pd);
+            renderer.setOverlays(overlays);
             errorIfInvalidState();
             return renderer.render(pd);
         } catch (IOException e) {
@@ -480,6 +485,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
         rwl.writeLock().lock();
 
         try {
+            final Map<byte[], Integer> overlays = getMasks(pd);
+            renderer.setOverlays(overlays);
             errorIfInvalidState();
             checkPlaneDef(pd);
             if (resolutionLevel != null)
@@ -509,6 +516,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         ByteArrayOutputStream byteStream = null;
         try {
+            final Map<byte[], Integer> overlays = getMasks(pd);
+            renderer.setOverlays(overlays);
         	int stride = pd.getStride();
         	if (stride < 0) stride = 0;
         	stride++;
@@ -1897,5 +1906,111 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 tb.getThumbnailByLongestSide(96);
                 return null;
         }});
+    }
+
+    /**
+     * Get Masks attached to the image for rendering filtered by the user.
+     */
+    private List<IObject> getMasksById(PlaneDef pd) {
+        long pid = pixelsObj.getId();
+        final long width = pixelsObj.getSizeX();
+        final long height = pixelsObj.getSizeY();
+        final long z = pd.getZ();
+        final long t = pd.getT();
+        // What to do about sizeC???????
+        final Map<byte[], Integer> maskMap =
+                new LinkedHashMap<byte[], Integer>();
+
+        final Parameters params = new Parameters();
+        params.addLong("pid", pid);
+        params.addLong("width", width);
+        params.addLong("height", height);
+        params.addLong("theZ", z);
+        params.addLong("theT", t);
+        params.addList("shapeIds", pd.getShapeIds());
+        final String query =
+                "select m from Mask as m " +
+                "join m.roi as r join r.image as i where " +
+                "i.pixels.id = :pixelsId " +
+                " and m.width = :width " +
+                " and m.height = :height " +
+                " and m.x = 0 " +
+                " and m.y = 0 " +
+                " and m.theZ = :theZ " +
+                " and m.theT = :theT" +
+                " and m.id in :shapeIds";
+        return (List<IObject>) ex.execute(/*ex*/null/*principal*/,
+                new Executor.SimpleWork(this,"getMaskList")
+        {
+            @Transactional(readOnly = true)
+            public List<IObject> doWork(Session session, ServiceFactory sf) {
+                return sf.getQueryService().findAllByQuery(
+                        query, params
+                );
+            }
+        });
+    }
+
+    /**
+     * Get all the Masks attached to the image for rendering.
+     */
+    private List<IObject> getAllMasks(PlaneDef pd) {
+        long pid = pixelsObj.getId();
+        final long width = pixelsObj.getSizeX();
+        final long height = pixelsObj.getSizeY();
+        final long z = pd.getZ();
+        final long t = pd.getT();
+
+        final Parameters params = new Parameters();
+        params.addLong("pid", pid);
+        params.addLong("width", width);
+        params.addLong("height", height);
+        params.addLong("theZ", z);
+        params.addLong("theT", t);
+        final String query =
+                "select m from Mask as m " +
+                "join m.roi as r join r.image as i where " +
+                "i.pixels.id = :pixelsId " +
+                " and m.width = :width " +
+                " and m.height = :height " +
+                " and m.x = 0 " +
+                " and m.y = 0 " +
+                " and m.theZ = :theZ " +
+                " and m.theT = :theT";
+        return (List<IObject>) ex.execute(/*ex*/null/*principal*/,
+                new Executor.SimpleWork(this,"getMaskList")
+        {
+            @Transactional(readOnly = true)
+            public List<IObject> doWork(Session session, ServiceFactory sf) {
+                return sf.getQueryService().findAllByQuery(
+                        query, params
+                );
+            }
+        });
+    }
+
+    /**
+     * Get Mask attached to the image for rendering.
+     */
+    private Map<byte[], Integer> getMasks(PlaneDef pd) {
+        List<IObject> masks = new ArrayList<IObject>();
+        if (pd.getShapeIds().isEmpty()) {
+            masks = getAllMasks(pd);
+        }
+        else {
+            masks = getMasksById(pd);
+        }
+
+        // What to do about sizeC???????
+        final Map<byte[], Integer> maskMap =
+                new LinkedHashMap<byte[], Integer>();
+
+        for (int i = 0; i < masks.size(); i++) {
+           maskMap.put(
+                   ((Mask) masks.get(i)).getBytes(),
+                   ((Mask) masks.get(i)).getFillColor()
+           );
+        }
+        return maskMap;
     }
 }
