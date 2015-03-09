@@ -1923,9 +1923,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
         final long height = pixelsObj.getSizeY();
         final long z = pd.getZ();
         final long t = pd.getT();
-        // What to do about sizeC???????
-        final Map<byte[], Integer> maskMap =
-                new LinkedHashMap<byte[], Integer>();
+
+        List<Long> channelIds = new ArrayList<Long>();
+        for (int c = 0; c < pixelsObj.getSizeC(); c++) {
+            if (rendDefObj.getChannelBinding(c).getActive()) {
+                channelIds.add((long) c);
+            }
+        }
 
         final Parameters params = new Parameters();
         params.addLong("pid", pid);
@@ -1933,6 +1937,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
         params.addLong("height", height);
         params.addLong("theZ", z);
         params.addLong("theT", t);
+        params.addList("channelIds", channelIds);
         params.addList("shapeIds", pd.getShapeIds());
         final String query =
                 "select m from Mask as m " +
@@ -1944,6 +1949,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 " and m.y = 0 " +
                 " and m.theZ = :theZ " +
                 " and m.theT = :theT" +
+                " and m.theC in :channelIds" +
                 " and m.id in :shapeIds";
         return (List<IObject>) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this,"getMaskList")
@@ -1967,12 +1973,20 @@ public class RenderingBean implements RenderingEngine, Serializable {
         final long z = pd.getZ();
         final long t = pd.getT();
 
+        List<Long> channelIds = new ArrayList<Long>();
+        for (int c = 0; c < pixelsObj.getSizeC(); c++) {
+            if (rendDefObj.getChannelBinding(c).getActive()) {
+                channelIds.add((long) c);
+            }
+        }
+
         final Parameters params = new Parameters();
         params.addLong("pid", pid);
         params.addLong("width", width);
         params.addLong("height", height);
         params.addLong("theZ", z);
         params.addLong("theT", t);
+        params.addList("channelIds", channelIds);
         final String query =
                 "select m from Mask as m " +
                 "join m.roi as r join r.image as i where " +
@@ -1982,7 +1996,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 " and m.x = 0 " +
                 " and m.y = 0 " +
                 " and m.theZ = :theZ " +
-                " and m.theT = :theT";
+                " and m.theT = :theT" +
+                " and m.theC in :channelIds";
         return (List<IObject>) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this,"getMaskList")
         {
@@ -2007,7 +2022,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             masks = getMasksById(pd);
         }
 
-        // What to do about sizeC???????
         final Map<byte[], Integer> maskMap =
                 new LinkedHashMap<byte[], Integer>();
 
