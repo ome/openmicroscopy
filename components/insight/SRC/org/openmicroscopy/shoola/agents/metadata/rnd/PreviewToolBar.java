@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.metadata.rnd.PreviewToolBar 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -23,11 +23,7 @@
 package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
-//Java imports
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
@@ -35,9 +31,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -60,15 +53,13 @@ class PreviewToolBar
 
     /** Text of the preview check box. */
     private static final String     PREVIEW = "Live Update";
-    
+
     /** The description of the preview check box. */
     private static final String     PREVIEW_DESCRIPTION = "Update the " +
-                    "rendering settings immediately. Not available for large " +
-                    "images";
-    
-    /** Text of the ROI count label */
-    private static final String ROI_LABEL_TEXT = "ROI Count: ";
-    
+            "rendering settings immediately. Not available for large " +
+            "images";
+
+
     /** Reference to the control. */
     private RendererControl control;
 
@@ -80,27 +71,27 @@ class PreviewToolBar
 
     /** Preview option for render settings */
     private JToggleButton       preview;
-    
+
     /** Initializes the component. */
     private void initComponents()
     {
-    	 selectedPlane = new JLabel();
-         Font font = selectedPlane.getFont();
-         Font newFont = font.deriveFont(font.getStyle(),
-                 font.getSize()-2);
-         selectedPlane.setFont(newFont);
-         setSelectedPlane();
-         
-         preview = new JCheckBox(PREVIEW);
-         preview.setEnabled(!model.isBigImage());
-         preview.setToolTipText(PREVIEW_DESCRIPTION);
-         preview.setFont(newFont);
+        selectedPlane = new JLabel();
+        Font font = selectedPlane.getFont();
+        Font newFont = font.deriveFont(font.getStyle(),
+                font.getSize()-2);
+        selectedPlane.setFont(newFont);
+        setSelectedPlane();
+
+        preview = new JCheckBox(PREVIEW);
+        preview.setEnabled(!model.isBigImage());
+        preview.setToolTipText(PREVIEW_DESCRIPTION);
+        preview.setFont(newFont);
     }
 
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	setBackground(UIUtilities.BACKGROUND_COLOR);
+        setBackground(UIUtilities.BACKGROUND_COLOR);
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(selectedPlane);
         add(Box.createHorizontalGlue());
@@ -115,22 +106,22 @@ class PreviewToolBar
      */
     PreviewToolBar(RendererControl control, RendererModel model)
     {
-    	this.control = control;
-    	this.model = model;
-    	initComponents();
-    	buildGUI();
+        this.control = control;
+        this.model = model;
+        initComponents();
+        buildGUI();
     }
-    
+
     /** Indicates the selected plane. */
     void setSelectedPlane()
     {
-    	String s = "Z:"+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
-    	s += " T:"+(model.getRealSelectedT()+1)+"/"+model.getRealT();
-    	if (model.isLifetimeImage()) {
-			s += " "+EditorUtil.SMALL_T_VARIABLE+":"+(model.getSelectedBin()+1);
-			s += "/"+(model.getMaxLifetimeBin());
-		}
-    	selectedPlane.setText(s);
+        String s = "Z:"+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
+        s += " T:"+(model.getRealSelectedT()+1)+"/"+model.getRealT();
+        if (model.isLifetimeImage()) {
+            s += " "+EditorUtil.SMALL_T_VARIABLE+":"+(model.getSelectedBin()+1);
+            s += "/"+(model.getMaxLifetimeBin());
+        }
+        selectedPlane.setText(s);
     }
 
     /**
@@ -140,5 +131,5 @@ class PreviewToolBar
      * @return See above.
      */
     boolean isLiveUpdate() { return preview.isSelected(); }
-    
+
 }
