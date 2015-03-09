@@ -46,6 +46,7 @@ import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
+import ome.model.internal.NamedValue;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
@@ -233,6 +234,29 @@ public class OmeroInterceptor implements Interceptor {
 
             if (list.size() == 0 && snapshot.size() == 0) {
                 // Nothing here, so we don't care
+                return;
+            }
+
+            if (list.size() == snapshot.size()) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i) == null) {
+                        if (snapshot.get(i) == null) {
+                            continue;
+                        }
+                    } else { // first element is not null
+                        Object lhs = list.get(i);
+                        if (lhs instanceof NamedValue) {
+                            if (((NamedValue) lhs).equals(snapshot.get(i))) {
+                                continue;
+                            }
+                        }
+                    }
+                    // If we reach this point, there's a non-match and the
+                    // bumping of the version number should proceed.
+                    break;
+                }
+                // The two lists were found to be equal, do not bump the
+                // version number;
                 return;
             }
 
