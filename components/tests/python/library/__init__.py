@@ -147,12 +147,13 @@ class ITest(object):
         return str(create_path())
 
     @classmethod
-    def new_group(self, experimenters=None, perms=None):
+    def new_group(self, experimenters=None, perms=None, config=None):
         admin = self.root.sf.getAdminService()
         gname = self.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
+        group.config = config
         if perms:
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)

@@ -287,6 +287,7 @@ public class SimpleRoleProvider implements RoleProvider {
         copy.setDescription(g.getDescription());
         copy.setName(g.getName());
         copy.setLdap(g.getLdap());
+        copy.setConfig(g.getConfig());
         copy.getDetails().copy(sec.newTransientDetails(g));
         copy.getDetails().setPermissions(g.getDetails().getPermissions());
         // TODO see shallow copy comment on copy user
