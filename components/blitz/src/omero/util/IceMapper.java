@@ -58,6 +58,7 @@ import omero.model.NamedValue;
 import omero.model.PermissionsI;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
+import omero.romio.PlaneDefWithMasks;
 import omero.romio.RedBand;
 import omero.romio.XY;
 import omero.romio.XZ;
@@ -560,6 +561,12 @@ public class IceMapper extends ome.util.ModelMapper implements
         omero.romio.RegionDef r = def.region;
         if (r != null) {
         	pd.setRegion(new RegionDef(r.x, r.y, r.width, r.height));
+        }
+        if (def instanceof PlaneDefWithMasks) {
+            pd.setRenderShapes(true);
+            if (((PlaneDefWithMasks) def).shapeIds != null) {
+                pd.setShapeIds(((PlaneDefWithMasks) def).shapeIds);
+            }
         }
         switch (def.slice) {
         case XY.value:
