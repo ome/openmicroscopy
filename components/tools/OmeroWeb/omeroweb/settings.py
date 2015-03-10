@@ -579,7 +579,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
-    "omero.web.viewer.initial_zoom_level":
+    "omero.client.viewer.initial_zoom_level":
         ["VIEWER_INITIAL_ZOOM_LEVEL",
          None,
          leave_none_unset_int,
