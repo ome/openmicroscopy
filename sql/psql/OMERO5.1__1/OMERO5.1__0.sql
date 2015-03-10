@@ -78,6 +78,10 @@ ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN value TYPE TEXT;
 ALTER TABLE uploadjob_versionInfo ALTER COLUMN name TYPE TEXT;
 ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 
+INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+    SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, run.id, 'ome.model.screen.PlateAcquisition', 0
+        FROM plateacquisition AS run;
+
 --
 -- FINISHED
 --
