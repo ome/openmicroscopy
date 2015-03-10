@@ -49,7 +49,34 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- Actual upgrade
 --
 
--- TODO
+CREATE INDEX originalfile_hash_index ON originalfile (hash);
+
+CREATE INDEX annotation_discriminator ON annotation(discriminator);
+CREATE INDEX annotation_ns ON annotation(ns);
+
+CREATE INDEX experimentergroup_config_name ON experimentergroup_config(name);
+CREATE INDEX experimentergroup_config_value ON experimentergroup_config(value);
+CREATE INDEX genericexcitationsource_map_name ON genericexcitationsource_map(name);
+CREATE INDEX genericexcitationsource_map_value ON genericexcitationsource_map(value);
+CREATE INDEX imagingenvironment_map_name ON imagingenvironment_map(name);
+CREATE INDEX imagingenvironment_map_value ON imagingenvironment_map(value);
+CREATE INDEX annotation_mapValue_name ON annotation_mapValue(name);
+CREATE INDEX annotation_mapValue_value ON annotation_mapValue(value);
+CREATE INDEX metadataimportjob_versionInfo_name ON metadataimportjob_versionInfo(name);
+CREATE INDEX metadataimportjob_versionInfo_value ON metadataimportjob_versionInfo(value);
+CREATE INDEX uploadjob_versionInfo_name ON uploadjob_versionInfo(name);
+CREATE INDEX uploadjob_versionInfo_value ON uploadjob_versionInfo(value);
+
+ALTER TABLE experimentergroup_config ALTER COLUMN name TYPE TEXT;
+ALTER TABLE experimentergroup_config ALTER COLUMN value TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN value TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 
 --
 -- FINISHED
