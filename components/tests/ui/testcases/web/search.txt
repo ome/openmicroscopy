@@ -1,0 +1,365 @@
+*** Settings ***
+Documentation     Tests Search on Web
+...               https://www.openmicroscopy.org/private/ome-internal/testing_scenarios/Search.html
+
+# Resource          ../config.txt
+Resource          ../config.txt
+Library           DateTime
+Library           Selenium2Library      run_on_failure=Nothing
+
+*** Variables ***
+
+${XpathImage}           xpath=//table[@id='dataTable']//img[@alt='image']
+${XpathDataset}         xpath=//table[@id='dataTable']//img[@alt='dataset']
+${XpathProject}         xpath=//table[@id='dataTable']//img[@alt='project'] 
+${XpathPlate}           xpath=//table[@id='dataTable']//img[@alt='plate']
+${XpathTable}           xpath=//table[@id='dataTable']
+${XpathTableColumn}     xpath=//table[@id='dataTable']//tr/td[position()=3]
+${Search_Query}         1
+${Search_Query1}        test
+${Default_Srch_Group}   All Groups
+${Default_Srch_Date}    Import date
+${Table_Header}         Name
+${ImplicitDELAY}        0.5
+${DayStartTime}         00:00:00
+${DayEndTime}           2014-07-18 00:00:00
+${FromDate}             2014-01-15
+${FromDateWithTime}     2014-01-15 00:00:00
+${EndDate}              2014-07-17
+${WrongStartDate}       2014-07-20
+${AcquiredDateCol}      4
+${NotAnImage}           3
+${RandomClick}          xpath=//form[@id="searching_form"]/h2
+
+@{SearchKeyWords}       *  ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  _  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  :  "  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  -  =  q  w  e  r  t  y  u  i  o  p  [  ]  a  s  d  f  g  h  j  k  l  ;  '  \  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"                 
+
+*** Keywords ***
+
+User "${username}" logs in with password "${password}"
+    Open Browser To Login Page
+    Input username    ${username}
+    Input password    ${password}
+    Submit credentials
+    Welcome Page Should Be Open
+
+Welcome Page Should Be Open
+    Location Should Be    ${WELCOME URL}
+    Title Should Be       Webclient
+
+Open Browser To Login Page
+    Open Browser          ${LOGIN URL}    ${BROWSER}
+    Set Selenium Speed    ${DELAY}
+    Login Page Should Be Open
+
+Input Username
+    [Arguments]   ${username}
+    Input Text    username    ${username}
+
+Input Password
+    [Arguments]   ${password}
+    Input Text    password    ${password}
+
+Submit Credentials
+    Click Button    Login
+
+Login Page Should Be Open
+    Title Should Be    OMERO.web - Login
+
+Unselect All Checkboxes
+    
+    Unselect Checkbox  name
+    Unselect Checkbox  description
+    Unselect Checkbox  annotation
+    Unselect Checkbox  images
+    Unselect Checkbox  datasets
+    Unselect Checkbox  projects
+    Unselect Checkbox  plates
+    Unselect Checkbox  screens
+
+Select All Checkboxes
+    
+    Select Checkbox  name
+    Select Checkbox  description
+    Select Checkbox  annotation
+    Select Checkbox  images
+    Select Checkbox  datasets
+    Select Checkbox  projects
+    Select Checkbox  plates
+    Select Checkbox  screens
+
+Omero Default Search
+    
+    Input Text  id=id_search_query  ${SEARCH_QUERY}
+    Submit Form
+
+For-Loop-In-Range-Acquired       [Arguments]         ${rows}
+    : FOR    ${INDEX}    IN RANGE    2    ${rows}
+    \    Log    ${INDEX}
+    \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    3
+    \    ${time} =       Subtract Date From Date      ${RANDOM_STRING}     ${FromDateWithTime}
+    \    Should Be True     ${time}>=0
+   
+For-Loop-In-Range-Imported       [Arguments]         ${rows}
+    : FOR    ${INDEX}    IN RANGE    2    ${rows}
+    \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    4
+    \    Run Keyword Unless    "${RANDOM_STRING}" == "${EMPTY}"  Condition Check Imported Date  
+
+For-Loop-In-Range-Search-Keywords
+    
+    : FOR    ${INDEX}    IN    @{SearchKeyWords}
+    \    Input Text      name=query      ${INDEX}
+    \    Click Button    id=search_button
+    # \    Run Keyword And Ignore Error    Alert Should Be Present
+    \    ${status}   Run Keyword And Return Status  Alert Should Be Present
+    \   Log To Console   [Searched for ${INDEX} and returned ${status} for alert should be present] 
+    \   Run Keyword If    '${status}' == 'True'    Input Text   name=query  ${INDEX}
+    \   Run Keyword If    '${status}' == 'True'    Click Button     id=search_button
+    \   ${AlertMessage}   Run Keyword If    '${status}' == 'True'   Get Alert Message    
+    \   Run Keyword If    '${status}' == 'True'     Log To Console  [Searched for ${INDEX} and returned ${status} for alert should be present. The alert message was ${AlertMessage}]   
+
+    # \    ${ret} =   Call Selenium API   is_element_present  id=dataTable
+
+Condition Check Imported Date
+    ${time} =  Subtract Date From Date  ${RANDOM_STRING}  ${DayEndTime}  
+    Should Be True     ${time}<=0
+
+Clear Date Text Field
+    Input Text  id=startdateinput   ${EMPTY}
+    Input Text  id=enddateinput     ${EMPTY}
+    sleep           ${ImplicitDELAY}
+    Textfield Value Should be  id=startdateinput  ${EMPTY}
+    Textfield Value Should be  id=enddateinput  ${EMPTY}
+
+Clear Search Text Field
+    Input Text  id=id_search_query  ${EMPTY}
+    Input Text  name=query          ${EMPTY}
+    Textfield Value Should be  id=id_search_query   ${EMPTY}
+    Textfield Value Should be  name=query           ${EMPTY}
+    
+
+*** Test Cases ***
+
+Test Default Search Check
+    [Documentation]     login,search and Check that you are taken to the search ‘page’/UI with your search query entered into the search field.
+    
+    User "${USERNAME}" logs in with password "${PASSWORD}"
+    Omero Default Search
+    Location Should Be  ${SEARCH URL}
+    Page Should Contain Textfield  name=query
+    Textfield Value Should be  name=query   ${SEARCH_QUERY}
+    Wait Until Page Contains Element  id=dataTable  1000
+ 
+
+Test Check Search Results
+    [Documentation]     Check if results are displayed on the centre pane
+
+    Page Should Contain Element     id=dataTable
+    Page Should Contain Element     id=center_panel
+    Table Header Should Contain     ${XpathTable}  Type
+    Table Header Should Contain     ${XpathTable}  Name
+    Table Header Should Contain     ${XpathTable}  Imported
+    Table Header Should Contain     ${XpathTable}  Group
+    Table Header Should Contain     ${XpathTable}  Link
+    Table Header Should Contain     ${XpathTable}  Acquired
+    Page Should Contain Element     ${XpathPlate}
+    Page Should Contain Element     ${XpathDataset}
+    Page Should Contain Element     ${XpathProject}
+    Page Should Contain Element     ${XpathImage}
+
+    
+Test Default Search Selections
+	[Documentation]		Check that the objects searched for are Projects, Datasets, Images, Screens, Plates (all checkboxes selected by default).
+
+    Checkbox Should Be Selected  images
+    Checkbox Should Be Selected  datasets
+    Checkbox Should Be Selected  projects
+    Checkbox Should Be Selected  plates
+    Checkbox Should Be Selected  screens
+    Checkbox Should Not Be Selected  name
+    Checkbox Should Not Be Selected  description
+    Checkbox Should Not Be Selected  annotation
+    Click Button  id=search_button
+    
+Test Additional Search With Selections
+	[Documentation]		Checkbox selections for name description and annotation and search again
+
+    Select Checkbox  name    
+    Select Checkbox  description    
+    Select Checkbox  annotation
+    Click Button  id=search_button
+    
+Test Check Search Date Field
+	[Documentation]     Check that no date range has been chosen by default.
+    
+    Page Should Contain Textfield  id=startdateinput
+    Textfield Value Should be  id=startdateinput  ${EMPTY}
+    Page Should Contain Textfield  id=enddateinput
+    Textfield Value Should be  id=enddateinput  ${EMPTY}
+
+Test Check Search Default Group Selection
+	[Documentation]		Check that the default Scope for the search is All Groups
+
+    @{In group}  Get List Items  id=searchGroup
+    ${expected_group}  Get Selected List Label  id=searchGroup
+    Should Be Equal  ${expected_group}  ${Default_Srch_Group}
+
+Test Check Search Default User Selection
+	[Documentation]		Check : user matching the username you are logged in as, e.g user-4 user-4.
+
+    @{DataOwned by}  Get List Items  id=searchByGroupMember--1
+    ${expected_user}  Get Selected List Label  id=searchByGroupMember--1
+    Should Be Equal  ${expected_user.strip()}  ${FULL NAME.strip()} 
+
+Test Check Search Default Date Selection
+    [Documentation]     Check : Default selection for search should be using Import Date
+
+    @{Default Date:}  Get List Items  id=useAcquisitionDate
+    ${expected_date}  Get Selected List Label  id=useAcquisitionDate
+    Should Be Equal  ${expected_date}  ${Default_Srch_Date}
+
+Test Object Types and Fields
+
+    # Select Image Alone
+    Unselect All Checkboxes
+    Select Checkbox  images
+    Click Button  id=search_button
+    Set Selenium Implicit Wait          ${ImplicitDELAY}
+    Page Should Contain Element         ${XpathImage}
+    Page Should Not Contain Element     ${XpathDataset}
+    Page Should Not Contain Element     ${XpathProject}
+    Page Should Not Contain Element     ${XpathPlate}
+
+    # Select Dataset Alone
+    Unselect All Checkboxes
+    Select Checkbox  datasets
+    Click Button  id=search_button
+    Set Selenium Implicit Wait          ${ImplicitDELAY}
+    Page Should Contain Element         ${XpathDataset}
+    Page Should Not Contain Element     ${XpathImage}
+    Page Should Not Contain Element     ${XpathProject}
+    Page Should Not Contain Element     ${XpathPlate}
+
+    # Select Project Alone
+    Unselect All Checkboxes
+    Select Checkbox  projects
+    Click Button  id=search_button
+    Set Selenium Implicit Wait          ${ImplicitDELAY}
+    Page Should Contain Element         ${XpathProject}
+    Page Should Not Contain Element     ${XpathDataset}
+    Page Should Not Contain Element     ${XpathImage}
+    Page Should Not Contain Element     ${XpathPlate}
+
+Test Date Range
+
+    #Check with a From and End date
+    Input Text  name=query          ${Search_Query}
+    Input Text  id=startdateinput   ${FromDate}
+    Input Text  id=enddateinput     ${EndDate} 
+    Select All Checkboxes
+    sleep      ${ImplicitDELAY}
+    Click Button    id=search_button
+     
+    Page Should Not Contain         ${XpathTable}     
+    Page Should Contain Element     id=center_panel
+    ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+    For-Loop-In-Range-Acquired      ${rows}+1
+    For-Loop-In-Range-Imported      ${rows}+1
+    
+    #Check with a From date alone
+    Clear Date Text Field
+    Input Text  id=startdateinput   ${FromDate}
+    sleep      ${ImplicitDELAY}
+    Click Button  id=search_button    
+    Page Should Contain Element     id=center_panel
+    ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr 
+    ${cols}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr/td
+    For-Loop-In-Range-Acquired      ${rows}+1
+
+    #Check with a End date alone
+    Clear Date Text Field
+    Input Text  id=enddateinput     ${EndDate}
+    sleep      ${ImplicitDELAY}
+    Click Button    id=search_button
+    Alert Should Be Present    
+
+    #Check with a From date > End date
+    Clear Date Text Field
+    Input Text      id=startdateinput    ${WrongStartDate}
+    Input Text      id=enddateinput      ${EndDate}
+    sleep      ${ImplicitDELAY}
+    ${text1}         Get Text        id=startdateinput
+    ${text2}         Get Text        id=enddateinput
+    Should Be Equal As Strings           ${text1}    ${text2}
+    Page Should Contain Element         id=dataTable
+
+    #Check with just dates alone (No Search Query)
+    Clear Search Text Field
+    Input Text  id=startdateinput   ${FromDate}
+    Input Text  id=enddateinput     ${EndDate} 
+    sleep      ${ImplicitDELAY}
+    Click Element   id=searching
+    Select All Checkboxes
+    Click Button    id=search_button
+    Alert Should Be Present
+
+ 
+    
+Test Key Word Search
+    
+    #Search keyword *
+    Clear Date Text Field
+    Clear Search Text Field
+    Input Text     name=query   *
+    Click Element   ${RandomClick}
+    sleep           0.5 
+    Click Button    id=search_button
+    Alert Should Be present
+    Choose Ok On Next Confirmation
+    
+    #Search keyword ?
+    Clear Search Text Field
+    Input Text     name=query   ?
+    Click Button    id=search_button
+    Page Should Not Contain Element     ${XpathTable}   
+
+    #Search keyword ****
+    Clear Search Text Field
+    Input Text     name=query   ****
+    Click Button    id=search_button
+    Page Should Not Contain Element     ${XpathTable}
+
+    #Search 'test' with leading wildcard,trailing wildcard and leading&trailing wildcard and compare results
+    Clear Search Text Field
+    Input Text     name=query           ${Search_Query1}
+    Click Button    id=search_button
+    Wait Until Page Contains Element  id=dataTable  1
+    Page Should Contain Element         ${XpathTable}
+    ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+
+    Clear Search Text Field
+    Input Text     name=query           ${Search_Query1}*
+    Click Button    id=search_button
+    Wait Until Page Contains Element  id=dataTable  1
+    Page Should Contain Element         ${XpathTable}
+    ${rows1}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+
+    Clear Search Text Field
+    Input Text     name=query           *${Search_Query1}*
+    Click Button    id=search_button
+    Wait Until Page Contains Element  id=dataTable  1
+    Page Should Contain Element         ${XpathTable}
+    ${rows2}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr
+
+    #Checkpoints for results obtained from the above search
+    Should Be True                      ${rows1}>=${rows}
+    Should Be True                      ${rows2}>=${rows1}
+    Should Be True                      ${rows2}>=${rows1}
+
+Test All Keywords
+
+    For-Loop-In-Range-Search-Keywords
+
+Test Close All Browsers
+    ${se2lib}=    Get Library Instance    Selenium2Library
+    Close Browser     
+
