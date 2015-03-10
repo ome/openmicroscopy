@@ -280,6 +280,7 @@ class TestDownload(CLITest):
 
         upper = self.new_client(group=group)
         ofile = self.create_original_file("test", upper)
+        image = self.importSingleImage(client=upper)
 
         if fixture.for_user == "owner":
             downer = upper
@@ -289,15 +290,20 @@ class TestDownload(CLITest):
                                      system=system)
 
         downer_q = downer.sf.getQueryService()
-        downer_f = downer_q.get("OriginalFile", ofile.id.val)
-        assert downer_f.details.permissions.isRestricted(
-            omero.constants.permissions.BINARYACCESS) != fixture.will_pass
+        for kls, oid in (("OriginalFile", ofile.id.val),
+                         ("Image", image.id.val)):
 
-        self.args = ["download"]
-        self.args += self.login_args(downer)
-        self.args += [str(ofile.id.val), str(tmpfile)]
-        if fixture.will_pass:
-            self.cli.invoke(self.args, strict=True)
-        else:
-            with pytest.raises(NonZeroReturnCode):
+            obj = downer_q.get(kls, oid)
+            perms = obj.details.permissions
+            restricted = perms.isRestricted(
+                omero.constants.permissions.BINARYACCESS)
+            assert fixture.will_pass != restricted
+
+            self.args = ["download"]
+            self.args += self.login_args(downer)
+            self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
+            if fixture.will_pass:
                 self.cli.invoke(self.args, strict=True)
+            else:
+                with pytest.raises(NonZeroReturnCode):
+                    self.cli.invoke(self.args, strict=True)

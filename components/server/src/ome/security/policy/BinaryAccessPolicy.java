@@ -88,11 +88,14 @@ public class BinaryAccessPolicy extends BasePolicy {
             }
         }
 
-        if (obj instanceof Plate ||
+        if (obj instanceof Image) {
+            if (global.contains("-image") || group.contains("-image")) {
+                return true;
+            }
+        } else if (obj instanceof Plate ||
             obj instanceof PlateAcquisition ||
             obj instanceof Well ||
-            obj instanceof WellSample ||
-            obj instanceof Image) {
+            obj instanceof WellSample) {
 
             if (global.contains("-image") || group.contains("-image")) {
                 return true;
