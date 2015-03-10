@@ -20,13 +20,8 @@ from omero.rtypes import rint, rlong, rstring, rtime
 class TestITimeline(lib.ITest):
 
     def testGeneral(self):
-        client, user = self.new_client_and_user()
-        sf = client.sf
-
-        uuid = sf.getAdminService().getEventContext().sessionUuid
-        admin = sf.getAdminService()
-        update = sf.getUpdateService()
-        timeline = sf.getTimelineService()
+        uuid = self.ctx.sessionUuid
+        timeline = self.sf.getTimelineService()
 
         im_ids = dict()
         for i in range(0, 10):
@@ -37,7 +32,7 @@ class TestITimeline(lib.ITest):
             img.setAcquisitionDate(rtime(acquired))
 
             # default permission 'rw----':
-            img = update.saveAndReturnObject(img)
+            img = self.update.saveAndReturnObject(img)
             img.unload()
 
             im_ids[i] = [img.id.val, acquired]
@@ -49,8 +44,8 @@ class TestITimeline(lib.ITest):
         p = omero.sys.Parameters()
         p.map = {}
         f = omero.sys.Filter()
-        f.ownerId = rlong(admin.getEventContext().userId)
-        f.groupId = rlong(admin.getEventContext().groupId)
+        f.ownerId = rlong(self.ctx.userId)
+        f.groupId = rlong(self.ctx.groupId)
         p.theFilter = f
 
         M = timeline.countByPeriod
@@ -65,8 +60,8 @@ class TestITimeline(lib.ITest):
         p2 = omero.sys.Parameters()
         p2.map = {}
         f2 = omero.sys.Filter()
-        f2.ownerId = rlong(admin.getEventContext().userId)
-        f2.groupId = rlong(admin.getEventContext().groupId)
+        f2.ownerId = rlong(self.ctx.userId)
+        f2.groupId = rlong(self.ctx.groupId)
         f2.limit = rint(5)
         p2.theFilter = f2
 
@@ -97,14 +92,11 @@ class TestITimeline(lib.ITest):
         can see these events in timeline.
         """
 
-        group = self.new_group(perms="rwr---")
-        client1 = self.new_client(group=group)
-        client2 = self.new_client(group=group)
+        client2 = self.new_client(group=self.group)
 
         # log in as first user & create images
-        update1 = client1.sf.getUpdateService()
-        timeline1 = client1.sf.getTimelineService()
-        admin1 = client1.sf.getAdminService()
+        timeline1 = self.sf.getTimelineService()
+        admin1 = self.sf.getAdminService()
 
         im_ids = dict()
         for i in range(0, 10):
@@ -115,7 +107,7 @@ class TestITimeline(lib.ITest):
             img.setAcquisitionDate(rtime(acquired))
 
             # default permission 'rw----':
-            img = update1.saveAndReturnObject(img)
+            img = self.update.saveAndReturnObject(img)
             img.unload()
 
             im_ids[i] = [img.id.val, acquired]
@@ -124,8 +116,8 @@ class TestITimeline(lib.ITest):
         start = acquired - 86400
         end = acquired + 1
 
-        ownerId = rlong(admin1.getEventContext().userId)
-        groupId = rlong(admin1.getEventContext().groupId)
+        ownerId = rlong(self.ctx.userId)
+        groupId = rlong(self.ctx.groupId)
 
         def assert_timeline(timeline, start, end, ownerId=None, groupId=None):
             p = omero.sys.Parameters()
@@ -292,13 +284,12 @@ class TestITimeline(lib.ITest):
 
     def test3234(self):
 
-        user_context = self.client.sf.getAdminService().getEventContext()
-        user_object = omero.model.ExperimenterI(user_context.userId, False)
+        user_object = omero.model.ExperimenterI(self.ctx.userId, False)
 
         share = self.root.sf.getShareService()
         share.createShare(
             "description", None, None, [user_object], None, True)
 
-        timeline = self.client.sf.getTimelineService()
+        timeline = self.sf.getTimelineService()
         timeline.getMostRecentShareCommentLinks(None)
         timeline.getMostRecentShareCommentLinks(None, {"omero.group": "-1"})

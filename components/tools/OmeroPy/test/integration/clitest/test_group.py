@@ -40,8 +40,6 @@ class TestGroup(CLITest):
     def setup_class(self):
         super(TestGroup, self).setup_class()
         self.cli.register("group", GroupControl, "TEST")
-        self.group1 = self.new_group()
-        self.user1 = self.new_user(group=self.group1)
         self.groups = self.sf.getAdminService().lookupGroups()
 
     def setup_method(self, method):
@@ -89,19 +87,18 @@ class TestGroup(CLITest):
         # Read from the stdout
         out, err = capsys.readouterr()
         ids = get_group_ids(out)
-        groupId = self.client.sf.getAdminService().getEventContext().groupId
-        assert ids == [groupId]
+        assert ids == [self.group.id.val]
 
     @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
     def testInfoArgument(self, capsys, groupfixture):
         self.args += ["info"]
-        self.args += groupfixture.get_arguments(self.group1)
+        self.args += groupfixture.get_arguments(self.group)
         self.cli.invoke(self.args, strict=True)
 
         # Read from the stdout
         out, err = capsys.readouterr()
         ids = get_group_ids(out)
-        assert ids == [self.group1.id.val]
+        assert ids == [self.group.id.val]
 
     def testInfoInvalidGroup(self, capsys):
         self.args += ["info"]
@@ -117,18 +114,17 @@ class TestGroup(CLITest):
 
         out, err = capsys.readouterr()
         ids = get_user_ids(out)
-        userId = self.sf.getAdminService().getEventContext().userId
-        assert ids == [userId]
+        assert ids == [self.user.id.val]
 
     @pytest.mark.parametrize("groupfixture", GroupFixtures, ids=GroupNames)
     def testListUsersArgument(self, capsys, groupfixture):
         self.args += ["listusers"]
-        self.args += groupfixture.get_arguments(self.group1)
+        self.args += groupfixture.get_arguments(self.group)
         self.cli.invoke(self.args, strict=True)
 
         out, err = capsys.readouterr()
         ids = get_user_ids(out)
-        assert ids == [self.user1.id.val]
+        assert ids == [self.user.id.val]
 
     def testListUsersInvalidArgument(self, capsys):
         self.args += ["listgroups"]

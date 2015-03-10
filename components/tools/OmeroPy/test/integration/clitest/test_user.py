@@ -48,8 +48,6 @@ class TestUser(CLITest):
     def setup_class(self):
         super(TestUser, self).setup_class()
         self.cli.register("user", UserControl, "TEST")
-        self.group1 = self.new_group()
-        self.user1 = self.new_user(group=self.group1)
         self.users = self.sf.getAdminService().lookupExperimenters()
 
     def setup_method(self, method):
@@ -102,19 +100,18 @@ class TestUser(CLITest):
         # Read from the stdout
         out, err = capsys.readouterr()
         ids = get_user_ids(out)
-        userId = self.client.sf.getAdminService().getEventContext().userId
-        assert ids == [userId]
+        assert ids == [self.user.id.val]
 
     @pytest.mark.parametrize("userfixture", UserFixtures, ids=UserNames)
     def testInfoArgument(self, capsys, userfixture):
         self.args += ["info"]
-        self.args += userfixture.get_arguments(self.user1)
+        self.args += userfixture.get_arguments(self.user)
         self.cli.invoke(self.args, strict=True)
 
         # Read from the stdout
         out, err = capsys.readouterr()
         ids = get_user_ids(out)
-        assert ids == [self.user1.id.val]
+        assert ids == [self.user.id.val]
 
     def testInfoInvalidUser(self, capsys):
         self.args += ["info"]
@@ -130,20 +127,19 @@ class TestUser(CLITest):
 
         out, err = capsys.readouterr()
         ids = get_group_ids(out)
-        groupId = self.sf.getAdminService().getEventContext().groupId
         roles = self.sf.getAdminService().getSecurityRoles()
-        assert ids == [roles.userGroupId, groupId]
+        assert ids == [roles.userGroupId, self.group.id.val]
 
     @pytest.mark.parametrize("userfixture", UserFixtures, ids=UserNames)
     def testListGroupsArgument(self, capsys, userfixture):
         self.args += ["listgroups"]
-        self.args += userfixture.get_arguments(self.user1)
+        self.args += userfixture.get_arguments(self.user)
         self.cli.invoke(self.args, strict=True)
 
         out, err = capsys.readouterr()
         ids = get_group_ids(out)
         roles = self.sf.getAdminService().getSecurityRoles()
-        assert ids == [roles.userGroupId, self.group1.id.val]
+        assert ids == [roles.userGroupId, self.group.id.val]
 
     def testListGroupsInvalidArgument(self, capsys):
         self.args += ["listgroups"]
@@ -176,7 +172,7 @@ class TestUser(CLITest):
     @pytest.mark.parametrize("is_unicode", [True, False])
     def testPassword(self, is_unicode):
         self.args += ["password"]
-        login = self.sf.getAdminService().getEventContext().userName
+        login = self.ctx.userName
         if is_unicode:
             password = "ążćę"
         else:

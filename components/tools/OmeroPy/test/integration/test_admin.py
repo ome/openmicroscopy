@@ -33,25 +33,22 @@ from omero.rtypes import rstring
 class TestAdmin(lib.ITest):
 
     def testGetGroup(self):
-        a = self.client.getSession().getAdminService()
+        a = self.sf.getAdminService()
         l = a.lookupGroups()
         g = a.getGroup(l[0].getId().val)
         assert 0 != g.sizeOfGroupExperimenterMap()
 
     def testSetGroup(self):
-        a = self.client.getSession().getAdminService()
-        ec = a.getEventContext()
-        uid = ec.userId
-
         # Add user to new group to test setting default
-        e = a.getExperimenter(uid)
+        uid = self.user.id.val
+        e = self.sf.getAdminService().getExperimenter(uid)
         admin = self.root.sf.getAdminService()
         grp = self.new_group()
         admin.addGroups(e, [grp])
 
-        a.setDefaultGroup(e, grp)
+        admin.setDefaultGroup(e, grp)
 
-        dg = self.client.getSession().getAdminService().getDefaultGroup(uid)
+        dg = self.sf.getAdminService().getDefaultGroup(uid)
         assert dg.id.val == grp.id.val
 
     def testChangePassword(self):
@@ -147,9 +144,8 @@ class TestAdmin(lib.ITest):
         """
         Tests the "freshness" of the iAdmin.getEventContext() call.
         """
-        client = self.new_client()
         group = self.new_group()
-        admin = client.sf.getAdminService()
+        admin = self.sf.getAdminService()
         root_admin = self.root.sf.getAdminService()
 
         ec1 = admin.getEventContext()
