@@ -196,7 +196,7 @@ class TestConfig(object):
         config = ConfigXml(filename=str(p))
         m = config.as_map()
         for k, v in m.items():
-            assert "4.2.1" == v
+            assert "5.1.0" == v
 
     def testOldVersionDetected(self):
         p = create_path()
