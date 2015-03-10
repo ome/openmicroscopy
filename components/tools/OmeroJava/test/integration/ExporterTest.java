@@ -1,11 +1,12 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -216,7 +217,7 @@ public class ExporterTest extends AbstractServerTest {
         // now read
         byte[] values = exporter.read(0, (int) size);
         assertNotNull(values);
-        assertTrue(values.length == size);
+        assertEquals(values.length, size);
         exporter.close();
     }
 
@@ -241,7 +242,7 @@ public class ExporterTest extends AbstractServerTest {
         // now read
         byte[] values = exporter.read(0, (int) size);
         assertNotNull(values);
-        assertTrue(values.length == size);
+        assertEquals(values.length, size);
         exporter.close();
     }
 
