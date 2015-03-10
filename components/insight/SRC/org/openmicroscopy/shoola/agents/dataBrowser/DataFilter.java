@@ -94,6 +94,9 @@ public class DataFilter
             date = image.getCreated();
         }
         if (date == null) return false;
+        if (start != null && end != null) {
+            return date.after(start) && date.before(end);
+        }
         if (start == null) {
             return date.before(end);
         }
