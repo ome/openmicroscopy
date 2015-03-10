@@ -218,14 +218,20 @@ class TestDownload(CLITest):
 
     class PolicyFixture(object):
 
-        def __init__(self, cfg, for_user, will_pass):
+        def __init__(self, cfg, for_user,
+                     image, ofile, plate):
             self.cfg = cfg
             self.for_user = for_user
-            self.will_pass = will_pass
+            self.image = image
+            self.ofile = ofile
+            self.plate = plate
 
         def __str__(self):
-            return "%s_%s_%s" % (
-                self.cfg, self.for_user, self.will_pass)
+            return "%s_%s_%s_%s_%s" % (
+                self.cfg, self.for_user,
+                self.image and 1 or 0,
+                self.ofile and 1 or 0,
+                self.plate and 1 or 0)
 
     POLICY_NONE = "-read,-write,-image,-plate"
     POLICY_NORDR = "-read,+write,+image,-plate"
@@ -233,18 +239,18 @@ class TestDownload(CLITest):
     POLICY_ALL = "+read,+write,+image,+plate"
 
     POLICY_FIXTURES = (
-        PolicyFixture(POLICY_NONE, "owner", False),
-        PolicyFixture(POLICY_NONE, "admin", False),
-        PolicyFixture(POLICY_NONE, "member", False),
-        PolicyFixture(POLICY_NORDR, "owner", True),
-        PolicyFixture(POLICY_NORDR, "admin", True),
-        PolicyFixture(POLICY_NORDR, "member", False),
-        PolicyFixture(POLICY_NOSPW, "owner", True),
-        PolicyFixture(POLICY_NOSPW, "admin", True),
-        PolicyFixture(POLICY_NOSPW, "member", True),
-        PolicyFixture(POLICY_ALL, "owner", True),
-        PolicyFixture(POLICY_ALL, "admin", True),
-        PolicyFixture(POLICY_ALL, "owner", True),
+        PolicyFixture(POLICY_NONE, "owner", False, False, False),
+        PolicyFixture(POLICY_NONE, "admin", False, False, False),
+        PolicyFixture(POLICY_NONE, "member", False, False, False),
+        PolicyFixture(POLICY_NORDR, "owner", True, True, False),
+        PolicyFixture(POLICY_NORDR, "admin", True, True, False),
+        PolicyFixture(POLICY_NORDR, "member", False, False, False),
+        PolicyFixture(POLICY_NOSPW, "owner", True, True, False),
+        PolicyFixture(POLICY_NOSPW, "admin", True, True, False),
+        PolicyFixture(POLICY_NOSPW, "member", True, True, False),
+        PolicyFixture(POLICY_ALL, "owner", True, True, True),
+        PolicyFixture(POLICY_ALL, "admin", True, True, True),
+        PolicyFixture(POLICY_ALL, "owner", True, True, True),
     )
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
@@ -279,6 +285,10 @@ class TestDownload(CLITest):
         tmpfile = tmpdir.join('%s.test' % fixture)
 
         upper = self.new_client(group=group)
+        upper_u = upper.sf.getUpdateService()
+        plate = omero.model.PlateI()
+        plate.name = rstring("do_restrictions")
+        plate = upper_u.saveAndReturnObject(plate)
         ofile = self.create_original_file("test", upper)
         image = self.importSingleImage(client=upper)
 
@@ -290,20 +300,23 @@ class TestDownload(CLITest):
                                      system=system)
 
         downer_q = downer.sf.getQueryService()
-        for kls, oid in (("OriginalFile", ofile.id.val),
-                         ("Image", image.id.val)):
+        for kls, oid, will_pass in (
+            ("OriginalFile", ofile.id.val, fixture.ofile),
+            ("Image", image.id.val, fixture.image),
+            ("Plate", plate.id.val, fixture.plate),):
 
             obj = downer_q.get(kls, oid)
             perms = obj.details.permissions
             restricted = perms.isRestricted(
                 omero.constants.permissions.BINARYACCESS)
-            assert fixture.will_pass != restricted
+            assert will_pass != restricted
 
-            self.args = ["download"]
-            self.args += self.login_args(downer)
-            self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
-            if fixture.will_pass:
-                self.cli.invoke(self.args, strict=True)
-            else:
-                with pytest.raises(NonZeroReturnCode):
+            if "Plate" != kls:  # Plate is not implemented
+                self.args = ["download"]
+                self.args += self.login_args(downer)
+                self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
+                if will_pass:
                     self.cli.invoke(self.args, strict=True)
+                else:
+                    with pytest.raises(NonZeroReturnCode):
+                        self.cli.invoke(self.args, strict=True)
