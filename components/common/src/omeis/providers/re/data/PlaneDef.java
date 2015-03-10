@@ -262,7 +262,7 @@ public class PlaneDef implements Serializable {
     public int getStride() { return stride; }
 
     /**
-     * Returns weather or not the shapes (masks) will be rendered.
+     * Returns whether or not the shapes (masks) will be rendered.
      * 
      * @return See above.
      */
@@ -271,7 +271,7 @@ public class PlaneDef implements Serializable {
     }
 
     /**
-     * Sets weather or not to render the shapes (masks).
+     * Sets whether or not to render the shapes (masks).
      * 
      * @param renderShapes The value to set.
      */
@@ -280,7 +280,7 @@ public class PlaneDef implements Serializable {
     }
 
     /**
-     * Returns weather or not the shapes (masks) will be rendered.
+     * Returns whether or not the shapes (masks) will be rendered.
      * 
      * @return See above.
      */
@@ -289,7 +289,7 @@ public class PlaneDef implements Serializable {
     }
 
     /**
-     * Sets weather or not to render the shapes (masks).
+     * Sets whether or not to render the shapes (masks).
      * 
      * @param renderShapes The value to set.
      */
