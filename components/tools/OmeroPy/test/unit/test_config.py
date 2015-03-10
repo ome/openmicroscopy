@@ -243,7 +243,6 @@ class TestConfig(object):
             m = config.as_map()
             assert "member=@{dn}" == m["omero.ldap.new_user_group"]
             assert "member=@{dn}" == m["omero.ldap.new_user_group_2"]
-            assert True is False
         finally:
             config.close()
 
@@ -288,9 +287,7 @@ class TestConfig(object):
             config.close()
 
         # After config.close() calls config.save() new version should be 5.1.0
-        # NB: this ONLY works if we specify "__ACTIVE__" which is not what
-        # happens in real usage
-        config = ConfigXml(filename=str(p), env_config="__ACTIVE__")
+        config = ConfigXml(filename=str(p), env_config="default")
         try:
             # Check version has been updated
             assert config.version() == "5.1.0"
