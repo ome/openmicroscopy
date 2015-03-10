@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 release upgrade from OMERO5.0__0 to OMERO5.1__0.
+--- OMERO5 release upgrade from OMERO5.0__0 to OMERO5.1__1.
 ---
 
 BEGIN;
@@ -72,7 +72,7 @@ DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1',     0,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1',     1,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -2602,16 +2602,21 @@ alter table annotation_mapvalue alter column value type text;
 alter table channel add column lookupTable varchar(255);
 alter table channelbinding add column lookupTable varchar(255);
 
+
+-- 5.1__1: last-minute changes for 5.1
+
+-- TODO
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1'    AND
-          currentPatch    = 0             AND
+          currentPatch    = 1             AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1__1'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;
