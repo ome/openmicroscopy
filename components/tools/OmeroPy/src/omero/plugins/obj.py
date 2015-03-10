@@ -250,7 +250,7 @@ class NonFieldTxAction(TxAction):
         import omero
         self.tx_state.add(self)
         self.client = ctx.conn(args)
-        self.query  = self.client.sf.getQueryService()
+        self.query = self.client.sf.getQueryService()
         self.update = self.client.sf.getUpdateService()
         self.obj, self.kls = self.instance(ctx)
         if self.obj.id is None:
@@ -265,13 +265,13 @@ class NonFieldTxAction(TxAction):
 
         self.on_go(ctx, args)
 
-    def save_and_return(self):
+    def save_and_return(self, ctx):
         import omero
         try:
             out = self.update.saveAndReturnObject(self.obj)
         except omero.ServerError, se:
-            ctx.die(336, "Failed to update %s:%s - %s" %
-                    (self.kls, self.obj.id.val, se.message))
+            ctx.die(336, "Failed to update %s:%s - %s" % (
+                self.kls, self.obj.id.val, se.message))
         proxy = "%s:%s" % (self.kls, out.id.val)
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
@@ -279,7 +279,6 @@ class NonFieldTxAction(TxAction):
 class MapSetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
-        import omero
 
         if len(self.tx_cmd.arg_list) != 5:
             ctx.die(335, "usage: map-set OBJ FIELD KEY VALUE")
@@ -300,7 +299,7 @@ class MapSetTxAction(NonFieldTxAction):
         if state != "SET":
             current.append(NV(name, value))
 
-        self.save_and_return()
+        self.save_and_return(ctx)
 
 
 class MapGetTxAction(NonFieldTxAction):
@@ -333,7 +332,7 @@ class NullTxAction(NonFieldTxAction):
 
         field = self.tx_cmd.arg_list[2]
         setattr(self.obj, field, None)
-        self.save_and_return()
+        self.save_and_return(ctx)
 
 
 class TxState(object):
