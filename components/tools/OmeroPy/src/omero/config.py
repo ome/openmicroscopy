@@ -213,6 +213,8 @@ class ConfigXml(object):
                         toplinks = defaultlinks + toplinks
                         val = json.dumps(toplinks)
                         x.set("value", val)
+                    if x.get("name") == self.KEY:
+                        x.set("value", self.VERSION)
 
     def version_fix(self, props, version):
         """
