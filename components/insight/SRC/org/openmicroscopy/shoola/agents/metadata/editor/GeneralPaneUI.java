@@ -198,10 +198,10 @@ class GeneralPaneUI
 		
 		add(annotationTaskPane, c);
 		c.gridy++;
-
-        UIUtilities.addFiller(this, c, true);
         
         add(browserTaskPane, c);
+        
+        UIUtilities.addFiller(this, c, true);
 	}
 
 	/**

@@ -482,7 +482,8 @@ class ToolBar
         bar.add(locationButton);
         bar.add(Box.createHorizontalStrut(5));
         bar.add(pathButton);
-  
+        bar.add(Box.createHorizontalStrut(5));
+        bar.add(saveAsButton);
         bar.add(Box.createHorizontalStrut(20));
         bar.add(busyLabel);
         
