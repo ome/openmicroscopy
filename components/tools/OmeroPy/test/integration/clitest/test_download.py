@@ -274,7 +274,7 @@ class TestDownload(CLITest):
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
                              ids=POLICY_FIXTURES)
-    def testPolicyGrouplRestriction(self, tmpdir, fixture):
+    def testPolicyGroupRestriction(self, tmpdir, fixture):
         parts = fixture.cfg.split(",")
         config = [NV("omero.policy.binary_access", x) for x in parts]
         group = self.new_group(perms='rwr---', config=config)
@@ -303,7 +303,8 @@ class TestDownload(CLITest):
         for kls, oid, will_pass in (
             ("OriginalFile", ofile.id.val, fixture.ofile),
             ("Image", image.id.val, fixture.image),
-            ("Plate", plate.id.val, fixture.plate),):
+            ("Plate", plate.id.val, fixture.plate),
+        ):
 
             obj = downer_q.get(kls, oid)
             perms = obj.details.permissions
