@@ -2017,15 +2017,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
      */
     private Map<byte[], Integer> getMasks(PlaneDef pd) {
         List<IObject> masks = new ArrayList<IObject>();
+        Map<byte[], Integer> maskMap = new LinkedHashMap<byte[], Integer>();
+
+        if (!pd.getRenderShapes()) {
+            return maskMap;
+        }
         if (pd.getShapeIds().isEmpty()) {
             masks = getAllMasks(pd);
-        }
-        else {
+        } else {
             masks = getMasksById(pd);
         }
-
-        final Map<byte[], Integer> maskMap =
-                new LinkedHashMap<byte[], Integer>();
 
         for (int i = 0; i < masks.size(); i++) {
            maskMap.put(
