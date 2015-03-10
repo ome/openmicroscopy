@@ -188,6 +188,64 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
+     * Tests to export an image as OME-XML.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test
+    public void testExportAsOMEXML() throws Exception {
+        // First create an image
+        Image image = createImageToExport();
+
+        // now export
+        ExporterPrx exporter = factory.createExporter();
+        exporter.addImage(image.getId().getValue());
+        long size = exporter.generateXml();
+        assertTrue(size > 0);
+        // now read
+        byte[] values = exporter.read(0, (int) size);
+        assertNotNull(values);
+        assertEquals(values.length, size);
+        exporter.close();
+    }
+
+    /**
+     * Tests to export an image as OME-XML. The image has an annotation linked
+     * to it.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test
+    public void testExportAsOMEXMLWithAnnotation() throws Exception {
+        // First create an image
+        Image image = createImageToExport();
+
+        // Need to have an annotation otherwise does not work
+        FileAnnotationI fa = new FileAnnotationI();
+        fa.setDescription(omero.rtypes.rstring("test"));
+        FileAnnotation a = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        ImageAnnotationLinkI l = new ImageAnnotationLinkI();
+        l.setChild(a);
+        l.setParent(new ImageI(image.getId().getValue(), false));
+        iUpdate.saveAndReturnObject(l);
+
+        // now export
+        ExporterPrx exporter = factory.createExporter();
+        exporter.addImage(image.getId().getValue());
+        long size = exporter.generateXml();
+        assertTrue(size > 0);
+        // now read
+        byte[] values = exporter.read(0, (int) size);
+        assertNotNull(values);
+        assertEquals(values.length, size);
+        exporter.close();
+    }
+
+    /**
      * Tests to export an image as OME-TIFF. The image has an annotation linked
      * to it.
      *
