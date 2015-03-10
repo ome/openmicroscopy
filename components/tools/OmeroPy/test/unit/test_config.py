@@ -297,7 +297,6 @@ class TestConfig(object):
         finally:
             config.close()
 
-
     def testReadOnlyConfigSimple(self):
         p = create_path()
         p.chmod(0444)  # r--r--r--
