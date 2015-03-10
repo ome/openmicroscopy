@@ -240,34 +240,46 @@ class UpdateObjectTxAction(TxAction):
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
-class MapBaseTxAction(TxAction):
+class NonFieldTxAction(TxAction):
+    """
+    Base class for use with command actions which
+    don't take the standard a=b c=d fields.
+    """
 
     def go(self, ctx, args):
         import omero
         self.tx_state.add(self)
-        c = ctx.conn(args)
-        q = c.sf.getQueryService()
+        self.client = ctx.conn(args)
+        self.query  = self.client.sf.getQueryService()
+        self.update = self.client.sf.getUpdateService()
         self.obj, self.kls = self.instance(ctx)
         if self.obj.id is None:
             ctx.die(334, "No id given for %s. Use e.g. '%s:123'"
                     % (self.kls, self.kls))
         try:
-            self.obj = q.get(self.kls,
-                             self.obj.id.val,
-                             {"omero.group": "-1"})
+            self.obj = self.query.get(
+                self.kls, self.obj.id.val, {"omero.group": "-1"})
         except omero.ServerError:
             ctx.die(334, "No object found: %s:%s" %
                     (self.kls, self.obj.id.val))
 
         self.on_go(ctx, args)
 
+    def save_and_return(self):
+        import omero
+        try:
+            out = self.update.saveAndReturnObject(self.obj)
+        except omero.ServerError, se:
+            ctx.die(336, "Failed to update %s:%s - %s" %
+                    (self.kls, self.obj.id.val, se.message))
+        proxy = "%s:%s" % (self.kls, out.id.val)
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
-class MapSetTxAction(MapBaseTxAction):
+
+class MapSetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
         import omero
-        c = ctx.conn(args)
-        up = c.sf.getUpdateService()
 
         if len(self.tx_cmd.arg_list) != 5:
             ctx.die(335, "usage: map-set OBJ FIELD KEY VALUE")
@@ -288,16 +300,10 @@ class MapSetTxAction(MapBaseTxAction):
         if state != "SET":
             current.append(NV(name, value))
 
-        try:
-            out = up.saveAndReturnObject(self.obj)
-        except omero.ServerError, se:
-            ctx.die(336, "Failed to update %s:%s - %s" %
-                    (self.kls, self.obj.id.val, se.message))
-        proxy = "%s:%s" % (self.kls, out.id.val)
-        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+        self.save_and_return()
 
 
-class MapGetTxAction(MapBaseTxAction):
+class MapGetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
 
@@ -316,6 +322,18 @@ class MapGetTxAction(MapBaseTxAction):
                 value = nv.value
 
         self.tx_state.set_value(value, dest=self.tx_cmd.dest)
+
+
+class NullTxAction(NonFieldTxAction):
+
+    def on_go(self, ctx, args):
+
+        if len(self.tx_cmd.arg_list) != 3:
+            ctx.die(335, "usage: null OBJ FIELD")
+
+        field = self.tx_cmd.arg_list[2]
+        setattr(self.obj, field, None)
+        self.save_and_return()
 
 
 class TxState(object):
@@ -362,6 +380,9 @@ Examples:
     $ bin/omero obj update Dataset:123 description=bar
     Dataset:123
 
+    $ bin/omero obj null Dataset:123 description
+    Dataset:123
+
     $ bin/omero obj new MapAnnotation ns=example.com
     MapAnnotation:456
     $ bin/omero obj map-set MapAnnotation mapValue foo bar
@@ -387,7 +408,7 @@ Bash examples:
             "--file", help=SUPPRESS)
         parser.add_argument(
             "command", nargs="?",
-            choices=("new", "update", "map-get",
+            choices=("new", "update", "null", "map-get",
                      "map-set", "map-add", "map-edit"),
             help="operation to be performed")
         parser.add_argument(
@@ -436,6 +457,8 @@ Bash examples:
             return MapSetTxAction(tx_state, tx_cmd)
         elif tx_cmd.action == "map-get":
             return MapGetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "null":
+            return NullTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 

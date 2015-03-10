@@ -152,3 +152,18 @@ class TestObj(CLITest):
         state = self.go()
         val = state.get_row(0)
         assert val == "bar"
+
+    def test_nulling(self):
+        self.args = self.login_args() + [
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
+
+        self.args = self.login_args() + [
+            "obj", "null", ann, "ns"]
+        state = self.go()
+        ann2 = state.get_row(0)
+        assert ann == ann2
+        type, id = ann.split(":")
+        ann3 = self.client.sf.getQueryService().get(type, int(id))
+        assert ann3.ns is None
