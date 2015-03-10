@@ -183,4 +183,10 @@ public interface ACLVoter {
      * @return
      */
     Set<String> restrictions(IObject object);
+
+    /**
+     * Gives the {@link ACLVoter} instance a chance to act on the {@link IObject}
+     * <em>after</em> the transaction but before finishing the AOP stack.
+     */
+    void postProcess(IObject obj);
 }

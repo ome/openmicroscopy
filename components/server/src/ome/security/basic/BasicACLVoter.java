@@ -395,10 +395,6 @@ public class BasicACLVoter implements ACLVoter {
 
     }
 
-    public EventContext getEventContext() {
-        return this.currentUser.getCurrentEventContext();
-    }
-
     @Override
     public Set<String> restrictions(IObject object) {
         return policyService.listActiveRestrictions(object);

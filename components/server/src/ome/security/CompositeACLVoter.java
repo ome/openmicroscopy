@@ -102,4 +102,8 @@ public class CompositeACLVoter implements ACLVoter {
     public Set<String> restrictions(IObject object) {
         return choose().restrictions(object);
     }
+
+    public void postProcess(IObject object) {
+        choose().postProcess(object);
+    }
 }
