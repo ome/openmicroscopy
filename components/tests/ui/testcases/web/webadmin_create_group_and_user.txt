@@ -142,7 +142,7 @@ Create Edit User
 Check Admin Edit Self
 
     Click Link                        link=Users 
-    Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${FULL NAME}')]]//a[contains(@class, "btn_edit")] 
+    Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${ROOT FULL NAME}')]]//a[contains(@class, "btn_edit")] 
 
     Checkbox Should Be selected       id=id_administrator
     Element Should Be Disabled        id=id_administrator
