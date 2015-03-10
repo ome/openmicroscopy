@@ -218,67 +218,66 @@ class TestDownload(CLITest):
 
     class PolicyFixture(object):
 
-        def __init__(self, cfg, grp, for_user, will_pass):
+        def __init__(self, cfg, for_user, will_pass):
             self.cfg = cfg
-            self.grp = grp
             self.for_user = for_user
             self.will_pass = will_pass
 
         def __str__(self):
-            grp = self.grp
-            if self.grp is None:
-                grp = ""
-            return "%s_%s_%s_%s" % (
-                self.cfg, grp, self.for_user, self.will_pass)
+            return "%s_%s_%s" % (
+                self.cfg, self.for_user, self.will_pass)
+
+    POLICY_NONE = "-read,-write,-image,-plate"
+    POLICY_NORDR = "-read,+write,+image,-plate"
+    POLICY_NOSPW = "+read,+write,+image,-plate"  # Default
+    POLICY_ALL = "+read,+write,+image,+plate"
 
     POLICY_FIXTURES = (
-        # Fixtures with no group setting
-        PolicyFixture("", None, "owner", True),
-        PolicyFixture("", None, "admin", True),
-        PolicyFixture("", None, "member", True),
-        PolicyFixture("none", None, "owner", False),
-        PolicyFixture("none", None, "admin", False),
-        PolicyFixture("none", None, "member", False),
-        PolicyFixture("repository", None, "owner", True),
-        PolicyFixture("repository", None, "admin", True),
-        PolicyFixture("repository", None, "member", False),
-
-        # Fixtures with group settings
-        PolicyFixture("", "none", "owner", False),
-        PolicyFixture("", "none", "admin", False),
-        PolicyFixture("", "none", "member", False),
-        PolicyFixture("", "repository", "owner", True),
-        PolicyFixture("", "repository", "admin", True),
-        PolicyFixture("", "repository", "member", False),
-        PolicyFixture("none", "none", "owner", False),
-        PolicyFixture("none", "none", "admin", False),
-        PolicyFixture("none", "none", "member", False),
-        PolicyFixture("repository", "none", "owner", True),
-        PolicyFixture("repository", "none", "admin", True),
-        PolicyFixture("repository", "none", "member", False),
+        PolicyFixture(POLICY_NONE, "owner", False),
+        PolicyFixture(POLICY_NONE, "admin", False),
+        PolicyFixture(POLICY_NONE, "member", False),
+        PolicyFixture(POLICY_NORDR, "owner", True),
+        PolicyFixture(POLICY_NORDR, "admin", True),
+        PolicyFixture(POLICY_NORDR, "member", False),
+        PolicyFixture(POLICY_NOSPW, "owner", True),
+        PolicyFixture(POLICY_NOSPW, "admin", True),
+        PolicyFixture(POLICY_NOSPW, "member", True),
+        PolicyFixture(POLICY_ALL, "owner", True),
+        PolicyFixture(POLICY_ALL, "admin", True),
+        PolicyFixture(POLICY_ALL, "owner", True),
     )
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
                              ids=POLICY_FIXTURES)
-    def testPolicyRestriction(self, tmpdir, fixture):
-
-        tmpfile = tmpdir.join('%s.test' % fixture)
-        cfg = self.root.sf.getConfigService()
-        cfg = cfg.getConfigValue("omero.policy.binary_access")
+    def testPolicyGlobalRestriction(self, tmpdir, fixture):
 
         # Check that the config we have is at least tested
         # by *some* fixture
+        cfg = self.root.sf.getConfigService()
+        cfg = cfg.getConfigValue("omero.policy.binary_access")
         assert cfg in [x.cfg for x in self.POLICY_FIXTURES]
+
         # But if this isn't a check for this particular
         # config, then skip.
+
         if cfg != fixture.cfg:
             pytest.skip("Found binary access policy: %s" % cfg)
 
-        config = None
-        if fixture.grp is not None:
-            config = [NV("omero.policy.binary_access", fixture.grp)]
+        group = self.new_group(perms='rwr---')
+        self.do_restrictions(fixture, tmpdir, group)
 
+    @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
+                             ids=POLICY_FIXTURES)
+    def testPolicyGrouplRestriction(self, tmpdir, fixture):
+        parts = fixture.cfg.split(",")
+        config = [NV("omero.policy.binary_access", x) for x in parts]
         group = self.new_group(perms='rwr---', config=config)
+        self.do_restrictions(fixture, tmpdir, group)
+
+    def do_restrictions(self, fixture, tmpdir, group):
+
+        tmpfile = tmpdir.join('%s.test' % fixture)
+
         upper = self.new_client(group=group)
         ofile = self.create_original_file("test", upper)
 

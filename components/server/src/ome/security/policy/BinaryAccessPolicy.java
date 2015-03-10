@@ -22,13 +22,17 @@ package ome.security.policy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.model.internal.NamedValue;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.screen.Plate;
+import ome.model.screen.PlateAcquisition;
+import ome.model.screen.Well;
+import ome.model.screen.WellSample;
 import ome.security.ACLVoter;
 
 
@@ -49,7 +53,7 @@ public class BinaryAccessPolicy extends BasePolicy {
 
     private final ACLVoter voter;
 
-    private final List<String> config;
+    private final Set<String> global;
 
     public BinaryAccessPolicy(Set<Class<IObject>> types, ACLVoter voter) {
         this(types, voter, null);
@@ -60,9 +64,9 @@ public class BinaryAccessPolicy extends BasePolicy {
         super(types);
         this.voter = voter;
         if (config == null) {
-            this.config = Collections.emptyList();
+            this.global = Collections.emptySet();
         } else {
-            this.config = Arrays.asList(config);
+            this.global = new HashSet<String>(Arrays.asList(config));
         }
     }
 
@@ -73,14 +77,30 @@ public class BinaryAccessPolicy extends BasePolicy {
 
     @Override
     public boolean isRestricted(IObject obj) {
-        final Set<String> groupConfig = groupRestrictions(obj);
-        if (groupConfig.contains("none") ||
-                config.contains("none")) {
+        final Set<String> group= groupRestrictions(obj);
+
+        if (global.contains("-write") || group.contains("-write")) {
+            // effectively "None"
             return true;
-        } else if (groupConfig.contains("repository") ||
-                config.contains("repository")) {
-            return !voter.allowUpdate(obj, obj.getDetails());
+        } else if (global.contains("-read") || group.contains("-read")) {
+            if (!voter.allowUpdate(obj, obj.getDetails())) {
+                return true;
+            }
         }
+
+        if (obj instanceof Plate ||
+            obj instanceof PlateAcquisition ||
+            obj instanceof Well ||
+            obj instanceof WellSample ||
+            obj instanceof Image) {
+
+            if (global.contains("-image") || group.contains("-image")) {
+                return true;
+            } else if (!(global.contains("+plate") || group.contains("+plate"))) {
+                return true;
+            }
+        }
+
         return false;
     }
 
