@@ -134,3 +134,21 @@ class TestObj(CLITest):
         self.args = self.login_args() + [
             "obj", "update", project, "description=bar"]
         self.go()
+
+    def test_map_mods(self):
+        self.args = self.login_args() + [
+            "obj", "new", "MapAnnotation", "ns=test"]
+        state = self.go()
+        ann = state.get_row(0)
+
+        self.args = self.login_args() + [
+            "obj", "map-set", ann, "mapValue", "foo", "bar"]
+        state = self.go()
+        ann2 = state.get_row(0)
+        assert ann == ann2
+
+        self.args = self.login_args() + [
+            "obj", "map-get", ann, "mapValue", "foo"]
+        state = self.go()
+        val = state.get_row(0)
+        assert val == "bar"

@@ -34,6 +34,7 @@ import fileinput
 
 from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.model import NamedValue as NV
 from omero.rtypes import rlong
 
 
@@ -239,6 +240,84 @@ class UpdateObjectTxAction(TxAction):
         self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
 
 
+class MapBaseTxAction(TxAction):
+
+    def go(self, ctx, args):
+        import omero
+        self.tx_state.add(self)
+        c = ctx.conn(args)
+        q = c.sf.getQueryService()
+        self.obj, self.kls = self.instance(ctx)
+        if self.obj.id is None:
+            ctx.die(334, "No id given for %s. Use e.g. '%s:123'"
+                    % (self.kls, self.kls))
+        try:
+            self.obj = q.get(self.kls,
+                             self.obj.id.val,
+                             {"omero.group": "-1"})
+        except omero.ServerError:
+            ctx.die(334, "No object found: %s:%s" %
+                    (self.kls, self.obj.id.val))
+
+        self.on_go(ctx, args)
+
+
+class MapSetTxAction(MapBaseTxAction):
+
+    def on_go(self, ctx, args):
+        import omero
+        c = ctx.conn(args)
+        up = c.sf.getUpdateService()
+
+        if len(self.tx_cmd.arg_list) != 5:
+            ctx.die(335, "usage: map-set OBJ FIELD KEY VALUE")
+
+        field = self.tx_cmd.arg_list[2]
+        current = getattr(self.obj, field)
+        if current is None:
+            setattr(self.obj, field, [])
+
+        name, value = self.tx_cmd.arg_list[3:]
+        state = None
+        for nv in current:
+            if nv and nv.name == name:
+                nv.value = value
+                state = "SET"
+                break
+
+        if state != "SET":
+            current.append(NV(name, value))
+
+        try:
+            out = up.saveAndReturnObject(self.obj)
+        except omero.ServerError, se:
+            ctx.die(336, "Failed to update %s:%s - %s" %
+                    (self.kls, self.obj.id.val, se.message))
+        proxy = "%s:%s" % (self.kls, out.id.val)
+        self.tx_state.set_value(proxy, dest=self.tx_cmd.dest)
+
+
+class MapGetTxAction(MapBaseTxAction):
+
+    def on_go(self, ctx, args):
+
+        if len(self.tx_cmd.arg_list) != 4:
+            ctx.die(335, "usage: map-get OBJ FIELD KEY")
+
+        field = self.tx_cmd.arg_list[2]
+        current = getattr(self.obj, field)
+        if current is None:
+            setattr(self.obj, field, [])
+
+        name = self.tx_cmd.arg_list[3]
+        value = None
+        for nv in current:
+            if nv and nv.name == name:
+                value = nv.value
+
+        self.tx_state.set_value(value, dest=self.tx_cmd.dest)
+
+
 class TxState(object):
 
     def __init__(self, ctx):
@@ -283,6 +362,13 @@ Examples:
     $ bin/omero obj update Dataset:123 description=bar
     Dataset:123
 
+    $ bin/omero obj new MapAnnotation ns=example.com
+    MapAnnotation:456
+    $ bin/omero obj map-set MapAnnotation mapValue foo bar
+    MapAnnotation:456
+    $ bin/omero obj map-get MapAnnotation mapValue foo
+    bar
+
 Bash examples:
 
     $ project=$(bin/omero obj new Project name='my Project')
@@ -301,7 +387,8 @@ Bash examples:
             "--file", help=SUPPRESS)
         parser.add_argument(
             "command", nargs="?",
-            choices=("new", "update"),
+            choices=("new", "update", "map-get",
+                     "map-set", "map-add", "map-edit"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
@@ -343,8 +430,12 @@ Bash examples:
         tx_cmd = TxCmd(tx_state, arg_list=arg_list, line=line)
         if tx_cmd.action == "new":
             return NewObjectTxAction(tx_state, tx_cmd)
-        if tx_cmd.action == "update":
+        elif tx_cmd.action == "update":
             return UpdateObjectTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "map-set":
+            return MapSetTxAction(tx_state, tx_cmd)
+        elif tx_cmd.action == "map-get":
+            return MapGetTxAction(tx_state, tx_cmd)
         else:
             raise self.ctx.die(100, "Unknown command: %s" % tx_cmd)
 
