@@ -34,7 +34,6 @@ import fileinput
 
 from omero_ext.argparse import SUPPRESS
 from omero.cli import BaseControl, CLI, ExceptionHandler
-from omero.model import NamedValue as NV
 from omero.rtypes import rlong
 
 
@@ -279,6 +278,8 @@ class NonFieldTxAction(TxAction):
 class MapSetTxAction(NonFieldTxAction):
 
     def on_go(self, ctx, args):
+
+        from omero.model import NamedValue as NV
 
         if len(self.tx_cmd.arg_list) != 5:
             ctx.die(335, "usage: map-set OBJ FIELD KEY VALUE")
