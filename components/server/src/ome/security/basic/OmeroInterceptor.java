@@ -237,6 +237,7 @@ public class OmeroInterceptor implements Interceptor {
                 return;
             }
 
+            boolean equals = true;
             if (list.size() == snapshot.size()) {
                 for (int i = 0; i < list.size(); i++) {
                     if (list.get(i) == null) {
@@ -253,11 +254,14 @@ public class OmeroInterceptor implements Interceptor {
                     }
                     // If we reach this point, there's a non-match and the
                     // bumping of the version number should proceed.
+                    equals = false;
                     break;
                 }
                 // The two lists were found to be equal, do not bump the
                 // version number;
-                return;
+                if (equals) {
+                    return;
+                }
             }
 
             // https://hibernate.atlassian.net/browse/HHH-4897 workaround:
