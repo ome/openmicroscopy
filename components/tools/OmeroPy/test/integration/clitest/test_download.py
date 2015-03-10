@@ -248,9 +248,11 @@ class TestDownload(CLITest):
         PolicyFixture(POLICY_NOSPW, "owner", True, True, False),
         PolicyFixture(POLICY_NOSPW, "admin", True, True, False),
         PolicyFixture(POLICY_NOSPW, "member", True, True, False),
-        PolicyFixture(POLICY_ALL, "owner", True, True, True),
-        PolicyFixture(POLICY_ALL, "admin", True, True, True),
-        PolicyFixture(POLICY_ALL, "owner", True, True, True),
+        # The following are plate==False due to the
+        # pessimism of the default server config.
+        PolicyFixture(POLICY_ALL, "owner", True, True, False),
+        PolicyFixture(POLICY_ALL, "admin", True, True, False),
+        PolicyFixture(POLICY_ALL, "owner", True, True, False),
     )
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,

@@ -99,7 +99,7 @@ public class BinaryAccessPolicy extends BasePolicy {
 
             if (global.contains("-image") || group.contains("-image")) {
                 return true;
-            } else if (!(global.contains("+plate") || group.contains("+plate"))) {
+            } else if (global.contains("-plate") || group.contains("-plate")) {
                 return true;
             }
         }
