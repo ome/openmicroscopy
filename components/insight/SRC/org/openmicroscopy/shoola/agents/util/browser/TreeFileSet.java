@@ -30,6 +30,7 @@ import java.util.Iterator;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 //Third-party libraries
 
@@ -79,8 +80,12 @@ public class TreeFileSet
 		
 		switch (type) {
 			case MOVIE: return "Movies";
-			case ORPHANED_IMAGES: 
-			    return (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
+			case ORPHANED_IMAGES:
+			    String v = (String) reg.lookup(LookupNames.ORPHANED_IMAGE_NAME);
+			    if (CommonsLangUtils.isNotBlank(v)) {
+			        return v;
+			    }
+			    return "Orphaned Images";
 			case TAG:
 				return "Tags used not owned";
 			case OTHER:
