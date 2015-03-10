@@ -1951,8 +1951,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 " and m.y = 0 " +
                 " and m.theZ = :theZ " +
                 " and m.theT = :theT" +
-                " and m.theC in :channelIds" +
-                " and m.id in :shapeIds";
+                " and m.theC in (:channelIds)" +
+                " and m.id in (:shapeIds)";
         return (List<IObject>) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this,"getMaskList")
         {
