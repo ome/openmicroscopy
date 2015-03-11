@@ -79,7 +79,7 @@ public class BasicMethodSecurity implements MethodSecurity {
         // }
         //        
         try {
-            Class c = o.getClass(); // Getting runtime class
+            Class<?> c = o.getClass(); // Getting runtime class
             while (Advised.class.isAssignableFrom(c)) {
                 Advised advised = (Advised) o;
                 o = advised.getTargetSource().getTarget();
