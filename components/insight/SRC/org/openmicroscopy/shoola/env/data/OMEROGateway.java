@@ -6690,8 +6690,8 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
-	 * @param name		The name to give to the imported image.
-	 * @param usedFiles The files returned composing the import.
+	 * @param ic The import container.
+	 * @param status The component used to give feedback.
      * @param close Pass <code>true</code> to close the import,
      * 		<code>false</code> otherwise.
      * @param userName The user's name.
@@ -6700,10 +6700,10 @@ class OMEROGateway
 	 */
     Object importImageFile(SecurityContext ctx, ImportableObject object,
             IObject container, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs, String userName)
+            boolean close, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
-    	status.setHCS(hcs);
+        status.setImportContainer(ic);
         ImportConfig config = new ImportConfig();
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.

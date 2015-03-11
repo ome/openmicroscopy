@@ -230,10 +230,7 @@ class OmeroImageServiceImpl
 							importIc.setCustomAnnotationList(list);
 							label.setCallback(gateway.importImageFile(ctx,
 									object, ioContainer, importIc,
-									label, toClose,
-									ImportableObject.isHCSFile(
-									        file.getAbsolutePath()),
-									userName));
+									label, toClose, userName));
 						}
 					}
 				} catch (Exception e) {
@@ -1154,8 +1151,7 @@ class OmeroImageServiceImpl
 					if (status.isMarkedAsCancel())
 						return Boolean.valueOf(false);
 					return gateway.importImageFile(ctx, object, ioContainer,
-							importIc, status, close,
-							ImportableObject.isHCSFile(f.getAbsolutePath()),userName);
+							importIc, status, close, userName);
 				} else {
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
@@ -1199,9 +1195,7 @@ class OmeroImageServiceImpl
 				if (status.isMarkedAsCancel())
 					return Boolean.valueOf(false);
 				return gateway.importImageFile(ctx, object, ioContainer,
-						importIc,
-					status, close, ImportableObject.isHCSFile(
-					        file.getAbsolutePath()), userName);
+						importIc, status, close, userName);
 			}
 		} //file import ends.
 		//Checks folder import.

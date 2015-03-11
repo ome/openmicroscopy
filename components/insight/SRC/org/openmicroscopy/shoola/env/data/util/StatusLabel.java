@@ -43,6 +43,7 @@ import javax.swing.JProgressBar;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportEvent.FILESET_UPLOAD_END;
 import ome.formats.importer.util.ErrorHandler;
@@ -170,14 +171,11 @@ public class StatusLabel
         STEP_FAILURES.put(5, "Failed to Generate Objects");
     }
 
+    /** The container.*/
+    private ImportContainer ic;
+
     /** The number of images in a series. */
     private int seriesCount;
-
-    /** The type of reader used. */
-    private String readerType;
-
-    /** The files associated to the file that failed to import. */
-    private String[] usedFiles;
 
     /** Flag indicating that the import has been cancelled. */
     private boolean markedAsCancel;
@@ -226,9 +224,6 @@ public class StatusLabel
 
     /** The file associated to that import.*/
     private FilesetData fileset;
-
-    /** Flag indicating if the image is a HCS file or not.*/
-    private boolean hcs;
 
     /** The callback. This should only be set when importing a directory.*/
     private Object callback;
@@ -296,7 +291,6 @@ public class StatusLabel
         sizeUpload = 0;
         fileSize = "";
         seriesCount = 0;
-        readerType = "";
         markedAsCancel = false;
         cancellable = true;
         totalUploadedSize = 0;
@@ -357,21 +351,18 @@ public class StatusLabel
     }
 
     /**
-     * Sets to <code>true</code> if it is a HCS file, <code>false</code>
-     * otherwise.
-     * 
-     * @param hcs Pass <code>true</code> if it is a HCS file, <code>false</code>
-     * otherwise.
-     */
-    public void setHCS(boolean hcs) { this.hcs = hcs; }
-
-    /**
      * Returns <code>true</code> if it is a HCS file, <code>false</code>
      * otherwise.
-     * 
+     *
      * @return See above.
      */
-    public boolean isHCS() { return hcs; }
+    public boolean isHCS()
+    {
+        if (ic == null) return false;
+        Boolean b = ic.getIsSPW();
+        if (b == null) return false;
+        return b.booleanValue();
+    }
 
     /**
      * Returns the file set associated to the import.
@@ -387,7 +378,6 @@ public class StatusLabel
      */
     public void setUsedFiles(String[] usedFiles)
     {
-        this.usedFiles = usedFiles;
         if (usedFiles == null) return;
         for (int i = 0; i < usedFiles.length; i++) {
             sizeUpload += (new File(usedFiles[i])).length();
@@ -461,20 +451,6 @@ public class StatusLabel
      * @return See above.
      */
     public String getErrorText() { return ""; }
-
-    /**
-     * Returns the type of reader used.
-     * 
-     * @return See above.
-     */
-    public String getReaderType() { return readerType; }
-
-    /**
-     * Returns the files associated to the file failing to import.
-     * 
-     * @return See above.
-     */
-    public String[] getUsedFiles() { return usedFiles; }
 
     /**
      * Returns the source files that have checksum values or <code>null</code>
@@ -632,6 +608,20 @@ public class StatusLabel
     public boolean didUploadStart() { return uploadStarted; }
 
     /**
+     * Returns the container.
+     *
+     * @return See above.
+     */
+    public ImportContainer getImportContainer() { return ic; }
+
+    /**
+     * Sets the import container.
+     *
+     * @param ic The value to set.
+     */
+    public void setImportContainer(ImportContainer ic) { this.ic = ic; }
+
+    /**
      * Displays the status of an on-going import.
      * @see IObserver#update(IObservable, ImportEvent)
      */
@@ -663,8 +653,6 @@ public class StatusLabel
                 handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, true);
         } else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
             ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
-            readerType = e.reader;
-            usedFiles = e.usedFiles;
             exception = new ImportException(e.exception);
             String text = ImportException.FILE_NOT_VALID_TEXT;
             if (sourceFile != null && sourceFile.isDirectory()) text = "";
@@ -672,8 +660,6 @@ public class StatusLabel
         } else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
             ErrorHandler.INTERNAL_EXCEPTION e =
                     (ErrorHandler.INTERNAL_EXCEPTION) event;
-            readerType = e.reader;
-            usedFiles = e.usedFiles;
             exception = new ImportException(e.exception);
             handleProcessingError("", true);
         }  else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
@@ -740,6 +726,11 @@ public class StatusLabel
             if (e.logFileId != null) {
                 logFileID = e.logFileId;
             }
+        } else if (event instanceof ImportEvent.POST_UPLOAD_EVENT) {
+            ImportEvent.POST_UPLOAD_EVENT e =
+                    (ImportEvent.POST_UPLOAD_EVENT) event;
+            ic = e.container;
+            
         }
     }
 
