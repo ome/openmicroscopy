@@ -26,6 +26,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import loci.common.RandomAccessInputStream;
+import loci.common.RandomAccessOutputStream;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 import ome.specification.OmeValidator;
@@ -108,22 +109,28 @@ public class ExporterTest extends AbstractServerTest {
         OutputStream out = null;
         File output;
         Iterator<InputStream> i = transforms.iterator();
-        while (i.hasNext()) {
-            factory = TransformerFactory.newInstance();
-            stream = i.next();
-            output = File.createTempFile(RandomStringUtils.random(10), "."
-                    + OME_XML);
-            transformer = factory.newTransformer(new StreamSource(stream));
-            out = new FileOutputStream(output);
-            in = new FileInputStream(inputXML);
-            transformer.transform(new StreamSource(in), new StreamResult(out));
-            files.add(output);
-            inputXML = output;
-            stream.close();
-            out.close();
-            in.close();
+        try {
+            while (i.hasNext()) {
+                factory = TransformerFactory.newInstance();
+                stream = i.next();
+                output = File.createTempFile(RandomStringUtils.random(10), "."
+                        + OME_XML);
+                transformer = factory.newTransformer(new StreamSource(stream));
+                out = new FileOutputStream(output);
+                in = new FileInputStream(inputXML);
+                transformer.transform(new StreamSource(in), new StreamResult(out));
+                files.add(output);
+                inputXML = output;
+                stream.close();
+                out.close();
+                in.close();
+            }
+        } catch (Exception e) {
+            throw new Exception("Cannot apply transform", e);
         }
-        return inputXML;
+        File f = File.createTempFile(RandomStringUtils.random(10), "."+ OME_XML);
+        FileUtils.copyFile(inputXML, f);
+        return f;
     }
 
     /**
@@ -305,26 +312,32 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Tests to export an image as OME-TIFF. The image has an annotation linked
-     * to it.
+     * Exports the file with the specified extension either
+     * <code>OME-XML</code> or <code>OME-TIFF</code>.
      *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     * @see RawFileStoreTest#testUploadFile()
+     * @param extension The extension to use.
+     * @return The exporter file.
+     * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "broken")
-    public void testExportAsOMETIFFDowngrade() throws Exception {
+    private File export(String extension)
+            throws Exception
+    {
         // First create an image
         Image image = createImageToExport();
         File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_TIFF);
+                + extension);
         FileOutputStream stream = new FileOutputStream(f);
         ExporterPrx store = null;
         try {
             try {
                 store = factory.createExporter();
                 store.addImage(image.getId().getValue());
-                long size = store.generateTiff();
+                long size;
+                if (OME_TIFF.equals(extension)) {
+                    size = store.generateTiff();
+                } else {
+                    size = store.generateXml();
+                }
                 long offset = 0;
                 try {
                     for (offset = 0; (offset + INC) < size;) {
@@ -350,47 +363,91 @@ public class ExporterTest extends AbstractServerTest {
                 throw e;
             }
         }
+        return f;
+    }
+
+    /**
+     * Test the export of an image as OME-XML.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testExportAsOMEXMLDowngrade() throws Exception {
+        //TODO read from catalog
         StreamSource[] schemas = new StreamSource[1];
-
         schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-                "/Released-Schema/2010-06/ome.xsd"));
-
+                "/released-schema/2013-06/ome.xsd"));
         InputStream sheet = this.getClass().getResourceAsStream(
-                "/Xslt/2011-06-to-2010-06.xsl");
+                "/transforms/2015-01-to-2013-06.xsl");
         List<InputStream> transforms = Arrays.asList(sheet);
-
-        File downgraded = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_TIFF);
-        File inputXML = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
-        files.add(inputXML);
-        files.add(downgraded);
-        FileUtils.copyFile(f, downgraded);
-        // Extract the xml.
-        String c = new TiffParser(f.getAbsolutePath()).getComment();
-        FileUtils.writeStringToFile(inputXML, c);
-
-        // Apply the transforms to downgrade the file.
-        inputXML = applyTransforms(inputXML, transforms);
-        //
-        String path = downgraded.getAbsolutePath();
-        TiffSaver saver = new TiffSaver(path);
-        RandomAccessInputStream ra = new RandomAccessInputStream(path);
-        saver.overwriteComment(ra, FileUtils.readFileToString(inputXML));
-        ra.close();
-
-        // validate schema
-        File downgradedXML = File.createTempFile(RandomStringUtils.random(10),
-                "." + OME_XML);
-        c = new TiffParser(path).getComment();
-        FileUtils.writeStringToFile(downgradedXML, c);
-        validate(downgradedXML, schemas);
-        files.add(downgradedXML);
+        File f = null;
+        File transformed = null;
         try {
-            List<Pixels> pixels = importFile(downgraded, OME_TIFF);
-            // Add checks.
+            f = export(OME_XML);
+            //transform
+            transformed = applyTransforms(f, transforms);
+            //validate the file
+            validate(transformed, schemas);
+            //import the file
+            importFile(transformed, OME_XML);
         } catch (Throwable e) {
-            throw new Exception("cannot import image", e);
+            throw new Exception("cannot downgrade image", e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Tests to export an image as OME-TIFF. The image has an annotation linked
+     * to it.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test(groups = "broken")
+    public void testExportAsOMETIFFDowngrade() throws Exception {
+        //TODO read from catalog
+        StreamSource[] schemas = new StreamSource[1];
+        schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
+                "/released-schema/2013-06/ome.xsd"));
+        InputStream sheet = this.getClass().getResourceAsStream(
+                "/transforms/2015-01-to-2013-06.xsl");
+        List<InputStream> transforms = Arrays.asList(sheet);
+        File f = null;
+        File transformed = null;
+        File inputXML = null;
+        File result = null;
+        RandomAccessInputStream in = null;
+        RandomAccessOutputStream out = null;
+        try {
+            f = export(OME_TIFF);
+            //extract XML and copy to tmp file
+            TiffParser parser = new TiffParser(f.getAbsolutePath());
+            inputXML = File.createTempFile(RandomStringUtils.random(10), "." + OME_XML);
+            FileUtils.writeStringToFile(inputXML, parser.getComment());
+            //transform XML
+            transformed = applyTransforms(inputXML, transforms);
+            //Generate OME-TIFF
+            result = File.createTempFile(RandomStringUtils.random(10), "."
+                    + OME_TIFF);
+            FileUtils.copyFile(f, result);
+            String path = result.getAbsolutePath();
+            TiffSaver saver = new TiffSaver(path);
+            saver.setBigTiff(parser.isBigTiff());
+            in = new RandomAccessInputStream(path);
+            saver.overwriteComment(in, FileUtils.readFileToString(transformed));
+            //validate the OME-TIFF
+            validate(result, schemas);
+            //import the file
+            importFile(result, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("cannot downgrade image", e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (inputXML != null) inputXML.delete();
+            if (result != null) result.delete();
+            if (in != null) in.close();
         }
     }
 
