@@ -297,28 +297,6 @@ class ToolBar
         }
     }
 
-    /** Handles the selection of groups.*/
-    private void handleGroupSelection()
-    {
-        int n = popupMenu.getComponentCount();
-        DataMenuItem item;
-        Component c;
-        List<GroupData> toAdd = new ArrayList<GroupData>();
-        List<GroupData> toRemove = new ArrayList<GroupData>();
-        for (int i = 0; i < n; i++) {
-            c = popupMenu.getComponent(i);
-            if (c instanceof DataMenuItem) {
-                item = (DataMenuItem) c;
-                if (item.isSelected()) {
-                    toAdd.add((GroupData) item.getDataObject());
-                } else {
-                    toRemove.add((GroupData) item.getDataObject());
-                }
-            }
-        }
-        controller.setSelectedGroups(toAdd, toRemove);
-    }
-
     /** 
      * Fires a search event
      */
@@ -398,7 +376,6 @@ class ToolBar
         ExperimenterData exp;
 
         DataMenuItem item, allUser;
-        JPanel list;
         
         boolean view = true;
         if (group != null) {
@@ -407,20 +384,17 @@ class ToolBar
                 view = model.isAdministrator() || model.isGroupOwner(group);
             }
         }
+        
+        List<DataMenuItem> list = new ArrayList<DataMenuItem>();
 
-        list = new JPanel();
-        list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         allUser = new DataMenuItem(DataMenuItem.ALL_USERS_TEXT, true);
         items.add(allUser);
-        if (view) list.add(allUser);
-        p.add(UIUtilities.buildComponentPanel(list));
+        if (view) p.add(allUser);
         int count = 0;
         int total = 0;
         if (CollectionUtils.isNotEmpty(l)) {
             total += l.size();
             i = l.iterator();
-            list = new JPanel();
-            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
@@ -432,9 +406,11 @@ class ToolBar
                     list.add(item);
                 }
             }
-            if (list.getComponentCount() > 0) {
+            if (list.size() > 0) {
                 p.add(formatHeader("Group owners"));
-                p.add(UIUtilities.buildComponentPanel(list));
+                for(DataMenuItem dmi : list)
+                    p.add(dmi);
+                list.clear();
             }
         }
 
@@ -442,8 +418,6 @@ class ToolBar
         if (CollectionUtils.isNotEmpty(l)) {
             total += l.size();
             i = l.iterator();
-            list = new JPanel();
-            list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
             while (i.hasNext()) {
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
@@ -455,9 +429,10 @@ class ToolBar
                     list.add(item);
                 }
             }
-            if (list.getComponentCount() > 0) {
+            if (list.size() > 0) {
                 p.add(formatHeader("Members"));
-                p.add(UIUtilities.buildComponentPanel(list));
+                for(DataMenuItem dmi : list)
+                    p.add(dmi);
             }
         }
         allUser.setSelected(total != 0 && total == count);
@@ -536,7 +511,7 @@ class ToolBar
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
                 if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
-                    handleSelectionDisplay(data.isMenuSelected());
+                    handleSelectionDisplay(data.isSelected());
                 }
             }
         });

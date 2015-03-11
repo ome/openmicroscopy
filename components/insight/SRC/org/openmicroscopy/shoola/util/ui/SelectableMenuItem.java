@@ -21,6 +21,9 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
@@ -44,11 +47,14 @@ public class SelectableMenuItem extends JMenuItem {
     /** The default deselected icon. */
     private static final Icon DEFAULT_DESELECTED;
 
+    public static Color BG_COLOR;
+    
     static {
         IconManager icons = IconManager.getInstance();
         DEFAULT_DESELECTED = icons.getIcon(IconManager.NOT_SELECTED);
         DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED);
         SELECTION_PROPERTY = "SelectableMenuItem.SELECTION_PROPERTY";
+        BG_COLOR = (new JMenuItem()).getBackground();
     }
 
     /** The icon used when the menuitem is selected. */
@@ -60,6 +66,8 @@ public class SelectableMenuItem extends JMenuItem {
     /** Flag indicating if the menuitem is selectable or not. */
     private boolean selectable;
 
+    private boolean fireProperty = true;
+    
     /**
      * Creates a new instance.
      *
@@ -132,10 +140,16 @@ public class SelectableMenuItem extends JMenuItem {
     @Override
     protected void processMouseEvent(MouseEvent e) {
         // All MouseEvents have to be caught, because the JMenuItem's
-        // MouseListeners shall not be triggered!
+        // MouseListeners shall not be triggered (i. e. makes sure the popup
+        // menu stays open)!
         if (e.getButton() == MouseEvent.BUTTON1 && selectable) {
-            setMenuSelected(!isMenuSelected(), true);
+            setSelected(!isSelected());
             repaint();
+            
+            // but the ActionListeners have to triggered
+            for(ActionListener l : getActionListeners()) {
+                l.actionPerformed(new ActionEvent(this, 0, ""));
+            }
         }
     }
 
@@ -160,37 +174,27 @@ public class SelectableMenuItem extends JMenuItem {
         super(text);
         this.selectedIcon = selectedIcon;
         this.deselectedIcon = deselectedIcon;
-        setMenuSelected(selected, false);
+        fireProperty = false;
+        setSelected(selected);
+        fireProperty = true;
         this.selectable = selectable;
+        setBackground(BG_COLOR);
     }
-
-    /**
-     * Returns <code>true</code> if the menu is selected, <code>false</code>
-     * otherwise.
-     *
-     * @return See above.
-     */
-    public boolean isMenuSelected() {
+    
+    @Override
+    public boolean isSelected() {
         return getIcon() == selectedIcon;
     }
 
-    /**
-     * Sets the icon corresponding to the specified value.
-     *
-     * @param selected
-     *            Pass <code>true</code> to select the menu, <code>false</code>
-     *            otherwise.
-     * @param fireProperty
-     *            Pass <code>true</code> to fire a property, <code>false</code>
-     *            otherwise.
-     */
-    public void setMenuSelected(boolean selected, boolean fireProperty) {
-        if (selected)
+    
+    @Override
+    public void setSelected(boolean b) {
+        if (b)
             setIcon(selectedIcon);
         else
             setIcon(deselectedIcon);
         if (fireProperty) {
-            firePropertyChange(SELECTION_PROPERTY, !selected, selected);
+            firePropertyChange(SELECTION_PROPERTY, !b, b);
         }
     }
 
