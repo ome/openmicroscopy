@@ -54,6 +54,23 @@ i = conn.createImageFromNumpySeq(
     planeGen(), "numpy image", sizeZ, sizeC, sizeT, description=desc,
     dataset=None)
 
+print "Created new image: ", i.getId(), i.getName()
+
+
+# Set the pixel size using units (new in 5.1.0)
+# =================================================================
+# Lengths are specified by value and a unit enumeration
+# Here we set the pixel size X and Y to be 9.8 Angstroms
+
+from omero.model.enums import UnitsLength
+# Re-load the image to avoid update conflicts
+i = conn.getObject("Image", i.getId())
+u = omero.model.LengthI(9.8, UnitsLength.ANGSTROM)
+p = i.getPrimaryPixels()._obj
+p.setPhysicalSizeX(u)
+p.setPhysicalSizeY(u)
+conn.getUpdateService().saveObject(p)
+
 
 # Create an Image from an existing image
 # =================================================================
