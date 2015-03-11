@@ -110,7 +110,7 @@ public class OpenObjectLoader
     		path += fa.getFileName();
     		f = new File(path);
     		f.deleteOnExit();
-    		handle = mhView.loadFile(ctx, f, fa.getFileID(), 
+    		handle = mhView.loadFile(ctx, f, fa.getId(), 
     				FileLoader.FILE_ANNOTATION, this);
     	}
     }
