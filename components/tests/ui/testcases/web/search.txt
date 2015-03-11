@@ -277,7 +277,8 @@ Test Date Range
     
     #Check with a From date alone
     Clear Date Text Field
-    Input Text  id=startdateinput   ${FromDate}
+    Input Text  id=startdateinput   ${FromDate}    
+    Click Element   id=searching
     sleep      ${ImplicitDELAY}
     Click Button  id=search_button    
     Page Should Contain Element     id=center_panel
@@ -288,7 +289,8 @@ Test Date Range
     #Check with a End date alone
     Clear Date Text Field
     Input Text  id=enddateinput     ${EndDate}
-    sleep      ${ImplicitDELAY}
+    Click Element   id=searching
+    sleep      ${ImplicitDELAY}    
     Click Button    id=search_button
     Click Element   ${AlertWindow}    
 
@@ -306,8 +308,8 @@ Test Date Range
     Clear Search Text Field
     Input Text  id=startdateinput   ${FromDate}
     Input Text  id=enddateinput     ${EndDate} 
-    sleep      ${ImplicitDELAY}
     Click Element   id=searching
+    sleep      ${ImplicitDELAY}    
     Select All Checkboxes
     Click Button    id=search_button
     Click Element   ${AlertWindow}
