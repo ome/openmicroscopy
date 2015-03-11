@@ -9,7 +9,6 @@ package ome.services.blitz.fire;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,7 +31,6 @@ import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.FindServiceFactoryMessage;
-import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;

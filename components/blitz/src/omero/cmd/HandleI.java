@@ -14,10 +14,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
 import ome.services.util.Executor;
-import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
