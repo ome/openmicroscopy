@@ -569,6 +569,7 @@ alter  table originalfile add column repo varchar(36);
 create index originalfile_mime_index on originalfile (mimetype);
 create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
+create index originalfile_hash_index on originalfile (hash);
 create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
 
 --
@@ -586,6 +587,17 @@ create unique index well_col_row on well (plate, "column", "row");
 create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
+create index annotation_discriminator on annotation(discriminator);
+create index annotation_ns on annotation(ns);
+
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if( $prop.class.name == "ome.dsl.MapField" )
+CREATE INDEX ${type.tableName()}_${prop.name}_name ON ${type.tableName()}_${prop.name}(name);
+CREATE INDEX ${type.tableName()}_${prop.name}_value ON ${type.tableName()}_${prop.name}(value);
+#end
+#end
+#end
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255),
     changed TIMESTAMP WITHOUT TIME ZONE);
@@ -879,8 +891,15 @@ ALTER TABLE ${prop.actualType.table} ADD CONSTRAINT ${prop.name}_unitpair
 #end
 
 -- Temporary workaround for the width of map types
-alter table annotation_mapvalue alter column name type text;
-alter table annotation_mapvalue alter column value type text;
+
+#foreach($type in $types)
+#foreach($prop in $type.classProperties)
+#if( $prop.class.name == "ome.dsl.MapField" )
+ALTER TABLE ${type.tableName()}_${prop.name} ALTER COLUMN name TYPE TEXT;
+ALTER TABLE ${type.tableName()}_${prop.name} ALTER COLUMN value TYPE TEXT;
+#end
+#end
+#end
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
