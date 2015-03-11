@@ -70,6 +70,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 
 
+
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -85,7 +87,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GroupItem;
 import org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem;
-import org.openmicroscopy.shoola.agents.treeviewer.util.SaveResultsDialog;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
@@ -93,6 +94,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.ScrollablePopupMenu;
+import org.openmicroscopy.shoola.util.ui.SelectableMenuItem;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
@@ -526,27 +528,19 @@ class ToolBar
         long userID = model.getExperimenter().getId();
 
         //First add item to toggle between users and group display
-        DataMenuItem data = new DataMenuItem(DataMenuItem.USERS_TEXT, null);
-        data.setSelected(
-                model.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY);
+        final SelectableMenuItem data = new SelectableMenuItem(
+                model.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY,
+                DataMenuItem.USERS_TEXT, true);
         data.addPropertyChangeListener(new PropertyChangeListener() {
-
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if (DataMenuItem.ITEM_SELECTED_PROPERTY.equals(name)) {
-                    DataMenuItem data = (DataMenuItem) evt.getNewValue();
-                    handleSelectionDisplay(data.isSelected());
+                if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
+                    handleSelectionDisplay(data.isMenuSelected());
                 }
             }
         });
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        panel.setBorder(null);
-        IconManager icons= IconManager.getInstance();
-        panel.add(new JLabel(icons.getIcon(IconManager.TRANSPARENT)));
-        panel.add(data);
-        popupMenu.add(panel);
+        popupMenu.add(data);
         popupMenu.add(new JSeparator());
         GroupItem item;
         GroupItem allGroup = null;
