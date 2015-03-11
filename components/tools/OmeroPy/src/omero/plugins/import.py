@@ -176,10 +176,19 @@ class ImportControl(BaseControl):
             "--depth", default=4, type=int,
             help="Number of directories to scan down for files")
         parser.add_argument(
+            "--skip", choices={'all', 'checksum', 'minmax', 'thumbnails'},
+            type=str, help="Steps to skip during import")
+        parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
 
         parser.set_defaults(func=self.importer)
+
+    def set_skip_arguments(self, args):
+        if args.skip == 'all':
+            self.login_args.append("--checksum_algorithm=File-Size-64")
+            self.login_args.append("--no_thumbnails")
+            self.login_args.append("--no_stats_info")
 
     def importer(self, args):
 
@@ -212,18 +221,18 @@ class ImportControl(BaseControl):
         if err:
             err = open(err, "w")
 
-        login_args = []
+        self.login_args = []
         if args.javahelp:
-                login_args.append("-h")
+                self.login_args.append("-h")
 
-        if "-h" not in login_args and "-f" not in login_args \
+        if "-h" not in self.login_args and "-f" not in self.login_args \
                 and not args.java_f and not args.java_advanced_help:
             client = self.ctx.conn(args)
             srv = client.getProperty("omero.host")
             prt = client.getProperty("omero.port")
-            login_args.extend(["-s", srv])
-            login_args.extend(["-p", prt])
-            login_args.extend(["-k", client.getSessionId()])
+            self.login_args.extend(["-s", srv])
+            self.login_args.extend(["-p", prt])
+            self.login_args.extend(["-k", client.getSessionId()])
 
         # Due to the use of "--" some of these like debug
         # will never be filled out. But for completeness
@@ -255,15 +264,16 @@ class ImportControl(BaseControl):
             if arg_value:
                 if isinstance(arg_name, tuple):
                     arg_name = arg_name[0]
-                    login_args.append("%s=%s" %
-                                      (arg_name, arg_value))
+                    self.login_args.append(
+                        "%s=%s" % (arg_name, arg_value))
                 else:
-                    login_args.append(arg_name)
+                    self.login_args.append(arg_name)
                     if isinstance(arg_value, (str, unicode)):
-                        login_args.append(arg_value)
+                        self.login_args.append(arg_value)
 
+        self.set_skip_arguments(args)
         xargs.append("-Domero.import.depth=%s" % args.depth)
-        a = self.COMMAND + login_args + args.path
+        a = self.COMMAND + self.login_args + args.path
         p = omero.java.popen(
             a, debug=False, xargs=xargs, stdout=out, stderr=err)
         self.ctx.rv = p.wait()
