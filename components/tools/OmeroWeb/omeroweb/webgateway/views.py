@@ -2082,17 +2082,17 @@ def archived_files(request, iid=None, conn=None, **kwargs):
             " %s)." % (imgIds))
 
     # Test permissions on images and weels
-    for ob in (images + wells):
-        if isinstance(ob, omero.gateway.ImageWrapper):
-            # If plate download disabled, check for SPW data...
-            well = ob.getParent().getParent()
-            if isinstance(well, omero.gateway.WellWrapper):
-                if hasattr(well, 'canDownload'):
-                    if not well.canDownload():
-                        raise Http404
+    for ob in (wells):
         if hasattr(ob, 'canDownload'):
             if not ob.canDownload():
                 raise Http404
+
+    for ob in (images):
+        well = ob.getParent().getParent()
+        if isinstance(well, omero.gateway.WellWrapper):
+            if hasattr(well, 'canDownload'):
+                if not well.canDownload():
+                    raise Http404
 
     # make list of all files, removing duplicates
     fileMap = {}
