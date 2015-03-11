@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -40,19 +41,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.SearchEvent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.util.ui.SeparatorPane;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.GroupContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
 import pojos.GroupData;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 
 /** 
@@ -557,7 +563,9 @@ public class SearchComponent
 				search();
 				break;
 			case HELP:
-				help();
+			    String url = (String) DataBrowserAgent.getRegistry().lookup(
+			            LookupNames.HELP_ON_LINE_SEARCH);
+				help(url);
 				break;
 			case RESET_DATE:
 			        uiDelegate.resetDate();
@@ -566,7 +574,7 @@ public class SearchComponent
 	}
 
 	/** Subclasses should override this method. */
-	protected void help() {}
+	protected void help(String url) {}
 	
 	/**
 	 * Handles a SearchEvent (sent by the search field

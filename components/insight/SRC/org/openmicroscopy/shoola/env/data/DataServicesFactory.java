@@ -673,6 +673,7 @@ public class DataServicesFactory
 		AgentInfo agentInfo;
 		Registry reg;
 		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
+		String url = (String) registry.lookup(LookupNames.HELP_ON_LINE_SEARCH);
 		while (kk.hasNext()) {
 			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
@@ -684,6 +685,7 @@ public class DataServicesFactory
 				reg.bind(LookupNames.CONNECTION_SPEED, 
 						isFastConnection(uc.getSpeedLevel()));
 				reg.bind(LookupNames.BINARY_AVAILABLE, b);
+				reg.bind(LookupNames.HELP_ON_LINE_SEARCH, url);
 			}
 		}
 	}

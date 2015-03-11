@@ -132,6 +132,9 @@ public class LookupNames
     /** Field to access the <code>Help on line</code> information. */
     public static final String HELP_ON_LINE = "HelpOnLine";
 
+    /** Field to access the <code>Help on line</code> information. */
+    public static final String HELP_ON_LINE_SEARCH = "HelpOnLineSearch";
+
     /** Field to access the <code>Forum</code> information. */
     public static final String FORUM = "Forum";
 

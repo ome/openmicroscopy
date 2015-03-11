@@ -520,6 +520,9 @@ public class EditorUtil
     /** Unicode character for a non-breaking space */
     public static final String NONBRSPACE = "\u00A0";
 
+    /** The date format for the date pickers */
+    public static final String DATE_PICKER_FORMAT = "yyyy-MM-dd";
+
     /**
      * The value to multiply the server value by when it is a percent fraction.
      */

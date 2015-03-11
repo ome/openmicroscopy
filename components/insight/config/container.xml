@@ -308,6 +308,7 @@
     <entry name="SoftwareName">OMERO.insight</entry>
     <entry name="AboutFile">about.xml</entry>
     <entry name="HelpOnLine">http://help.openmicroscopy.org/</entry>
+    <entry name="HelpOnLineSearch">http://help.openmicroscopy.org/search.html</entry>
     <entry name="Forum">http://www.openmicroscopy.org.uk/community/</entry>
 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
