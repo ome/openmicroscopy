@@ -177,63 +177,33 @@ class ImportControl(BaseControl):
             help="Number of directories to scan down for files")
         parser.add_argument(
             "--skip", choices={'all', 'checksum', 'minmax', 'thumbnails'},
-            type=str, help="Steps to skip during import")
+            type=str, help="Optional steps to skip during import")
         parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
 
         parser.set_defaults(func=self.importer)
 
-    def set_skip_arguments(self, args):
-        if args.skip == 'all':
-            self.login_args.append("--checksum_algorithm=File-Size-64")
-            self.login_args.append("--no_thumbnails")
-            self.login_args.append("--no_stats_info")
-
-    def importer(self, args):
-
-        if args.clientdir:
-            client_dir = path(args.clientdir)
-        else:
-            client_dir = self.ctx.dir / "lib" / "client"
-        etc_dir = self.ctx.dir / "etc"
-        xml_file = etc_dir / "logback-cli.xml"
-        logback = "-Dlogback.configurationFile=%s" % xml_file
-
-        try:
-            classpath = [file.abspath() for file in client_dir.files("*.jar")]
-        except OSError as e:
-            self.ctx.die(102, "Cannot get JAR files from '%s' (%s)"
-                         % (client_dir, e.strerror))
-        if not classpath:
-            self.ctx.die(103, "No JAR files found under '%s'" % client_dir)
-
-        xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
-
-        # Here we permit passing ---file=some_output_file in order to
-        # facilitate the omero.util.import_candidates.as_dictionary
-        # call. This may not always be necessary.
-        out = args.file
-        err = args.errs
-
-        if out:
-            out = open(out, "w")
-        if err:
-            err = open(err, "w")
-
-        self.login_args = []
-        if args.javahelp:
-                self.login_args.append("-h")
-
-        if "-h" not in self.login_args and "-f" not in self.login_args \
-                and not args.java_f and not args.java_advanced_help:
+    def set_login_arguments(self, args):
+        """Set the connection arguments"""
+        if ("-h" not in self.login_args and "-f" not in self.login_args and
+                not args.java_f and not args.java_advanced_help):
             client = self.ctx.conn(args)
-            srv = client.getProperty("omero.host")
-            prt = client.getProperty("omero.port")
-            self.login_args.extend(["-s", srv])
-            self.login_args.extend(["-p", prt])
+            self.login_args.extend(["-s", client.getProperty("omero.host")])
+            self.login_args.extend(["-p", client.getProperty("omero.port")])
             self.login_args.extend(["-k", client.getSessionId()])
 
+    def set_skip_arguments(self, args):
+        """Set the arguments to skip steps during import"""
+        if args.skip in ['all', 'checksum']:
+            self.login_args.append("--checksum_algorithm=File-Size-64")
+        if args.skip in ['all', 'thumbnails']:
+            self.login_args.append("--no_thumbnails")
+        if args.skip in ['all', 'minmax']:
+            self.login_args.append("--no_stats_info")
+
+    def set_java_arguments(self, args):
+        """Set the arguments passed to Java"""
         # Due to the use of "--" some of these like debug
         # will never be filled out. But for completeness
         # sake, we include them here.
@@ -271,7 +241,44 @@ class ImportControl(BaseControl):
                     if isinstance(arg_value, (str, unicode)):
                         self.login_args.append(arg_value)
 
+    def importer(self, args):
+
+        if args.clientdir:
+            client_dir = path(args.clientdir)
+        else:
+            client_dir = self.ctx.dir / "lib" / "client"
+        etc_dir = self.ctx.dir / "etc"
+        xml_file = etc_dir / "logback-cli.xml"
+        logback = "-Dlogback.configurationFile=%s" % xml_file
+
+        try:
+            classpath = [file.abspath() for file in client_dir.files("*.jar")]
+        except OSError as e:
+            self.ctx.die(102, "Cannot get JAR files from '%s' (%s)"
+                         % (client_dir, e.strerror))
+        if not classpath:
+            self.ctx.die(103, "No JAR files found under '%s'" % client_dir)
+
+        xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
+
+        # Here we permit passing ---file=some_output_file in order to
+        # facilitate the omero.util.import_candidates.as_dictionary
+        # call. This may not always be necessary.
+        out = args.file
+        err = args.errs
+
+        if out:
+            out = open(out, "w")
+        if err:
+            err = open(err, "w")
+
+        self.login_args = []
+        if args.javahelp:
+            self.login_args.append("-h")
+
+        self.set_login_arguments(args)
         self.set_skip_arguments(args)
+        self.set_java_arguments(args)
         xargs.append("-Domero.import.depth=%s" % args.depth)
         a = self.COMMAND + self.login_args + args.path
         p = omero.java.popen(
