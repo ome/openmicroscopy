@@ -668,10 +668,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             return null;
         }
         if (checksumAlgorithm.equals("File-Size-64")) {
-            if (log.isDebugEnabled())
-            {
-                log.debug("Skip plane checksum");
-            }
+            log.info("Skipping plane checksum");
             return null;
         }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
@@ -700,7 +697,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
 
     /**
-     * Read a plane to cause min/max valus to be calculated.
+     * Read a plane and update the pixels checksum
      *
      * @param size Sizes of the Pixels set.
      * @param z The Z-section offset to write to.

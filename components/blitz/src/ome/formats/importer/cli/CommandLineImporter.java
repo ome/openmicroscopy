@@ -588,6 +588,7 @@ public class CommandLineImporter {
                 break;
             }
             case 8: {
+              log.info("Skipping thumbnails creation");
               config.doThumbnails.set(false);
               break;
             }
@@ -657,6 +658,7 @@ public class CommandLineImporter {
                 break;
             }
             case 22: {
+                log.info("Skipping minimum/maximum computation");
                 config.noStatsInfo.set(true);
                 break;
             }
