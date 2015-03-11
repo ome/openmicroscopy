@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,6 +28,8 @@ import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.MapMaker;
 
 import Ice.Current;
 import Ice.Identity;
@@ -62,6 +63,8 @@ public class HandleI implements _HandleOperations, IHandle,
 
     private static final long serialVersionUID = 15920349984928755L;
 
+    private static final MapMaker mapMaker = new MapMaker();
+
     /**
      * Timeout in seconds that cancellation should wait.
      */
@@ -70,8 +73,7 @@ public class HandleI implements _HandleOperations, IHandle,
     /**
      * Callbacks that have been added by clients.
      */
-    private final ConcurrentHashMap<String, CmdCallbackPrx> callbacks =
-        new ConcurrentHashMap<String, CmdCallbackPrx>();
+    private final Map<String, CmdCallbackPrx> callbacks = mapMaker.makeMap();
 
     /**
      * State-diagram location. This instance is also used as a lock around
