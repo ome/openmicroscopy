@@ -27,8 +27,13 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -150,11 +155,14 @@ public class ExporterTest extends AbstractServerTest {
         Iterator<InputStream> i = transforms.iterator();
         try {
             while (i.hasNext()) {
-                factory = TransformerFactory.newInstance();
                 stream = i.next();
+                factory = TransformerFactory.newInstance();
+                factory.setURIResolver(new Resolver());
+                Source src = new StreamSource(stream);
+                Templates template = factory.newTemplates(src);
+                transformer = template.newTransformer();
                 output = File.createTempFile(RandomStringUtils.random(10), "."
                         + OME_XML);
-                transformer = factory.newTransformer(new StreamSource(stream));
                 out = new FileOutputStream(output);
                 in = new FileInputStream(inputXML);
                 transformer.transform(new StreamSource(in), new StreamResult(out));
@@ -554,7 +562,7 @@ public class ExporterTest extends AbstractServerTest {
             throw new Exception("cannot downgrade image", e);
         } finally {
             if (f != null) f.delete();
-            if (transformed != null) transformed.delete();
+            //if (transformed != null) transformed.delete();
         }
     }
 
@@ -647,5 +655,15 @@ public class ExporterTest extends AbstractServerTest {
          * @return See above.
          */
         List<InputStream> getTransforms() { return transforms; }
+    }
+
+    class Resolver implements URIResolver {
+
+        @Override
+        public Source resolve(String href, String base) throws TransformerException {
+            InputStream s = this.getClass().getResourceAsStream(
+                    "/transforms/units-conversion.xsl");
+            return new StreamSource(s);
+        }
     }
 }
