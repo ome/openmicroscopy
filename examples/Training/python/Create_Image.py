@@ -32,6 +32,7 @@ imageId = 27544     # This image must have at least 2 channels
 # createImageFromNumpySeq() Here we create a multi-dimensional image from a
 # hard-coded array of data.
 from numpy import array, int8
+import omero
 sizeX, sizeY, sizeZ, sizeC, sizeT = 5, 4, 1, 2, 1
 plane1 = array(
     [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [0, 1, 2, 3, 4], [5, 6, 7, 8, 9]],
