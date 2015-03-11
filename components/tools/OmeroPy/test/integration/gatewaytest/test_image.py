@@ -203,6 +203,9 @@ class TestImage (object):
         # PixelsWrapper getPhysicalSizeX should also return UnitsLengthI
         sizeX = pixels.getPhysicalSizeX().getValue()
         assert sizeX == sizeXMicrons
+        # Also, direct access of attribute should return UnitsLengthI
+        sizeX = pixels.physicalSizeX.getValue()
+        assert sizeX == sizeXMicrons
 
     def testChannelWavelengthUnits(self, author_testimg_generated):
         """
