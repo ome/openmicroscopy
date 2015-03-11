@@ -94,6 +94,9 @@ public class ExporterTest extends AbstractServerTest {
     /** The catalog file to find. */
     private static String CATALOG = "/transforms/ome-transforms.xml";
 
+    /** The conversion file to find. */
+    private static String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
+
     /** The <i>name</i> attribute. */
     private static String CURRENT = "current";
 
@@ -676,9 +679,10 @@ public class ExporterTest extends AbstractServerTest {
     class Resolver implements URIResolver {
 
         @Override
-        public Source resolve(String href, String base) throws TransformerException {
+        public Source resolve(String href, String base)
+                throws TransformerException {
             InputStream s = this.getClass().getResourceAsStream(
-                    "/transforms/units-conversion.xsl");
+                    UNITS_CONVERSION);
             return new StreamSource(s);
         }
     }
