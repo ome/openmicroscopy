@@ -11,8 +11,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
@@ -42,8 +40,6 @@ public class BasicMethodSecurity implements MethodSecurity {
         boolean permitAll;
     }
 
-    private final Map<Class<?>, Map<Method, Info>> info;
-
     private SessionManager sessionManager;
 
     public BasicMethodSecurity() {
@@ -52,7 +48,6 @@ public class BasicMethodSecurity implements MethodSecurity {
 
     public BasicMethodSecurity(boolean active) {
         this.active = active;
-        info = new ConcurrentHashMap<Class<?>, Map<Method, Info>>();
     }
 
     public void setSessionManager(SessionManager sessionManager) {
@@ -75,7 +70,7 @@ public class BasicMethodSecurity implements MethodSecurity {
         //
         // Map<Method, Info> map = info.get(o.getClass());
         // if (map == null) {
-        // map = new ConcurrentHashMap<Method, Info>();
+        // map = new MapMaker().makeMap();
         // map.put(o.getClass(), map);
         // }
         // Info i = map.get(m);
