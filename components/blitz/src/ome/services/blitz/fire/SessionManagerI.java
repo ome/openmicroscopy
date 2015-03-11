@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 import com.google.common.cache.Cache;
@@ -39,6 +38,7 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import ome.util.messages.InternalMessage;
 import ome.util.messages.MessageException;
 
 import omero.ApiUsageException;
@@ -62,7 +62,7 @@ import omero.util.ServantHolder;
  * @since 3.0-Beta2
  */
 public final class SessionManagerI extends Glacier2._SessionManagerDisp
-        implements ApplicationContextAware, ApplicationListener {
+        implements ApplicationContextAware, ApplicationListener<InternalMessage> {
 
     /**
      * "ome.security.basic.BasicSecurityWiring" <em>may</em> be replaced by
@@ -286,7 +286,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     // Listener
     // =========================================================================
 
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(InternalMessage event) {
         try {
             if (event instanceof UnregisterServantMessage) {
                 UnregisterServantMessage msg = (UnregisterServantMessage) event;
