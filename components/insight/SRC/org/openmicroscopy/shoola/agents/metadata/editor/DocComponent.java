@@ -148,9 +148,6 @@ class DocComponent
 	/** Button to download the file linked to the annotation. */
 	private JMenuItem		downloadButton;
 	
-	/** Button to open the file linked to the annotation. */
-	private JMenuItem		openButton;
-	
 	/** Button to display information. */
 	private JMenuItem		infoButton;
 	
@@ -226,10 +223,6 @@ class DocComponent
 				downloadButton.setEnabled(false);
 				downloadButton.setVisible(false);
 			}
-			if (openButton != null) {
-				openButton.setEnabled(false);
-				openButton.setVisible(false);
-			}
 			return count > 0;
 		}
 		boolean b = false;
@@ -255,12 +248,6 @@ class DocComponent
 			downloadButton.setVisible(b);
 			if (b) count++;
 		}
-		if (openButton != null) {
-			b = true;
-			openButton.setEnabled(b);
-			openButton.setVisible(b);
-			if (b) count++;
-		}
 		return count > 0;
 	}
 
@@ -277,7 +264,6 @@ class DocComponent
 			if (editButton != null) popMenu.add(editButton);
 			if (unlinkButton != null) popMenu.add(unlinkButton);
 			if (downloadButton != null) popMenu.add(downloadButton);
-			if (openButton != null) popMenu.add(openButton);
 			if (infoButton != null) popMenu.add(infoButton);
 		}
 		popMenu.show(invoker, p.x, p.y);
@@ -514,12 +500,6 @@ class DocComponent
 				downloadButton.addActionListener(this);
 				
 				String ns = fa.getNameSpace();
-				openButton = new JMenuItem(icons.getIcon(
-						IconManager.VIEW_DOC_12));
-				openButton.setText("View");
-				openButton.setToolTipText("View the file.");
-				openButton.setActionCommand(""+OPEN);
-				openButton.addActionListener(this);
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
@@ -707,7 +687,6 @@ class DocComponent
 		if (unlinkButton != null) count++;
 		if (downloadButton != null) count++;
 		if (infoButton != null) count++;
-		if (openButton != null) count++;
 		if (count > 0 && data != null) {
 			menuButton.setEnabled(true);
 			if (model.isAcrossGroups()) menuButton.setEnabled(false);
