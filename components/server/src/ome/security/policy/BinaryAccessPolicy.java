@@ -20,6 +20,7 @@
 package ome.security.policy;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -79,27 +80,36 @@ public class BinaryAccessPolicy extends BasePolicy {
     public boolean isRestricted(IObject obj) {
         final Set<String> group= groupRestrictions(obj);
 
-        if (global.contains("-write") || group.contains("-write")) {
+        if (notAorB("+write", "-write", group)) {
             // effectively "None"
             return true;
-        } else if (global.contains("-read") || group.contains("-read")) {
+        } else if (notAorB("+read", "-read", group)) {
             if (!voter.allowUpdate(obj, obj.getDetails())) {
                 return true;
             }
         }
 
+        final boolean noImage = notAorB("+image", "-image", group);
+        final boolean noPlate = notAorB("+plate", "-plate", group);
+
         if (obj instanceof Image) {
-            if (global.contains("-image") || group.contains("-image")) {
+            if (noImage) {
                 return true;
+            }
+            // If an Image has a WellSample, then *also* perform the plate check
+            // Note: checking noPlate first since it doesn't need to hit the DB.
+            if (noPlate) {
+                Image img = (Image) obj;
+                if (img.sizeOfWellSamples() > 1) {
+                    return true;
+                }
             }
         } else if (obj instanceof Plate ||
             obj instanceof PlateAcquisition ||
             obj instanceof Well ||
             obj instanceof WellSample) {
 
-            if (global.contains("-image") || group.contains("-image")) {
-                return true;
-            } else if (global.contains("-plate") || group.contains("-plate")) {
+            if (noImage || noPlate) {
                 return true;
             }
         }
@@ -125,6 +135,19 @@ public class BinaryAccessPolicy extends BasePolicy {
             }
         }
         return Collections.emptySet();
+    }
+
+    /**
+     * Returns true if the minus argument is present in the configuration
+     * collections <em>or</em> if the plus argument is not present.
+     */
+    private final boolean notAorB(String plus, String minus, Collection<String> group) {
+        if (global.contains(minus) || group.contains(minus)) {
+            return true;
+        } else if (global.contains(plus) || group.contains(plus)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

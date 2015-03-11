@@ -233,12 +233,16 @@ class TestDownload(CLITest):
                 self.ofile and 1 or 0,
                 self.plate and 1 or 0)
 
+    POLICY_DEF = "+read,+write,+image"
     POLICY_NONE = "-read,-write,-image,-plate"
     POLICY_NORDR = "-read,+write,+image,-plate"
-    POLICY_NOSPW = "+read,+write,+image,-plate"  # Default
+    POLICY_NOSPW = "+read,+write,+image,-plate"
     POLICY_ALL = "+read,+write,+image,+plate"
 
     POLICY_FIXTURES = (
+        PolicyFixture(POLICY_DEF, "owner", True, True, False),
+        PolicyFixture(POLICY_DEF, "admin", True, True, False),
+        PolicyFixture(POLICY_DEF, "owner", True, True, False),
         PolicyFixture(POLICY_NONE, "owner", False, False, False),
         PolicyFixture(POLICY_NONE, "admin", False, False, False),
         PolicyFixture(POLICY_NONE, "member", False, False, False),
@@ -248,11 +252,9 @@ class TestDownload(CLITest):
         PolicyFixture(POLICY_NOSPW, "owner", True, True, False),
         PolicyFixture(POLICY_NOSPW, "admin", True, True, False),
         PolicyFixture(POLICY_NOSPW, "member", True, True, False),
-        # The following are plate==False due to the
-        # pessimism of the default server config.
-        PolicyFixture(POLICY_ALL, "owner", True, True, False),
-        PolicyFixture(POLICY_ALL, "admin", True, True, False),
-        PolicyFixture(POLICY_ALL, "owner", True, True, False),
+        PolicyFixture(POLICY_ALL, "owner", True, True, True),
+        PolicyFixture(POLICY_ALL, "admin", True, True, True),
+        PolicyFixture(POLICY_ALL, "owner", True, True, True),
     )
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
