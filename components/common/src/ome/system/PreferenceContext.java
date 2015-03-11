@@ -51,8 +51,6 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
     private final Map<String, Preference> preferences = new MapMaker().makeMap();
 
     private PropertyPlaceholderHelper helper;
-    
-    private String path;
 
     /**
      * By default, configures this instance for
