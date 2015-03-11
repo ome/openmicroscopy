@@ -530,7 +530,7 @@ public class ExporterTest extends AbstractServerTest {
             StreamSource[] schemas = new StreamSource[1];
             schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
                     "/released-schema/"+e.getKey()+"/ome.xsd"));
-            targets.add(new Target(schemas, streams));
+            targets.add(new Target(schemas, streams, e.getKey()));
         }
         int index = 0;
         Iterator<Target> k = targets.iterator();
@@ -559,10 +559,11 @@ public class ExporterTest extends AbstractServerTest {
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
-            throw new Exception("cannot downgrade image", e);
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
         } finally {
             if (f != null) f.delete();
-            //if (transformed != null) transformed.delete();
+            if (transformed != null) transformed.delete();
         }
     }
 
@@ -611,7 +612,8 @@ public class ExporterTest extends AbstractServerTest {
             //import the file
             importFile(result, OME_XML);
         } catch (Throwable e) {
-            throw new Exception("cannot downgrade image", e);
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
         } finally {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
@@ -625,21 +627,27 @@ public class ExporterTest extends AbstractServerTest {
     class Target {
 
         /** The schema used to validate the change.*/
-        StreamSource[] schemas;
+        private StreamSource[] schemas;
 
         /** The transforms to apply.*/
-        List<InputStream> transforms;
+        private List<InputStream> transforms;
+
+        /** The source schema.*/
+        private String source;
 
         /**
          * Creates a new instance.
          *
          * @param schemas The schema used to validate the change.
          * @param transforms The transforms to apply.
+         * @param source The source schema.
          */
-        Target(StreamSource[] schemas, List<InputStream> transforms) 
+        Target(StreamSource[] schemas, List<InputStream> transforms,
+                String source)
         {
             this.schemas = schemas;
             this.transforms = transforms;
+            this.source = source;
         }
 
         /**
@@ -655,6 +663,14 @@ public class ExporterTest extends AbstractServerTest {
          * @return See above.
          */
         List<InputStream> getTransforms() { return transforms; }
+
+        /**
+         * Returns the source schema.
+         *
+         * @return See above.
+         */
+        String getSource() { return source; }
+
     }
 
     class Resolver implements URIResolver {
