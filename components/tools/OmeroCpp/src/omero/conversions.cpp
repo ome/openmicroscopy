@@ -91,7 +91,7 @@ namespace omero {
                     conversions[0]->convert(original),
                     conversions[1]->convert(original));
           } else {
-            return pow(base, exp);
+            return pow(static_cast<double>(base), exp);
           }
       }
 
