@@ -9,17 +9,24 @@ package integration;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import integration.PermissionsTestAll.TestParam;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
@@ -43,11 +50,19 @@ import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Collections of tests for the <code>Exporter</code> service.
@@ -71,8 +86,32 @@ public class ExporterTest extends AbstractServerTest {
     /** Maximum size of pixels read at once. */
     private static final int INC = 262144;
 
+    /** The catalog file to find. */
+    private static String CATALOG = "/transforms/ome-transforms.xml";
+
+    /** The <i>name</i> attribute. */
+    private static String CURRENT = "current";
+
+    /** The <i>schema</i> attribute. */
+    private static String SCHEMA = "schema";
+
+    /** The <i>target</i> name. */
+    private static String TARGET = "target";
+
+    /** The <i>transform</i> name. */
+    private static String TRANSFORM = "transform";
+
+    /** The <i>source</i> node. */
+    private static String SOURCE = "source";
+
+    /** The <i>file</i> attribute. */
+    private static String FILE = "file";
+
     /** The collection of files that have to be deleted. */
     private List<File> files;
+
+    /** The various transforms read from the configuration file.*/
+    private Map<String, List<String>> sheets;
 
     /**
      * Validates the specified input.
@@ -177,6 +216,7 @@ public class ExporterTest extends AbstractServerTest {
     protected void setUp() throws Exception {
         super.setUp();
         files = new ArrayList<File>();
+        sheets = currentSchema();
     }
 
     /**
@@ -192,6 +232,7 @@ public class ExporterTest extends AbstractServerTest {
             i.next().delete();
         }
         files.clear();
+        sheets.clear();
     }
 
     /**
@@ -367,25 +408,146 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
+     * Parse the target node.
+     *
+     * @param node The node to parse.
+     * @param sheets Hosts the result.
+     */
+    private void parseTarget(Element node, Map<String, List<String>> sheets)
+    {
+        Node attribute;
+        NamedNodeMap map;
+        NodeList transforms;
+        map = node.getAttributes();
+        String schema = null;
+        List<String> list = null;
+        for (int j = 0; j < map.getLength(); j++) {
+            attribute = map.item(j);
+            schema = attribute.getNodeValue();
+            transforms = node.getElementsByTagName(TRANSFORM);
+            list = new ArrayList<String>();
+            for (int i = 0; i < transforms.getLength(); i++) {
+                Node a;
+                NamedNodeMap m = transforms.item(i).getAttributes();
+                for (int k = 0; k < m.getLength(); k++) {
+                    attribute = m.item(k);
+                    if (FILE.equals(attribute.getNodeName()))
+                        list.add(attribute.getNodeValue());
+                }
+            }
+        }
+        if (StringUtils.isNotBlank(schema) && CollectionUtils.isNotEmpty(list)) {
+            sheets.put(schema, list);
+        }
+    }
+
+    /**
+     * Extracts the value of the current schema.
+     *
+     * @param schema The current value.
+     * @throws Exception Thrown when an error occurred while parsing the file.
+     */
+    private Map<String, List<String>> extractCurrentSchema(String schema,
+            Document document)
+        throws Exception
+    {
+        NodeList list = document.getElementsByTagName(SOURCE);
+        Element n;
+        Node attribute;
+        NamedNodeMap map;
+        NodeList t;
+        Map<String, List<String>> transforms =
+                new HashMap<String, List<String>>();
+        for (int i = 0; i < list.getLength(); ++i) {
+            n = (Element) list.item(i);
+            map = n.getAttributes();
+            for (int j = 0; j < map.getLength(); j++) {
+                attribute = map.item(j);
+                if (SCHEMA.equals(attribute.getNodeName())) {
+                    if (schema.equals(attribute.getNodeValue())) {
+                        t = n.getElementsByTagName(TARGET);
+                        for (int k = 0; k < t.getLength(); k++) {
+                            parseTarget((Element) t.item(k), transforms);
+                        }
+                    }
+                }
+            }
+        }
+        return transforms;
+    }
+
+    /**
+     * Reads the current schema.
+     *
+     * @return See above.
+     * @throws Exception Thrown if an error occurred while reading.
+     */
+    private Map<String, List<String>> currentSchema() throws Exception
+    {
+        InputStream stream = this.getClass().getResourceAsStream(CATALOG);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = dbf.newDocumentBuilder();
+            Document doc = builder.parse(stream);
+            String current = doc.getDocumentElement().getAttribute(CURRENT);
+            if (StringUtils.isBlank(current))
+                throw new Exception("No schema specified.");
+            return extractCurrentSchema(current, doc);
+        } catch (Exception e) {
+            throw new Exception("Unable to parse the catalog.", e);
+        }
+    }
+
+    /**
+     * Creates the transformations.
+     * @return Object[][] data.
+     */
+    @DataProvider(name = "createTransform")
+    public Object[][] createTransform() throws Exception {
+        List<Target> targets = new ArrayList<Target>();
+        Object[][] data = null;
+        List<String> l;
+        Iterator<String> j;
+        Entry<String, List<String>> e;
+        Iterator<Entry<String, List<String>>> i = sheets.entrySet().iterator();
+        while (i.hasNext()) {
+            e = i.next();
+            l = e.getValue();
+            List<InputStream> streams = new ArrayList<InputStream>();
+            j = l.iterator();
+            while (j.hasNext()) {
+                streams.add(this.getClass().getResourceAsStream(
+                        "/transforms/"+j.next()));
+            }
+            StreamSource[] schemas = new StreamSource[1];
+            schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
+                    "/released-schema/"+e.getKey()+"/ome.xsd"));
+            targets.add(new Target(schemas, streams));
+        }
+        int index = 0;
+        Iterator<Target> k = targets.iterator();
+        data = new Object[targets.size()][1];
+        while (k.hasNext()) {
+            data[index][0] = k.next();
+            index++;
+        }
+        return data;
+    }
+
+    /**
      * Test the export of an image as OME-XML.
      * @throws Exception Thrown if an error occurred.
      */
-    public void testExportAsOMEXMLDowngrade() throws Exception {
-        //TODO read from catalog
-        StreamSource[] schemas = new StreamSource[1];
-        schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-                "/released-schema/2013-06/ome.xsd"));
-        InputStream sheet = this.getClass().getResourceAsStream(
-                "/transforms/2015-01-to-2013-06.xsl");
-        List<InputStream> transforms = Arrays.asList(sheet);
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMEXMLDowngrade(Target target) throws Exception {
         File f = null;
         File transformed = null;
         try {
             f = export(OME_XML);
             //transform
-            transformed = applyTransforms(f, transforms);
+            transformed = applyTransforms(f, target.getTransforms());
             //validate the file
-            validate(transformed, schemas);
+            validate(transformed, target.getSchemas());
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
@@ -404,15 +566,8 @@ public class ExporterTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      * @see RawFileStoreTest#testUploadFile()
      */
-    @Test(groups = "broken")
-    public void testExportAsOMETIFFDowngrade() throws Exception {
-        //TODO read from catalog
-        StreamSource[] schemas = new StreamSource[1];
-        schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-                "/released-schema/2013-06/ome.xsd"));
-        InputStream sheet = this.getClass().getResourceAsStream(
-                "/transforms/2015-01-to-2013-06.xsl");
-        List<InputStream> transforms = Arrays.asList(sheet);
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMETIFFDowngrade(Target target) throws Exception {
         File f = null;
         File transformed = null;
         File inputXML = null;
@@ -423,10 +578,11 @@ public class ExporterTest extends AbstractServerTest {
             f = export(OME_TIFF);
             //extract XML and copy to tmp file
             TiffParser parser = new TiffParser(f.getAbsolutePath());
-            inputXML = File.createTempFile(RandomStringUtils.random(10), "." + OME_XML);
+            inputXML = File.createTempFile(RandomStringUtils.random(10),
+                    "." + OME_XML);
             FileUtils.writeStringToFile(inputXML, parser.getComment());
             //transform XML
-            transformed = applyTransforms(inputXML, transforms);
+            transformed = applyTransforms(inputXML, target.getTransforms());
             //Generate OME-TIFF
             result = File.createTempFile(RandomStringUtils.random(10), "."
                     + OME_TIFF);
@@ -437,7 +593,7 @@ public class ExporterTest extends AbstractServerTest {
             in = new RandomAccessInputStream(path);
             saver.overwriteComment(in, FileUtils.readFileToString(transformed));
             //validate the OME-TIFF
-            validate(result, schemas);
+            validate(result, target.getSchemas());
             //import the file
             importFile(result, OME_XML);
         } catch (Throwable e) {
@@ -451,4 +607,38 @@ public class ExporterTest extends AbstractServerTest {
         }
     }
 
+    class Target {
+
+        /** The schema used to validate the change.*/
+        StreamSource[] schemas;
+
+        /** The transforms to apply.*/
+        List<InputStream> transforms;
+
+        /**
+         * Creates a new instance.
+         *
+         * @param schemas The schema used to validate the change.
+         * @param transforms The transforms to apply.
+         */
+        Target(StreamSource[] schemas, List<InputStream> transforms) 
+        {
+            this.schemas = schemas;
+            this.transforms = transforms;
+        }
+
+        /**
+         * Returns the schema used to validate.
+         *
+         * @return See above.
+         */
+        StreamSource[] getSchemas() { return schemas; }
+
+        /**
+         * Returns the transforms to apply.
+         *
+         * @return See above.
+         */
+        List<InputStream> getTransforms() { return transforms; }
+    }
 }
