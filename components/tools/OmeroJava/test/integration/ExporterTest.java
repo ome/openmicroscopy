@@ -571,6 +571,7 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         File inputXML = null;
+        File transformedXML = null;
         File result = null;
         RandomAccessInputStream in = null;
         RandomAccessOutputStream out = null;
@@ -592,8 +593,13 @@ public class ExporterTest extends AbstractServerTest {
             saver.setBigTiff(parser.isBigTiff());
             in = new RandomAccessInputStream(path);
             saver.overwriteComment(in, FileUtils.readFileToString(transformed));
+            
             //validate the OME-TIFF
-            validate(result, target.getSchemas());
+            parser = new TiffParser(result.getAbsolutePath());
+            transformedXML = File.createTempFile(RandomStringUtils.random(10),
+                    "." + OME_XML);
+            FileUtils.writeStringToFile(transformedXML, parser.getComment());
+            validate(transformedXML, target.getSchemas());
             //import the file
             importFile(result, OME_XML);
         } catch (Throwable e) {
@@ -603,6 +609,7 @@ public class ExporterTest extends AbstractServerTest {
             if (transformed != null) transformed.delete();
             if (inputXML != null) inputXML.delete();
             if (result != null) result.delete();
+            if (transformedXML != null) transformedXML.delete();
             if (in != null) in.close();
         }
     }
