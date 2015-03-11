@@ -113,7 +113,7 @@ public class FilesLoader
      * @param id The id of the file annotation to download.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeFileBatchCall(final long id)
+    private BatchCall makeFileBatchCall(final File file, final long id)
     {
     	return new BatchCall("Downloading files.") {
     		public void doCall() throws Exception
@@ -121,8 +121,7 @@ public class FilesLoader
     			OmeroMetadataService service = context.getMetadataService();
     			FileAnnotationData fa = (FileAnnotationData)
     					service.loadAnnotation(ctx, id);
-    			result = service.downloadFile(ctx, new File(fa.getFileName()),
-    					fa.getFileID());
+    			result = service.downloadFile(ctx, file, fa.getFileID());
     		}
     	};
     }
@@ -301,7 +300,7 @@ public class FilesLoader
     {
     	this.ctx = ctx;
     	if (file == null || index == FILE_ANNOTATION)
-    		loadCall = makeFileBatchCall(fileID);
+    		loadCall = makeFileBatchCall(file, fileID);
     	else {
     		if (index == METADATA_FROM_IMAGE)
     			loadCall = makeFromImageBatchCall(file, fileID);
