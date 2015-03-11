@@ -665,6 +665,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             }
             return null;
         }
+        if (noStatsInfo){
+            return null;
+        }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
         MessageDigest md;
         try {
