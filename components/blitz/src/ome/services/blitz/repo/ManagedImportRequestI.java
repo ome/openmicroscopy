@@ -136,6 +136,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private boolean noStatsInfo = false;
 
+    private String checksumAlgorithm = null;
+
     private String fileName = null;
 
     private String shortName = null;
@@ -219,7 +221,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 settings.doThumbnails.getValue();
             noStatsInfo = settings.noStatsInfo == null ? false :
                 settings.noStatsInfo.getValue();
-
+            checksumAlgorithm = settings.checksumAlgorithm == null ? null : settings.checksumAlgorithm.getValue().getValue();
             detectAutoClose();
 
             fileName = file.getFullFsPath();
@@ -665,7 +667,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             }
             return null;
         }
-        if (noStatsInfo){
+        if (checksumAlgorithm.equals("File-Size-64")) {
+            if (log.isDebugEnabled())
+            {
+                log.debug("Skip plane checksum");
+            }
             return null;
         }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
