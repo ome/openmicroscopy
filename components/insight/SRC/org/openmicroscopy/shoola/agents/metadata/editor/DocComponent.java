@@ -54,10 +54,12 @@ import javax.swing.SwingUtilities;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ToolTipGenerator;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -312,19 +314,19 @@ class DocComponent
 	/**
 	 * Adds the experimenters who use the annotation if any.
 	 * 
-	 * @param buf The buffer
+	 * @param tt The {@link ToolTipGenerator} to add the information on to
 	 * @param annotation The annotation to handle.
 	 */
-	private void checkAnnotators(StringBuffer buf, AnnotationData annotation)
+	private void checkAnnotators(ToolTipGenerator tt, AnnotationData annotation)
 	{
 		List<ExperimenterData> annotators = model.getAnnotators(annotation);
 		if (annotators.size() == 0) return;
 		Iterator<ExperimenterData> i = annotators.iterator();
 		ExperimenterData annotator;
-		buf.append("<b>Linked by:</b><br>");
+		tt.addLine("Linked by:", true);
 		while (i.hasNext()) {
 			annotator =  i.next();
-			buf.append(EditorUtil.formatExperimenter(annotator)+"<br>");
+			tt.addLine(EditorUtil.formatExperimenter(annotator));
 		}
 		if (annotators.size() > 1) {
 			String text = label.getText();
@@ -376,8 +378,7 @@ class DocComponent
 	 */
 	private String formatToolTip(AnnotationData annotation, String name)
 	{
-		StringBuffer buf = new StringBuffer();
-		buf.append("<html><body>");
+		ToolTipGenerator tt = new ToolTipGenerator();
 		if (model.isMultiSelection()) {
 			Map<DataObject, Boolean> m = null;
 			Entry<DataObject, Boolean> e;
@@ -405,126 +406,70 @@ class DocComponent
 				if (k.next().booleanValue())
 					n++;
 			}
-			buf.append(text);
-			buf.append(n);
+			tt.addLineNoBr(text+""+n+" ");
 			int index = 0;
 			String s;
 			while (j.hasNext()) {
 				e = j.next();
 				if (index == 0) {
-					buf.append(" ");
-					buf.append("<b>");
-					buf.append(model.getObjectTypeAsString(e.getKey()));
-					if (n > 1) buf.append("s");
-					buf.append(":</b>");
-					buf.append("<br>");
+				    tt.addLine(model.getObjectTypeAsString(e.getKey())+"s", true);
 					index++;
 				}
-				buf.append("<b>");
-				buf.append("ID ");
-				buf.append(e.getKey().getId());
-				buf.append(":</b> ");
-				buf.append(UIUtilities.formatPartialName(
-						model.getObjectName(e.getKey())));
+				tt.addLine("ID "+e.getKey().getId(), UIUtilities.formatPartialName(
+                        model.getObjectName(e.getKey())), true);
 				//Indicates who annotates the object if not the user
 				//currently logged in.
 				s = formatAnnotators(e.getKey(), annotation);
-				if (s != null) buf.append(s);
-				buf.append("<br>");
+				if (s != null) 
+				    tt.addLine(s);
 			}
-			buf.append("</body></html>");
-			return buf.toString();
+			return tt.toString();
 		}
 		
 		if (name != null) {
-			buf.append("<b>");
-			buf.append("Name: ");
-			buf.append("</b>");
-			buf.append(name);
-			buf.append("<br>");
+		    tt.addLine("Name", name, true);
 		}
 		
 		ExperimenterData exp = null;
 		
 		if(annotation.getId()>0) {
 			exp = model.getOwner(annotation);
-			buf.append("<b>");
-			buf.append("ID: ");
-			buf.append("</b>");
-			buf.append(annotation.getId());
-			buf.append("<br>");
+			tt.addLine("ID", ""+annotation.getId(), true);
 		}
 		
 		String ns = annotation.getNameSpace();
-		if(!CommonsLangUtils.isEmpty(ns) && !isInternalNS(ns)) {
-			buf.append("<b>");
-			buf.append("Namespace: ");
-			buf.append("</b>");
-			buf.append(ns);
-			buf.append("<br>");
+		if(!CommonsLangUtils.isEmpty(ns) && !EditorUtil.isInternalNS(ns)) {
+		    tt.addLine("Namespace", ns, true);
 		}
 		
 		String desc = annotation.getDescription();
 		if(!CommonsLangUtils.isEmpty(desc)) {
-			buf.append("<b>");
-			buf.append("Description: ");
-			buf.append("</b>");
-			buf.append(desc);
-			buf.append("<br>");
+		    tt.addLine("Description", desc, true);
 		}
 		
 		if(exp!=null) {
-			buf.append("<b>");
-			buf.append("Owner: ");
-			buf.append("</b>");
-			buf.append(EditorUtil.formatExperimenter(exp));
-			buf.append("<br>");
+		    tt.addLine("Owner", EditorUtil.formatExperimenter(exp), true);
 		}
 		
 		Timestamp created = annotation.getCreated();
 		if(created !=null) {
-			buf.append("<b>");
-			buf.append("Date: ");
-			buf.append("</b>");
-			buf.append(UIUtilities.formatShortDateTime(created));
-			buf.append("<br>");
+		    tt.addLine("Date", UIUtilities.formatDefaultDate(created), true);
 		}
 		
 		if (data instanceof FileAnnotationData) {
-				buf.append("<b>");
-				buf.append("File ID: ");
-				buf.append("</b>");
-				FileAnnotationData fa = (FileAnnotationData) data;
-				buf.append(fa.getFileID());
-				buf.append("<br>");
-				buf.append("<b>");
-			buf.append("Size: ");
-			buf.append("</b>");
-			//size not kb
-			long size = ((FileAnnotationData) annotation).getFileSize();
-			buf.append(UIUtilities.formatFileSize(size));
-			buf.append("<br>");
-			checkAnnotators(buf, annotation);
+		    FileAnnotationData fa = (FileAnnotationData) data;
+		    long size = ((FileAnnotationData) annotation).getFileSize();
+		    tt.addLine("File ID", ""+fa.getFileID(), true);
+		    tt.addLine("Size", UIUtilities.formatFileSize(size)+"kb", true);
+			checkAnnotators(tt, annotation);
 		} else if (data instanceof TagAnnotationData || data instanceof
 				XMLAnnotationData || data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
 				data instanceof DoubleAnnotationData ||
 				data instanceof BooleanAnnotationData) {
-			checkAnnotators(buf, annotation);
+			checkAnnotators(tt, annotation);
 		}
-		buf.append("</body></html>");
-		return buf.toString();
-	}
-
-	/**
-	 * Checks if the given namespace is an internal one.
-	 * 
-	 * @param ns
-	 *            The namespace to check
-	 * @return See above
-	 */
-	private boolean isInternalNS(String ns) {
-		return ns.startsWith("openmicroscopy.org") || ns.startsWith("omero.");
+		return tt.toString();
 	}
 	
 	/** Initializes the various buttons. */

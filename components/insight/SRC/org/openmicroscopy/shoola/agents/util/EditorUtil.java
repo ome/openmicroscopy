@@ -2665,4 +2665,15 @@ public class EditorUtil
         }
         return false;
     }
+    
+    /**
+     * Checks if the given namespace is an internal one.
+     * 
+     * @param ns
+     *            The namespace to check
+     * @return See above
+     */
+    public static boolean isInternalNS(String ns) {
+        return ns.startsWith("openmicroscopy.org") || ns.startsWith("omero.");
+    }
 }
