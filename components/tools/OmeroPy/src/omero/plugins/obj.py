@@ -408,8 +408,8 @@ Bash examples:
             "--file", help=SUPPRESS)
         parser.add_argument(
             "command", nargs="?",
-            choices=("new", "update", "null", "map-get",
-                     "map-set", "map-add", "map-edit"),
+            choices=("new", "update", "null",
+                     "map-get", "map-set"),
             help="operation to be performed")
         parser.add_argument(
             "Class", nargs="?",
