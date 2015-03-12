@@ -933,7 +933,7 @@ class OmeroImageServiceImpl
 	 */
 	private boolean isHCS(List<ImportContainer> containers)
 	{
-		if (containers == null || containers.size() == 0) return false;
+		if (CollectionUtils.isEmpty(containers)) return false;
 		int count = 0;
 		Iterator<ImportContainer> i = containers.iterator();
 		ImportContainer ic;
@@ -1025,41 +1025,27 @@ class OmeroImageServiceImpl
 		ImportContainer importIc;
 		List<ImportContainer> icContainers;
 		if (file.isFile()) {
-			hcsFile = ImportableObject.isHCSFile(importable.getFile());
+			ic = gateway.getImportCandidates(ctx, object, file, status);
+			hcsFile = isHCS(ic.getContainers());
 			//Create the container if required.
 			if (hcsFile) {
-				boolean b = ImportableObject.isArbitraryFile(file);
-				if (b) { //check if it is actually a HCS file.
-					ic = gateway.getImportCandidates(ctx, object, file, status);
-					if (ic != null) {
-						candidates = ic.getPaths();
-						if (candidates.size() == 1) { 
-							String value = candidates.get(0);
-							if (!file.getAbsolutePath().equals(value) && 
-								object.isFileinQueue(value)) {
-								if (close) gateway.closeImport(ctx, userName);
-								status.markedAsDuplicate();
-								return Boolean.valueOf(true);
-							}
-							if (!file.getName().endsWith(
-									ImportableObject.DAT_EXTENSION)) {
-								hcsFile = isHCS(ic.getContainers());
-							} else hcsFile = false;
-						}
-					}
-				}
-			}
-			if (!hcsFile && ImportableObject.isOMEFile(file)) {
-				ic = gateway.getImportCandidates(ctx, object, file, status);
 				if (ic != null) {
-					hcsFile = isHCS(ic.getContainers());
-				}
-			}
-			if (hcsFile) {
+                    candidates = ic.getPaths();
+                    if (candidates.size() == 1) { 
+                        String value = candidates.get(0);
+                        if (!file.getAbsolutePath().equals(value) && 
+                            object.isFileinQueue(value)) {
+                            if (close) gateway.closeImport(ctx, userName);
+                            status.markedAsDuplicate();
+                            return Boolean.valueOf(true);
+                        }
+                    }
+                }
 				dataset = null;
-				if (!(container instanceof ScreenData))
-					container = null;
+                if (!(container instanceof ScreenData))
+                    container = null;
 			}
+
 			//remove hcs check if we want to create screen from folder.
 			if (!hcsFile && importable.isFolderAsContainer()) {
 				//we have to import the image in this container.
@@ -1343,8 +1329,6 @@ class OmeroImageServiceImpl
 	public FileFilter[] getSupportedFileFormats()
 	{
 		if (filters != null) return filters;
-		//Retrieve values from bio-formats
-		//filters = new ArrayList<FileFilter>();
 		//improve that code.
 		ImageReader reader = new ImageReader();
 		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
