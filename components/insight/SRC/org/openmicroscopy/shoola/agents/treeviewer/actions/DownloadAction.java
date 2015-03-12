@@ -155,25 +155,33 @@ public class DownloadAction
         JFrame f = TreeViewerAgent.getRegistry().getTaskBar().getFrame();
 
         int type = FileChooser.SAVE;
-
         List<FileFilter> filters = new ArrayList<FileFilter>();
         filters.add(new ZipFilter());
+        boolean all = false;
+        
+        if(node.getUserObject() instanceof FileAnnotationData) {
+            type = FileChooser.FOLDER_CHOOSER;
+            filters = null;
+            all = true;
+        }
         
         FileChooser chooser = new FileChooser(f, type,
                 FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-                filters, false);
+                filters, all);
         try {
             if (UIUtilities.getDefaultFolder() != null)
                 chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
         } catch (Exception ex) {
         }
         
-        final File file = UIUtilities.generateFileName(
-                UIUtilities.getDefaultFolder(), browser
-                        .getSelectedDataObjects().size() > 1 ? "Original_Files"
-                        : "Original_File", "zip");
+        if(type == FileChooser.SAVE) {
+            File file = UIUtilities.generateFileName(
+                    UIUtilities.getDefaultFolder(), browser
+                            .getSelectedDataObjects().size() > 1 ? "Original_Files"
+                            : "Original_File", "zip");
+            chooser.setSelectedFile(file);
+        }
         
-        chooser.setSelectedFile(file);
         chooser.setCheckOverride(true);
         IconManager icons = IconManager.getInstance();
         chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));

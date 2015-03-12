@@ -541,8 +541,7 @@ class TreeViewerComponent
 		IconManager icons = IconManager.getInstance();
 		DownloadActivityParam activity = new DownloadActivityParam(f,
 				folder, icons.getIcon(IconManager.DOWNLOAD_22));
-		if (override)
-			activity.setFileName(fa.getFileName());
+		activity.setFileName(fa.getFileName());
 
 		un.notifyActivity(model.getSecurityContext(), activity);
 	}
