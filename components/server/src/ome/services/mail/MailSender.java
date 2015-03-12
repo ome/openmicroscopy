@@ -133,6 +133,7 @@ public class MailSender {
             // Printing warning since the enabled mail check should happen
             // as early as possible to prevent wasting resources.
             log.warn("sendBlind called when mail is disabled.");
+            return;
         }
 
         if (addresses == null || addresses.isEmpty()) {
