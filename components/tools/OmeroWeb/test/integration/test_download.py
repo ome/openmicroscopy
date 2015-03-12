@@ -73,6 +73,18 @@ class TestDownload(IWebTest):
         }
         _get_response(self.django_client, request_url, data, status_code=404)
 
+    def test_orphaned_image_direct_download(self):
+        """
+        Download of archived files for a non-SPW orphaned Image.
+        """
+
+        image = self.importSingleImage()
+
+        # download archived files
+        request_url = reverse('webgateway.views.archived_files',
+                              args=[image.id.val])
+        _get_response(self.django_client, request_url, {}, status_code=200)
+
     def test_orphaned_image_download(self):
         """
         Download of archived files for a non-SPW orphaned Image.
