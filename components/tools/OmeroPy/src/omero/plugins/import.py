@@ -65,6 +65,8 @@ command-line-import.html
 Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
+DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
+SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails']
 
 
 class ImportControl(BaseControl):
@@ -157,10 +159,8 @@ class ImportControl(BaseControl):
             help="OMERO screen ID to import plate into (**)",
             metavar="SCREEN_ID")
         java_group.add_argument(
-            "--debug", dest="java_debug",
+            "--debug", choices=DEBUG_CHOICES, dest="java_debug",
             help="Turn debug logging on (**)",
-            choices=["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE",
-                     "WARN"],
             metavar="LEVEL")
         java_group.add_argument(
             "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
@@ -176,7 +176,7 @@ class ImportControl(BaseControl):
             "--depth", default=4, type=int,
             help="Number of directories to scan down for files")
         parser.add_argument(
-            "--skip", choices={'all', 'checksum', 'minmax', 'thumbnails'},
+            "--skip", choices=SKIP_CHOICES,
             type=str, help="Optional steps to skip during import")
         parser.add_argument(
             "path", nargs="*",
