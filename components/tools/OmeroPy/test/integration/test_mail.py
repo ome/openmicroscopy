@@ -47,9 +47,9 @@ class TestMail(lib.ITest):
 
     def assertMail(self, uuid):
         q = self.root.sf.getQueryService()
-        return q.findByQuery((
+        assert q.findByQuery((
             "select a from MapAnnotation a where "
-            "a.description like '%%%s%%'") % uuid, None)
+            "a.description like '%%%s\n'") % uuid, None)
 
     def testEveryone(self):
         self.skipIfNot()

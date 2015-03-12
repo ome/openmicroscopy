@@ -38,7 +38,7 @@ public class ServerDownMailSender extends MailSender implements
             return;
         }
         Set<String> addresses = getAllSystemUsers(true);
-        sendBlind(addresses, "Server shutdown", "body");
+        sendBlind(addresses, "Server shutdown");
     }
 
 

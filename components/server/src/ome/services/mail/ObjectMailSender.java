@@ -107,7 +107,6 @@ public class ObjectMailSender extends MailSender implements
     //
 
     protected void sendEmail(Collection<EventLog> matches) {
-        Set<String> addresses = new HashSet<String>();
         Parameters p = new Parameters();
         Roles roles = getRoles();
         p.addString("systemGroup", roles.getSystemGroupName());
@@ -118,11 +117,14 @@ public class ObjectMailSender extends MailSender implements
         StringBuilder sb = new StringBuilder();
         sb.append("Modified objects:\n");
         for (EventLog el : matches) {
+
+            Set<String> addresses = new HashSet<String>();
             p.addId(el.getEntityId());
             sb.append(klass);
             sb.append(":");
             sb.append(el.getEntityId());
             sb.append("\n");
+
             for (IObject obj : getQueryService().findAllByQuery(queryString, p)) {
                 if (obj instanceof Experimenter) {
                     addUser(addresses, (Experimenter) obj);
@@ -133,9 +135,9 @@ public class ObjectMailSender extends MailSender implements
                     }
                 }
             }
-        }
-        sendBlind(addresses, String.format("%s %s notification",
+            sendBlind(addresses, String.format("%s %s notification",
                 action, klass.getSimpleName()), sb.toString());
+        }
     }
 
     protected void addUser(Set<String> addresses, Experimenter exp) {

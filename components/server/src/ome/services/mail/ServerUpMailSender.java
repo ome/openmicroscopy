@@ -42,7 +42,7 @@ public class ServerUpMailSender extends OnContextRefreshedEventListener {
             return;
         }
         Set<String> addresses = sender.getAllSystemUsers(true);
-        sender.sendBlind(addresses, "Server up", "");
+        sender.sendBlind(addresses, "Server started");
     }
 
 }

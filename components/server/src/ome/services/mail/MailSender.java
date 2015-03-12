@@ -57,6 +57,8 @@ public class MailSender {
 
     private String subjectPrefix = "[OMERO] ";
 
+    private String defaultBody = "Automated email sent by the OMERO server.\n";
+
     //
     // GETTERS & SETTERS
     //
@@ -109,11 +111,23 @@ public class MailSender {
         this.subjectPrefix = subjectPrefix;
     }
 
+    public String getDefaultBody() {
+        return defaultBody;
+    }
+
+    public void setDefaultBody(String defaultBody) {
+        this.defaultBody = defaultBody;
+    }
+
     //
     // Helpers
     //
 
-    protected void sendBlind(Set<String> addresses, String subject, String text) {
+    protected void sendBlind(Set<String> addresses, String subject) {
+        sendBlind(addresses, subject, getDefaultBody());
+    }
+
+    protected void sendBlind(Set<String> addresses, String subject, String body) {
 
         if (!isEnabled()) {
             // Printing warning since the enabled mail check should happen
@@ -131,7 +145,8 @@ public class MailSender {
             // FIXME: Misusing from as the TO for BCCs. If there's no workaround
             // then likely we'll need to break this into multiple sendEmail
             // calls. (multi-threading?)
-            getMailUtil().sendEmail(from, getSubjectPrefix() + subject, text,
+            getMailUtil().sendEmail(from,
+                    getSubjectPrefix() + subject, body,
                 false /* not html */, null, new ArrayList<String>(addresses));
         } catch (Exception e) {
             log.error("Failed to send emails: {} ", addresses, e);

@@ -82,11 +82,11 @@ public class FailedLoginMailSender extends MailSender implements
 
         if (onAllUsers || hasSpecific) {
             if (contactSystem) {
-                sendBlind(getAllSystemUsers(true), subj, "body");
+                sendBlind(getAllSystemUsers(false), subj);
             }
             if (contactUser) {
                 sendBlind(Collections.singleton(getUserEmail(lam.user)),
-                        subj, "body");
+                        subj);
             }
         }
     }
