@@ -491,27 +491,15 @@ public class ImportableObject
 	public static boolean isHCSFile(FileObject f)
 	{
 		if (f == null) return false;
-		return isHCSFile(f.getAbsolutePath());
-	}
-	
-	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is a HCS files, <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	public static boolean isHCSFile(String path)
-	{
-		if (path == null) return false;
+		String path = f.getAbsolutePath();
 		if (FILTER.accept(path)) return false;
-		String name = path;
-		if (!name.contains(".")) return false; 
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		if (ext == null) return false;
-		return HCS_FILES_EXTENSION.contains(ext.toLowerCase());
+        String name = path;
+        if (!name.contains(".")) return false; 
+        String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+        if (ext == null) return false;
+        return HCS_FILES_EXTENSION.contains(ext.toLowerCase());
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the passed format is a HCS format,
 	 * <code>false</code> otherwise.
