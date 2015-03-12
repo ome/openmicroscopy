@@ -21,14 +21,17 @@ package ome.services.mail;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import ome.model.IObject;
+import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.services.messages.EventLogMessage;
+import ome.services.messages.EventLogsMessage;
 import ome.system.Roles;
 
 import org.springframework.context.ApplicationListener;
@@ -40,7 +43,7 @@ import org.springframework.context.ApplicationListener;
  * instance.
  */
 public class ObjectMailSender extends MailSender implements
-        ApplicationListener<EventLogMessage> {
+        ApplicationListener<EventLogsMessage> {
 
     private Class<IObject> klass;
 
@@ -81,28 +84,29 @@ public class ObjectMailSender extends MailSender implements
     //
 
     @Override
-    public void onApplicationEvent(EventLogMessage elm) {
+    public void onApplicationEvent(EventLogsMessage elm) {
 
         if (!isEnabled()) {
             return;
         }
 
-        if (!elm.entityType.isAssignableFrom(klass)) {
+        if (isEmpty(this.queryString)) {
             return;
         }
 
-        if (!isEmpty(this.queryString) && !elm.action.equals(this.action)) {
+        Collection<EventLog> matches = elm.matches(klass.getName(), action);
+        if (matches.isEmpty()) {
             return;
         }
 
-        sendEmail(elm);
+        sendEmail(matches);
     }
 
     //
     // Main method
     //
 
-    protected void sendEmail(EventLogMessage elm) {
+    protected void sendEmail(Collection<EventLog> matches) {
         Set<String> addresses = new HashSet<String>();
         Parameters p = new Parameters();
         Roles roles = getRoles();
@@ -113,11 +117,11 @@ public class ObjectMailSender extends MailSender implements
 
         StringBuilder sb = new StringBuilder();
         sb.append("Modified objects:\n");
-        for (Long id : elm.entityIds) {
-            p.addId(id);
+        for (EventLog el : matches) {
+            p.addId(el.getEntityId());
             sb.append(klass);
             sb.append(":");
-            sb.append(id);
+            sb.append(el.getEntityId());
             sb.append("\n");
             for (IObject obj : getQueryService().findAllByQuery(queryString, p)) {
                 if (obj instanceof Experimenter) {
@@ -130,8 +134,8 @@ public class ObjectMailSender extends MailSender implements
                 }
             }
         }
-        sendBlind(addresses, String.format("%s %s notification", elm.action,
-                elm.entityType), sb.toString());
+        sendBlind(addresses, String.format("%s %s notification",
+                action, klass.getSimpleName()), sb.toString());
     }
 
     protected void addUser(Set<String> addresses, Experimenter exp) {

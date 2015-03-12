@@ -9,9 +9,7 @@ package ome.security.basic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -42,6 +40,7 @@ import ome.security.SecurityFilterHolder;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
 import ome.services.messages.EventLogMessage;
+import ome.services.messages.EventLogsMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
@@ -468,27 +467,31 @@ public class BasicSecuritySystem implements SecuritySystem,
             log.debug("Clearing EventLogs.");
         }
 
-        boolean foundAdminType = false;
-        Multimap<String, Long> typeIds = ArrayListMultimap.create();
-        for (EventLog el : getLogs()) {
-            String t = el.getEntityType();
-            if (Experimenter.class.getName().equals(t)
-                    || ExperimenterGroup.class.getName().equals(t)
-                    || GroupExperimenterMap.class.getName().equals(t)) {
-                foundAdminType = true;
-            }
-            typeIds.put(t, el.getEntityId());
-        }
+        List<EventLog> logs = getLogs();
+        if (!logs.isEmpty()) {
 
-        if (ctx == null) {
-            log.error("No context found for publishing");
-        } else {
-            // publish message if administrative type is modified
-            if (foundAdminType) {
-                this.ctx.publishEvent(new UserGroupUpdateEvent(this));
+            boolean foundAdminType = false;
+            final Multimap<String, EventLog> map = ArrayListMultimap.create();
+
+            for (EventLog el : getLogs()) {
+                String t = el.getEntityType();
+                if (Experimenter.class.getName().equals(t)
+                        || ExperimenterGroup.class.getName().equals(t)
+                        || GroupExperimenterMap.class.getName().equals(t)) {
+                    foundAdminType = true;
+                }
+                map.put(t, el);
             }
-            // FIXME: should publish some message here as well as in
-            // addLog below.
+
+            if (ctx == null) {
+                log.error("No context found for publishing");
+            } else {
+                // publish message if administrative type is modified
+                if (foundAdminType) {
+                    this.ctx.publishEvent(new UserGroupUpdateEvent(this));
+                }
+                this.ctx.publishEvent(new EventLogsMessage(this, map));
+            }
         }
         
         cd.clearLogs();
