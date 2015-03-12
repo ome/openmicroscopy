@@ -147,9 +147,10 @@ class ITest(object):
         return str(create_path())
 
     @classmethod
-    def new_group(self, experimenters=None, perms=None):
+    def new_group(self, experimenters=None, perms=None, gname=None):
         admin = self.root.sf.getAdminService()
-        gname = self.uuid()
+        if gname is None:
+            gname = self.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
@@ -442,7 +443,7 @@ class ITest(object):
 
     @classmethod
     def new_user(self, group=None, perms=None,
-                 owner=False, system=False):
+                 owner=False, system=False, uname=None):
         """
         :owner: If user is to be an owner of the created group
         :system: If user is to be a system admin
@@ -452,7 +453,8 @@ class ITest(object):
             raise Exception("No root client. Cannot create user")
 
         adminService = self.root.getSession().getAdminService()
-        name = self.uuid()
+        if uname is None:
+            uname = self.uuid()
 
         # Create group if necessary
         if not group:
@@ -463,15 +465,15 @@ class ITest(object):
 
         # Create user
         e = ExperimenterI()
-        e.omeName = rstring(name)
-        e.firstName = rstring(name)
-        e.lastName = rstring(name)
+        e.omeName = rstring(uname)
+        e.firstName = rstring(uname)
+        e.lastName = rstring(uname)
         e.ldap = rbool(False)
         listOfGroups = list()
         listOfGroups.append(adminService.lookupGroup('user'))
         uid = adminService.createExperimenterWithPassword(
-            e, rstring(name), g, listOfGroups)
-        e = adminService.lookupExperimenter(name)
+            e, rstring(uname), g, listOfGroups)
+        e = adminService.lookupExperimenter(uname)
         if owner:
             adminService.setGroupOwner(g, e)
         if system:
