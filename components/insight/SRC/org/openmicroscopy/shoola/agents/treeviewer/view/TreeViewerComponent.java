@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -63,7 +63,6 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
-import org.openmicroscopy.shoola.agents.metadata.view.RndSettingsPasted;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -3651,18 +3650,16 @@ class TreeViewerComponent
 	        }
 	    }
 	    if (archived.size() > 0) {
-	        Iterator<ImageData> j = archived.iterator();
-	        DownloadArchivedActivityParam p;
-	        UserNotifier un =
-	                MetadataViewerAgent.getRegistry().getUserNotifier();
-	        IconManager icons = IconManager.getInstance();
-	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
-	        SecurityContext ctx = getSecurityContext();
-	        while (j.hasNext()) {
-	            p = new DownloadArchivedActivityParam(folder, j.next(), icon);
-	            p.setOverride(override);
-	            un.notifyActivity(ctx, p);
-	        }
+            UserNotifier un = MetadataViewerAgent.getRegistry()
+                    .getUserNotifier();
+            IconManager icons = IconManager.getInstance();
+            Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+            SecurityContext ctx = getSecurityContext();
+
+            DownloadArchivedActivityParam p = new DownloadArchivedActivityParam(
+                    folder, archived, icon);
+            p.setOverride(override);
+            un.notifyActivity(ctx, p);
 	    }
 	}
 

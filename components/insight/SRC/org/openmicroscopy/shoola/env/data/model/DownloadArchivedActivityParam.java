@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+import java.util.List;
 
 import javax.swing.Icon;
 
@@ -57,7 +58,7 @@ public class DownloadArchivedActivityParam
     private File location;
     
     /** The collection of archived images to download. */
-    private ImageData image;
+    private List<ImageData> images;
     
     /** Flag indicating to override or not the files when saving.*/
     private boolean override;
@@ -66,14 +67,14 @@ public class DownloadArchivedActivityParam
      * Creates a new instance.
      * 
      * @param location The file to download the content into.
-     * @param image The archived images to download.
+     * @param images The archived images to download.
      * @param icon The icon associated to the parameters.
      */
-    public DownloadArchivedActivityParam(File location, ImageData image,
+    public DownloadArchivedActivityParam(File location, List<ImageData> images,
     		Icon icon)
     {
     	this.location = location;
-    	this.image = image;
+    	this.images = images;
     	this.icon = icon;
     	this.override = false;
     }
@@ -109,10 +110,10 @@ public class DownloadArchivedActivityParam
     public File getLocation() { return location; }
     
     /**
-     * Returns the archived image to download.
+     * Returns the archived images to download.
      * 
      * @return See above.
      */
-    public ImageData getImage() { return image; }
+    public List<ImageData> getImages() { return images; }
 
 }

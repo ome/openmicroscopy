@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -37,13 +37,15 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
-import org.apache.commons.io.FilenameUtils;
+import javax.swing.filechooser.FileFilter;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.util.filter.file.ZipFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -143,41 +145,36 @@ public class DownloadAction
     public void actionPerformed(ActionEvent e)
     {
         Browser browser = model.getSelectedBrowser();
-        if (browser == null) return;
+        if (browser == null) 
+            return;
+        
         TreeImageDisplay node = browser.getLastSelectedDisplay();
-        if (node == null) return;
+        if (node == null) 
+            return;
+        
         JFrame f = TreeViewerAgent.getRegistry().getTaskBar().getFrame();
 
-        List<DataObject> list = browser.getSelectedDataObjects();
         int type = FileChooser.SAVE;
-        List<String> paths = new ArrayList<String>();
-        if (list != null && list.size() > 1) {
-            type = FileChooser.FOLDER_CHOOSER;
-            Iterator<DataObject> i = list.iterator();
-            DataObject data;
-            while (i.hasNext()) {
-                data  = i.next();
-                if (data instanceof ImageData) {
-                    paths.add(FilenameUtils.getName(
-                            ((ImageData) data).getName()));
-                }
-            }
-        }
+
+        List<FileFilter> filters = new ArrayList<FileFilter>();
+        filters.add(new ZipFilter());
+        
         FileChooser chooser = new FileChooser(f, type,
                 FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-                null, true);
+                filters, false);
         try {
-            File file = UIUtilities.getDefaultFolder();
-            if (file != null) chooser.setCurrentDirectory(file);
-        } catch (Exception ex) {}
-        String text = "";
-        Object ho = node.getUserObject();
-        if (ho instanceof ImageData) text = ((ImageData) ho).getName();
-        else if (ho instanceof FileAnnotationData)
-            text = ((FileAnnotationData) ho).getFileName();
-        chooser.setSelectedFileFull(text);
+            if (UIUtilities.getDefaultFolder() != null)
+                chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
+        } catch (Exception ex) {
+        }
+        
+        final File file = UIUtilities.generateFileName(
+                UIUtilities.getDefaultFolder(), browser
+                        .getSelectedDataObjects().size() > 1 ? "Original_Files"
+                        : "Original_File", "zip");
+        
+        chooser.setSelectedFile(file);
         chooser.setCheckOverride(true);
-        chooser.setSelectedFiles(paths);
         IconManager icons = IconManager.getInstance();
         chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
         chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);

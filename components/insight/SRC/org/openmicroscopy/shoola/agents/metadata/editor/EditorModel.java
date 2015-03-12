@@ -373,11 +373,9 @@ class EditorModel
 	        IconManager icons = IconManager.getInstance();
 	        Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
 	        SecurityContext ctx = getSecurityContext();
-	        while (i.hasNext()) {
-	            p = new DownloadArchivedActivityParam(file, i.next(), icon);
-	            p.setOverride(override);
-	            un.notifyActivity(ctx, p);
-	        }
+            p = new DownloadArchivedActivityParam(file, images, icon);
+            p.setOverride(override);
+            un.notifyActivity(ctx, p);
 	    }
 	}
 

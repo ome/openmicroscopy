@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.MetadataHandlerView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -303,7 +303,7 @@ public interface MetadataHandlerView
 	 * Loads the archived files related to the specified image.
 	 * 
 	 * @param ctx The security context.
-	 * @param imageID The id of the pixels set related to the image.
+	 * @param imageIDs The ids of the pixels set related to the image.
 	 * @param location The location where to store the files.
 	 * @param name The name of the image.
 	 * @param override Flag indicating to override the existing file if it
@@ -311,8 +311,8 @@ public interface MetadataHandlerView
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-		File location, String name, boolean override,
+	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
+		File location, boolean override,
 		AgentEventListener observer);
 	
 	/**
