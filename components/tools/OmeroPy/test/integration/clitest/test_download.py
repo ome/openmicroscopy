@@ -21,6 +21,8 @@
 
 import pytest
 import omero
+
+from collections import namedtuple
 from omero.plugins.download import DownloadControl
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
@@ -218,20 +220,15 @@ class TestDownload(CLITest):
 
     class PolicyFixture(object):
 
-        def __init__(self, cfg, for_user,
-                     image, ofile, plate):
+        T = namedtuple("Checks", "image,ofile,plate")
+
+        def __init__(self, cfg, data):
             self.cfg = cfg
-            self.for_user = for_user
-            self.image = image
-            self.ofile = ofile
-            self.plate = plate
+            for x in ("owner", "admin", "member"):
+                setattr(self, x, self.T(*data[x]))
 
         def __str__(self):
-            return "%s_%s_%s_%s_%s" % (
-                self.cfg, self.for_user,
-                self.image and 1 or 0,
-                self.ofile and 1 or 0,
-                self.plate and 1 or 0)
+            return self.cfg
 
     POLICY_DEF = "+read,+write,+image"
     POLICY_NONE = "-read,-write,-image,-plate"
@@ -240,21 +237,21 @@ class TestDownload(CLITest):
     POLICY_ALL = "+read,+write,+image,+plate"
 
     POLICY_FIXTURES = (
-        PolicyFixture(POLICY_DEF, "owner", True, True, False),
-        PolicyFixture(POLICY_DEF, "admin", True, True, False),
-        PolicyFixture(POLICY_DEF, "owner", True, True, False),
-        PolicyFixture(POLICY_NONE, "owner", False, False, False),
-        PolicyFixture(POLICY_NONE, "admin", False, False, False),
-        PolicyFixture(POLICY_NONE, "member", False, False, False),
-        PolicyFixture(POLICY_NORDR, "owner", True, True, False),
-        PolicyFixture(POLICY_NORDR, "admin", True, True, False),
-        PolicyFixture(POLICY_NORDR, "member", False, False, False),
-        PolicyFixture(POLICY_NOSPW, "owner", True, True, False),
-        PolicyFixture(POLICY_NOSPW, "admin", True, True, False),
-        PolicyFixture(POLICY_NOSPW, "member", True, True, False),
-        PolicyFixture(POLICY_ALL, "owner", True, True, True),
-        PolicyFixture(POLICY_ALL, "admin", True, True, True),
-        PolicyFixture(POLICY_ALL, "owner", True, True, True),
+        PolicyFixture(POLICY_DEF, {"owner": (True, True, False),
+                                   "admin": (True, True, False),
+                                   "member": (True, True, False)}),
+        PolicyFixture(POLICY_NONE, {"owner": (False, False, False),
+                                    "admin": (False, False, False),
+                                    "member": (False, False, False)}),
+        PolicyFixture(POLICY_NORDR, {"owner": (True, True, False),
+                                     "admin": (True, True, False),
+                                     "member": (False, False, False)}),
+        PolicyFixture(POLICY_NOSPW, {"owner": (True, True, False),
+                                     "admin": (True, True, False),
+                                     "member": (True, True, False)}),
+        PolicyFixture(POLICY_ALL, {"owner": (True, True, True),
+                                   "admin": (True, True, True),
+                                   "member": (True, True, True)}),
     )
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
@@ -310,35 +307,39 @@ class TestDownload(CLITest):
 
         ofile = self.create_original_file("test", upper)
 
-        if fixture.for_user == "owner":
-            downer = upper
-        else:
-            system = fixture.for_user == "admin"
-            downer = self.new_client(group=group,
-                                     system=system)
+        owner = upper
+        admin = self.new_client(group=group, system=True)
+        member = self.new_client(group=group, system=False)
 
-        downer_q = downer.sf.getQueryService()
-        for kls, oid, will_pass in (
-            ("OriginalFile", pfile.id.val, fixture.plate),
-            ("Image", pimage.id.val, fixture.plate),
-            ("Plate", plate.id.val, fixture.plate),
-            ("OriginalFile", ofile.id.val, fixture.ofile),
-            ("Image", image.id.val, fixture.image),
-        ):
+        for downer, checks in ((owner, fixture.owner),
+                               (admin, fixture.admin),
+                               (member, fixture.member)):
 
-            obj = downer_q.get(kls, oid)
-            perms = obj.details.permissions
-            restricted = perms.isRestricted(
-                omero.constants.permissions.BINARYACCESS)
-            assert will_pass != restricted, (
-                "%s:%s. Expected: %s") % (kls, oid, will_pass)
+            downer_q = downer.sf.getQueryService()
 
-            if "Plate" != kls:  # Plate is not implemented
-                self.args = ["download"]
-                self.args += self.login_args(downer)
-                self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
-                if will_pass:
-                    self.cli.invoke(self.args, strict=True)
-                else:
-                    with pytest.raises(NonZeroReturnCode):
+            tests = (
+                ("OriginalFile", pfile.id.val, checks.plate),
+                ("Image", pimage.id.val, checks.plate),
+                ("Plate", plate.id.val, checks.plate),
+                ("OriginalFile", ofile.id.val, checks.ofile),
+                ("Image", image.id.val, checks.image),
+            )
+
+            for kls, oid, will_pass in tests:
+
+                obj = downer_q.get(kls, oid)
+                perms = obj.details.permissions
+                restricted = perms.isRestricted(
+                    omero.constants.permissions.BINARYACCESS)
+                assert will_pass != restricted, (
+                    "%s:%s. Expected: %s") % (kls, oid, will_pass)
+
+                if "Plate" != kls:  # Plate is not implemented
+                    self.args = ["download"]
+                    self.args += self.login_args(downer)
+                    self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
+                    if will_pass:
                         self.cli.invoke(self.args, strict=True)
+                    else:
+                        with pytest.raises(NonZeroReturnCode):
+                            self.cli.invoke(self.args, strict=True)
