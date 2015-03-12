@@ -443,7 +443,8 @@ class ITest(object):
 
     @classmethod
     def new_user(self, group=None, perms=None,
-                 owner=False, system=False, uname=None):
+                 owner=False, system=False, uname=None,
+                 email=None):
         """
         :owner: If user is to be an owner of the created group
         :system: If user is to be a system admin
@@ -469,6 +470,7 @@ class ITest(object):
         e.firstName = rstring(uname)
         e.lastName = rstring(uname)
         e.ldap = rbool(False)
+        e.email = rstring(email)
         listOfGroups = list()
         listOfGroups.append(adminService.lookupGroup('user'))
         uid = adminService.createExperimenterWithPassword(
@@ -482,7 +484,8 @@ class ITest(object):
         return adminService.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
-                   owner=False, system=False, session=None, password=None):
+                   owner=False, system=False, session=None,
+                   password=None, email=None):
         """
         Like new_user() but returns an active client.
 
@@ -501,7 +504,8 @@ class ITest(object):
             if user is not None:
                 user, name = self.user_and_name(user)
             else:
-                user = self.new_user(group, perms, owner=owner, system=system)
+                user = self.new_user(group, perms, owner=owner,
+                                     system=system, email=email)
             props["omero.user"] = user.omeName.val
             if password is not None:
                 props["omero.pass"] = password
