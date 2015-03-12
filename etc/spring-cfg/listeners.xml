@@ -41,11 +41,36 @@
       <property name="roles" ref="roles"/>
   </bean>
 
+  <bean id="newUserMailSender" parent="abstractMailSender"
+      class="ome.services.mail.ObjectMailSender">
+      <property name="action" value="INSERT"/>
+      <property name="objectClass" value="ome.model.meta.Experimenter"/>
+      <!-- Send to root only -->
+      <property name="queryString" value="select e from Experimenter e where e.id = :rootUserId"/>
+      <!-- Send to all admins
+      <property name="queryString" value="select g from ExperimenterGroup g where g.id = :systemGroupId"/>
+      -->
+  </bean>
+
   <bean id="newGroupMailSender" parent="abstractMailSender"
       class="ome.services.mail.ObjectMailSender">
       <property name="action" value="INSERT"/>
       <property name="objectClass" value="ome.model.meta.ExperimenterGroup"/>
-      <property name="queryString" value="select g from ExperimenterGroup where g.id = :systemGroupId"/>
+      <property name="queryString" value="select e from Experimenter e where e.id = :rootUserId"/>
+  </bean>
+
+  <bean id="newCommentMailSender" parent="abstractMailSender"
+      class="ome.services.mail.ObjectMailSender">
+      <property name="action" value="INSERT"/>
+      <property name="objectClass" value="ome.model.annotations.CommentAnnotation"/>
+      <!-- Mail to owner of a Image if someone else comments-->
+      <property name="queryString">
+          <value>
+              select i.details.owner from ImageAnnotationLink l
+                join l.parent as i join l.child as c
+               where c.id = :id and c.details.owner.id != i.details.owner.id
+          </value>
+      </property>
   </bean>
 
   <bean id="failedLoginMailSender" parent="abstractMailSender"

@@ -113,6 +113,8 @@ public class ObjectMailSender extends MailSender implements
         p.addLong("systemGroupId", roles.getSystemGroupId());
         p.addString("userGroup", roles.getUserGroupName());
         p.addLong("userGroupId", roles.getUserGroupId());
+        p.addString("rootUser", roles.getRootName());
+        p.addLong("rootUserId", roles.getRootId());
 
         StringBuilder sb = new StringBuilder();
         sb.append("Modified objects:\n");
@@ -123,6 +125,8 @@ public class ObjectMailSender extends MailSender implements
             sb.append(klass);
             sb.append(":");
             sb.append(el.getEntityId());
+            sb.append(" - ");
+            sb.append(el.getAction());
             sb.append("\n");
 
             for (IObject obj : getQueryService().findAllByQuery(queryString, p)) {
@@ -135,8 +139,10 @@ public class ObjectMailSender extends MailSender implements
                     }
                 }
             }
-            sendBlind(addresses, String.format("%s %s notification",
-                action, klass.getSimpleName()), sb.toString());
+            if (!addresses.isEmpty()) {
+                sendBlind(addresses, String.format("%s %s notification",
+                    action, klass.getSimpleName()), sb.toString());
+            }
         }
     }
 

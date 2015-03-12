@@ -22,7 +22,7 @@
 """
    Integration test for mail testing. Requires that the server
    have been deployed with the fake smtp server as described in
-   etc/spring-cfg/mail.xml
+   etc/blitz/mail-server.example
 """
 
 import library as lib
@@ -45,11 +45,12 @@ class TestMail(lib.ITest):
         req.everyone = everyone
         return req
 
-    def assertMail(self, uuid):
+    def assertMail(self, text):
         q = self.root.sf.getQueryService()
-        assert q.findByQuery((
+        assert q.findAllByQuery((
             "select a from MapAnnotation a where "
-            "a.description like '%%%s\n'") % uuid, None)
+            "a.description like '%%%s%%'") % text, None,
+            {"omero.group": "-1"})
 
     def testEveryone(self):
         self.skipIfNot()
@@ -63,3 +64,37 @@ class TestMail(lib.ITest):
             raise Exception(ce.err)
 
         self.assertMail(uuid)
+
+    def testUserAdd(self):
+        self.skipIfNot()
+        uid = self.new_user().id.val
+        self.assertMail("Experimenter:%s" % uid)
+
+    def testComment(self):
+        self.skipIfNot()
+
+        group = self.new_group(perms="rwra--")  # TODO: fixture
+        user = self.new_client(group=group)
+        update = user.sf.getUpdateService()
+        admin = user.sf.getAdminService()
+
+        image = omero.model.ImageI()
+        image.name = omero.rtypes.rstring("testOwnComments")
+        image = update.saveAndReturnObject(image)
+        ctx = admin.getEventContext()
+
+        # Set own email
+        exp = admin.getExperimenter(ctx.userId)
+        exp.setEmail(omero.rtypes.rstring("tester@localhost"))
+        admin.updateSelf(exp)
+
+        commenter = self.new_client(group=group,
+                                    email="commenter@localhost")
+        link = omero.model.ImageAnnotationLinkI()
+        comment = omero.model.CommentAnnotationI()
+        link.parent = image.proxy()
+        link.child = comment
+        update = commenter.sf.getUpdateService()
+        comment = update.saveAndReturnObject(link).child
+
+        self.assertMail("CommentAnnotation:%s -" % comment.id.val)
