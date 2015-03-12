@@ -53,6 +53,30 @@ link.setChild(datasetObj)
 conn.getUpdateService().saveObject(link)
 
 
+# Annotate Project with a new 'tag'
+# =================================================================
+tagAnn = omero.gateway.TagAnnotationWrapper(conn)
+tagAnn.setValue("New Tag")
+tagAnn.save()
+project = conn.getObject("Project", projectId)
+project.linkAnnotation(tagAnn)
+
+
+# Create a 'map' annotation (list of key: value pairs)
+# =================================================================
+keyValueData = [["Drug Name", "Monastrol"],
+    ["Concentration", "5 mg/ml"]]
+mapAnn = omero.gateway.MapAnnotationWrapper(conn)
+# Use 'client' namespace to allow editing in Insight & web
+namespace = omero.constants.metadata.NSCLIENTMAPANNOTATION
+mapAnn.setNs(namespace)
+mapAnn.setValue(keyValueData)
+mapAnn.save()
+project = conn.getObject("Project", projectId)
+# NB: only link a client map annotation to a single object
+project.linkAnnotation(mapAnn)
+
+
 # How to create a file annotation and link to a Dataset
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
