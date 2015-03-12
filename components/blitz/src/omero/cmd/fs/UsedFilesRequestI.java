@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -277,13 +278,18 @@ public class UsedFilesRequestI extends UsedFilesRequest implements IRequest {
     }
 
     /**
-     * @return the IDs and names of the pre-FS image's companion files
+     * Note the companion files for a given set of model objects.
+     * @param fileNames where to note the IDs and names of the companion files attached to the given model objects
+     * @param type the simple name of the type of model object whose companion files are to be noted
+     * @param ids the IDs of the model objects whose companion files are to be noted
      */
-    private Map<Long, String> getCompanionFilesPreFs() {
-        final Map<Long, String> fileNames = new HashMap<Long, String>();
-        final String hql = "SELECT DISTINCT fa.file.id, fa.file.name FROM ImageAnnotationLink ial, FileAnnotation fa " +
-                "WHERE ial.parent.id = :id AND ial.child = fa AND fa.ns = :ns";
-        final Query query = session.createQuery(hql).setParameter("id", imageId).setParameter("ns", NSCOMPANIONFILE.value);
+    private void getCompanionFilesPreFs(Map<Long, String> fileNames, String type, Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return;
+        }
+        final String hql = "SELECT DISTINCT fa.file.id, fa.file.name FROM " + type + "AnnotationLink al, FileAnnotation fa " +
+                "WHERE al.parent.id IN (:ids) AND al.child = fa AND fa.ns = :ns";
+        final Query query = session.createQuery(hql).setParameterList("ids", ids).setParameter("ns", NSCOMPANIONFILE.value);
         @SuppressWarnings("unchecked")
         final List<Object[]> results = query.list();
         for (final Object[] result : results) {
@@ -291,6 +297,44 @@ public class UsedFilesRequestI extends UsedFilesRequest implements IRequest {
             final String fileName = (String) result[1];
             fileNames.put(fileId, fileName);
         }
+    }
+
+    /**
+     * For a set of model object IDs, determine the IDs of a related set of model objects.
+     * @param hql the HQL for finding the related object IDs
+     * @param ids IDs of model objects
+     * @return IDs of related model objects
+     */
+    private Set<Long> queryMapping(String hql, Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return Collections.emptySet();
+        }
+        final Set<Long> found = new HashSet<Long>();
+        final Query query = session.createQuery(hql).setParameterList("ids", ids);
+        @SuppressWarnings("unchecked")
+        final List<Object> results = query.list();
+        for (final Object result : results) {
+            if (result != null) {
+                found.add((Long) result);
+            }
+        }
+        return found;
+    }
+
+    /**
+     * @return the IDs and names of the pre-FS image's companion files
+     */
+    private Map<Long, String> getCompanionFilesPreFs() {
+        final Map<Long, String> fileNames = new HashMap<Long, String>();
+        final Set<Long> images = Collections.singleton(imageId);
+        final Set<Long> wellSamples = queryMapping("SELECT DISTINCT id FROM WellSample WHERE image.id IN (:ids)", images);
+        final Set<Long> wells = queryMapping("SELECT DISTINCT well.id FROM WellSample WHERE id IN (:ids)", wellSamples);
+        final Set<Long> runs = queryMapping("SELECT DISTINCT plateAcquisition.id FROM WellSample WHERE id IN (:ids)", wellSamples);
+        final Set<Long> plates = queryMapping("SELECT DISTINCT plate.id FROM Well WHERE id IN (:ids)", wells);
+        getCompanionFilesPreFs(fileNames, "Image", images);
+        getCompanionFilesPreFs(fileNames, "Well", wells);
+        getCompanionFilesPreFs(fileNames, "PlateAcquisition", runs);
+        getCompanionFilesPreFs(fileNames, "Plate", plates);
         return fileNames;
     }
 
