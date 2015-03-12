@@ -10,14 +10,22 @@ Library           Selenium2Library      run_on_failure=Nothing
 *** Variables ***
 
 ${XpathImage}           xpath=//table[@id='dataTable']//img[@alt='image']
+${XpathImageThumb}      xpath=//table[@id='dataTable']//img[@class='search_thumb']
 ${XpathDataset}         xpath=//table[@id='dataTable']//img[@alt='dataset']
-${XpathProject}         xpath=//table[@id='dataTable']//img[@alt='project'] 
+${XpathDatasetThumb}    xpath=//table[@id='dataTable']//img[contains(@src,'folder_image16.png')] 
+${XpathProject}         xpath=//table[@id='dataTable']//img[@alt='project']
+${XpathProjectThumb}    xpath=//table[@id='dataTable']//img[contains(@src,'folder16.png')] 
 ${XpathPlate}           xpath=//table[@id='dataTable']//img[@alt='plate']
+${XpathPlateThumb}      xpath=//table[@id='dataTable']//img[contains(@src,'folder_plate16.png')]
+${XpathScreen}          xpath=//table[@id='dataTable']//img[@alt='screen']
+${XpathScreenValid}     xpath=//table[@id='dataTable']//img[contains(@src,'folder_screen16.png')]
 ${XpathTable}           xpath=//table[@id='dataTable']
 ${XpathTableColumn}     xpath=//table[@id='dataTable']//tr/td[position()=3]
 ${XPathAlertText}       xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//p
 ${RandomClick}          xpath=//form[@id="searching_form"]/h2
 ${AlertWindow}          xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(),"OK")]
+${SearchInProgress}     xpath=//div[@id='content_details']//img[contains(@src,'webgateway/img/spinner.gif')]
+${QueryError}           xpath=//div[@id='content_details']//div[contains(@class,'error')]
 
 ${Search_Query}         1
 ${Search_Query1}        test
@@ -33,11 +41,14 @@ ${EndDate}              2014-07-17
 ${WrongStartDate}       2014-07-20
 ${AcquiredDateCol}      4
 ${NotAnImage}           3
+${INTEGER}              0
 ${alertText}            Wildcard searches (*) must contain more than a single wildcard.
 
-${SEARCH URL}           http://${WEB HOST}${WEB PREFIX}/webclient/search/
+${SEARCH URL}           ${WELCOME URL}search/
 
-@{SearchKeyWords}       *  ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  _  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  :  "  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  -  =  q  w  e  r  t  y  u  i  o  p  [  ]  a  s  d  f  g  h  j  k  l  ;  '  \  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"                 
+@{SearchKeyWords}       *  ${Empty}  *:  "  -  :  ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  \  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"     
+
+# @{SearchKeyWords}       *:  *          
 
 *** Keywords ***
 
@@ -111,17 +122,18 @@ For-Loop-In-Range-Imported       [Arguments]         ${rows}
 For-Loop-In-Range-Search-Keywords
     
     : FOR    ${INDEX}    IN    @{SearchKeyWords}
-    \    Input Text      name=query      ${INDEX}
-    \    Click Button    id=search_button
-    # \    Run Keyword And Ignore Error    Alert Should Be Present
-    \    ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
-    \   Log To Console   [Searched for ${INDEX} and returned ${status} for alert should be present] 
-    \   Run Keyword If    '${status}' == 'True'    Input Text   name=query  ${INDEX}
-    \   Run Keyword If    '${status}' == 'True'    Click Button     id=search_button
-    \   ${AlertMessage}   Run Keyword If    '${status}' == 'True'   Get Text     ${XPathAlertText}    
-    \   Run Keyword If    '${status}' == 'True'     Log To Console  [Searched for ${INDEX} and returned ${status} for alert should be present. The alert message was ${AlertMessage}]   
-    \   Run Keyword If    '${status}' == 'True'     Click Element   ${AlertWindow}
-    # \    ${ret} =   Call Selenium API   is_element_present  id=dataTable
+    \   ${INTEGER}=     Evaluate    ${INTEGER}+${1}
+    \   Input Text      name=query          ${INDEX}
+    \   Click Button    id=search_button
+    \   ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
+    \   Run Keyword If    '${status}' == 'False'     Wait Until Keyword Succeeds     10     0.2    Page Should Not Contain Element   ${SearchInProgress} 
+
+    \   ${status1}  Run Keyword And Return Status   Element Should Be Visible   ${QueryError}
+    \   Run Keyword If    '${status1}' == 'True'    Sleep           ${ImplicitDelay}
+    \   Run Keyword If    '${status1}' == 'True'    Omero Default Search   
+
+    # \   Run Keyword If     ${INTEGER}>6    Element Should Be Visible  id=dataTable  10  
+
 
 Condition Check Imported Date
     ${DATE}=    Get Current Date    result_format=timestamp
@@ -144,8 +156,7 @@ Clear Search Text Field
     Input Text  id=id_search_query  ${EMPTY}
     Input Text  name=query          ${EMPTY}
     Textfield Value Should be  id=id_search_query   ${EMPTY}
-    Textfield Value Should be  name=query           ${EMPTY}
-    
+    Textfield Value Should be  name=query           ${EMPTY}  
 
 *** Test Cases ***
 
@@ -157,7 +168,7 @@ Test Default Search Check
     Location Should Be  ${SEARCH URL}
     Page Should Contain Textfield  name=query
     Textfield Value Should be  name=query   ${SEARCH_QUERY}
-    Wait Until Page Contains Element  id=dataTable  1000
+    Wait Until Page Contains Element  id=dataTable  10
  
 
 Test Check Search Results
@@ -171,10 +182,17 @@ Test Check Search Results
     Table Header Should Contain     ${XpathTable}  Group
     Table Header Should Contain     ${XpathTable}  Link
     Table Header Should Contain     ${XpathTable}  Acquired
-    Page Should Contain Element     ${XpathPlate}
-    Page Should Contain Element     ${XpathDataset}
-    Page Should Contain Element     ${XpathProject}
-    Page Should Contain Element     ${XpathImage}
+    
+    ${status}   Run Keyword And Return status       Page Should Contain Element     ${XpathScreen}
+    Run Keyword If    '${status}' == 'True'         Page Should Contain Element     ${XpathScreenThumb}
+    ${status1}   Run Keyword And Return status      Page Should Contain Element     ${XpathPlate}
+    Run Keyword If    '${status1}' == 'True'        Page Should Contain Element     ${XpathPlateThumb}
+    ${status2}   Run Keyword And Return status      Page Should Contain Element     ${XpathDataset}
+    Run Keyword If    '${status2}' == 'True'        Page Should Contain Element     ${XpathDatasetThumb}
+    ${status3}   Run Keyword And Return status      Page Should Contain Element     ${XpathProject}
+    Run Keyword If    '${status3}' == 'True'        Page Should Contain Element     ${XpathProjectThumb}
+    ${status4}   Run Keyword And Return status      Page Should Contain Element     ${XpathImage}
+    Run Keyword If    '${status4}' == 'True'        Page Should Contain Element     ${XpathImageThumb}
 
     
 Test Default Search Selections
@@ -233,31 +251,44 @@ Test Object Types and Fields
     Unselect All Checkboxes
     Select Checkbox  images
     Click Button  id=search_button
-    Set Selenium Implicit Wait          ${ImplicitDELAY}
+    sleep                               ${ImplicitDELAY}
     Page Should Contain Element         ${XpathImage}
     Page Should Not Contain Element     ${XpathDataset}
     Page Should Not Contain Element     ${XpathProject}
     Page Should Not Contain Element     ${XpathPlate}
+    Page Should Not Contain Element     ${XpathScreen}
 
     # Select Dataset Alone
     Unselect All Checkboxes
     Select Checkbox  datasets
     Click Button  id=search_button
-    Set Selenium Implicit Wait          ${ImplicitDELAY}
+    sleep                               ${ImplicitDELAY}
     Page Should Contain Element         ${XpathDataset}
     Page Should Not Contain Element     ${XpathImage}
     Page Should Not Contain Element     ${XpathProject}
     Page Should Not Contain Element     ${XpathPlate}
+    Page Should Not Contain Element     ${XpathScreen}
 
     # Select Project Alone
     Unselect All Checkboxes
     Select Checkbox  projects
     Click Button  id=search_button
-    Set Selenium Implicit Wait          ${ImplicitDELAY}
+    sleep                               ${ImplicitDELAY}
     Page Should Contain Element         ${XpathProject}
     Page Should Not Contain Element     ${XpathDataset}
     Page Should Not Contain Element     ${XpathImage}
     Page Should Not Contain Element     ${XpathPlate}
+    Page Should Not Contain Element     ${XpathScreen}
+
+    # Select Plate Alone
+    Unselect All Checkboxes
+    Select Checkbox  projects
+    Click Button  id=search_button
+    sleep                               ${ImplicitDELAY}
+    Page Should Contain Element         ${XpathProject}
+    Page Should Not Contain Element     ${XpathDataset}
+    Page Should Not Contain Element     ${XpathImage}
+    
 
 Test Date Range
 
@@ -266,7 +297,7 @@ Test Date Range
     Input Text  id=startdateinput   ${FromDate}
     Input Text  id=enddateinput     ${EndDate} 
     Select All Checkboxes
-    sleep      ${ImplicitDELAY}
+    sleep                           ${ImplicitDELAY}
     Click Button    id=search_button
      
     Page Should Not Contain         ${XpathTable}     
@@ -279,7 +310,7 @@ Test Date Range
     Clear Date Text Field
     Input Text  id=startdateinput   ${FromDate}    
     Click Element   id=searching
-    sleep      ${ImplicitDELAY}
+    sleep                           ${ImplicitDELAY}
     Click Button  id=search_button    
     Page Should Contain Element     id=center_panel
     ${rows}=        Get Matching XPath Count    xpath=//table[@id='dataTable']/tbody/tr 
@@ -290,15 +321,15 @@ Test Date Range
     Clear Date Text Field
     Input Text  id=enddateinput     ${EndDate}
     Click Element   id=searching
-    sleep      ${ImplicitDELAY}    
+    sleep                           ${ImplicitDELAY}    
     Click Button    id=search_button
-    Click Element   ${AlertWindow}    
+    Click Element                   ${AlertWindow}    
 
     #Check with a From date > End date
     Clear Date Text Field
     Input Text      id=startdateinput    ${WrongStartDate}
     Input Text      id=enddateinput      ${EndDate}
-    sleep      ${ImplicitDELAY}
+    sleep                            ${ImplicitDELAY}
     ${text1}         Get Text        id=startdateinput
     ${text2}         Get Text        id=enddateinput
     Should Be Equal As Strings           ${text1}    ${text2}
@@ -309,10 +340,10 @@ Test Date Range
     Input Text  id=startdateinput   ${FromDate}
     Input Text  id=enddateinput     ${EndDate} 
     Click Element   id=searching
-    sleep      ${ImplicitDELAY}    
+    sleep                           ${ImplicitDELAY}    
     Select All Checkboxes
     Click Button    id=search_button
-    Click Element   ${AlertWindow}
+    Click Element                   ${AlertWindow}
 
  
     
@@ -373,6 +404,6 @@ Test All Keywords
     For-Loop-In-Range-Search-Keywords
 
 Test Close All Browsers
-    ${se2lib}=    Get Library Instance    Selenium2Library
+    # ${se2lib}=    Get Library Instance    Selenium2Library
     Close Browser     
 
