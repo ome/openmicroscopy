@@ -22,7 +22,9 @@
         omero.shortversion      e.g. 5.0.0
 
         omero.vcs.revision      git commit hash
-        omero.vcs.date          git commit date
+        omero.vcs.shortrevision git commit hash (short form)
+        omero.vcs.date          git commit date (string)
+        omero.vcs.date_unix     git commit date (UNIX time)
 
         The omero.v namespace is for properties internal to this build file
         and should not be modified.
@@ -57,8 +59,10 @@
             <omero_v_was_preset property="omero.version"/>
             <omero_v_was_preset property="omero.plainversion"/>
             <omero_v_was_preset property="omero.shortversion"/>
+            <omero_v_was_preset property="omero.vcs.shortrevision"/>
             <omero_v_was_preset property="omero.vcs.revision"/>
             <omero_v_was_preset property="omero.vcs.date"/>
+            <omero_v_was_preset property="omero.vcs.date_unix"/>
 
             <!-- *OR* they'll be set by git -->
             <git command="describe" output="omero.v.git" failonerror="true">
@@ -83,11 +87,18 @@
             <property name="omero.version.source" value="git"/>
             <property name="omero.plainversion.source" value="git"/>
             <property name="omero.shortversion.source" value="git"/>
-            <git command="log" output="omero.vcs.revision" failonerror="true">
+            <git command="log" output="omero.vcs.shortrevision" failonerror="true">
               <args>
                 <arg value="-1"/>
                 <arg value="HEAD"/>
                 <arg value="--pretty=%h"/>
+              </args>
+            </git>
+            <git command="log" output="omero.vcs.revision" failonerror="true">
+              <args>
+                <arg value="-1"/>
+                <arg value="HEAD"/>
+                <arg value="--pretty=%H"/>
               </args>
             </git>
             <git command="log" output="omero.vcs.date" failonerror="true">
@@ -97,6 +108,14 @@
                 <arg value="--pretty=%ai"/>
               </args>
             </git>
+            <git command="log" output="omero.vcs.date_unix" failonerror="true">
+              <args>
+                <arg value="-1"/>
+                <arg value="${omero.vcs.revision}"/>
+                <arg value="--pretty=%at"/>
+              </args>
+            </git>
+            <property name="omero.vcs.shortrevision.source" value="git"/>
             <property name="omero.vcs.revision.source" value="git"/>
             <property name="omero.vcs.date.source" value="git"/>
         </try>
@@ -104,8 +123,10 @@
             <!-- *OR* we'll finally fall back to UNKNOWN -->
             <property name="omero.plainversion" value="UNKNOWN"/>
             <property name="omero.shortversion" value="UNKNOWN"/>
+            <property name="omero.vcs.shortrevision" value="UNKNOWN"/>
             <property name="omero.vcs.revision" value="UNKNOWN"/>
             <property name="omero.vcs.date" value="UNKNOWN"/>
+            <property name="omero.vcs.date_unix" value="UNKNOWN"/>
 
             <!-- And compose omero.version from those -->
             <property name="omero.version" value="${omero.plainversion}-ice${versions.ice_lib}"/>
@@ -114,17 +135,21 @@
             <property name="omero.shortversion.source" value="ant"/>
             <property name="omero.version.source" value="ant"/>
             <property name="omero.vcs.revision.source" value="ant"/>
+            <property name="omero.vcs.shortrevision.source" value="ant"/>
             <property name="omero.vcs.date.source" value="ant"/>
+            <property name="omero.vcs.date_unix.source" value="ant"/>
         </catch>
     </trycatch>
 
     <target name="version-info">
-        <echo>Git describe output:    ${omero.v.git}</echo>
-        <echo>Official:               ${omero.version} (${omero.version.source})</echo>
-        <echo>Plain:                  ${omero.plainversion} (${omero.plainversion.source})</echo>
-        <echo>Short:                  ${omero.shortversion} (${omero.shortversion.source})</echo>
-        <echo>Git revision:           ${omero.vcs.revision} (${omero.vcs.revision.source})</echo>
-        <echo>Git revision date:      ${omero.vcs.date} (${omero.vcs.date.source})</echo>
+        <echo>Git describe output:      ${omero.v.git}</echo>
+        <echo>Official:                 ${omero.version} (${omero.version.source})</echo>
+        <echo>Plain:                    ${omero.plainversion} (${omero.plainversion.source})</echo>
+        <echo>Short:                    ${omero.shortversion} (${omero.shortversion.source})</echo>
+        <echo>Git short revision:       ${omero.vcs.shortrevision} (${omero.vcs.shortrevision.source})</echo>
+        <echo>Git revision:             ${omero.vcs.revision} (${omero.vcs.revision.source})</echo>
+        <echo>Git revision date:        ${omero.vcs.date} (${omero.vcs.date.source})</echo>
+        <echo>Git revision date (UNIX): ${omero.vcs.date_unix} (${omero.vcs.date_unix.source})</echo>
     </target>
 
 </project>

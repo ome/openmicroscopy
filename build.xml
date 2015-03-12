@@ -465,10 +465,13 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <arg value="openmicroscopy"/>
             <arg value="${omero.shortversion}"/>
             <arg value="${omero.plainversion}"/>
+            <arg value="${omero.vcs.shortrevision}"/>
             <arg value="${omero.vcs.revision}"/>
             <arg value="${omero.vcs.date}"/>
+            <arg value="${omero.vcs.date_unix}"/>
             <arg value="${release.shortversion}"/>
             <arg value="${release.version}"/>
+            <arg value="${vcs.shortrevision}"/>
             <arg value="${vcs.revision}"/>
             <arg value="${vcs.date}"/>
             <arg value="${vcs.date_unix}"/>
