@@ -25,7 +25,6 @@
 """
 
 import library as lib
-import pytest
 import omero
 import omero.processor
 import omero.scripts
@@ -93,8 +92,6 @@ class TestInputs(lib.ITest):
             finally:
                 rfs.close()
 
-    @pytest.mark.intermittent(reason="Process still running.",
-                              ticket="12314")
     def testInputs(self):
         import logging
         logging.basicConfig(level=10)
@@ -109,7 +106,7 @@ class TestInputs(lib.ITest):
             cb = omero.scripts.ProcessCallbackI(self.root, process)
             try:
                 count = 100
-                while cb.block(500):
+                while cb.block(2000):
                     count -= 1
                     assert count != 0
                 rc = process.poll()
