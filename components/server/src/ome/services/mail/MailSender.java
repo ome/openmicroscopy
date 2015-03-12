@@ -140,15 +140,15 @@ public class MailSender {
             return;
         }
 
-        try {
-            // TODO: send in background thread
-            for (String address : addresses) {
+        for (String address : addresses) {
+            try {
+                // TODO: send in background thread
                 getMailUtil().sendEmail(address,
                     getSubjectPrefix() + subject, body,
                     false /* not html */, null, null);
+            } catch (Exception e) {
+                log.error("Failed to send email: {} ", address, e);
             }
-        } catch (Exception e) {
-            log.error("Failed to send emails: {} ", addresses, e);
         }
     }
 
