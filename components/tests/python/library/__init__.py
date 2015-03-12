@@ -37,12 +37,14 @@ import omero.gateway
 from omero.cmd import DoAll, State, ERR, OK, Chgrp, Delete
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
+from omero.model import Annotation, FileAnnotationI, OriginalFileI
 from omero.model import DimensionOrderI, PixelsI, PixelsTypeI
 from omero.model import Experimenter, ExperimenterI
 from omero.model import ExperimenterGroup, ExperimenterGroupI
-from omero.model import ProjectDatasetLinkI
+from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
-from omero.rtypes import rbool, rstring, rtime, rint, unwrap
+from omero.model import ChecksumAlgorithmI
+from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
 
@@ -803,6 +805,46 @@ class ITest(object):
             dataset.name = rstring(self.uuid())
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
 
+    def make_file_annotation(self, name=None, binary=None, format=None,
+                             client=None):
+        """
+        Creates a new DatasetI instance and returns the persisted object.
+        If no name has been provided, a UUID string shall be used.
+
+        :param name: the name of the project
+        :param client: user context
+        """
+
+        if client is None:
+            client = self.client
+        update = client.sf.getUpdateService()
+
+        # file
+        if format is None:
+            format = "application/octet-stream"
+        if binary is None:
+            binary = "12345678910"
+
+        oFile = OriginalFileI()
+        oFile.setName(rstring(str(self.uuid())))
+        oFile.setPath(rstring(str(self.uuid())))
+        oFile.setSize(rlong(len(binary)))
+        oFile.hasher = ChecksumAlgorithmI()
+        oFile.hasher.value = rstring("SHA1-160")
+        oFile.setMimetype(rstring(str(format)))
+        oFile = update.saveAndReturnObject(oFile)
+
+        # save binary
+        store = client.sf.createRawFileStore()
+        store.setFileId(oFile.id.val)
+        store.write(binary, 0, 0)
+        oFile = store.save()  # See ticket:1501
+        store.close()
+
+        fa = FileAnnotationI()
+        fa.setFile(oFile)
+        return update.saveAndReturnObject(fa)
+
     def link(self, obj1, obj2, client=None):
         """
         Links two linkable model entities together by creating an instance
@@ -823,6 +865,9 @@ class ITest(object):
         elif isinstance(obj1, DatasetI):
             if isinstance(obj2, ImageI):
                 link = DatasetImageLinkI()
+        elif isinstance(obj1, ImageI):
+            if isinstance(obj2, Annotation):
+                link = ImageAnnotationLinkI()
         else:
             assert False, "Object type not supported."
 
