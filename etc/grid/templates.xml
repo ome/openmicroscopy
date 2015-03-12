@@ -213,7 +213,7 @@
             <option>-Djava.rmi.server.hostname=${jmxhost}</option>
         </target>
         <option>ome.services.blitz.Entry</option>
-        <env>CLASSPATH=${OMERO_JARS}*${SEP}${OMERO_ETC}${SEP}$${OMERO_PROFILE}${SEP}%OMERO_PROFILE%</env>
+        <env>CLASSPATH=${OMERO_JARS}*${SEP}${OMERO_ETC}${SEP}$${OMERO_PROFILE}${SEP}$${OMERO_PROFILE}*${SEP}%OMERO_PROFILE%${SEP}${SEP}%OMERO_PROFILE%*</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
         <properties>
           <properties refid="JavaServer"/>

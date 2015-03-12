@@ -17,9 +17,11 @@
 -->
 
   <description>
-      Due to the complexity of mail configuration and the templating
-      of messages to users, the mail spring beans are all available
-      here for editing. Note however:
+      TESTING: The following beans can be activated by adding this file
+      to a location on the OMERO classpath match "blitz/*.xml" which
+      will activate a testing mail server for the integration tests.
+
+      Note however:
 
                   MODIFICATIONS REQUIRE A RESTART.
 
@@ -27,10 +29,6 @@
 
   </description>
 
-  <!-- TESTING: The following beans can be uncommented or copied to another
-       location on the OMERO classpath to activate a testing mail server.
-  -->
-  <!--
   <bean id="subethaSMTP" class="ome.services.mail.SubethaSMTP"
       init-method="start" destroy-method="stop">
       <constructor-arg>
@@ -64,6 +62,5 @@
         </util:properties>
     </property>
   </bean>
-  -->
 
 </beans>
