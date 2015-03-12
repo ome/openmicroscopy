@@ -118,6 +118,7 @@ import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
+import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
@@ -427,6 +428,12 @@ class OMEROGateway
 	/** Checks if the network is up or not.*/
 	private NetworkChecker networkChecker;
 
+	/**
+	 * Reference to the config service (set during session creation, see
+	 * {@link #createSession(String, String, String, boolean, String, int)}
+	 */
+	private IConfigPrx configService;
+	
 	/**
 	 * Creates the query to load the file set corresponding to a given image.
 	 *
@@ -1836,7 +1843,9 @@ class OMEROGateway
 		    } else {
 		        entryEncrypted = secureClient.createSession(userName, password);
 		    }
+		    configService = entryEncrypted.getConfigService();
 			serverVersion = entryEncrypted.getConfigService().getVersion();
+
 			String ip = null;
 	        try {
 				ip = InetAddress.getByName(hostName).getHostAddress();
@@ -1856,6 +1865,23 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s, e);
 		}
 		return secureClient;
+	}
+	
+	/**
+	 * Get the omero client properties from the server
+	 * @return See above.
+	 */
+	Map<String, String> getOmeroClientProperties() throws DSOutOfServiceException,
+			DSAccessException {
+		if (configService == null)
+			return null;
+
+		try {
+			return configService.getClientConfigValues();
+		} catch (Exception e) {
+			handleException(e, "Cannot access config service. ");
+			return null;
+		}
 	}
 
 	/**
