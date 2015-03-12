@@ -220,22 +220,41 @@ public class StatsFactory {
         return s;
     }
 
-
     /** 
      * Determines the minimum and maximum corresponding to the passed
-     * pixels type.
+     * pixels.
      * 
-     * @param type The pixels type to handle.
+     * @param metadata The pixels to handle.
      */
-    public double[] initPixelsRange(PixelsType type)
+    public double[] initPixelsRange(Pixels metadata)
     {
+        PixelsType type = metadata.getPixelsType();
         double[] minmax = new double[] {0, 1};
         if (type == null) return minmax;
         String typeAsString = type.getValue();
-        long[] values = FormatTools.defaultMinMax(
-                FormatTools.pixelTypeFromString(typeAsString));
-        minmax[0] = values[0];
-        minmax[1] = values[1];
+        int bfPixelsType = FormatTools.pixelTypeFromString(typeAsString);
+
+        // Handle floating point types first
+        if (FormatTools.isFloatingPoint(bfPixelsType)) {
+            long[] values = FormatTools.defaultMinMax(bfPixelsType);
+            minmax[0] = values[0];
+            minmax[1] = values[1];
+            return minmax;
+        }
+
+        // Use significant bits if they are available for integral pixel types.
+        Integer significantBits = metadata.getSignificantBits();
+        if (significantBits == null) {
+            significantBits = type.getBitSize();
+        }
+        significantBits = Math.min(significantBits, type.getBitSize());
+        if (FormatTools.isSigned(bfPixelsType)) {
+            minmax[0] = -Math.pow(2, significantBits - 1);
+            minmax[1] = Math.pow(2,  significantBits - 1) - 1;
+        } else {
+            minmax[0] = 0;
+            minmax[1] = Math.pow(2, significantBits) - 1;
+        }
         return minmax;
     }
 
@@ -258,7 +277,7 @@ public class StatsFactory {
         inputStart = 0;
         inputEnd = 1;
         if (stats == null) {
-            double[] values = initPixelsRange(metadata.getPixelsType());
+            double[] values = initPixelsRange(metadata);
             inputStart = values[0];
             inputEnd = values[1];
         } else {

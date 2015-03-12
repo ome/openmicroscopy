@@ -121,6 +121,7 @@ public class ObjectFactory {
             pi.setValue("RGB");
 
             pt.setValue("int8");
+            pt.setBitSize(8);
 
             dO.setValue("XYZTC");
 

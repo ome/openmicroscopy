@@ -187,11 +187,14 @@ class HSBStrategy extends RenderingStrategy {
     	if (overlays != null)
     	{
     		QuantumDef def = new QuantumDef();  // Just to fulfill interface
+    		Pixels pixels = new Pixels();
     		PixelsType bitType = new PixelsType();
     		bitType.setValue(PlaneFactory.BIT);
+    		bitType.setBitSize(1);
+    		pixels.setPixelsType(bitType);
     		for (int i = 0; i < overlays.size(); i++)
     		{
-    			strats.add(new BinaryMaskQuantizer(def, bitType));
+    			strats.add(new BinaryMaskQuantizer(def, pixels));
     		}
     	}
         return strats;

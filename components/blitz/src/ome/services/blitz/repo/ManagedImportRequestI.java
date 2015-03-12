@@ -88,7 +88,7 @@ import ch.qos.logback.classic.ClassicConstants;
  */
 public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
-    private static final long serialVersionUID = -303948503984L;
+    private static final long serialVersionUID = -303948503985L;
 
     private static Logger log = LoggerFactory.getLogger(ManagedImportRequestI.class);
 
@@ -133,6 +133,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private List<Annotation> annotationList = null;
 
     private boolean doThumbnails = true;
+
+    private boolean noStatsInfo = false;
 
     private String fileName = null;
 
@@ -215,6 +217,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             annotationList = settings.userSpecifiedAnnotationList;
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
+            noStatsInfo = settings.noStatsInfo == null ? false :
+                settings.noStatsInfo.getValue();
 
             detectAutoClose();
 
@@ -570,7 +574,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         store.updatePixels(pixList);
 
-        if (!reader.isMinMaxSet())
+        if (!reader.isMinMaxSet() && !noStatsInfo)
         {
             store.populateMinMax();
         }

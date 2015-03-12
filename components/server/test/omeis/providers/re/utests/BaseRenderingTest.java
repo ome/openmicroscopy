@@ -119,6 +119,7 @@ public class BaseRenderingTest extends TestCase
 	{
 		PixelsType pixelsType = new PixelsType();
 		pixelsType.setValue("uint16");
+		pixelsType.setBitSize(16);
 		return pixelsType;
 	}
 	
