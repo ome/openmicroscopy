@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -44,6 +45,7 @@ import ome.services.formats.OmeroReader;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.messages.InternalMessage;
+import ome.xml.model.MetadataOnly;
 import ome.xml.model.OME;
 import ome.xml.model.OMEModel;
 import ome.xml.model.OMEModelImpl;
@@ -296,7 +298,11 @@ public class ExporterI extends AbstractCloseableAmdServant implements
                                 Object root = xmlMetadata.getRoot();
                                 if (root instanceof OME) {
                                     OME node = (OME) root;
-
+                                    //add metadata only so we have valid xml.
+                                    List<ome.xml.model.Image> images = node.copyImageList();
+                                    for (ome.xml.model.Image img : images) {
+                                        img.getPixels().setMetadataOnly(new MetadataOnly());
+                                    }
                                     try {
                                         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                                         DocumentBuilder parser = factory.newDocumentBuilder();
