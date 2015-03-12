@@ -134,3 +134,17 @@ class TestDownload(IWebTest):
             "well": well.id.val
         }
         _get_response(self.django_client, request_url, data, status_code=404)
+
+    def test_attachement_download(self):
+        """
+        Download of attachement.
+        """
+
+        image = self.importSingleImage()
+        fa = self.make_file_annotation()
+        self.link(image, fa)
+
+        # download archived files
+        request_url = reverse('download_annotation',
+                              args=[fa.id.val])
+        _get_response(self.django_client, request_url, {}, status_code=200)
