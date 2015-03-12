@@ -42,6 +42,8 @@ import loci.common.RandomAccessOutputStream;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 import ome.specification.OmeValidator;
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import omero.api.ExporterPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
@@ -192,6 +194,7 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Image createImageToExport() throws Exception {
         // First create an image
+        /*
         Image image = mmFactory.createImage();
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
@@ -215,6 +218,21 @@ public class ExporterTest extends AbstractServerTest {
         m.setParent(f);
         m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
         return image;
+        */
+        //create an import and image
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+                + OME_XML);
+        files.add(f);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pix = null;
+        try {
+            pix = importFile(f, OME_XML, true);
+            return pix.get(0).getImage();
+        } catch (Throwable e) {
+            throw new Exception("Cannot create image to import", e);
+        }
     }
 
     /**
