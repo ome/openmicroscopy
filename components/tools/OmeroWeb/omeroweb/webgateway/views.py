@@ -2088,11 +2088,18 @@ def archived_files(request, iid=None, conn=None, **kwargs):
                 raise Http404
 
     for ob in (images):
-        well = ob.getParent().getParent()
-        if isinstance(well, omero.gateway.WellWrapper):
-            if hasattr(well, 'canDownload'):
-                if not well.canDownload():
+        well = None
+        try:
+            well = ob.getParent().getParent()
+        except:
+            if hasattr(ob, 'canDownload'):
+                if not ob.canDownload():
                     raise Http404
+        else:
+            if well and isinstance(well, omero.gateway.WellWrapper):
+                if hasattr(well, 'canDownload'):
+                    if not well.canDownload():
+                        raise Http404
 
     # make list of all files, removing duplicates
     fileMap = {}
