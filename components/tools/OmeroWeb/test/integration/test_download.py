@@ -57,7 +57,7 @@ class TestDownload(IWebTest):
         ws.well = well
         well.addWellSample(ws)
         ws = self.update.saveAndReturnObject(ws)
-        return ws.image
+        return plate, well, ws.image
 
     def test_spw_download(self, image_well_plate):
         """
@@ -65,16 +65,17 @@ class TestDownload(IWebTest):
         and return a 404 response.
         """
 
-        image = image_well_plate
+        plate, well, image = image_well_plate
         # download archived files
         request_url = reverse('webgateway.views.archived_files')
         data = {
-            "image": image.id.val}
+            "image": image.id.val
+        }
         _get_response(self.django_client, request_url, data, status_code=404)
 
-    def test_image_download(self):
+    def test_orphaned_image_download(self):
         """
-        Download of archived files for a non-SPW Image.
+        Download of archived files for a non-SPW orphaned Image.
         """
 
         image = self.importSingleImage()
@@ -82,5 +83,54 @@ class TestDownload(IWebTest):
         # download archived files
         request_url = reverse('webgateway.views.archived_files')
         data = {
-            "image": image.id.val}
+            "image": image.id.val
+        }
         _get_response(self.django_client, request_url, data, status_code=200)
+
+    def test_image_in_dataset_download(self):
+        """
+        Download of archived files for a non-SPW Image in Dataset.
+        """
+
+        image = self.importSingleImage()
+        ds = self.make_dataset()
+        self.link(ds, image)
+
+        # download archived files
+        request_url = reverse('webgateway.views.archived_files')
+        data = {
+            "image": image.id.val
+        }
+        _get_response(self.django_client, request_url, data, status_code=200)
+
+    def test_image_in_dataset_in_project_download(self):
+        """
+        Download of archived files for a non-SPW Image in Dataset in Project.
+        """
+
+        image = self.importSingleImage()
+        ds = self.make_dataset()
+        pr = self.make_project()
+
+        self.link(pr, ds)
+        self.link(ds, image)
+
+        # download archived files
+        request_url = reverse('webgateway.views.archived_files')
+        data = {
+            "image": image.id.val
+        }
+        _get_response(self.django_client, request_url, data, status_code=200)
+
+    def test_well_download(self, image_well_plate):
+        """
+        Download of archived files for a SPW Well.
+        """
+
+        plate, well, image = image_well_plate
+        # download archived files
+        request_url = reverse('webgateway.views.archived_files')
+        data = {
+            "well": well.id.val
+        }
+        _get_response(self.django_client, request_url, data, status_code=404)
