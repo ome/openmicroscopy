@@ -310,17 +310,6 @@ public class UsedFilesRequestI extends UsedFilesRequest implements IRequest {
     }
 
     /**
-     * @return if the image is actually a field from a well
-     */
-    private boolean isFromPlate() {
-        final String hql = "SELECT id FROM WellSample WHERE image.id = :id";
-        final Query query = session.createQuery(hql).setParameter("id", imageId);
-        @SuppressWarnings("unchecked")
-        final List<Object> results = query.list();
-        return !results.isEmpty();
-    }
-
-    /**
      * Convert {@code Collection<?>} to {@code List<Long>}.
      * @param objects a collection of {@link Long}s
      * @return a list of the same {@link Long}s
