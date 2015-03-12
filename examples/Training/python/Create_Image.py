@@ -54,7 +54,7 @@ i = conn.createImageFromNumpySeq(
     planeGen(), "numpy image", sizeZ, sizeC, sizeT, description=desc,
     dataset=None)
 
-print "Created new image: ", i.getId(), i.getName()
+print  'Created new Image:%s Name:"%s"' % (i.getId(), i.getName())
 
 
 # Set the pixel size using units (new in 5.1.0)
