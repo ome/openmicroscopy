@@ -655,11 +655,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         int maxPlaneSize = sizes.getMaxPlaneWidth() * sizes.getMaxPlaneHeight();
         if (((long) reader.getSizeX()
              * (long) reader.getSizeY()) > maxPlaneSize) {
-            int pixelType = reader.getPixelType();
-            if (pixelType != FormatTools.FLOAT &&
-                    pixelType != FormatTools.DOUBLE) {
-                    return null;
-            }
+            return null;
         }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
         MessageDigest md;
