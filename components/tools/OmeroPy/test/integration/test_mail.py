@@ -38,6 +38,21 @@ class TestMail(lib.ITest):
         if "true" != str(cfg).lower():
             pytest.skip("omero.mail.fake not configured")
 
+        # If active, we make sure there is an admin
+        # who will definitely have an email
+        a = self.root.sf.getAdminService()
+        r = a.getSecurityRoles()
+        q = self.root.sf.getQueryService()
+        with_email = q.findAllByQuery((
+            "select e from Experimenter e "
+            "join e.groupExperimenterMap m "
+            "join m.parent g where g.id = :id "
+            "and length(e.email) > 0"),
+            omero.sys.ParametersI().addId(r.systemGroupId))
+
+        if not with_email:
+            self.new_user(system=True, email="random_user@localhost")
+
     def mailRequest(self, subject, body, everyone=False):
         req = omero.cmd.SendEmailRequest()
         req.subject = subject
