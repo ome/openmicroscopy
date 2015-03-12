@@ -162,12 +162,7 @@ public class UsedFilesRequestI extends UsedFilesRequest implements IRequest {
             final Exception e = new IllegalArgumentException("cannot read image " + imageId);
             throw helper.cancel(new ERR(), e, "bad-image");
         }
-        if (results.get(0) != null) {
-            filesetId = (Long) results.get(0);
-        } else if (isFromPlate()) {
-            final Exception e = new IllegalArgumentException("image " + imageId + " is from a pre-FS plate");
-            throw helper.cancel(new ERR(), e, "bad-image");
-        }
+        filesetId = (Long) results.get(0);
         try {
             findPixels();
         } catch (Cancel c) {
