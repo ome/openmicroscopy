@@ -23,11 +23,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
+import ome.model.fs.Fileset;
+import ome.model.fs.FilesetEntry;
 import ome.model.internal.NamedValue;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.screen.Plate;
@@ -92,7 +96,32 @@ public class BinaryAccessPolicy extends BasePolicy {
         final boolean noImage = notAorB("+image", "-image", group);
         final boolean noPlate = notAorB("+plate", "-plate", group);
 
-        if (obj instanceof Image) {
+        // Possible performance impact!
+        if (obj instanceof OriginalFile) {
+            OriginalFile ofile = (OriginalFile) obj;
+            Iterator<FilesetEntry> it = ofile.iterateFilesetEntries();
+            while (it.hasNext()) {
+                FilesetEntry fe = it.next();
+                 if (fe != null && fe.getFileset() != null) {
+                    Fileset f = fe.getFileset();
+                    if (f.sizeOfImages() > 0) {
+                        if (noImage) {
+                            return true;
+                        } else if (noPlate) {
+                            Iterator<Image> it2 = f.iterateImages();
+                            while (it2.hasNext()) {
+                                Image img = it2.next();
+                                if (img != null) {
+                                    if (img.sizeOfWellSamples() > 0) {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (obj instanceof Image) {
             if (noImage) {
                 return true;
             }
@@ -100,7 +129,7 @@ public class BinaryAccessPolicy extends BasePolicy {
             // Note: checking noPlate first since it doesn't need to hit the DB.
             if (noPlate) {
                 Image img = (Image) obj;
-                if (img.sizeOfWellSamples() > 1) {
+                if (img.sizeOfWellSamples() > 0) {
                     return true;
                 }
             }

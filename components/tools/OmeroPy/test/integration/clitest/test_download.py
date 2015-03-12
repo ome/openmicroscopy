@@ -289,12 +289,26 @@ class TestDownload(CLITest):
         tmpfile = tmpdir.join('%s.test' % fixture)
 
         upper = self.new_client(group=group)
-        upper_u = upper.sf.getUpdateService()
-        plate = omero.model.PlateI()
-        plate.name = rstring("do_restrictions")
-        plate = upper_u.saveAndReturnObject(plate)
-        ofile = self.create_original_file("test", upper)
+        upper_q = upper.sf.getQueryService()
+
+        pimage = self.importSingleImage(client=upper,
+                                        plates=1, plateRows=1,
+                                        plateCols=1, fields=1,
+                                        plateAcqs=1)
+
+        pfile = upper_q.findByQuery((
+            "select f from OriginalFile f join f.filesetEntries fe "
+            "join fe.fileset fs join fs.images img "
+            "where img.id = %s") % pimage.id.val, None)
+
+        plate = upper_q.findByQuery((
+            "select p from Plate p join p.wells w "
+            "join w.wellSamples ws join ws.image img "
+            "where img.id = %s") % pimage.id.val, None)
+
         image = self.importSingleImage(client=upper)
+
+        ofile = self.create_original_file("test", upper)
 
         if fixture.for_user == "owner":
             downer = upper
@@ -305,16 +319,19 @@ class TestDownload(CLITest):
 
         downer_q = downer.sf.getQueryService()
         for kls, oid, will_pass in (
+            ("OriginalFile", pfile.id.val, fixture.plate),
+            ("Image", pimage.id.val, fixture.plate),
+            ("Plate", plate.id.val, fixture.plate),
             ("OriginalFile", ofile.id.val, fixture.ofile),
             ("Image", image.id.val, fixture.image),
-            ("Plate", plate.id.val, fixture.plate),
         ):
 
             obj = downer_q.get(kls, oid)
             perms = obj.details.permissions
             restricted = perms.isRestricted(
                 omero.constants.permissions.BINARYACCESS)
-            assert will_pass != restricted
+            assert will_pass != restricted, (
+                "%s:%s. Expected: %s") % (kls, oid, will_pass)
 
             if "Plate" != kls:  # Plate is not implemented
                 self.args = ["download"]

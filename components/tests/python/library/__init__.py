@@ -242,13 +242,16 @@ class ITest(object):
     the file and then return the image.
     """
 
-    def importSingleImage(self, name=None, client=None):
+    def importSingleImage(self, name=None, client=None,
+                          with_companion=False, **kwargs):
         if client is None:
             client = self.client
         if name is None:
             name = "importSingleImage"
 
-        images = self.importMIF(1, name=name, client=client)
+        images = self.importMIF(1, name=name, client=client,
+                                with_companion=with_companion,
+                                **kwargs)
         return images[0]
 
     """
