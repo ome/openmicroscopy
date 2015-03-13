@@ -161,11 +161,6 @@ module omero {
 
             // Central OMERO.blitz stateful services.
 
-            /**
-             * The gateway service provided here is deprecated in OMERO 4.3
-             * see <a href="http://trac.openmicroscopy.org.uk/ome/wiki/Api/DeprecatedServices">Deprecated Services</a>
-             * for more information and alternative usage.
-             **/
             Exporter*        createExporter() throws ServerError;
             JobHandle*       createJobHandle() throws ServerError;
             RawFileStore*    createRawFileStore() throws ServerError;
