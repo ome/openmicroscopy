@@ -65,7 +65,7 @@ project.linkAnnotation(tagAnn)
 # Create a 'map' annotation (list of key: value pairs)
 # =================================================================
 keyValueData = [["Drug Name", "Monastrol"],
-    ["Concentration", "5 mg/ml"]]
+                ["Concentration", "5 mg/ml"]]
 mapAnn = omero.gateway.MapAnnotationWrapper(conn)
 # Use 'client' namespace to allow editing in Insight & web
 namespace = omero.constants.metadata.NSCLIENTMAPANNOTATION
