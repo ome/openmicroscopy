@@ -53,6 +53,15 @@ for ch in image.getChannels():
 print "isGreyscaleRenderingModel:", image.isGreyscaleRenderingModel()
 
 
+# Show the saved rendering settings on this image
+# =================================================================
+print "Rendering Defs on Image:"
+for rdef in image.getAllRenderingDefs():
+    img_data = image.getThumbnail(rdefId = rdef['id'])
+    print "   ID: %s (owner: %s %s)" % (rdef['id'],
+                rdef['owner']['firstName'], rdef['owner']['lastName'])
+
+
 # Render each channel as a separate greyscale image
 # =================================================================
 image.setGreyscaleRenderingModel()
