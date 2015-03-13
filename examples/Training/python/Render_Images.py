@@ -59,9 +59,9 @@ print "    Z = %s, T = %s" % (image.getDefaultZ(), image.getDefaultT())
 # =================================================================
 print "Rendering Defs on Image:"
 for rdef in image.getAllRenderingDefs():
-    img_data = image.getThumbnail(rdefId = rdef['id'])
-    print "   ID: %s (owner: %s %s)" % (rdef['id'],
-                rdef['owner']['firstName'], rdef['owner']['lastName'])
+    img_data = image.getThumbnail(rdefId=rdef['id'])
+    print "   ID: %s (owner: %s %s)" % (
+        rdef['id'], rdef['owner']['firstName'], rdef['owner']['lastName'])
 
 
 # Render each channel as a separate greyscale image
@@ -101,7 +101,7 @@ image.setActiveChannels(channels, windows=rangeList)
 image.setDefaultZ(0)
 image.setDefaultT(0)
 # default compression is 0.9
-renderedImage = image.renderImage(z = None, t = None, compression=0.5)
+renderedImage = image.renderImage(z=None, t=None, compression=0.5)
 renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
