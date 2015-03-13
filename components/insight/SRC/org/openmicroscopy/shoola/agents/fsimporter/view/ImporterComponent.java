@@ -870,15 +870,12 @@ class ImporterComponent
 			}
 		}
 		model.saveROI(component, ids);
-		if (l.size() > 0) {
-		    if (PlateData.class.equals(klass)) l = l.subList(0, 0);
-		    else {
-		        if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
-		            l = l.subList(0, FileImportComponent.MAX_THUMBNAILS); 
-		        }
-		    }
-		    model.fireImportResultLoading(l, klass, component);
-		}
+        if (l.size() > 0 && !PlateData.class.equals(klass)) {
+            if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
+                l = l.subList(0, FileImportComponent.MAX_THUMBNAILS);
+            }
+            model.fireImportResultLoading(l, klass, component);
+        }
 	}
 
 	/** 
