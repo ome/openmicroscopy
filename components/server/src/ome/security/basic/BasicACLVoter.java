@@ -13,6 +13,9 @@ package ome.security.basic;
 import static ome.model.internal.Permissions.Role.GROUP;
 import static ome.model.internal.Permissions.Role.USER;
 import static ome.model.internal.Permissions.Role.WORLD;
+
+import java.util.Set;
+
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.conditions.GroupSecurityViolation;
@@ -392,8 +395,9 @@ public class BasicACLVoter implements ACLVoter {
 
     }
 
-    public EventContext getEventContext() {
-        return this.currentUser.getCurrentEventContext();
+    @Override
+    public Set<String> restrictions(IObject object) {
+        return policyService.listActiveRestrictions(object);
     }
 
     public void postProcess(IObject object) {
@@ -415,8 +419,7 @@ public class BasicACLVoter implements ACLVoter {
             // are currently being shared, the safest solution
             // is to always produce a copy.
             Permissions copy = new Permissions(p);
-            copy.copyRestrictions(allow,
-                    policyService.listActiveRestrictions(object));
+            copy.copyRestrictions(allow, restrictions(object));
             details.setPermissions(copy); // #9635
         }
     }

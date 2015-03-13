@@ -147,12 +147,15 @@ class ITest(object):
         return str(create_path())
 
     @classmethod
-    def new_group(self, experimenters=None, perms=None):
+    def new_group(self, experimenters=None, perms=None,
+                  config=None, gname=None):
         admin = self.root.sf.getAdminService()
-        gname = self.uuid()
+        if gname is None:
+            gname = self.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
+        group.config = config
         if perms:
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
@@ -241,13 +244,16 @@ class ITest(object):
     the file and then return the image.
     """
 
-    def importSingleImage(self, name=None, client=None):
+    def importSingleImage(self, name=None, client=None,
+                          with_companion=False, **kwargs):
         if client is None:
             client = self.client
         if name is None:
             name = "importSingleImage"
 
-        images = self.importMIF(1, name=name, client=client)
+        images = self.importMIF(1, name=name, client=client,
+                                with_companion=with_companion,
+                                **kwargs)
         return images[0]
 
     """
@@ -442,7 +448,8 @@ class ITest(object):
 
     @classmethod
     def new_user(self, group=None, perms=None,
-                 owner=False, system=False):
+                 owner=False, system=False, uname=None,
+                 email=None):
         """
         :owner: If user is to be an owner of the created group
         :system: If user is to be a system admin
@@ -452,7 +459,8 @@ class ITest(object):
             raise Exception("No root client. Cannot create user")
 
         adminService = self.root.getSession().getAdminService()
-        name = self.uuid()
+        if uname is None:
+            uname = self.uuid()
 
         # Create group if necessary
         if not group:
@@ -463,15 +471,16 @@ class ITest(object):
 
         # Create user
         e = ExperimenterI()
-        e.omeName = rstring(name)
-        e.firstName = rstring(name)
-        e.lastName = rstring(name)
+        e.omeName = rstring(uname)
+        e.firstName = rstring(uname)
+        e.lastName = rstring(uname)
         e.ldap = rbool(False)
+        e.email = rstring(email)
         listOfGroups = list()
         listOfGroups.append(adminService.lookupGroup('user'))
         uid = adminService.createExperimenterWithPassword(
-            e, rstring(name), g, listOfGroups)
-        e = adminService.lookupExperimenter(name)
+            e, rstring(uname), g, listOfGroups)
+        e = adminService.lookupExperimenter(uname)
         if owner:
             adminService.setGroupOwner(g, e)
         if system:
@@ -480,7 +489,8 @@ class ITest(object):
         return adminService.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
-                   owner=False, system=False, session=None, password=None):
+                   owner=False, system=False, session=None,
+                   password=None, email=None):
         """
         Like new_user() but returns an active client.
 
@@ -499,7 +509,8 @@ class ITest(object):
             if user is not None:
                 user, name = self.user_and_name(user)
             else:
-                user = self.new_user(group, perms, owner=owner, system=system)
+                user = self.new_user(group, perms, owner=owner,
+                                     system=system, email=email)
             props["omero.user"] = user.omeName.val
             if password is not None:
                 props["omero.pass"] = password

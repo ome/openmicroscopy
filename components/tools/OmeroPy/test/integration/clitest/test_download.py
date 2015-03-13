@@ -21,10 +21,13 @@
 
 import pytest
 import omero
+
+from collections import namedtuple
 from omero.plugins.download import DownloadControl
 from omero.cli import NonZeroReturnCode
 from test.integration.clitest.cli import CLITest
 from omero.rtypes import rstring
+from omero.model import NamedValue as NV
 
 
 class TestDownload(CLITest):
@@ -217,73 +220,126 @@ class TestDownload(CLITest):
 
     class PolicyFixture(object):
 
-        def __init__(self, cfg, grp, for_user, will_pass):
+        T = namedtuple("Checks", "image,ofile,plate")
+
+        def __init__(self, cfg, data):
             self.cfg = cfg
-            self.grp = grp
-            self.for_user = for_user
-            self.will_pass = will_pass
+            for x in ("owner", "admin", "member"):
+                setattr(self, x, self.T(*data[x]))
 
         def __str__(self):
-            grp = self.grp
-            if self.grp is None:
-                grp = ""
-            return "%s_%s_%s_%s" % (
-                self.cfg, grp, self.for_user, self.will_pass)
+            return self.cfg
+
+    POLICY_DEF = "+read,+write,+image"
+    POLICY_NONE = "-read,-write,-image,-plate"
+    POLICY_NORDR = "-read,+write,+image,-plate"
+    POLICY_NOSPW = "+read,+write,+image,-plate"
+    POLICY_ALL = "+read,+write,+image,+plate"
 
     POLICY_FIXTURES = (
-        # Fixtures with no group setting
-        PolicyFixture("", None, "owner", True),
-        PolicyFixture("", None, "admin", True),
-        PolicyFixture("", None, "member", True),
-        PolicyFixture("none", None, "owner", False),
-        PolicyFixture("none", None, "admin", False),
-        PolicyFixture("none", None, "member", False),
-        PolicyFixture("repository", None, "owner", True),
-        PolicyFixture("repository", None, "admin", True),
-        PolicyFixture("repository", None, "member", False),
-
-        # Fixtures with group settings
-        # PolicyFixture("", "none", "owner", True),
-        # PolicyFixture("", "none", "admin", True),
-        # PolicyFixture("", "none", "member", False),
-        # PolicyFixture("none", "none", "owner", False),
-        # PolicyFixture("none", "none", "admin", False),
-        # PolicyFixture("none", "none", "member", False),
-        # PolicyFixture("repository", "none", "owner", True),
-        # PolicyFixture("repository", "none", "admin", True),
-        # PolicyFixture("repository", "none", "member", False),
+        PolicyFixture(POLICY_DEF, {"owner": (True, True, False),
+                                   "admin": (True, True, False),
+                                   "member": (True, True, False)}),
+        PolicyFixture(POLICY_NONE, {"owner": (False, False, False),
+                                    "admin": (False, False, False),
+                                    "member": (False, False, False)}),
+        PolicyFixture(POLICY_NORDR, {"owner": (True, True, False),
+                                     "admin": (True, True, False),
+                                     "member": (False, False, False)}),
+        PolicyFixture(POLICY_NOSPW, {"owner": (True, True, False),
+                                     "admin": (True, True, False),
+                                     "member": (True, True, False)}),
+        PolicyFixture(POLICY_ALL, {"owner": (True, True, True),
+                                   "admin": (True, True, True),
+                                   "member": (True, True, True)}),
     )
 
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
                              ids=POLICY_FIXTURES)
-    def testPolicyRestriction(self, tmpdir, fixture):
-
-        tmpfile = tmpdir.join('%s.test' % fixture)
-        cfg = self.root.sf.getConfigService()
-        cfg = cfg.getConfigValue("omero.policy.download")
+    def testPolicyGlobalRestriction(self, tmpdir, fixture):
 
         # Check that the config we have is at least tested
         # by *some* fixture
+        cfg = self.root.sf.getConfigService()
+        cfg = cfg.getConfigValue("omero.policy.binary_access")
         assert cfg in [x.cfg for x in self.POLICY_FIXTURES]
+
         # But if this isn't a check for this particular
         # config, then skip.
+
         if cfg != fixture.cfg:
-            pytest.skip("Found download policy: %s" % cfg)
+            pytest.skip("Found binary access policy: %s" % cfg)
 
         group = self.new_group(perms='rwr---')
+        self.do_restrictions(fixture, tmpdir, group)
+
+    @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
+                             ids=POLICY_FIXTURES)
+    def testPolicyGroupRestriction(self, tmpdir, fixture):
+        parts = fixture.cfg.split(",")
+        config = [NV("omero.policy.binary_access", x) for x in parts]
+        group = self.new_group(perms='rwr---', config=config)
+        self.do_restrictions(fixture, tmpdir, group)
+
+    def do_restrictions(self, fixture, tmpdir, group):
+
+        tmpfile = tmpdir.join('%s.test' % fixture)
+
         upper = self.new_client(group=group)
+        upper_q = upper.sf.getQueryService()
+
+        pimage = self.importSingleImage(client=upper,
+                                        plates=1, plateRows=1,
+                                        plateCols=1, fields=1,
+                                        plateAcqs=1)
+
+        pfile = upper_q.findByQuery((
+            "select f from OriginalFile f join f.filesetEntries fe "
+            "join fe.fileset fs join fs.images img "
+            "where img.id = %s") % pimage.id.val, None)
+
+        plate = upper_q.findByQuery((
+            "select p from Plate p join p.wells w "
+            "join w.wellSamples ws join ws.image img "
+            "where img.id = %s") % pimage.id.val, None)
+
+        image = self.importSingleImage(client=upper)
+
         ofile = self.create_original_file("test", upper)
 
-        if fixture.for_user == "owner":
-            downer = upper
-        else:
-            downer = self.new_client(group=group)
+        owner = upper
+        admin = self.new_client(group=group, system=True)
+        member = self.new_client(group=group, system=False)
 
-        self.args = ["download"]
-        self.args += self.login_args(downer)
-        self.args += [str(ofile.id.val), str(tmpfile)]
-        if fixture.will_pass:
-            self.cli.invoke(self.args, strict=True)
-        else:
-            with pytest.raises(NonZeroReturnCode):
-                self.cli.invoke(self.args, strict=True)
+        for downer, checks in ((owner, fixture.owner),
+                               (admin, fixture.admin),
+                               (member, fixture.member)):
+
+            downer_q = downer.sf.getQueryService()
+
+            tests = (
+                ("OriginalFile", pfile.id.val, checks.plate),
+                ("Image", pimage.id.val, checks.plate),
+                ("Plate", plate.id.val, checks.plate),
+                ("OriginalFile", ofile.id.val, checks.ofile),
+                ("Image", image.id.val, checks.image),
+            )
+
+            for kls, oid, will_pass in tests:
+
+                obj = downer_q.get(kls, oid)
+                perms = obj.details.permissions
+                restricted = perms.isRestricted(
+                    omero.constants.permissions.BINARYACCESS)
+                assert will_pass != restricted, (
+                    "%s:%s. Expected: %s") % (kls, oid, will_pass)
+
+                if "Plate" != kls:  # Plate is not implemented
+                    self.args = ["download"]
+                    self.args += self.login_args(downer)
+                    self.args += ["%s:%s" % (kls, oid), str(tmpfile)]
+                    if will_pass:
+                        self.cli.invoke(self.args, strict=True)
+                    else:
+                        with pytest.raises(NonZeroReturnCode):
+                            self.cli.invoke(self.args, strict=True)

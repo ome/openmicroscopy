@@ -253,9 +253,9 @@ module omero {
       /**
        * Extended restriction name which may be applied to images and other
        * downloadable materials. This string can also be found in the
-       * ome.security.policy.DownloadPolicy class.
+       * ome.security.policy.BinaryAccessPolicy class.
        **/
-      const string DOWNLOAD = "RESTRICT-DOWNLOAD";
+      const string BINARYACCESS = "RESTRICT-BINARY-ACCESS";
     };
 
     module projection {
