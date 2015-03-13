@@ -13,7 +13,9 @@ import ome.model.IObject;
 import ome.util.messages.InternalMessage;
 
 /**
- * Published when an event log should be saved at the end of a transaction.
+ * Published only when an event log should be saved at the end of a transaction.
+ * Most {@link EventLog} instances are created directly in the database and so
+ * a listener cannot expect to know the full state of the system just from these.
  */
 public class EventLogMessage extends InternalMessage {
 

@@ -16,7 +16,7 @@ import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.util.Executor;
-import ome.services.util.MailUtil;
+import ome.services.mail.MailUtil;
 import ome.system.ServiceFactory;
 import omero.cmd.ERR;
 import omero.cmd.Helper;

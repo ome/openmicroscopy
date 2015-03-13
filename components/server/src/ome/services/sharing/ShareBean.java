@@ -44,12 +44,12 @@ import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
+import ome.services.mail.MailUtil;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.util.Executor;
-import ome.services.util.MailUtil;
 import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -169,11 +169,11 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
     @RolesAllowed("user")
     public Map<Long, Long> getMemberCount(final Set<Long> shareIds) {
-        
+
         if (shareIds == null || shareIds.size() == 0) {
             throw new ApiUsageException("Nothing to do");
         }
-        
+
         final QueryBuilder qb = new QueryBuilder();
         qb.select("share2.id", "count(distinct links2.id)");
         qb.from("ShareMember", "links2");
@@ -195,7 +195,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         }
         // -- end subselect
         qb.append("group by share2.id");
-        
+
         final Map<Long, Long> rv = new HashMap<Long, Long>(shareIds.size());
         sec.runAsAdmin(new AdminAction(){
             public void runAsAdmin() {
@@ -807,7 +807,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     /**
      * Convert a {@link Timestamp expiration} into a long which can be set on
      * {@link Session#setTimeToLive(Long)}.
-     * 
+     *
      * @return the time in milliseconds that this session can exist.
      */
     public static long expirationAsLong(long started, Timestamp expiration) {
@@ -943,9 +943,9 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     /**
      * If the current user is not an admin, then this methods adds a subclause
      * to the HQL:
-     * 
+     *
      *   AND ( share.owner.id = :userId or user.id = :userId )
-     * 
+     *
      * {@link QueryBuilder#where()} should already have been called.
      */
     protected void applyIfShareAccessible(QueryBuilder qb) {
@@ -959,7 +959,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
             qb.append(" ) ");
         }
     }
-    
+
     /**
      * Loads share and checks it's owner and member data against the current
      * context (owner/member/admin). This method must be kept in sync with

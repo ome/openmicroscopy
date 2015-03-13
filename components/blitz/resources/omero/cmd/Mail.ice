@@ -21,12 +21,12 @@
 module omero {
 
     module cmd {
- 
+
          /**
          * Requests an email to be send to all users of the omero
          * determines inactive users, an active members of given groups
          * and/or specific users.
-         * 
+         *
          * examples:
          *  - omero.cmd.SendEmailRequest(subject, body, everyone=True)
          *		sends message to everyone who has email set
@@ -62,12 +62,12 @@ module omero {
          * - success is a number of emails that were sent successfully.
          **/
          class SendEmailResponse extends Response {
-         	 long total;
-         	 long success;
+             long total;
+             long success;
              omero::api::LongList invalidusers;
              omero::api::StringSet invalidemails;
          };
-        
+
     };
 };
 
