@@ -51,6 +51,8 @@ for ch in image.getChannels():
     print "  Active:", ch.isActive()
     print "  Levels:", ch.getWindowStart(), "-", ch.getWindowEnd()
 print "isGreyscaleRenderingModel:", image.isGreyscaleRenderingModel()
+print "Default Z/T positions:"
+print "    Z = %s, T = %s" % (image.getDefaultZ(), image.getDefaultT())
 
 
 # Show the saved rendering settings on this image
@@ -95,15 +97,23 @@ image.setProjection('normal')               # turn off projection
 channels = [1, 2]
 rangeList = [[100.0, 120.2], [None, None]]
 image.setActiveChannels(channels, windows=rangeList)
+# Set default Z & T. These will be used as defaults for further rendering
+image.setDefaultZ(0)
+image.setDefaultT(0)
 # default compression is 0.9
-renderedImage = image.renderImage(z, t, compression=0.5)
-# renderedImage.show()
+renderedImage = image.renderImage(z = None, t = None, compression=0.5)
+renderedImage.show()
 renderedImage.save("two_channels.jpg")
 
 
-# Save the current rendering settings
+# Save the current rendering settings & default Z/T
 # =================================================================
 image.saveDefaults()
+
+
+# Reset to settings at import time, and optionally save
+# =================================================================
+image.resetDefaults(save=True)
 
 
 # Close connection:
