@@ -196,7 +196,7 @@ class ITest(object):
         return img
 
     def import_image(self, filename=None, client=None, extra_args=None,
-                     **kwargs):
+                     skip=None, **kwargs):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"
@@ -212,7 +212,10 @@ class ITest(object):
 
         args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
-        args.extend(["-s", server, "-k", key, "-p", port, "import", "--"])
+        args.extend(["-s", server, "-k", key, "-p", port])
+        if skip:
+            args.extend(["--skip", skip])
+        args.extend(["import", "--"])
         if extra_args:
             args.extend(extra_args)
         args.append(filename)
@@ -594,23 +597,10 @@ class ITest(object):
         if client is None:
             client = self.client
 
-        pix = self.pix(x=1, y=1, z=4000, t=4000, c=1, client=client)
-        rps = client.sf.createRawPixelsStore()
-        try:
-            rps.setPixelsId(pix.id.val, True)
-            for t in range(4000):
-                rps.setTimepoint([5] * 4000, t)  # Assuming int8
-            pix = rps.save()
-        finally:
-            rps.close()
-
-        pix.sizeX = rint(4000)
-        pix.sizeY = rint(4000)
-        pix.sizeZ = rint(1)
-        pix.sizeT = rint(1)
-
-        update = client.sf.getUpdateService()
-        return update.saveAndReturnObject(pix)
+        fake = create_path("missing_pyramid", "&sizeX=4000&sizeY=4000.fake")
+        pixelsId = self.import_image(filename=fake.abspath(), client=client,
+                                     skip="all")
+        return pixelsId[0]
 
     def pix(self, x=10, y=10, z=10, c=3, t=50, client=None):
         """

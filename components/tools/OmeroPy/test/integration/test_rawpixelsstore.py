@@ -10,7 +10,6 @@
 """
 
 import omero
-import pytest
 import threading
 import library as lib
 
@@ -80,8 +79,7 @@ class TestRPS(lib.ITest):
             rps.close()
         self.check_pix(pix)
 
-    @pytest.mark.long_running
-    def testRomioToPyramid(self):
+    def testRomioToPyramid(self, tmpdir):
         """
         Here we create a pixels that is not big,
         then modify its metadata so that it IS big,
@@ -89,25 +87,25 @@ class TestRPS(lib.ITest):
         us a MissingPyramidException
         """
         from omero.util import concurrency
-        pix = self.missing_pyramid(self.root)
-        rps = self.root.sf.createRawPixelsStore()
+        pix = self.missing_pyramid()
+        rps = self.sf.createRawPixelsStore()
         try:
             # First execution should certainly fail
             try:
-                rps.setPixelsId(pix.id.val, True)
+                rps.setPixelsId(long(pix), True)
                 assert False, "Should throw!"
             except omero.MissingPyramidException, mpm:
-                assert pix.id.val == mpm.pixelsID
+                assert long(pix) == mpm.pixelsID
 
             # Eventually, however, it should be generated
             i = 10
             success = False
             while i > 0 and not success:
                 try:
-                    rps.setPixelsId(pix.id.val, True)
+                    rps.setPixelsId(long(pix), True)
                     success = True
                 except omero.MissingPyramidException, mpm:
-                    assert pix.id.val == mpm.pixelsID
+                    assert long(pix) == mpm.pixelsID
                     backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
@@ -116,8 +114,7 @@ class TestRPS(lib.ITest):
         finally:
             rps.close()
 
-    @pytest.mark.long_running
-    def testRomioToPyramidWithNegOne(self):
+    def test2RomioToPyramidWithNegOne(self, tmpdir):
         """
         Here we try the above but pass omero.group:-1
         to see if we can cause an exception.
@@ -125,25 +122,25 @@ class TestRPS(lib.ITest):
         all_context = {"omero.group": "-1"}
 
         from omero.util import concurrency
-        pix = self.missing_pyramid(self.root)
-        rps = self.root.sf.createRawPixelsStore(all_context)
+        pix = self.missing_pyramid()
+        rps = self.sf.createRawPixelsStore(all_context)
         try:
             # First execution should certainly fail
             try:
-                rps.setPixelsId(pix.id.val, True, all_context)
+                rps.setPixelsId(long(pix), True, all_context)
                 assert False, "Should throw!"
             except omero.MissingPyramidException, mpm:
-                assert pix.id.val == mpm.pixelsID
+                assert long(pix) == mpm.pixelsID
 
             # Eventually, however, it should be generated
             i = 10
             success = False
             while i > 0 and not success:
                 try:
-                    rps.setPixelsId(pix.id.val, True, all_context)
+                    rps.setPixelsId(long(pix), True, all_context)
                     success = True
                 except omero.MissingPyramidException, mpm:
-                    assert pix.id.val == mpm.pixelsID
+                    assert long(pix) == mpm.pixelsID
                     backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
@@ -152,33 +149,32 @@ class TestRPS(lib.ITest):
         finally:
             rps.close()
 
-    @pytest.mark.long_running
-    def testPyramidConcurrentAccess(self):
+    def testPyramidConcurrentAccess(self, tmpdir):
         """
         See ticket:11709
         """
         all_context = {"omero.group": "-1"}
 
         from omero.util import concurrency
-        pix = self.missing_pyramid(self.root)
-        rps = self.root.sf.createRawPixelsStore(all_context)
+        pix = self.missing_pyramid()
+        rps = self.sf.createRawPixelsStore(all_context)
         try:
             # First execution should certainly fail
             try:
-                rps.setPixelsId(pix.id.val, True, all_context)
+                rps.setPixelsId(long(pix), True, all_context)
                 assert False, "Should throw!"
             except omero.MissingPyramidException, mpm:
-                assert pix.id.val == mpm.pixelsID
+                assert long(pix) == mpm.pixelsID
 
             # Eventually, however, it should be generated
             i = 10
             success = False
             while i > 0 and not success:
                 try:
-                    rps.setPixelsId(pix.id.val, True, all_context)
+                    rps.setPixelsId(long(pix), True, all_context)
                     success = True
                 except omero.MissingPyramidException, mpm:
-                    assert pix.id.val == mpm.pixelsID
+                    assert long(pix) == mpm.pixelsID
                     backOff = mpm.backOff / 1000
                     event = concurrency.get_event("testRomio")
                     event.wait(backOff)  # seconds
@@ -188,7 +184,7 @@ class TestRPS(lib.ITest):
             # Once it's generated, we should be able to concurrencly
             # access the file without exceptions
             event = concurrency.get_event("concurrenct_pyramids")
-            root_sf = self.root.sf
+            sf = self.sf
 
             class T(threading.Thread):
 
@@ -196,9 +192,9 @@ class TestRPS(lib.ITest):
                     self.success = 0
                     self.failure = 0
                     while not event.isSet() and self.success < 10:
-                        self.rps = root_sf.createRawPixelsStore(all_context)
+                        self.rps = sf.createRawPixelsStore(all_context)
                         try:
-                            self.rps.setPixelsId(pix.id.val, True, all_context)
+                            self.rps.setPixelsId(long(pix), True, all_context)
                             self.success += 1
                         except:
                             self.failure += 1
