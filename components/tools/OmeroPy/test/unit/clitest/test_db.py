@@ -200,14 +200,6 @@ class TestDatabase(object):
         getpass.getpass("Please re-enter %s" %
                         self.password_ending(user, id)).AndReturn(pw)
 
-    def expectVersion(self, version):
-        raw_input("Please enter omero.db.version [%s]: " %
-                  self.data["version"]).AndReturn(version)
-
-    def expectPatch(self, patch):
-        raw_input("Please enter omero.db.patch [%s]: " %
-                  self.data["patch"]).AndReturn(patch)
-
     def password_output(self, user_id, no_salt):
         update_msg = "UPDATE password SET hash = \'%s\'" \
             " WHERE experimenter_id  = %s;"
