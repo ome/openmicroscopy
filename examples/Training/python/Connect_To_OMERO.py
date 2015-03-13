@@ -69,10 +69,16 @@ if __name__ == '__main__':
     group = conn.getGroupFromContext()
     print "Current group: ", group.getName()
 
-    print "Other Members of current group:"
-    for exp in conn.listColleagues():
-        print "   ID: %s %s Name: %s" % (
-            exp.getId(), exp.getOmeName(), exp.getFullName())
+    # List the group owners and other members
+    owners, members = group.groupSummary()
+    print "   Group owners:"
+    for o in owners:
+        print "     ID: %s %s Name: %s" % (
+            o.getId(), o.getOmeName(), o.getFullName())
+    print "   Group members:"
+    for m in members:
+        print "     ID: %s %s Name: %s" % (
+            m.getId(), m.getOmeName(), m.getFullName())
 
     print "Owner of:"
     for g in conn.listOwnedGroups():
