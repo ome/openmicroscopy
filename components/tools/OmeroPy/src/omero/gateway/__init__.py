@@ -3999,8 +3999,8 @@ class _BlitzGateway (object):
             types = (ProjectWrapper, DatasetWrapper, ImageWrapper)
         else:
             def getWrapper(obj_type):
-                objs = ["project", "dataset", "image",
-                        "screen", "plate", "well"]
+                objs = ["project", "dataset", "image", "screen",
+                        "plateacquisition", "plate", "well"]
                 if obj_type.lower() not in objs:
                     raise AttributeError(
                         "%s not recognised. Can only search for 'Project',"
