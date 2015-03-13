@@ -187,6 +187,26 @@ class TestImage (object):
         assert author_testimg_generated.getPixelSizeX(
             units="NANOMETER") is None
 
+    def testUnitsGetValue(self):
+        """
+        Tests that methods which return Units won't break the
+        pre-units 5.0 API for Blitz Gateway (in the same way that
+        this is NOT broken for omero.model objects).
+        For 5.0 and 5.1, getValue() can be used to get the result.
+        """
+        sizeXMicrons = 0.10639449954032898
+        pixels = self.image.getPrimaryPixels()
+        # omero.model.pixels getPhysicalSizeX returns UnitsLengthI
+        # getValue() works with 5.0 and 5.1
+        sizeX = pixels._obj.getPhysicalSizeX().getValue()
+        assert sizeX == sizeXMicrons
+        # PixelsWrapper getPhysicalSizeX should also return UnitsLengthI
+        sizeX = pixels.getPhysicalSizeX().getValue()
+        assert sizeX == sizeXMicrons
+        # Also, direct access of attribute should return UnitsLengthI
+        sizeX = pixels.physicalSizeX.getValue()
+        assert sizeX == sizeXMicrons
+
     def testChannelWavelengthUnits(self, author_testimg_generated):
         """
         Tests Channel excitation / emmisssion wavelengths and units

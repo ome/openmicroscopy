@@ -25,6 +25,8 @@
 #include <omero/model/Units.h>
 #include <omero/IceNoWarnPop.h>
 
+#include <omero/conversions.h>
+
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
 #       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
@@ -52,15 +54,23 @@ namespace omero {
 
     protected:
         virtual ~TimeI(); // protected as outlined in Ice docs.
-        static std::map<omero::model::enums::UnitsTime, std::string> SYMBOLS;
+        static std::map<enums::UnitsTime,
+            std::map<enums::UnitsTime,
+                omero::conversions::ConversionPtr> > CONVERSIONS;
+        static std::map<enums::UnitsTime, std::string> SYMBOLS;
 
     public:
 
-        static std::string lookupSymbol(omero::model::enums::UnitsTime unit) {
+        static std::string lookupSymbol(enums::UnitsTime unit) {
             return SYMBOLS[unit];
         }
 
         TimeI();
+
+        TimeI(const double& value, const enums::UnitsTime& unit);
+
+        // Conversion constructor
+        TimeI(const TimePtr& value, const enums::UnitsTime& target);
 
         virtual Ice::Double getValue(
                 const Ice::Current& current = Ice::Current());
@@ -69,11 +79,11 @@ namespace omero {
                 Ice::Double value,
                 const Ice::Current& current = Ice::Current());
 
-        virtual omero::model::enums::UnitsTime getUnit(
+        virtual enums::UnitsTime getUnit(
                 const Ice::Current& current = Ice::Current());
 
         virtual void setUnit(
-                omero::model::enums::UnitsTime unit,
+                enums::UnitsTime unit,
                 const Ice::Current& current = Ice::Current());
 
         virtual std::string getSymbol(

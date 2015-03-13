@@ -23,6 +23,7 @@
         <exclude name="ome.services.roi.test"/>
       </package>
       <package name="omero.cmd.graphs.*"/>
+      <package name="omero.model.*"/>
       <package name="omero.util.*"/>
     </packages>
   </test>

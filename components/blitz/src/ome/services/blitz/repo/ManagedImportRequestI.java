@@ -659,12 +659,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         int maxPlaneSize = sizes.getMaxPlaneWidth() * sizes.getMaxPlaneHeight();
         if (((long) reader.getSizeX()
              * (long) reader.getSizeY()) > maxPlaneSize) {
-            int pixelType = reader.getPixelType();
-            long[] minMax = FormatTools.defaultMinMax(pixelType);
-            for (int c = 0; c < reader.getSizeC(); c++) {
-                store.setChannelGlobalMinMax(
-                        c, minMax[0], minMax[1], series);
-            }
             return null;
         }
         if (checksumAlgorithm.equals("File-Size-64")) {

@@ -70,5 +70,6 @@ public class NullRegistry
     public OmeroMetadataService getMetadataService() { return null; }
     public AdminService getAdminService() { return null; }
 	public CacheService getCacheService() { return null; }
+	public String lookupRemote(String name) { return null; }
 
 }

@@ -23,6 +23,7 @@
     <variable name="JAVA"          value="java"/>
     <variable name="ROUTERPORT"    value="4064"/>
     <variable name="INSECUREROUTER" value="OMERO.Glacier2/router:tcp -p 4063 -h @omero.host@"/>
+    <variable name="SEP"           value=":"/>
 
     <properties id="Profile">
       <!--

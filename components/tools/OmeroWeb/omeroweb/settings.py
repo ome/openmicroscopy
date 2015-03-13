@@ -634,7 +634,7 @@ DEPRECATED_SETTINGS_MAPPINGS = {
         ["PLATE_DOWNLOAD_ENABLED",
          "false",
          parse_boolean,
-         ("Use omero.policy.download instead to restrict download.")],
+         ("Use omero.policy.binary_access instead to restrict download.")],
 }
 
 del CUSTOM_HOST

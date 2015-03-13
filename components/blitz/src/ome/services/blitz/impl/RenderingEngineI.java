@@ -22,6 +22,7 @@ import omero.api.AMD_RenderingEngine_getAvailableFamilies;
 import omero.api.AMD_RenderingEngine_getAvailableModels;
 import omero.api.AMD_RenderingEngine_getChannelCurveCoefficient;
 import omero.api.AMD_RenderingEngine_getChannelFamily;
+import omero.api.AMD_RenderingEngine_getChannelLookupTable;
 import omero.api.AMD_RenderingEngine_getChannelNoiseReduction;
 import omero.api.AMD_RenderingEngine_getChannelStats;
 import omero.api.AMD_RenderingEngine_getChannelWindowEnd;
@@ -52,6 +53,7 @@ import omero.api.AMD_RenderingEngine_resetDefaultSettings;
 import omero.api.AMD_RenderingEngine_saveAsNewSettings;
 import omero.api.AMD_RenderingEngine_saveCurrentSettings;
 import omero.api.AMD_RenderingEngine_setActive;
+import omero.api.AMD_RenderingEngine_setChannelLookupTable;
 import omero.api.AMD_RenderingEngine_setChannelWindow;
 import omero.api.AMD_RenderingEngine_setCodomainInterval;
 import omero.api.AMD_RenderingEngine_setCompressionLevel;
@@ -445,5 +447,17 @@ public class RenderingEngineI extends AbstractPyramidServant implements
         callInvokerOnRawArgs(__cb, __current);
     }
 
+    @Override
+    public void getChannelLookupTable_async(
+            AMD_RenderingEngine_getChannelLookupTable __cb, int w,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, w);
+    }
 
+    @Override
+    public void setChannelLookupTable_async(
+            AMD_RenderingEngine_setChannelLookupTable __cb, int w,
+            String lookup, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, w, lookup);
+    }
 }

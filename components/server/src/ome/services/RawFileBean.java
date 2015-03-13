@@ -40,15 +40,15 @@ import ome.conditions.SecurityViolation;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
-import ome.security.policy.DownloadPolicy;
+import ome.security.policy.BinaryAccessPolicy;
 import ome.util.ShallowCopy;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -406,7 +406,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     public byte[] read(long position, int length) {
         errorIfNotLoaded();
-        sec.checkRestriction(DownloadPolicy.NAME, file);
+        sec.checkRestriction(BinaryAccessPolicy.NAME, file);
 
         byte[] rawBuf = new byte[length];
         ByteBuffer buf = ByteBuffer.wrap(rawBuf);

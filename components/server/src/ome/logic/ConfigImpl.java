@@ -14,7 +14,15 @@
 
 package ome.logic;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
@@ -216,6 +224,65 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
         }
 
         return getInternalValue(key);
+    }
+
+    @PermitAll
+    public Map<String, String> getConfigValues(String keyRegex) {
+        if (keyRegex == null) {
+            return Collections.emptyMap();
+        }
+
+        Pattern p = Pattern.compile(keyRegex);
+        Map<String, String> rv = new HashMap<String, String>();
+        Set<String> keys = prefs.getKeySet();
+        // Not resolving aliases since these come straight-from the prefs
+        for (String key : keys) {
+            if (p.matcher(key).find()) {
+                if (prefs.canRead(
+                        currentDetails.getCurrentEventContext(), key)) {
+                    rv.put(key, getInternalValue(key));
+                }
+            }
+        }
+        return rv;
+    }
+
+    @RolesAllowed("system")
+    public Map<String, String> getConfigDefaults() {
+        File etc = new File("etc");
+        File omero = new File(etc, "omero.properties");
+        Properties p = new Properties();
+        Map<String, String> rv = new HashMap<String, String>();
+        try {
+            FileReader r = new FileReader(omero);
+            p.load(r);
+            for (Entry<Object, Object> entry : p.entrySet()) {
+                    rv.put(entry.getKey().toString(),
+                            entry.getValue().toString());
+            }
+            return rv;
+        } catch (Exception e) {
+            InternalException ie = new InternalException(e.getMessage());
+            ie.initCause(e);
+            throw ie;
+        }
+    }
+
+    @PermitAll
+    public Map<String, String> getClientConfigValues() {
+        return getConfigValues("^omero\\.client\\.");
+    }
+
+    @PermitAll
+    public Map<String, String> getClientConfigDefaults() {
+        Map<String, String> rv = getConfigDefaults();
+        Map<String, String> copy = new HashMap<String, String>();
+        for (Map.Entry<String, String> e : rv.entrySet()) {
+            if (e.getKey().startsWith("omero.client")) {
+                copy.put(e.getKey(), e.getValue());
+            }
+        }
+        return copy;
     }
 
     public String getInternalValue(String key) {

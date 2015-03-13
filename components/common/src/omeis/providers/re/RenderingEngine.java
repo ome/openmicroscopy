@@ -561,5 +561,9 @@ public interface RenderingEngine extends StatefulServiceInterface {
 
     public int[] getTileSize();
 
+    public void setChannelLookupTable(int w, String lookup);
+
+    public String getChannelLookupTable(int w);
+
 }
 

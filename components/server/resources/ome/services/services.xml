@@ -60,10 +60,10 @@
     <bean id="selfManagingService" abstract="true"
         class="org.springframework.aop.framework.ProxyFactoryBean">
         <description>
-        A self managed service, which must take care to properly create 
+        A self managed service, which must take care to properly create
         sessions and transactions before using any other services. This
         can be achieved by properly using the Executor.Work interface.
-        
+
         See the "executor" bean.
         </description>
         <property name="interceptorNames">
@@ -72,7 +72,7 @@
             </list>
         </property>
     </bean>
-    
+
 	<bean id="managedService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="interceptorNames" ref="statelessInterceptors"/>
@@ -206,6 +206,7 @@
   JMX resources
   =======================================================================
 -->
+
   <bean id="mbeanServerFactory" class="org.springframework.jmx.support.MBeanServerFactoryBean">
     <property name="locateExistingServerIfPossible" value="true"/>
   </bean>
@@ -230,13 +231,12 @@
       <property name="attributeSource" ref="jmxAttributeSource"/>
   </bean>
 
-
 <!--
   Mail resources
   =======================================================================
 -->
 
-  <bean id="mailUtil" class="ome.services.util.MailUtil">
+  <bean id="mailUtil" class="ome.services.mail.MailUtil">
     <constructor-arg index="0" value="${omero.mail.from}" />
     <constructor-arg index="1" ref="mailSender"/>
   </bean>
@@ -262,9 +262,14 @@
       <property name="host" value="${omero.mail.host}" />
       <property name="port" value="${omero.mail.port}" />
       <property name="protocol" value="${omero.mail.transport.protocol}" />
-      <property name="session" ref="mailSession" />    
+      <property name="session" ref="mailSession" />
+      <property name="javaMailProperties">
+          <props>
+              <prop key="mail.smtp.sendpartial">true</prop>
+          </props>
+      </property>
   </bean>
-  
+
   <!-- setup an authenticated session -->
   <bean id="mailSession" class="javax.mail.Session" factory-method="getInstance">
       <constructor-arg>
@@ -272,6 +277,7 @@
               <prop key="mail.smtp.auth">${omero.mail.smtp.auth}</prop>
               <prop key="mail.smtp.debug">${omero.mail.smtp.debug}</prop>
               <prop key="mail.smtp.connectiontimeout">${omero.mail.smtp.connectiontimeout}</prop>
+              <prop key="mail.smtp.sendpartial">true</prop>
               <prop key="mail.smtp.starttls.enable">${omero.mail.smtp.starttls.enable}</prop>
               <prop key="mail.smtp.socketFactory.port">${omero.mail.smtp.socketFactory.port}</prop>
               <prop key="mail.smtp.socketFactory.class">${omero.mail.smtp.socketFactory.class}</prop>
@@ -281,18 +287,16 @@
       </constructor-arg>
       <constructor-arg ref="smtpAuthenticator" />
   </bean>
-  
+
   <!-- Authenticator implementation -->
   <bean id="smtpAuthenticator" class="ome.security.SmtpAuthenticator">
       <constructor-arg value="${omero.mail.username}" />
       <constructor-arg value="${omero.mail.password}" />
   </bean>
-	
+
   <!-- this is a template message that we can pre-load with default state -->
   <bean id="templateMessage" class="org.springframework.mail.SimpleMailMessage">
       <property name="from" value="${omero.mail.from}" />
   </bean>
 
 </beans>
-
-

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.LookupNames
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -349,5 +349,8 @@ public class LookupNames
      * Field indicating that the application is ran head-less.
      */
     public static final String HEADLESS = "Headless";
+    
+    /** Lookup name of the orphaned images folder */
+    public static final String ORPHANED_IMAGE_NAME = "omero.client.ui.tree.orphans.name";
 
 }

@@ -37,12 +37,14 @@ import omero.gateway
 from omero.cmd import DoAll, State, ERR, OK, Chgrp, Delete
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
+from omero.model import Annotation, FileAnnotationI, OriginalFileI
 from omero.model import DimensionOrderI, PixelsI, PixelsTypeI
 from omero.model import Experimenter, ExperimenterI
 from omero.model import ExperimenterGroup, ExperimenterGroupI
-from omero.model import ProjectDatasetLinkI
+from omero.model import ProjectDatasetLinkI, ImageAnnotationLinkI
 from omero.model import PermissionsI
-from omero.rtypes import rbool, rstring, rtime, rint, unwrap
+from omero.model import ChecksumAlgorithmI
+from omero.rtypes import rbool, rstring, rlong, rtime, rint, unwrap
 from omero.util.temp_files import create_path
 from path import path
 
@@ -147,12 +149,15 @@ class ITest(object):
         return str(create_path())
 
     @classmethod
-    def new_group(self, experimenters=None, perms=None):
+    def new_group(self, experimenters=None, perms=None,
+                  config=None, gname=None):
         admin = self.root.sf.getAdminService()
-        gname = self.uuid()
+        if gname is None:
+            gname = self.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
+        group.config = config
         if perms:
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
@@ -244,13 +249,16 @@ class ITest(object):
     the file and then return the image.
     """
 
-    def importSingleImage(self, name=None, client=None):
+    def importSingleImage(self, name=None, client=None,
+                          with_companion=False, **kwargs):
         if client is None:
             client = self.client
         if name is None:
             name = "importSingleImage"
 
-        images = self.importMIF(1, name=name, client=client)
+        images = self.importMIF(1, name=name, client=client,
+                                with_companion=with_companion,
+                                **kwargs)
         return images[0]
 
     """
@@ -445,7 +453,8 @@ class ITest(object):
 
     @classmethod
     def new_user(self, group=None, perms=None,
-                 owner=False, system=False):
+                 owner=False, system=False, uname=None,
+                 email=None):
         """
         :owner: If user is to be an owner of the created group
         :system: If user is to be a system admin
@@ -455,7 +464,8 @@ class ITest(object):
             raise Exception("No root client. Cannot create user")
 
         adminService = self.root.getSession().getAdminService()
-        name = self.uuid()
+        if uname is None:
+            uname = self.uuid()
 
         # Create group if necessary
         if not group:
@@ -466,15 +476,16 @@ class ITest(object):
 
         # Create user
         e = ExperimenterI()
-        e.omeName = rstring(name)
-        e.firstName = rstring(name)
-        e.lastName = rstring(name)
+        e.omeName = rstring(uname)
+        e.firstName = rstring(uname)
+        e.lastName = rstring(uname)
         e.ldap = rbool(False)
+        e.email = rstring(email)
         listOfGroups = list()
         listOfGroups.append(adminService.lookupGroup('user'))
         uid = adminService.createExperimenterWithPassword(
-            e, rstring(name), g, listOfGroups)
-        e = adminService.lookupExperimenter(name)
+            e, rstring(uname), g, listOfGroups)
+        e = adminService.lookupExperimenter(uname)
         if owner:
             adminService.setGroupOwner(g, e)
         if system:
@@ -483,7 +494,8 @@ class ITest(object):
         return adminService.getExperimenter(uid)
 
     def new_client(self, group=None, user=None, perms=None,
-                   owner=False, system=False, session=None, password=None):
+                   owner=False, system=False, session=None,
+                   password=None, email=None):
         """
         Like new_user() but returns an active client.
 
@@ -502,7 +514,8 @@ class ITest(object):
             if user is not None:
                 user, name = self.user_and_name(user)
             else:
-                user = self.new_user(group, perms, owner=owner, system=system)
+                user = self.new_user(group, perms, owner=owner,
+                                     system=system, email=email)
             props["omero.user"] = user.omeName.val
             if password is not None:
                 props["omero.pass"] = password
@@ -793,6 +806,46 @@ class ITest(object):
             dataset.name = rstring(self.uuid())
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
 
+    def make_file_annotation(self, name=None, binary=None, format=None,
+                             client=None):
+        """
+        Creates a new DatasetI instance and returns the persisted object.
+        If no name has been provided, a UUID string shall be used.
+
+        :param name: the name of the project
+        :param client: user context
+        """
+
+        if client is None:
+            client = self.client
+        update = client.sf.getUpdateService()
+
+        # file
+        if format is None:
+            format = "application/octet-stream"
+        if binary is None:
+            binary = "12345678910"
+
+        oFile = OriginalFileI()
+        oFile.setName(rstring(str(self.uuid())))
+        oFile.setPath(rstring(str(self.uuid())))
+        oFile.setSize(rlong(len(binary)))
+        oFile.hasher = ChecksumAlgorithmI()
+        oFile.hasher.value = rstring("SHA1-160")
+        oFile.setMimetype(rstring(str(format)))
+        oFile = update.saveAndReturnObject(oFile)
+
+        # save binary
+        store = client.sf.createRawFileStore()
+        store.setFileId(oFile.id.val)
+        store.write(binary, 0, 0)
+        oFile = store.save()  # See ticket:1501
+        store.close()
+
+        fa = FileAnnotationI()
+        fa.setFile(oFile)
+        return update.saveAndReturnObject(fa)
+
     def link(self, obj1, obj2, client=None):
         """
         Links two linkable model entities together by creating an instance
@@ -813,6 +866,9 @@ class ITest(object):
         elif isinstance(obj1, DatasetI):
             if isinstance(obj2, ImageI):
                 link = DatasetImageLinkI()
+        elif isinstance(obj1, ImageI):
+            if isinstance(obj2, Annotation):
+                link = ImageAnnotationLinkI()
         else:
             assert False, "Object type not supported."
 

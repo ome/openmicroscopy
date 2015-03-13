@@ -7,6 +7,8 @@
 
 package ome.security;
 
+import java.util.Set;
+
 import ome.api.IShare;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -96,4 +98,12 @@ public class CompositeACLVoter implements ACLVoter {
         choose().throwUpdateViolation(object);
     }
 
+    @Override
+    public Set<String> restrictions(IObject object) {
+        return choose().restrictions(object);
+    }
+
+    public void postProcess(IObject object) {
+        choose().postProcess(object);
+    }
 }

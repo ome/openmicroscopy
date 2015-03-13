@@ -57,6 +57,8 @@ class BaseSearch(BaseController):
                                    "file.contents"))
         fields = list(fields)
 
+        if 'plates' in onlyTypes:
+            onlyTypes.append('plateacquisitions')
         created = None
         self.moreResults = False
         batchSize = 500
@@ -101,7 +103,7 @@ class BaseSearch(BaseController):
             for dt in onlyTypes:
                 dt = str(dt)
                 if dt in ['projects', 'datasets', 'images', 'screens',
-                          'plates']:
+                          'plateacquisitions', 'plates']:
                     self.containers[dt] = doSearch(dt)
                     # If we get a full page of results, we know there are more
                     if len(self.containers[dt]) == batchSize:
