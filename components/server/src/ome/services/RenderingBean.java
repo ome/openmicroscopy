@@ -1007,6 +1007,32 @@ public class RenderingBean implements RenderingEngine, Serializable {
     // ~ RendDefObj Delegation
     // =========================================================================
 
+    @RolesAllowed("user")
+    public String getChannelLookupTable(int w) {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            return cb[w].getLookupTable();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
+    @RolesAllowed("user")
+    public void setChannelLookupTable(int w, String lookup) {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            ChannelBinding[] cb = renderer.getChannelBindings();
+            cb[w].setLookupTable(lookup);
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 

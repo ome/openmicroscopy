@@ -59,6 +59,8 @@ module omero {
                 idempotent Ice::IntSeq getRGBA(int w) throws ServerError;
                 idempotent void setActive(int w, bool active) throws ServerError;
                 idempotent bool isActive(int w) throws ServerError;
+                idempotent void setChannelLookupTable(int w, string lookup) throws ServerError;
+                idempotent string getChannelLookupTable(int w) throws ServerError;
                 void addCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
                 void updateCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
                 void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
@@ -72,7 +74,6 @@ module omero {
                 idempotent double getPixelsTypeLowerBound(int w) throws ServerError;
 
             };
-
     };
 };
 
