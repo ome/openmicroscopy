@@ -186,10 +186,12 @@ class ImportControl(BaseControl):
 
     def set_login_arguments(self, args):
         """Set the connection arguments"""
-        if ("-h" not in self.command_args and
-                "-f" not in self.command_args and
-                not args.java_f and
-                not args.java_advanced_help):
+
+        # Connection is required unless help arguments or -f is passed
+        connection_required = ("-h" not in self.command_args and
+                               not args.java_f and
+                               not args.java_advanced_help)
+        if connection_required:
             client = self.ctx.conn(args)
             self.command_args.extend(["-s", client.getProperty("omero.host")])
             self.command_args.extend(["-p", client.getProperty("omero.port")])
@@ -263,7 +265,7 @@ class ImportControl(BaseControl):
 
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
 
-        # Create arguments
+        # Create import command to be passed to Java
         self.command_args = []
         if args.javahelp:
             self.command_args.append("-h")
@@ -271,12 +273,10 @@ class ImportControl(BaseControl):
         self.set_skip_arguments(args)
         self.set_java_arguments(args)
         xargs.append("-Domero.import.depth=%s" % args.depth)
-        a = self.COMMAND + self.command_args + args.path
+        import_command = self.COMMAND + self.command_args + args.path
 
         try:
-            # Here we permit passing ---file=some_output_file in order to
-            # facilitate the omero.util.import_candidates.as_dictionary
-            # call. This may not always be necessary.
+            # Open file handles for stdout/stderr if applicable
             out = args.file
             err = args.errs
 
@@ -286,11 +286,12 @@ class ImportControl(BaseControl):
                 err = open(err, "w")
 
             p = omero.java.popen(
-                a, debug=False, xargs=xargs, stdout=out, stderr=err)
+                import_command, debug=False, xargs=xargs, stdout=out,
+                stderr=err)
             self.ctx.rv = p.wait()
 
         finally:
-            # Make sure log file are closed
+            # Make sure file handles are closed
             if out:
                 out.close()
             if err:

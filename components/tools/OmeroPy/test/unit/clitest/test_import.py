@@ -220,7 +220,7 @@ class TestImport(object):
     def testLoginArguments(self, monkeypatch, hostname, port):
         self.args += ['test.fake']
         control = self.cli.controls['import']
-        control.login_args = []
+        control.command_args = []
         sessionid = str(uuid.uuid4())
 
         def new_client(x):
@@ -236,4 +236,4 @@ class TestImport(object):
         expected_args = ['-s', '%s' % hostname]
         expected_args += ['-p', '%s' % (port or 4064)]
         expected_args += ['-k', '%s' % sessionid]
-        assert control.login_args == expected_args
+        assert control.command_args == expected_args
