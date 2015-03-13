@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2611,18 +2612,11 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
-	 * @see IUpdate#deleteObject(IObject)
 	 */
 	void deleteObject(SecurityContext ctx, IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
-        Connector c = getConnector(ctx, true, false);
-		try {
-		    IUpdatePrx service = c.getUpdateService();
-			service.deleteObject(object);
-		} catch (Throwable t) {
-			handleException(t, "Cannot delete the object.");
-		}
+	    deleteObjects(ctx, Collections.singletonList(object));
 	}
 
 	/**
@@ -2633,22 +2627,42 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException       If an error occurred while trying to
 	 *                                 retrieve data from OMERO service.
-	 * @see IUpdate#deleteObject(IObject)
 	 */
 	void deleteObjects(SecurityContext ctx, List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
-        Connector c = getConnector(ctx, true, false);
-		try {
-		    IUpdatePrx service = c.getUpdateService();
-			Iterator<IObject> i = objects.iterator();
-			//TODO: need method
-			while (i.hasNext())
-				service.deleteObject(i.next());
-
-		} catch (Throwable t) {
-			handleException(t, "Cannot delete the object.");
-		}
+        try {
+            /* convert the list of objects to lists of IDs by OMERO model class name */
+            final Map<String, List<Long>> objectIds = new HashMap<String, List<Long>>();
+            for (final IObject object : objects) {
+                /* determine actual model class name for this object */
+                Class<? extends IObject> objectClass = object.getClass();
+                while (true) {
+                    final Class<?> superclass = objectClass.getSuperclass();
+                    if (IObject.class == superclass) {
+                        break;
+                    } else {
+                        objectClass = superclass.asSubclass(IObject.class);
+                    }
+                }
+                final String objectClassName = objectClass.getSimpleName();
+                /* then add the object's ID to the list for that class name */
+                final Long objectId = object.getId().getValue();
+                List<Long> idsThisClass = objectIds.get(objectClassName);
+                if (idsThisClass == null) {
+                    idsThisClass = new ArrayList<Long>();
+                    objectIds.put(objectClassName, idsThisClass);
+                }
+                idsThisClass.add(objectId);
+            }
+            /* now delete the objects */
+            final Request request = Requests.delete(objectIds);
+            final client client = getConnector(ctx, true, false).getClient();
+            final HandlePrx handle = client.getSession().submit(request);
+            new RequestCallback(client, handle).loop(50, 250);
+        } catch (Throwable t) {
+            handleException(t, "Cannot delete the object.");
+        }
 	}
 
 	/**
@@ -7251,7 +7265,7 @@ class OMEROGateway
 								}
 								if (shapeIndex !=-1) {
 									if (!removed.contains(coord))
-										updateService.deleteObject(serverShape);
+										deleteObject(ctx, serverShape);
 									serverRoi.addShape(
 											(Shape) shape.asIObject());
 								} else {
