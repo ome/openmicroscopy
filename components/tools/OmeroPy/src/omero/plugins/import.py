@@ -285,6 +285,12 @@ class ImportControl(BaseControl):
             a, debug=False, xargs=xargs, stdout=out, stderr=err)
         self.ctx.rv = p.wait()
 
+        # Make sure log file are closed
+        if out:
+            out.close()
+        if err:
+            err.close()
+
 
 class TestEngine(ImportControl):
     COMMAND = [TEST_CLASS]
