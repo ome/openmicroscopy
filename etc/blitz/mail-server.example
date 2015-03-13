@@ -18,7 +18,7 @@
 
   <description>
       TESTING: The following beans can be activated by adding this file
-      to a location on the OMERO classpath match "blitz/*.xml" which
+      to a location on the OMERO classpath matching "blitz/*.xml" which
       will activate a testing mail server for the integration tests.
 
       Note however:
