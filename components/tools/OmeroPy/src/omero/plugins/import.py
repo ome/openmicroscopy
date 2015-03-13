@@ -186,21 +186,23 @@ class ImportControl(BaseControl):
 
     def set_login_arguments(self, args):
         """Set the connection arguments"""
-        if ("-h" not in self.login_args and "-f" not in self.login_args and
-                not args.java_f and not args.java_advanced_help):
+        if ("-h" not in self.command_args and
+                "-f" not in self.command_args and
+                not args.java_f and
+                not args.java_advanced_help):
             client = self.ctx.conn(args)
-            self.login_args.extend(["-s", client.getProperty("omero.host")])
-            self.login_args.extend(["-p", client.getProperty("omero.port")])
-            self.login_args.extend(["-k", client.getSessionId()])
+            self.command_args.extend(["-s", client.getProperty("omero.host")])
+            self.command_args.extend(["-p", client.getProperty("omero.port")])
+            self.command_args.extend(["-k", client.getSessionId()])
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
         if args.skip in ['all', 'checksum']:
-            self.login_args.append("--checksum_algorithm=File-Size-64")
+            self.command_args.append("--checksum_algorithm=File-Size-64")
         if args.skip in ['all', 'thumbnails']:
-            self.login_args.append("--no_thumbnails")
+            self.command_args.append("--no_thumbnails")
         if args.skip in ['all', 'minmax']:
-            self.login_args.append("--no_stats_info")
+            self.command_args.append("--no_stats_info")
 
     def set_java_arguments(self, args):
         """Set the arguments passed to Java"""
@@ -234,12 +236,12 @@ class ImportControl(BaseControl):
             if arg_value:
                 if isinstance(arg_name, tuple):
                     arg_name = arg_name[0]
-                    self.login_args.append(
+                    self.command_args.append(
                         "%s=%s" % (arg_name, arg_value))
                 else:
-                    self.login_args.append(arg_name)
+                    self.command_args.append(arg_name)
                     if isinstance(arg_value, (str, unicode)):
-                        self.login_args.append(arg_value)
+                        self.command_args.append(arg_value)
 
     def importer(self, args):
 
@@ -261,35 +263,38 @@ class ImportControl(BaseControl):
 
         xargs = [logback, "-Xmx1024M", "-cp", os.pathsep.join(classpath)]
 
-        # Here we permit passing ---file=some_output_file in order to
-        # facilitate the omero.util.import_candidates.as_dictionary
-        # call. This may not always be necessary.
-        out = args.file
-        err = args.errs
-
-        if out:
-            out = open(out, "w")
-        if err:
-            err = open(err, "w")
-
-        self.login_args = []
+        # Create arguments
+        self.command_args = []
         if args.javahelp:
-            self.login_args.append("-h")
-
+            self.command_args.append("-h")
         self.set_login_arguments(args)
         self.set_skip_arguments(args)
         self.set_java_arguments(args)
         xargs.append("-Domero.import.depth=%s" % args.depth)
-        a = self.COMMAND + self.login_args + args.path
-        p = omero.java.popen(
-            a, debug=False, xargs=xargs, stdout=out, stderr=err)
-        self.ctx.rv = p.wait()
+        a = self.COMMAND + self.command_args + args.path
 
-        # Make sure log file are closed
-        if out:
-            out.close()
-        if err:
-            err.close()
+        try:
+            # Here we permit passing ---file=some_output_file in order to
+            # facilitate the omero.util.import_candidates.as_dictionary
+            # call. This may not always be necessary.
+            out = args.file
+            err = args.errs
+
+            if out:
+                out = open(out, "w")
+            if err:
+                err = open(err, "w")
+
+            p = omero.java.popen(
+                a, debug=False, xargs=xargs, stdout=out, stderr=err)
+            self.ctx.rv = p.wait()
+
+        finally:
+            # Make sure log file are closed
+            if out:
+                out.close()
+            if err:
+                err.close()
 
 
 class TestEngine(ImportControl):
