@@ -105,6 +105,18 @@ renderedImage = image.renderImage(z, t)
 # renderedImage.save("test.jpg")     # save in the current folder
 
 
+# Get Pixel Sizes for the above Image:
+# =================================================================
+sizeX = image.getPixelSizeX()       # E.g. 0.132
+print " Pixel Size X:", sizeX
+# Units support, new in OMERO 5.1.0
+sizeXobj = image.getPixelSizeX(units=True)
+print " Pixel Size X:", sizeXobj.getValue(), "(%s)" % sizeXobj.getSymbol()
+# To get the size with different units, E.g. Angstroms
+sizeXang = image.getPixelSizeX(units="ANGSTROM")
+print " Pixel Size X:", sizeXang.getValue(), "(%s)" % sizeXang.getSymbol()
+
+
 # Retrieve Screening data:
 # =================================================================
 print "\nList Screens:"
