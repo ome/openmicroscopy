@@ -40,6 +40,9 @@ import ome.model.screen.Well;
 import ome.model.screen.WellSample;
 import ome.security.ACLVoter;
 
+import org.hibernate.AssertionFailure;
+import org.hibernate.Hibernate;
+
 
 
 /**
@@ -104,6 +107,18 @@ public class BinaryAccessPolicy extends BasePolicy {
                 FilesetEntry fe = it.next();
                  if (fe != null && fe.getFileset() != null) {
                     Fileset f = fe.getFileset();
+                    try {
+                        Hibernate.initialize(f.retrieve(Fileset.IMAGES));
+                    } catch (AssertionFailure ae) {
+                        // Here we assume that someone else is trying to
+                        // load the fileset at the same time. Since the
+                        // flag will be set on the fileset, we assume that
+                        // an actual download won't be attempted. If it is,
+                        // then the policy will properly load this fileset
+                        // and throw a SecurityViolation for the original
+                        // file.
+                        continue; // i.e. don't return true.
+                    }
                     if (f.sizeOfImages() > 0) {
                         if (noImage) {
                             return true;
