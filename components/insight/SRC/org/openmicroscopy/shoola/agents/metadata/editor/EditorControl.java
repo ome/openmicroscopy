@@ -49,7 +49,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.jdesktop.swingx.JXTaskPane;
-import org.apache.commons.io.FilenameUtils;
 
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -306,58 +305,48 @@ class EditorControl
 	{
 	    JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 
-	    List<DataObject> list = view.getSelectedObjects();
-	    ImageData image = view.getImage();
-	    int type = FileChooser.SAVE;
-	    List<String> paths = new ArrayList<String>();
-	    if (list != null && list.size() > 1) {
-	        type = FileChooser.FOLDER_CHOOSER;
-	        Iterator<DataObject> i = list.iterator();
-	        DataObject data;
-	        while (i.hasNext()) {
-	            data  = i.next();
-	            if (data instanceof ImageData) {
-	                paths.add(FilenameUtils.getName(
-	                        ((ImageData) data).getName()));
-	            }
-	        }
-	    }
+	    List<FileFilter> filters = new ArrayList<FileFilter>();
+        filters.add(new ZipFilter());
+        
+        int type = FileChooser.SAVE;
 
 	    FileChooser chooser = new FileChooser(f, type,
 	            FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-	            null, true);
-	    try {
-	        File file = UIUtilities.getDefaultFolder();
-	        if (file != null) chooser.setCurrentDirectory(file);
-	    } catch (Exception ex) {}
-	    if (type == FileChooser.SAVE)
-	        chooser.setSelectedFileFull(image.getName());
+	            filters, false);
+        try {
+            if (UIUtilities.getDefaultFolder() != null)
+                chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
+        } catch (Exception ex) {
+        }
 
+        final File file = UIUtilities.generateFileName(
+                UIUtilities.getDefaultFolder(), view
+                        .getSelectedObjects().size() > 1 ? "Original_Files"
+                        : "Original_File", "zip");
+        
 	    IconManager icons = IconManager.getInstance();
 	    chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 	    chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
 	    chooser.setCheckOverride(true);
-	    chooser.setSelectedFiles(paths);
+	    chooser.setSelectedFile(file);
 	    chooser.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                FileChooser src = (FileChooser) evt.getSource();
+                if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+                    File path = null;
 
-	        public void propertyChange(PropertyChangeEvent evt) {
-	            String name = evt.getPropertyName();
-	            FileChooser src = (FileChooser) evt.getSource();
-	            if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-	                File path = null;
-	                if (src.getChooserType() == FileChooser.FOLDER_CHOOSER) {
-	                    path = new File((String) evt.getNewValue());
-	                } else {
-	                    File[] files = (File[]) evt.getNewValue();
-	                    if (files == null || files.length == 0) return;
-	                    path = files[0];
-	                }
-	                if (path == null) {
-	                    path = UIUtilities.getDefaultFolder();
-	                }
-	                model.download(path, src.isOverride());
-	            }
-	        }
+                    File[] files = (File[]) evt.getNewValue();
+                    if (files == null || files.length == 0)
+                        return;
+                    path = files[0];
+
+                    if (path == null) {
+                        path = file;
+                    }
+                    model.download(path, src.isOverride());
+                }
+            }
 	    });
 	    chooser.centerDialog();
 	}

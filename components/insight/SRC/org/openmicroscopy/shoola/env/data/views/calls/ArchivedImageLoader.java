@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -114,13 +116,13 @@ public class ArchivedImageLoader
      * Creates a {@link BatchCall} to load the image.
      * 
      * @param ctx The security context.
-     * @param imageID The ID of the image.
+     * @param imageIDs The IDs of the images.
      * @param name The name of the image.
      * @param folder The path to the folder where to save the image.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final SecurityContext ctx,
-    		final long imageID, final String name, final File folder)
+    		final List<Long> imageIDs, final File folder)
     {
         return new BatchCall("Download the files. ") {
             public void doCall() throws Exception
@@ -129,33 +131,31 @@ public class ArchivedImageLoader
                 File tmpFolder = null;
                 try {
                     tmpFolder = Files.createTempDir();
-                    Map<Boolean, Object> r =
-                            os.getArchivedImage(ctx, tmpFolder, imageID);
-                    List<File> files = (List<File>) r.get(Boolean.TRUE);
-                    //format the result
-                    if (!CollectionUtils.isEmpty(files)) {
-                        File f;
-                        //Copy the file to the destination folder.
-                        if (files.size() == 1) {
-                            f = files.get(0);
-                            //copy from tmp to destination folder.
-                            r.put(Boolean.TRUE,
-                                    Arrays.asList(copyFile(f, folder)));
-                        } else {
-                            //zip the directory
-                            f = IOUtil.zipDirectory(tmpFolder, false);
-                            //rename the zip
-                            String baseName = FilenameUtils.getBaseName(
-                                    FilenameUtils.removeExtension(name));
-                            File to = new File(f.getParentFile(),
-                                    baseName+"."+FilenameUtils.getExtension(
-                                            f.getName()));
-                            Files.move(f, to);
-                            f = copyFile(to, folder);
-                            r.put(Boolean.TRUE, Arrays.asList(f));
-                        }
+                    
+                    List<File> files = new ArrayList<File>();
+                    
+                    for (Long imageID : imageIDs) {
+                        Map<Boolean, Object> r = os.getArchivedImage(ctx,
+                                tmpFolder, imageID);
+                        files.addAll((List<File>) r.get(Boolean.TRUE));
                     }
-                    result = r;
+                    
+                    result = new HashMap<Boolean, List<File>>();
+                    
+                    if (!CollectionUtils.isEmpty(files)) {
+                        File f = IOUtil.zipDirectory(tmpFolder, false);
+                        // rename the zip
+                        String baseName = FilenameUtils
+                                .getBaseName(FilenameUtils
+                                        .removeExtension(folder.getName()));
+                        File to = new File(f.getParentFile(), baseName
+                                + "."
+                                + FilenameUtils.getExtension(f.getName()));
+                        Files.move(f, to);
+                        f = copyFile(to, folder.getParentFile());
+                        ((Map<Boolean, List<File>>)result).put(Boolean.TRUE, Arrays.asList(f));
+                    }
+                    
                 } catch (Exception e) {
                     throw new Exception(e);
                 } finally {
@@ -190,12 +190,12 @@ public class ArchivedImageLoader
      * @param override Flag indicating to override the existing file if it
      *                 exists, <code>false</code> otherwise.
      */
-    public ArchivedImageLoader(SecurityContext ctx, long imageID, String name,
+    public ArchivedImageLoader(SecurityContext ctx, List<Long> imageIDs,
     		File folderPath, boolean override)
     {
-    	if (imageID < 0)
-    		 throw new IllegalArgumentException("Image's ID not valid.");
+    	if (CollectionUtils.isEmpty(imageIDs))
+    		 throw new IllegalArgumentException("No image IDs provided.");
     	this.override = override;
-        loadCall = makeBatchCall(ctx, imageID, name, folderPath);
+        loadCall = makeBatchCall(ctx, imageIDs, folderPath);
     }
 }

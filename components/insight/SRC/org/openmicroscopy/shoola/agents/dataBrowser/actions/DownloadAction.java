@@ -32,6 +32,7 @@ import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -41,6 +42,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.events.hiviewer.DownloadEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.filter.file.ZipFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -116,37 +118,32 @@ public class DownloadAction
     public void actionPerformed(ActionEvent e)
     {
         ImageDisplay node = model.getBrowser().getLastSelectedDisplay();
-        if (node == null) return;
-        Collection<DataObject> list = model.getBrowser().getSelectedDataObjects();
-        int type = FileChooser.SAVE;
-        List<String> paths = new ArrayList<String>();
-        if (list != null && list.size() > 1) {
-            type = FileChooser.FOLDER_CHOOSER;
-            Iterator<DataObject> i = list.iterator();
-            DataObject data;
-            while (i.hasNext()) {
-                data  = i.next();
-                if (data instanceof ImageData) {
-                    paths.add(FilenameUtils.getName(
-                            ((ImageData) data).getName()));
-                }
-            }
-        }
+        if (node == null)
+            return;
+        
         JFrame f = DataBrowserAgent.getRegistry().getTaskBar().getFrame();
 
+        int type = FileChooser.SAVE;
+        
+        List<FileFilter> filters = new ArrayList<FileFilter>();
+        filters.add(new ZipFilter());
+
+        final File file = UIUtilities.generateFileName(
+                UIUtilities.getDefaultFolder(), model.getBrowser()
+                        .getSelectedDataObjects().size() > 1 ? "Original_Files"
+                        : "Original_File", "zip");
+        
         FileChooser chooser = new FileChooser(f, type,
                 FileChooser.DOWNLOAD_TEXT, FileChooser.DOWNLOAD_DESCRIPTION,
-                null, true);
+                filters, false);
         try {
-            File file = UIUtilities.getDefaultFolder();
-            if (file != null) chooser.setCurrentDirectory(file);
-        } catch (Exception ex) {}
-        String text = "";
-        Object ho = node.getHierarchyObject();
-        if (ho instanceof ImageData) text = ((ImageData) ho).getName();
-        chooser.setSelectedFileFull(text);
+            if (UIUtilities.getDefaultFolder() != null)
+                chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
+        } catch (Exception ex) {
+        }
+        
+        chooser.setSelectedFile(file);
         chooser.setCheckOverride(true);
-        chooser.setSelectedFiles(paths);
         IconManager icons = IconManager.getInstance();
         chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
         chooser.setApproveButtonText(FileChooser.DOWNLOAD_TEXT);
