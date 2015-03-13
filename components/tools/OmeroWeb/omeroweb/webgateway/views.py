@@ -2049,20 +2049,21 @@ def archived_files(request, iid=None, conn=None, **kwargs):
     Downloads the archived file(s) as a single file or as a zip (if more than
     one file)
     """
+
     imgIds = []
     wellIds = []
+    imgIds = request.REQUEST.getlist('image')
+    wellIds = request.REQUEST.getlist('well')
     if iid is None:
-        imgIds = request.REQUEST.getlist('image')
-        if len(imgIds) == 0:
-            wellIds = request.REQUEST.getlist('well')
-            if len(wellIds) == 0:
-                return HttpResponseServerError(
-                    "No images or wells specified in request."
-                    " Use ?image=123 or ?well=123")
+        if len(imgIds) == 0 and len(wellIds) == 0:
+            return HttpResponseServerError(
+                "No images or wells specified in request."
+                " Use ?image=123 or ?well=123")
     else:
         imgIds = [iid]
 
-    images = []
+    images = list()
+    wells = list()
     if imgIds:
         images = list(conn.getObjects("Image", imgIds))
     elif wellIds:
@@ -2070,7 +2071,8 @@ def archived_files(request, iid=None, conn=None, **kwargs):
             index = int(request.REQUEST.get("index", 0))
         except ValueError:
             index = 0
-        for w in conn.getObjects("Well", wellIds):
+        wells = conn.getObjects("Well", wellIds)
+        for w in wells:
             images.append(w.getWellSample(index).image())
     if len(images) == 0:
         logger.debug(
@@ -2078,6 +2080,26 @@ def archived_files(request, iid=None, conn=None, **kwargs):
         return HttpResponseServerError(
             "Cannot download archived file because Images not found (ids:"
             " %s)." % (imgIds))
+
+    # Test permissions on images and weels
+    for ob in (wells):
+        if hasattr(ob, 'canDownload'):
+            if not ob.canDownload():
+                raise Http404
+
+    for ob in (images):
+        well = None
+        try:
+            well = ob.getParent().getParent()
+        except:
+            if hasattr(ob, 'canDownload'):
+                if not ob.canDownload():
+                    raise Http404
+        else:
+            if well and isinstance(well, omero.gateway.WellWrapper):
+                if hasattr(well, 'canDownload'):
+                    if not well.canDownload():
+                        raise Http404
 
     # make list of all files, removing duplicates
     fileMap = {}

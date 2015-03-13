@@ -150,7 +150,7 @@ class OmeroRestrictionWrapper (object):
         :return:    True if user can download.
         """
         return not self.getDetails().getPermissions().isRestricted(
-            omero.constants.permissions.DOWNLOAD)
+            omero.constants.permissions.BINARYACCESS)
 
 
 class BlitzObjectWrapper (object):

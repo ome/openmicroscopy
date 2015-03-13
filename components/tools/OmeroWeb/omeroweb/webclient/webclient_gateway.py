@@ -2499,10 +2499,6 @@ class WellWrapper(OmeroWebObjectWrapper, omero.gateway.WellWrapper):
         if 'link' in kwargs:
             self.link = 'link' in kwargs and kwargs['link'] or None
 
-    def canDownload(self):
-        return False
-
-
 omero.gateway.WellWrapper = WellWrapper
 
 
