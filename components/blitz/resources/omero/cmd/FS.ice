@@ -75,9 +75,9 @@ module omero {
 
         /**
          * Request to determine the original files associated with the given
-         * image. The image must have an associated Pixels object and may not
-         * be from a pre-FS plate. Different response objects are returned
-         * depending on if the image is FS or pre-FS.
+         * image. The image must have an associated Pixels object. Different
+         * response objects are returned depending on if the image is FS or
+         * pre-FS.
          **/
         class UsedFilesRequest extends Request {
             /**
