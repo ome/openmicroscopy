@@ -133,7 +133,7 @@ class ITest(object):
             key = self.sf.ice_getIdentity().name
         else:
             key = client.sf.ice_getIdentity().name
-        return ["-s", host, "-k", key, "-p", port]
+        return ["-q", "-s", host, "-k", key, "-p", port]
 
     @classmethod
     def root_login_args(self):
@@ -147,13 +147,15 @@ class ITest(object):
         return str(create_path())
 
     @classmethod
-    def new_group(self, experimenters=None, perms=None, gname=None):
+    def new_group(self, experimenters=None, perms=None,
+                  config=None, gname=None):
         admin = self.root.sf.getAdminService()
         if gname is None:
             gname = self.uuid()
         group = ExperimenterGroupI()
         group.name = rstring(gname)
         group.ldap = rbool(False)
+        group.config = config
         if perms:
             group.details.permissions = PermissionsI(perms)
         gid = admin.createGroup(group)
@@ -242,13 +244,16 @@ class ITest(object):
     the file and then return the image.
     """
 
-    def importSingleImage(self, name=None, client=None):
+    def importSingleImage(self, name=None, client=None,
+                          with_companion=False, **kwargs):
         if client is None:
             client = self.client
         if name is None:
             name = "importSingleImage"
 
-        images = self.importMIF(1, name=name, client=client)
+        images = self.importMIF(1, name=name, client=client,
+                                with_companion=with_companion,
+                                **kwargs)
         return images[0]
 
     """
@@ -536,7 +541,10 @@ class ITest(object):
     def group_and_name(self, group):
         group = unwrap(group)
         admin = self.root.sf.getAdminService()
-        if isinstance(group, ExperimenterGroup):
+        if isinstance(group, (int, long)):
+            group = admin.getGroup(group)
+            name = group.name.val
+        elif isinstance(group, ExperimenterGroup):
             if group.isLoaded():
                 name = group.name.val
                 group = admin.lookupGroup(name)
