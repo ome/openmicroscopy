@@ -45,17 +45,15 @@
       class="ome.services.mail.ObjectMailSender">
       <property name="action" value="INSERT"/>
       <property name="objectClass" value="ome.model.meta.Experimenter"/>
-      <!-- Send to root only -->
-      <property name="queryString" value="select e from Experimenter e where e.id = :rootUserId"/>
-      <!-- Send to all admins
+      <!-- Send to all admins -->
       <property name="queryString" value="select g from ExperimenterGroup g where g.id = :systemGroupId"/>
-      -->
   </bean>
 
   <bean id="newGroupMailSender" parent="abstractMailSender"
       class="ome.services.mail.ObjectMailSender">
       <property name="action" value="INSERT"/>
       <property name="objectClass" value="ome.model.meta.ExperimenterGroup"/>
+      <!-- Send to root only -->
       <property name="queryString" value="select e from Experimenter e where e.id = :rootUserId"/>
   </bean>
 
