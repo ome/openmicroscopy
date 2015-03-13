@@ -123,12 +123,12 @@ class TestDatabase(object):
 
     @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
     @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
-    @pytest.mark.parametrize(
-        'pos_input', ["", "%(version)s", "%(version)s %(patch)s",
-                      "%(version)s %(patch)s ome"])
-    def testScript(self, pos_input, no_salt, file_arg):
-        args = "db script "
-        args += pos_input
+    @pytest.mark.parametrize('password', ['', '--password ome'])
+    def testScript(self, no_salt, file_arg, password, capsys):
+        """
+        Recommended usage of db script
+        """
+        args = "db script " + password
         if no_salt:
             args += " %s" % no_salt
         if file_arg:
@@ -136,20 +136,54 @@ class TestDatabase(object):
             output = self.file
         else:
             output = self.script_file
-        if "version" not in pos_input or "patch" not in pos_input:
-            self.expectVersion(self.data["version"])
-            self.expectPatch(self.data["patch"])
-        if "ome" not in pos_input:
+
+        if not password:
             self.expectPassword("ome")
             self.expectConfirmation("ome")
-            self.mox.ReplayAll()
-        self.cli.invoke(args % self.data, strict=True)
+        self.mox.ReplayAll()
+
+        self.cli.invoke(args, strict=True)
+
+        out, err = capsys.readouterr()
+        assert 'Using %s for version' % self.data['version'] in err
+        assert 'Using %s for patch' % self.data['patch'] in err
+        if password:
+            assert 'Using password from commandline' in err
 
         with open(output) as f:
             lines = f.readlines()
             for line in lines:
                 if line.startswith('insert into password values (0'):
                     assert line.strip() == self.script_output(no_salt)
+
+    @pytest.mark.parametrize('file_arg', ['', '-f', '--file'])
+    @pytest.mark.parametrize('no_salt', ['', '--no-salt'])
+    @pytest.mark.parametrize('pos_args', [
+        '%s %s %s', '--version %s --patch %s --password %s'])
+    def testScriptDeveloperArgs(self, pos_args, no_salt, file_arg, capsys):
+        """
+        Deprecated and developer usage of db script
+        """
+        arg_values = ('VERSION', 'PATCH', 'PASSWORD')
+        args = "db script " + pos_args % arg_values
+        if no_salt:
+            args += " %s" % no_salt
+        if file_arg:
+            args += " %s %s" % (file_arg, str(self.file))
+            self.file
+        else:
+            self.script_file
+        self.mox.ReplayAll()
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(args, strict=True)
+
+        out, err = capsys.readouterr()
+
+        assert 'Using %s for version' % (arg_values[0]) in err
+        assert 'Using %s for patch' % (arg_values[1]) in err
+        assert 'Using password from commandline' in err
+        assert 'Invalid Database version/patch' in err
 
     def password_ending(self, user, id):
         if id and id != '0':
