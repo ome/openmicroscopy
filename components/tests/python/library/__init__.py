@@ -217,10 +217,10 @@ class ITest(object):
 
         args = [sys.executable]
         args.append(str(path(".") / "bin" / "omero"))
-        args.extend(["-s", server, "-k", key, "-p", port])
+        args.extend(["-s", server, "-k", key, "-p", port, "import"])
         if skip:
             args.extend(["--skip", skip])
-        args.extend(["import", "--"])
+        args.extend(["--"])
         if extra_args:
             args.extend(extra_args)
         args.append(filename)
