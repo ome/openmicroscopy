@@ -19,6 +19,8 @@ from omero.rtypes import rint, rlong, rstring, rtime
 
 class TestITimeline(lib.ITest):
 
+    DEFAULT_PERMS = 'rwr---'
+
     def testGeneral(self):
         uuid = self.ctx.sessionUuid
         timeline = self.sf.getTimelineService()
@@ -92,21 +94,21 @@ class TestITimeline(lib.ITest):
         can see these events in timeline.
         """
 
-        client2 = self.new_client(group=self.group)
+        client2, user2 = self.new_client_and_user(group=self.group)
 
         # log in as first user & create images
-        timeline1 = self.sf.getTimelineService()
+        timeline2 = client2.sf.getTimelineService()
 
         im_ids = dict()
         for i in range(0, 10):
             # create image
             acquired = long(time.time() * 1000)
             img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % (self.sf)))
+            img.setName(rstring('test-img-%s' % client2.sf))
             img.setAcquisitionDate(rtime(acquired))
 
             # default permission 'rw----':
-            img = self.update.saveAndReturnObject(img)
+            img = client2.sf.getUpdateService().saveAndReturnObject(img)
             img.unload()
 
             im_ids[i] = [img.id.val, acquired]
@@ -115,8 +117,8 @@ class TestITimeline(lib.ITest):
         start = acquired - 86400
         end = acquired + 1
 
-        ownerId = rlong(self.ctx.userId)
-        groupId = rlong(self.ctx.groupId)
+        ownerId = rlong(user2.id.val)
+        groupId = rlong(self.group.id.val)
 
         def assert_timeline(timeline, start, end, ownerId=None, groupId=None):
             p = omero.sys.Parameters()
@@ -135,12 +137,12 @@ class TestITimeline(lib.ITest):
                 ['Image'], rtime(long(start)), rtime(long(end)), p, False)
             assert 10 == len(data['Image'])
 
-        assert_timeline(timeline1, start, end, ownerId, groupId)
+        assert_timeline(timeline2, start, end, ownerId, groupId)
 
         # now log in as another user (default group is same as user-created
         # images above)
-        timeline2 = client2.sf.getTimelineService()
-        assert_timeline(timeline2, start, end, ownerId, groupId)
+        assert_timeline(
+            self.sf.getTimelineService(), start, end, ownerId, groupId)
 
     def test1173(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
