@@ -624,10 +624,11 @@ class TestCsrf(IWebTest):
         self.add_groups(experimenter=self.user, groups=[self.group],
                         owner=True)
 
-        request_url = reverse('wamanagegroupownerid', args=["save", group_id])
+        request_url = reverse('wamanagegroupownerid',
+                              args=["save", self.group.id.val])
         data = {
-            "members": user_id,
-            "owners": user_id,
+            "members": self.user.id.val,
+            "owners": self.user.id.val,
             "permissions": 0
         }
         _post_response(self.django_client, request_url, data)

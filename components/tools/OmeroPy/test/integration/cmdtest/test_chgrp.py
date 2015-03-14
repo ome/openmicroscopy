@@ -39,8 +39,8 @@ class TestChgrp(lib.ITest):
 
         # New method
         chgrp = omero.cmd.Chgrp(type="/Image", id=img.id.val, options=None)
-        handle = client.sf.submit(chgrp)
-        cb = CmdCallbackI(client, handle)
+        handle = self.sf.submit(chgrp)
+        cb = CmdCallbackI(self.client, handle)
         cb.loop(20, 750)
 
         # Check Data

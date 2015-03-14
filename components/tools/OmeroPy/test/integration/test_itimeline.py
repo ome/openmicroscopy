@@ -96,14 +96,13 @@ class TestITimeline(lib.ITest):
 
         # log in as first user & create images
         timeline1 = self.sf.getTimelineService()
-        admin1 = self.sf.getAdminService()
 
         im_ids = dict()
         for i in range(0, 10):
             # create image
             acquired = long(time.time() * 1000)
             img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % (client1.sf)))
+            img.setName(rstring('test-img-%s' % (self.sf)))
             img.setAcquisitionDate(rtime(acquired))
 
             # default permission 'rw----':

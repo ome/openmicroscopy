@@ -261,7 +261,6 @@ class TestDownload(CLITest):
         cfg = cfg.getConfigValue("omero.policy.binary_access")
         assert cfg in [x.cfg for x in self.POLICY_FIXTURES]
 
-
     @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
                              ids=POLICY_FIXTURES)
     def testPolicyGlobalRestriction(self, tmpdir, fixture):
