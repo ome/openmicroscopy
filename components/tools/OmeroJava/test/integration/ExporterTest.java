@@ -94,28 +94,40 @@ public class ExporterTest extends AbstractServerTest {
     private static final int INC = 262144;
 
     /** The catalog file to find. */
-    private static String CATALOG = "/transforms/ome-transforms.xml";
+    private static final String CATALOG = "/transforms/ome-transforms.xml";
 
     /** The conversion file to find. */
-    private static String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
+    private static final String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
 
     /** The <i>name</i> attribute. */
-    private static String CURRENT = "current";
+    private static final String CURRENT = "current";
 
     /** The <i>schema</i> attribute. */
-    private static String SCHEMA = "schema";
+    private static final String SCHEMA = "schema";
 
     /** The <i>target</i> name. */
-    private static String TARGET = "target";
+    private static final String TARGET = "target";
 
     /** The <i>transform</i> name. */
-    private static String TRANSFORM = "transform";
+    private static final String TRANSFORM = "transform";
 
     /** The <i>source</i> node. */
-    private static String SOURCE = "source";
+    private static final String SOURCE = "source";
 
     /** The <i>file</i> attribute. */
-    private static String FILE = "file";
+    private static final String FILE = "file";
+
+    /** Flag indicating to create an image using XML mock and import it.*/
+    private static final int IMAGE = 0;
+
+    /** Flag indicating to create a simple image.*/
+    private static final int SIMPLE_IMAGE = 1;
+
+    /**
+     * Flag indicating to create an image with ROI using XML mock and
+     * import it.
+     */
+    private static final int IMAGE_ROI = 2;
 
     /** The collection of files that have to be deleted. */
     private List<File> files;
@@ -192,9 +204,7 @@ public class ExporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    private Image createImageToExport() throws Exception {
-        // First create an image
-        /*
+    private Image createSimpleImageToExport() throws Exception {
         Image image = mmFactory.createImage();
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
@@ -218,7 +228,26 @@ public class ExporterTest extends AbstractServerTest {
         m.setParent(f);
         m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
         return image;
-        */
+    }
+
+    /**
+     * Creates an image to export.
+     *
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    private Image createImageWithROIToExport() throws Exception {
+        return null;
+    }
+    /**
+     * Creates an image to export.
+     *
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    private Image createImageToExport() throws Exception {
         //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
@@ -228,6 +257,7 @@ public class ExporterTest extends AbstractServerTest {
         writer.writeFile(f, xml.createImage(), true);
         List<Pixels> pix = null;
         try {
+            // method tested in ImporterTest
             pix = importFile(f, OME_XML, true);
             return pix.get(0).getImage();
         } catch (Throwable e) {
@@ -386,14 +416,23 @@ public class ExporterTest extends AbstractServerTest {
      * <code>OME-XML</code> or <code>OME-TIFF</code>.
      *
      * @param extension The extension to use.
+     * @param index The type of image to import. One of the constants defined
+     *              by this clase.
      * @return The exporter file.
      * @throws Exception Thrown if an error occurred.
      */
-    private File export(String extension)
+    private File export(String extension, int index)
             throws Exception
     {
         // First create an image
-        Image image = createImageToExport();
+        Image image = null;
+        if (index == SIMPLE_IMAGE) {
+            image = createSimpleImageToExport();
+        } else if (index == IMAGE_ROI) {
+            image = createImageWithROIToExport();
+        } else {
+            image = createImageToExport();
+        }
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + extension);
         FileOutputStream stream = new FileOutputStream(f);
@@ -572,7 +611,33 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         try {
-            f = export(OME_XML);
+            f = export(OME_XML, IMAGE);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed, target.getSchemas());
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test the export of an image as OME-XML.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMEXMLDowngradeSimpleImage(Target target)
+            throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = export(OME_XML, SIMPLE_IMAGE);
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
@@ -606,7 +671,7 @@ public class ExporterTest extends AbstractServerTest {
         RandomAccessInputStream in = null;
         RandomAccessOutputStream out = null;
         try {
-            f = export(OME_TIFF);
+            f = export(OME_TIFF, IMAGE);
             //extract XML and copy to tmp file
             TiffParser parser = new TiffParser(f.getAbsolutePath());
             inputXML = File.createTempFile(RandomStringUtils.random(10),
