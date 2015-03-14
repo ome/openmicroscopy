@@ -254,21 +254,20 @@ class TestDownload(CLITest):
                                    "member": (True, True, True)}),
     )
 
-    @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
-                             ids=POLICY_FIXTURES)
-    def testPolicyGlobalRestriction(self, tmpdir, fixture):
+    def testValidPolicy(self):
+        """Check that the config we have is at least tested by some fixture"""
 
-        # Check that the config we have is at least tested
-        # by *some* fixture
         cfg = self.root.sf.getConfigService()
         cfg = cfg.getConfigValue("omero.policy.binary_access")
         assert cfg in [x.cfg for x in self.POLICY_FIXTURES]
 
-        # But if this isn't a check for this particular
-        # config, then skip.
 
-        if cfg != fixture.cfg:
-            pytest.skip("Found binary access policy: %s" % cfg)
+    @pytest.mark.parametrize('fixture', POLICY_FIXTURES,
+                             ids=POLICY_FIXTURES)
+    def testPolicyGlobalRestriction(self, tmpdir, fixture):
+        # Skip f this isn't a check for this particular
+        # config, then skip.
+        self.skip_if("omero.policy.binary_access", lambda x: x != fixture.cfg)
 
         group = self.new_group(perms='rwr---')
         self.do_restrictions(fixture, tmpdir, group)

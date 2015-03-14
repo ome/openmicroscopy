@@ -29,6 +29,7 @@ import time
 import weakref
 import logging
 import subprocess
+import pytest
 
 import Ice
 import Glacier2
@@ -125,6 +126,14 @@ class ITest(object):
             return p
         else:
             assert False, "Could not find OmeroPy/; searched %s" % searched
+
+    def skip_if(self, config_key, condition, message=None):
+        """Skip test if configuration does not meet condition"""
+        config_service = self.root.sf.getConfigService()
+        config_value = config_service.getConfigValue(config_key)
+        if condition(config_value):
+            pytest.skip(message or '%s:%s does not meet condition'
+                        % (config_key, config_value))
 
     @classmethod
     def uuid(self):
