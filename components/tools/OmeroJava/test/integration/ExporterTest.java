@@ -238,7 +238,21 @@ public class ExporterTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      */
     private Image createImageWithROIToExport() throws Exception {
-        return null;
+      //create an import and image
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+                + OME_XML);
+        files.add(f);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImage(), true);
+        List<Pixels> pix = null;
+        try {
+            // method tested in ImporterTest
+            pix = importFile(f, OME_XML, true);
+            return pix.get(0).getImage();
+        } catch (Throwable e) {
+            throw new Exception("Cannot create image to import", e);
+        }
     }
     /**
      * Creates an image to export.
@@ -638,6 +652,31 @@ public class ExporterTest extends AbstractServerTest {
         File transformed = null;
         try {
             f = export(OME_XML, SIMPLE_IMAGE);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed, target.getSchemas());
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test the export of an image with ROI as OME-XML.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMEXMLDowngradeImageWithROI(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = export(OME_XML, IMAGE_ROI);
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
