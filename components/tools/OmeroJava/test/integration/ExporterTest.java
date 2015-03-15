@@ -14,6 +14,7 @@ import integration.PermissionsTestAll.TestParam;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -44,10 +45,15 @@ import loci.formats.tiff.TiffSaver;
 import ome.specification.OmeValidator;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
+import omero.RType;
 import omero.api.ExporterPrx;
+import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Fileset;
+import omero.model.FilesetEntry;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
@@ -241,7 +247,6 @@ public class ExporterTest extends AbstractServerTest {
       //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
-        files.add(f);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImage(), true);
@@ -265,10 +270,9 @@ public class ExporterTest extends AbstractServerTest {
         //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
-        files.add(f);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
@@ -426,6 +430,102 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
+     * Creates the query to load the file set corresponding to a given image.
+     *
+     * @return See above.
+     */
+    private String createFileSetQuery()
+    {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("select fs from Fileset as fs ");
+        buffer.append("join fetch fs.images as image ");
+        buffer.append("left outer join fetch fs.usedFiles as usedFile ");
+        buffer.append("join fetch usedFile.originalFile as f ");
+        buffer.append("join fetch f.hasher ");
+        buffer.append("where image.id in (:imageIds)");
+        return buffer.toString();
+    }
+
+    /**
+     * Exports the file with the specified extension either
+     * <code>OME-XML</code> or <code>OME-TIFF</code>.
+     *
+     * @param extension The extension to use.
+     * @param index The type of image to import. One of the constants defined
+     *              by this clase.
+     * @return The exporter file.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private File download(String extension, int index)
+            throws Exception
+    {
+        // First create an image
+        Image image = null;
+        if (index == IMAGE_ROI) {
+            image = createImageWithROIToExport();
+        } else {
+            image = createImageToExport();
+        }
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+               + extension);
+        FileOutputStream stream = new FileOutputStream(f);
+        RawFileStorePrx store = null;
+        try {
+            IQueryPrx svc = factory.getQueryService();
+            ParametersI param = new ParametersI();
+            long id = image.getId().getValue();
+            List<RType> l = new ArrayList<RType>();
+            l.add(omero.rtypes.rlong(id));
+            param.add("imageIds", omero.rtypes.rlist(l));
+
+            
+            param.map.put("id", omero.rtypes.rlong(
+                    image.getPrimaryPixels().getId().getValue()));
+            List<IObject> files = svc.findAllByQuery(createFileSetQuery(),
+                    param);
+            List<OriginalFile> values = new ArrayList<OriginalFile>();
+            Iterator<IObject> i = files.iterator();
+            Fileset set;
+            List<FilesetEntry> entries;
+            Iterator<FilesetEntry> j;
+            while (i.hasNext()) {
+                set = (Fileset) i.next();
+                entries = set.copyUsedFiles();
+                j = entries.iterator();
+                while (j.hasNext()) {
+                    FilesetEntry fs = j.next();
+                    id = fs.getOriginalFile().getId().getValue();
+                    break;
+                }
+            }
+            store = factory.createRawFileStore();
+            store.setFileId(id);
+            long size = -1;
+            long offset = 0;
+            try {
+                try {
+                    size = store.size();
+                    for (offset = 0; (offset+INC) < size;) {
+                        stream.write(store.read(offset, INC));
+                        offset += INC;
+                    }
+                } finally {
+                    stream.write(store.read(offset, (int) (size-offset)));
+                    stream.close();
+                }
+            } catch (Exception e) {
+                if (stream != null) stream.close();
+                throw new Exception("Unable to download image", e);
+            }
+        } catch (IOException e) {
+            throw new Exception("Unable to download image", e);
+        } finally {
+            if (store != null) store.close();
+        }
+        return f;
+    }
+
+    /**
      * Exports the file with the specified extension either
      * <code>OME-XML</code> or <code>OME-TIFF</code>.
      *
@@ -448,7 +548,7 @@ public class ExporterTest extends AbstractServerTest {
             image = createImageToExport();
         }
         File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + extension);
+               + extension);
         FileOutputStream stream = new FileOutputStream(f);
         ExporterPrx store = null;
         try {
@@ -616,6 +716,31 @@ public class ExporterTest extends AbstractServerTest {
         return data;
     }
 
+    /**
+     * Test the export of an image as OME-XML.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testDowngradeImageWithAcquisition(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = download(OME_XML, IMAGE);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed, target.getSchemas());
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+    
     /**
      * Test the export of an image as OME-XML.
      * @throws Exception Thrown if an error occurred.
