@@ -109,12 +109,12 @@ class TestRFS(lib.ITest):
         rfs.close()
         assert "0123" == buf
 
-    def dummy_file(self, client):
+    def dummy_file(self):
         """
         Create an object of size 4
         """
-        ofile = self.file(client=client)
-        rfs = client.sf.createRawFileStore()
+        ofile = self.file(client=self.client)
+        rfs = self.sf.createRawFileStore()
         try:
             rfs.setFileId(ofile.id.val)
             rfs.write("0123", 0, 4)
@@ -130,7 +130,7 @@ class TestRFS(lib.ITest):
 
         # Synthetically null the size
         ofile.size = None
-        self.getUpdateService().saveObject(ofile)
+        self.update.saveObject(ofile)
 
         # Assert the size is null
         ofile = self.query.get("OriginalFile", ofile.id.val)
