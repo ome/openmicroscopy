@@ -388,7 +388,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     active_group = (request.session.get('active_group') or
                     conn.getEventContext().groupId)
     # prepare members of group...
-    leaders, members = conn.getObject("ExperimenterGroup", active_group).groupSummary()
+    leaders, members = conn.getObject(
+        "ExperimenterGroup", active_group).groupSummary()
     userIds = [u.id for u in leaders]
     userIds.extend([u.id for u in members])
     users = []
@@ -2253,7 +2254,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
                 # guests = request.REQUEST['guests']
                 enable = form.cleaned_data['enable']
                 host = "%s?server=%i" % (request.build_absolute_uri(
-                    reverse("load_template", args=["public"])), int(conn.server_id))
+                    reverse("load_template", args=["public"])),
+                    int(conn.server_id))
                 manager.updateShareOrDiscussion(
                     host, message, members, enable, expiration)
                 return HttpResponse("DONE")
@@ -2734,7 +2736,8 @@ def basket_action(request, action=None, conn=None, **kwargs):
             # guests = request.REQUEST['guests']
             enable = form.cleaned_data['enable']
             host = "%s?server=%i" % (request.build_absolute_uri(
-                reverse("load_template", args=["public"])), int(conn.server_id))
+                reverse("load_template", args=["public"])),
+                int(conn.server_id))
             share = BaseShare(conn)
             share.createShare(
                 host, images, message, members, enable, expiration)
@@ -2765,7 +2768,8 @@ def basket_action(request, action=None, conn=None, **kwargs):
             # guests = request.REQUEST['guests']
             enable = form.cleaned_data['enable']
             host = "%s?server=%i" % (request.build_absolute_uri(
-                reverse("load_template", args=["public"])), int(conn.server_id))
+                reverse("load_template", args=["public"])),
+                int(conn.server_id))
             share = BaseShare(conn)
             share.createDiscussion(host, message, members, enable, expiration)
             return HttpResponse("success")
