@@ -39,13 +39,13 @@ class TestScriptRepo(lib.ITest):
         assert repo
 
     def testGetOfficialScripts(self):
-        scriptService = self.client.sf.getScriptService()
+        scriptService = self.sf.getScriptService()
         officialScripts = scriptService.getScripts()
         count = len(officialScripts)
         assert count > 0
 
     def testGetUserScripts(self):
-        scriptService = self.client.sf.getScriptService()
+        scriptService = self.sf.getScriptService()
         myUserScripts = scriptService.getUserScripts([])
         sid = scriptService.uploadScript(
             "/test/foo.py",
@@ -63,8 +63,7 @@ class TestScriptRepo(lib.ITest):
 
     @pytest.mark.broken(ticket="11494")
     def testGetGroupScripts(self):
-        scriptService = self.client.sf.getScriptService()
-        grp = omero.model.ExperimenterGroupI(self.group.id.val, False)
+        scriptService = self.sf.getScriptService()
         client = self.new_client(self.group)
 
         sid = client.sf.getScriptService().uploadScript(
@@ -74,7 +73,8 @@ class TestScriptRepo(lib.ITest):
             OS.client("testGetGroupScripts")
             """)
 
-        myGroupScripts = scriptService.getUserScripts([grp])
+        myGroupScripts = scriptService.getUserScripts(
+            [omero.model.ExperimenterGroupI(self.group.id.val, False)])
         assert sid in [x.id.val for x in myGroupScripts]
 
     def testCantUndulyLoadScriptRepoFromUuid(self):
