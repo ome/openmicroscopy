@@ -142,6 +142,9 @@ public class ExporterTest extends AbstractServerTest {
     /** The various transforms read from the configuration file.*/
     private Map<String, List<String>> sheets;
 
+    /** The current schema.*/
+    private String currentSchema;
+
     /**
      * Validates the specified input.
      *
@@ -672,10 +675,10 @@ public class ExporterTest extends AbstractServerTest {
         try {
             DocumentBuilder builder = dbf.newDocumentBuilder();
             Document doc = builder.parse(stream);
-            String current = doc.getDocumentElement().getAttribute(CURRENT);
-            if (StringUtils.isBlank(current))
+            currentSchema = doc.getDocumentElement().getAttribute(CURRENT);
+            if (StringUtils.isBlank(currentSchema))
                 throw new Exception("No schema specified.");
-            return extractCurrentSchema(current, doc);
+            return extractCurrentSchema(currentSchema, doc);
         } catch (Exception e) {
             throw new Exception("Unable to parse the catalog.", e);
         }
@@ -764,6 +767,44 @@ public class ExporterTest extends AbstractServerTest {
         } finally {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test if an image validates.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testValidateImageWithAcquisition() throws Exception {
+        File f = null;
+        try {
+            f = download(OME_XML, IMAGE);
+            StreamSource[] schemas = new StreamSource[1];
+            schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
+                    "/released-schema/"+currentSchema+"/ome.xsd"));
+            validate(f, schemas);
+        } catch (Throwable e) {
+            throw new Exception("Cannot validate the image: ", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
+     * Test if an image validates.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testValidateImageWithROI() throws Exception {
+        File f = null;
+        try {
+            f = download(OME_XML, IMAGE_ROI);
+            StreamSource[] schemas = new StreamSource[1];
+            schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
+                    "/released-schema/"+currentSchema+"/ome.xsd"));
+            validate(f, schemas);
+        } catch (Throwable e) {
+            throw new Exception("Cannot validate the image: ", e);
+        } finally {
+            if (f != null) f.delete();
         }
     }
 
