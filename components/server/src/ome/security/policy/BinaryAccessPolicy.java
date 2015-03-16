@@ -107,19 +107,7 @@ public class BinaryAccessPolicy extends BasePolicy {
                 FilesetEntry fe = it.next();
                  if (fe != null && fe.getFileset() != null) {
                     Fileset f = fe.getFileset();
-                    try {
-                        Hibernate.initialize(f.retrieve(Fileset.IMAGES));
-                    } catch (AssertionFailure ae) {
-                        // Here we assume that someone else is trying to
-                        // load the fileset at the same time. Since the
-                        // flag will be set on the fileset, we assume that
-                        // an actual download won't be attempted. If it is,
-                        // then the policy will properly load this fileset
-                        // and throw a SecurityViolation for the original
-                        // file.
-                        continue; // i.e. don't return true.
-                    }
-                    if (f.sizeOfImages() > 0) {
+                    if (has(f, Fileset.IMAGES)) {
                         if (noImage) {
                             return true;
                         } else if (noPlate) {
@@ -127,7 +115,7 @@ public class BinaryAccessPolicy extends BasePolicy {
                             while (it2.hasNext()) {
                                 Image img = it2.next();
                                 if (img != null) {
-                                    if (img.sizeOfWellSamples() > 0) {
+                                    if (has(img, Image.WELLSAMPLES)) {
                                         return true;
                                     }
                                 }
@@ -144,7 +132,7 @@ public class BinaryAccessPolicy extends BasePolicy {
             // Note: checking noPlate first since it doesn't need to hit the DB.
             if (noPlate) {
                 Image img = (Image) obj;
-                if (img.sizeOfWellSamples() > 0) {
+                if (has(img, Image.WELLSAMPLES)) {
                     return true;
                 }
             }
@@ -192,6 +180,28 @@ public class BinaryAccessPolicy extends BasePolicy {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Test if the size of the given collection is loadable and more than 0.
+     *
+     * If an {@link AssertionFailure} is thrown,  we assume that someone else
+     * is trying to load the {@link IObject} at the same time. Since the
+     * flag will be set on an earlier {@link IObject}, we assume that
+     * an actual download won't be attempted. If it is, then the policy will
+     * properly load this {@link IObject} and throw a SecurityViolation.
+     */
+    private boolean has(IObject obj, String field) {
+        try {
+            Collection<?> c = (Collection<?>) obj.retrieve(field);
+            Hibernate.initialize(c);
+            if (c != null && !c.isEmpty()) {
+                return true;
+            }
+        } catch (AssertionFailure ae) {
+            // pass
+        }
+        return false;
     }
 
     @Override
