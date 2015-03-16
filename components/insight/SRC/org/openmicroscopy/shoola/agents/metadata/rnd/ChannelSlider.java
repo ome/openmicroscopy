@@ -100,7 +100,7 @@ class ChannelSlider
 		double max = channel.getGlobalMax();
         
 		boolean intMode = model.isIntegerPixelData();
-		
+
 		if (intMode) {
 		        int absMin = (int) (model.getLowestValue(index));
 		        int absMax = (int) (model.getHighestValue(index));
@@ -108,40 +108,31 @@ class ChannelSlider
 		                min = absMin;
 		                max = absMax;
 		        }
-		        int lowestBound = absMin;
-		        int highestBound = absMax;
-
-		        slider = new TextualTwoKnobsSlider(0, 100);
-		        
-		        slider.setValues((int)max, (int)min, (int)highestBound, (int)lowestBound,
-                                (int)max, (int)min, (int)s, (int)e);
-		        
+		        slider = new TextualTwoKnobsSlider((int) absMin, (int) absMax,
+		                (int) absMin, (int) max, (int) s, (int) e);
 		        slider.layoutComponents(
                                 TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-                        slider.setBackground(UIUtilities.BACKGROUND_COLOR);
-                        
+                slider.setBackground(UIUtilities.BACKGROUND_COLOR);
 		}
 		else {
 		    double absMin = model.getLowestValue(index);
 		    double absMax = model.getHighestValue(index);
-                    if (!channel.hasStats()) {
-                            min = absMin;
-                            max = absMax;
-                    }
-                    
-                    double lowestBound = absMin;
-                    double highestBound = absMax;
+		    if (!channel.hasStats()) {
+		        min = absMin;
+		        max = absMax;
+		    }
 
-                    slider = new TextualTwoKnobsSlider(lowestBound, highestBound);
-                    
-                    slider.setValues(max, min, highestBound, lowestBound,
-                            max, min, s, e);
-                    
-                    slider.layoutComponents(
-                            TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-                    slider.setBackground(UIUtilities.BACKGROUND_COLOR);
+		    double lowestBound = absMin;
+		    double highestBound = absMax;
+
+		    slider = new TextualTwoKnobsSlider(min, max,
+		            absMin, absMax, s, e);
+		    slider = new TextualTwoKnobsSlider(lowestBound, highestBound);
+		    slider.layoutComponents(
+		            TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+		    slider.setBackground(UIUtilities.BACKGROUND_COLOR);
 		}
-        
+
         slider.getSlider().setPaintLabels(false);
         slider.getSlider().setPaintEndLabels(false);
         slider.getSlider().setPaintTicks(false);
@@ -249,30 +240,33 @@ class ChannelSlider
 		slider.setInterval(s, e);
 	}
 	
-    /** 
-     * Modifies the input range of the channel sliders. 
-     * 
-     *  @param absolute Pass <code>true</code> to set it to the absolute value,
+	/** 
+	 * Modifies the input range of the channel sliders. 
+	 * 
+	 *  @param absolute Pass <code>true</code> to set it to the absolute value,
 	 *  				<code>false</code> to the minimum and maximum.
 	 */
 	void setInputRange(boolean absolute)
 	{
-		int index = channel.getIndex();
-    	double s = model.getWindowStart(index);
-    	double e = model.getWindowEnd(index);
-    	double min = channel.getGlobalMin();
-    	double max = channel.getGlobalMax();
-       
-    	double absMin = model.getLowestValue(index);
-    	double absMax = model.getHighestValue(index);
-    	
-        if (absolute)
-        	slider.getSlider().setValues(absMax, absMin, absMax, absMin, s, e);
-        else 
-        	slider.getSlider().setValues(max, min, max, min, s, e);
+	    int index = channel.getIndex();
+	    double s = model.getWindowStart(index);
+	    double e = model.getWindowEnd(index);
+	    double min = channel.getGlobalMin();
+	    double max = channel.getGlobalMax();
+
+	    double absMin = model.getLowestValue(index);
+	    double absMax = model.getHighestValue(index);
+
+	    if (!channel.hasStats()) {
+	        min = absMin;
+	        max = absMax;
+	    }
+	    if (absolute)
+	        slider.getSlider().setValues(absMax, absMin, absMax, absMin, s, e);
+	    else 
+	        slider.getSlider().setValues(max, min, max, min, s, e);
 	}
-	
-	
+
 	/** Toggles between color model and Greyscale. */
     void setColorModelChanged() 
     {
