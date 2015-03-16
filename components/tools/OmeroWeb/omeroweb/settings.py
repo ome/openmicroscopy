@@ -944,7 +944,7 @@ PIPELINE_JS = {
             '3rdparty/panojs/control_svg.js',
             '3rdparty/panojs/control_roi.js',
             '3rdparty/panojs/control_scalebar.js',
-            '3rdparty/hammer/hammer.min.js',
+            '3rdparty/hammer-2.0.2/hammer.min.js',
             'webgateway/js/ome.gs_utils.js',
             'webgateway/js/ome.viewportImage.js',
             'webgateway/js/ome.gs_slider.js',
