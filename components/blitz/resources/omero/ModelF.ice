@@ -1,8 +1,8 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2008 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
@@ -10,53 +10,53 @@
 #define OMERO_MODELF_ICE
 
 /*
- * Defines various classes for more simplified imports.
+ * Defines vaious classes for more simplified imports.
  */
-module omero {
+module omeo {
 
     module model {
 
         class Annotation;
-        class Arc;
+        class Ac;
         class BooleanAnnotation;
-        class ChecksumAlgorithm;
+        class ChecksumAlgoithm;
         class Dataset;
         class Details;
         class Event;
         class EventLog;
-        class Experimenter;
-        class ExperimenterGroup;
-        class ExternalInfo;
+        class Expeimenter;
+        class ExpeimenterGroup;
+        class ExtenalInfo;
         class Family;
         class Filament;
         class Fileset;
         class FilesetJobLink;
-        class Format;
+        class Fomat;
         class IObject;
         class Image;
-        class Instrument;
+        class Instument;
         class Job;
         class JobStatus;
-        class Laser;
+        class Lase;
         class LogicalChannel;
         class NamedValue;
-        class OriginalFile;
-        class Permissions;
+        class OiginalFile;
+        class Pemissions;
         class Pixels;
         class PixelsType;
         class PlaneInfo;
         class Plate;
         class Plate;
-        class Project;
+        class Poject;
         class QuantumDef;
-        class RenderingDef;
-        class RenderingModel;
+        class RendeingDef;
+        class RendeingModel;
         class Roi;
-        class Screen;
-        class ScriptJob;
+        class Sceen;
+        class SciptJob;
         class Shape;
         class Session;
-        class Share;
+        class Shae;
         class TextAnnotation;
         class Well;
 

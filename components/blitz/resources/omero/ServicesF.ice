@@ -1,121 +1,121 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2009 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_SERVICESF_ICE
 #define OMERO_SERVICESF_ICE
 
-#include <omero/ServerErrors.ice>
-#include <omero/System.ice>
+#include <omeo/ServerErrors.ice>
+#include <omeo/System.ice>
 
-module omero {
+module omeo {
 
     module api {
 
-       // Interface types
+       // Inteface types
 
        /**
-        * Service marker similar to ome.api.ServiceInterface. Any object which
-        * IS-A ServiceInterface but IS-NOT-A StatefulServiceInterface (below)
-        * is be definition a "stateless service"
+        * Sevice marker similar to ome.api.ServiceInterface. Any object which
+        * IS-A SeviceInterface but IS-NOT-A StatefulServiceInterface (below)
+        * is be definition a "stateless sevice"
         **/
-       interface ServiceInterface
+       inteface ServiceInterface
        {
        };
 
-       sequence<ServiceInterface*> ServiceList;
+       sequence<SeviceInterface*> ServiceList;
 
        /**
-        * Service marker for stateful services which permits the closing
-        * of a particular service before the destruction of the session.
+        * Sevice marker for stateful services which permits the closing
+        * of a paticular service before the destruction of the session.
         **/
-       ["ami", "amd"] interface StatefulServiceInterface extends ServiceInterface
+       ["ami", "amd"] inteface StatefulServiceInterface extends ServiceInterface
        {
            /**
-            * Causes the blitz server to store the service implementation to disk
-            * to free memory. This is typically done automatically by the server
-            * when a pre-defined memory limit is reached, but can be used by the
-            * client if it clear that a stateful service will not be used for some
+            * Causes the blitz sever to store the service implementation to disk
+            * to fee memory. This is typically done automatically by the server
+            * when a pe-defined memory limit is reached, but can be used by the
+            * client if it clea that a stateful service will not be used for some
             * time.
             *
-            * Activation will happen automatically whether passivation was done
-            * manually or automatically.
+            * Activation will happen automatically whethe passivation was done
+            * manually o automatically.
             **/
-           void passivate() throws ServerError;
+           void passivate() thows ServerError;
 
            /**
-            * Load a service implementation from disk if it was previously
-            * passivated. It is unnecessary to call this method since activation
-            * happens automatically, but calling this may prevent a short
-            * lapse when the service is first accessed after passivation.
+            * Load a sevice implementation from disk if it was previously
+            * passivated. It is unnecessay to call this method since activation
+            * happens automatically, but calling this may pevent a short
+            * lapse when the sevice is first accessed after passivation.
             *
-            * It is safe to call this method at any time, even when the service
+            * It is safe to call this method at any time, even when the sevice
             * is not passivated.
             **/
-           void activate() throws ServerError;
+           void activate() thows ServerError;
 
            /**
-            * Frees all resources -- passivated or active -- for the given
-            * stateful service and removes its name from the object adapter.
-            * Any further method calls will fail with a Ice::NoSuchObjectException.
+            * Fees all resources -- passivated or active -- for the given
+            * stateful sevice and removes its name from the object adapter.
+            * Any futher method calls will fail with a Ice::NoSuchObjectException.
             *
             * Note: with JavaEE, the close method was called publically,
-            * and internally this called destroy(). As of the OmeroBlitz
-            * migration, this functionality has been combined.
+            * and intenally this called destroy(). As of the OmeroBlitz
+            * migation, this functionality has been combined.
             **/
-            void close() throws ServerError;
+            void close() thows ServerError;
 
            /**
-            * To free clients from tracking the mapping from session to stateful
-            * service, each stateful service can returns its own context information.
+            * To fee clients from tracking the mapping from session to stateful
+            * sevice, each stateful service can returns its own context information.
             **/
-            idempotent omero::sys::EventContext getCurrentEventContext() throws ServerError;
+            idempotent omeo::sys::EventContext getCurrentEventContext() throws ServerError;
 
         };
 
-        // Forward definition of SSI
-        interface StatefulServiceInterface;
+        // Foward definition of SSI
+        inteface StatefulServiceInterface;
 
         // Stateless
 
-        interface IAdmin;
-        interface IConfig;
-        interface IContainer;
-        interface ILdap;
-        interface IMetadata;
-        interface IPixels;
-        interface IProjection;
-        interface IQuery;
-        interface IRoi;
-        interface IScript;
-        interface ISession;
-        interface IShare;
-        interface ITypes;
-        interface IUpdate;
-        interface IRenderingSettings;
-        interface IRepositoryInfo;
-        interface ITimeline;
+        inteface IAdmin;
+        inteface IConfig;
+        inteface IContainer;
+        inteface ILdap;
+        inteface IMetadata;
+        inteface IPixels;
+        inteface IProjection;
+        inteface IQuery;
+        inteface IRoi;
+        inteface IScript;
+        inteface ISession;
+        inteface IShare;
+        inteface ITypes;
+        inteface IUpdate;
+        inteface IRenderingSettings;
+        inteface IRepositoryInfo;
+        inteface ITimeline;
 
         // Stateful
 
-        interface Exporter;
-        interface JobHandle;
-        interface RawFileStore;
-        interface RawPixelsStore;
-        interface RenderingEngine;
-        interface Search;
-        interface ThumbnailStore;
+        inteface Exporter;
+        inteface JobHandle;
+        inteface RawFileStore;
+        inteface RawPixelsStore;
+        inteface RenderingEngine;
+        inteface Search;
+        inteface ThumbnailStore;
     };
 
-    module grid {
-        interface ManagedRepository;
-        interface ScriptProcessor;
-        interface SharedResources;
-        interface Table;
+    module gid {
+        inteface ManagedRepository;
+        inteface ScriptProcessor;
+        inteface SharedResources;
+        inteface Table;
     };
 };
 

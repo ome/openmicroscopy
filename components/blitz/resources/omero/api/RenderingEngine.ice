@@ -1,77 +1,77 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_RENDERINGENGINE_ICE
 #define OMERO_API_RENDERINGENGINE_ICE
 
-#include <omero/ModelF.ice>
-#include <omero/Collections.ice>
-#include <omero/ROMIO.ice>
-#include <omero/Constants.ice>
-#include <omero/api/PyramidService.ice>
+#include <omeo/ModelF.ice>
+#include <omeo/Collections.ice>
+#include <omeo/ROMIO.ice>
+#include <omeo/Constants.ice>
+#include <omeo/api/PyramidService.ice>
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/omeis/re/providers/RenderingEngine.html">RenderingEngine.html</a>
+         * See <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/omeis/re/providers/RenderingEngine.html">RenderingEngine.html</a>
          **/
-        ["ami", "amd"] interface RenderingEngine extends PyramidService
+        ["ami", "amd"] inteface RenderingEngine extends PyramidService
             {
-                idempotent omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
-                idempotent Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
-                idempotent Ice::IntSeq renderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
-                idempotent Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
-                idempotent Ice::ByteSeq renderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
-                idempotent long getRenderingDefId() throws ServerError;
-                idempotent void lookupPixels(long pixelsId) throws ServerError;
-                idempotent bool lookupRenderingDef(long pixelsId) throws ServerError;
-                idempotent void loadRenderingDef(long renderingDefId) throws ServerError;
-                idempotent void setOverlays(omero::RLong tablesId, omero::RLong imageId, LongIntMap rowColorMap) throws ServerError;
-                idempotent void load() throws ServerError;
-                idempotent void setModel(omero::model::RenderingModel model) throws ServerError;
-                idempotent omero::model::RenderingModel getModel() throws ServerError;
-                idempotent int getDefaultZ() throws ServerError;
-                idempotent int getDefaultT() throws ServerError;
-                idempotent void setDefaultZ(int z) throws ServerError;
-                idempotent void setDefaultT(int t) throws ServerError;
-                idempotent omero::model::Pixels getPixels() throws ServerError;
-                idempotent IObjectList getAvailableModels() throws ServerError;
-                idempotent IObjectList getAvailableFamilies() throws ServerError;
-                idempotent void setQuantumStrategy(int bitResolution) throws ServerError;
-                idempotent void setCodomainInterval(int start, int end) throws ServerError;
-                idempotent omero::model::QuantumDef getQuantumDef() throws ServerError;
-                idempotent void setQuantizationMap(int w, omero::model::Family fam, double coefficient, bool noiseReduction) throws ServerError;
-                idempotent omero::model::Family getChannelFamily(int w) throws ServerError;
-                idempotent bool getChannelNoiseReduction(int w) throws ServerError;
-                idempotent Ice::DoubleSeq getChannelStats(int w) throws ServerError;
-                idempotent double getChannelCurveCoefficient(int w) throws ServerError;
-                idempotent void setChannelWindow(int w, double start, double end) throws ServerError;
-                idempotent double getChannelWindowStart(int w) throws ServerError;
-                idempotent double getChannelWindowEnd(int w) throws ServerError;
-                idempotent void setRGBA(int w, int red, int green, int blue, int alpha) throws ServerError;
-                idempotent Ice::IntSeq getRGBA(int w) throws ServerError;
-                idempotent void setActive(int w, bool active) throws ServerError;
-                idempotent bool isActive(int w) throws ServerError;
-                idempotent void setChannelLookupTable(int w, string lookup) throws ServerError;
-                idempotent string getChannelLookupTable(int w) throws ServerError;
-                void addCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
-                void updateCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
-                void removeCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
-                void saveCurrentSettings() throws ServerError;
-                long saveAsNewSettings() throws ServerError;
-                long resetDefaultSettings(bool save) throws ServerError;
-                idempotent void setCompressionLevel(float percentage) throws ServerError;
-                idempotent float getCompressionLevel() throws ServerError;
-                idempotent bool isPixelsTypeSigned() throws ServerError;
-                idempotent double getPixelsTypeUpperBound(int w) throws ServerError;
-                idempotent double getPixelsTypeLowerBound(int w) throws ServerError;
+                idempotent omeo::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
+                idempotent Ice::IntSeq enderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
+                idempotent Ice::IntSeq enderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+                idempotent Ice::ByteSeq enderCompressed(omero::romio::PlaneDef def) throws ServerError;
+                idempotent Ice::ByteSeq enderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+                idempotent long getRendeingDefId() throws ServerError;
+                idempotent void lookupPixels(long pixelsId) thows ServerError;
+                idempotent bool lookupRendeingDef(long pixelsId) throws ServerError;
+                idempotent void loadRendeingDef(long renderingDefId) throws ServerError;
+                idempotent void setOvelays(omero::RLong tablesId, omero::RLong imageId, LongIntMap rowColorMap) throws ServerError;
+                idempotent void load() thows ServerError;
+                idempotent void setModel(omeo::model::RenderingModel model) throws ServerError;
+                idempotent omeo::model::RenderingModel getModel() throws ServerError;
+                idempotent int getDefaultZ() thows ServerError;
+                idempotent int getDefaultT() thows ServerError;
+                idempotent void setDefaultZ(int z) thows ServerError;
+                idempotent void setDefaultT(int t) thows ServerError;
+                idempotent omeo::model::Pixels getPixels() throws ServerError;
+                idempotent IObjectList getAvailableModels() thows ServerError;
+                idempotent IObjectList getAvailableFamilies() thows ServerError;
+                idempotent void setQuantumStategy(int bitResolution) throws ServerError;
+                idempotent void setCodomainInteval(int start, int end) throws ServerError;
+                idempotent omeo::model::QuantumDef getQuantumDef() throws ServerError;
+                idempotent void setQuantizationMap(int w, omeo::model::Family fam, double coefficient, bool noiseReduction) throws ServerError;
+                idempotent omeo::model::Family getChannelFamily(int w) throws ServerError;
+                idempotent bool getChannelNoiseReduction(int w) thows ServerError;
+                idempotent Ice::DoubleSeq getChannelStats(int w) thows ServerError;
+                idempotent double getChannelCuveCoefficient(int w) throws ServerError;
+                idempotent void setChannelWindow(int w, double stat, double end) throws ServerError;
+                idempotent double getChannelWindowStat(int w) throws ServerError;
+                idempotent double getChannelWindowEnd(int w) thows ServerError;
+                idempotent void setRGBA(int w, int ed, int green, int blue, int alpha) throws ServerError;
+                idempotent Ice::IntSeq getRGBA(int w) thows ServerError;
+                idempotent void setActive(int w, bool active) thows ServerError;
+                idempotent bool isActive(int w) thows ServerError;
+                idempotent void setChannelLookupTable(int w, sting lookup) throws ServerError;
+                idempotent sting getChannelLookupTable(int w) throws ServerError;
+                void addCodomainMap(omeo::romio::CodomainMapContext mapCtx) throws ServerError;
+                void updateCodomainMap(omeo::romio::CodomainMapContext mapCtx) throws ServerError;
+                void emoveCodomainMap(omero::romio::CodomainMapContext mapCtx) throws ServerError;
+                void saveCurentSettings() throws ServerError;
+                long saveAsNewSettings() thows ServerError;
+                long esetDefaultSettings(bool save) throws ServerError;
+                idempotent void setCompessionLevel(float percentage) throws ServerError;
+                idempotent float getCompessionLevel() throws ServerError;
+                idempotent bool isPixelsTypeSigned() thows ServerError;
+                idempotent double getPixelsTypeUppeBound(int w) throws ServerError;
+                idempotent double getPixelsTypeLoweBound(int w) throws ServerError;
 
             };
     };

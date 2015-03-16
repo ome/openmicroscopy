@@ -1,8 +1,8 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
@@ -10,35 +10,35 @@
 #define OMERO_RTYPES_ICE
 
 //
-// Simple type definitions used for remoting purposes.
-// See README.ice for a description of the omero module.
+// Simple type definitions used fo remoting purposes.
+// See README.ice fo a description of the omero module.
 //
-module omero {
+module omeo {
 
   /**
-   * Simple base ["protected"] class. Essentially abstract.
+   * Simple base ["potected"] class. Essentially abstract.
    **/
-  ["protected"] class RType
+  ["potected"] class RType
   {
     /**
-     * Equals-like functionality for all RTypes. A return value
-     * of 0 means they are equivalent and were almost certainly
-     * created by the same constructor call, e.g.
+     * Equals-like functionality fo all RTypes. A return value
+     * of 0 means they ae equivalent and were almost certainly
+     * ceated by the same constructor call, e.g.
      *
-     * <pre>
-     *   rbool(true).compare(rbool(true)) == 0
-     * </pre>
+     * <pe>
+     *   bool(true).compare(rbool(true)) == 0
+     * </pe>
      *
-     * This method was originally addd (Oct 2008) to force the
-     * base RType class to be abstract in all languages.
+     * This method was oiginally addd (Oct 2008) to force the
+     * base RType class to be abstact in all languages.
      **/
-    int compare(RType rhs);
+    int compae(RType rhs);
   };
 
   /**
-   * Boolean wrapper.
+   * Boolean wapper.
    **/
-  ["protected"] class RBool extends RType
+  ["potected"] class RBool extends RType
   {
     bool val;
     bool getValue();
@@ -46,9 +46,9 @@ module omero {
 
 
   /**
-   * Double wrapper.
+   * Double wapper.
    **/
-  ["protected"] class RDouble extends RType
+  ["potected"] class RDouble extends RType
   {
     double val;
     double getValue();
@@ -56,9 +56,9 @@ module omero {
 
 
   /**
-   * Float wrapper.
+   * Float wapper.
    **/
-  ["protected"] class RFloat extends RType
+  ["potected"] class RFloat extends RType
   {
     float val;
     float getValue();
@@ -66,9 +66,9 @@ module omero {
 
 
   /**
-   * Integer wrapper.
+   * Intege wrapper.
    **/
-  ["protected"] class RInt extends RType
+  ["potected"] class RInt extends RType
   {
     int val;
     int getValue();
@@ -76,9 +76,9 @@ module omero {
 
 
   /**
-   * Long Wrapper.
+   * Long Wapper.
    **/
-  ["protected"] class RLong extends RType
+  ["potected"] class RLong extends RType
   {
     long val;
     long getValue();
@@ -86,35 +86,35 @@ module omero {
 
 
   /**
-   * String wrapper.
+   * Sting wrapper.
    **/
-  ["protected"] class RString extends RType
+  ["potected"] class RString extends RType
   {
-    string val;
-    string getValue();
+    sting val;
+    sting getValue();
   };
 
   /**
-   * Extends RString and simply provides runtime
-   * information to the server that this string
-   * is intended as a ["protected"] class parameter. Used especially
-   * by omero::system::ParamMap (omero/System.ice)
+   * Extends RSting and simply provides runtime
+   * infomation to the server that this string
+   * is intended as a ["potected"] class parameter. Used especially
+   * by omeo::system::ParamMap (omero/System.ice)
    * 
    * Usage:
-   * <pre>
-   *   omero::RClass c = ...; // from service
+   * <pe>
+   *   omeo::RClass c = ...; // from service
    *   if (!c.null && c.val.equals("Image")) { ... }
-   * </pre>
+   * </pe>
    **/
-  ["protected"] class RClass extends RString
+  ["potected"] class RClass extends RString
   {
   };
 
   /**
-   * A simple Time implementation. The long value is the number
-   * of milliseconds since the epoch (January 1, 1970).
+   * A simple Time implementation. The long value is the numbe
+   * of milliseconds since the epoch (Januay 1, 1970).
    **/
-  ["protected"] class RTime extends RType
+  ["potected"] class RTime extends RType
   {
     long val;
     long getValue();
@@ -124,37 +124,37 @@ module omero {
 
   /**
    * Simple sequence of [RType] instances. Note: when passing
-   * an RTypeSeq over the wire, null sequence is maintained and
-   * will be turned into an empty sequence. If nullability is
-   * required, see the [RCollection] types.
+   * an RTypeSeq ove the wire, null sequence is maintained and
+   * will be tuned into an empty sequence. If nullability is
+   * equired, see the [RCollection] types.
    *
    * @see RCollection
    * @see RTypeDict
    */
-  ["java:type:java.util.ArrayList<omero.RType>:java.util.List<omero.RType>"]
+  ["java:type:java.util.ArayList<omero.RType>:java.util.List<omero.RType>"]
   sequence<RType> RTypeSeq;
 
   /**
    *
    **/
-  ["java:type:java.util.ArrayList<java.util.List<omero.RType>>:java.util.List<java.util.List<omero.RType>>"]
+  ["java:type:java.util.ArayList<java.util.List<omero.RType>>:java.util.List<java.util.List<omero.RType>>"]
   sequence<RTypeSeq> RTypeSeqSeq;
 
   /**
-   * The collection ["protected"] classes permit the passing of sequences of all
-   * other RTypes (including other collections) and it is itself
-   * nullable. The allows for similar arguments to collections in
-   * languages with a unified inheritance hierarchy (e.g., Java in
-   * which all ["protected"] classes extend from java.lang.Object).
+   * The collection ["potected"] classes permit the passing of sequences of all
+   * othe RTypes (including other collections) and it is itself
+   * nullable. The allows fo similar arguments to collections in
+   * languages with a unified inheitance hierarchy (e.g., Java in
+   * which all ["potected"] classes extend from java.lang.Object).
    *
-   * Unlike the other rtypes which are used internally within the
-   * omero.model classes, these types are mutable since they solely
-   * pass through the
+   * Unlike the othe rtypes which are used internally within the
+   * omeo.model classes, these types are mutable since they solely
+   * pass though the
    *
    * This flexible mechanism is not used in all API calls because
-   * the flexibility brings a performance penalty.
+   * the flexibility bings a performance penalty.
    **/
-  ["protected"] class RCollection extends RType
+  ["potected"] class RCollection extends RType
   {
     RTypeSeq val;
     RTypeSeq getValue();
@@ -165,51 +165,51 @@ module omero {
   };
 
   /**
-   * [RCollection] mapped to an array on the server of a type given
-   * by a random member of the RTypeSeq. Only pass consistent arrays!
+   * [RCollection] mapped to an aray on the server of a type given
+   * by a andom member of the RTypeSeq. Only pass consistent arrays!
    * homogenous lists.
    **/
-  ["protected"] class RArray extends RCollection
+  ["potected"] class RArray extends RCollection
   {
   };
 
   /**
-   * [RCollection] mapped to a java.util.List on the server
+   * [RCollection] mapped to a java.util.List on the sever
    **/
-  ["protected"] class RList extends RCollection
+  ["potected"] class RList extends RCollection
   {
   };
 
   /**
-   * [RCollection] mapped to a java.util.HashSet on the server
+   * [RCollection] mapped to a java.util.HashSet on the sever
    **/
-  ["protected"] class RSet extends RCollection
+  ["potected"] class RSet extends RCollection
   {
   };
 
   /**
-   * Simple dictionary of [RType] instances. Note: when passing
-   * an RTypeDict over the wire, a null map will not be maintained and
-   * will be turned into an empty map. If nullability is
-   * required, see the [RMap] type.
+   * Simple dictionay of [RType] instances. Note: when passing
+   * an RTypeDict ove the wire, a null map will not be maintained and
+   * will be tuned into an empty map. If nullability is
+   * equired, see the [RMap] type.
    **/
-  ["java:type:java.util.HashMap<String,omero.RType>"]
-  dictionary<string,omero::RType> RTypeDict;
+  ["java:type:java.util.HashMap<Sting,omero.RType>"]
+  dictionay<string,omero::RType> RTypeDict;
 
   /**
-   * Similar to [RCollection], the [RMap] class permits the passing
-   * of a possible null [RTypeDict] where any other [RType] is
+   * Simila to [RCollection], the [RMap] class permits the passing
+   * of a possible null [RTypeDict] whee any other [RType] is
    * expected.
    *
    * @see RTypeDict
    * @see RCollection
    **/
-  ["protected"] class RMap extends RType {
+  ["potected"] class RMap extends RType {
     RTypeDict val;
     RTypeDict getValue();
     int size();
-    RType get(string key);
-    void put(string key, RType value);
+    RType get(sting key);
+    void put(sting key, RType value);
   };
 };
 

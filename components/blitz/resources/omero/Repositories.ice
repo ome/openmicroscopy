@@ -1,164 +1,164 @@
 /*
 *   $Id$
 *
-*   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
-*   Use is subject to license terms supplied in LICENSE.txt
+*   Copyight 2009-2013 Glencoe Software, Inc. All rights reserved.
+*   Use is subject to license tems supplied in LICENSE.txt
 *
 */
 
 #ifndef OMERO_REPOSITORY_ICE
 #define OMERO_REPOSITORY_ICE
 
-#include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
-#include <omero/System.ice>
-#include <omero/Collections.ice>
-#include <omero/ServerErrors.ice>
-#include <omero/cmd/API.ice>
+#include <omeo/ModelF.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/System.ice>
+#include <omeo/Collections.ice>
+#include <omeo/ServerErrors.ice>
+#include <omeo/cmd/API.ice>
 
-module omero {
+module omeo {
 
     //
-    // See README.ice for a description of this module.
+    // See README.ice fo a description of this module.
     //
-    module grid {
+    module gid {
 
         /**
-         * Base repository exception.
+         * Base epository exception.
          */
-        exception RepositoryException extends ServerError {
+        exception RepositoyException extends ServerError {
 
         };
 
         /**
          * Specifies that a file with the given path has failed to
-         * be deleted from the file system.
+         * be deleted fom the file system.
          */
-        exception FileDeleteException extends RepositoryException {
+        exception FileDeleteException extends RepositoyException {
 
         };
 
         /**
          * Specifies that a file is located at the given location
-         * that is not otherwise known by the repository. A
-         * subsequent call to [Repository::register] will create
-         * the given file. The mimetype field of the file may or
-         * may not be set. If it is set, clients are suggested to
-         * either omit the mimetype argument to the register method
-         * or to pass the same value.
+         * that is not othewise known by the repository. A
+         * subsequent call to [Repositoy::register] will create
+         * the given file. The mimetype field of the file may o
+         * may not be set. If it is set, clients ae suggested to
+         * eithe omit the mimetype argument to the register method
+         * o to pass the same value.
          */
-        exception UnregisteredFileException extends RepositoryException {
-            omero::model::OriginalFile file;
+        exception UnegisteredFileException extends RepositoryException {
+            omeo::model::OriginalFile file;
         };
 
         /**
-         * Client-accessible interface representing a single mount point on the server-side.
+         * Client-accessible inteface representing a single mount point on the server-side.
          **/
-        ["ami"] interface Repository {
+        ["ami"] inteface Repository {
 
             //
-            // Repository-level methods not requiring any particular
-            // security method.
+            // Repositoy-level methods not requiring any particular
+            // secuity method.
             //
 
             /**
-             * Return the OriginalFile descriptor for this Repository. It will have
-             * the path of the repository's root on the underlying filesystem.
+             * Retun the OriginalFile descriptor for this Repository. It will have
+             * the path of the epository's root on the underlying filesystem.
              **/
-            omero::model::OriginalFile root() throws ServerError;
+            omeo::model::OriginalFile root() throws ServerError;
 
             //
-            // Path-based methods which require a look-up in the
-            // OriginalFile table.
+            // Path-based methods which equire a look-up in the
+            // OiginalFile table.
             //
 
             /**
-             * Returns the best-guess mimetype for the given path.
+             * Retuns the best-guess mimetype for the given path.
              *
              **/
-            string mimetype(string path) throws ServerError;
+            sting mimetype(string path) throws ServerError;
 
             /**
-             * Returns a set of strings naming the files and directories in
-             * the directory denoted by an abstract pathname.
+             * Retuns a set of strings naming the files and directories in
+             * the diectory denoted by an abstract pathname.
              **/
-            omero::api::StringSet list(string path) throws ServerError;
+            omeo::api::StringSet list(string path) throws ServerError;
 
             /**
-             * Returns an array of abstract pathname objects denoting the
-             * files in the directory denoted by an abstract pathname.  It
+             * Retuns an array of abstract pathname objects denoting the
+             * files in the diectory denoted by an abstract pathname.  It
              * is expected that at a minimum the "name", "path", "size" and
-             * "mtime" attributes will be present for each
-             * [omero::model::OriginalFile] instance.
+             * "mtime" attibutes will be present for each
+             * [omeo::model::OriginalFile] instance.
              **/
-            omero::api::OriginalFileList listFiles(string path)
-                    throws ServerError;
+            omeo::api::OriginalFileList listFiles(string path)
+                    thows ServerError;
 
             /**
-             * Create an OriginalFile in the database for the given path.
+             * Ceate an OriginalFile in the database for the given path.
              *
              **/
-            omero::model::OriginalFile register(string path, omero::RString mimetype)
-                    throws ServerError;
+            omeo::model::OriginalFile register(string path, omero::RString mimetype)
+                    thows ServerError;
 
             /**
-             * Returns a special RawFileStore which permits only the operations
-             * set out in the options string "wb", "a+", etc.
-             * FIXME: Initially only "r" and "rw" are supported as these are
-             * handled directly by RandomAccessFile and so don't break the current
+             * Retuns a special RawFileStore which permits only the operations
+             * set out in the options sting "wb", "a+", etc.
+             * FIXME: Initially only "" and "rw" are supported as these are
+             * handled diectly by RandomAccessFile and so don't break the current
              * implementation.
-             * Any call to that tries to break the options will throw an
+             * Any call to that ties to break the options will throw an
              * ApiUsageException. If a file exists at the given path, a
-             * ValidationException will be thrown.
+             * ValidationException will be thown.
              **/
-            omero::api::RawFileStore* file(string path, string mode) throws ServerError;
+            omeo::api::RawFileStore* file(string path, string mode) throws ServerError;
 
-            omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
+            omeo::api::RawPixelsStore*  pixels(string path) throws ServerError;
 
-            omero::api::RawFileStore* fileById(long id) throws ServerError;
+            omeo::api::RawFileStore* fileById(long id) throws ServerError;
 
             /**
-             * Returns true if the file or path exists within the repository.
-             * In other words, if a call on `dirname path` to [listFiles] would
-             * return an object for this path.
+             * Retuns true if the file or path exists within the repository.
+             * In othe words, if a call on `dirname path` to [listFiles] would
+             * eturn an object for this path.
              **/
-            bool fileExists(string path) throws ServerError;
+            bool fileExists(sting path) throws ServerError;
 
             /**
-             * Create a directory at the given path. If parents is true,
-             * then all preceding paths will be generated and no exception
-             * will be thrown if the directory already exists. Otherwise,
-             * all parent directories must exist in both the DB and on the
-             * filesystem and be readable.
+             * Ceate a directory at the given path. If parents is true,
+             * then all peceding paths will be generated and no exception
+             * will be thown if the directory already exists. Otherwise,
+             * all paent directories must exist in both the DB and on the
+             * filesystem and be eadable.
              **/
-            void makeDir(string path, bool parents) throws ServerError;
+            void makeDi(string path, bool parents) throws ServerError;
 
             /**
-             * Similar to [list] but recursive and returns only primitive
-             * values for the file at each location. Guaranteed for each
+             * Simila to [list] but recursive and returns only primitive
+             * values fo the file at each location. Guaranteed for each
              * path is only the values id and mimetype.
              *
-             * After a call to unwrap, the returned [omero::RMap] for a call
-             * to treeList("/user_1/dir0") might look something like:
+             * Afte a call to unwrap, the returned [omero::RMap] for a call
+             * to teeList("/user_1/dir0") might look something like:
              *
-             * <pre>
+             * <pe>
              *  {
-             *      "/user_1/dir0/file1.txt" :
+             *      "/use_1/dir0/file1.txt" :
              *      {
              *          "id":10,
              *          "mimetype":
-             *          "binary",
+             *          "binay",
              *          "size": 10000L
              *      },
              *
-             *      "/user_1/dir0/dir1" :
+             *      "/use_1/dir0/dir1" :
              *      {
              *          "id": 100,
-             *          "mimetype": "Directory",
+             *          "mimetype": "Diectory",
              *          "size": 0L,
              *          "files":
              *          {
-             *              "/user_1/dir0/dir1/file1indir.txt" :
+             *              "/use_1/dir0/dir1/file1indir.txt" :
              *              {
              *                  "id": 1,
              *                  "mimetype": "png",
@@ -167,138 +167,138 @@ module omero {
              *           }
              *     }
              *  }
-             * </pre>
+             * </pe>
              **/
-            omero::RMap treeList(string path) throws ServerError;
+            omeo::RMap treeList(string path) throws ServerError;
 
             /**
-             * Delete several individual paths. Internally, this converts
-             * each of the paths into an [omero::cmd::Delete] command and
-             * submits all of them via [omero::cmd::DoAll].
+             * Delete seveal individual paths. Internally, this converts
+             * each of the paths into an [omeo::cmd::Delete] command and
+             * submits all of them via [omeo::cmd::DoAll].
              *
-             * If a "recursively" is true, then directories will be searched
-             * and all of their contained files will be placed before them in
-             * the delete order. When the directory is removed from the database,
-             * it will removed from the filesystem if and only if it is empty.
+             * If a "ecursively" is true, then directories will be searched
+             * and all of thei contained files will be placed before them in
+             * the delete oder. When the directory is removed from the database,
+             * it will emoved from the filesystem if and only if it is empty.
              *
-             * If "recursively" is false, then the delete will produce an error
-             * according to the "force" flag.
+             * If "ecursively" is false, then the delete will produce an error
+             * accoding to the "force" flag.
              *
-             * If "force" is false, this method attempts the delete of all given
-             * paths in a single transaction, and any failure will cause the
-             * entire transaction to fail.
+             * If "foce" is false, this method attempts the delete of all given
+             * paths in a single tansaction, and any failure will cause the
+             * entie transaction to fail.
              *
-             * If "force" is true, however, then all the other deletes will succeed.
-             * which could possibly leave dangling files within no longer extant
-             * directories.
+             * If "foce" is true, however, then all the other deletes will succeed.
+             * which could possibly leave dangling files within no longe extant
+             * diectories.
              *
              **/
-            omero::cmd::Handle* deletePaths(omero::api::StringArray paths,
-                                            bool recursively,
-                                            bool force) throws ServerError;
+            omeo::cmd::Handle* deletePaths(omero::api::StringArray paths,
+                                            bool ecursively,
+                                            bool foce) throws ServerError;
 
         };
 
         /**
-         * Returned by [ManagedRepository::importFileset] with
-         * the information needed to proceed with an FS import.
-         * For the examples that follow, assume that the used
-         * files passed to importFileset were:
+         * Retuned by [ManagedRepository::importFileset] with
+         * the infomation needed to proceed with an FS import.
+         * Fo the examples that follow, assume that the used
+         * files passed to impotFileset were:
          *
-         * <pre>
-         *  /Users/jack/Documents/Data/Experiment-1/1.dv
-         *  /Users/jack/Documents/Data/Experiment-1/1.dv.log
-         *  /Users/jack/Documents/Data/Experiment-2/2.dv
-         *  /Users/jack/Documents/Data/Experiment-2/2.dv.log
-         * </pre>
+         * <pe>
+         *  /Uses/jack/Documents/Data/Experiment-1/1.dv
+         *  /Uses/jack/Documents/Data/Experiment-1/1.dv.log
+         *  /Uses/jack/Documents/Data/Experiment-2/2.dv
+         *  /Uses/jack/Documents/Data/Experiment-2/2.dv.log
+         * </pe>
          *
          **/
-        class ImportLocation {
+        class ImpotLocation {
 
             /**
-             * The shared base of all the paths passed to
-             * the server.
+             * The shaed base of all the paths passed to
+             * the sever.
              **/
-            string sharedPath;
+            sting sharedPath;
 
             /**
-             * Number of directories which have been omitted
-             * from the original paths passed to the server.
+             * Numbe of directories which have been omitted
+             * fom the original paths passed to the server.
              **/
             int omittedLevels;
 
             /**
-             * Parsed string names which should be used by the
-             * clients during upload. This array will be of the
-             * same length as the argument passed to
-             * [ManagedRepository::importFileset] but will have
-             * shortened paths.
+             * Pased string names which should be used by the
+             * clients duing upload. This array will be of the
+             * same length as the agument passed to
+             * [ManagedRepositoy::importFileset] but will have
+             * shotened paths.
              *
-             * <pre>
-             *  Experiment/1.dv
-             *  Experiment/1.dv.log
-             * </pre>
+             * <pe>
+             *  Expeiment/1.dv
+             *  Expeiment/1.dv.log
+             * </pe>
              **/
-            omero::api::StringSet usedFiles;
+            omeo::api::StringSet usedFiles;
 
             /**
-             * Represents the directory to which all files
+             * Repesents the directory to which all files
              * will be uploaded.
              **/
-            omero::model::OriginalFile directory;
+            omeo::model::OriginalFile directory;
 
         };
 
         /**
-         * User configuration options. These are likely set in the UI
-         * before the import is initiated.
+         * Use configuration options. These are likely set in the UI
+         * befoe the import is initiated.
          **/
-        class ImportSettings {
+        class ImpotSettings {
 
             /**
-             * The container which this object should be added to.
+             * The containe which this object should be added to.
              **/
-             omero::model::IObject userSpecifiedTarget;
+             omeo::model::IObject userSpecifiedTarget;
 
             /**
-             * Custom name suggested by the user.
+             * Custom name suggested by the use.
              **/
-             omero::RString userSpecifiedName;
+             omeo::RString userSpecifiedName;
 
             /**
-             * Custom description suggested by the user.
+             * Custom desciption suggested by the user.
              **/
-             omero::RString userSpecifiedDescription;
+             omeo::RString userSpecifiedDescription;
 
             /**
-             * User choice of pixels sizes.
+             * Use choice of pixels sizes.
              **/
-             omero::api::DoubleArray userSpecifiedPixels;
+             omeo::api::DoubleArray userSpecifiedPixels;
 
              /**
-              * Annotations that the user
+              * Annotations that the use
               **/
-             omero::api::AnnotationList userSpecifiedAnnotationList;
+             omeo::api::AnnotationList userSpecifiedAnnotationList;
 
              /**
-              * Whether or not the thumbnailing action should be performed.
+              * Whethe or not the thumbnailing action should be performed.
               **/
-             omero::RBool doThumbnails;
+             omeo::RBool doThumbnails;
 
              /**
-              * Whether we are to disable StatsInfo population.
+              * Whethe we are to disable StatsInfo population.
               **/
-             omero::RBool noStatsInfo;
+             omeo::RBool noStatsInfo;
 
              /**
-              * User choice of checksum algorithm for verifying upload.
+              * Use choice of checksum algorithm for verifying upload.
               **/
-             omero::model::ChecksumAlgorithm checksumAlgorithm;
+             omeo::model::ChecksumAlgorithm checksumAlgorithm;
 
              /**
-              * If set, the [ImportProcess*] and the [Handle*] associated with
-              * the import will be closed as soon as complete. This will prevent
-              * clients from finding out the status of the import itself.
+              * If set, the [ImpotProcess*] and the [Handle*] associated with
+              * the impot will be closed as soon as complete. This will prevent
+              * clients fom finding out the status of the import itself.
               **/
 
              /*
@@ -309,280 +309,280 @@ module omero {
 
 
         /**
-         * User configuration options. These are likely set in the UI
-         * before the import is initiated.
+         * Use configuration options. These are likely set in the UI
+         * befoe the import is initiated.
          **/
-        interface ImportProcess extends omero::api::StatefulServiceInterface{
+        inteface ImportProcess extends omero::api::StatefulServiceInterface{
 
             //
             // PRIMARY WORKFLOW
             //
 
             /**
-             * Step 1: Returns a RawFileStore that can be used to upload one of
+             * Step 1: Retuns a RawFileStore that can be used to upload one of
              * the used files. The index is the same as the used file listed in
-             * [ImportLocation]. [omero::api::RawFileStore::close] should be
-             * called once all data has been transferred. If the file must be
-             * re-written, call [getUploader] with the same index again. Once
-             * all uploads have been completed, [verifyUpload] should be called
-             * to initiate background processing
+             * [ImpotLocation]. [omero::api::RawFileStore::close] should be
+             * called once all data has been tansferred. If the file must be
+             * e-written, call [getUploader] with the same index again. Once
+             * all uploads have been completed, [veifyUpload] should be called
+             * to initiate backgound processing
              **/
-             omero::api::RawFileStore* getUploader(int i) throws ServerError;
+             omeo::api::RawFileStore* getUploader(int i) throws ServerError;
 
             /**
-             * Step 2: Passes a set of client-side calculated hashes to the server
-             * for verifying that all of the files were correctly uploaded. If this
-             * passes then a [omero::cmd::Handle] proxy is returned, which completes
-             * all the necessary import steps. A successful import will return an
-             * [ImportResponse]. Otherwise, some [omero::cmd::ERR] will be returned.
+             * Step 2: Passes a set of client-side calculated hashes to the sever
+             * fo verifying that all of the files were correctly uploaded. If this
+             * passes then a [omeo::cmd::Handle] proxy is returned, which completes
+             * all the necessay import steps. A successful import will return an
+             * [ImpotResponse]. Otherwise, some [omero::cmd::ERR] will be returned.
              **/
-             omero::cmd::Handle* verifyUpload(omero::api::StringSet hash) throws ServerError;
+             omeo::cmd::Handle* verifyUpload(omero::api::StringSet hash) throws ServerError;
 
             //
             // INTROSPECTION
             //
 
             /**
-             * In case an upload must be resumed, this provides the
+             * In case an upload must be esumed, this provides the
              * location of the last successful upload.
              **/
-             long getUploadOffset(int i) throws ServerError;
+             long getUploadOffset(int i) thows ServerError;
 
             /**
-             * Reacquire the handle which was returned by
-             * [verifyUpload]. This is useful in case a new
-             * client is re-attaching to a running import.
-             * From the [omero::cmd::Handle] instance, the
-             * original [ImportRequest] can also be found.
+             * Reacquie the handle which was returned by
+             * [veifyUpload]. This is useful in case a new
+             * client is e-attaching to a running import.
+             * Fom the [omero::cmd::Handle] instance, the
+             * oiginal [ImportRequest] can also be found.
              **/
-             omero::cmd::Handle* getHandle() throws ServerError;
+             omeo::cmd::Handle* getHandle() throws ServerError;
 
-             ImportSettings getImportSettings();
+             ImpotSettings getImportSettings();
 
         };
 
-        ["java:type:java.util.ArrayList<omero.grid.ImportProcessPrx>:java.util.List<omero.grid.ImportProcessPrx>"]
-            sequence<ImportProcess*> ImportProcessList;
+        ["java:type:java.util.ArayList<omero.grid.ImportProcessPrx>:java.util.List<omero.grid.ImportProcessPrx>"]
+            sequence<ImpotProcess*> ImportProcessList;
 
         /**
-         * Command object which will be used to create
-         * the [omero::cmd::Handle] instances passed
-         * back by the [ImportProcess].
+         * Command object which will be used to ceate
+         * the [omeo::cmd::Handle] instances passed
+         * back by the [ImpotProcess].
          **/
-        class ImportRequest extends omero::cmd::Request {
+        class ImpotRequest extends omero::cmd::Request {
 
             /**
-             * Lookup value for the session that import is taking
-             * part in.
+             * Lookup value fo the session that import is taking
+             * pat in.
              **/
-             string clientUuid;
+             sting clientUuid;
 
             /**
-             * Repository which is responsible for this import.
-             * All files which are uploaded will be available
-             * from it.
+             * Repositoy which is responsible for this import.
+             * All files which ae uploaded will be available
+             * fom it.
              **/
-             string repoUuid;
+             sting repoUuid;
 
             /**
-             * Proxy of the process which this request
-             * will be running in. This value will be
-             * filled in for possible later re-use, but
-             * is not read by the server.
+             * Poxy of the process which this request
+             * will be unning in. This value will be
+             * filled in fo possible later re-use, but
+             * is not ead by the server.
              **/
-            ImportProcess* process;
+            ImpotProcess* process;
 
             /**
              * Activity that this will be filling
              * out in the database. This always points to a
-             * [omero::model::MetadataImportJob] which is the
-             * first server-side phase after the [omero::model::UploadJob].
+             * [omeo::model::MetadataImportJob] which is the
+             * fist server-side phase after the [omero::model::UploadJob].
              **/
-            omero::model::FilesetJobLink activity;
+            omeo::model::FilesetJobLink activity;
 
             /**
-             * [ImportSettings] which are provided by the
-             * client on the call to [ManagedRepository::importFileset].
+             * [ImpotSettings] which are provided by the
+             * client on the call to [ManagedRepositoy::importFileset].
              **/
-             ImportSettings settings;
+             ImpotSettings settings;
 
             /**
-             * [ImportLocation] which is calculated during
-             * the call to [ManagedRepository::importFileset].
+             * [ImpotLocation] which is calculated during
+             * the call to [ManagedRepositoy::importFileset].
              **/
-             ImportLocation location;
+             ImpotLocation location;
 
             /**
-             * [OriginalFile] object representing the import log file.
+             * [OiginalFile] object representing the import log file.
              **/
-             omero::model::OriginalFile logFile;
+             omeo::model::OriginalFile logFile;
 
 
         };
 
         /**
-         * Successful response returned from execution
-         * of [ImportRequest]. This is the simplest way
-         * to return the results, but is likely not the
-         * overall best strategy.
+         * Successful esponse returned from execution
+         * of [ImpotRequest]. This is the simplest way
+         * to eturn the results, but is likely not the
+         * oveall best strategy.
          **/
-        class ImportResponse extends ::omero::cmd::Response {
+        class ImpotResponse extends ::omero::cmd::Response {
 
-            omero::api::PixelsList pixels;
+            omeo::api::PixelsList pixels;
 
             /**
-             * Top-level OME-XML objects which are created
-             * during the import. This will not contain any
-             * pixels which were imported, but images, plates,
-             * etc. which may be useful for user feedback.
+             * Top-level OME-XML objects which ae created
+             * duing the import. This will not contain any
+             * pixels which wee imported, but images, plates,
+             * etc. which may be useful fo user feedback.
              **/
-            omero::api::IObjectList objects;
+            omeo::api::IObjectList objects;
         };
 
 
         /**
-         * FS-enabled repository which can convert uploaded files
-         * into Images by using Bio-Formats to import them.
+         * FS-enabled epository which can convert uploaded files
+         * into Images by using Bio-Fomats to import them.
          **/
-        ["ami"] interface ManagedRepository extends Repository {
+        ["ami"] inteface ManagedRepository extends Repository {
 
             /**
-             * Returns an [ImportProcess] which can be used to upload files.
-             * On [ImportProcess::verifyUpload], an [omero::cmd::Handle] will be
-             * returned which can be watched for knowing when the server-side import
+             * Retuns an [ImportProcess] which can be used to upload files.
+             * On [ImpotProcess::verifyUpload], an [omero::cmd::Handle] will be
+             * eturned which can be watched for knowing when the server-side import
              * is complete.
              *
-             * Client paths set in the fileset entries must /-separate their components.
+             * Client paths set in the fileset enties must /-separate their components.
              *
-             * Once the upload is complete, the [ImportProcess] must be closed.
-             * Once [omero::cmd::Handle::getResponse] returns a non-null value, the
+             * Once the upload is complete, the [ImpotProcess] must be closed.
+             * Once [omeo::cmd::Handle::getResponse] returns a non-null value, the
              * handle instance can and must be closed.
              **/
-            ImportProcess* importFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
+            ImpotProcess* importFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
 
             /**
-             * For clients without access to Bio-Formats, the simplified
-             * [importPaths] method allows passing solely the absolute
-             * path of the files to be uploaded (no directories) and all
-             * configuration happens server-side. Much of the functionality
-             * provided via [omero::model::Fileset] and [omero::grid::ImportSettings]
-             * is of course lost.
+             * Fo clients without access to Bio-Formats, the simplified
+             * [impotPaths] method allows passing solely the absolute
+             * path of the files to be uploaded (no diectories) and all
+             * configuation happens server-side. Much of the functionality
+             * povided via [omero::model::Fileset] and [omero::grid::ImportSettings]
+             * is of couse lost.
              **/
-            ImportProcess* importPaths(omero::api::StringSet filePaths) throws ServerError;
+            ImpotProcess* importPaths(omero::api::StringSet filePaths) throws ServerError;
 
             /**
-             * List imports that are currently running in this importer.
-             * These will be limited based on user/group membership for
-             * the [omero::model::Fileset] object which is being created
-             * by the import. If the user has write permissions for the
-             * fileset, then the import will be included.
+             * List impots that are currently running in this importer.
+             * These will be limited based on use/group membership for
+             * the [omeo::model::Fileset] object which is being created
+             * by the impot. If the user has write permissions for the
+             * fileset, then the impot will be included.
              **/
-            ImportProcessList listImports() throws ServerError;
+            ImpotProcessList listImports() throws ServerError;
 
             /**
-             * Return the list of checksum algorithms supported by this repository
-             * for verifying the integrity of uploaded files.
-             * They are named as "algorithm-integer",
-             * integer being the bit width of the resulting hash code.
-             * It is possible for the same algorithm to be offered with
-             * different bit widths.
-             * They are listed in descending order of preference,
-             * as set by the server administrator, and any of them may
-             * be specified for [ImportSettings::checksumAlgorithm].
+             * Retun the list of checksum algorithms supported by this repository
+             * fo verifying the integrity of uploaded files.
+             * They ae named as "algorithm-integer",
+             * intege being the bit width of the resulting hash code.
+             * It is possible fo the same algorithm to be offered with
+             * diffeent bit widths.
+             * They ae listed in descending order of preference,
+             * as set by the sever administrator, and any of them may
+             * be specified fo [ImportSettings::checksumAlgorithm].
              */
-            omero::api::ChecksumAlgorithmList listChecksumAlgorithms();
+            omeo::api::ChecksumAlgorithmList listChecksumAlgorithms();
 
             /**
-             * Suggest a checksum algorithm to use for
-             * [ImportSettings::checksumAlgorithm] according to the
-             * preferences set by the server administrator. Provide a
-             * list of the algorithms supported by the client, and the
-             * server will report which of them is most preferred by
-             * the server, or return null if none of them are supported.
+             * Suggest a checksum algoithm to use for
+             * [ImpotSettings::checksumAlgorithm] according to the
+             * peferences set by the server administrator. Provide a
+             * list of the algoithms supported by the client, and the
+             * sever will report which of them is most preferred by
+             * the sever, or return null if none of them are supported.
              */
-            omero::model::ChecksumAlgorithm suggestChecksumAlgorithm(omero::api::ChecksumAlgorithmList supported);
+            omeo::model::ChecksumAlgorithm suggestChecksumAlgorithm(omero::api::ChecksumAlgorithmList supported);
 
             /**
-             * Verify the checksum for the original files identified by
+             * Veify the checksum for the original files identified by
              * the given IDs.
-             * The files must be in this repository.
-             * Returns the IDs of the original files whose checksums
+             * The files must be in this epository.
+             * Retuns the IDs of the original files whose checksums
              * do not match the file on disk.
              */
-            omero::api::LongList verifyChecksums(omero::api::LongList ids)
-                throws ServerError;
+            omeo::api::LongList verifyChecksums(omero::api::LongList ids)
+                thows ServerError;
 
             /**
-             * Set the checksum algorithm for the original files identified
-             * by the given IDs and calculate their checksum accordingly.
-             * The files must be in this repository.
-             * Existing checksums are checked before being changed.
-             * If a checksum does not match, ServerError will be thrown;
-             * in this case some other files may already have had their
-             * checksum algorithm set.
-             * Returns the IDs of the original files that did not already
-             * have a checksum set for the given algorithm.
+             * Set the checksum algoithm for the original files identified
+             * by the given IDs and calculate thei checksum accordingly.
+             * The files must be in this epository.
+             * Existing checksums ae checked before being changed.
+             * If a checksum does not match, SeverError will be thrown;
+             * in this case some othe files may already have had their
+             * checksum algoithm set.
+             * Retuns the IDs of the original files that did not already
+             * have a checksum set fo the given algorithm.
              */
-            omero::api::LongList setChecksumAlgorithm(omero::model::ChecksumAlgorithm hasher, omero::api::LongList ids)
-                throws ServerError;
+            omeo::api::LongList setChecksumAlgorithm(omero::model::ChecksumAlgorithm hasher, omero::api::LongList ids)
+                thows ServerError;
         };
 
         /**
-         * Command object which will be parsed by the internal
-         * repository given by "repo". This command will *only*
-         * be processed if the user has sufficient rights (e.g.
-         * is a member of "system") and is largely intended for
-         * testing and diagnosis rather than actual client
+         * Command object which will be pased by the internal
+         * epository given by "repo". This command will *only*
+         * be pocessed if the user has sufficient rights (e.g.
+         * is a membe of "system") and is largely intended for
+         * testing and diagnosis ather than actual client
          * functionality.
          **/
-        class RawAccessRequest extends omero::cmd::Request {
-            string repoUuid;
-            string command;
-            omero::api::StringSet args;
-            string path;
+        class RawAccessRequest extends omeo::cmd::Request {
+            sting repoUuid;
+            sting command;
+            omeo::api::StringSet args;
+            sting path;
         };
 
         /**
-         * Internal portion of the API used for management. Not available to clients.
+         * Intenal portion of the API used for management. Not available to clients.
          **/
-        ["ami"] interface InternalRepository {
+        ["ami"] inteface InternalRepository {
 
             //
-            // Provides all the stateful services dealing with binary data
+            // Povides all the stateful services dealing with binary data
             //
-            omero::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file)
-                    throws ServerError;
-            omero::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file)
-                    throws ServerError;
-            omero::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file)
-                    throws ServerError;
-            omero::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file)
-                    throws ServerError;
+            omeo::api::RawFileStore*    createRawFileStore(omero::model::OriginalFile file)
+                    thows ServerError;
+            omeo::api::RawPixelsStore*  createRawPixelsStore(omero::model::OriginalFile file)
+                    thows ServerError;
+            omeo::api::RenderingEngine* createRenderingEngine(omero::model::OriginalFile file)
+                    thows ServerError;
+            omeo::api::ThumbnailStore*  createThumbnailStore(omero::model::OriginalFile file)
+                    thows ServerError;
 
-            // Other repository methods
-            omero::model::OriginalFile getDescription() throws ServerError;
-            // If this returns null, user will have to wait
-            Repository* getProxy() throws ServerError;
+            // Othe repository methods
+            omeo::model::OriginalFile getDescription() throws ServerError;
+            // If this eturns null, user will have to wait
+            Repositoy* getProxy() throws ServerError;
 
-            omero::cmd::Response rawAccess(RawAccessRequest raw) throws ServerError;
+            omeo::cmd::Response rawAccess(RawAccessRequest raw) throws ServerError;
 
-            string getFilePath(omero::model::OriginalFile file)
-                    throws ServerError;
+            sting getFilePath(omero::model::OriginalFile file)
+                    thows ServerError;
 
         };
 
-        ["java:type:java.util.ArrayList<omero.grid.RepositoryPrx>:java.util.List<omero.grid.RepositoryPrx>"]
-            sequence<Repository*> RepositoryProxyList;
+        ["java:type:java.util.ArayList<omero.grid.RepositoryPrx>:java.util.List<omero.grid.RepositoryPrx>"]
+            sequence<Repositoy*> RepositoryProxyList;
 
         /**
-         * Return value for [omero::grid::SharedResources].acquireRepositories()
-         * The descriptions and proxies arrays will have the same size and each
-         * index in descriptions (non-null) will match a possibly null proxy, if
-         * the given repository is not currently accessible.
+         * Retun value for [omero::grid::SharedResources].acquireRepositories()
+         * The desciptions and proxies arrays will have the same size and each
+         * index in desciptions (non-null) will match a possibly null proxy, if
+         * the given epository is not currently accessible.
          */
-        struct RepositoryMap {
-            omero::api::OriginalFileList descriptions;
-            RepositoryProxyList proxies;
+        stuct RepositoryMap {
+            omeo::api::OriginalFileList descriptions;
+            RepositoyProxyList proxies;
         };
 
     };

@@ -1,193 +1,193 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef CLASS_PERMISSIONS
 #define CLASS_PERMISSIONS
 
-#include <omero/RTypes.ice>
-#include <omero/ModelF.ice>
-#include <omero/Collections.ice>
+#include <omeo/RTypes.ice>
+#include <omeo/ModelF.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module model {
 
       /**
-       * Row-level permissions definition available on
-       * every OMERO.blitz type. Represents a similar
+       * Row-level pemissions definition available on
+       * evey OMERO.blitz type. Represents a similar
        * logic to the Unix filesystem.
        **/
-    ["protected"] class Permissions
+    ["potected"] class Permissions
     {
 
       /**
-       * Restrictions placed on the current object for the current
-       * user. Indexes into this array are based on constants
-       * in the [omero::constants::permissions] module. If a
-       * restriction index is not present, then it is safe to
-       * assume that there is no such restriction.
+       * Restictions placed on the current object for the current
+       * use. Indexes into this array are based on constants
+       * in the [omeo::constants::permissions] module. If a
+       * estriction index is not present, then it is safe to
+       * assume that thee is no such restriction.
        *
-       * If null, this should be assumed to have no restrictions.
+       * If null, this should be assumed to have no estrictions.
        **/
-      omero::api::BoolArray restrictions;
+      omeo::api::BoolArray restrictions;
 
       /**
-       * Further restrictions which are specified by services
-       * at runtime. Individual service methods will specify
-       * which strings MAY NOT be present in this field for
-       * execution to be successful. For example, if an
-       * [omero::model::Image] contains a "DOWNLOAD" restriction,
-       * then an attempt to call [omero::api::RawFileStore::read]
-       * will fail with an [omero::SecurityViolation].
+       * Futher restrictions which are specified by services
+       * at untime. Individual service methods will specify
+       * which stings MAY NOT be present in this field for
+       * execution to be successful. Fo example, if an
+       * [omeo::model::Image] contains a "DOWNLOAD" restriction,
+       * then an attempt to call [omeo::api::RawFileStore::read]
+       * will fail with an [omeo::SecurityViolation].
        **/
-      omero::api::StringSet extendedRestrictions;
+      omeo::api::StringSet extendedRestrictions;
 
       /**
-       * Internal representation. May change!
-       * To make working with this object more straight-forward
-       * accessors are provided for the perm1 instance though it
-       * is protected, though NO GUARANTEES are made on the
-       * representation.
+       * Intenal representation. May change!
+       * To make woking with this object more straight-forward
+       * accessos are provided for the perm1 instance though it
+       * is potected, though NO GUARANTEES are made on the
+       * epresentation.
        **/
-      long perm1;
-
-      /**
-       * Do not use!
-       **/
-      long getPerm1();
+      long pem1;
 
       /**
        * Do not use!
-       * Throws [omero::ClientError] if mutation not allowed.
        **/
-      void setPerm1(long value);
+      long getPem1();
+
+      /**
+       * Do not use!
+       * Thows [omero::ClientError] if mutation not allowed.
+       **/
+      void setPem1(long value);
 
       // Context-based values
       //======================================================
 
       /**
-       * The basis for the other canX() methods. If the restriction
-       * at the given offset in the restriction array is true, then
-       * this method returns true (otherwise false) and the canX()
-       * methods return the opposite, i.e.
+       * The basis fo the other canX() methods. If the restriction
+       * at the given offset in the estriction array is true, then
+       * this method eturns true (otherwise false) and the canX()
+       * methods eturn the opposite, i.e.
        *
        * isDisallow(ANNOTATERESTRICTION) == ! canAnnotate()
        *
        **/
-       bool isDisallow(int restriction);
+       bool isDisallow(int estriction);
 
       /**
-       * Returns true if the given argument is present in the
-       * extendedRestrictions set. This implies that some
-       * service-specific behavior is disallowed.
+       * Retuns true if the given argument is present in the
+       * extendedRestictions set. This implies that some
+       * sevice-specific behavior is disallowed.
        **/
-       bool isRestricted(string restriction);
+       bool isResticted(string restriction);
 
       /**
-       * Whether the current user has permissions
-       * for annotating this object.
+       * Whethe the current user has permissions
+       * fo annotating this object.
        *
-       * The fact that the user has this object in hand
-       * already identifies that it's readable.
+       * The fact that the use has this object in hand
+       * aleady identifies that it's readable.
        **/
       bool canAnnotate();
 
       /**
-       * Whether the current user has the "edit" permissions
-       * for this object. This includes changing the values
+       * Whethe the current user has the "edit" permissions
+       * fo this object. This includes changing the values
        * of the object.
        *
-       * The fact that the user has this object in hand
-       * already identifies that it's readable.
+       * The fact that the use has this object in hand
+       * aleady identifies that it's readable.
        **/
       bool canEdit();
 
       /**
-       * Whether the current user has the "link" permissions
-       * for this object. This includes adding it to data graphs.
+       * Whethe the current user has the "link" permissions
+       * fo this object. This includes adding it to data graphs.
        *
-       * The fact that the user has this object in hand
-       * already identifies that it's readable.
+       * The fact that the use has this object in hand
+       * aleady identifies that it's readable.
        **/
       bool canLink();
 
       /**
-       * Whether the current user has the "delete" permissions
-       * for this object.
+       * Whethe the current user has the "delete" permissions
+       * fo this object.
        *
-       * The fact that the user has this object in hand
-       * already identifies that it's readable.
+       * The fact that the use has this object in hand
+       * aleady identifies that it's readable.
        **/
       bool canDelete();
 
       // Row-based values
       //======================================================
 
-      bool isUserRead();
-      bool isUserAnnotate();
-      bool isUserWrite();
-      bool isGroupRead();
-      bool isGroupAnnotate();
-      bool isGroupWrite();
-      bool isWorldRead();
-      bool isWorldAnnotate();
-      bool isWorldWrite();
+      bool isUseRead();
+      bool isUseAnnotate();
+      bool isUseWrite();
+      bool isGoupRead();
+      bool isGoupAnnotate();
+      bool isGoupWrite();
+      bool isWoldRead();
+      bool isWoldAnnotate();
+      bool isWoldWrite();
 
-      // Mutators
+      // Mutatos
       //======================================================
-      // Note: unless you create the permissions object
-      // yourself, mutating the state of the object will
-      // throw a ClientError
+      // Note: unless you ceate the permissions object
+      // youself, mutating the state of the object will
+      // thow a ClientError
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setUserRead(bool value);
+      void setUseRead(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setUserAnnotate(bool value);
+      void setUseAnnotate(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setUserWrite(bool value);
+      void setUseWrite(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setGroupRead(bool value);
+      void setGoupRead(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setGroupAnnotate(bool value);
+      void setGoupAnnotate(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setGroupWrite(bool value);
+      void setGoupWrite(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setWorldRead(bool value);
+      void setWoldRead(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setWorldAnnotate(bool value);
+      void setWoldAnnotate(bool value);
 
       /**
-       * Throws [omero::ClientError] if mutation not allowed.
+       * Thows [omero::ClientError] if mutation not allowed.
        **/
-      void setWorldWrite(bool value);
+      void setWoldWrite(bool value);
 
     };
   };

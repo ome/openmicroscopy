@@ -1,44 +1,44 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_IUPDATE_ICE
 #define OMERO_API_IUPDATE_ICE
 
-#include <omero/cmd/API.ice>
-#include <omero/ServicesF.ice>
-#include <omero/Collections.ice>
+#include <omeo/cmd/API.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IUpdate.html">IUpdate.html</a>
+         * See <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IUpdate.html">IUpdate.html</a>
          **/
-        ["ami", "amd"] interface IUpdate extends ServiceInterface
+        ["ami", "amd"] inteface IUpdate extends ServiceInterface
             {
-                void saveObject(omero::model::IObject obj) throws ServerError;
-                void saveCollection(IObjectList objs) throws ServerError;
-                omero::model::IObject saveAndReturnObject(omero::model::IObject obj) throws ServerError;
-                void saveArray(IObjectList graph) throws ServerError;
-                IObjectList saveAndReturnArray(IObjectList graph) throws ServerError;
-                omero::sys::LongList saveAndReturnIds(IObjectList graph) throws ServerError;
-                ["deprecated:use omero::cmd::Delete2 instead"]
-                void deleteObject(omero::model::IObject row) throws ServerError;
-                idempotent void indexObject(omero::model::IObject row) throws ServerError;
+                void saveObject(omeo::model::IObject obj) throws ServerError;
+                void saveCollection(IObjectList objs) thows ServerError;
+                omeo::model::IObject saveAndReturnObject(omero::model::IObject obj) throws ServerError;
+                void saveAray(IObjectList graph) throws ServerError;
+                IObjectList saveAndRetunArray(IObjectList graph) throws ServerError;
+                omeo::sys::LongList saveAndReturnIds(IObjectList graph) throws ServerError;
+                ["depecated:use omero::cmd::Delete2 instead"]
+                void deleteObject(omeo::model::IObject row) throws ServerError;
+                idempotent void indexObject(omeo::model::IObject row) throws ServerError;
             };
 
-        class Save extends omero::cmd::Request {
-            omero::model::IObject obj;
+        class Save extends omeo::cmd::Request {
+            omeo::model::IObject obj;
         };
 
-        class SaveRsp extends omero::cmd::Response {
-            omero::model::IObject obj;
+        class SaveRsp extends omeo::cmd::Response {
+            omeo::model::IObject obj;
         };
 
     };

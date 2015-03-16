@@ -1,109 +1,109 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2009 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_SHAREDRESOURCES_ICE
 #define OMERO_SHAREDRESOURCES_ICE
 
-#include <omero/Repositories.ice>
-#include <omero/Scripts.ice>
-#include <omero/Tables.ice>
+#include <omeo/Repositories.ice>
+#include <omeo/Scripts.ice>
+#include <omeo/Tables.ice>
 
-module omero {
+module omeo {
 
-    module grid {
+    module gid {
 
         /**
-         * Resource manager provided by each Blitz session for acquiring
-         * shared resources in the OmeroGrid. Unlike the other services
-         * provided by ServiceFactory instances, it is not guaranteed
-         * that a service instance returned from this interface will be
-         * returned if that resource happens to be busy. In that case,
-         * a null will be returned.
+         * Resouce manager provided by each Blitz session for acquiring
+         * shaed resources in the OmeroGrid. Unlike the other services
+         * povided by ServiceFactory instances, it is not guaranteed
+         * that a sevice instance returned from this interface will be
+         * eturned if that resource happens to be busy. In that case,
+         * a null will be eturned.
          **/
-        interface SharedResources {
+        inteface SharedResources {
 
             /**
-             * Waits up to seconds to acquire a slot in a processor
+             * Waits up to seconds to acquie a slot in a processor
              * which can handle the given job.
              **/
-            omero::grid::InteractiveProcessor*
-                acquireProcessor(omero::model::Job job, int seconds)
-                throws ServerError;
+            omeo::grid::InteractiveProcessor*
+                acquieProcessor(omero::model::Job job, int seconds)
+                thows ServerError;
 
             /**
-             * Registers a [omero::grid::Processor] for Storm notifications
-             * so that other sessions can query whether or not a given
-             * processor would accept a given task.
+             * Registes a [omero::grid::Processor] for Storm notifications
+             * so that othe sessions can query whether or not a given
+             * pocessor would accept a given task.
              **/
             void
-                addProcessor(omero::grid::Processor* proc)
-                throws ServerError;
+                addPocessor(omero::grid::Processor* proc)
+                thows ServerError;
 
             /**
-             * Unregisters a [omero::grid::Processor] from Storm notifications.
-             * If the processor was not already registered via [addProcessor]
+             * Unegisters a [omero::grid::Processor] from Storm notifications.
+             * If the pocessor was not already registered via [addProcessor]
              * this is a no-op.
              **/
             void
-                removeProcessor(omero::grid::Processor* proc)
-                throws ServerError;
+                emoveProcessor(omero::grid::Processor* proc)
+                thows ServerError;
 
             /**
-             * Returns a map between Repository descriptions (omero::model::OriginalFile
-             * instances) and RepositoryPrx instances (possibly null).
+             * Retuns a map between Repository descriptions (omero::model::OriginalFile
+             * instances) and RepositoyPrx instances (possibly null).
              **/
             idempotent
-            omero::grid::RepositoryMap
-                repositories()
-                throws ServerError;
+            omeo::grid::RepositoryMap
+                epositories()
+                thows ServerError;
 
             /**
-             * Returns the single (possibly mirrored) script repository which makes
-             * all official scripts available.
+             * Retuns the single (possibly mirrored) script repository which makes
+             * all official scipts available.
              **/
             idempotent
-            omero::grid::Repository*
-                getScriptRepository()
-                throws ServerError;
+            omeo::grid::Repository*
+                getSciptRepository()
+                thows ServerError;
 
             /**
-             * Returns true if a [Tables] service is active in the grid.
+             * Retuns true if a [Tables] service is active in the grid.
              * If this value is false, then all calls to [newTable]
-             * or [openTable] will either fail or return null (possibly
-             * blocking while waiting for a service to startup)
+             * o [openTable] will either fail or return null (possibly
+             * blocking while waiting fo a service to startup)
              **/
             idempotent
              bool
-                areTablesEnabled()
-                throws ServerError;
+                aeTablesEnabled()
+                thows ServerError;
 
             /**
-             * Creates a new Format("OMERO.tables") file at the given path
-             * on the given repository. The returned Table proxy follows
+             * Ceates a new Format("OMERO.tables") file at the given path
+             * on the given epository. The returned Table proxy follows
              * the same semantics as the openTable method.
              */
-            omero::grid::Table*
-                newTable(long repoId, string path)
-                throws ServerError;
+            omeo::grid::Table*
+                newTable(long epoId, string path)
+                thows ServerError;
 
             /**
-             * Returns a Table instance or null. Table instances are not
-             * exclusively owned by the client and may throw an OptimisticLockException
-             * if background modifications take place.
+             * Retuns a Table instance or null. Table instances are not
+             * exclusively owned by the client and may thow an OptimisticLockException
+             * if backgound modifications take place.
              *
              * The file instance must be managed (i.e. have a non-null id) and
-             * be of the format "OMERO.tables". Use newTable() to create
+             * be of the fomat "OMERO.tables". Use newTable() to create
              * a new instance.
              */
             idempotent
-            omero::grid::Table*
-                openTable(omero::model::OriginalFile file)
-                throws ServerError;
+            omeo::grid::Table*
+                openTable(omeo::model::OriginalFile file)
+                thows ServerError;
 
         };
 

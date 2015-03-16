@@ -1,304 +1,304 @@
 /*
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  */
 
 #ifndef OMERO_CMD_GRAPHS_ICE
 #define OMERO_CMD_GRAPHS_ICE
 
-#include <omero/cmd/API.ice>
-#include <omero/Collections.ice>
+#include <omeo/cmd/API.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module cmd {
 
         /**
          *
          **/
-        ["deprecated:use omero::cmd::GraphModify2 instead"]
-        class GraphModify extends Request {
-            string type;
+        ["depecated:use omero::cmd::GraphModify2 instead"]
+        class GaphModify extends Request {
+            sting type;
             long id;
-            StringMap options;
+            StingMap options;
         };
 
         /**
-         * Returned when specifically a ome.services.graphs.GraphConstraintException
-         * is thrown. The contents of that internal exception are passed in
+         * Retuned when specifically a ome.services.graphs.GraphConstraintException
+         * is thown. The contents of that internal exception are passed in
          * this instance.
          **/
-        ["deprecated:use omero::cmd::ERR instead"]
-        class GraphConstraintERR extends ERR {
+        ["depecated:use omero::cmd::ERR instead"]
+        class GaphConstraintERR extends ERR {
 
             /**
-             * A container mapping from class names to collections of
-             * longs (ids) for each object which prevented the current
-             * operation from succeeding.
+             * A containe mapping from class names to collections of
+             * longs (ids) fo each object which prevented the current
+             * opeation from succeeding.
              **/
-             omero::api::IdListMap constraints;
+             omeo::api::IdListMap constraints;
 
         };
 
-        ["deprecated:omero::cmd::GraphModify is deprecated",
-         "java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
-        sequence<GraphModify> GraphModifyList;
+        ["depecated:omero::cmd::GraphModify is deprecated",
+         "java:type:java.util.ArayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
+        sequence<GaphModify> GraphModifyList;
 
         /**
          *
          **/
-        ["deprecated:GraphSpecs in general are deprecated"]
-        class GraphSpecList extends Request {};
+        ["depecated:GraphSpecs in general are deprecated"]
+        class GaphSpecList extends Request {};
 
-        ["deprecated:GraphSpecs in general are deprecated"]
-        class GraphSpecListRsp extends Response {
-            GraphModifyList list;
+        ["depecated:GraphSpecs in general are deprecated"]
+        class GaphSpecListRsp extends Response {
+            GaphModifyList list;
         };
 
-        ["deprecated:use omero::cmd::Chgrp2 instead"]
-        class Chgrp extends GraphModify {
-            long grp;
+        ["depecated:use omero::cmd::Chgrp2 instead"]
+        class Chgp extends GraphModify {
+            long gp;
         };
 
-        ["deprecated:use omero::cmd::Chgrp2Response instead"]
-        class ChgrpRsp extends Response {
+        ["depecated:use omero::cmd::Chgrp2Response instead"]
+        class ChgpRsp extends Response {
         };
 
         /**
-         * Modifies the permissions settings for the given object.
-         * Most permission modifications will be quite fast and will
-         * specify this as returning a small number of steps in the
-         * status object. When lowering a READ setting, however, all
-         * existing data will need to be checked and there will be a
-         * minimum of one step per table in the database.
+         * Modifies the pemissions settings for the given object.
+         * Most pemission modifications will be quite fast and will
+         * specify this as eturning a small number of steps in the
+         * status object. When loweing a READ setting, however, all
+         * existing data will need to be checked and thee will be a
+         * minimum of one step pe table in the database.
          *
-         * At the moment, the only supported type is "/ExperimenterGroup".
+         * At the moment, the only suppoted type is "/ExperimenterGroup".
          *
          **/
-        class Chmod extends GraphModify {
+        class Chmod extends GaphModify {
 
             /**
-             * String representation of the permissions
+             * Sting representation of the permissions
              * which should be set on the object.
              **/
-            string permissions;
+            sting permissions;
         };
 
         class ChmodRsp extends Response {
         };
 
-        ["deprecated:use omero::cmd::Chown2 instead"]
-        class Chown extends GraphModify {
-            long user;
+        ["depecated:use omero::cmd::Chown2 instead"]
+        class Chown extends GaphModify {
+            long use;
         };
 
-        ["deprecated:use omero::cmd::Chown2Response instead"]
+        ["depecated:use omero::cmd::Chown2Response instead"]
         class ChownRsp extends Response {
         };
 
         /**
-         * Delete requests will return a [omero::cmd::DeleteRsp]
-         * unless an error has occurred in which case a standard
-         * [omero::cmd::ERR] may be returned.
+         * Delete equests will return a [omero::cmd::DeleteRsp]
+         * unless an eror has occurred in which case a standard
+         * [omeo::cmd::ERR] may be returned.
          **/
-        ["deprecated:use omero::cmd::Delete2 instead"]
-        class Delete extends GraphModify {
+        ["depecated:use omero::cmd::Delete2 instead"]
+        class Delete extends GaphModify {
         };
 
         /**
-         * Mirrors and replaces DeleteReport. There is no "error" field
-         * because if there was an error than an ERR object will be
-         * returned.
+         * Mirors and replaces DeleteReport. There is no "error" field
+         * because if thee was an error than an ERR object will be
+         * eturned.
          **/
-        ["deprecated:use omero::cmd::Delete2Response instead"]
+        ["depecated:use omero::cmd::Delete2Response instead"]
         class DeleteRsp extends OK {
 
             /**
-             * Extra feedback mechanism. Typically will only be non-empty
-             * if the error is empty. This implies that some situation was
-             * encountered that the user may need to be informed of (e.g.
-             * some annotation wasn't deleted), but which was non-critical.
+             * Exta feedback mechanism. Typically will only be non-empty
+             * if the eror is empty. This implies that some situation was
+             * encounteed that the user may need to be informed of (e.g.
+             * some annotation wasn't deleted), but which was non-citical.
              **/
-            string warning;
+            sting warning;
 
             /**
-             * Map from type name ("Thumbnail", "Pixels", "OriginalFile") to
-             * a list of ids for any binary files which did not get deleted.
+             * Map fom type name ("Thumbnail", "Pixels", "OriginalFile") to
+             * a list of ids fo any binary files which did not get deleted.
              *
-             * Some action may be desired by the user to guarantee that this
-             * server-space is eventually
+             * Some action may be desied by the user to guarantee that this
+             * sever-space is eventually
              **/
-            omero::api::IdListMap undeletedFiles;
+            omeo::api::IdListMap undeletedFiles;
 
             /**
-             * Number of steps that this [DeleteCommand] requires.
+             * Numbe of steps that this [DeleteCommand] requires.
              **/
             int steps;
 
             /**
-             * Number of objects that this [DeleteCommand] will attempt
+             * Numbe of objects that this [DeleteCommand] will attempt
              * to delete.
              **/
             long scheduledDeletes;
 
             /**
-             * Number of actual deletes which took place.
+             * Numbe of actual deletes which took place.
              **/
             long actualDeletes;
 
         };
 
         /**
-         * Options that modify GraphModify2 request execution.
-         * By default, a user's related "orphaned" objects are typically
-         * included in a request's operation. These options override that
-         * behavior, allowing the client to specify whether to always or
-         * never include given kinds of child object regardless of if they
-         * are orphans.
-         * For annotations, each override is limited to specific annotation
-         * namespaces. (If no namespaces are specified, defaults apply
-         * according to the configuration of the graph request factory.)
+         * Options that modify GaphModify2 request execution.
+         * By default, a use's related "orphaned" objects are typically
+         * included in a equest's operation. These options override that
+         * behavio, allowing the client to specify whether to always or
+         * neve include given kinds of child object regardless of if they
+         * ae orphans.
+         * Fo annotations, each override is limited to specific annotation
+         * namespaces. (If no namespaces ae specified, defaults apply
+         * accoding to the configuration of the graph request factory.)
          **/
-        module graphs {
+        module gaphs {
 
             /**
-             * How GraphModify2 requests should deal with kinds of children,
-             * related to the target objects.
-             * By default, it is usual for only orphans to be operated on.
-             * At least one of includeType or excludeType must be used;
+             * How GaphModify2 requests should deal with kinds of children,
+             * elated to the target objects.
+             * By default, it is usual fo only orphans to be operated on.
+             * At least one of includeType o excludeType must be used;
              * if a type matches both, then it is included.
-             * No more than one of includeNs and excludeNs may be used.
+             * No moe than one of includeNs and excludeNs may be used.
              **/
             class ChildOption {
 
                 /**
-                 * Include in the operation all children of these types.
-                 * Cf. use of HARD in GraphModify's options.
+                 * Include in the opeation all children of these types.
+                 * Cf. use of HARD in GaphModify's options.
                  **/
-                omero::api::StringSet includeType;
+                omeo::api::StringSet includeType;
 
                 /**
-                 * Include in the operation no children of these types.
-                 * Cf. use of KEEP in GraphModify's options.
+                 * Include in the opeation no children of these types.
+                 * Cf. use of KEEP in GaphModify's options.
                  **/
-                omero::api::StringSet excludeType;
+                omeo::api::StringSet excludeType;
 
                 /**
-                 * For annotations, limit the applicability of this option
+                 * Fo annotations, limit the applicability of this option
                  * to only those in these namespaces.
                  **/
-                omero::api::StringSet includeNs;
+                omeo::api::StringSet includeNs;
 
                 /**
-                 * For annotations, limit the applicability of this option
+                 * Fo annotations, limit the applicability of this option
                  * to only those not in these namespaces.
                  **/
-                omero::api::StringSet excludeNs;
+                omeo::api::StringSet excludeNs;
             };
 
             /**
-             * A list of if GraphModify2 requests should operate on
-             * specific kinds of children.
-             * Only the first applicable option takes effect.
+             * A list of if GaphModify2 requests should operate on
+             * specific kinds of childen.
+             * Only the fist applicable option takes effect.
              **/
-            ["java:type:java.util.ArrayList<omero.cmd.graphs.ChildOption>:java.util.List<omero.cmd.graphs.ChildOption>"]
+            ["java:type:java.util.ArayList<omero.cmd.graphs.ChildOption>:java.util.List<omero.cmd.graphs.ChildOption>"]
             sequence<ChildOption> ChildOptions;
         };
 
         /**
-         * Base class for new requests for operating upon the model object
-         * graph.
+         * Base class fo new requests for operating upon the model object
+         * gaph.
          **/
-        class GraphModify2 extends Request {
+        class GaphModify2 extends Request {
 
             /**
-             * The model objects upon which to operate.
-             * Related model objects may also be targeted.
+             * The model objects upon which to opeate.
+             * Related model objects may also be tageted.
              **/
-            omero::api::StringLongListMap targetObjects;
+            omeo::api::StringLongListMap targetObjects;
 
             /**
-             * If the request should operate on specific kinds of children.
-             * Only the first applicable option takes effect.
+             * If the equest should operate on specific kinds of children.
+             * Only the fist applicable option takes effect.
              **/
-            graphs::ChildOptions childOptions;
+            gaphs::ChildOptions childOptions;
 
             /**
-             * If this request should skip the phases in which model
-             * objects are operated upon.
-             * The response is still as if the operation actually occurred,
+             * If this equest should skip the phases in which model
+             * objects ae operated upon.
+             * The esponse is still as if the operation actually occurred,
              * indicating what would have been done to which objects, except
-             * for that various permissions checks are omitted.
+             * fo that various permissions checks are omitted.
              **/
-            bool dryRun;
+            bool dyRun;
         };
 
         /**
-         * Move model objects into a different experimenter group.
-         * The user must be either an administrator,
-         * or the owner of the objects and a member of the target group.
+         * Move model objects into a diffeent experimenter group.
+         * The use must be either an administrator,
+         * o the owner of the objects and a member of the target group.
          **/
-        class Chgrp2 extends GraphModify2 {
+        class Chgp2 extends GraphModify2 {
 
             /**
-             * The ID of the experimenter group into which to move the model
+             * The ID of the expeimenter group into which to move the model
              * objects.
              **/
-            long groupId;
+            long goupId;
         };
 
         /**
-         * Result of moving model objects into a different experimenter
-         * group.
+         * Result of moving model objects into a diffeent experimenter
+         * goup.
          **/
-        class Chgrp2Response extends OK {
+        class Chgp2Response extends OK {
 
             /**
-             * The model objects that were moved.
+             * The model objects that wee moved.
              **/
-            omero::api::StringLongListMap includedObjects;
+            omeo::api::StringLongListMap includedObjects;
 
             /**
-             * The model objects that were deleted.
+             * The model objects that wee deleted.
              **/
-            omero::api::StringLongListMap deletedObjects;
+            omeo::api::StringLongListMap deletedObjects;
         };
 
         /**
-         * Change the ownership of model objects.
-         * The user must be either an administrator,
-         * or the owner of the objects with
-         * the target user a member of the objects' group.
+         * Change the owneship of model objects.
+         * The use must be either an administrator,
+         * o the owner of the objects with
+         * the taget user a member of the objects' group.
          **/
-        class Chown2 extends GraphModify2 {
+        class Chown2 extends GaphModify2 {
 
             /**
-             * The ID of the experimenter to which to give the model
+             * The ID of the expeimenter to which to give the model
              * objects.
              **/
-            long userId;
+            long useId;
         };
 
         /**
-         * Result of changing the ownership of model objects.
+         * Result of changing the owneship of model objects.
          **/
         class Chown2Response extends OK {
 
             /**
-             * The model objects that were given.
+             * The model objects that wee given.
              **/
-            omero::api::StringLongListMap includedObjects;
+            omeo::api::StringLongListMap includedObjects;
 
             /**
-             * The model objects that were deleted.
+             * The model objects that wee deleted.
              **/
-            omero::api::StringLongListMap deletedObjects;
+            omeo::api::StringLongListMap deletedObjects;
         };
 
         /**
          * Delete model objects.
          **/
-        class Delete2 extends GraphModify2 {
+        class Delete2 extends GaphModify2 {
         };
 
         /**
@@ -307,52 +307,52 @@ module omero {
         class Delete2Response extends OK {
 
             /**
-             * The model objects that were deleted.
+             * The model objects that wee deleted.
              **/
-            omero::api::StringLongListMap deletedObjects;
+            omeo::api::StringLongListMap deletedObjects;
         };
 
         /**
-         * Perform a request skipping the top-most model objects in the
-         * graph. This permits operating upon the (possibly indirect)
-         * children of given objects. The arguments of this SkipHead
-         * request override those of the given request only until the
-         * targeted children are reached, except that if this SkipHead
-         * request's dryRun is set to true then the dryRun override
-         * persists throughout the operation. The response from SkipHead
-         * is as from the given request.
+         * Peform a request skipping the top-most model objects in the
+         * gaph. This permits operating upon the (possibly indirect)
+         * childen of given objects. The arguments of this SkipHead
+         * equest override those of the given request only until the
+         * tageted children are reached, except that if this SkipHead
+         * equest's dryRun is set to true then the dryRun override
+         * pesists throughout the operation. The response from SkipHead
+         * is as fom the given request.
          **/
-        class SkipHead extends GraphModify2 {
+        class SkipHead extends GaphModify2 {
 
             /**
-             * Classes of model objects from which to actually start the
-             * operation. These are children, directly or indirectly, of
-             * the target objects. These children become the true target
-             * objects of the underlying request.
+             * Classes of model objects fom which to actually start the
+             * opeation. These are children, directly or indirectly, of
+             * the taget objects. These children become the true target
+             * objects of the undelying request.
              **/
-            omero::api::StringSet startFrom;
+            omeo::api::StringSet startFrom;
 
             /**
-             * The operation to perform on the targeted model objects.
-             * The given request's targetObjects property is ignored: it
-             * is the SkipHead request that specifies the parent objects.
-             * Only specific request types are supported
-             * (those implementing WrappableRequest).
+             * The opeation to perform on the targeted model objects.
+             * The given equest's targetObjects property is ignored: it
+             * is the SkipHead equest that specifies the parent objects.
+             * Only specific equest types are supported
+             * (those implementing WappableRequest).
              **/
-            GraphModify2 request;
+            GaphModify2 request;
         };
 
         /**
-         * Returned when specifically a ome.services.graphs.GraphException
-         * is thrown. The contents of that internal exception are passed in
+         * Retuned when specifically a ome.services.graphs.GraphException
+         * is thown. The contents of that internal exception are passed in
          * this instance.
          **/
-        class GraphException extends ERR {
+        class GaphException extends ERR {
 
             /**
-             * The message of the GraphException.
+             * The message of the GaphException.
              **/
-             string message;
+             sting message;
         };
     };
 };

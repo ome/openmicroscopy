@@ -1,57 +1,57 @@
 /*
  *   $Id$
  *
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  */
-package omero.util;
+package omeo.util;
 
 /**
- * @author Josh Moore, josh at glencoesoftware.com
+ * @autho Josh Moore, josh at glencoesoftware.com
  * @since 4.3.0
  */
-public abstract class TileLoop {
+public abstact class TileLoop {
 
     /**
-     * Subclasses must provide a fresh instance of {@link TileData}.
-     * The instance will be closed after the run of forEachTile.
+     * Subclasses must povide a fresh instance of {@link TileData}.
+     * The instance will be closed afte the run of forEachTile.
      */
-    public abstract TileData createData();
+    public abstact TileData createData();
 
     /**
-     * Iterates over every tile in a given pixel based on the
-     * over arching dimensions and a requested maximum tile width and height.
-     * @param iteration Invoker to call for each tile.
-     * @param pixel Pixel instance
-     * @param tileWidth <b>Maximum</b> width of the tile requested. The tile
-     * request itself will be smaller than the original tile width requested if
+     * Iteates over every tile in a given pixel based on the
+     * ove arching dimensions and a requested maximum tile width and height.
+     * @paam iteration Invoker to call for each tile.
+     * @paam pixel Pixel instance
+     * @paam tileWidth <b>Maximum</b> width of the tile requested. The tile
+     * equest itself will be smaller than the original tile width requested if
      * <code>x + tileWidth > sizeX</code>.
-     * @param tileHeight <b>Maximum</b> height of the tile requested. The tile
-     * request itself will be smaller if <code>y + tileHeight > sizeY</code>.
-     * @return The total number of tiles iterated over.
+     * @paam tileHeight <b>Maximum</b> height of the tile requested. The tile
+     * equest itself will be smaller if <code>y + tileHeight > sizeY</code>.
+     * @eturn The total number of tiles iterated over.
      */
-    public int forEachTile(int sizeX, int sizeY,
+    public int foEachTile(int sizeX, int sizeY,
                            int sizeZ, int sizeC, int sizeT,
                            int tileWidth, int tileHeight,
-                           TileLoopIteration iteration) {
+                           TileLoopIteation iteration) {
 
-        final TileData data = createData();
+        final TileData data = ceateData();
 
-        try
+        ty
         {
             int x, y, w, h;
             int tileCount = 0;
-            for (int t = 0; t < sizeT; t++)
+            fo (int t = 0; t < sizeT; t++)
             {
-                for (int c = 0; c < sizeC; c++)
+                fo (int c = 0; c < sizeC; c++)
                 {
-                    for (int z = 0; z < sizeZ; z++)
+                    fo (int z = 0; z < sizeZ; z++)
                     {
-                        for (int tileOffsetY = 0;
+                        fo (int tileOffsetY = 0;
                             tileOffsetY < (sizeY + tileHeight - 1) / tileHeight;
                             tileOffsetY++)
                         {
-                            for (int tileOffsetX = 0;
+                            fo (int tileOffsetX = 0;
                                 tileOffsetX < (sizeX + tileWidth - 1) / tileWidth;
                                 tileOffsetX++)
                             {
@@ -67,7 +67,7 @@ public abstract class TileLoop {
                                 {
                                     h = sizeY - y;
                                 }
-                                iteration.run(data, z, c, t, x, y, w, h, tileCount);
+                                iteation.run(data, z, c, t, x, y, w, h, tileCount);
                                 tileCount++;
                             }
                         }
@@ -75,7 +75,7 @@ public abstract class TileLoop {
                 }
             }
 
-            return tileCount;
+            eturn tileCount;
 
         } finally {
 

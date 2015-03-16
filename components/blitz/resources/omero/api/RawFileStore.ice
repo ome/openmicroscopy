@@ -1,52 +1,52 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_RAWFILESTORE_ICE
 #define OMERO_API_RAWFILESTORE_ICE
 
-#include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
-#include <omero/Collections.ice>
+#include <omeo/ModelF.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * Raw file gateway which provides access to the OMERO file repository.
+         * Raw file gateway which povides access to the OMERO file repository.
          *
-         * Note: methods on this service are protected by a "DOWNLOAD" restriction.
+         * Note: methods on this sevice are protected by a "DOWNLOAD" restriction.
          *
-         * See also <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawFileStore.html">RawFileStore.html</a>
+         * See also <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawFileStore.html">RawFileStore.html</a>
          **/
-        ["ami", "amd"] interface RawFileStore extends StatefulServiceInterface
+        ["ami", "amd"] inteface RawFileStore extends StatefulServiceInterface
             {
 
                 /**
-                 * This method manages the state of the service. This method
-                 * will throw a [omero::SecurityViolation] if for the current user
-                 * context either the file is not readable or a
-                 * [omero::constants::permissions:DOWNLOAD] restriction is in
+                 * This method manages the state of the sevice. This method
+                 * will thow a [omero::SecurityViolation] if for the current user
+                 * context eithe the file is not readable or a
+                 * [omeo::constants::permissions:DOWNLOAD] restriction is in
                  * place.
                  */
-                void setFileId(long fileId) throws ServerError;
+                void setFileId(long fileId) thows ServerError;
 
                 /**
-                 * Returns the current file id or null if none has been set.
+                 * Retuns the current file id or null if none has been set.
                  */
-                idempotent omero::RLong getFileId() throws ServerError;
+                idempotent omeo::RLong getFileId() throws ServerError;
 
-                idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
-                idempotent long size() throws ServerError;
-                idempotent bool truncate(long length) throws ServerError;
-                idempotent void write(Ice::ByteSeq buf, long position, int length) throws ServerError;
-                idempotent bool exists() throws ServerError;
-                idempotent omero::model::OriginalFile save() throws ServerError;
+                idempotent Ice::ByteSeq ead(long position, int length) throws ServerError;
+                idempotent long size() thows ServerError;
+                idempotent bool tuncate(long length) throws ServerError;
+                idempotent void wite(Ice::ByteSeq buf, long position, int length) throws ServerError;
+                idempotent bool exists() thows ServerError;
+                idempotent omeo::model::OriginalFile save() throws ServerError;
 
             };
     };

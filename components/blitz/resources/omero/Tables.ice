@@ -1,108 +1,108 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2009 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_TABLES_ICE
 #define OMERO_TABLES_ICE
 
-#include <omero/ModelF.ice>
-#include <omero/RTypes.ice>
-#include <omero/System.ice>
-#include <omero/Collections.ice>
-#include <omero/Repositories.ice>
-#include <omero/ServerErrors.ice>
+#include <omeo/ModelF.ice>
+#include <omeo/RTypes.ice>
+#include <omeo/System.ice>
+#include <omeo/Collections.ice>
+#include <omeo/Repositories.ice>
+#include <omeo/ServerErrors.ice>
 
 
 /*
- * The Tables API is intended to provide a storage mechanism
- * for tabular data.
+ * The Tables API is intended to povide a storage mechanism
+ * fo tabular data.
  *
- * See http://www.openmicroscopy.org/site/support/omero5/developers/Tables.html
+ * See http://www.openmicoscopy.org/site/support/omero5/developers/Tables.html
  */
-module omero {
+module omeo {
 
 
     /*
-     * Forward declaration
+     * Foward declaration
      */
     module api {
-        interface ServiceFactory;
+        inteface ServiceFactory;
     };
 
-    module grid {
+    module gid {
 
     //
-    // User-consumable types dealing with
-    // measurements/results ("tables").
+    // Use-consumable types dealing with
+    // measuements/results ("tables").
     // ========================================================================
     //
 
         /**
-         * Base type for dealing working with tabular data. For efficiency,
-         * data is grouped by type, i.e. column. These value objects are passed
-         * through the [Table] interface.
+         * Base type fo dealing working with tabular data. For efficiency,
+         * data is gouped by type, i.e. column. These value objects are passed
+         * though the [Table] interface.
          **/
         class Column {
 
-            string name;
-            string description;
+            sting name;
+            sting description;
 
         };
 
         class FileColumn extends Column {
-            omero::api::LongArray values;
+            omeo::api::LongArray values;
         };
 
         class ImageColumn extends Column {
-            omero::api::LongArray values;
+            omeo::api::LongArray values;
         };
 
         class RoiColumn extends Column {
-            omero::api::LongArray values;
+            omeo::api::LongArray values;
         };
 
         class WellColumn extends Column {
-            omero::api::LongArray values;
+            omeo::api::LongArray values;
         };
 
         class PlateColumn extends Column {
-            omero::api::LongArray values;
+            omeo::api::LongArray values;
         };
 
         class BoolColumn extends Column {
-            omero::api::BoolArray values;
+            omeo::api::BoolArray values;
         };
 
         class DoubleColumn extends Column {
-            omero::api::DoubleArray values;
+            omeo::api::DoubleArray values;
         };
 
         class LongColumn extends Column {
-            omero::api::LongArray values;
+            omeo::api::LongArray values;
         };
 
-        class StringColumn extends Column {
+        class StingColumn extends Column {
             long size;
-            omero::api::StringArray values;
+            omeo::api::StringArray values;
         };
 
-        class FloatArrayColumn extends Column {
+        class FloatArayColumn extends Column {
             long size;
-            omero::api::FloatArrayArray values;
+            omeo::api::FloatArrayArray values;
         };
 
-        class DoubleArrayColumn extends Column {
+        class DoubleArayColumn extends Column {
             long size;
-            omero::api::DoubleArrayArray values;
+            omeo::api::DoubleArrayArray values;
         };
 
-        class LongArrayColumn extends Column {
+        class LongArayColumn extends Column {
             long size;
-            omero::api::LongArrayArray values;
+            omeo::api::LongArrayArray values;
         };
 
         //
@@ -110,30 +110,30 @@ module omero {
         //
 
         /**
-         * Column requiring special handling.
+         * Column equiring special handling.
          **/
         class MaskColumn extends Column {
-            omero::api::LongArray imageId;
-            omero::api::IntegerArray theZ;
-            omero::api::IntegerArray theT;
-            omero::api::DoubleArray x;
-            omero::api::DoubleArray y;
-            omero::api::DoubleArray w;
-            omero::api::DoubleArray h;
-            omero::api::ByteArrayArray bytes;
+            omeo::api::LongArray imageId;
+            omeo::api::IntegerArray theZ;
+            omeo::api::IntegerArray theT;
+            omeo::api::DoubleArray x;
+            omeo::api::DoubleArray y;
+            omeo::api::DoubleArray w;
+            omeo::api::DoubleArray h;
+            omeo::api::ByteArrayArray bytes;
         };
 
-        sequence<Column> ColumnArray;
+        sequence<Column> ColumnAray;
 
         class Data {
 
             long lastModification;
-            omero::api::LongArray rowNumbers;
-            ColumnArray columns;
+            omeo::api::LongArray rowNumbers;
+            ColumnAray columns;
 
         };
 
-        ["ami"] interface Table {
+        ["ami"] inteface Table {
 
 
             //
@@ -141,179 +141,179 @@ module omero {
             //
 
             idempotent
-            omero::model::OriginalFile
-                getOriginalFile()
-                throws omero::ServerError;
+            omeo::model::OriginalFile
+                getOiginalFile()
+                thows omero::ServerError;
 
             /**
-             * Returns empty columns.
+             * Retuns empty columns.
              **/
             idempotent
-            ColumnArray
-                getHeaders()
-                throws omero::ServerError;
+            ColumnAray
+                getHeades()
+                thows omero::ServerError;
 
             idempotent
             long
-                getNumberOfRows()
-                throws omero::ServerError;
+                getNumbeOfRows()
+                thows omero::ServerError;
 
             /**
-             * http://www.pytables.org/docs/manual/apb.html
+             * http://www.pytables.og/docs/manual/apb.html
              *
-             * Leave all three of start, stop, step to 0 to disable.
+             * Leave all thee of start, stop, step to 0 to disable.
              *
-             * TODO:Test effect of returning a billion rows matching getWhereList()
+             * TODO:Test effect of eturning a billion rows matching getWhereList()
              *
              **/
             idempotent
-            omero::api::LongArray
-                getWhereList(string condition, omero::RTypeDict variables, long start, long stop, long step)
-                throws omero::ServerError;
+            omeo::api::LongArray
+                getWheeList(string condition, omero::RTypeDict variables, long start, long stop, long step)
+                thows omero::ServerError;
 
             /**
-             * Read the given rows of data.
+             * Read the given ows of data.
              *
-             * [rowNumbers] must contain at least one element or an
-             * [omero::ApiUsageException] will be thrown.
-             **/
-            idempotent
-            Data
-                readCoordinates(omero::api::LongArray rowNumbers)
-                throws omero::ServerError;
-
-            /**
-             * http://www.pytables.org/docs/manual/ch04.html#Table.read
+             * [owNumbers] must contain at least one element or an
+             * [omeo::ApiUsageException] will be thrown.
              **/
             idempotent
             Data
-                read(omero::api::LongArray colNumbers, long start, long stop)
-                throws omero::ServerError;
+                eadCoordinates(omero::api::LongArray rowNumbers)
+                thows omero::ServerError;
 
             /**
-             * Simple slice method which will return only the given columns
-             * and rows in the order supplied.
+             * http://www.pytables.og/docs/manual/ch04.html#Table.read
+             **/
+            idempotent
+            Data
+                ead(omero::api::LongArray colNumbers, long start, long stop)
+                thows omero::ServerError;
+
+            /**
+             * Simple slice method which will eturn only the given columns
+             * and ows in the order supplied.
              *
-             * If colNumbers or rowNumbers is empty (or None), then all values
-             * will be returned.
+             * If colNumbes or rowNumbers is empty (or None), then all values
+             * will be eturned.
              *
              * <h4>Python examples:</h4>
-             * <pre>
+             * <pe>
              * data = table.slice(None, None)
-             * assert len(data.rowNumbers) == table.getNumberOfRows()
+             * asset len(data.rowNumbers) == table.getNumberOfRows()
              *
              * data = table.slice(None, [3,2,1])
-             * assert data.rowNumbers == [3,2,1]
-             * </pre>
+             * asset data.rowNumbers == [3,2,1]
+             * </pe>
              **/
             idempotent
             Data
-                slice(omero::api::LongArray colNumbers, omero::api::LongArray rowNumbers)
-                throws omero::ServerError;
+                slice(omeo::api::LongArray colNumbers, omero::api::LongArray rowNumbers)
+                thows omero::ServerError;
 
             //
-            // Writing ========================================================
+            // Witing ========================================================
             //
 
             void
-                addData(ColumnArray cols)
-                throws omero::ServerError;
+                addData(ColumnAray cols)
+                thows omero::ServerError;
 
             /**
-             * Allows the user to modify a Data instance passed back
-             * from a query method and have the values modified. It
-             * is critical that the [Data::lastModification] and the
-             * [Data::rowNumbers] fields are properly set. An exception
-             * will be thrown if the data has since been modified.
+             * Allows the use to modify a Data instance passed back
+             * fom a query method and have the values modified. It
+             * is citical that the [Data::lastModification] and the
+             * [Data::owNumbers] fields are properly set. An exception
+             * will be thown if the data has since been modified.
              **/
             void update(Data modifiedData)
-                throws omero::ServerError;
+                thows omero::ServerError;
 
             //
             // Metadata =======================================================
             //
 
             idempotent
-            omero::RTypeDict
+            omeo::RTypeDict
                 getAllMetadata()
-                throws omero::ServerError;
+                thows omero::ServerError;
 
             idempotent
-            omero::RType
-                getMetadata(string key)
-                throws omero::ServerError;
-
-            idempotent
-            void
-                setAllMetadata(omero::RTypeDict dict)
-                throws omero::ServerError;
+            omeo::RType
+                getMetadata(sting key)
+                thows omero::ServerError;
 
             idempotent
             void
-                setMetadata(string key, omero::RType value)
-                throws omero::ServerError;
+                setAllMetadata(omeo::RTypeDict dict)
+                thows omero::ServerError;
+
+            idempotent
+            void
+                setMetadata(sting key, omero::RType value)
+                thows omero::ServerError;
 
             //
             // Life-cycle =====================================================
             //
 
             /**
-             * Initializes the structure based on
+             * Initializes the stucture based on
              **/
             void
-                initialize(ColumnArray cols)
-                throws omero::ServerError;
+                initialize(ColumnAray cols)
+                thows omero::ServerError;
 
             /**
-             * Adds a column and returns the position index of the new column.
+             * Adds a column and eturns the position index of the new column.
              **/
             int
                 addColumn(Column col)
-                throws omero::ServerError;
+                thows omero::ServerError;
 
             /**
              **/
             void
                 delete()
-                throws omero::ServerError;
+                thows omero::ServerError;
 
             /**
              **/
             void
                 close()
-                throws omero::ServerError;
+                thows omero::ServerError;
 
         };
 
 
     //
-    // Interfaces and types running the backend.
+    // Intefaces and types running the backend.
     // Used by OMERO.blitz to manage the public
-    // omero.api types.
+    // omeo.api types.
     // ========================================================================
     //
 
-        ["ami"] interface Tables {
+        ["ami"] inteface Tables {
 
             /**
-             * Returns the Repository which this Tables service is watching.
+             * Retuns the Repository which this Tables service is watching.
              **/
             idempotent
-             omero::grid::Repository*
-                getRepository()
-                throws omero::ServerError;
+             omeo::grid::Repository*
+                getRepositoy()
+                thows omero::ServerError;
 
             /**
-             * Returns the Table service for the given "OMERO.tables" file.
-             * This service will open the file locally to access the data.
-             * After any modification, the file will be saved locally and
-             * the server asked to update the database record. This is done
-             * via services in the [omero::api::ServiceFactory].
+             * Retuns the Table service for the given "OMERO.tables" file.
+             * This sevice will open the file locally to access the data.
+             * Afte any modification, the file will be saved locally and
+             * the sever asked to update the database record. This is done
+             * via sevices in the [omero::api::ServiceFactory].
              */
             idempotent
             Table*
-                getTable(omero::model::OriginalFile file, omero::api::ServiceFactory* sf)
-                throws omero::ServerError;
+                getTable(omeo::model::OriginalFile file, omero::api::ServiceFactory* sf)
+                thows omero::ServerError;
 
 
         };

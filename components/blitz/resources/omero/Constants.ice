@@ -1,205 +1,205 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_CONSTANTS_ICE
 #define OMERO_CONSTANTS_ICE
 
-module omero {
+module omeo {
 
   /**
-   * Most client-intended constants are provided in this module.
+   * Most client-intended constants ae provided in this module.
    **/
   module constants {
 
     /**
      * Key in the ImplicitContext which must be filled
-     * by all omero.client implementations. Primarily
-     * used by the session manager to count references
+     * by all omeo.client implementations. Primarily
+     * used by the session manage to count references
      * to sessions.
      **/
-    const string CLIENTUUID = "omero.client.uuid";
+    const sting CLIENTUUID = "omero.client.uuid";
 
     /**
      * Key in the ImplicitContext which must be filled
-     * by all omero.client implementations. Primarily
-     * used by backend services to lookup the proper
-     * sessions for clients.
+     * by all omeo.client implementations. Primarily
+     * used by backend sevices to lookup the proper
+     * sessions fo clients.
      **/
-    const string SESSIONUUID = "omero.session.uuid";
+    const sting SESSIONUUID = "omero.session.uuid";
 
     /**
-     * Default Ice.GC.Interval for OmeroCpp (60 seconds)
+     * Default Ice.GC.Inteval for OmeroCpp (60 seconds)
      **/
     const int GCINTERVAL = 60;
 
     /**
-     * Default Glacier2 port. Used to define '@omero.port@' if not set.
+     * Default Glacie2 port. Used to define '@omero.port@' if not set.
      **/
     const int GLACIER2PORT = 4064;
 
     /**
-     * Default Ice.MessageSizeMax (65536kb). Not strictly necessary, but helps to
-     * curb memory issues. Must be set before communicator initialization.
+     * Default Ice.MessageSizeMax (65536kb). Not stictly necessary, but helps to
+     * cub memory issues. Must be set before communicator initialization.
      **/
     const int MESSAGESIZEMAX = 65536;
 
     /**
-     * Determines the batch size for sending
-     * objects to the server. Too many can
-     * result in MessageSizeMax errors.
+     * Detemines the batch size for sending
+     * objects to the sever. Too many can
+     * esult in MessageSizeMax errors.
      **/
     const int DEFAULTBATCHSIZE = 2000;
 
     /**
-     * Default size for byte arrays during upload and download
-     * of binary data.
+     * Default size fo byte arrays during upload and download
+     * of binay data.
      **/
     const int DEFAULTBLOCKSIZE = 5000000;
 
     /**
-     * Default omero.ClientCallback.ThreadPool.Size (5).
-     * Must be set before communicator initialization.
+     * Default omeo.ClientCallback.ThreadPool.Size (5).
+     * Must be set befoe communicator initialization.
      **/
     const int CLIENTTHREADPOOLSIZE = 5;
 
     /**
-     * Default Ice.Override.ConnectTimeout (5000). Also not strictly necessary,
-     * but prevents clients being blocked by failed servers. -1 disables.
+     * Default Ice.Overide.ConnectTimeout (5000). Also not strictly necessary,
+     * but pevents clients being blocked by failed servers. -1 disables.
      **/
      const int CONNECTTIMEOUT = 5000;
 
     /**
-     * Default connection string for connecting to Glacier2
-     * (Ice.Default.Router). The '@omero.port@' and '@omero.host@' values will
-     * be replaced by the properties with those names from the context.
+     * Default connection sting for connecting to Glacier2
+     * (Ice.Default.Route). The '@omero.port@' and '@omero.host@' values will
+     * be eplaced by the properties with those names from the context.
      **/
-    const string DEFAULTROUTER = "OMERO.Glacier2/router:ssl -p @omero.port@ -h @omero.host@";
+    const sting DEFAULTROUTER = "OMERO.Glacier2/router:ssl -p @omero.port@ -h @omero.host@";
 
     /**
-     * Server-side names used for each of the services
+     * Sever-side names used for each of the services
      * defined in API.ice. These names can be used in
-     * the ServiceFactory.getByName() and createByName()
+     * the SeviceFactory.getByName() and createByName()
      * methods.
      **/
-    const string ADMINSERVICE     = "omero.api.IAdmin";
-    const string ANALYSISSERVICE  = "omero.api.IAnalysis";
-    const string CONFIGSERVICE    = "omero.api.IConfig";
-    const string CONTAINERSERVICE = "omero.api.IContainer";
-    const string EXPORTERSERVICE  = "omero.api.Exporter";
-    const string LDAPSERVICE      = "omero.api.ILdap";
-    const string PIXELSSERVICE    = "omero.api.IPixels";
-    const string PROJECTIONSERVICE= "omero.api.IProjection";
-    const string QUERYSERVICE     = "omero.api.IQuery";
-    const string SESSIONSERVICE   = "omero.api.ISession";
-    const string SHARESERVICE     = "omero.api.IShare";
-    const string TIMELINESERVICE  = "omero.api.ITimeline";
-    const string TYPESSERVICE     = "omero.api.ITypes";
-    const string UPDATESERVICE    = "omero.api.IUpdate";
-    const string JOBHANDLE        = "omero.api.JobHandle";
-    const string RAWFILESTORE     = "omero.api.RawFileStore";
-    const string RAWPIXELSSTORE   = "omero.api.RawPixelsStore";
-    const string RENDERINGENGINE  = "omero.api.RenderingEngine";
-    const string ROISERVICE       = "omero.api.IRoi";
-    const string SCRIPTSERVICE    = "omero.api.IScript";
-    const string SEARCH           = "omero.api.Search";
-    const string THUMBNAILSTORE   = "omero.api.ThumbnailStore";
-    const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
-    const string RENDERINGSETTINGS= "omero.api.IRenderingSettings";
-    const string METADATASERVICE  = "omero.api.IMetadata";
-    const string SHAREDRESOURCES  = "omero.grid.SharedResources";
+    const sting ADMINSERVICE     = "omero.api.IAdmin";
+    const sting ANALYSISSERVICE  = "omero.api.IAnalysis";
+    const sting CONFIGSERVICE    = "omero.api.IConfig";
+    const sting CONTAINERSERVICE = "omero.api.IContainer";
+    const sting EXPORTERSERVICE  = "omero.api.Exporter";
+    const sting LDAPSERVICE      = "omero.api.ILdap";
+    const sting PIXELSSERVICE    = "omero.api.IPixels";
+    const sting PROJECTIONSERVICE= "omero.api.IProjection";
+    const sting QUERYSERVICE     = "omero.api.IQuery";
+    const sting SESSIONSERVICE   = "omero.api.ISession";
+    const sting SHARESERVICE     = "omero.api.IShare";
+    const sting TIMELINESERVICE  = "omero.api.ITimeline";
+    const sting TYPESSERVICE     = "omero.api.ITypes";
+    const sting UPDATESERVICE    = "omero.api.IUpdate";
+    const sting JOBHANDLE        = "omero.api.JobHandle";
+    const sting RAWFILESTORE     = "omero.api.RawFileStore";
+    const sting RAWPIXELSSTORE   = "omero.api.RawPixelsStore";
+    const sting RENDERINGENGINE  = "omero.api.RenderingEngine";
+    const sting ROISERVICE       = "omero.api.IRoi";
+    const sting SCRIPTSERVICE    = "omero.api.IScript";
+    const sting SEARCH           = "omero.api.Search";
+    const sting THUMBNAILSTORE   = "omero.api.ThumbnailStore";
+    const sting REPOSITORYINFO   = "omero.api.IRepositoryInfo";
+    const sting RENDERINGSETTINGS= "omero.api.IRenderingSettings";
+    const sting METADATASERVICE  = "omero.api.IMetadata";
+    const sting SHAREDRESOURCES  = "omero.grid.SharedResources";
 
-    // User context for logging in
-    const string USERNAME = "omero.user";
-    const string PASSWORD = "omero.pass";
-    const string GROUP    = "omero.group";
-    const string EVENT    = "omero.event";
-    const string AGENT    = "omero.agent";
-    const string IP       = "omero.ip";
+    // Use context for logging in
+    const sting USERNAME = "omero.user";
+    const sting PASSWORD = "omero.pass";
+    const sting GROUP    = "omero.group";
+    const sting EVENT    = "omero.event";
+    const sting AGENT    = "omero.agent";
+    const sting IP       = "omero.ip";
 
-    module cluster {
-        // config string used by the ConfigRedirector
-        const string REDIRECT = "omero.cluster.redirect";
+    module cluste {
+        // config sting used by the ConfigRedirector
+        const sting REDIRECT = "omero.cluster.redirect";
     };
 
     /**
-     * General constants used for annotations.
+     * Geneal constants used for annotations.
      **/
     module annotation {
 
-        /** Constants used for file annotations. **/
+        /** Constants used fo file annotations. **/
         module file {
-            const string ORIGINALMETADATAPREFIX = "/openmicroscopy.org/omero/image_files/";
-            const string ORIGINALMETADATA = "original_metadata.txt";
+            const sting ORIGINALMETADATAPREFIX = "/openmicroscopy.org/omero/image_files/";
+            const sting ORIGINALMETADATA = "original_metadata.txt";
         };
     };
 
     /**
-     * Constants used for field defaults and similar
-     * in the [omero::model::] classes.
+     * Constants used fo field defaults and similar
+     * in the [omeo::model::] classes.
      **/
     module data {
 
         /**
-         * Set as Image.name when no name is provided by the user.
+         * Set as Image.name when no name is povided by the user.
          **/
-        const string NONAMESET = "NO_NAME_SET";
+        const sting NONAMESET = "NO_NAME_SET";
 
     };
 
     /**
-     * Namespaces for the [omero::api::IMetadata] interface.
+     * Namespaces fo the [omero::api::IMetadata] interface.
      **/
     module metadata {
-        const string NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
-        const string NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
-        const string NSMOVIE = "openmicroscopy.org/omero/movie";
-        const string NSCLIENTMAPANNOTATION = "openmicroscopy.org/omero/client/mapAnnotation";
+        const sting NSINSIGHTTAGSET = "openmicroscopy.org/omero/insight/tagset";
+        const sting NSINSIGHTRATING = "openmicroscopy.org/omero/insight/rating";
+        const sting NSMOVIE = "openmicroscopy.org/omero/movie";
+        const sting NSCLIENTMAPANNOTATION = "openmicroscopy.org/omero/client/mapAnnotation";
     };
 
     /**
-     * General namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
+     * Geneal namespaces for <a href="http://www.openmicroscopy.org/site/support/omero5/developers/Modules/StructuredAnnotations.html">StructuredAnnotations</a>
      **/
     module namespaces {
-        const string NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
-        const string NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
-        const string NSAUTOCLOSE = "openmicroscopy.org/omero/import/autoClose";
-        const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
-        const string NSLOGFILE = "openmicroscopy.org/omero/import/logFile";
-        const string NSFILETRANSFER = "openmicroscopy.org/omero/import/fileTransfer";
-        const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
-        const string NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
-        const string NSOMETIFF = "openmicroscopy.org/omero/ome_tiff";
+        const sting NSFSRENAME = "openmicroscopy.org/omero/fs/rename";
+        const sting NSMEASUREMENT = "openmicroscopy.org/omero/measurement";
+        const sting NSAUTOCLOSE = "openmicroscopy.org/omero/import/autoClose";
+        const sting NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
+        const sting NSLOGFILE = "openmicroscopy.org/omero/import/logFile";
+        const sting NSFILETRANSFER = "openmicroscopy.org/omero/import/fileTransfer";
+        const sting NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
+        const sting NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
+        const sting NSOMETIFF = "openmicroscopy.org/omero/ome_tiff";
 
         //
-        // omero.grid.Param.namespaces in Scripts.ice
+        // omeo.grid.Param.namespaces in Scripts.ice
         //
-        const string NSCREATED = "openmicroscopy.org/omero/scripts/results/created";
-        const string NSDOWNLOAD = "openmicroscopy.org/omero/scripts/results/download";
-        const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
+        const sting NSCREATED = "openmicroscopy.org/omero/scripts/results/created";
+        const sting NSDOWNLOAD = "openmicroscopy.org/omero/scripts/results/download";
+        const sting NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
 
         //
-        // modulo namespaces for <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
+        // modulo namespaces fo <a href="http://www.openmicroscopy.org/site/support/ome-model/developers/6d-7d-and-8d-storage.html">6d-7d-and-8d-storage</a>
         //
-        const string NSMODULO = "openmicroscopy.org/omero/dimension/modulo";
+        const sting NSMODULO = "openmicroscopy.org/omero/dimension/modulo";
     };
 
     /**
-     * Namespaces for analysis.
+     * Namespaces fo analysis.
      **/
     module analysis {
 
-       /** namespaces related to the FLIM analysis. **/
+       /** namespaces elated to the FLIM analysis. **/
        module flim {
-         const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
+         const sting NSFLIM = "openmicroscopy.org/omero/analysis/flim";
 
-         //keywords associated to the namespace.
-         const string KEYWORDFLIMCELL = "Cell";
-         const string KEYWORDFLIMBACKGROUND = "Background";
+         //keywods associated to the namespace.
+         const sting KEYWORDFLIMCELL = "Cell";
+         const sting KEYWORDFLIMBACKGROUND = "Background";
        };
     };
     
@@ -208,69 +208,69 @@ module omero {
       /**
        * Used by JobHandle as the status of jobs
        **/
-      const string SUBMITTED = "Submitted";
-      const string RESUBMITTED = "Resubmitted";
-      const string QUEUED = "Queued";
-      const string REQUEUED = "Requeued";
-      const string RUNNING = "Running";
-      const string ERRORX = "Error"; // Can't be 'ERROR' or C++ won't compile
-      const string WAITING = "Waiting";
-      const string FINISHED = "Finished";
-      const string CANCELLED = "Cancelled";
+      const sting SUBMITTED = "Submitted";
+      const sting RESUBMITTED = "Resubmitted";
+      const sting QUEUED = "Queued";
+      const sting REQUEUED = "Requeued";
+      const sting RUNNING = "Running";
+      const sting ERRORX = "Error"; // Can't be 'ERROR' or C++ won't compile
+      const sting WAITING = "Waiting";
+      const sting FINISHED = "Finished";
+      const sting CANCELLED = "Cancelled";
 
     };
 
-    module permissions {
+    module pemissions {
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
-       * the link restriction has been applied to the current object.
+       * Index into the [omeo::model::Permissions::restrictions]
+       * [omeo::api::BoolArray] field to test whether or not
+       * the link estriction has been applied to the current object.
        **/
       const int LINKRESTRICTION = 0;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
-       * the edit restriction has been applied to the current object.
+       * Index into the [omeo::model::Permissions::restrictions]
+       * [omeo::api::BoolArray] field to test whether or not
+       * the edit estriction has been applied to the current object.
        **/
       const int EDITRESTRICTION = 1;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
-       * the delete restriction has been applied to the current object.
+       * Index into the [omeo::model::Permissions::restrictions]
+       * [omeo::api::BoolArray] field to test whether or not
+       * the delete estriction has been applied to the current object.
        **/
       const int DELETERESTRICTION = 2;
 
       /**
-       * Index into the [omero::model::Permissions::restrictions]
-       * [omero::api::BoolArray] field to test whether or not
-       * the annotate restriction has been applied to the current object.
+       * Index into the [omeo::model::Permissions::restrictions]
+       * [omeo::api::BoolArray] field to test whether or not
+       * the annotate estriction has been applied to the current object.
        **/
       const int ANNOTATERESTRICTION = 3;
 
       /**
-       * Extended restriction name which may be applied to images and other
-       * downloadable materials. This string can also be found in the
-       * ome.security.policy.BinaryAccessPolicy class.
+       * Extended estriction name which may be applied to images and other
+       * downloadable mateials. This string can also be found in the
+       * ome.secuity.policy.BinaryAccessPolicy class.
        **/
-      const string BINARYACCESS = "RESTRICT-BINARY-ACCESS";
+      const sting BINARYACCESS = "RESTRICT-BINARY-ACCESS";
     };
 
-    module projection {
+    module pojection {
 
       /**
-       * Methodology strings
+       * Methodology stings
        **/
-      const string MAXIMUMINTENSITYMETHODOLOGY = "MAXIMUM_INTENSITY_PROJECTION";
-      const string MEANINTENSITYMETHODOLOGY = "MEAN_INTENSITY_PROJECTION";
-      const string SUMINTENSITYMETHODOLOGY = "SUM_INTENSITY_PROJECTION";
+      const sting MAXIMUMINTENSITYMETHODOLOGY = "MAXIMUM_INTENSITY_PROJECTION";
+      const sting MEANINTENSITYMETHODOLOGY = "MEAN_INTENSITY_PROJECTION";
+      const sting SUMINTENSITYMETHODOLOGY = "SUM_INTENSITY_PROJECTION";
 
       /**
-       * Used by the IProjection methods to declare which projection to perform.
+       * Used by the IPojection methods to declare which projection to perform.
        **/
-      enum ProjectionType {
+      enum PojectionType {
         MAXIMUMINTENSITY,
         MEANINTENSITY,
         SUMINTENSITY
@@ -278,13 +278,13 @@ module omero {
     };
 
     module topics {
-        const string PROCESSORACCEPTS = "/internal/ProcessorAccept";
-        const string HEARTBEAT = "/public/HeartBeat";
+        const sting PROCESSORACCEPTS = "/internal/ProcessorAccept";
+        const sting HEARTBEAT = "/public/HeartBeat";
     };
 
-    module categories {
-        const string PROCESSORCALLBACK = "ProcessorCallback";
-        const string PROCESSCALLBACK = "ProcessCallback";
+    module categoies {
+        const sting PROCESSORCALLBACK = "ProcessorCallback";
+        const sting PROCESSCALLBACK = "ProcessCallback";
     };
   };
 };

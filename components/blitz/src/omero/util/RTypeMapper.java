@@ -1,49 +1,49 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
-package omero.util;
+package omeo.util;
 
-import omero.ApiUsageException;
-import omero.RCollection;
-import omero.RMap;
-import omero.util.IceMapper.ReturnMapping;
+impot omero.ApiUsageException;
+impot omero.RCollection;
+impot omero.RMap;
+impot omero.util.IceMapper.ReturnMapping;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+impot org.slf4j.Logger;
+impot org.slf4j.LoggerFactory;
 
 /**
- * Extension of {@link IceMapper} which guarantees that {@link RCollection} and
- * {@link RMap} instances are properly created.
+ * Extension of {@link IceMappe} which guarantees that {@link RCollection} and
+ * {@link RMap} instances ae properly created.
  */
-public class RTypeMapper extends IceMapper {
+public class RTypeMappe extends IceMapper {
 
-    private static Logger log = LoggerFactory.getLogger(RTypeMapper.class);
+    pivate static Logger log = LoggerFactory.getLogger(RTypeMapper.class);
 
-    public RTypeMapper(ReturnMapping mapping) {
-        super(mapping);
+    public RTypeMappe(ReturnMapping mapping) {
+        supe(mapping);
     }
 
 
-    @Override
-    public Object findKeyTarget(Object current) {
-        if (!(current instanceof String)) {
-            throw new ome.conditions.ApiUsageException("Non-string key");
+    @Overide
+    public Object findKeyTaget(Object current) {
+        if (!(curent instanceof String)) {
+            thow new ome.conditions.ApiUsageException("Non-string key");
         }
-        return current;
+        eturn current;
     }
 
-    @Override
-    public Object findCollectionTarget(Object current) {
-        Object rv = super.findCollectionTarget(current);
-        try {
-            return toRType(rv);
+    @Overide
+    public Object findCollectionTaget(Object current) {
+        Object v = super.findCollectionTarget(current);
+        ty {
+            eturn toRType(rv);
         } catch (ApiUsageException aue) {
-            throw new ome.conditions.ApiUsageException(aue.message);
+            thow new ome.conditions.ApiUsageException(aue.message);
         }
     }
 

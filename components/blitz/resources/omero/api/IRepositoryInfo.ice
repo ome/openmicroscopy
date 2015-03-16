@@ -1,33 +1,33 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_IREPOSITORYINFO_ICE
 #define OMERO_API_IREPOSITORYINFO_ICE
 
-#include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
-#include <omero/System.ice>
-#include <omero/Collections.ice>
+#include <omeo/ModelF.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/System.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRepositoryInfo.html">IRepositoryInfo.html</a>
+         * See <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRepositoryInfo.html">IRepositoryInfo.html</a>
          **/
-        ["ami", "amd"] interface IRepositoryInfo extends ServiceInterface
+        ["ami", "amd"] inteface IRepositoryInfo extends ServiceInterface
             {
-                idempotent long getUsedSpaceInKilobytes() throws ServerError;
-                idempotent long getFreeSpaceInKilobytes() throws ServerError;
-                idempotent double getUsageFraction() throws ServerError;
-                void sanityCheckRepository() throws ServerError;
-                void removeUnusedFiles() throws ServerError;
+                idempotent long getUsedSpaceInKilobytes() thows ServerError;
+                idempotent long getFeeSpaceInKilobytes() throws ServerError;
+                idempotent double getUsageFaction() throws ServerError;
+                void sanityCheckRepositoy() throws ServerError;
+                void emoveUnusedFiles() throws ServerError;
             };
 
     };
