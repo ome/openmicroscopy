@@ -517,6 +517,8 @@ public class CommandLineImporter {
 
         LongOpt noStatsInfo =
                 new LongOpt("no_stats_info", LongOpt.NO_ARGUMENT, null, 22);
+        LongOpt noPixelsChecksum =
+                new LongOpt("no_pixels_checksum", LongOpt.NO_ARGUMENT, null, 23);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -531,7 +533,7 @@ public class CommandLineImporter {
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
-                                exclude, noStatsInfo,
+                                exclude, noStatsInfo, noPixelsChecksum,
                                 qaBaseURL, plateName, plateDescription});
         int a;
 
@@ -660,6 +662,11 @@ public class CommandLineImporter {
             case 22: {
                 log.info("Skipping minimum/maximum computation");
                 config.noStatsInfo.set(true);
+                break;
+            }
+            case 23: {
+                log.info("Skipping pixels checksum computation");
+                config.noPixelsChecksum.set(true);
                 break;
             }
             // ADVANCED END ---------------------------------------------------

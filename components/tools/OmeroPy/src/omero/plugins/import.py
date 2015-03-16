@@ -200,6 +200,7 @@ class ImportControl(BaseControl):
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
         if args.skip in ['all', 'checksum']:
+            self.command_args.append("--no_pixels_checksum")
             self.command_args.append("--checksum_algorithm=File-Size-64")
         if args.skip in ['all', 'thumbnails']:
             self.command_args.append("--no_thumbnails")
