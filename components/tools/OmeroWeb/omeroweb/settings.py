@@ -930,7 +930,7 @@ PIPELINE_JS = {
             '3rdparty/jquery-migrate-1.2.1.js',
             '3rdparty/jquery-ui-1.10.4/js/jquery-ui.1.10.4.js',
             'webgateway/js/ome.popup.js',
-            '3rdparty/aop.js',
+            '3rdparty/aop-1.3.js',
             '3rdparty/raphael-2.1.0/raphael.js',
             '3rdparty/raphael-2.1.0/scale.raphael.js',
             '3rdparty/panojs-2.0.0/utils.js',
