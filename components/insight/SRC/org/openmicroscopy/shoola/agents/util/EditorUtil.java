@@ -520,6 +520,9 @@ public class EditorUtil
     /** Unicode character for a non-breaking space */
     public static final String NONBRSPACE = "\u00A0";
 
+    /** The date format for the date pickers */
+    public static final String DATE_PICKER_FORMAT = "yyyy-MM-dd";
+
     /**
      * The value to multiply the server value by when it is a percent fraction.
      */
@@ -2661,5 +2664,16 @@ public class EditorUtil
             return false;
         }
         return false;
+    }
+    
+    /**
+     * Checks if the given namespace is an internal one.
+     * 
+     * @param ns
+     *            The namespace to check
+     * @return See above
+     */
+    public static boolean isInternalNS(String ns) {
+        return ns.startsWith("openmicroscopy.org") || ns.startsWith("omero.");
     }
 }

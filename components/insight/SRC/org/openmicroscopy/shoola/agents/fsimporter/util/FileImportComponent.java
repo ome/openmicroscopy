@@ -1031,8 +1031,7 @@ public class FileImportComponent
 		if (e == null) return null;
 		ImportErrorObject object = new ImportErrorObject(
 		        getFile().getTrueFile(), e, getGroupID());
-		object.setReaderType(statusLabel.getReaderType());
-		object.setUsedFiles(statusLabel.getUsedFiles());
+		object.setImportContainer(statusLabel.getImportContainer());
 		long id = statusLabel.getLogFileID();
 		if (id <= 0) {
 			FilesetData data = statusLabel.getFileset();

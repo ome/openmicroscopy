@@ -25,6 +25,7 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import omero.ServerError;
 import omero.client;
@@ -229,6 +230,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /** Host information about the file and its corresponding log file.*/
     private Map<String, Long> logFiles;
 
+    /** Host information about the file and its corresponding import candidate.*/
+    protected Map<String, ImportContainer> icMap;
+
     /**
      * Initialize
      *
@@ -238,6 +242,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     {
         this.config = config;
         logFiles = new HashMap<String, Long>();
+        icMap = new HashMap<String, ImportContainer>();
     }
 
     /* (non-Javadoc)
@@ -273,7 +278,11 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         } else if (event instanceof ImportEvent.METADATA_IMPORTED) {
             ImportEvent.METADATA_IMPORTED e =
                     (ImportEvent.METADATA_IMPORTED) event;
-            logFiles.put(e.filename, e.logFileId);
+            logFiles.put(e.container.getFile().getAbsolutePath(), e.logFileId);
+        } else if (event instanceof ImportEvent.POST_UPLOAD_EVENT) {
+            ImportEvent.POST_UPLOAD_EVENT e =
+                    (ImportEvent.POST_UPLOAD_EVENT) event;
+            icMap.put(e.container.getFile().getAbsolutePath(), e.container);
         }
         onUpdate(observable, event);
 

@@ -36,6 +36,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,8 +65,10 @@ import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableModel;
 import org.openmicroscopy.shoola.agents.metadata.editor.maptable.MapTableSelectionModel;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ToolTipGenerator;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ExperimenterData;
 import pojos.MapAnnotationData;
 
 /**
@@ -311,19 +314,56 @@ public class MapAnnotationsComponent extends JPanel implements
 		c.gridy++;
 	}
 
-	/**
-	 * Refreshes the UI with the model's current content
-	 */
-	public void reload() {
-		List<MapAnnotationData> list = model
-				.getMapAnnotations(MapAnnotationType.USER);
-		if (list.isEmpty()) {
-			MapAnnotationData newMA = new MapAnnotationData();
-			newMA.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
-			list.add(newMA);
-		}
-		list.addAll(model.getMapAnnotations(MapAnnotationType.OTHER_USERS));
-		list.addAll(model.getMapAnnotations(MapAnnotationType.OTHER));
+    /**
+     * Show only specific types of MapAnnotations
+     * 
+     * @param filter
+     *            One of: {@link AnnotationDataUI#SHOW_ALL}, see
+     *            {@link AnnotationDataUI#ADDED_BY_ME}, see
+     *            {@link AnnotationDataUI#ADDED_BY_OTHERS}
+     */
+    public void filter(int filter) {
+        for (MapTable table : mapTables) {
+            table.getParent().setVisible(false);
+
+            if (isUsers(table.getData())
+                    && (filter == AnnotationDataUI.ADDED_BY_ME || filter == AnnotationDataUI.SHOW_ALL)) {
+                table.getParent().setVisible(true);
+            }
+
+            if (isOtherUsers(table.getData())
+                    && (filter == AnnotationDataUI.ADDED_BY_OTHERS || filter == AnnotationDataUI.SHOW_ALL)) {
+                table.getParent().setVisible(true);
+            }
+
+            if (isOther(table.getData()) && filter == AnnotationDataUI.SHOW_ALL) {
+                table.getParent().setVisible(true);
+            }
+        }
+    }
+	
+    /**
+     * Refreshes the UI with the model's current content
+     * 
+     * @param filter
+     *            Show only specific types of MapAnnotations, see
+     *            {@link AnnotationDataUI#SHOW_ALL}, see
+     *            {@link AnnotationDataUI#ADDED_BY_ME}, see
+     *            {@link AnnotationDataUI#ADDED_BY_OTHERS}
+     */
+	public void reload(int filter) {
+        List<MapAnnotationData> list = new ArrayList<MapAnnotationData>();
+
+        list.addAll(model.getMapAnnotations(MapAnnotationType.USER));
+        if (list.isEmpty()) {
+            MapAnnotationData newMA = new MapAnnotationData();
+            newMA.setNameSpace(MapAnnotationData.NS_CLIENT_CREATED);
+            list.add(newMA);
+        }
+
+        list.addAll(model.getMapAnnotations(MapAnnotationType.OTHER_USERS));
+
+        list.addAll(model.getMapAnnotations(MapAnnotationType.OTHER));
 
 		for (MapAnnotationData ma : list) {
 			MapTable t = findTable(ma);
@@ -338,6 +378,7 @@ public class MapAnnotationsComponent extends JPanel implements
 				JPanel p = new JPanel();
 				p.setBackground(UIUtilities.BACKGROUND_COLOR);
 				UIUtilities.setBoldTitledBorder(title, p);
+				p.setToolTipText(generateToolTip(ma));
 				p.setLayout(new BorderLayout());
 				t = createMapTable(ma);
 
@@ -360,11 +401,45 @@ public class MapAnnotationsComponent extends JPanel implements
 			}
 		}
 
+        if (filter > -1)
+            filter(filter);
+		
 		refreshButtonStates();
 		setVisible(!mapTables.isEmpty());
 		adjustScrollPane();
 	}
 
+	private String generateToolTip(MapAnnotationData ma) {
+	    ToolTipGenerator tt = new ToolTipGenerator();
+        ExperimenterData exp = null;
+        
+        if(ma.getId()>0) {
+            exp = model.getOwner(ma);
+            tt.addLine("ID", ""+ma.getId(), true);
+        }
+        
+        String ns = ma.getNameSpace();
+        if(!CommonsLangUtils.isEmpty(ns) && !EditorUtil.isInternalNS(ns)) {
+            tt.addLine("Namespace", ns, true);
+        }
+        
+        String desc = ma.getDescription();
+        if(!CommonsLangUtils.isEmpty(desc)) {
+            tt.addLine("Description", desc, true);
+        }
+        
+        if(exp!=null) {
+            tt.addLine("Owner", EditorUtil.formatExperimenter(exp), true);
+        }
+        
+        Timestamp created = ma.getCreated();
+        if(created !=null) {
+            tt.addLine("Date", UIUtilities.formatDefaultDate(created), true);
+        }
+        
+        return tt.toString();
+	}
+	
 	/**
 	 * En-/Disables the toolbar buttons with respect to the current model state
 	 */
@@ -413,6 +488,29 @@ public class MapAnnotationsComponent extends JPanel implements
 				&& (data.getOwner() == null || MetadataViewerAgent
 						.getUserDetails().getId() == data.getOwner().getId());
 	}
+	
+    /**
+     * Check if the given {@link MapAnnotationData} belongs to an other user
+     * 
+     * @param data
+     *            The {@link MapAnnotationData}
+     * @return See above
+     */
+    private boolean isOtherUsers(MapAnnotationData data) {
+        return MapAnnotationData.NS_CLIENT_CREATED.equals(data.getNameSpace())
+                && !isUsers(data);
+    }
+
+    /**
+     * Check if the given {@link MapAnnotationData} is a non-user annotation
+     * 
+     * @param data
+     *            The {@link MapAnnotationData}
+     * @return See above
+     */
+    private boolean isOther(MapAnnotationData data) {
+        return !MapAnnotationData.NS_CLIENT_CREATED.equals(data.getNameSpace());
+    }
 
 	/**
 	 * Creates a {@link MapTable} and adds it to the list of mapTables; Returns

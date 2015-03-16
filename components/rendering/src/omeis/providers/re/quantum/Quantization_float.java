@@ -26,8 +26,8 @@ package omeis.providers.re.quantum;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import ome.model.core.Pixels;
 import ome.model.display.QuantumDef;
-import ome.model.enums.PixelsType;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -170,10 +170,10 @@ public class Quantization_float extends QuantumStrategy {
      * @param qd
      *            Quantum definition object, contained mapping data.
      * @param type
-     *            The pixel type;
+     *            The pixels
      */
-    public Quantization_float(QuantumDef qd, PixelsType type) {
-        super(qd, type);
+    public Quantization_float(QuantumDef qd, Pixels pixels) {
+        super(qd, pixels);
         values = CacheBuilder.newBuilder()
                 .maximumSize(MAX-MIN+1)
                 .expireAfterWrite(10, TimeUnit.MINUTES)

@@ -72,9 +72,10 @@ def zip_archived_files(images, temp, zipName):
     temp_zip_dir = tempfile.mkdtemp()
     logger.debug("download dir: %s" % temp_zip_dir)
     try:
+        new_dir_idx = 1     # if needed to avoid file name clashes
         for image in images:
+            new_dir = ""
             templatePrefix = ""
-            new_dir = ""            # if needed to avoid file name clashes
             fs = image.getFileset()
             if fs is not None:
                 # Make sure we've not processed this fileset before.
@@ -90,7 +91,8 @@ def zip_archived_files(images, temp, zipName):
                 base_file = os.path.join(
                     temp_zip_dir, split_path(target_path)[0])
                 if os.path.exists(base_file):
-                    new_dir = str(image.getId())
+                    new_dir = str(new_dir_idx)
+                    new_dir_idx += 1
                     break
 
             for a in files:

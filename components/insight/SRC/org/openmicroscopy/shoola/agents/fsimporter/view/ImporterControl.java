@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
-//Java imports
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,9 +45,6 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
-
-import loci.formats.FormatReader;
-import loci.formats.FormatTools;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -296,26 +292,14 @@ class ImporterControl
 		if (CollectionUtils.isEmpty(toSubmit)) return;
 		//Check reader used.
         Iterator<ImportErrorObject> j = toSubmit.iterator();
-        Logger logger = ImporterAgent.getRegistry().getLogger();
         boolean plate = false;
         while (j.hasNext()) {
             object = j.next();
-            String reader = object.getReaderType();
-            try {
-                Class<?> c = Class.forName(reader);
-                FormatReader instance = (FormatReader) c.newInstance();
-                instance.setId(object.getFile().getAbsolutePath());
-                String[] domains = instance.getDomains();
-                for (int k = 0; k < domains.length; k++) {
-                    if (domains[k].equals(FormatTools.HCS_DOMAIN)) {
-                        plate = true;
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                logger.debug(this, "Cannot determine domain: "+e.toString());
+            Boolean b = object.isHCS();
+            if (b != null && b.booleanValue()) {
+                plate = true;
+                break;
             }
-            
         }
         if (plate) {
             StringBuffer buffer = new StringBuffer();

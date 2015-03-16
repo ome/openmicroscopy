@@ -69,15 +69,12 @@ class QuantumManager {
      * 
      * @param qd
      *            The quantum definition which dictates what strategy to use.
-     * @param type
-     *            The pixels' type.
      * @param waves
      *            Rendering settings associated to each wavelength (channel).
      */
-    void initStrategies(QuantumDef qd, PixelsType type,
-            List<ChannelBinding> waves) {
+    void initStrategies(QuantumDef qd, List<ChannelBinding> waves) {
         ChannelBinding[] cb = waves.toArray(new ChannelBinding[waves.size()]);
-        initStrategies(qd, type, cb);
+        initStrategies(qd, cb);
     }
 
     /**
@@ -87,12 +84,10 @@ class QuantumManager {
      * 
      * @param qd
      *            The quantum definition which dictates what strategy to use.
-     * @param type
-     *            The pixels' type.
      * @param waves
      *            Rendering settings associated to each wavelength (channel).
      */
-    void initStrategies(QuantumDef qd, PixelsType type, ChannelBinding[] waves) {
+    void initStrategies(QuantumDef qd, ChannelBinding[] waves) {
         QuantumStrategy stg;
         double gMin, gMax;
         int w = 0;
@@ -101,10 +96,10 @@ class QuantumManager {
         double[] minmax;
         for (Iterator<Channel> i = metadata.iterateChannels(); i.hasNext();) {
             channel = i.next();
-            stg = factory.getStrategy(qd, type);
+            stg = factory.getStrategy(qd, metadata);
             StatsInfo statsInfo = channel.getStatsInfo();
             if (statsInfo == null) {
-                minmax = sf.initPixelsRange(type);
+                minmax = sf.initPixelsRange(metadata);
                 gMin = minmax[0];
                 gMax = minmax[1];
             } else {

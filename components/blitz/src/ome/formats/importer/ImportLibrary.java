@@ -587,7 +587,7 @@ public class ImportLibrary implements IObservable
                 this.logFileId = loadLogFile();
                 initializationDone();
                 notifyObservers(new ImportEvent.IMPORT_STARTED(
-                        0, this.container.getFile().getAbsolutePath(),
+                        0, this.container,
                         null, null, 0, null, 0, 0, logFileId));
         }
 
@@ -619,23 +619,23 @@ public class ImportLibrary implements IObservable
         public void step(int step, int total, Ice.Current current) {
             if (step == 1) {
                 notifyObservers(new ImportEvent.METADATA_IMPORTED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 2) {
                 notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 3) {
                 notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 4) {
                 notifyObservers(new ImportEvent.METADATA_PROCESSED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             } else if (step == 5) {
                 notifyObservers(new ImportEvent.OBJECTS_RETURNED(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, step, total, logFileId));
             }
         }
@@ -669,7 +669,7 @@ public class ImportLibrary implements IObservable
                 {
                     // Only respond once.
                     notifyObservers(new ImportEvent.IMPORT_DONE(
-                        0, container.getFile().getAbsolutePath(),
+                        0, container,
                         null, null, 0, null, rv.pixels, fs, rv.objects));
                 }
                 this.importResponse = rv;

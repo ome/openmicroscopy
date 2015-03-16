@@ -1729,7 +1729,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.1',  0,    'OMERO5.1',   0,             'Initializing');
+             values ('OMERO5.1',  1,    'OMERO5.1',   0,             'Initializing');
 
 --
 -- Temporarily make event columns nullable; restored below.
@@ -2558,6 +2558,7 @@ alter  table originalfile add column repo varchar(36);
 create index originalfile_mime_index on originalfile (mimetype);
 create index originalfile_path_index on originalfile (path);
 create index originalfile_repo_index on originalfile (repo);
+create index originalfile_hash_index on originalfile (hash);
 create unique index originalfile_repo_path_index on originalfile (repo, path, name) where repo is not null;
 
 --
@@ -2575,6 +2576,21 @@ create unique index well_col_row on well (plate, "column", "row");
 create index eventlog_entitytype on eventlog(entitytype);
 create index eventlog_entityid on eventlog(entityid);
 create index eventlog_action on eventlog(action);
+create index annotation_discriminator on annotation(discriminator);
+create index annotation_ns on annotation(ns);
+
+CREATE INDEX experimentergroup_config_name ON experimentergroup_config(name);
+CREATE INDEX experimentergroup_config_value ON experimentergroup_config(value);
+CREATE INDEX genericexcitationsource_map_name ON genericexcitationsource_map(name);
+CREATE INDEX genericexcitationsource_map_value ON genericexcitationsource_map(value);
+CREATE INDEX imagingenvironment_map_name ON imagingenvironment_map(name);
+CREATE INDEX imagingenvironment_map_value ON imagingenvironment_map(value);
+CREATE INDEX annotation_mapValue_name ON annotation_mapValue(name);
+CREATE INDEX annotation_mapValue_value ON annotation_mapValue(value);
+CREATE INDEX metadataimportjob_versionInfo_name ON metadataimportjob_versionInfo(name);
+CREATE INDEX metadataimportjob_versionInfo_value ON metadataimportjob_versionInfo(value);
+CREATE INDEX uploadjob_versionInfo_name ON uploadjob_versionInfo(name);
+CREATE INDEX uploadjob_versionInfo_value ON uploadjob_versionInfo(value);
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash VARCHAR(255),
     changed TIMESTAMP WITHOUT TIME ZONE);
@@ -2996,14 +3012,26 @@ ALTER TABLE wellsample ADD CONSTRAINT posY_unitpair
     CHECK (posY IS NULL AND posYUnit IS NULL
         OR posY IS NOT NULL AND posYUnit IS NOT NULL);
 
+
 -- Temporary workaround for the width of map types
-alter table annotation_mapvalue alter column name type text;
-alter table annotation_mapvalue alter column value type text;
+
+ALTER TABLE experimentergroup_config ALTER COLUMN name TYPE TEXT;
+ALTER TABLE experimentergroup_config ALTER COLUMN value TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE annotation_mapValue ALTER COLUMN name TYPE TEXT;
+ALTER TABLE annotation_mapValue ALTER COLUMN value TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN value TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.1' and
-        currentPatch = 0 and
+        currentPatch = 1 and
         previousVersion = 'OMERO5.1' and
         previousPatch = 0;
 

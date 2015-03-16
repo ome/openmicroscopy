@@ -6,6 +6,7 @@ ${OMERO PORT}           %(PORT)s
 
 ${ROOT USERNAME}        root
 ${ROOT PASSWORD}        %(ROOTPASS)s
+${ROOT FULL NAME}		root root
 
 ${USERNAME}             %(USER)s
 ${PASSWORD}             %(PASS)s

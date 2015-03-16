@@ -22,7 +22,7 @@ import org.springframework.mail.MailException;
 import ome.api.IQuery;
 import ome.api.local.LocalAdmin;
 import ome.parameters.Parameters;
-import ome.services.util.MailUtil;
+import ome.services.mail.MailUtil;
 import ome.system.EventContext;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.ERR;

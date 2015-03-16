@@ -495,6 +495,13 @@
   License File: apache-v2.0.txt
 
 
+  Artifacts:    subethasmtp-*.jar
+  Project:      SubEtha SMTP is an easy-to-use server-side SMTP library for Java
+  Website:      https://code.google.com/p/subethasmtp
+  License:      Apache License, Version 2.0
+  License File: apache-v2.0.txt
+
+
   Artifacts:    swingx-*.jar
   Project:      The Swing labs project.
                 SwingLabs is an Open Source laboratory for exploring new ways to make

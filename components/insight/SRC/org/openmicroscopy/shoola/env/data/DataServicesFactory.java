@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.DataServicesFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -68,7 +68,6 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.ShutDownDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -610,6 +609,25 @@ public class DataServicesFactory
         registry.bind(LookupNames.CONNECTION_SPEED, 
         		isFastConnection(uc.getSpeedLevel()));
         
+        try {
+            // Load the omero client properties from the server
+            List agents = (List) registry.lookup(LookupNames.AGENTS);
+            Map<String, String> props = omeroGateway.getOmeroClientProperties();
+            for (String key : props.keySet()) {
+                if (registry.lookup(key) == null)
+                    registry.bind(key, props.get(key));
+
+                Registry agentReg;
+                for (Object agent : agents) {
+                    agentReg = ((AgentInfo) agent).getRegistry();
+                    if (agentReg.lookup(key) == null)
+                        agentReg.bind(key, props.get(key));
+                }
+            }
+        } catch (DSAccessException e1) {
+            registry.getLogger().warn(this, "Could not load omero client properties from the server");
+        }
+        
         Collection<GroupData> groups;
         Set<GroupData> available;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
@@ -673,6 +691,7 @@ public class DataServicesFactory
 		AgentInfo agentInfo;
 		Registry reg;
 		Boolean b = (Boolean) registry.lookup(LookupNames.BINARY_AVAILABLE);
+		String url = (String) registry.lookup(LookupNames.HELP_ON_LINE_SEARCH);
 		while (kk.hasNext()) {
 			agentInfo = (AgentInfo) kk.next();
 			if (agentInfo.isActive()) {
@@ -684,6 +703,7 @@ public class DataServicesFactory
 				reg.bind(LookupNames.CONNECTION_SPEED, 
 						isFastConnection(uc.getSpeedLevel()));
 				reg.bind(LookupNames.BINARY_AVAILABLE, b);
+				reg.bind(LookupNames.HELP_ON_LINE_SEARCH, url);
 			}
 		}
 	}

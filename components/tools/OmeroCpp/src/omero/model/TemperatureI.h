@@ -25,6 +25,8 @@
 #include <omero/model/Units.h>
 #include <omero/IceNoWarnPop.h>
 
+#include <omero/conversions.h>
+
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
 #       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
@@ -52,15 +54,23 @@ namespace omero {
 
     protected:
         virtual ~TemperatureI(); // protected as outlined in Ice docs.
-        static std::map<omero::model::enums::UnitsTemperature, std::string> SYMBOLS;
+        static std::map<enums::UnitsTemperature,
+            std::map<enums::UnitsTemperature,
+                omero::conversions::ConversionPtr> > CONVERSIONS;
+        static std::map<enums::UnitsTemperature, std::string> SYMBOLS;
 
     public:
 
-        static std::string lookupSymbol(omero::model::enums::UnitsTemperature unit) {
+        static std::string lookupSymbol(enums::UnitsTemperature unit) {
             return SYMBOLS[unit];
         }
 
         TemperatureI();
+
+        TemperatureI(const double& value, const enums::UnitsTemperature& unit);
+
+        // Conversion constructor
+        TemperatureI(const TemperaturePtr& value, const enums::UnitsTemperature& target);
 
         virtual Ice::Double getValue(
                 const Ice::Current& current = Ice::Current());
@@ -69,11 +79,11 @@ namespace omero {
                 Ice::Double value,
                 const Ice::Current& current = Ice::Current());
 
-        virtual omero::model::enums::UnitsTemperature getUnit(
+        virtual enums::UnitsTemperature getUnit(
                 const Ice::Current& current = Ice::Current());
 
         virtual void setUnit(
-                omero::model::enums::UnitsTemperature unit,
+                enums::UnitsTemperature unit,
                 const Ice::Current& current = Ice::Current());
 
         virtual std::string getSymbol(

@@ -37,7 +37,7 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     {
         TestQuantumFactory qf = new TestQuantumFactory();
         qf.setStrategy(new Quantization_32_bit(settings.getQuantization(),
-                pixels.getPixelsType()));
+                pixels));
         return qf;
     }
 
@@ -77,6 +77,7 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     {
         PixelsType pixelsType = new PixelsType();
         pixelsType.setValue("int32");
+        pixelsType.setBitSize(32);
         return pixelsType;
     }
 
@@ -85,7 +86,7 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     {
         int n = data.size();
         QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
+                settings.getQuantization(), pixels);
         for (int i = 0; i < n/2; i++) {
             assertEquals(qs.getPixelsTypeMin(), data.getPixelValue(i));
         }
@@ -105,7 +106,7 @@ public class TestStandardSigned32BitRenderer extends BaseRenderingTest
     public void testPixelValuesRange() throws Exception
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
+                settings.getQuantization(), pixels);
         assertEquals(-Math.pow(2, 32)/2, qs.getPixelsTypeMin());
         assertEquals(Math.pow(2, 32)/2-1, qs.getPixelsTypeMax());
     }

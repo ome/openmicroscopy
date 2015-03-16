@@ -964,7 +964,7 @@ class TestPermissionProjections(lib.ITest):
 
         # Check if this test should run
         x = self.root.sf.getConfigService().getConfigValue(
-            "omero.policy.download")
+            "omero.policy.binary_access")
 
         if x != "repository":
             pytest.skip("Not repository")

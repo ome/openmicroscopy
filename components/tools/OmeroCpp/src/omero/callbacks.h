@@ -59,7 +59,7 @@ namespace omero {
         // In the case where Ice does the freeing, we don't need to do anything in the destructor,
         // and in the case where all non Ice references go out of scope, we need to close
         // the callback to prevent keeping it open until session close
-        template <typename T>
+        template <typename T> // OMERO_CLIENT ?
         class CallbackWrapper : public IceUtil::Handle<T> {
         public:
             CallbackWrapper(T* p) : IceUtil::Handle<T>(p) {}
@@ -97,7 +97,7 @@ namespace omero {
             Ice::Identity id;
             bool poll;
             std::string result;
-	protected:
+        protected:
             /**
              * Proxy passed to this instance on creation. Can be used by subclasses
              * freely. The object will not be nulled, but may be closed server-side.

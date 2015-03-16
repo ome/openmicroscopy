@@ -88,26 +88,42 @@ class TemperatureI(_omero_model.Temperature, UnitBase):
 
     def __init__(self, value=None, unit=None):
         _omero_model.Temperature.__init__(self)
+
+        if unit is None:
+            target = None
+        elif isinstance(unit, UnitsTemperature):
+            target = unit
+        elif isinstance(unit, (str, unicode)):
+            target = getattr(UnitsTemperature, unit)
+        else:
+            raise Exception("Unknown unit: %s (%s)" % (
+                unit, type(unit)
+            ))
+
         if isinstance(value, _omero_model.TemperatureI):
             # This is a copy-constructor call.
-            target = str(unit)
-            targetUnit = getattr(UnitsTemperature, str(target))
-            sourceUnit = value.getUnit()
-            source = str(sourceUnit)
+
+            source = value.getUnit()
+
+            if target is None:
+                raise Exception("Null target unit")
+            if source is None:
+                raise Exception("Null source unit")
+
             if target == source:
                 self.setValue(value.getValue())
-                self.setUnit(value.getUnit())
+                self.setUnit(source)
             else:
-                c = self.CONVERSIONS.get(targetUnit).get(sourceUnit)
+                c = self.CONVERSIONS.get(source).get(target)
                 if c is None:
-                    t = (value.getValue(), value.getUnit(), target)
+                    t = (value.getValue(), source, target)
                     msg = "%s %s cannot be converted to %s" % t
                     raise Exception(msg)
                 self.setValue(c(value.getValue()))
-                self.setUnit(targetUnit)
+                self.setUnit(target)
         else:
             self.setValue(value)
-            self.setUnit(unit)
+            self.setUnit(target)
 
     def getUnit(self, current=None):
         return self._unit

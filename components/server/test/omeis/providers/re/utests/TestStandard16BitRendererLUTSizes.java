@@ -42,7 +42,7 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
 	public void testPixelValues() throws Exception
 	{
 	    QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
+                settings.getQuantization(), pixels);
         int n = data.size();
         for (int i = 0; i < n/2; i++) {
             assertEquals(0.0, data.getPixelValue(i));
@@ -75,7 +75,7 @@ public class TestStandard16BitRendererLUTSizes extends BaseRenderingTest
     public void testPixelValuesRange() throws Exception
     {
         QuantumStrategy qs = quantumFactory.getStrategy(
-                settings.getQuantization(), pixels.getPixelsType());
+                settings.getQuantization(), pixels);
         assertEquals(0.0, qs.getPixelsTypeMin());
         assertEquals(Math.pow(2, 16)-1, qs.getPixelsTypeMax());
     }

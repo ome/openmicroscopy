@@ -138,3 +138,19 @@ Create Edit User
     Click Button            Save
     Location Should Be      ${USERS URL}
     Page Should Contain     ${user_name}-Edited
+
+Check Admin Edit Self
+
+    Click Link                        link=Users 
+    Click Element                     xpath=//table[@id="experimenterTable"]/tbody/tr[descendant::td[contains(text(), '${ROOT FULL NAME}')]]//a[contains(@class, "btn_edit")] 
+
+    Sleep                             0.5
+    Checkbox Should Be selected       id=id_administrator
+    Element Should Be Disabled        id=id_administrator
+    
+    Click Element                     xpath=//div[@id='id_other_groups_chosen']/ul[@class='chosen-choices']
+    Page Should Contain Element       xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']
+    Click Element                     xpath=//div[@id='id_other_groups_chosen']/div[@class='chosen-drop']/ul[@class='chosen-results']/li[contains(text(),'test_group')]
+
+    Element Should Not Be Visible     xpath=//div[@id="id_other_groups_chosen"]//li[descendant::span[contains(text(), "system")]]/a
+    Element Should Be Visible         xpath=//div[@id="id_other_groups_chosen"]//li[descendant::span[contains(text(), "test_group")]]/a

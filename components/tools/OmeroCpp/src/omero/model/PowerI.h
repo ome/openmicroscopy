@@ -25,6 +25,8 @@
 #include <omero/model/Units.h>
 #include <omero/IceNoWarnPop.h>
 
+#include <omero/conversions.h>
+
 #ifndef OMERO_CLIENT
 #   ifdef OMERO_CLIENT_EXPORTS
 #       define OMERO_CLIENT ICE_DECLSPEC_EXPORT
@@ -52,15 +54,23 @@ namespace omero {
 
     protected:
         virtual ~PowerI(); // protected as outlined in Ice docs.
-        static std::map<omero::model::enums::UnitsPower, std::string> SYMBOLS;
+        static std::map<enums::UnitsPower,
+            std::map<enums::UnitsPower,
+                omero::conversions::ConversionPtr> > CONVERSIONS;
+        static std::map<enums::UnitsPower, std::string> SYMBOLS;
 
     public:
 
-        static std::string lookupSymbol(omero::model::enums::UnitsPower unit) {
+        static std::string lookupSymbol(enums::UnitsPower unit) {
             return SYMBOLS[unit];
         }
 
         PowerI();
+
+        PowerI(const double& value, const enums::UnitsPower& unit);
+
+        // Conversion constructor
+        PowerI(const PowerPtr& value, const enums::UnitsPower& target);
 
         virtual Ice::Double getValue(
                 const Ice::Current& current = Ice::Current());
@@ -69,11 +79,11 @@ namespace omero {
                 Ice::Double value,
                 const Ice::Current& current = Ice::Current());
 
-        virtual omero::model::enums::UnitsPower getUnit(
+        virtual enums::UnitsPower getUnit(
                 const Ice::Current& current = Ice::Current());
 
         virtual void setUnit(
-                omero::model::enums::UnitsPower unit,
+                enums::UnitsPower unit,
                 const Ice::Current& current = Ice::Current());
 
         virtual std::string getSymbol(

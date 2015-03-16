@@ -15,23 +15,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.hibernate.Hibernate;
-import org.hibernate.collection.AbstractPersistentCollection;
-
 import ome.api.StatefulServiceInterface;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.model.meta.Share;
+import ome.security.ACLVoter;
 import ome.security.basic.BasicACLVoter;
 import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 import ome.util.Utils;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.hibernate.Hibernate;
+import org.hibernate.collection.AbstractPersistentCollection;
 
 /**
  * removes all proxies from a return graph to prevent ClassCastExceptions and
@@ -53,22 +54,25 @@ public class ProxyCleanupFilter extends ContextFilter {
 
     protected Map unloadedObjectCache = new IdentityHashMap();
 
-    protected final BasicACLVoter acl;
+    protected final ACLVoter acl;
+
+    protected final CurrentDetails current;
 
     /**
      * Passes null to {@link ProxyCleanupFilter#ProxyCleanupFilter(CurrentDetails)}
      * such that all restricted objects will be unloaded.
      */
     public ProxyCleanupFilter() {
-        this(null);
+        this(null, null);
     }
 
     /**
      * Constructor take a {@link CurrentDetails} object in order to check
      * the security restrictions on certain objects.
      */
-    public ProxyCleanupFilter(BasicACLVoter acl) {
+    public ProxyCleanupFilter(ACLVoter acl, CurrentDetails current) {
         this.acl = acl;
+        this.current = current;
     }
 
     @Override
@@ -138,7 +142,7 @@ public class ProxyCleanupFilter extends ContextFilter {
                 } else if (acl == null) {
                     return new Session(session.getId(), false);
                 } else {
-                    EventContext ec = acl.getEventContext();
+                    EventContext ec = current.getCurrentEventContext();
                     if (!ec.isCurrentUserAdmin()) {
                         Long uid = session.getOwner().getId();
                         if (!ec.getCurrentUserId().equals(uid)) {
@@ -212,11 +216,15 @@ public class ProxyCleanupFilter extends ContextFilter {
 
         private final SessionHandler sessions;
 
-        private final BasicACLVoter acl;
+        private final ACLVoter acl;
 
-        public Interceptor(BasicACLVoter acl, SessionHandler sessions) {
+        private final CurrentDetails current;
+
+        public Interceptor(ACLVoter acl, SessionHandler sessions,
+                CurrentDetails current) {
             this.acl = acl;
             this.sessions = sessions;
+            this.current = current;
         }
 
         private final ThreadLocal<Integer> depth = new ThreadLocal<Integer>() {
@@ -241,7 +249,7 @@ public class ProxyCleanupFilter extends ContextFilter {
                 result = arg0.proceed();
                 if (!StatefulServiceInterface.class.isAssignableFrom(arg0
                         .getThis().getClass())) {
-                    result = new ProxyCleanupFilter(acl)
+                    result = new ProxyCleanupFilter(acl, current)
                         .filter(null, result);
                 }
             } finally {

@@ -96,7 +96,8 @@
     Scope: private
     </description>
     <constructor-arg ref="sessionHandler"/>
-    <constructor-arg ref="basicACLVoter"/>
+    <constructor-arg ref="aclVoter"/>
+    <constructor-arg ref="currentDetails"/>
   </bean>
   
   <bean id="sessionHandler" class="ome.tools.hibernate.SessionHandler">

@@ -105,6 +105,7 @@
 			<optional name="hasher" type="ome.model.enums.ChecksumAlgorithm"/>
 			<optional name="hash" type="string"/>
 			<optional name="mimetype" type="string"/>
+			<zeromany name="filesetEntries" type="ome.model.fs.FilesetEntry" inverse="originalFile"/>
 			<!--
 			Has a default set at the DB level of application/octet-stream.
 			Internal values in use are:

@@ -150,7 +150,7 @@ class OmeroRestrictionWrapper (object):
         :return:    True if user can download.
         """
         return not self.getDetails().getPermissions().isRestricted(
-            omero.constants.permissions.DOWNLOAD)
+            omero.constants.permissions.BINARYACCESS)
 
 
 class BlitzObjectWrapper (object):
@@ -1208,8 +1208,12 @@ class BlitzObjectWrapper (object):
                 def wrap():
                     rv = getattr(self._obj, attrName)
                     if hasattr(rv, 'val'):
-                        return (isinstance(rv.val, StringType)
-                                and rv.val.decode('utf8') or rv.val)
+                        if isinstance(rv.val, StringType):
+                            return rv.val.decode('utf8')
+                        # E.g. pixels.getPhysicalSizeX()
+                        if hasattr(rv, "_unit"):
+                            return rv
+                        return rv.val
                     elif isinstance(rv, omero.model.IObject):
                         return BlitzObjectWrapper(self._conn, rv)
                     return rv
@@ -3995,8 +3999,8 @@ class _BlitzGateway (object):
             types = (ProjectWrapper, DatasetWrapper, ImageWrapper)
         else:
             def getWrapper(obj_type):
-                objs = ["project", "dataset", "image",
-                        "screen", "plate", "well"]
+                objs = ["project", "dataset", "image", "screen",
+                        "plateacquisition", "plate", "well"]
                 if obj_type.lower() not in objs:
                     raise AttributeError(
                         "%s not recognised. Can only search for 'Project',"

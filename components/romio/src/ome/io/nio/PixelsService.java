@@ -540,7 +540,7 @@ public class PixelsService extends AbstractFileSystemService
         }
         // Note: since the OMERO.fs work, a pixels pyramid is only required
         // when the pixels set meets big image criteria.
-        if (!pixelsFileExists && originalFilePath != null)
+        if (!pixelsFileExists && requirePyramid && originalFilePath != null)
         {
             handleMissingStatsInfo(pixels);
         }

@@ -515,11 +515,14 @@ public class CommandLineImporter {
         LongOpt qaBaseURL = new LongOpt(
                 "qa_baseurl", LongOpt.REQUIRED_ARGUMENT, null, 21);
 
+        LongOpt noStatsInfo =
+                new LongOpt("no_stats_info", LongOpt.NO_ARGUMENT, null, 22);
+
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
-                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 22);
+                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 90);
         LongOpt plateDescription = new LongOpt(
-                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 23);
+                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 91);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
@@ -528,7 +531,7 @@ public class CommandLineImporter {
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
-                                exclude,
+                                exclude, noStatsInfo,
                                 qaBaseURL, plateName, plateDescription});
         int a;
 
@@ -653,9 +656,13 @@ public class CommandLineImporter {
                 config.qaBaseURL.set(g.getOptarg());
                 break;
             }
+            case 22: {
+                config.noStatsInfo.set(true);
+                break;
+            }
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
-            case 22: {
+            case 90: {
                 if (userSpecifiedNameAlreadySet) {
                     usage();
                 }
@@ -663,7 +670,7 @@ public class CommandLineImporter {
                 userSpecifiedNameAlreadySet = true;
                 break;
             }
-            case 23: {
+            case 91: {
                 if (userSpecifiedDescriptionAlreadySet) {
                     usage();
                 }

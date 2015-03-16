@@ -88,7 +88,7 @@ import ch.qos.logback.classic.ClassicConstants;
  */
 public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
-    private static final long serialVersionUID = -303948503984L;
+    private static final long serialVersionUID = -303948503985L;
 
     private static Logger log = LoggerFactory.getLogger(ManagedImportRequestI.class);
 
@@ -133,6 +133,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private List<Annotation> annotationList = null;
 
     private boolean doThumbnails = true;
+
+    private boolean noStatsInfo = false;
 
     private String fileName = null;
 
@@ -215,6 +217,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             annotationList = settings.userSpecifiedAnnotationList;
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
+            noStatsInfo = settings.noStatsInfo == null ? false :
+                settings.noStatsInfo.getValue();
 
             detectAutoClose();
 
@@ -570,7 +574,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         store.updatePixels(pixList);
 
-        if (!reader.isMinMaxSet())
+        if (!reader.isMinMaxSet() && !noStatsInfo)
         {
             store.populateMinMax();
         }
@@ -653,12 +657,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         int maxPlaneSize = sizes.getMaxPlaneWidth() * sizes.getMaxPlaneHeight();
         if (((long) reader.getSizeX()
              * (long) reader.getSizeY()) > maxPlaneSize) {
-            int pixelType = reader.getPixelType();
-            long[] minMax = FormatTools.defaultMinMax(pixelType);
-            for (int c = 0; c < reader.getSizeC(); c++) {
-                store.setChannelGlobalMinMax(
-                        c, minMax[0], minMax[1], series);
-            }
             return null;
         }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
@@ -687,7 +685,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
 
     /**
-     * Read a plane to cause min/max valus to be calculated.
+     * Read a plane to cause min/max values to be calculated.
      *
      * @param size Sizes of the Pixels set.
      * @param z The Z-section offset to write to.

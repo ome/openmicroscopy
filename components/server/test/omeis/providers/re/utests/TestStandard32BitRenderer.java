@@ -23,7 +23,7 @@ public class TestStandard32BitRenderer extends BaseRenderingTest
     {
         TestQuantumFactory qf = new TestQuantumFactory();
         qf.setStrategy(new Quantization_32_bit(settings.getQuantization(),
-                pixels.getPixelsType()));
+                pixels));
         return qf;
     }
 
@@ -50,6 +50,7 @@ public class TestStandard32BitRenderer extends BaseRenderingTest
 	{
 		PixelsType pixelsType = new PixelsType();
 		pixelsType.setValue("uint32");
+		pixelsType.setBitSize(32);
 		return pixelsType;
 	}
 	

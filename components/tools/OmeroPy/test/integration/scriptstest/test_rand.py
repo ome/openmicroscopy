@@ -80,14 +80,15 @@ print val
 class TestRand(lib.ITest):
 
     def testRand(self):
-        scripts = self.root.getSession().getScriptService()
+        root_client = self.new_client(system=True)
+        scripts = root_client.sf.getScriptService()
         id = scripts.uploadScript(
             "/tests/rand_py/%s.py" % self.uuid(), SENDFILE)
         input = {"x": rlong(3), "y": rlong(3)}
-        impl = omero.processor.usermode_processor(self.root)
+        impl = omero.processor.usermode_processor(root_client)
         try:
             process = scripts.runScript(id, input, None)
-            cb = omero.scripts.ProcessCallbackI(self.root, process)
+            cb = omero.scripts.ProcessCallbackI(root_client, process)
             cb.block(2000)  # ms
             cb.close()
             try:

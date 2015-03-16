@@ -22,41 +22,26 @@
  */
 package org.openmicroscopy.shoola.agents.util.finder;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.SearchComponent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -95,10 +80,7 @@ public class AdvancedFinder
 	extends SearchComponent
 	implements Finder, PropertyChangeListener
 {
-	
-        /** URL which links to the search help website */
-        private static final String HELP_URL = "http://help.openmicroscopy.org/search.html";
-    
+
 	/** The default title of the notification message. */
 	private static final String TITLE = "Search";
 	
@@ -125,25 +107,7 @@ public class AdvancedFinder
 	
 	/** The display mode e.g. Experimenter/Group.*/
 	private int displayMode;
-	
-	/**
-	 * Returns the name of the group corresponding to the security context.
-	 * 
-	 * @param ctx The context to handle.
-	 * @return See above
-	 */
-	private String getGroupName(SecurityContext ctx)
-	{
-		Iterator<GroupData> i = groups.iterator();
-		GroupData g;
-		while (i.hasNext()) {
-			g = i.next();
-			if (g.getId() == ctx.getGroupID())
-				return g.getName();
-		}
-		return null;
-	}
-	
+
 	/**
 	 * Determines the scope of the search.
 	 * 
@@ -193,66 +157,7 @@ public class AdvancedFinder
 				return null;
 		}
 	}
-	
-	/**
-	 * Creates and returns the list of users corresponding to the collection
-	 * of names.
-	 * 
-	 * @param names Collection of names to handle.
-	 * @return See above.
-	 */
-	private List<ExperimenterData> fillUsersList(List<Long> names)
-	{
-		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
-		if (names == null) return l;
-		Iterator i = names.iterator();
-		Long id;
-		ExperimenterData user;
-		while (i.hasNext()) {
-			id = (Long) i.next();
-			user = users.get(id);
-			if (user != null && !l.contains(user))
-				l.add(user);
-		}
-		return l;
-	}
-	
-	/**
-	 * Fills the passed lists depending on the specified context.
-	 * 
-	 * @param usersContext	The context.
-	 * @param toKeep		The users to consider.
-	 * @param toExclude		The users to exclude.
-	 */
-	private void fillUsersList(List<Integer> usersContext, 
-			List<ExperimenterData> toKeep, List<ExperimenterData> toExclude)
-	{
-		if (usersContext == null) {
-			toKeep.clear();
-			toExclude.clear();
-			return;
-		}
-		switch (usersContext.size()) {
-			case 2:
-				if (toKeep.size() >= 0)
-					toKeep.add(getUserDetails());
-				else {
-					toKeep.clear();
-					toExclude.clear();
-				}
-				break;
-			case 1:
-				if (usersContext.contains(SearchContext.CURRENT_USER)) {
-					toKeep.clear();
-					toExclude.clear();
-					toKeep.add(getUserDetails());
-				} else {
-					if (toKeep.size() == 0)
-					toExclude.add(getUserDetails());
-				}
-		}
-	}
-	
+
 	/**
 	 * Converts the UI context into a context to search for.
 	 * 
@@ -302,7 +207,8 @@ public class AdvancedFinder
 		SecurityContext secCtx;
 		
 		if (ctx.getSelectedGroup() == GroupContext.ALL_GROUPS_ID) {
-		    secCtx = new SecurityContext(getUserDetails().getGroupId());
+		    secCtx = new SecurityContext(
+		            FinderFactory.getUserDetails().getGroupId());
 		    searchContext.setGroupId(SearchParameters.ALL_GROUPS_ID);
 		}
 		else {
@@ -315,54 +221,7 @@ public class AdvancedFinder
 		state = Finder.SEARCH;
 		setSearchEnabled(-1);
 	}
-	
-	/**
-	 * Returns the current user's details.
-	 * 
-	 * @return See above.
-	 */
-	private ExperimenterData getUserDetails()
-	{ 
-		return (ExperimenterData) FinderFactory.getRegistry().lookup(
-				LookupNames.CURRENT_USER_DETAILS);
-	}
-	
-	/** Displays the widget allowing the select users. */
-	private void showUserSelection()
-	{
-		IconManager icons = IconManager.getInstance();
-		UserManagerDialog dialog = new UserManagerDialog(
-				FinderFactory.getRefFrame(), getUserDetails(), 
-				getUserDetails().getDefaultGroup(), null,
-				icons.getIcon(IconManager.OWNER),
-				icons.getIcon(IconManager.OWNER_48));
-		dialog.addPropertyChangeListener(this);
-		dialog.setDefaultSize();
-		UIUtilities.centerAndShow(dialog);
-	}
 
-	/**
-	 * Creates a list of controls to add to the searching component.
-	 * 
-	 * @return See above.
-	 */
-	private List<JButton> createControls()
-	{
-		List<JButton> list = new ArrayList<JButton>();
-		IconManager icons = IconManager.getInstance();
-		JButton button = new JButton(icons.getIcon(IconManager.TAG));
-		UIUtilities.unifiedButtonLookAndFeel(button);
-		button.setToolTipText("Load existing Tags to search by.");
-		button.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				loadTags();
-			}
-		});
-		list.add(button);
-		return list;
-	}
-	
 	/** Loads the tags. */
 	private void loadTags()
 	{
@@ -422,33 +281,23 @@ public class AdvancedFinder
 
 	/**
 	 * Brings up the <code>Help</code> dialog.
-	 * @see #help()
+	 * @see #help(String)
 	 */
-	protected void help()
+	protected void help(String url)
 	{
-		SearchHelp help = new SearchHelp(FinderFactory.getRefFrame(), HELP_URL);
-		UIUtilities.centerAndShow(help);
-		
-		if(help.hasError()) {
-		    showWebbrowserError(HELP_URL);
-		}
+	    if (CommonsLangUtils.isBlank(url)) return;
+	    SearchHelp help = new SearchHelp(FinderFactory.getRefFrame(), url);
+	    UIUtilities.centerAndShow(help);
+
+	    if (help.hasError()) {
+	        FinderFactory.getRegistry().getUserNotifier()
+	        .notifyError(
+	                "Could not open web browser",
+	                "Please open your web browser and go to page: "
+	                        + url);
+	    }
 	}
-	
-	/**
-	 * Pops up an UserNotifier indicating that the webbrowser
-	 * for the help website couldn't be opened
-	 * @param url
-	 */
-	public void showWebbrowserError(String url) {
-	    TreeViewerAgent
-            .getRegistry()
-            .getUserNotifier()
-            .notifyError(
-                    "Could not open web browser",
-                    "Please open your web browser and go to page: "
-                            + url);
-	}
-	
+
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#cancel()
@@ -545,9 +394,9 @@ public class AdvancedFinder
 			else available.add(tag);
 		}
 		SelectionWizard wizard = new SelectionWizard(
-				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
+				FinderFactory.getRefFrame(), 
 				available, selected, TagAnnotationData.class, false, 
-				DataBrowserAgent.getUserDetails());
+				FinderFactory.getUserDetails());
 		wizard.setGroups(groups);
 		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_48));
 		wizard.addPropertyChangeListener(this);

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-2.0.xsd"
+       default-lazy-init="false">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright 2015 University of Dundee. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+  <description>
+      TESTING: The following beans can be activated by adding this file
+      to a location on the OMERO classpath matching "blitz/*.xml" which
+      will activate a testing mail server for the integration tests.
+
+      Note however:
+
+                  MODIFICATIONS REQUIRE A RESTART.
+
+                   CHANGES WILL NOT BE PERSISTED.
+
+  </description>
+
+  <bean id="subethaSMTP" class="ome.services.mail.SubethaSMTP"
+      init-method="start" destroy-method="stop">
+      <constructor-arg>
+          <bean class="org.subethamail.smtp.helper.SimpleMessageListenerAdapter">
+              <constructor-arg>
+                  <bean class="ome.services.mail.MapAnnotationSubethaListener">
+                      <constructor-arg ref="executor"/>
+                      <constructor-arg ref="uuid"/>
+                  </bean>
+              </constructor-arg>
+          </bean>
+      </constructor-arg>
+      <constructor-arg value="${omero.mail.port}"/>
+  </bean>
+
+  <bean
+    class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <description>
+    This beans set a property that integration tests can check for.
+    </description>
+    <property name="targetObject">
+        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="targetClass" value="java.lang.System" />
+            <property name="targetMethod" value="getProperties" />
+        </bean>
+    </property>
+    <property name="targetMethod" value="putAll" />
+    <property name="arguments">
+        <util:properties>
+            <prop key="omero.mail.fake">true</prop>
+        </util:properties>
+    </property>
+  </bean>
+
+</beans>

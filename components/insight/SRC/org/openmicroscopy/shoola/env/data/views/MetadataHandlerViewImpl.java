@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.MetadataHandlerViewImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -245,14 +245,14 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadOriginalImage(SecurityContext, long, File,
+	 * @see MetadataHandlerView#loadOriginalImage(SecurityContext, List, File,
 	 * String, boolean, AgentEventListener)
 	 */
-	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-			File path, String name, boolean override,
+	public CallHandle loadArchivedImage(SecurityContext ctx, List<Long> imageIDs,
+			File path, boolean override,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageID, name, path,
+		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageIDs, path,
 		        override);
 		return cmd.exec(observer);
 	}

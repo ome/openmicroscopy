@@ -17,7 +17,7 @@
 --
 
 ---
---- OMERO5 release upgrade from OMERO5.0__0 to OMERO5.1__0.
+--- OMERO5 release upgrade from OMERO5.0__0 to OMERO5.1__1.
 ---
 
 BEGIN;
@@ -72,7 +72,7 @@ DROP FUNCTION assert_db_server_prerequisites(INTEGER);
 
 
 INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
-             VALUES ('OMERO5.1',     0,             'OMERO5.0',          0);
+             VALUES ('OMERO5.1',     1,             'OMERO5.0',          0);
 
 --
 -- Actual upgrade
@@ -2602,16 +2602,52 @@ alter table annotation_mapvalue alter column value type text;
 alter table channel add column lookupTable varchar(255);
 alter table channelbinding add column lookupTable varchar(255);
 
+
+-- 5.1__1: last-minute changes for 5.1
+
+CREATE INDEX originalfile_hash_index ON originalfile (hash);
+
+CREATE INDEX annotation_discriminator ON annotation(discriminator);
+CREATE INDEX annotation_ns ON annotation(ns);
+
+CREATE INDEX experimentergroup_config_name ON experimentergroup_config(name);
+CREATE INDEX experimentergroup_config_value ON experimentergroup_config(value);
+CREATE INDEX genericexcitationsource_map_name ON genericexcitationsource_map(name);
+CREATE INDEX genericexcitationsource_map_value ON genericexcitationsource_map(value);
+CREATE INDEX imagingenvironment_map_name ON imagingenvironment_map(name);
+CREATE INDEX imagingenvironment_map_value ON imagingenvironment_map(value);
+CREATE INDEX annotation_mapValue_name ON annotation_mapValue(name);
+CREATE INDEX annotation_mapValue_value ON annotation_mapValue(value);
+CREATE INDEX metadataimportjob_versionInfo_name ON metadataimportjob_versionInfo(name);
+CREATE INDEX metadataimportjob_versionInfo_value ON metadataimportjob_versionInfo(value);
+CREATE INDEX uploadjob_versionInfo_name ON uploadjob_versionInfo(name);
+CREATE INDEX uploadjob_versionInfo_value ON uploadjob_versionInfo(value);
+
+ALTER TABLE experimentergroup_config ALTER COLUMN name TYPE TEXT;
+ALTER TABLE experimentergroup_config ALTER COLUMN value TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE genericexcitationsource_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN name TYPE TEXT;
+ALTER TABLE imagingenvironment_map ALTER COLUMN value TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE metadataimportjob_versionInfo ALTER COLUMN value TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN name TYPE TEXT;
+ALTER TABLE uploadjob_versionInfo ALTER COLUMN value TYPE TEXT;
+
+INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+    SELECT ome_nextval('seq_eventlog'), 'REINDEX', -52, run.id, 'ome.model.screen.PlateAcquisition', 0
+        FROM plateacquisition AS run;
+
 --
 -- FINISHED
 --
 
 UPDATE dbpatch SET message = 'Database updated.', finished = clock_timestamp()
     WHERE currentVersion  = 'OMERO5.1'    AND
-          currentPatch    = 0             AND
+          currentPatch    = 1             AND
           previousVersion = 'OMERO5.0'    AND
           previousPatch   = 0;
 
-SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1__0'||CHR(10)||CHR(10)||CHR(10) AS Status;
+SELECT CHR(10)||CHR(10)||CHR(10)||'YOU HAVE SUCCESSFULLY UPGRADED YOUR DATABASE TO VERSION OMERO5.1__1'||CHR(10)||CHR(10)||CHR(10) AS Status;
 
 COMMIT;

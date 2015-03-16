@@ -349,7 +349,7 @@ public class Renderer {
         QuantumDef qd = rndDef.getQuantization();
         quantumManager = new QuantumManager(metadata, quantumFactory);
         ChannelBinding[] cBindings = getChannelBindings();
-        quantumManager.initStrategies(qd, metadata.getPixelsType(), cBindings);
+        quantumManager.initStrategies(qd, cBindings);
 
         // Create and configure the codomain chain.
         codomainChain = new CodomainChain(qd.getCdStart().intValue(), qd
@@ -429,7 +429,7 @@ public class Renderer {
     public void updateQuantumManager() {
         QuantumDef qd = rndDef.getQuantization();
         ChannelBinding[] cb = getChannelBindings();
-        quantumManager.initStrategies(qd, metadata.getPixelsType(), cb);
+        quantumManager.initStrategies(qd, cb);
     }
 
     /**
