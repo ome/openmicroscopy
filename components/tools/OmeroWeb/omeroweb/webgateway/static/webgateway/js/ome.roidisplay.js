@@ -459,7 +459,8 @@ $.fn.roi_display = function(options) {
                                     var newY = (texty-txt.getBBox().height/2)+9;
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
-                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'].escapeHTML())).attr({'cursor':'default', 'fill': '#000'});
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'].escapeHTML()))
+                                               .attr({'cursor':'default', 'fill': shape['strokeColor']}); // this is Insight's behavior
                                     txt_box = txt.getBBox();
                                     var txt_w = txt_box.width*1.3;
                                     var txt_h = txt_box.height*1.3;
