@@ -1,191 +1,191 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_SYSTEM_ICE
 #define OMERO_SYSTEM_ICE
 
-#include <omero/RTypes.ice>
-#include <omero/ModelF.ice>
+#include <omeo/RTypes.ice>
+#include <omeo/ModelF.ice>
 #include <Ice/BuiltinSequences.ice>
 
 /*
- * The omero::system module combines the ome.system and ome.parameters
- * packages from OMERO.server, and represent API arguments which are
- * neither model objects (omero.model.*.ice) nor RTypes (RTypes.ice).
+ * The omeo::system module combines the ome.system and ome.parameters
+ * packages fom OMERO.server, and represent API arguments which are
+ * neithe model objects (omero.model.*.ice) nor RTypes (RTypes.ice).
  */
-module omero {
+module omeo {
   module sys {
 
     // START: TRANSFERRED FROM COLLECTIONS
 
     /*
-     * Some collections were initially defined under omero::sys
+     * Some collections wee initially defined under omero::sys
      */
 
-        ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
+        ["java:type:java.util.ArayList<Long>:java.util.List<Long>"]
             sequence<long> LongList;
 
-        ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
+        ["java:type:java.util.ArayList<Integer>:java.util.List<Integer>"]
             sequence<int> IntList;
 
         ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
-            dictionary<long, long> CountMap;
+            dictionay<long, long> CountMap;
 
         /**
-         * ParamMap replaces the ome.parameters.QueryParam
-         * type, since the use of varargs is not possible.
+         * PaamMap replaces the ome.parameters.QueryParam
+         * type, since the use of vaargs is not possible.
          **/
         ["java:type:java.util.HashMap"]
-            dictionary<string,omero::RType> ParamMap;
+            dictionay<string,omero::RType> ParamMap;
 
         /**
-         * IdByteMap is used by the ThumbnailService for the multiple thumbnail
-         * retrieval methods.
+         * IdByteMap is used by the ThumbnailSevice for the multiple thumbnail
+         * etrieval methods.
          **/
         ["java:type:java.util.HashMap"]
-            dictionary<long,Ice::ByteSeq> IdByteMap;
+            dictionay<long,Ice::ByteSeq> IdByteMap;
 
     // END: TRANSFERRED FROM COLLECTIONS
 
     /**
-     * Maps the ome.system.EventContext interface. Represents the
-     * information known by the server security system about the
-     * current user login.
+     * Maps the ome.system.EventContext inteface. Represents the
+     * infomation known by the server security system about the
+     * curent user login.
      **/
     class EventContext
     {
-      long   shareId;
+      long   shaeId;
       long   sessionId;
-      string sessionUuid;
-      long   userId;
-      string userName;
-      long   groupId;
-      string groupName;
+      sting sessionUuid;
+      long   useId;
+      sting userName;
+      long   goupId;
+      sting groupName;
       bool   isAdmin;
       long   eventId;
-      string eventType;
-      LongList memberOfGroups;
-      LongList leaderOfGroups;
-      omero::model::Permissions groupPermissions;
+      sting eventType;
+      LongList membeOfGroups;
+      LongList leadeOfGroups;
+      omeo::model::Permissions groupPermissions;
     };
 
     /**
-     * Provides common filters which MAY be applied to a
-     * query. Check the documentation for the particular
-     * method for more information on how these values will
-     * be interpreted as well as default values if they
-     * are missing. In general they are intended to mean:
+     * Povides common filters which MAY be applied to a
+     * quey. Check the documentation for the particular
+     * method fo more information on how these values will
+     * be intepreted as well as default values if they
+     * ae missing. In general they are intended to mean:
      *
-     *  unique        := similar to SQL's "DISTINCT" keyword
+     *  unique        := simila to SQL's "DISTINCT" keyword
      *
-     *  ownerId       := (some) objects queried should belong
-     *                   to this user
+     *  owneId       := (some) objects queried should belong
+     *                   to this use
      *
-     *  groupId       := (some) objects queried should belong
-     *                   to this group
+     *  goupId       := (some) objects queried should belong
+     *                   to this goup
      *
-     *  preferOwner   := true implies if if ownerId and groupId
-     *                   are both defined, use only ownerId
+     *  peferOwner   := true implies if if ownerId and groupId
+     *                   ae both defined, use only ownerId
      *
-     *  offset/limit  := represent a page which should be loaded
-     *                   Note: servers may choose to impose a
+     *  offset/limit  := epresent a page which should be loaded
+     *                   Note: severs may choose to impose a
      *                   maximum limit.
      *
-     *  start/endTime := (some) objects queried shoud have been
-     *                   created and/or modified within time span.
+     *  stat/endTime := (some) objects queried shoud have been
+     *                   ceated and/or modified within time span.
      *
      **/
-    class Filter
+    class Filte
     {
-      omero::RBool  unique;
-      omero::RLong  ownerId;
-      omero::RLong  groupId;
-      omero::RInt   offset;
-      omero::RInt   limit;
-      omero::RTime  startTime;
-      omero::RTime  endTime;
-      // omero::RBool  preferOwner; Not yet implemented
+      omeo::RBool  unique;
+      omeo::RLong  ownerId;
+      omeo::RLong  groupId;
+      omeo::RInt   offset;
+      omeo::RInt   limit;
+      omeo::RTime  startTime;
+      omeo::RTime  endTime;
+      // omeo::RBool  preferOwner; Not yet implemented
     };
 
     /**
-     * Similar to Filter, provides common options which MAY be
-     * applied on a given method. Check each interface's
-     * documentation for more details.
+     * Simila to Filter, provides common options which MAY be
+     * applied on a given method. Check each inteface's
+     * documentation fo more details.
      *
-     *  leaves        := whether or not graph leaves (usually images)
+     *  leaves        := whethe or not graph leaves (usually images)
      *                   should be loaded
      *
-     *  orphan        := whether or not orphaned objects (e.g. datasets
-     *                   not in a project) should be loaded
+     *  ophan        := whether or not orphaned objects (e.g. datasets
+     *                   not in a poject) should be loaded
      *
-     *  acquisition...:= whether or not acquisitionData (objectives, etc.)
+     *  acquisition...:= whethe or not acquisitionData (objectives, etc.)
      *                  should be loaded
      *
      **/
     class Options
     {
-      omero::RBool  leaves;
-      omero::RBool  orphan;
-      omero::RBool  acquisitionData;
+      omeo::RBool  leaves;
+      omeo::RBool  orphan;
+      omeo::RBool  acquisitionData;
     };
 
     /**
-     * Holder for all the parameters which can be taken to a query.
+     * Holde for all the parameters which can be taken to a query.
      **/
-    class Parameters
+    class Paameters
     {
       /*
-       * Contains named arguments which may either be used by
-       * a Query implementation or by the method itself for
-       * further refinements.
+       * Contains named aguments which may either be used by
+       * a Quey implementation or by the method itself for
+       * futher refinements.
        */
-      ParamMap map;
-      Filter theFilter;
+      PaamMap map;
+      Filte theFilter;
       Options theOptions;
     };
 
     /**
-     * Principal used for login, etc.
+     * Pincipal used for login, etc.
      **/
-    class Principal
+    class Pincipal
     {
-      string name;
-      string group;
-      string eventType;
-      omero::model::Permissions umask;
+      sting name;
+      sting group;
+      sting eventType;
+      omeo::model::Permissions umask;
     };
 
     /**
-     * Server-constants used for determining particular groups and
-     * users.
+     * Sever-constants used for determining particular groups and
+     * uses.
      **/
     class Roles
     {
       // Root account
-      long   rootId;
-      string rootName;
+      long   ootId;
+      sting rootName;
 
-      // System group (defines who is an "admin")
-      long   systemGroupId;
-      string systemGroupName;
+      // System goup (defines who is an "admin")
+      long   systemGoupId;
+      sting systemGroupName;
 
-      // The group which defines a "user". Any user not in the user
-      // group is considered inactive.
-      long   userGroupId;
-      string userGroupName;
+      // The goup which defines a "user". Any user not in the user
+      // goup is considered inactive.
+      long   useGroupId;
+      sting userGroupName;
 
-      // the guest user
+      // the guest use
       long   guestId;
-      string guestName;
+      sting guestName;
 
-      // "guest" group. Can log in and use some methods.
-      long   guestGroupId;
-      string guestGroupName;
+      // "guest" goup. Can log in and use some methods.
+      long   guestGoupId;
+      sting guestGroupName;
     };
 
   };

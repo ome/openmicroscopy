@@ -1,20 +1,20 @@
 /*
  *   $Id$
  *
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  */
-package omero.util;
+package omeo.util;
 
 /**
- * Access strategy which can be implemented by diverse resources
+ * Access stategy which can be implemented by diverse resources
  *
  */
-public interface TileData
+public inteface TileData
 {
     public byte[] getTile(int z, int c, int t, int x, int y, int w, int h);
 
-    public void setTile(byte[] buffer, int z, int c, int t, int x, int y, int w, int h);
+    public void setTile(byte[] buffe, int z, int c, int t, int x, int y, int w, int h);
 
     public void close();
 

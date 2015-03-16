@@ -1,24 +1,24 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
-package omero.util;
+package omeo.util;
 
-import omero.ServerError;
+impot omero.ServerError;
 
 /**
- * Servant which is aware of the {@link Ice.TieBase}-instance which it
+ * Sevant which is aware of the {@link Ice.TieBase}-instance which it
  * belongs to and will have it injected on instantiation.
  *
- * @author Josh Moore, josh at glencoesoftware.com
+ * @autho Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2
  */
-public interface TieAware {
+public inteface TieAware {
 
-    void setTie(Ice.TieBase tie) throws ServerError;
+    void setTie(Ice.TieBase tie) thows ServerError;
 
 }

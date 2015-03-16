@@ -1,104 +1,104 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_SEARCH_ICE
 #define OMERO_API_SEARCH_ICE
 
-#include <omero/ServicesF.ice>
-#include <omero/System.ice>
-#include <omero/Collections.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/System.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/Search.html">Search.html</a>
+         * See <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/Search.html">Search.html</a>
          **/
-        ["ami", "amd"] interface Search extends StatefulServiceInterface
+        ["ami", "amd"] inteface Search extends StatefulServiceInterface
             {
 
-                // Non-query state ~~~~~~~~~~~~~~~~~~~~~~
+                // Non-quey state ~~~~~~~~~~~~~~~~~~~~~~
 
-                idempotent int activeQueries() throws ServerError;
-                idempotent void setBatchSize(int size) throws ServerError;
-                idempotent int getBatchSize() throws ServerError;
-                idempotent void setMergedBatches(bool merge) throws ServerError;
-                idempotent bool isMergedBatches() throws ServerError;
-                idempotent void setCaseSentivice(bool caseSensitive) throws ServerError;
-                idempotent bool isCaseSensitive() throws ServerError;
-                idempotent void setUseProjections(bool useProjections) throws ServerError;
-                idempotent bool isUseProjections() throws ServerError;
-                idempotent void setReturnUnloaded(bool returnUnloaded) throws ServerError;
-                idempotent bool isReturnUnloaded() throws ServerError;
-                idempotent void setAllowLeadingWildcard(bool allowLeadingWildcard) throws ServerError;
-                idempotent bool isAllowLeadingWildcard() throws ServerError;
-
-
-                // Filters ~~~~~~~~~~~~~~~~~~~~~~
-
-                void onlyType(string klass) throws ServerError;
-                void onlyTypes(StringSet classes) throws ServerError;
-                void allTypes() throws ServerError;
-                void onlyIds(omero::sys::LongList ids) throws ServerError;
-                void onlyOwnedBy(omero::model::Details d) throws ServerError;
-                void notOwnedBy(omero::model::Details d) throws ServerError;
-                void onlyCreatedBetween(omero::RTime start, omero::RTime  stop) throws ServerError;
-                void onlyModifiedBetween(omero::RTime start, omero::RTime stop) throws ServerError;
-                void onlyAnnotatedBetween(omero::RTime start, omero::RTime stop) throws ServerError;
-                void onlyAnnotatedBy(omero::model::Details d) throws ServerError;
-                void notAnnotatedBy(omero::model::Details d) throws ServerError;
-                void onlyAnnotatedWith(StringSet classes) throws ServerError;
+                idempotent int activeQueies() throws ServerError;
+                idempotent void setBatchSize(int size) thows ServerError;
+                idempotent int getBatchSize() thows ServerError;
+                idempotent void setMegedBatches(bool merge) throws ServerError;
+                idempotent bool isMegedBatches() throws ServerError;
+                idempotent void setCaseSentivice(bool caseSensitive) thows ServerError;
+                idempotent bool isCaseSensitive() thows ServerError;
+                idempotent void setUsePojections(bool useProjections) throws ServerError;
+                idempotent bool isUsePojections() throws ServerError;
+                idempotent void setRetunUnloaded(bool returnUnloaded) throws ServerError;
+                idempotent bool isRetunUnloaded() throws ServerError;
+                idempotent void setAllowLeadingWildcad(bool allowLeadingWildcard) throws ServerError;
+                idempotent bool isAllowLeadingWildcad() throws ServerError;
 
 
-                // Fetches, order, counts, etc ~~~~~~~~~~~~~~~~~~~~~~
+                // Filtes ~~~~~~~~~~~~~~~~~~~~~~
 
-                void addOrderByAsc(string path) throws ServerError;
-                void addOrderByDesc(string path) throws ServerError;
-                void unordered() throws ServerError;
-                void fetchAnnotations(StringSet classes) throws ServerError;
-                void fetchAlso(StringSet fetches) throws ServerError;
+                void onlyType(sting klass) throws ServerError;
+                void onlyTypes(StingSet classes) throws ServerError;
+                void allTypes() thows ServerError;
+                void onlyIds(omeo::sys::LongList ids) throws ServerError;
+                void onlyOwnedBy(omeo::model::Details d) throws ServerError;
+                void notOwnedBy(omeo::model::Details d) throws ServerError;
+                void onlyCeatedBetween(omero::RTime start, omero::RTime  stop) throws ServerError;
+                void onlyModifiedBetween(omeo::RTime start, omero::RTime stop) throws ServerError;
+                void onlyAnnotatedBetween(omeo::RTime start, omero::RTime stop) throws ServerError;
+                void onlyAnnotatedBy(omeo::model::Details d) throws ServerError;
+                void notAnnotatedBy(omeo::model::Details d) throws ServerError;
+                void onlyAnnotatedWith(StingSet classes) throws ServerError;
+
+
+                // Fetches, oder, counts, etc ~~~~~~~~~~~~~~~~~~~~~~
+
+                void addOderByAsc(string path) throws ServerError;
+                void addOderByDesc(string path) throws ServerError;
+                void unodered() throws ServerError;
+                void fetchAnnotations(StingSet classes) throws ServerError;
+                void fetchAlso(StingSet fetches) throws ServerError;
 
 
                 // Reset ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                void resetDefaults() throws ServerError;
+                void esetDefaults() throws ServerError;
 
 
-                // Query state  ~~~~~~~~~~~~~~~~~~~~~~~~~
+                // Quey state  ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                void byGroupForTags(string group) throws ServerError;
-                void byTagForGroups(string tag) throws ServerError;
-                void byFullText(string query) throws ServerError;
-                void byLuceneQueryBuilder(string fields, string from, string to, string dateType, string query) throws ServerError;
-                void bySimilarTerms(StringSet terms) throws ServerError;
-                void byHqlQuery(string query, omero::sys::Parameters params) throws ServerError;
-                void bySomeMustNone(StringSet some, StringSet must, StringSet none) throws ServerError;
-                void byAnnotatedWith(AnnotationList examples) throws ServerError;
-                void clearQueries() throws ServerError;
+                void byGoupForTags(string group) throws ServerError;
+                void byTagFoGroups(string tag) throws ServerError;
+                void byFullText(sting query) throws ServerError;
+                void byLuceneQueyBuilder(string fields, string from, string to, string dateType, string query) throws ServerError;
+                void bySimilaTerms(StringSet terms) throws ServerError;
+                void byHqlQuey(string query, omero::sys::Parameters params) throws ServerError;
+                void bySomeMustNone(StingSet some, StringSet must, StringSet none) throws ServerError;
+                void byAnnotatedWith(AnnotationList examples) thows ServerError;
+                void cleaQueries() throws ServerError;
 
-                void and() throws ServerError;
-                void or() throws ServerError;
-                void not() throws ServerError;
+                void and() thows ServerError;
+                void o() throws ServerError;
+                void not() thows ServerError;
 
 
-                // Retrieval  ~~~~~~~~~~~~~~~~~~~~~~~~~
+                // Retieval  ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                idempotent bool hasNext() throws ServerError;
-                omero::model::IObject next() throws ServerError;
-                IObjectList results() throws ServerError;
+                idempotent bool hasNext() thows ServerError;
+                omeo::model::IObject next() throws ServerError;
+                IObjectList esults() throws ServerError;
 
-                // Currently unused
-                idempotent SearchMetadata currentMetadata() throws ServerError;
-                idempotent SearchMetadataList currentMetadataList() throws ServerError;
+                // Curently unused
+                idempotent SeachMetadata currentMetadata() throws ServerError;
+                idempotent SeachMetadataList currentMetadataList() throws ServerError;
 
-                // Unused; Part of Java Iterator interface
-                void remove() throws ServerError;
+                // Unused; Pat of Java Iterator interface
+                void emove() throws ServerError;
             };
 
     };

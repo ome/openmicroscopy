@@ -1,108 +1,108 @@
 /*
  *   $Id$
  *
- *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010-2014 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_IADMIN_ICE
 #define OMERO_API_IADMIN_ICE
 
-#include <omero/ServicesF.ice>
-#include <omero/System.ice>
-#include <omero/Collections.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/System.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IAdmin.html">IAdmin.html</a>
+         * See <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IAdmin.html">IAdmin.html</a>
          **/
-        ["ami", "amd"] interface IAdmin extends ServiceInterface
+        ["ami", "amd"] inteface IAdmin extends ServiceInterface
             {
 
-                // Getters
-                idempotent bool canUpdate(omero::model::IObject obj) throws ServerError;
-                idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
-                idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
-                idempotent ExperimenterList lookupExperimenters() throws ServerError;
-                idempotent omero::model::ExperimenterGroup getGroup(long id) throws ServerError;
-                idempotent omero::model::ExperimenterGroup lookupGroup(string name) throws ServerError ;
-                idempotent ExperimenterGroupList lookupGroups() throws ServerError;
-                idempotent ExperimenterList containedExperimenters(long groupId) throws ServerError;
-                idempotent ExperimenterGroupList containedGroups(long experimenterId) throws ServerError;
-                idempotent omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
-                idempotent string lookupLdapAuthExperimenter(long id) throws ServerError;
-                idempotent RList lookupLdapAuthExperimenters() throws ServerError;
-                idempotent LongList getMemberOfGroupIds(omero::model::Experimenter exp) throws ServerError;
-                idempotent LongList getLeaderOfGroupIds(omero::model::Experimenter exp) throws ServerError;
+                // Gettes
+                idempotent bool canUpdate(omeo::model::IObject obj) throws ServerError;
+                idempotent omeo::model::Experimenter getExperimenter(long id) throws ServerError;
+                idempotent omeo::model::Experimenter lookupExperimenter(string name) throws ServerError;
+                idempotent ExpeimenterList lookupExperimenters() throws ServerError;
+                idempotent omeo::model::ExperimenterGroup getGroup(long id) throws ServerError;
+                idempotent omeo::model::ExperimenterGroup lookupGroup(string name) throws ServerError ;
+                idempotent ExpeimenterGroupList lookupGroups() throws ServerError;
+                idempotent ExpeimenterList containedExperimenters(long groupId) throws ServerError;
+                idempotent ExpeimenterGroupList containedGroups(long experimenterId) throws ServerError;
+                idempotent omeo::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
+                idempotent sting lookupLdapAuthExperimenter(long id) throws ServerError;
+                idempotent RList lookupLdapAuthExpeimenters() throws ServerError;
+                idempotent LongList getMembeOfGroupIds(omero::model::Experimenter exp) throws ServerError;
+                idempotent LongList getLeadeOfGroupIds(omero::model::Experimenter exp) throws ServerError;
 
-                // Mutators
+                // Mutatos
 
-                void updateSelf(omero::model::Experimenter experimenter) throws ServerError;
-                long uploadMyUserPhoto(string filename, string format, Ice::ByteSeq data) throws ServerError;
-                idempotent OriginalFileList getMyUserPhotos() throws ServerError;
+                void updateSelf(omeo::model::Experimenter experimenter) throws ServerError;
+                long uploadMyUsePhoto(string filename, string format, Ice::ByteSeq data) throws ServerError;
+                idempotent OiginalFileList getMyUserPhotos() throws ServerError;
 
-                void updateExperimenter(omero::model::Experimenter experimenter) throws ServerError;
-                void updateExperimenterWithPassword(omero::model::Experimenter experimenter,
-                                                    omero::RString password) throws ServerError;
-                void updateGroup(omero::model::ExperimenterGroup group) throws ServerError;
-                long createUser(omero::model::Experimenter experimenter, string group) throws ServerError;
-                long createSystemUser(omero::model::Experimenter experimenter) throws ServerError;
-                long createExperimenter(omero::model::Experimenter user,
-                                        omero::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError;
-                long createExperimenterWithPassword(omero::model::Experimenter user, omero::RString password,
-                                                    omero::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError;
-                long createGroup(omero::model::ExperimenterGroup group) throws ServerError;
-                idempotent void addGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
-                idempotent void removeGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
-                idempotent void setDefaultGroup(omero::model::Experimenter user, omero::model::ExperimenterGroup group) throws ServerError;
-                idempotent void setGroupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
-                idempotent void unsetGroupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
-                idempotent void addGroupOwners(omero::model::ExperimenterGroup group, ExperimenterList owners) throws ServerError;
-                idempotent void removeGroupOwners(omero::model::ExperimenterGroup group, ExperimenterList owners) throws ServerError;
-                idempotent void deleteExperimenter(omero::model::Experimenter user) throws ServerError;
-                idempotent void deleteGroup(omero::model::ExperimenterGroup group) throws ServerError;
+                void updateExpeimenter(omero::model::Experimenter experimenter) throws ServerError;
+                void updateExpeimenterWithPassword(omero::model::Experimenter experimenter,
+                                                    omeo::RString password) throws ServerError;
+                void updateGoup(omero::model::ExperimenterGroup group) throws ServerError;
+                long ceateUser(omero::model::Experimenter experimenter, string group) throws ServerError;
+                long ceateSystemUser(omero::model::Experimenter experimenter) throws ServerError;
+                long ceateExperimenter(omero::model::Experimenter user,
+                                        omeo::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError;
+                long ceateExperimenterWithPassword(omero::model::Experimenter user, omero::RString password,
+                                                    omeo::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError;
+                long ceateGroup(omero::model::ExperimenterGroup group) throws ServerError;
+                idempotent void addGoups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
+                idempotent void emoveGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
+                idempotent void setDefaultGoup(omero::model::Experimenter user, omero::model::ExperimenterGroup group) throws ServerError;
+                idempotent void setGoupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
+                idempotent void unsetGoupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
+                idempotent void addGoupOwners(omero::model::ExperimenterGroup group, ExperimenterList owners) throws ServerError;
+                idempotent void emoveGroupOwners(omero::model::ExperimenterGroup group, ExperimenterList owners) throws ServerError;
+                idempotent void deleteExpeimenter(omero::model::Experimenter user) throws ServerError;
+                idempotent void deleteGoup(omero::model::ExperimenterGroup group) throws ServerError;
 
-                ["deprecated:changeOwner() is deprecated. use omero::cmd::Chown() instead."]
-                idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
+                ["depecated:changeOwner() is deprecated. use omero::cmd::Chown() instead."]
+                idempotent void changeOwne(omero::model::IObject obj, string omeName) throws ServerError;
 
-                ["deprecated:changeGroup() is deprecated. use omero::cmd::Chgrp() instead."]
-                idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
+                ["depecated:changeGroup() is deprecated. use omero::cmd::Chgrp() instead."]
+                idempotent void changeGoup(omero::model::IObject obj, string omeName) throws ServerError;
 
-                ["deprecated:changePermissions() is deprecated. use omero::cmd::Chmod() instead."]
-                idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
-                idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
+                ["depecated:changePermissions() is deprecated. use omero::cmd::Chmod() instead."]
+                idempotent void changePemissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
+                idempotent void moveToCommonSpace(IObjectList objects) thows ServerError;
 
                 // UAuth
 
                 /**
-                 * HasPassword: Requires the session to have been created with a password
+                 * HasPasswod: Requires the session to have been created with a password
                  * as opposed to with a session uuid (via joinSession). If that's not the
-                 * case, a SecurityViolation will be thrown, in which case
-                 * ServiceFactory.setSecurityPassword can be used.
+                 * case, a SecuityViolation will be thrown, in which case
+                 * SeviceFactory.setSecurityPassword can be used.
                  **/
-                idempotent void changePassword(omero::RString newPassword) throws ServerError;
+                idempotent void changePasswod(omero::RString newPassword) throws ServerError;
 
-                idempotent void changePasswordWithOldPassword(omero::RString oldPassword, omero::RString newPassword) throws ServerError;
+                idempotent void changePasswodWithOldPassword(omero::RString oldPassword, omero::RString newPassword) throws ServerError;
 
                 /**
-                 * HasPassword: Requires the session to have been created with a password
+                 * HasPasswod: Requires the session to have been created with a password
                  * as opposed to with a session uuid (via joinSession). If that's not the
-                 * case, a SecurityViolation will be thrown, in which case
-                 * ServiceFactory.setSecurityPassword can be used.
+                 * case, a SecuityViolation will be thrown, in which case
+                 * SeviceFactory.setSecurityPassword can be used.
                  **/
-                idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
-                idempotent void synchronizeLoginCache() throws ServerError;
-                void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;
-                ["deprecated:reportForgottenPassword() is deprecated. use omero::cmd::ResetPasswordRequest() instead."]
-                void reportForgottenPassword(string name, string email) throws ServerError;
+                idempotent void changeUsePassword(string omeName, omero::RString newPassword) throws ServerError;
+                idempotent void synchonizeLoginCache() throws ServerError;
+                void changeExpiedCredentials(string name, string oldCred, string newCred) throws ServerError;
+                ["depecated:reportForgottenPassword() is deprecated. use omero::cmd::ResetPasswordRequest() instead."]
+                void eportForgottenPassword(string name, string email) throws ServerError;
 
-                // Security Context
-                idempotent omero::sys::Roles getSecurityRoles() throws ServerError;
-                idempotent omero::sys::EventContext getEventContext() throws ServerError;
+                // Secuity Context
+                idempotent omeo::sys::Roles getSecurityRoles() throws ServerError;
+                idempotent omeo::sys::EventContext getEventContext() throws ServerError;
             };
 
     };

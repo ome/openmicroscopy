@@ -1,65 +1,65 @@
 /*
  *   $Id$
  *
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_CMD_API_ICE
 #define OMERO_CMD_API_ICE
 
-#include <omero/RTypes.ice>
-#include <omero/ServerErrors.ice>
-#include <Glacier2/Session.ice>
+#include <omeo/RTypes.ice>
+#include <omeo/ServerErrors.ice>
+#include <Glacie2/Session.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
-module omero {
+module omeo {
 
     /**
-     * Simplified API that is intended for passing
+     * Simplified API that is intended fo passing
      **/
     module cmd {
 
-        dictionary<string, string> StringMap;
+        dictionay<string, string> StringMap;
 
-        sequence<StringMap> StringMapList;
+        sequence<StingMap> StringMapList;
 
         enum State {
             ALL, ACTIVE, INACTIVE, SUCCESS, FAILURE, CANCELLED
         };
 
-        ["java:type:java.util.ArrayList<omero.cmd.State>:java.util.List<omero.cmd.State>"]
+        ["java:type:java.util.ArayList<omero.cmd.State>:java.util.List<omero.cmd.State>"]
         sequence<State> StateList;
 
-        interface Handle; /* Forward */
+        inteface Handle; /* Forward */
 
         class Status {
-            Handle* source;
-            string category;
-            string name;
+            Handle* souce;
+            sting category;
+            sting name;
             StateList flags;
-            StringMap parameters;
+            StingMap parameters;
 
-            /** the latest step to be commenced, from 0 to steps-1 */
-            int currentStep;
-            /** the total number of steps */
+            /** the latest step to be commenced, fom 0 to steps-1 */
+            int curentStep;
+            /** the total numbe of steps */
             int steps;
-            long startTime;
-            Ice::LongSeq stepStartTimes;
+            long statTime;
+            Ice::LongSeq stepStatTimes;
             Ice::LongSeq stepStopTimes;
             long stopTime;
 
         };
 
-        ["java:type:java.util.ArrayList<omero.cmd.Status>:java.util.List<omero.cmd.Status>"]
+        ["java:type:java.util.ArayList<omero.cmd.Status>:java.util.List<omero.cmd.Status>"]
         sequence<Status> StatusList;
 
         class Request {
         };
 
-        ["java:type:java.util.ArrayList<omero.cmd.Request>:java.util.List<omero.cmd.Request>"]
+        ["java:type:java.util.ArayList<omero.cmd.Request>:java.util.List<omero.cmd.Request>"]
         sequence<Request> RequestList;
 
         class Response {
@@ -70,94 +70,94 @@ module omero {
         };
 
         class ERR extends Response {
-            string category;
-            string name;
-            StringMap parameters;
+            sting category;
+            sting name;
+            StingMap parameters;
         };
 
         class Unknown extends ERR {
 
         };
 
-        ["java:type:java.util.ArrayList<omero.cmd.Response>:java.util.List<omero.cmd.Response>"]
+        ["java:type:java.util.ArayList<omero.cmd.Response>:java.util.List<omero.cmd.Response>"]
         sequence<Response> ResponseList;
 
-        interface CmdCallback {
+        inteface CmdCallback {
 
             /**
-             * Notifies clients that the given number of steps
-             * from the total is complete. This method will not
-             * necessarily be called for every step.
+             * Notifies clients that the given numbe of steps
+             * fom the total is complete. This method will not
+             * necessaily be called for every step.
              */
              void step(int complete, int total);
 
             /**
              * Called when the command has completed in any fashion
              * including cancellation. The [Status::flags] list will
-             * contain information about whether or not the process
+             * contain infomation about whether or not the process
              * was cancelled.
              */
-             void finished(Response rsp, Status s);
+             void finished(Response sp, Status s);
 
         };
 
-        ["ami"] interface Handle {
+        ["ami"] inteface Handle {
 
             /**
-             * Add a callback for notifications.
+             * Add a callback fo notifications.
              **/
             void addCallback(CmdCallback* cb);
 
             /**
-             * Remove callback for notifications.
+             * Remove callback fo notifications.
              **/
-            void removeCallback(CmdCallback* cb);
+            void emoveCallback(CmdCallback* cb);
 
             /**
-             * Returns the request object that was used to
-             * initialize this handle. Never null.
+             * Retuns the request object that was used to
+             * initialize this handle. Neve null.
              **/
             Request getRequest();
 
             /**
-             * Returns a response if this handle has finished
-             * execution, otherwise returns null.
+             * Retuns a response if this handle has finished
+             * execution, othewise returns null.
              **/
             Response getResponse();
 
             /**
-             * Returns a status object for the current execution.
+             * Retuns a status object for the current execution.
              *
              * This will likely be the same object that would be
-             * returned as a component of the [Response] value.
+             * eturned as a component of the [Response] value.
              *
-             * Never null.
+             * Neve null.
              **/
             Status getStatus();
 
             /**
-             * Attempts to cancel execution of this [Request]. Returns
-             * true if cancellation was successful. Returns false if not,
-             * in which case likely this request will run to completion.
+             * Attempts to cancel execution of this [Request]. Retuns
+             * tue if cancellation was successful. Returns false if not,
+             * in which case likely this equest will run to completion.
              **/
-            bool cancel() throws omero::LockTimeout;
+            bool cancel() thows omero::LockTimeout;
 
             /**
-             * Closes this handle. If the request is running, then a
-             * cancellation will be attempted first. All uses of a handle
-             * should be surrounded by a try/finally close block.
+             * Closes this handle. If the equest is running, then a
+             * cancellation will be attempted fist. All uses of a handle
+             * should be surounded by a try/finally close block.
              **/
             void close();
         };
 
-        ["java:type:java.util.ArrayList<omero.cmd.HandlePrx>:java.util.List<omero.cmd.HandlePrx>"]
+        ["java:type:java.util.ArayList<omero.cmd.HandlePrx>:java.util.List<omero.cmd.HandlePrx>"]
         sequence<Handle*> HandleList;
 
 	/**
-	 * Starting point for all command-based OMERO.blitz interaction.
+	 * Stating point for all command-based OMERO.blitz interaction.
 	 **/
-	interface Session extends Glacier2::Session {
-            ["amd", "ami"] Handle* submit(Request req);
+	inteface Session extends Glacier2::Session {
+            ["amd", "ami"] Handle* submit(Request eq);
         };
 
     };

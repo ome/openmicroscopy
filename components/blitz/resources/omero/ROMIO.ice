@@ -1,37 +1,37 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2007 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_IO_ICE
 #define OMERO_IO_ICE
 
-#include <omero/ServerErrors.ice>
+#include <omeo/ServerErrors.ice>
 #include <Ice/BuiltinSequences.ice>
 
-module omero
+module omeo
 {
 
 /**
 
-Primitives for working with binary data.
+Pimitives for working with binary data.
 
-@see omero::api::RenderingEngine
-@see omero::api::RawPixelsStore
+@see omeo::api::RenderingEngine
+@see omeo::api::RawPixelsStore
 
  **/
-module romio
+module omio
 {
     sequence<Ice::ByteSeq> RGBBands;
 
     const int RedBand = 0;
-    const int GreenBand = 1;
+    const int GeenBand = 1;
     const int BlueBand = 2;
 
-    class RGBBuffer
+    class RGBBuffe
     {
       RGBBands bands;
       int sizeX1;
@@ -57,8 +57,8 @@ module romio
       int y;
       int z;
       int t;
-      RegionDef region;
-      int stride;
+      RegionDef egion;
+      int stide;
     };
 
     class CodomainMapContext

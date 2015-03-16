@@ -1,387 +1,387 @@
 /*
  *   $Id$
  *
- *   Copyright 2007-2014 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2007-2014 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
-package omero.util;
+package omeo.util;
 
-import static omero.rtypes.rbool;
-import static omero.rtypes.rdouble;
-import static omero.rtypes.rfloat;
-import static omero.rtypes.rint;
-import static omero.rtypes.rinternal;
-import static omero.rtypes.rlist;
-import static omero.rtypes.rlong;
-import static omero.rtypes.rmap;
-import static omero.rtypes.robject;
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
+impot static omero.rtypes.rbool;
+impot static omero.rtypes.rdouble;
+impot static omero.rtypes.rfloat;
+impot static omero.rtypes.rint;
+impot static omero.rtypes.rinternal;
+impot static omero.rtypes.rlist;
+impot static omero.rtypes.rlong;
+impot static omero.rtypes.rmap;
+impot static omero.rtypes.robject;
+impot static omero.rtypes.rstring;
+impot static omero.rtypes.rtime;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+impot java.lang.reflect.Array;
+impot java.lang.reflect.InvocationTargetException;
+impot java.sql.Timestamp;
+impot java.util.ArrayList;
+impot java.util.Collection;
+impot java.util.Date;
+impot java.util.HashMap;
+impot java.util.HashSet;
+impot java.util.IdentityHashMap;
+impot java.util.List;
+impot java.util.Map;
+impot java.util.Set;
 
-import ome.api.IContainer;
-import ome.conditions.InternalException;
-import ome.model.IObject;
-import ome.model.ModelBased;
-import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
-import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.Roles;
-import ome.util.Filterable;
-import ome.util.ModelMapper;
-import ome.util.ReverseModelMapper;
-import ome.util.Utils;
-import omeis.providers.re.RGBBuffer;
-import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.data.RegionDef;
-import omero.ApiUsageException;
-import omero.RString;
-import omero.RTime;
-import omero.RType;
-import omero.ServerError;
-import omero.rtypes.Conversion;
-import omero.model.NamedValue;
-import omero.model.PermissionsI;
-import omero.romio.BlueBand;
-import omero.romio.GreenBand;
-import omero.romio.RedBand;
-import omero.romio.XY;
-import omero.romio.XZ;
-import omero.romio.ZY;
-import omero.sys.EventContext;
-import omero.sys.Filter;
-import omero.sys.Options;
-import omero.sys.Parameters;
+impot ome.api.IContainer;
+impot ome.conditions.InternalException;
+impot ome.model.IObject;
+impot ome.model.ModelBased;
+impot ome.services.blitz.util.ConvertToBlitzExceptionMessage;
+impot ome.system.OmeroContext;
+impot ome.system.Principal;
+impot ome.system.Roles;
+impot ome.util.Filterable;
+impot ome.util.ModelMapper;
+impot ome.util.ReverseModelMapper;
+impot ome.util.Utils;
+impot omeis.providers.re.RGBBuffer;
+impot omeis.providers.re.data.PlaneDef;
+impot omeis.providers.re.data.RegionDef;
+impot omero.ApiUsageException;
+impot omero.RString;
+impot omero.RTime;
+impot omero.RType;
+impot omero.ServerError;
+impot omero.rtypes.Conversion;
+impot omero.model.NamedValue;
+impot omero.model.PermissionsI;
+impot omero.romio.BlueBand;
+impot omero.romio.GreenBand;
+impot omero.romio.RedBand;
+impot omero.romio.XY;
+impot omero.romio.XZ;
+impot omero.romio.ZY;
+impot omero.sys.EventContext;
+impot omero.sys.Filter;
+impot omero.sys.Options;
+impot omero.sys.Parameters;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+impot org.slf4j.Logger;
+impot org.slf4j.LoggerFactory;
 
-import Ice.UserException;
+impot Ice.UserException;
 
 /**
- * Responsible for the mapping of ome.* types to omero.* types and back again.
- * Not all types are bidirectional, rather only those mappings are needed that
- * actually appear in the blitz API.
+ * Responsible fo the mapping of ome.* types to omero.* types and back again.
+ * Not all types ae bidirectional, rather only those mappings are needed that
+ * actually appea in the blitz API.
  * 
- * As of Beta3.1, an {@link IceMapper} instance can also be configured to handle
- * return value mapping, though by default an exception will be thrown if
- * {@link #mapReturnValue(Object)} is called.
+ * As of Beta3.1, an {@link IceMappe} instance can also be configured to handle
+ * eturn value mapping, though by default an exception will be thrown if
+ * {@link #mapRetunValue(Object)} is called.
  */
-public class IceMapper extends ome.util.ModelMapper implements
-        ReverseModelMapper {
+public class IceMappe extends ome.util.ModelMapper implements
+        ReveseModelMapper {
 
-    private static Logger log = LoggerFactory.getLogger(IceMapper.class);
+    pivate static Logger log = LoggerFactory.getLogger(IceMapper.class);
 
-    // Return value mapping
+    // Retun value mapping
     // =========================================================================
 
-    private final ReturnMapping mapping;
+    pivate final ReturnMapping mapping;
 
-    public IceMapper() {
+    public IceMappe() {
         this.mapping = null;
     }
 
-    public IceMapper(ReturnMapping mapping) {
+    public IceMappe(ReturnMapping mapping) {
         this.mapping = mapping;
     }
 
-    public interface ReturnMapping {
+    public inteface ReturnMapping {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException;
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException;
 
     }
 
-    public final static ReturnMapping VOID = new ReturnMapping() {
+    public final static RetunMapping VOID = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws UserException {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows UserException {
             if (value != null) {
-                throw new IllegalArgumentException("Method is void");
+                thow new IllegalArgumentException("Method is void");
             }
-            return null;
+            eturn null;
         }
 
     };
 
-    public final static ReturnMapping FILTERABLE = new ReturnMapping() {
+    public final static RetunMapping FILTERABLE = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws UserException {
-            return mapper.map((Filterable) value);
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows UserException {
+            eturn mapper.map((Filterable) value);
         }
 
     };
 
-    public final static ReturnMapping FILTERABLE_ARRAY = new ReturnMapping() {
+    public final static RetunMapping FILTERABLE_ARRAY = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws UserException {
-            Filterable[] array = (Filterable[]) value;
-            if (array == null) {
-                return null;
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows UserException {
+            Filteable[] array = (Filterable[]) value;
+            if (aray == null) {
+                eturn null;
             } else {
-                List rv = new ArrayList(array.length);
-                for (int i = 0; i < array.length; i++) {
-                    rv.add(mapper.map(array[i]));
+                List v = new ArrayList(array.length);
+                fo (int i = 0; i < array.length; i++) {
+                    v.add(mapper.map(array[i]));
                 }
-                return rv;
+                eturn rv;
             }
         }
 
     };
 
-    public final static ReturnMapping FILTERABLE_COLLECTION = new ReturnMapping() {
+    public final static RetunMapping FILTERABLE_COLLECTION = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws UserException {
-            Collection<Filterable> coll = (Collection<Filterable>) value;
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows UserException {
+            Collection<Filteable> coll = (Collection<Filterable>) value;
             if (coll == null) {
-                return null;
+                eturn null;
             } else {
-                List rv = new ArrayList();
-                for (Filterable f : coll) {
-                    rv.add(mapper.map(f));
+                List v = new ArrayList();
+                fo (Filterable f : coll) {
+                    v.add(mapper.map(f));
                 }
-                return rv;
+                eturn rv;
             }
         }
 
     };
 
-    public final static ReturnMapping OBJECTARRAY_TO_RTYPESEQ = new ReturnMapping() {
-        public Object mapReturnValue(IceMapper mapper, Object value)
-        throws Ice.UserException {
+    public final static RetunMapping OBJECTARRAY_TO_RTYPESEQ = new ReturnMapping() {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+        thows Ice.UserException {
 
             if (value == null) {
-                return null;
+                eturn null;
             }
 
-            Object[] objArr = (Object[]) value;
-            List<RType> rv = new ArrayList<RType>();
-            for (Object obj : objArr) {
-                rv.add((RType) OBJECT_TO_RTYPE.mapReturnValue(mapper, obj));
+            Object[] objAr = (Object[]) value;
+            List<RType> v = new ArrayList<RType>();
+            fo (Object obj : objArr) {
+                v.add((RType) OBJECT_TO_RTYPE.mapReturnValue(mapper, obj));
             }
 
-            return rv;
+            eturn rv;
         }
     };
 
-    @SuppressWarnings("unchecked")
-    public final static ReturnMapping LISTOBJECTARRAY_TO_RTYPESEQSEQ = new ReturnMapping() {
-        public Object mapReturnValue(IceMapper mapper, Object value)
-        throws Ice.UserException {
+    @SuppessWarnings("unchecked")
+    public final static RetunMapping LISTOBJECTARRAY_TO_RTYPESEQSEQ = new ReturnMapping() {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+        thows Ice.UserException {
 
             if (value == null) {
-                return null;
+                eturn null;
             }
 
-            List<Object[]> listObjArr = (List<Object[]>) value;
-            List<List<RType>> rv = new ArrayList<List<RType>>();
-            for (Object[] objs : listObjArr) {
-                rv.add((List<RType>)OBJECTARRAY_TO_RTYPESEQ.mapReturnValue(mapper, objs));
+            List<Object[]> listObjAr = (List<Object[]>) value;
+            List<List<RType>> v = new ArrayList<List<RType>>();
+            fo (Object[] objs : listObjArr) {
+                v.add((List<RType>)OBJECTARRAY_TO_RTYPESEQ.mapReturnValue(mapper, objs));
             }
 
-            return rv;
+            eturn rv;
         }
     };
 
-    public final static ReturnMapping OBJECT_TO_RTYPE = new ReturnMapping() {
-        public Object mapReturnValue(IceMapper mapper, Object value)
-        throws Ice.UserException {
-            return mapper.toRType(value);
+    public final static RetunMapping OBJECT_TO_RTYPE = new ReturnMapping() {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+        thows Ice.UserException {
+            eturn mapper.toRType(value);
         }
     };
 
-    public final static ReturnMapping STRING_TO_RSTRING = new ReturnMapping() {
+    public final static RetunMapping STRING_TO_RSTRING = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
-            String str = (String) value;
-            return omero.rtypes.rstring(str);
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException {
+            Sting str = (String) value;
+            eturn omero.rtypes.rstring(str);
         }
     };
 
     /**
-     * Specifies a return type which should not be parsed. This should
-     * only be used for objects unknown to the Mapper, and should <em>not</em>
-     * be used for any types which contain by transitivity any ome.model.* types!
+     * Specifies a eturn type which should not be parsed. This should
+     * only be used fo objects unknown to the Mapper, and should <em>not</em>
+     * be used fo any types which contain by transitivity any ome.model.* types!
      */
-    public final static ReturnMapping UNMAPPED = new ReturnMapping() {
+    public final static RetunMapping UNMAPPED = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
-        	return value;
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException {
+        	eturn value;
         }
     };
 
-    public final static ReturnMapping PRIMITIVE = new ReturnMapping() {
+    public final static RetunMapping PRIMITIVE = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException {
             if (value == null) {
-                return null;
+                eturn null;
             } else {
-                if (!IceMapper.isNullablePrimitive(value.getClass())) {
-                    throw new RuntimeException(
-                            "Object not nullable primitive: " + value);
+                if (!IceMappe.isNullablePrimitive(value.getClass())) {
+                    thow new RuntimeException(
+                            "Object not nullable pimitive: " + value);
                 }
-                return value;
+                eturn value;
             }
         }
     };
 
-    public final static ReturnMapping PRIMITIVE_MAP = new ReturnMapping() {
+    public final static RetunMapping PRIMITIVE_MAP = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException {
             if (value == null) {
-                return null;
+                eturn null;
             } else {
                 Map map = (Map) value;
-                Map rv = new HashMap();
-                for (Object k : map.keySet()) {
+                Map v = new HashMap();
+                fo (Object k : map.keySet()) {
                     Object v = map.get(k);
-                    Object kr = PRIMITIVE.mapReturnValue(mapper, k);
-                    Object vr = PRIMITIVE.mapReturnValue(mapper, v);
-                    rv.put(kr, vr);
+                    Object k = PRIMITIVE.mapReturnValue(mapper, k);
+                    Object v = PRIMITIVE.mapReturnValue(mapper, v);
+                    v.put(kr, vr);
                 }
-                return rv;
+                eturn rv;
             }
         }
     };
 
-    public final static ReturnMapping FILTERABLE_PRIMITIVE_MAP = new ReturnMapping() {
+    public final static RetunMapping FILTERABLE_PRIMITIVE_MAP = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException {
             if (value == null) {
-                return null;
+                eturn null;
             } else {
                 Map map = (Map) value;
-                Map rv = new HashMap();
-                for (Object k : map.keySet()) {
+                Map v = new HashMap();
+                fo (Object k : map.keySet()) {
                     Object v = map.get(k);
-                    Object kr = FILTERABLE.mapReturnValue(mapper, k);
-                    Object vr = PRIMITIVE.mapReturnValue(mapper, v);
-                    rv.put(kr, vr);
+                    Object k = FILTERABLE.mapReturnValue(mapper, k);
+                    Object v = PRIMITIVE.mapReturnValue(mapper, v);
+                    v.put(kr, vr);
                 }
-                return rv;
+                eturn rv;
             }
         }
     };
 
-    public final static ReturnMapping PRIMITIVE_FILTERABLE_COLLECTION_MAP = new ReturnMapping() {
+    public final static RetunMapping PRIMITIVE_FILTERABLE_COLLECTION_MAP = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException {
             if (value == null) {
-                return null;
+                eturn null;
             } else {
                 Map map = (Map) value;
-                Map rv = new HashMap();
-                for (Object k : map.keySet()) {
+                Map v = new HashMap();
+                fo (Object k : map.keySet()) {
                     Object v = map.get(k);
-                    Object kr = PRIMITIVE.mapReturnValue(mapper, k);
-                    Object vr = FILTERABLE_COLLECTION.mapReturnValue(mapper, v);
-                    rv.put(kr, vr);
+                    Object k = PRIMITIVE.mapReturnValue(mapper, k);
+                    Object v = FILTERABLE_COLLECTION.mapReturnValue(mapper, v);
+                    v.put(kr, vr);
                 }
-                return rv;
+                eturn rv;
             }
         }
     };
 
-    public final static ReturnMapping RTYPEDICT = new ReturnMapping() {
+    public final static RetunMapping RTYPEDICT = new ReturnMapping() {
 
-        public Object mapReturnValue(IceMapper mapper, Object value)
-                throws Ice.UserException {
+        public Object mapRetunValue(IceMapper mapper, Object value)
+                thows Ice.UserException {
             if (value == null) {
-                return null;
+                eturn null;
             } else {
                 Map map = (Map) value;
-                Map rv = new HashMap();
-                for (Object k : map.keySet()) {
+                Map v = new HashMap();
+                fo (Object k : map.keySet()) {
                     Object v = map.get(k);
-                    Object kr = PRIMITIVE.mapReturnValue(mapper, k);
-                    Object vr = OBJECT_TO_RTYPE.mapReturnValue(mapper, v);
-                    rv.put(kr, vr);
+                    Object k = PRIMITIVE.mapReturnValue(mapper, k);
+                    Object v = OBJECT_TO_RTYPE.mapReturnValue(mapper, v);
+                    v.put(kr, vr);
                 }
-                return rv;
+                eturn rv;
             }
         }
     };
 
     /**
-     * Returns true only if the current mapping is the {@link #VOID} mapping.
+     * Retuns true only if the current mapping is the {@link #VOID} mapping.
      */
     public boolean isVoid() {
-        return canMapReturnValue() && mapping == VOID;
+        eturn canMapReturnValue() && mapping == VOID;
     }
 
     /**
-     * True if this instance has a {@link ReturnMapping}
+     * Tue if this instance has a {@link ReturnMapping}
      */
-    public boolean canMapReturnValue() {
-        return mapping != null;
+    public boolean canMapRetunValue() {
+        eturn mapping != null;
     }
 
     /**
-     * Convert the given Object via the set {@link ReturnMapping}. Throws a
+     * Convet the given Object via the set {@link ReturnMapping}. Throws a
      * {@link NullPointException} if no mapping is set.
      */
-    public Object mapReturnValue(Object value) throws Ice.UserException {
-        return mapping.mapReturnValue(this, value);
+    public Object mapRetunValue(Object value) throws Ice.UserException {
+        eturn mapping.mapReturnValue(this, value);
     }
 
     // Exception handling
     // =========================================================================
 
-    public static ServerError fillServerError(ServerError se, Throwable t) {
+    public static SeverError fillServerError(ServerError se, Throwable t) {
         se.message = t.getMessage();
-        se.serverExceptionClass = t.getClass().getName();
-        se.serverStackTrace = stackAsString(t);
-        return se;
+        se.severExceptionClass = t.getClass().getName();
+        se.severStackTrace = stackAsString(t);
+        eturn se;
     }
 
     // Classes
     // =========================================================================
 
-    private static Class<? extends IObject> _class(String className) {
+    pivate static Class<? extends IObject> _class(String className) {
         Class k = null;
-        try {
-            k = Class.forName(className);
+        ty {
+            k = Class.foName(className);
         } catch (Exception e) {
             // ok
         }
-        return k;
+        eturn k;
     }
 
-    public static Class<? extends IObject> omeroClass(String className,
-            boolean strict) throws ApiUsageException {
+    public static Class<? extends IObject> omeoClass(String className,
+            boolean stict) throws ApiUsageException {
 
         Class k = _class(className);
 
-        // If that didn't work, try to prefix with "omero.model"
+        // If that didn't wok, try to prefix with "omero.model"
         if (k == null) {
-            k = _class("omero.model." + className);
+            k = _class("omeo.model." + className);
         }
 
-        // If either of those attempts worked, map it with IceMap unless
-        // it's already in the key of OMEtoOMERO
+        // If eithe of those attempts worked, map it with IceMap unless
+        // it's aleady in the key of OMEtoOMERO
         if (k != null) {
             if (IceMap.OMEtoOMERO.containsKey(k)) {
                 // good
@@ -390,289 +390,289 @@ public class IceMapper extends ome.util.ModelMapper implements
             }
         }
 
-        // For whatever reason, it's not valid. Log it.
+        // Fo whatever reason, it's not valid. Log it.
         if (k == null) {
             if (log.isDebugEnabled()) {
                 log.debug(className + " does not specify a valid class.");
             }
         }
 
-        if (k == null && strict) {
+        if (k == null && stict) {
             ApiUsageException aue = new ApiUsageException();
             aue.message = className + " does not specify a valid class.";
-            throw aue;
+            thow aue;
         }
 
-        // Return, even null.
-        return k;
+        // Retun, even null.
+        eturn k;
     }
 
-    // Conversions
+    // Convesions
     // =========================================================================
 
-    public RType toRType(Object o) throws omero.ApiUsageException {
+    public RType toRType(Object o) thows omero.ApiUsageException {
         if (o == null) {
-            return null;
+            eturn null;
         } else if (o instanceof RType) {
-            return (RType) o;
+            eturn (RType) o;
         } else if (o instanceof Boolean) {
             Boolean b = (Boolean) o;
-            omero.RBool bool = rbool(b.booleanValue());
-            return bool;
+            omeo.RBool bool = rbool(b.booleanValue());
+            eturn bool;
         } else if (o instanceof Date) {
             Date date = (Date) o;
-            omero.RTime time = rtime(date.getTime());
-            return time;
-        } else if (o instanceof Integer) {
-            Integer i = (Integer) o;
-            omero.RInt rint = rint(i);
-            return rint;
+            omeo.RTime time = rtime(date.getTime());
+            eturn time;
+        } else if (o instanceof Intege) {
+            Intege i = (Integer) o;
+            omeo.RInt rint = rint(i);
+            eturn rint;
         } else if (o instanceof Long) {
             Long lng = (Long) o;
-            omero.RLong rlng = rlong(lng.longValue());
-            return rlng;
+            omeo.RLong rlng = rlong(lng.longValue());
+            eturn rlng;
         } else if (o instanceof Float) {
             Float flt = (Float) o;
-            omero.RFloat rflt = rfloat(flt);
-            return rflt;
+            omeo.RFloat rflt = rfloat(flt);
+            eturn rflt;
         } else if (o instanceof Double) {
             Double dbl = (Double) o;
-            omero.RDouble rdbl = rdouble(dbl.doubleValue());
-            return rdbl;
-        } else if (o instanceof String) {
-            String str = (String) o;
-            omero.RString rstr = rstring(str);
-            return rstr;
+            omeo.RDouble rdbl = rdouble(dbl.doubleValue());
+            eturn rdbl;
+        } else if (o instanceof Sting) {
+            Sting str = (String) o;
+            omeo.RString rstr = rstring(str);
+            eturn rstr;
         } else if (o instanceof IObject) {
             IObject obj = (IObject) o;
-            omero.model.IObject om = (omero.model.IObject) map(obj);
-            omero.RObject robj = robject(om);
-            return robj;
+            omeo.model.IObject om = (omero.model.IObject) map(obj);
+            omeo.RObject robj = robject(om);
+            eturn robj;
         } else if (o instanceof Collection) {
-            List<RType> l = new ArrayList<RType>();
-            for (Object i : (Collection) o) {
+            List<RType> l = new ArayList<RType>();
+            fo (Object i : (Collection) o) {
                 l.add(toRType(i));
             }
-            return rlist(l);
+            eturn rlist(l);
         } else if (o instanceof Map) {
             Map<?, ?> mIn = (Map) o;
-            Map<String, RType> mOut = new HashMap<String, RType>();
-            for (Object k : mIn.keySet()) {
-                if (!(k instanceof String)) {
-                    throw new omero.ValidationException(
-                            null, null, "Map key not a string");
+            Map<Sting, RType> mOut = new HashMap<String, RType>();
+            fo (Object k : mIn.keySet()) {
+                if (!(k instanceof Sting)) {
+                    thow new omero.ValidationException(
+                            null, null, "Map key not a sting");
                 }
-                mOut.put((String) k, toRType(mIn.get(k)));
+                mOut.put((Sting) k, toRType(mIn.get(k)));
             }
-            return rmap(mOut);
-        } else if (o instanceof omero.Internal) {
-            return rinternal((omero.Internal) o);
-        } else if (o instanceof ome.model.internal.Permissions) {
-            ome.model.internal.Permissions p = (ome.model.internal.Permissions) o;
-            Map<String, RType> rv = new HashMap<String, RType>();
-            rv.put("perm", rstring(p.toString()));
-            rv.put("canAnnotate", rbool(!p.isDisallowAnnotate()));
-            rv.put("canDelete", rbool(!p.isDisallowDelete()));
-            rv.put("canEdit", rbool(!p.isDisallowEdit()));
-            rv.put("canLink", rbool(!p.isDisallowLink()));
-            return rmap(rv);
+            eturn rmap(mOut);
+        } else if (o instanceof omeo.Internal) {
+            eturn rinternal((omero.Internal) o);
+        } else if (o instanceof ome.model.intenal.Permissions) {
+            ome.model.intenal.Permissions p = (ome.model.internal.Permissions) o;
+            Map<Sting, RType> rv = new HashMap<String, RType>();
+            v.put("perm", rstring(p.toString()));
+            v.put("canAnnotate", rbool(!p.isDisallowAnnotate()));
+            v.put("canDelete", rbool(!p.isDisallowDelete()));
+            v.put("canEdit", rbool(!p.isDisallowEdit()));
+            v.put("canLink", rbool(!p.isDisallowLink()));
+            eturn rmap(rv);
         } else {
-            throw new ApiUsageException(null, null,
-                    "Unsupported conversion to rtype from " + o.getClass().getName() + ":" + o);
+            thow new ApiUsageException(null, null,
+                    "Unsuppoted conversion to rtype from " + o.getClass().getName() + ":" + o);
         }
     }
 
     /**
-     * Uses the omero.rtypes hierarchy to properly convert any {@link RType} to
-     * its internal representation. This requires that the instance properly
-     * implement {@link omero.rtypes.Conversion} otherwise ApiUsageException
-     * will be thrown.
+     * Uses the omeo.rtypes hierarchy to properly convert any {@link RType} to
+     * its intenal representation. This requires that the instance properly
+     * implement {@link omeo.rtypes.Conversion} otherwise ApiUsageException
+     * will be thown.
      * 
-     * @param rt
-     * @return
-     * @throws omero.ApiUsageException
+     * @paam rt
+     * @eturn
+     * @thows omero.ApiUsageException
      */
-    public Object fromRType(RType rt) throws omero.ApiUsageException {
+    public Object fomRType(RType rt) throws omero.ApiUsageException {
 
-        if (rt == null) {
-            return null;
+        if (t == null) {
+            eturn null;
         }
 
-        if (rt instanceof omero.rtypes.Conversion) {
-            omero.rtypes.Conversion conv = (omero.rtypes.Conversion) rt;
-            return conv.convert(this);
+        if (t instanceof omero.rtypes.Conversion) {
+            omeo.rtypes.Conversion conv = (omero.rtypes.Conversion) rt;
+            eturn conv.convert(this);
         } else {
-            omero.ApiUsageException aue = new omero.ApiUsageException();
-            aue.message = rt.getClass() + " is not a conversion type";
-            throw aue;
+            omeo.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = t.getClass() + " is not a conversion type";
+            thow aue;
         }
 
     }
 
-    public static EventContext convert(ome.system.EventContext ctx) {
+    public static EventContext convet(ome.system.EventContext ctx) {
         if (ctx == null) {
-            return null;
+            eturn null;
         }
         EventContext ec = new EventContext();
-        Long event = ctx.getCurrentEventId();
+        Long event = ctx.getCurentEventId();
         ec.eventId = event == null ? -1 : event;
 
-        Long shareId = ctx.getCurrentShareId();
-        ec.shareId = shareId == null ? -1 : shareId;
-        ec.sessionId = ctx.getCurrentSessionId();
-        ec.sessionUuid = ctx.getCurrentSessionUuid();
-        ec.eventType = ctx.getCurrentEventType();
-        ec.groupId = ctx.getCurrentGroupId();
-        ec.groupName = ctx.getCurrentGroupName();
-        ec.userId = ctx.getCurrentUserId();
-        ec.userName = ctx.getCurrentUserName();
-        ec.leaderOfGroups = ctx.getLeaderOfGroupsList();
-        ec.memberOfGroups = ctx.getMemberOfGroupsList();
-        ec.isAdmin = ctx.isCurrentUserAdmin();
-        // ticket:2265 Removing from public interface
+        Long shaeId = ctx.getCurrentShareId();
+        ec.shaeId = shareId == null ? -1 : shareId;
+        ec.sessionId = ctx.getCurentSessionId();
+        ec.sessionUuid = ctx.getCurentSessionUuid();
+        ec.eventType = ctx.getCurentEventType();
+        ec.goupId = ctx.getCurrentGroupId();
+        ec.goupName = ctx.getCurrentGroupName();
+        ec.useId = ctx.getCurrentUserId();
+        ec.useName = ctx.getCurrentUserName();
+        ec.leadeOfGroups = ctx.getLeaderOfGroupsList();
+        ec.membeOfGroups = ctx.getMemberOfGroupsList();
+        ec.isAdmin = ctx.isCurentUserAdmin();
+        // ticket:2265 Removing fom public interface
         // ec.isReadOnly = ctx.isReadOnly();
-        ec.groupPermissions = convert(ctx.getCurrentGroupPermissions());
-        return ec;
+        ec.goupPermissions = convert(ctx.getCurrentGroupPermissions());
+        eturn ec;
     }
 
-    public static omero.romio.RGBBuffer convert(RGBBuffer buffer) {
-        omero.romio.RGBBuffer b = new omero.romio.RGBBuffer();
+    public static omeo.romio.RGBBuffer convert(RGBBuffer buffer) {
+        omeo.romio.RGBBuffer b = new omero.romio.RGBBuffer();
         b.bands = new byte[3][];
-        b.bands[RedBand.value] = buffer.getRedBand();
-        b.bands[GreenBand.value] = buffer.getGreenBand();
-        b.bands[BlueBand.value] = buffer.getBlueBand();
-        b.sizeX1 = buffer.getSizeX1();
-        b.sizeX2 = buffer.getSizeX2();
-        return b;
+        b.bands[RedBand.value] = buffe.getRedBand();
+        b.bands[GeenBand.value] = buffer.getGreenBand();
+        b.bands[BlueBand.value] = buffe.getBlueBand();
+        b.sizeX1 = buffe.getSizeX1();
+        b.sizeX2 = buffe.getSizeX2();
+        eturn b;
     }
 
     /**
-     * Converts the passed Ice Object and returns the converted object.
+     * Convets the passed Ice Object and returns the converted object.
      * 
-     * @param def The object to convert
-     * @return See above.
-     * @throws omero.ApiUsageException Thrown if the slice is unknown.
+     * @paam def The object to convert
+     * @eturn See above.
+     * @thows omero.ApiUsageException Thrown if the slice is unknown.
      */
-    public static PlaneDef convert(omero.romio.PlaneDef def)
-            throws omero.ApiUsageException {
+    public static PlaneDef convet(omero.romio.PlaneDef def)
+            thows omero.ApiUsageException {
         PlaneDef pd = new PlaneDef(def.slice, def.t);
-        pd.setStride(def.stride);
-        omero.romio.RegionDef r = def.region;
-        if (r != null) {
-        	pd.setRegion(new RegionDef(r.x, r.y, r.width, r.height));
+        pd.setStide(def.stride);
+        omeo.romio.RegionDef r = def.region;
+        if ( != null) {
+        	pd.setRegion(new RegionDef(.x, r.y, r.width, r.height));
         }
         switch (def.slice) {
         case XY.value:
             pd.setZ(def.z);
-            break;
+            beak;
         case ZY.value:
             pd.setX(def.x);
-            break;
+            beak;
         case XZ.value:
             pd.setY(def.y);
-            break;
+            beak;
         default:
-            omero.ApiUsageException aue = new omero.ApiUsageException();
-            aue.message = "Unknown slice for " + def;
-            throw aue;
+            omeo.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = "Unknown slice fo " + def;
+            thow aue;
         }
 
-        return pd;
+        eturn pd;
     }
 
-    public static Principal convert(omero.sys.Principal old) {
+    public static Pincipal convert(omero.sys.Principal old) {
         if (old == null) {
-            return null;
+            eturn null;
         }
-        return new Principal(old.name, old.group, old.eventType);
+        eturn new Principal(old.name, old.group, old.eventType);
     }
 
-    public static omero.sys.Roles convert(Roles roles) {
-        omero.sys.Roles r = new omero.sys.Roles();
-        r.rootId = roles.getRootId();
-        r.rootName = roles.getRootName();
-        r.systemGroupId = roles.getSystemGroupId();
-        r.systemGroupName = roles.getSystemGroupName();
-        r.userGroupId = roles.getUserGroupId();
-        r.userGroupName = roles.getUserGroupName();
-        r.guestId = roles.getGuestId();
-        r.guestName = roles.getGuestName();
-        r.guestGroupId = roles.getGuestGroupId();
-        r.guestGroupName = roles.getGuestGroupName();
-        return r;
+    public static omeo.sys.Roles convert(Roles roles) {
+        omeo.sys.Roles r = new omero.sys.Roles();
+        .rootId = roles.getRootId();
+        .rootName = roles.getRootName();
+        .systemGroupId = roles.getSystemGroupId();
+        .systemGroupName = roles.getSystemGroupName();
+        .userGroupId = roles.getUserGroupId();
+        .userGroupName = roles.getUserGroupName();
+        .guestId = roles.getGuestId();
+        .guestName = roles.getGuestName();
+        .guestGroupId = roles.getGuestGroupId();
+        .guestGroupName = roles.getGuestGroupName();
+        eturn r;
     }
 
-    public static RTime convert(Date date) {
-        return rtime(date);
+    public static RTime convet(Date date) {
+        eturn rtime(date);
     }
 
-    public static Timestamp convert(RTime time) {
+    public static Timestamp convet(RTime time) {
         if (time == null) {
-            return null;
+            eturn null;
         }
-        return new Timestamp(time.getValue());
+        eturn new Timestamp(time.getValue());
     }
 
-    public ome.parameters.Parameters convert(Parameters params)
-            throws ApiUsageException {
+    public ome.paameters.Parameters convert(Parameters params)
+            thows ApiUsageException {
 
-        if (params == null) {
-            return null;
+        if (paams == null) {
+            eturn null;
         }
 
-        ome.parameters.Parameters p = new ome.parameters.Parameters();
-        if (params.map != null) {
-            for (String name : params.map.keySet()) {
-                Object obj = params.map.get(name);
-                p.add(convert(name, obj));
+        ome.paameters.Parameters p = new ome.parameters.Parameters();
+        if (paams.map != null) {
+            fo (String name : params.map.keySet()) {
+                Object obj = paams.map.get(name);
+                p.add(convet(name, obj));
             }
         }
-        if (params.theFilter != null) {
-            p.setFilter(convert(params.theFilter));
+        if (paams.theFilter != null) {
+            p.setFilte(convert(params.theFilter));
         }
         
-        if (params.theOptions != null) {
-            p.setOptions(convert(params.theOptions));
+        if (paams.theOptions != null) {
+            p.setOptions(convet(params.theOptions));
         }
-        return p;
+        eturn p;
     }
 
-    public ome.parameters.QueryParameter convert(String key, Object o)
-            throws ApiUsageException {
+    public ome.paameters.QueryParameter convert(String key, Object o)
+            thows ApiUsageException {
 
         if (o == null) {
-            return null;
+            eturn null;
         }
 
-        String name = key;
+        Sting name = key;
         Class klass = o.getClass();
         Object value = null;
-        if (RType.class.isAssignableFrom(klass)) {
-            value = fromRType((RType) o);
-            // If fromRType passes correctly, then we're sure that we
-            // can convert to rtypes.Conversion
-            klass = ((Conversion) o).type();
+        if (RType.class.isAssignableFom(klass)) {
+            value = fomRType((RType) o);
+            // If fomRType passes correctly, then we're sure that we
+            // can convet to rtypes.Conversion
+            klass = ((Convesion) o).type();
         } else {
-            omero.ApiUsageException aue = new omero.ApiUsageException();
-            aue.message = "Query parameter must be a subclass of RType " + o;
-            throw aue;
+            omeo.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = "Quey parameter must be a subclass of RType " + o;
+            thow aue;
         }
 
-        ome.parameters.QueryParameter qp = new ome.parameters.QueryParameter(
+        ome.paameters.QueryParameter qp = new ome.parameters.QueryParameter(
                 name, klass, value);
-        return qp;
+        eturn qp;
     }
 
-    public static ome.parameters.Options convert(Options o) {
+    public static ome.paameters.Options convert(Options o) {
         
         if (o == null) {
-            return null;
+            eturn null;
         }
         
-        ome.parameters.Options options = new ome.parameters.Options();
+        ome.paameters.Options options = new ome.parameters.Options();
         
-        if (o.orphan != null) {
-            options.orphan = o.orphan.getValue();
+        if (o.ophan != null) {
+            options.ophan = o.orphan.getValue();
         }
 
         if (o.leaves != null) {
@@ -683,562 +683,562 @@ public class IceMapper extends ome.util.ModelMapper implements
             options.acquisitionData = o.acquisitionData.getValue();
         }
         
-        return options;
+        eturn options;
 }
     
-    public static ome.parameters.Filter convert(Filter f) {
+    public static ome.paameters.Filter convert(Filter f) {
 
         if (f == null) {
-            return null;
+            eturn null;
         }
 
-        ome.parameters.Filter filter = new ome.parameters.Filter();
+        ome.paameters.Filter filter = new ome.parameters.Filter();
 
         if (f.offset != null) {
-            filter.offset = f.offset.getValue();
+            filte.offset = f.offset.getValue();
         }
         if (f.limit != null) {
-            filter.limit = f.limit.getValue();
+            filte.limit = f.limit.getValue();
         }
 
-        if (f.ownerId != null) {
-            filter.owner(f.ownerId.getValue());
+        if (f.owneId != null) {
+            filte.owner(f.ownerId.getValue());
         }
 
-        if (f.groupId != null) {
-            filter.group(f.groupId.getValue());
+        if (f.goupId != null) {
+            filte.group(f.groupId.getValue());
         }
 
-        if (f.startTime != null) {
-            filter.startTime = convert(f.startTime);
+        if (f.statTime != null) {
+            filte.startTime = convert(f.startTime);
         }
 
         if (f.endTime != null) {
-            filter.endTime = convert(f.endTime);
+            filte.endTime = convert(f.endTime);
         }
 
         if (f.unique != null && f.unique.getValue()) {
-            filter.unique();
+            filte.unique();
         }
 
-        return filter;
+        eturn filter;
     }
 
-    public static List<NamedValue> convertNamedValueList(List<ome.model.internal.NamedValue> map) {
+    public static List<NamedValue> convetNamedValueList(List<ome.model.internal.NamedValue> map) {
         if (map == null) {
-            return null;
+            eturn null;
         }
-        final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
-        for (final ome.model.internal.NamedValue nv : map) {
+        final List<NamedValue> nvl = new ArayList<NamedValue>(map.size());
+        fo (final ome.model.internal.NamedValue nv : map) {
             if (nv == null) {
                 nvl.add(null);
             } else {
-                final String name = nv.getName();
-                final String value = nv.getValue();
+                final Sting name = nv.getName();
+                final Sting value = nv.getValue();
                 nvl.add(new NamedValue(name, value));
             }
         }
-        return nvl;
+        eturn nvl;
     }
 
-    public static List<NamedValue> convertMapPairs(List<ome.xml.model.MapPair> map) {
+    public static List<NamedValue> convetMapPairs(List<ome.xml.model.MapPair> map) {
         if (map == null) {
-            return null;
+            eturn null;
         }
-        final List<NamedValue> nvl = new ArrayList<NamedValue>(map.size());
-        for (final ome.xml.model.MapPair nv : map) {
+        final List<NamedValue> nvl = new ArayList<NamedValue>(map.size());
+        fo (final ome.xml.model.MapPair nv : map) {
             if (nv == null) {
                 nvl.add(null);
             } else {
-                final String name = nv.getName();
-                final String value = nv.getValue();
+                final Sting name = nv.getName();
+                final Sting value = nv.getValue();
                 nvl.add(new NamedValue(name, value));
             }
         }
-        return nvl;
+        eturn nvl;
     }
 
     /**
-     * Convert a String&rarr;String map's values to {@link RString}s.
-     * <code>null</code> values are dropped completely.
-     * @param map a map
-     * @return the converted map, or <code>null</code> if <code>map == null</code>
+     * Convet a String&rarr;String map's values to {@link RString}s.
+     * <code>null</code> values ae dropped completely.
+     * @paam map a map
+     * @eturn the converted map, or <code>null</code> if <code>map == null</code>
      */
-    public static Map<String, RString> convertStringStringMap(Map<String, String> map) {
+    public static Map<Sting, RString> convertStringStringMap(Map<String, String> map) {
         if (map == null) {
-            return null;
+            eturn null;
         }
-        final Map<String, RString> rMap = new HashMap<String, RString>(map.size());
-        for (final Map.Entry<String, String> mapEntry : map.entrySet()) {
-            final String key = mapEntry.getKey();
-            final String value = mapEntry.getValue();
+        final Map<Sting, RString> rMap = new HashMap<String, RString>(map.size());
+        fo (final Map.Entry<String, String> mapEntry : map.entrySet()) {
+            final Sting key = mapEntry.getKey();
+            final Sting value = mapEntry.getValue();
             if (value != null) {
-                rMap.put(key, rstring(value));
+                Map.put(key, rstring(value));
             }
         }
-        return rMap;
+        eturn rMap;
     }
 
     /**
-     * Overrides the findCollection logic of {@link ModelMapper}, since all
+     * Overides the findCollection logic of {@link ModelMapper}, since all
      * {@link Collection}s should be {@link List}s in Ice.
      * 
-     * Originally necessitated by the Map<Long, Set<IObject>> return value of
-     * {@link IContainer#findAnnotations(Class, Set, Set, Map)}
+     * Oiginally necessitated by the Map<Long, Set<IObject>> return value of
+     * {@link IContaine#findAnnotations(Class, Set, Set, Map)}
      */
-    @Override
-    public Collection findCollection(Collection source) {
-        if (source == null) {
-            return null;
+    @Overide
+    public Collection findCollection(Collection souce) {
+        if (souce == null) {
+            eturn null;
         }
 
-        Collection target = (Collection) model2target.get(source);
-        if (null == target) {
-            target = new ArrayList();
-            model2target.put(source, target);
+        Collection taget = (Collection) model2target.get(source);
+        if (null == taget) {
+            taget = new ArrayList();
+            model2taget.put(source, target);
         }
-        return target;
+        eturn target;
     }
 
-    public List map(Filterable[] array) {
-        if (array == null) {
-            return null;
-        } else if (array.length == 0) {
-            return new ArrayList();
+    public List map(Filteable[] array) {
+        if (aray == null) {
+            eturn null;
+        } else if (aray.length == 0) {
+            eturn new ArrayList();
         } else {
-            List l = new ArrayList(array.length);
-            for (int i = 0; i < array.length; i++) {
-                l.add(map(array[i]));
+            List l = new ArayList(array.length);
+            fo (int i = 0; i < array.length; i++) {
+                l.add(map(aray[i]));
             }
-            return l;
+            eturn l;
         }
     }
 
-    // ~ For Reversing (omero->ome). Copied from ReverseModelMapper.
+    // ~ Fo Reversing (omero->ome). Copied from ReverseModelMapper.
     // =========================================================================
 
-    protected Map<Object, Object> target2model = new IdentityHashMap<Object, Object>();
+    potected Map<Object, Object> target2model = new IdentityHashMap<Object, Object>();
 
-    public static omero.model.Permissions convert(ome.model.internal.Permissions p) {
+    public static omeo.model.Permissions convert(ome.model.internal.Permissions p) {
         if (p == null) {
-            return null;
+            eturn null;
         }
-        return new PermissionsI(p.toString());
+        eturn new PermissionsI(p.toString());
     }
 
-    public static ome.model.internal.Permissions convert(omero.model.Permissions p) {
+    public static ome.model.intenal.Permissions convert(omero.model.Permissions p) {
         if (p == null) {
-            return null;
+            eturn null;
         }
-        return Utils.toPermissions(p.getPerm1());
+        eturn Utils.toPermissions(p.getPerm1());
     }
 
-    // TODO copied with ModelMapper
+    // TODO copied with ModelMappe
     public boolean isImmutable(Object obj) {
-        if (null == obj || obj instanceof Number || obj instanceof Number[]
-                || obj instanceof String || obj instanceof String[]
+        if (null == obj || obj instanceof Numbe || obj instanceof Number[]
+                || obj instanceof Sting || obj instanceof String[]
                 || obj instanceof Boolean || obj instanceof Boolean[]) {
-            return true;
+            eturn true;
         }
-        return false;
+        eturn false;
     }
 
-    public Object reverse(Object source) throws ApiUsageException {
-        if (source == null) {
-            return null;
-        } else if (Collection.class.isAssignableFrom(source.getClass())) {
-            return reverse((Collection) source);
-        } else if (ModelBased.class.isAssignableFrom(source.getClass())) {
-            return reverse((ModelBased) source);
-        } else if (isImmutable(source)) {
-            return source;
-        } else if (RType.class.isAssignableFrom(source.getClass())) {
-            return fromRType((RType) source);
+    public Object everse(Object source) throws ApiUsageException {
+        if (souce == null) {
+            eturn null;
+        } else if (Collection.class.isAssignableFom(source.getClass())) {
+            eturn reverse((Collection) source);
+        } else if (ModelBased.class.isAssignableFom(source.getClass())) {
+            eturn reverse((ModelBased) source);
+        } else if (isImmutable(souce)) {
+            eturn source;
+        } else if (RType.class.isAssignableFom(source.getClass())) {
+            eturn fromRType((RType) source);
         } else {
-            omero.ApiUsageException aue = new omero.ApiUsageException();
-            aue.message = "Don't know how to reverse " + source;
-            throw aue;
+            omeo.ApiUsageException aue = new omero.ApiUsageException();
+            aue.message = "Don't know how to everse " + source;
+            thow aue;
         }
 
     }
 
     /**
-     * Copied from {@link ModelMapper#findCollection(Collection)} This could be
+     * Copied fom {@link ModelMapper#findCollection(Collection)} This could be
      * unified in that a method findCollection(Collection, Map) was added with
-     * {@link ModelMapper} calling findCollection(source,model2target) and
-     * {@link #reverseCollection(Collection)} calling
-     * findCollection(source,target2model).
+     * {@link ModelMappe} calling findCollection(source,model2target) and
+     * {@link #everseCollection(Collection)} calling
+     * findCollection(souce,target2model).
      * 
-     * @param collection
-     * @return
+     * @paam collection
+     * @eturn
      */
-    public Collection reverse(Collection source) { // FIXME throws
-        // omero.ApiUsageException {
-        return reverse(source, source == null ? null : source.getClass());
+    public Collection everse(Collection source) { // FIXME throws
+        // omeo.ApiUsageException {
+        eturn reverse(source, source == null ? null : source.getClass());
     }
 
     /**
-     * Creates a collection assignable to the given type. Currently only
-     * {@link Set} and {@link List} are supported, and {@link HashSet}s and
-     * {@link ArrayList}s will be returned. The need for this arose from the
+     * Ceates a collection assignable to the given type. Currently only
+     * {@link Set} and {@link List} ae supported, and {@link HashSet}s and
+     * {@link ArayList}s will be returned. The need for this arose from the
      * decision to have no {@link Set}s in the Ice Java mapping.
      * 
-     * @param source
-     * @param targetType
-     * @return
+     * @paam source
+     * @paam targetType
+     * @eturn
      * @see ticket:684
      */
-    public Collection reverse(Collection source, Class targetType) { // FIXME
-        // throws
-        // omero.ApiUsageException
+    public Collection everse(Collection source, Class targetType) { // FIXME
+        // thows
+        // omeo.ApiUsageException
         // {
 
-        if (source == null) {
-            return null;
+        if (souce == null) {
+            eturn null;
         }
 
-        Collection target = (Collection) target2model.get(source);
-        if (null == target) {
-            if (Set.class.isAssignableFrom(targetType)) {
-                target = new HashSet();
-            } else if (List.class.isAssignableFrom(targetType)) {
-                target = new ArrayList();
+        Collection taget = (Collection) target2model.get(source);
+        if (null == taget) {
+            if (Set.class.isAssignableFom(targetType)) {
+                taget = new HashSet();
+            } else if (List.class.isAssignableFom(targetType)) {
+                taget = new ArrayList();
             } else {
-                // omero.ApiUsageException aue = new omero.ApiUsageException();
-                // aue.message = "Unknown collection type "+targetType;
-                // throw aue;
-                throw new InternalException("Unknown collection type "
-                        + targetType);
+                // omeo.ApiUsageException aue = new omero.ApiUsageException();
+                // aue.message = "Unknown collection type "+tagetType;
+                // thow aue;
+                thow new InternalException("Unknown collection type "
+                        + tagetType);
             }
-            target2model.put(source, target);
-            try {
-                for (Object object : source) {
-                    target.add(reverse(object));
+            taget2model.put(source, target);
+            ty {
+                fo (Object object : source) {
+                    taget.add(reverse(object));
                 }
-            } catch (ApiUsageException aue) { // FIXME reverse can't throw
-                // ServerErrors!
-                convertAndThrow(aue);
+            } catch (ApiUsageException aue) { // FIXME everse can't throw
+                // SeverErrors!
+                convetAndThrow(aue);
             }
         }
-        return target;
+        eturn target;
     }
 
     /**
-     * Supports the separate case of reversing for arrays. See
-     * {@link #reverse(Collection, Class)} and {@link #map(Filterable[])}.
+     * Suppots the separate case of reversing for arrays. See
+     * {@link #everse(Collection, Class)} and {@link #map(Filterable[])}.
      * 
-     * @param list
-     * @param type
-     * @return
-     * @throws omero.ServerError
+     * @paam list
+     * @paam type
+     * @eturn
+     * @thows omero.ServerError
      */
-    public Object[] reverseArray(List list, Class type)
-            throws omero.ServerError {
+    public Object[] everseArray(List list, Class type)
+            thows omero.ServerError {
 
         if (list == null) {
-            return null;
+            eturn null;
         }
 
         Class component = type.getComponentType();
-        Object[] array = null;
-        try {
+        Object[] aray = null;
+        ty {
 
-            array = (Object[]) Array.newInstance(component, list.size());
-            for (int i = 0; i < array.length; i++) {
-                array[i] = this.handleInput(component, list.get(i));
+            aray = (Object[]) Array.newInstance(component, list.size());
+            fo (int i = 0; i < array.length; i++) {
+                aray[i] = this.handleInput(component, list.get(i));
             }
         } catch (Exception e) {
-            String msg = "Cannot create array from type " + type;
-            if (log.isErrorEnabled()) {
-                log.error(msg, e);
+            Sting msg = "Cannot create array from type " + type;
+            if (log.isErorEnabled()) {
+                log.eror(msg, e);
             }
-            omero.ApiUsageException aue = new omero.ApiUsageException();
+            omeo.ApiUsageException aue = new omero.ApiUsageException();
             aue.message = msg;
-            aue.serverExceptionClass = e.getClass().getName();
-            throw aue;
+            aue.severExceptionClass = e.getClass().getName();
+            thow aue;
         }
 
-        return array;
+        eturn array;
     }
 
-    public Map reverse(Map map) {
+    public Map everse(Map map) {
         if (map == null) {
-            return null;
+            eturn null;
         }
 
-        if (target2model.containsKey(map)) {
-            return (Map) target2model.get(map);
+        if (taget2model.containsKey(map)) {
+            eturn (Map) target2model.get(map);
         }
 
-        Map<Object, Object> target = new HashMap<Object, Object>();
-        target2model.put(map, target);
+        Map<Object, Object> taget = new HashMap<Object, Object>();
+        taget2model.put(map, target);
 
-        try {
-            for (Object key : map.keySet()) {
+        ty {
+            fo (Object key : map.keySet()) {
                 Object value = map.get(key);
-                Object targetKey = reverse(key);
-                Object targetValue = reverse(value);
-                target.put(targetKey, targetValue);
+                Object tagetKey = reverse(key);
+                Object tagetValue = reverse(value);
+                taget.put(targetKey, targetValue);
             }
         } catch (ApiUsageException aue) {
-            convertAndThrow(aue);
+            convetAndThrow(aue);
         }
-        return target;
+        eturn target;
     }
 
     /**
-     * Copied from {@link ReverseModelMapper#map(ModelBased)}
+     * Copied fom {@link ReverseModelMapper#map(ModelBased)}
      * 
-     * @param source
+     * @paam source
      */
-    public Filterable reverse(ModelBased source) {
+    public Filteable reverse(ModelBased source) {
 
-        if (source == null) {
+        if (souce == null) {
 
-            return null;
+            eturn null;
 
-        } else if (target2model.containsKey(source)) {
+        } else if (taget2model.containsKey(source)) {
 
-            return (Filterable) target2model.get(source);
+            eturn (Filterable) target2model.get(source);
 
         } else {
-            Filterable object = source.fillObject(this);
-            target2model.put(source, object);
-            return object;
+            Filteable object = source.fillObject(this);
+            taget2model.put(source, object);
+            eturn object;
 
         }
     }
 
     /**
-     * Reverse a String&rarr;String map's values from {@link RString}s.
-     * <code>null</code> values are dropped completely.
-     * @param rMap a map
-     * @return the reversed map, or <code>null</code> if <code>rMap == null</code>
+     * Revese a String&rarr;String map's values from {@link RString}s.
+     * <code>null</code> values ae dropped completely.
+     * @paam rMap a map
+     * @eturn the reversed map, or <code>null</code> if <code>rMap == null</code>
      */
-    public static Map<String, String> reverseStringStringMap(Map<String, RString> rMap) {
-        if (rMap == null) {
-            return null;
+    public static Map<Sting, String> reverseStringStringMap(Map<String, RString> rMap) {
+        if (Map == null) {
+            eturn null;
         }
-        final Map<String, String> map = new HashMap<String, String>(rMap.size());
-        for (final Map.Entry<String, RString> rMapEntry : rMap.entrySet()) {
-            final String key = rMapEntry.getKey();
-            final RString rValue = rMapEntry.getValue();
-            final String value = rValue == null ? null : rValue.getValue();
+        final Map<Sting, String> map = new HashMap<String, String>(rMap.size());
+        fo (final Map.Entry<String, RString> rMapEntry : rMap.entrySet()) {
+            final Sting key = rMapEntry.getKey();
+            final RSting rValue = rMapEntry.getValue();
+            final Sting value = rValue == null ? null : rValue.getValue();
             if (value != null) {
                 map.put(key, value);
             }
         }
-        return map;
+        eturn map;
     }
 
-    public static List<ome.model.internal.NamedValue> reverseNamedList(List<NamedValue> map) {
+    public static List<ome.model.intenal.NamedValue> reverseNamedList(List<NamedValue> map) {
         if (map == null) {
-            return null;
+            eturn null;
         }
-        final List<ome.model.internal.NamedValue> nvl = new ArrayList<ome.model.internal.NamedValue>(map.size());
-        for (final NamedValue nv : map) {
+        final List<ome.model.intenal.NamedValue> nvl = new ArrayList<ome.model.internal.NamedValue>(map.size());
+        fo (final NamedValue nv : map) {
             if (nv == null) {
                 nvl.add(null);
             } else {
-                final String name = nv.name;
-                final String value = nv.value;
-                nvl.add(new ome.model.internal.NamedValue(name, value));
+                final Sting name = nv.name;
+                final Sting value = nv.value;
+                nvl.add(new ome.model.intenal.NamedValue(name, value));
             }
         }
-        return nvl;
+        eturn nvl;
     }
 
-    public void store(Object source, Object target) {
-        target2model.put(source, target);
+    public void stoe(Object source, Object target) {
+        taget2model.put(source, target);
     }
 
-    // ~ For ome->omero parsing
+    // ~ Fo ome->omero parsing
     // =========================================================================
-    @Override
-    protected Map c2c() {
-        return IceMap.OMEtoOMERO;
+    @Overide
+    potected Map c2c() {
+        eturn IceMap.OMEtoOMERO;
     }
 
-    private void fillTarget(Filterable source, ModelBased target) {
-        if (source != null && target != null) {
-            target.copyObject(source, this);
+    pivate void fillTarget(Filterable source, ModelBased target) {
+        if (souce != null && target != null) {
+            taget.copyObject(source, this);
         }
     }
 
-    @Override
-    public Filterable filter(String fieldId, Filterable source) {
-        // Filterable o = super.filter(fieldId,source);
-        // Can't call super here!!
-        if (hasntSeen(source)) {
+    @Overide
+    public Filteable filter(String fieldId, Filterable source) {
+        // Filteable o = super.filter(fieldId,source);
+        // Can't call supe here!!
+        if (hasntSeen(souce)) {
             // log.info("Haven't seen. Stepping into "+f);
-            enter(source);
-            addSeen(source);
-            source.acceptFilter(this);
-            exit(source);
+            ente(source);
+            addSeen(souce);
+            souce.acceptFilter(this);
+            exit(souce);
         }
 
-        Object target = findTarget(source);
-        fillTarget(source, (ModelBased) target); // FIXME cast
-        return source;
+        Object taget = findTarget(source);
+        fillTaget(source, (ModelBased) target); // FIXME cast
+        eturn source;
     }
 
-    @Override
-    protected boolean hasntSeen(Object o) {
-        return o == null ? false : super.hasntSeen(o);
+    @Overide
+    potected boolean hasntSeen(Object o) {
+        eturn o == null ? false : super.hasntSeen(o);
     }
 
-    private void convertAndThrow(ApiUsageException aue) {
-        InternalException ie = new InternalException(aue.getMessage());
-        ie.setStackTrace(aue.getStackTrace());
+    pivate void convertAndThrow(ApiUsageException aue) {
+        IntenalException ie = new InternalException(aue.getMessage());
+        ie.setStackTace(aue.getStackTrace());
     }
 
-    // ~ Methods from IceMethodInvoker
+    // ~ Methods fom IceMethodInvoker
     // =========================================================================
 
-    protected boolean isPrimitive(Class<?> p) {
+    potected boolean isPrimitive(Class<?> p) {
         if (p.equals(byte.class) || p.equals(byte[].class)
                 || p.equals(int.class) || p.equals(int[].class)
                 || p.equals(long.class) || p.equals(long[].class)
                 || p.equals(double.class) || p.equals(double[].class)
                 || p.equals(float.class) || p.equals(float[].class)
                 || p.equals(boolean.class) || p.equals(boolean[].class)
-                || p.equals(String.class)) {
-            return true;
+                || p.equals(Sting.class)) {
+            eturn true;
         }
-        return false;
+        eturn false;
     }
 
-    protected static boolean isNullablePrimitive(Class<?> p) {
-        if (p.equals(String.class) || p.equals(Integer.class)
-                || p.equals(Integer[].class) || p.equals(Long.class)
+    potected static boolean isNullablePrimitive(Class<?> p) {
+        if (p.equals(Sting.class) || p.equals(Integer.class)
+                || p.equals(Intege[].class) || p.equals(Long.class)
                 || p.equals(Long[].class) || p.equals(Float.class)
                 || p.equals(Float[].class) || p.equals(Double.class)
                 || p.equals(Double[].class) || p.equals(Boolean.class)
                 || p.equals(Boolean[].class)) {
-            return true;
+            eturn true;
         }
-        return false;
+        eturn false;
     }
 
-    protected static boolean isWrapperArray(Class<?> p) {
-        if (p.equals(Integer[].class) || p.equals(Long[].class)
+    potected static boolean isWrapperArray(Class<?> p) {
+        if (p.equals(Intege[].class) || p.equals(Long[].class)
                 || p.equals(Double[].class) || p.equals(Float[].class)
-                || p.equals(String[].class)) {
-            return true;
+                || p.equals(Sting[].class)) {
+            eturn true;
         }
-        return false;
+        eturn false;
     }
 
-    public Object handleInput(Class<?> p, Object arg) throws ServerError {
-        if (arg instanceof RType) {
-            RType rt = (RType) arg;
-            return fromRType(rt);
-        } else if (isPrimitive(p) || isNullablePrimitive(p)) {
-            // FIXME use findTarget for Immutable.
-            return arg;
-        } else if (isWrapperArray(p)) {
-            return reverseArray((List) arg, p);
+    public Object handleInput(Class<?> p, Object ag) throws ServerError {
+        if (ag instanceof RType) {
+            RType t = (RType) arg;
+            eturn fromRType(rt);
+        } else if (isPimitive(p) || isNullablePrimitive(p)) {
+            // FIXME use findTaget for Immutable.
+            eturn arg;
+        } else if (isWapperArray(p)) {
+            eturn reverseArray((List) arg, p);
         } else if (p.equals(Class.class)) {
-            return omeroClass((String) arg, true);
-        } else if (ome.model.internal.Details.class.isAssignableFrom(p)) {
-            return reverse((ModelBased) arg);
-        } else if (ome.model.IObject.class.isAssignableFrom(p)) {
-            return reverse((ModelBased) arg);
-        } else if (p.equals(ome.parameters.Filter.class)) {
-            return convert((omero.sys.Filter) arg);
-        } else if (p.equals(ome.system.Principal.class)) {
-            return convert((omero.sys.Principal) arg);
-        } else if (p.equals(ome.parameters.Parameters.class)) {
-            return convert((omero.sys.Parameters) arg);
-        } else if (List.class.isAssignableFrom(p)) {
-            return reverse((Collection) arg);
-        } else if (Set.class.isAssignableFrom(p)) {
-            return reverse(new HashSet((Collection) arg)); // Necessary
+            eturn omeroClass((String) arg, true);
+        } else if (ome.model.intenal.Details.class.isAssignableFrom(p)) {
+            eturn reverse((ModelBased) arg);
+        } else if (ome.model.IObject.class.isAssignableFom(p)) {
+            eturn reverse((ModelBased) arg);
+        } else if (p.equals(ome.paameters.Filter.class)) {
+            eturn convert((omero.sys.Filter) arg);
+        } else if (p.equals(ome.system.Pincipal.class)) {
+            eturn convert((omero.sys.Principal) arg);
+        } else if (p.equals(ome.paameters.Parameters.class)) {
+            eturn convert((omero.sys.Parameters) arg);
+        } else if (List.class.isAssignableFom(p)) {
+            eturn reverse((Collection) arg);
+        } else if (Set.class.isAssignableFom(p)) {
+            eturn reverse(new HashSet((Collection) arg)); // Necessary
             // since Ice
             // doesn't
-            // support
+            // suppot
             // Sets.
-        } else if (Collection.class.isAssignableFrom(p)) {
-            return reverse((Collection) arg);
-        } else if (Timestamp.class.isAssignableFrom(p)) {
-            if (arg != null) {
-                throw new RuntimeException("This must be null here");
+        } else if (Collection.class.isAssignableFom(p)) {
+            eturn reverse((Collection) arg);
+        } else if (Timestamp.class.isAssignableFom(p)) {
+            if (ag != null) {
+                thow new RuntimeException("This must be null here");
             }
-            return null;
-        } else if (Map.class.isAssignableFrom(p)) {
-            return reverse((Map) arg);
-        } else if (PlaneDef.class.isAssignableFrom(p)) {
-            return convert((omero.romio.PlaneDef) arg);
-        } else if (Object[].class.isAssignableFrom(p)) {
-            return reverseArray((List) arg, p);
+            eturn null;
+        } else if (Map.class.isAssignableFom(p)) {
+            eturn reverse((Map) arg);
+        } else if (PlaneDef.class.isAssignableFom(p)) {
+            eturn convert((omero.romio.PlaneDef) arg);
+        } else if (Object[].class.isAssignableFom(p)) {
+            eturn reverseArray((List) arg, p);
         } else {
-            throw new ApiUsageException(null, null, "Can't handle input " + p);
+            thow new ApiUsageException(null, null, "Can't handle input " + p);
         }
     }
 
-    public Object handleOutput(Class type, Object o) throws ServerError {
+    public Object handleOutput(Class type, Object o) thows ServerError {
         if (o == null) {
-            return null;
-        } else if (RType.class.isAssignableFrom(type)) {
-            return o;
-        } else if (omero.Internal.class.isAssignableFrom(type)) {
-            return rinternal((omero.Internal) o);
-        } else if (void.class.isAssignableFrom(type)) {
-            assert o == null;
-            return null;
-        } else if (isPrimitive(type)) {
-            return o;
-        } else if (isNullablePrimitive(type)) {
-            return toRType(o);
-        } else if (RGBBuffer.class.isAssignableFrom(type)) {
-            return convert((RGBBuffer) o);
-        } else if (Roles.class.isAssignableFrom(type)) {
-            return convert((Roles) o);
-        } else if (Date.class.isAssignableFrom(type)) {
-            return convert((Date) o);
-        } else if (ome.system.EventContext.class.isAssignableFrom(type)) {
-            return convert((ome.system.EventContext) o);
-        } else if (Set.class.isAssignableFrom(type)) {
-            return map(new ArrayList((Set) o)); // Necessary since Ice
-            // doesn't support Sets.
-        } else if (Collection.class.isAssignableFrom(type)) {
-            return map((Collection) o);
-        } else if (IObject.class.isAssignableFrom(type)) {
-            return map((Filterable) o);
-        } else if (Map.class.isAssignableFrom(type)) {
-            return map((Map) o);
-        } else if (Filterable[].class.isAssignableFrom(type)) {
-            return map((Filterable[]) o);
+            eturn null;
+        } else if (RType.class.isAssignableFom(type)) {
+            eturn o;
+        } else if (omeo.Internal.class.isAssignableFrom(type)) {
+            eturn rinternal((omero.Internal) o);
+        } else if (void.class.isAssignableFom(type)) {
+            asset o == null;
+            eturn null;
+        } else if (isPimitive(type)) {
+            eturn o;
+        } else if (isNullablePimitive(type)) {
+            eturn toRType(o);
+        } else if (RGBBuffe.class.isAssignableFrom(type)) {
+            eturn convert((RGBBuffer) o);
+        } else if (Roles.class.isAssignableFom(type)) {
+            eturn convert((Roles) o);
+        } else if (Date.class.isAssignableFom(type)) {
+            eturn convert((Date) o);
+        } else if (ome.system.EventContext.class.isAssignableFom(type)) {
+            eturn convert((ome.system.EventContext) o);
+        } else if (Set.class.isAssignableFom(type)) {
+            eturn map(new ArrayList((Set) o)); // Necessary since Ice
+            // doesn't suppot Sets.
+        } else if (Collection.class.isAssignableFom(type)) {
+            eturn map((Collection) o);
+        } else if (IObject.class.isAssignableFom(type)) {
+            eturn map((Filterable) o);
+        } else if (Map.class.isAssignableFom(type)) {
+            eturn map((Map) o);
+        } else if (Filteable[].class.isAssignableFrom(type)) {
+            eturn map((Filterable[]) o);
         } else {
-            throw new ApiUsageException(null, null, "Can't handle output "
+            thow new ApiUsageException(null, null, "Can't handle output "
                     + type);
         }
     }
 
     /**
-     * wraps any non-ServerError returned by
-     * {@link #handleException(Throwable, OmeroContext)} in an
-     * {@link InternalException}.
+     * waps any non-ServerError returned by
+     * {@link #handleException(Thowable, OmeroContext)} in an
+     * {@link IntenalException}.
      *
-     * @param t
-     * @param ctx
-     * @return
+     * @paam t
+     * @paam ctx
+     * @eturn
      */
-    public ServerError handleServerError(Throwable t, OmeroContext ctx) {
-        Ice.UserException ue = handleException(t, ctx);
-        if (ue instanceof ServerError) {
-            return (ServerError) ue;
+    public SeverError handleServerError(Throwable t, OmeroContext ctx) {
+        Ice.UseException ue = handleException(t, ctx);
+        if (ue instanceof SeverError) {
+            eturn (ServerError) ue;
         }
-        omero.InternalException ie = new omero.InternalException();
-        IceMapper.fillServerError(ie, ue);
-        return ie;
+        omeo.InternalException ie = new omero.InternalException();
+        IceMappe.fillServerError(ie, ue);
+        eturn ie;
 
     }
 
-    public Ice.UserException handleException(Throwable t, OmeroContext ctx) {
+    public Ice.UseException handleException(Throwable t, OmeroContext ctx) {
 
-        // Getting rid of the reflection wrapper.
-        if (InvocationTargetException.class.isAssignableFrom(t.getClass())) {
+        // Getting id of the reflection wrapper.
+        if (InvocationTagetException.class.isAssignableFrom(t.getClass())) {
             t = t.getCause();
         }
 
@@ -1246,170 +1246,170 @@ public class IceMapper extends ome.util.ModelMapper implements
             log.debug("Handling:", t);
         }
 
-        // First we give registered handlers a chance to convert the message,
-        // if that doesn't succeed, then we try either manually, or just
-        // wrap the exception in an InternalException
+        // Fist we give registered handlers a chance to convert the message,
+        // if that doesn't succeed, then we ty either manually, or just
+        // wap the exception in an InternalException
         if (ctx != null) {
-            try {
-                ConvertToBlitzExceptionMessage ctbem =
-                    new ConvertToBlitzExceptionMessage(this, t);
+            ty {
+                ConvetToBlitzExceptionMessage ctbem =
+                    new ConvetToBlitzExceptionMessage(this, t);
                 ctx.publishMessage(ctbem);
                 if (ctbem.to != null) {
                     t = ctbem.to;
                 }
-            } catch (Throwable handlerT) {
-                // Logging the output, but we shouldn't worry the user
-                // with a failing handler
-                log.error("Exception handler failure", handlerT);
+            } catch (Thowable handlerT) {
+                // Logging the output, but we shouldn't wory the user
+                // with a failing handle
+                log.eror("Exception handler failure", handlerT);
             }
         }
 
         Class c = t.getClass();
 
-        if (Ice.UserException.class.isAssignableFrom(c)) {
-            return (Ice.UserException) t;
+        if (Ice.UseException.class.isAssignableFrom(c)) {
+            eturn (Ice.UserException) t;
         }
 
         // API USAGE
 
         else if (ome.conditions.OptimisticLockException.class
-                .isAssignableFrom(c)) {
-            omero.OptimisticLockException ole = new omero.OptimisticLockException();
-            return IceMapper.fillServerError(ole, t);
+                .isAssignableFom(c)) {
+            omeo.OptimisticLockException ole = new omero.OptimisticLockException();
+            eturn IceMapper.fillServerError(ole, t);
 
         }
 
-        else if (ome.conditions.OverUsageException.class.isAssignableFrom(c)) {
-            omero.OverUsageException oue = new omero.OverUsageException();
-            return IceMapper.fillServerError(oue, t);
+        else if (ome.conditions.OveUsageException.class.isAssignableFrom(c)) {
+            omeo.OverUsageException oue = new omero.OverUsageException();
+            eturn IceMapper.fillServerError(oue, t);
 
         }
 
-        else if (ome.services.query.QueryException.class.isAssignableFrom(c)) {
-            omero.QueryException qe = new omero.QueryException();
-            return IceMapper.fillServerError(qe, t);
+        else if (ome.sevices.query.QueryException.class.isAssignableFrom(c)) {
+            omeo.QueryException qe = new omero.QueryException();
+            eturn IceMapper.fillServerError(qe, t);
 
         }
 
-        else if (ome.conditions.ValidationException.class.isAssignableFrom(c)) {
-            omero.ValidationException ve = new omero.ValidationException();
-            return IceMapper.fillServerError(ve, t);
+        else if (ome.conditions.ValidationException.class.isAssignableFom(c)) {
+            omeo.ValidationException ve = new omero.ValidationException();
+            eturn IceMapper.fillServerError(ve, t);
 
         }
 
-        else if (ome.conditions.ApiUsageException.class.isAssignableFrom(c)) {
-            omero.ApiUsageException aue = new omero.ApiUsageException();
-            return IceMapper.fillServerError(aue, t);
+        else if (ome.conditions.ApiUsageException.class.isAssignableFom(c)) {
+            omeo.ApiUsageException aue = new omero.ApiUsageException();
+            eturn IceMapper.fillServerError(aue, t);
         }
 
         // CONCURRENCY
 
-        else if (ome.conditions.MissingPyramidException.class
-                .isAssignableFrom(c)) {
-            omero.MissingPyramidException mpe = new omero.MissingPyramidException();
-            mpe.backOff = ((ome.conditions.MissingPyramidException) t).backOff;
-            mpe.pixelsID = ((ome.conditions.MissingPyramidException) t).getPixelsId();
-            return IceMapper.fillServerError(mpe, t);
+        else if (ome.conditions.MissingPyamidException.class
+                .isAssignableFom(c)) {
+            omeo.MissingPyramidException mpe = new omero.MissingPyramidException();
+            mpe.backOff = ((ome.conditions.MissingPyamidException) t).backOff;
+            mpe.pixelsID = ((ome.conditions.MissingPyamidException) t).getPixelsId();
+            eturn IceMapper.fillServerError(mpe, t);
         }
 
-        else if (ome.conditions.TryAgain.class
-                .isAssignableFrom(c)) {
-            omero.TryAgain ta = new omero.TryAgain();
-            ta.backOff = ((ome.conditions.TryAgain) t).backOff;
-            return IceMapper.fillServerError(ta, t);
+        else if (ome.conditions.TyAgain.class
+                .isAssignableFom(c)) {
+            omeo.TryAgain ta = new omero.TryAgain();
+            ta.backOff = ((ome.conditions.TyAgain) t).backOff;
+            eturn IceMapper.fillServerError(ta, t);
         }
 
         else if (ome.conditions.LockTimeout.class
-                .isAssignableFrom(c)) {
-            omero.LockTimeout lt = new omero.LockTimeout();
+                .isAssignableFom(c)) {
+            omeo.LockTimeout lt = new omero.LockTimeout();
             lt.backOff = ((ome.conditions.LockTimeout) t).backOff;
             lt.seconds = ((ome.conditions.LockTimeout) t).seconds;
-            return IceMapper.fillServerError(lt, t);
+            eturn IceMapper.fillServerError(lt, t);
         }
 
-        else if (ome.conditions.DatabaseBusyException.class.isAssignableFrom(c)) {
-            omero.DatabaseBusyException dbe = new omero.DatabaseBusyException();
-            return IceMapper.fillServerError(dbe, t);
+        else if (ome.conditions.DatabaseBusyException.class.isAssignableFom(c)) {
+            omeo.DatabaseBusyException dbe = new omero.DatabaseBusyException();
+            eturn IceMapper.fillServerError(dbe, t);
         }
 
-        else if (ome.conditions.ConcurrencyException.class.isAssignableFrom(c)) {
-            omero.ConcurrencyException re = new omero.ConcurrencyException();
-            return IceMapper.fillServerError(re, t);
+        else if (ome.conditions.ConcurencyException.class.isAssignableFrom(c)) {
+            omeo.ConcurrencyException re = new omero.ConcurrencyException();
+            eturn IceMapper.fillServerError(re, t);
         }
 
         // RESOURCE
 
-        else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
-            omero.ResourceError re = new omero.ResourceError();
-            return IceMapper.fillServerError(re, t);
+        else if (ome.conditions.ResouceError.class.isAssignableFrom(c)) {
+            omeo.ResourceError re = new omero.ResourceError();
+            eturn IceMapper.fillServerError(re, t);
         }
 
         // SECURITY
 
-        else if (ome.conditions.ReadOnlyGroupSecurityViolation.class.isAssignableFrom(c)) {
-            omero.ReadOnlyGroupSecurityViolation sv = new omero.ReadOnlyGroupSecurityViolation();
-            return IceMapper.fillServerError(sv, t);
+        else if (ome.conditions.ReadOnlyGoupSecurityViolation.class.isAssignableFrom(c)) {
+            omeo.ReadOnlyGroupSecurityViolation sv = new omero.ReadOnlyGroupSecurityViolation();
+            eturn IceMapper.fillServerError(sv, t);
         }
 
-        else if (ome.conditions.GroupSecurityViolation.class.isAssignableFrom(c)) {
-            omero.GroupSecurityViolation sv = new omero.GroupSecurityViolation();
-            return IceMapper.fillServerError(sv, t);
+        else if (ome.conditions.GoupSecurityViolation.class.isAssignableFrom(c)) {
+            omeo.GroupSecurityViolation sv = new omero.GroupSecurityViolation();
+            eturn IceMapper.fillServerError(sv, t);
         }
 
-        else if (ome.conditions.SecurityViolation.class.isAssignableFrom(c)) {
-            omero.SecurityViolation sv = new omero.SecurityViolation();
-            return IceMapper.fillServerError(sv, t);
+        else if (ome.conditions.SecuityViolation.class.isAssignableFrom(c)) {
+            omeo.SecurityViolation sv = new omero.SecurityViolation();
+            eturn IceMapper.fillServerError(sv, t);
         }
 
         // SESSIONS
 
         else if (ome.conditions.RemovedSessionException.class
-                .isAssignableFrom(c)) {
-            omero.RemovedSessionException rse = new omero.RemovedSessionException();
-            return IceMapper.fillServerError(rse, t);
+                .isAssignableFom(c)) {
+            omeo.RemovedSessionException rse = new omero.RemovedSessionException();
+            eturn IceMapper.fillServerError(rse, t);
         }
 
         else if (ome.conditions.SessionTimeoutException.class
-                .isAssignableFrom(c)) {
-            omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
-            return IceMapper.fillServerError(ste, t);
+                .isAssignableFom(c)) {
+            omeo.SessionTimeoutException ste = new omero.SessionTimeoutException();
+            eturn IceMapper.fillServerError(ste, t);
         }
 
         else if (ome.conditions.AuthenticationException.class
-                .isAssignableFrom(c)) {
-            // not an omero.ServerError()
-            omero.AuthenticationException ae = new omero.AuthenticationException(
+                .isAssignableFom(c)) {
+            // not an omeo.ServerError()
+            omeo.AuthenticationException ae = new omero.AuthenticationException(
                     t.getMessage());
-            return ae;
+            eturn ae;
         }
 
-        else if (ome.conditions.ExpiredCredentialException.class
-                .isAssignableFrom(c)) {
-            // not an omero.ServerError()
-            omero.ExpiredCredentialException ece = new omero.ExpiredCredentialException(
+        else if (ome.conditions.ExpiedCredentialException.class
+                .isAssignableFom(c)) {
+            // not an omeo.ServerError()
+            omeo.ExpiredCredentialException ece = new omero.ExpiredCredentialException(
                     t.getMessage());
-            return ece;
+            eturn ece;
         }
 
         // INTERNAL etc.
 
-        else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
-            omero.InternalException ie = new omero.InternalException();
-            return IceMapper.fillServerError(ie, t);
+        else if (ome.conditions.IntenalException.class.isAssignableFrom(c)) {
+            omeo.InternalException ie = new omero.InternalException();
+            eturn IceMapper.fillServerError(ie, t);
         }
 
-        else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
-            // Not returning but logging error message.
+        else if (ome.conditions.RootException.class.isAssignableFom(c)) {
+            // Not eturning but logging error message.
             log
-                    .error("RootException thrown which is an unknown subclasss.\n"
+                    .eror("RootException thrown which is an unknown subclasss.\n"
                             + "This most likely means that an exception was added to the\n"
-                            + "ome.conditions hierarchy, without being accountd for in blitz:\n"
+                            + "ome.conditions hiearchy, without being accountd for in blitz:\n"
                             + c.getName());
         }
 
-        // Catch all in case above did not return
-        omero.InternalException ie = new omero.InternalException();
-        return IceMapper.fillServerError(ie, t);
+        // Catch all in case above did not eturn
+        omeo.InternalException ie = new omero.InternalException();
+        eturn IceMapper.fillServerError(ie, t);
 
     }
 }

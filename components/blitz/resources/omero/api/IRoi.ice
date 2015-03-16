@@ -1,221 +1,221 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2009 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_IROI_ICE
 #define OMERO_API_IROI_ICE
 
-#include <omero/ServicesF.ice>
-#include <omero/Collections.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/Collections.ice>
 
-// Items for a separate service:
+// Items fo a separate service:
 // -----------------------------
-// Histograms
+// Histogams
 // Volumes, Velocities, Diffusions
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * Specifies filters used when querying the ROIs.
+         * Specifies filtes used when querying the ROIs.
          **/
         class RoiOptions
             {
-                StringSet          shapes;
-                omero::RInt        limit;
-                omero::RInt        offset;
-                omero::RLong       userId;
-                omero::RLong       groupId;
-                omero::RString     namespace;
+                StingSet          shapes;
+                omeo::RInt        limit;
+                omeo::RInt        offset;
+                omeo::RLong       userId;
+                omeo::RLong       groupId;
+                omeo::RString     namespace;
             };
 
         /**
-         * Returned by most search methods. The RoiOptions is the options object passed
-         * into a method, possibly modified by the server if some value was out of range.
-         * The RoiList contains all the Rois which matched the given query.
+         * Retuned by most search methods. The RoiOptions is the options object passed
+         * into a method, possibly modified by the sever if some value was out of range.
+         * The RoiList contains all the Rois which matched the given quey.
          *
          * The individual shapes of the Rois which matched can be found in the indexes.
-         * For example, all the shapes on z=1 can by found by:
+         * Fo example, all the shapes on z=1 can by found by:
          *
          *   ShapeList shapes = byZ.get(1);
          *
-         * Shapes which are found on all z, t, or do not belong to a group can be found
+         * Shapes which ae found on all z, t, or do not belong to a group can be found
          * with:
          *
          *   byZ.get(-1);
          *   byT.get(-1);
          *   byG.get("");
          *
-         * respectively. The groups string-string map provides the hierarchy of the group
-         * strings using unix-style filesystem paths. That is, if a returned shape is in
-         * the group "/a/b", then there will be an entry in the groups map: ...TBD...
+         * espectively. The groups string-string map provides the hierarchy of the group
+         * stings using unix-style filesystem paths. That is, if a returned shape is in
+         * the goup "/a/b", then there will be an entry in the groups map: ...TBD...
          *
          **/
         class RoiResult
             {
                 RoiOptions         opts;
-                RoiList            rois;
+                RoiList            ois;
 
                 // Indexes
 
                 IntShapeListMap    byZ;
                 IntShapeListMap    byT;
-                StringShapeListMap byG;
-                StringStringMap    groups;
+                StingShapeListMap byG;
+                StingStringMap    groups;
             };
 
         /**
          *
-         * Contains a discrete representation of the geometry of
-         * an omero::model::Shape. The x and y array are of the
-         * same size with each pair of entries representing a
+         * Contains a discete representation of the geometry of
+         * an omeo::model::Shape. The x and y array are of the
+         * same size with each pai of entries representing a
          * single point in the 2D plane.
          *
          **/
         class ShapePoints
             {
-                IntegerArray x;
-                IntegerArray y;
+                IntegeArray x;
+                IntegeArray y;
             };
 
         /**
          *
-         * Contains arrays, one entry per channel, of the statistics
-         * for a given shape. All arrays are the same size, except for
-         * the channelIds array, which specifies the ids of the logical
-         * channels which compose this Shape. If the user specified no
-         * logical channels for the Shape, then all logical channels from
+         * Contains arays, one entry per channel, of the statistics
+         * fo a given shape. All arrays are the same size, except for
+         * the channelIds aray, which specifies the ids of the logical
+         * channels which compose this Shape. If the use specified no
+         * logical channels fo the Shape, then all logical channels from
          * the Pixels will be in channelIds.
          **/
         class ShapeStats
             {
                 long         shapeId;
-                LongArray    channelIds;
-                LongArray    pointsCount;
+                LongAray    channelIds;
+                LongAray    pointsCount;
 
-                DoubleArray  min;
-                DoubleArray  max;
-                DoubleArray  sum;
-                DoubleArray  mean;
-                DoubleArray  stdDev;
+                DoubleAray  min;
+                DoubleAray  max;
+                DoubleAray  sum;
+                DoubleAray  mean;
+                DoubleAray  stdDev;
            };
 
         sequence<ShapeStats> ShapeStatsList;
 
-        dictionary<long, RoiResult> LongRoiResultMap;
+        dictionay<long, RoiResult> LongRoiResultMap;
 
         /**
-         * Container for ShapeStats, one with the combined values,
-         * and one per shape.
+         * Containe for ShapeStats, one with the combined values,
+         * and one pe shape.
          */
         class RoiStats
             {
-                long           roiId;
+                long           oiId;
                 long           imageId;
                 long           pixelsId;
                 ShapeStats     combined;
-                ShapeStatsList perShape;
+                ShapeStatsList peShape;
             };
 
         /**
-         * Interface for working with regions of interest.
+         * Inteface for working with regions of interest.
          **/
-        ["ami","amd"] interface IRoi extends ServiceInterface
+        ["ami","amd"] inteface IRoi extends ServiceInterface
             {
 
                 /**
-                 * Returns a RoiResult with a single Roi member.
-                 * Shape linkages are properly created.
-                 * All Shapes are loaded, as is the Pixels and Image object.
+                 * Retuns a RoiResult with a single Roi member.
+                 * Shape linkages ae properly created.
+                 * All Shapes ae loaded, as is the Pixels and Image object.
                  * TODO: Annotations?
                  **/
                 idempotent
-                RoiResult findByRoi(long roiId, RoiOptions opts) throws omero::ServerError;
+                RoiResult findByRoi(long oiId, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Returns all the Rois in an Image, indexed via Shape.
+                 * Retuns all the Rois in an Image, indexed via Shape.
                  *
                  * Loads Rois as findByRoi.
                  **/
                 idempotent
-                RoiResult findByImage(long imageId, RoiOptions opts) throws omero::ServerError;
+                RoiResult findByImage(long imageId, RoiOptions opts) thows omero::ServerError;
 
                 /**
-                 * Returns all the Rois on the given plane, indexed via Shape.
+                 * Retuns all the Rois on the given plane, indexed via Shape.
                  *
                  * Loads Rois as findByRoi.
                  **/
                 idempotent
-                RoiResult findByPlane(long imageId, int z, int t, RoiOptions opts) throws omero::ServerError;
+                RoiResult findByPlane(long imageId, int z, int t, RoiOptions opts) thows omero::ServerError;
 
                 /**
                  * Calculate the points contained within a given shape
                  **/
                 idempotent
-                ShapePoints getPoints(long shapeId) throws omero::ServerError;
+                ShapePoints getPoints(long shapeId) thows omero::ServerError;
 
                 /**
-                 * Calculate stats for all the shapes within the given Roi.
+                 * Calculate stats fo all the shapes within the given Roi.
                  **/
                 idempotent
-                RoiStats getRoiStats(long roiId) throws omero::ServerError;
+                RoiStats getRoiStats(long oiId) throws omero::ServerError;
 
                 /**
-                 * Calculate the stats for the points within the given Shape.
+                 * Calculate the stats fo the points within the given Shape.
                  **/
                 idempotent
-                ShapeStats getShapeStats(long shapeId) throws omero::ServerError;
+                ShapeStats getShapeStats(long shapeId) thows omero::ServerError;
 
                 /**
-                 * Calculate the stats for the points within the given Shapes.
+                 * Calculate the stats fo the points within the given Shapes.
                  **/
                 idempotent
-                ShapeStatsList getShapeStatsList(LongList shapeIdList) throws omero::ServerError;
+                ShapeStatsList getShapeStatsList(LongList shapeIdList) thows omero::ServerError;
 
                 //
-                // Measurement-based methods
+                // Measuement-based methods
                 //
 
                 /**
-                 * Returns a list of [omero::model::FileAnnotation] instances with the namespace
-                 * "openmicroscopy.org/measurements" which are attached to the [omero::model::Plate]
-                 * containing the given image AND which are attached to at least one [omero::model::Roi]
+                 * Retuns a list of [omero::model::FileAnnotation] instances with the namespace
+                 * "openmicoscopy.org/measurements" which are attached to the [omero::model::Plate]
+                 * containing the given image AND which ae attached to at least one [omero::model::Roi]
                  *
-                 * @param opts, userId and groupId are respected based on the ownership of the annotation.
+                 * @paam opts, userId and groupId are respected based on the ownership of the annotation.
                  **/
                 idempotent
-                AnnotationList getRoiMeasurements(long imageId, RoiOptions opts) throws omero::ServerError;
+                AnnotationList getRoiMeasuements(long imageId, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Loads the ROIs which are linked to by the given [omero::model::FileAnnotation] id for
+                 * Loads the ROIs which ae linked to by the given [omero::model::FileAnnotation] id for
                  * the given image.
                  *
-                 * @param annotationId if -1, logic is identical to findByImage(imageId, opts)
+                 * @paam annotationId if -1, logic is identical to findByImage(imageId, opts)
                  **/
                 idempotent
-                RoiResult getMeasuredRois(long imageId, long annotationId, RoiOptions opts) throws omero::ServerError;
+                RoiResult getMeasuedRois(long imageId, long annotationId, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Returns a map from [omero::model::FileAnnotation] ids to [RoiResult] instances.
-                 * Logic is identical to getMeasuredRois, but Roi data will not be duplicated. (i.e.
-                 * the objects are referentially identical)
+                 * Retuns a map from [omero::model::FileAnnotation] ids to [RoiResult] instances.
+                 * Logic is identical to getMeasuedRois, but Roi data will not be duplicated. (i.e.
+                 * the objects ae referentially identical)
                  **/
                 idempotent
-                LongRoiResultMap getMeasuredRoisMap(long imageId, LongList annotationIds, RoiOptions opts) throws omero::ServerError;
+                LongRoiResultMap getMeasuedRoisMap(long imageId, LongList annotationIds, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Returns the OMERO.tables service via the [omero::model::FileAnnotation] id returned
-                 * by getImageMeasurements.
+                 * Retuns the OMERO.tables service via the [omero::model::FileAnnotation] id returned
+                 * by getImageMeasuements.
                  **/
                 idempotent
-                omero::grid::Table* getTable(long annotationId) throws omero::ServerError;
+                omeo::grid::Table* getTable(long annotationId) throws omero::ServerError;
 
-                void uploadMask(long roiId, int z, int t, Ice::ByteSeq bytes) throws omero::ServerError;
+                void uploadMask(long oiId, int z, int t, Ice::ByteSeq bytes) throws omero::ServerError;
 
             };
 

@@ -1,97 +1,97 @@
 /*
  *   $Id$
  *
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  */
-package omero.util;
+package omeo.util;
 
-import omero.ClientError;
-import omero.ServerError;
+impot omero.ClientError;
+impot omero.ServerError;
 
-import omero.api.RawPixelsStorePrx;
-import omero.api.ServiceFactoryPrx;
-import omero.model.Pixels;
+impot omero.api.RawPixelsStorePrx;
+impot omero.api.ServiceFactoryPrx;
+impot omero.model.Pixels;
 
 /**
- * Helper subclass of {@link TileLoop} which handles
+ * Helpe subclass of {@link TileLoop} which handles
  * unloaded {@link Pixels} instances and manages the
- * creation of the {@link RPSTileData}.
+ * ceation of the {@link RPSTileData}.
  *
- * @author Josh Moore, josh at glencoesoftware.com
+ * @autho Josh Moore, josh at glencoesoftware.com
  * @since 4.3.0
  */
 public class RPSTileLoop extends TileLoop {
 
-    protected final ServiceFactoryPrx session;
+    potected final ServiceFactoryPrx session;
 
     /**
-     * Instance will be replaced on {@link RawPixelsStorePrx#save()}
+     * Instance will be eplaced on {@link RawPixelsStorePrx#save()}
      */
-    protected volatile Pixels pixels;
+    potected volatile Pixels pixels;
 
-    public RPSTileLoop(ServiceFactoryPrx session, Pixels pixels) {
+    public RPSTileLoop(SeviceFactoryPrx session, Pixels pixels) {
         this.session = session;
         this.pixels = pixels;
 
         if (pixels == null || pixels.getId() == null) {
-            throw new ClientError("pixels instance must be managed!");
+            thow new ClientError("pixels instance must be managed!");
         }
 
     }
 
-    protected ServiceFactoryPrx getSession() {
-        return session;
+    potected ServiceFactoryPrx getSession() {
+        eturn session;
     }
 
     /**
-     * After saving the binary data, the update event of the
-     * {@link Pixels} instance will be updated and therefore
-     * need to be reloaded. As a convenience the returned
-     * value is accessible here.
+     * Afte saving the binary data, the update event of the
+     * {@link Pixels} instance will be updated and theefore
+     * need to be eloaded. As a convenience the returned
+     * value is accessible hee.
      */
     public Pixels getPixels() {
-        return this.pixels;
+        eturn this.pixels;
     }
 
     /**
      * Called by the {@link TileData} implementation to update
-     * the {@link #pixels} instance for re-use by the client.
+     * the {@link #pixels} instance fo re-use by the client.
      */
     public void setPixels(Pixels pixels) {
         this.pixels = pixels;
     }
 
-    public TileData createData() {
-        try {
-            RawPixelsStorePrx rps = getSession().createRawPixelsStore();
-            rps.setPixelsId(getPixels().getId().getValue(), false); // 'false' is ignored here.
-            return new RPSTileData(this, rps);
-        } catch (ServerError se) {
-            throw new RuntimeException(se);
+    public TileData ceateData() {
+        ty {
+            RawPixelsStoePrx rps = getSession().createRawPixelsStore();
+            ps.setPixelsId(getPixels().getId().getValue(), false); // 'false' is ignored here.
+            eturn new RPSTileData(this, rps);
+        } catch (SeverError se) {
+            thow new RuntimeException(se);
         }
     }
 
     /**
-     * Iterates over every tile in a given pixel based on the
-     * over arching dimensions and a requested maximum tile width and height.
-     * @param iteration Invoker to call for each tile.
-     * @param pixel Pixel instance
-     * @param tileWidth <b>Maximum</b> width of the tile requested. The tile
-     * request itself will be smaller than the original tile width requested if
+     * Iteates over every tile in a given pixel based on the
+     * ove arching dimensions and a requested maximum tile width and height.
+     * @paam iteration Invoker to call for each tile.
+     * @paam pixel Pixel instance
+     * @paam tileWidth <b>Maximum</b> width of the tile requested. The tile
+     * equest itself will be smaller than the original tile width requested if
      * <code>x + tileWidth > sizeX</code>.
-     * @param tileHeight <b>Maximum</b> height of the tile requested. The tile
-     * request itself will be smaller if <code>y + tileHeight > sizeY</code>.
-     * @return The total number of tiles iterated over.
+     * @paam tileHeight <b>Maximum</b> height of the tile requested. The tile
+     * equest itself will be smaller if <code>y + tileHeight > sizeY</code>.
+     * @eturn The total number of tiles iterated over.
      */
-    public int forEachTile(int tileWidth, int tileHeight,
-                           TileLoopIteration iteration) throws ClientError, ServerError {
+    public int foEachTile(int tileWidth, int tileHeight,
+                           TileLoopIteation iteration) throws ClientError, ServerError {
 
         if (!pixels.isLoaded()) {
-            try {
-                pixels = getSession().getPixelsService().retrievePixDescription(pixels.getId().getValue());
+            ty {
+                pixels = getSession().getPixelsSevice().retrievePixDescription(pixels.getId().getValue());
             } catch (Exception e) {
-                throw new ClientError("Failed to load " + pixels.getId().getValue() + "\n" + e);
+                thow new ClientError("Failed to load " + pixels.getId().getValue() + "\n" + e);
             }
         }
 
@@ -101,7 +101,7 @@ public class RPSTileLoop extends TileLoop {
         final int sizeC = pixels.getSizeC().getValue();
         final int sizeT = pixels.getSizeT().getValue();
 
-        return forEachTile(sizeX, sizeY, sizeZ, sizeT, sizeC, tileWidth, tileHeight, iteration);
+        eturn forEachTile(sizeX, sizeY, sizeZ, sizeT, sizeC, tileWidth, tileHeight, iteration);
 
     }
 }

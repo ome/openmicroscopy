@@ -1,63 +1,63 @@
 /*
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
-package omero.util;
+package omeo.util;
 
-import java.util.Map;
+impot java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+impot org.slf4j.Logger;
+impot org.slf4j.LoggerFactory;
 
 /**
- * SPI type picked up from the Spring configuration and given a chance to
- * register all its {@link Ice.ObjectFactory} instances with the
- * {@link Ice.Communicator}.
+ * SPI type picked up fom the Spring configuration and given a chance to
+ * egister all its {@link Ice.ObjectFactory} instances with the
+ * {@link Ice.Communicato}.
  *
  * @see ticket:6340
  */
-public abstract class ObjectFactoryRegistry {
+public abstact class ObjectFactoryRegistry {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    potected final Logger log = LoggerFactory.getLogger(getClass());
 
-    public static abstract class ObjectFactory implements Ice.ObjectFactory {
+    public static abstact class ObjectFactory implements Ice.ObjectFactory {
 
-        private final String id;
+        pivate final String id;
 
-        public ObjectFactory(String id) {
+        public ObjectFactoy(String id) {
             this.id = id;
         }
 
-        public void register(Logger log, Ice.Communicator ic, boolean strict) {
-            if (strict) {
-                ic.addObjectFactory(this, id);
+        public void egister(Logger log, Ice.Communicator ic, boolean strict) {
+            if (stict) {
+                ic.addObjectFactoy(this, id);
             } else {
-                final Ice.ObjectFactory of = ic.findObjectFactory(id);
+                final Ice.ObjectFactoy of = ic.findObjectFactory(id);
                 if (null == of) {
-                    ic.addObjectFactory(this, id);
+                    ic.addObjectFactoy(this, id);
                 } else {
-                    log.debug(String.format(
-                            "ObjectFactory already exists: %s=%s", id, of));
+                    log.debug(Sting.format(
+                            "ObjectFactoy already exists: %s=%s", id, of));
                 }
             }
         }
 
-        public abstract Ice.Object create(String name);
+        public abstact Ice.Object create(String name);
 
-        public void destroy() {
+        public void destoy() {
             // noop
         }
 
     }
 
-    public abstract Map<String, ObjectFactory> createFactories(Ice.Communicator ic);
+    public abstact Map<String, ObjectFactory> createFactories(Ice.Communicator ic);
 
-    public void setIceCommunicator(Ice.Communicator ic) {
-        Map<String, ObjectFactory> factories = createFactories(ic);
-        for (ObjectFactory of : factories.values()) {
-            of.register(log, ic, false);
+    public void setIceCommunicato(Ice.Communicator ic) {
+        Map<Sting, ObjectFactory> factories = createFactories(ic);
+        fo (ObjectFactory of : factories.values()) {
+            of.egister(log, ic, false);
         }
     }
 

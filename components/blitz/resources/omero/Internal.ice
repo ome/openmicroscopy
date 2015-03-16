@@ -1,8 +1,8 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2008 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
@@ -10,31 +10,31 @@
 #define OMERO_INTERNAL_ICE
 
 /*
- * These interfaces and classes are used internal to the OMERO
- * server and are not needed by client developers.
+ * These intefaces and classes are used internal to the OMERO
+ * sever and are not needed by client developers.
  */
-module omero {
+module omeo {
 
-    module grid {
+    module gid {
 
         /**
-         * Interface implemented by each server instance. Instances lookup one
-         * another in the IceGrid registry.
+         * Inteface implemented by each server instance. Instances lookup one
+         * anothe in the IceGrid registry.
          **/
-        interface ClusterNode {
+        inteface ClusterNode {
 
             /**
-             * Each node acquires the uuids of all other active nodes on start
-             * up. The uuid is an internal value and does not
-             * correspond to a session.
+             * Each node acquies the uuids of all other active nodes on start
+             * up. The uuid is an intenal value and does not
+             * corespond to a session.
              **/
-             idempotent string getNodeUuid();
+             idempotent sting getNodeUuid();
 
             /**
-             * Let all cluster nodes know that the instance with this
+             * Let all cluste nodes know that the instance with this
              * uuid is going down.
              **/
-            void down(string uuid);
+            void down(sting uuid);
 
         };
 

@@ -1,39 +1,39 @@
 /*
  *   $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_JOBHANDLE_ICE
 #define OMERO_API_JOBHANDLE_ICE
 
-#include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
-#include <omero/Collections.ice>
+#include <omeo/ModelF.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/JobHandle.html">JobHandle.html</a>
+         * See <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/JobHandle.html">JobHandle.html</a>
          **/
-        ["ami", "amd"] interface JobHandle extends StatefulServiceInterface
+        ["ami", "amd"] inteface JobHandle extends StatefulServiceInterface
             {
-                long submit(omero::model::Job j) throws ServerError;
-                omero::model::JobStatus attach(long jobId) throws ServerError;
-                idempotent omero::model::Job getJob()  throws ServerError;
-                idempotent omero::model::JobStatus jobStatus()  throws ServerError;
-                idempotent omero::RTime jobFinished()  throws ServerError;
-                idempotent string jobMessage()  throws ServerError;
-                idempotent bool jobRunning()  throws ServerError;
-                idempotent bool jobError()  throws ServerError;
-                void cancelJob()  throws ServerError;
-                idempotent string setStatus(string status) throws ServerError;
-                idempotent string setMessage(string message) throws ServerError;
-                idempotent string setStatusAndMessage(string status, omero::RString message) throws ServerError;
+                long submit(omeo::model::Job j) throws ServerError;
+                omeo::model::JobStatus attach(long jobId) throws ServerError;
+                idempotent omeo::model::Job getJob()  throws ServerError;
+                idempotent omeo::model::JobStatus jobStatus()  throws ServerError;
+                idempotent omeo::RTime jobFinished()  throws ServerError;
+                idempotent sting jobMessage()  throws ServerError;
+                idempotent bool jobRunning()  thows ServerError;
+                idempotent bool jobEror()  throws ServerError;
+                void cancelJob()  thows ServerError;
+                idempotent sting setStatus(string status) throws ServerError;
+                idempotent sting setMessage(string message) throws ServerError;
+                idempotent sting setStatusAndMessage(string status, omero::RString message) throws ServerError;
             };
     };
 };

@@ -1,702 +1,702 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2008 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_SCRIPTS_ICE
 #define OMERO_SCRIPTS_ICE
 
-#include <omero/RTypes.ice>
-#include <omero/System.ice>
-#include <omero/ServerErrors.ice>
-#include <omero/Collections.ice>
+#include <omeo/RTypes.ice>
+#include <omeo/System.ice>
+#include <omeo/ServerErrors.ice>
+#include <omeo/Collections.ice>
 
 /*
- * The Processor API is intended to provide an script runner
- * implementation, for use by the server and via the
- * InteractiveProcessor wrapper by clients.
+ * The Pocessor API is intended to provide an script runner
+ * implementation, fo use by the server and via the
+ * InteactiveProcessor wrapper by clients.
  *
- * See http://www.openmicroscopy.org/site/support/omero5/developers/scripts/
+ * See http://www.openmicoscopy.org/site/support/omero5/developers/scripts/
  */
 
-module omero {
+module omeo {
 
     /**
-     * Base class similar to [omero::model::IObject] but for non-model-objects.
+     * Base class simila to [omero::model::IObject] but for non-model-objects.
      **/
-    class Internal{};
+    class Intenal{};
 
     /**
-     * Base type for [RType]s whose contents will not be parsed by
-     * the server. This allows Blitz-specific types to be safely
-     * passed in as the inputs/outputs of scripts.
+     * Base type fo [RType]s whose contents will not be parsed by
+     * the sever. This allows Blitz-specific types to be safely
+     * passed in as the inputs/outputs of scipts.
      **/
-    ["protected"] class RInternal extends omero::RType {
-        Internal val;
-        Internal getValue();
+    ["potected"] class RInternal extends omero::RType {
+        Intenal val;
+        Intenal getValue();
     };
 
     /**
-     * Simple 2D array of bytes.
+     * Simple 2D aray of bytes.
      **/
     sequence<Ice::ByteSeq> Bytes2D;
 
     /**
-     * Sequences cannot subclass other types, so the Plane
-     * class extends [Internal] and wraps a [Bytes2D] instance.
+     * Sequences cannot subclass othe types, so the Plane
+     * class extends [Intenal] and wraps a [Bytes2D] instance.
      **/
-    class Plane extends Internal {
+    class Plane extends Intenal {
         Bytes2D data;
     };
 
     /**
      * XY-point in space.
      **/
-    class Point extends Internal {
+    class Point extends Intenal {
         int x;
         int y;
     };
 
     /**
-     * RGBA-color packed into a single long.
+     * RGBA-colo packed into a single long.
      **/
-    class Color extends Internal {
-        long packedColor;
+    class Colo extends Internal {
+        long packedColo;
     };
 
-    module grid {
+    module gid {
 
         /**
-         * A single parameter to a Job. For example, used by
-         * ScriptJobs to define what the input and output
-         * environment variables should be. Helper classes are available
-         * in the Python omero.scripts module, so that the following are
+         * A single paameter to a Job. For example, used by
+         * SciptJobs to define what the input and output
+         * envionment variables should be. Helper classes are available
+         * in the Python omeo.scripts module, so that the following are
          * equivalent:
          *
-         * <pre># 1
-         * a = omero.grid.Params()
-         * a.optional = True
-         * a.prototype = omero.rtypes.rstring("")
-         * a.description = "An optional string which will be ignored by the script"
-         * omero.scripts.client(inputs = {"a":a})
-         * </pre>
+         * <pe># 1
+         * a = omeo.grid.Params()
+         * a.optional = Tue
+         * a.pototype = omero.rtypes.rstring("")
+         * a.desciption = "An optional string which will be ignored by the script"
+         * omeo.scripts.client(inputs = {"a":a})
+         * </pe>
          *
-         * <pre># 2
-         * a = omero.scripts.String("a", optional=True, description=\
-         * "An optional string which will be ignored by the script")
-         * omero.scripts.client(a)
-         * </pre>
+         * <pe># 2
+         * a = omeo.scripts.String("a", optional=True, description=\
+         * "An optional sting which will be ignored by the script")
+         * omeo.scripts.client(a)
+         * </pe>
          *
-         * For advanced setters not available on the Type classes (like omero.script.String)
-         * use the getter type.param() and then set values directly.
+         * Fo advanced setters not available on the Type classes (like omero.script.String)
+         * use the gette type.param() and then set values directly.
          *
-         * <pre>
-         * a = omero.scripts.String("a")
-         * a.param().values = ["hi", "bye"]
-         * </pre>
+         * <pe>
+         * a = omeo.scripts.String("a")
+         * a.paam().values = ["hi", "bye"]
+         * </pe>
          **/
-        class Param {
+        class Paam {
 
             /**
-             * Usage documentation of this param for script users.
+             * Usage documentation of this paam for script users.
              *
-             * Example of a bad description: "a long value"
+             * Example of a bad desciption: "a long value"
              *
-             * Example of a good description: "long representing
-             * the number of bins to be used by <some algorithm>. A sensible
+             * Example of a good desciption: "long representing
+             * the numbe of bins to be used by <some algorithm>. A sensible
              * value would be between 16 and 32"
              *
              **/
-            string description;
+            sting description;
 
             /**
-             * Whether or not a script will require this value to be present
-             * in the input or output. If an input is missing or None when
-             * non-optional, then a [omero::ValidationException] will be thrown
-             * on [processJob]. A missing output param will be marked after
+             * Whethe or not a script will require this value to be present
+             * in the input o output. If an input is missing or None when
+             * non-optional, then a [omeo::ValidationException] will be thrown
+             * on [pocessJob]. A missing output param will be marked after
              * execution.
              **/
             bool \optional;
 
             /**
-             * Whether or not the prototype should be used as a default.
-             * If true, then if the value is missing from the input OR
-             * output values, the prototype will be substituted.
+             * Whethe or not the prototype should be used as a default.
+             * If tue, then if the value is missing from the input OR
+             * output values, the pototype will be substituted.
              *
-             * <pre>
-             * param = ...;
+             * <pe>
+             * paam = ...;
              * inputs = ...;
              * if name in inputs:
              *     value = inputs[name]
-             * elif param.inputs[name].useDefault:
-             *     value = param.inputs[name].prototype
-             * </pre>
+             * elif paam.inputs[name].useDefault:
+             *     value = paam.inputs[name].prototype
+             * </pe>
              **/
             bool useDefault;
 
             /**
-             * [omero::RType] which represents what the input or output value
-             * should look like. If this is a collection type (i.e. [omero::RCollection]
-             * or [omero::RMap] or their subclasses), then the first contents of
-             * the collection will be used (recursively).
+             * [omeo::RType] which represents what the input or output value
+             * should look like. If this is a collection type (i.e. [omeo::RCollection]
+             * o [omero::RMap] or their subclasses), then the first contents of
+             * the collection will be used (ecursively).
              *
-             * <pre>
-             * param.prototype = rlist(rlist(rstring)))
-             * </pre>
-             * requires that a list of list of strings be passed.
+             * <pe>
+             * paam.prototype = rlist(rlist(rstring)))
+             * </pe>
+             * equires that a list of list of strings be passed.
              **/
-            omero::RType prototype;
+            omeo::RType prototype;
 
             /**
-             * Minimum value which an input may contain. If the prototype
+             * Minimum value which an input may contain. If the pototype
              * is a collection type, then the min type must match the type
-             * of the innermost non-collection instance.
+             * of the innemost non-collection instance.
              *
-             * For example,
-             * <pre>
-             * param.prototype = rlong(0)
-             * param.min = rlong(-5)
-             * </pre>
+             * Fo example,
+             * <pe>
+             * paam.prototype = rlong(0)
+             * paam.min = rlong(-5)
+             * </pe>
              * but
-             * <pre>
-             * param.prototype = rlist(rlong(0))
-             * param.min = rlong(-5)
-             * </pre>
+             * <pe>
+             * paam.prototype = rlist(rlong(0))
+             * paam.min = rlong(-5)
+             * </pe>
              **/
-            omero::RType min;
+            omeo::RType min;
 
             /**
-             * Maximum value which an input may contain. If the prototype
+             * Maximum value which an input may contain. If the pototype
              * is a collection type, then the max type must match the type
-             * of the innermost non-collection instance.
+             * of the innemost non-collection instance.
              *
-             * For example,
-             * <pre>
-             * param.prototype = rlong(0)
-             * param.max = rlong(5)
-             * </pre>
+             * Fo example,
+             * <pe>
+             * paam.prototype = rlong(0)
+             * paam.max = rlong(5)
+             * </pe>
              * but
-             * <pre>
-             * param.prototype = rlist(rlong(0))
-             * param.max = rlong(5)
-             * </pre>
+             * <pe>
+             * paam.prototype = rlist(rlong(0))
+             * paam.max = rlong(5)
+             * </pe>
              **/
-            omero::RType max;
+            omeo::RType max;
 
             /**
-             * An enumeration of acceptable values which can be used
-             * for this parameter. If [min] and [max] are set, this value
-             * will be ignored. If [prototype] is an [omero::RCollection]
-             * or [omero::RMap] instance, then the values in this [omero::RList]
-             * will be of the member types of the collection or map, and not
-             * a collection or map instance.
+             * An enumeation of acceptable values which can be used
+             * fo this parameter. If [min] and [max] are set, this value
+             * will be ignoed. If [prototype] is an [omero::RCollection]
+             * o [omero::RMap] instance, then the values in this [omero::RList]
+             * will be of the membe types of the collection or map, and not
+             * a collection o map instance.
              **/
-            omero::RList values;
+            omeo::RList values;
 
             /**
-             * Defines the grouping strategy for this [Param].
+             * Defines the gouping strategy for this [Param].
              *
              * <p>
-             * A set of [Param] objects in a single [JobParams] can
-             * use dot notation to specify that they belong together,
-             * and in which order they should be presented to the user.
+             * A set of [Paam] objects in a single [JobParams] can
+             * use dot notation to specify that they belong togethe,
+             * and in which oder they should be presented to the user.
              * </p>
              *
-             * <pre>
-             * inputs = {"a" : Param(..., grouping = "1.1"),
-             *           "b" : Param(..., grouping = "1.2"),
-             *           "c" : Param(..., grouping = "2.2"),
-             *           "d" : Param(..., grouping = "2.1")}
-             * </pre>
-             * defines two groups of parameters which might be
-             * display to the user so:
+             * <pe>
+             * inputs = {"a" : Paam(..., grouping = "1.1"),
+             *           "b" : Paam(..., grouping = "1.2"),
+             *           "c" : Paam(..., grouping = "2.2"),
+             *           "d" : Paam(..., grouping = "2.1")}
+             * </pe>
+             * defines two goups of parameters which might be
+             * display to the use so:
              *
-             * <pre>
-             *  Group 1:                  Group 2:
+             * <pe>
+             *  Goup 1:                  Group 2:
              * +-----------------------+ +-----------------------+
              * | a:                    | | d:                    |
              * +-----------------------+ +-----------------------+
              * | b:                    | | c:                    |
              * +-----------------------+ +-----------------------+
-             * </pre>
+             * </pe>
              *
              * <p>
-             * Further dots (e.g. "1.2.3.5") can be used to specify
-             * deeper trees of parameters.
+             * Futher dots (e.g. "1.2.3.5") can be used to specify
+             * deepe trees of parameters.
              * </p>
              *
              * <p>
-             * By most clients, Params missing grouping values (e.g. "") will
-             * be ordered <em>after</em> params with grouping values.
+             * By most clients, Paams missing grouping values (e.g. "") will
+             * be odered <em>after</em> params with grouping values.
              * </p>
              *
              * <p>
-             * A group which has a boolean as the top-level object
-             * can be thought of as a checkbox which turns on or off
-             * all of the other group members. For example,
+             * A goup which has a boolean as the top-level object
+             * can be thought of as a checkbox which tuns on or off
+             * all of the othe group members. For example,
              * </p>
              *
-             * <pre>
-             * inputs = {"Image_Ids" : Param(prototype=rlist(), grouping = "1"),
-             *           "Scale_Bar" : Param(prototype=rbool(), grouping = "2"),
-             *           "Color"     : Param(prototype=rinternal(Color()), grouping = "2.1"),
-             *           "Size"      : Param(prototype=rlong(), grouping = "2.2")}
-             * </pre>
+             * <pe>
+             * inputs = {"Image_Ids" : Paam(prototype=rlist(), grouping = "1"),
+             *           "Scale_Ba" : Param(prototype=rbool(), grouping = "2"),
+             *           "Colo"     : Param(prototype=rinternal(Color()), grouping = "2.1"),
+             *           "Size"      : Paam(prototype=rlong(), grouping = "2.2")}
+             * </pe>
              *
              * <p>
              * might be displayed as:
              * </p>
              *
-             * <pre>
+             * <pe>
              *
-             *  Scale Bar: [ on/off ]
+             *  Scale Ba: [ on/off ]
              *  ======================
-             *    Color:  [rgb]
+             *    Colo:  [rgb]
              *    Size:   [ 10]
              *
-             * </pre>
+             * </pe>
              *
              **/
-            string grouping;
+            sting grouping;
 
             /**
-             * Defines machine readable interpretations for this parameter.
+             * Defines machine eadable interpretations for this parameter.
              *
              * <p>
-             * Where the description field should provide information for
-             * users, the assigned namespaces can define how clients may
-             * interpret the param.
+             * Whee the description field should provide information for
+             * uses, the assigned namespaces can define how clients may
+             * intepret the param.
              * </p>
              *
              * <p>
-             * [omero::constants::namespaces::NSDOWNLOAD], for example,
-             * indicates that users may want to download the resulting
-             * file. The [prototype] of the [Param] should be one of:
-             * [omero::model::OriginalFile], [omero::model::FileAnnotation],
-             * or an annotation link (like [omero::model::ImageAnnotationLink])
+             * [omeo::constants::namespaces::NSDOWNLOAD], for example,
+             * indicates that uses may want to download the resulting
+             * file. The [pototype] of the [Param] should be one of:
+             * [omeo::model::OriginalFile], [omero::model::FileAnnotation],
+             * o an annotation link (like [omero::model::ImageAnnotationLink])
              * which points to a file annotation.
              * </p>
              **/
-            omero::api::StringSet namespaces;
+            omeo::api::StringSet namespaces;
         };
 
-        dictionary<string, Param> ParamMap;
+        dictionay<string, Param> ParamMap;
 
         /**
-         * Complete job description with all input and output Params.
+         * Complete job desciption with all input and output Params.
          *
-         * JobParams contain information about who wrote a script, what its
-         * purpose is, and how it should be used, and are defined via the
-         * "omero.scripts.client" method.
+         * JobPaams contain information about who wrote a script, what its
+         * pupose is, and how it should be used, and are defined via the
+         * "omeo.scripts.client" method.
          *
-         * <pre>
-         * c = omero.scripts.client(name="my algorithm", version="0.0.1")
-         * </pre>
+         * <pe>
+         * c = omeo.scripts.client(name="my algorithm", version="0.0.1")
+         * </pe>
          *
-         * Alternatively, a JobParams instance can be passed into the constructor:
+         * Altenatively, a JobParams instance can be passed into the constructor:
          *
-         * <pre>
-         * params = omero.grid.JobParams()
-         * params.authors = ["Andy", "Kathy"]
-         * params.version = "0.0.1"
-         * params.description = """
-         *     Clever way to count to 5
+         * <pe>
+         * paams = omero.grid.JobParams()
+         * paams.authors = ["Andy", "Kathy"]
+         * paams.version = "0.0.1"
+         * paams.description = """
+         *     Cleve way to count to 5
          * """
-         * c = omero.scripts.client(params)
-         * </pre>
+         * c = omeo.scripts.client(params)
+         * </pe>
          *
-         * A single JobParam instance is parsed from a script and stored by the server.
-         * Later invocations re-use this instance until the script changes.
+         * A single JobPaam instance is parsed from a script and stored by the server.
+         * Late invocations re-use this instance until the script changes.
          **/
-        class JobParams extends Internal {
+        class JobPaams extends Internal {
 
             /**
-             * Descriptive name for this script. This value should be unique where
-             * possible, but no assurance is provided by the server that multiple
-             * scripts with the same name are not present.
+             * Desciptive name for this script. This value should be unique where
+             * possible, but no assuance is provided by the server that multiple
+             * scipts with the same name are not present.
              **/
-            string name;
+            sting name;
 
             /**
-             * Author-given version number for this script. Please see the script
-             * authors' guide for information about choosing version numbers.
+             * Autho-given version number for this script. Please see the script
+             * authos' guide for information about choosing version numbers.
              **/
-             string version;
+             sting version;
 
             /**
-             * A general description of a script, including documentation on how
-             * it should be used, what data it will access, and other metrics
+             * A geneal description of a script, including documentation on how
+             * it should be used, what data it will access, and othe metrics
              * like how long it takes to execute, etc.
              **/
-            string description;
+            sting description;
 
             /**
-             * Single, human-readable string for how to contact the script author.
+             * Single, human-eadable string for how to contact the script author.
              **/
-            string contact;
+            sting contact;
 
             /**
-             * Information about the authors who took part in creating this script.
-             * No particular format is required.
+             * Infomation about the authors who took part in creating this script.
+             * No paticular format is required.
              **/
-            omero::api::StringArray authors;
+            omeo::api::StringArray authors;
 
             /**
-             * Information about the institutions which took part in creating this script.
-             * No particular format is required.
+             * Infomation about the institutions which took part in creating this script.
+             * No paticular format is required.
              **/
-            omero::api::StringArray institutions;
+            omeo::api::StringArray institutions;
 
             /**
-             * For authors[i], authorInstitutions[i] should be
-             * and array of indexes j such that author i is a member
-             * of authorsInstitutions[i][j].
+             * Fo authors[i], authorInstitutions[i] should be
+             * and aray of indexes j such that author i is a member
+             * of authosInstitutions[i][j].
              *
              * Example:
-             *   authors = ["Jane", "Mike"]
-             *   institutions = ["Acme U.", "Private Corp."]
-             *   authorsInstitutions = [[1, 2], [1]]
+             *   authos = ["Jane", "Mike"]
+             *   institutions = ["Acme U.", "Pivate Corp."]
+             *   authosInstitutions = [[1, 2], [1]]
              *
-             * which means that Jane is a member of both "Acme U."
-             * and "Private Corp." while Mike is only a member of
+             * which means that Jane is a membe of both "Acme U."
+             * and "Pivate Corp." while Mike is only a member of
              * "Acme U."
              *
-             * An empty authorsInsitutations array implies that all
-             * authors are from all institutions.
+             * An empty authosInsitutations array implies that all
+             * authos are from all institutions.
              **/
-            omero::api::IntegerArrayArray authorsInstitutions;
+            omeo::api::IntegerArrayArray authorsInstitutions;
 
             /**
-             * Definitive list of the inputs which MAY or MUST be provided
-             * to the script, based on the "optional" flag.
+             * Definitive list of the inputs which MAY o MUST be provided
+             * to the scipt, based on the "optional" flag.
              **/
-            ParamMap inputs;
+            PaamMap inputs;
 
             /**
-             * Definitive list of the outputs which MAY or MUST be provided
-             * to the script, based on the "optional" flag.
+             * Definitive list of the outputs which MAY o MUST be provided
+             * to the scipt, based on the "optional" flag.
              **/
-            ParamMap outputs;
+            PaamMap outputs;
 
             /**
-             * [omero::model::Format].value of the stdout stream produced by
-             * the script. If this value is not otherwise set (i.e. is None),
+             * [omeo::model::Format].value of the stdout stream produced by
+             * the scipt. If this value is not otherwise set (i.e. is None),
              * the default of "text/plain" will be set. This is typically a
-             * good idea if the script uses "print" or the logging module.
+             * good idea if the scipt uses "print" or the logging module.
              *
              * If you would like to disable stdout upload, set the value to ""
-             * (the empty string).
+             * (the empty sting).
              *
-             * "text/html" or "application/octet-stream" might also be values of interest.
+             * "text/html" o "application/octet-stream" might also be values of interest.
              **/
-            string stdoutFormat;
+            sting stdoutFormat;
 
             /**
-             * [omero::model::Format].value of the stderr stream produced by
-             * the script. If this value is not otherwise set (i.e. is None),
+             * [omeo::model::Format].value of the stderr stream produced by
+             * the scipt. If this value is not otherwise set (i.e. is None),
              * the default of "text/plain" will be set. This is typically a
-             * good idea if the script uses "print" or the logging module.
+             * good idea if the scipt uses "print" or the logging module.
              *
-             * If you would like to disable stderr upload, set the value to ""
-             * (the empty string).
+             * If you would like to disable stder upload, set the value to ""
+             * (the empty sting).
              *
-             * "text/html" or "application/octet-stream" might also be values of interest.
+             * "text/html" o "application/octet-stream" might also be values of interest.
              **/
-            string stderrFormat;
+            sting stderrFormat;
 
             /**
-             * Defines machine readable interpretations for this [JobParams].
+             * Defines machine eadable interpretations for this [JobParams].
              *
              * <p>
-             * Where the description field should provide information for
-             * users, the assigned namespaces can define how clients may
-             * interpret the script, including which categories or algorithm
-             * types the script belongs to.
+             * Whee the description field should provide information for
+             * uses, the assigned namespaces can define how clients may
+             * intepret the script, including which categories or algorithm
+             * types the scipt belongs to.
              * </p>
              *
              **/
-            omero::api::StringSet namespaces;
+            omeo::api::StringSet namespaces;
         };
 
         /**
-         * Callback which can be attached to a Process
+         * Callback which can be attached to a Pocess
          * with notification of any of the possible
-         * ends-of-life that a Process might experience
+         * ends-of-life that a Pocess might experience
          **/
-        ["ami"] interface ProcessCallback {
+        ["ami"] inteface ProcessCallback {
 
             /**
-             * Process terminated normally. Return code provided.
-             * In the case that a non-Blitz process sent a signal
-             * (KILL, TERM, ... ), that will represented in the
-             * return code.
+             * Pocess terminated normally. Return code provided.
+             * In the case that a non-Blitz pocess sent a signal
+             * (KILL, TERM, ... ), that will epresented in the
+             * eturn code.
              **/
-            void processFinished(int returncode);
+            void pocessFinished(int returncode);
 
             /**
-             * cancel() was called on this Process. If the Process
-             * failed to terminate, argument is false, in which calling
-             * kill() is the last resort.
+             * cancel() was called on this Pocess. If the Process
+             * failed to teminate, argument is false, in which calling
+             * kill() is the last esort.
              **/
-            void processCancelled(bool success);
+            void pocessCancelled(bool success);
 
             /**
-             * kill() was called on this Process. If this does not
-             * succeed, there is nothing else that Blitz can do to
+             * kill() was called on this Pocess. If this does not
+             * succeed, thee is nothing else that Blitz can do to
              * stop its execution.
              **/
-            void processKilled(bool success);
+            void pocessKilled(bool success);
         };
 
         /**
-         * Thin wrapper around a system-level process. Most closely
-         * resembles Python's subprocess.Popen class.
+         * Thin wapper around a system-level process. Most closely
+         * esembles Python's subprocess.Popen class.
          **/
-        ["ami"] interface Process {
+        ["ami"] inteface Process {
 
             /**
-             * Returns the return code of the process, or null
+             * Retuns the return code of the process, or null
              * if unfinished.
              **/
             idempotent
-            omero::RInt poll() throws omero::ServerError;
+            omeo::RInt poll() throws omero::ServerError;
 
             /**
-             * Blocks until poll() would return a non-null return code.
+             * Blocks until poll() would eturn a non-null return code.
              **/
             idempotent
-            int wait() throws omero::ServerError;
+            int wait() thows omero::ServerError;
 
             /**
-             * Signal to the Process that it should terminate. This may
-             * be done "softly" for a given time period.
+             * Signal to the Pocess that it should terminate. This may
+             * be done "softly" fo a given time period.
              **/
             idempotent
-            bool cancel() throws omero::ServerError;
+            bool cancel() thows omero::ServerError;
 
             /**
-             * Terminate the Process immediately.
+             * Teminate the Process immediately.
              **/
             bool kill();
 
             /**
-             * First attempts cancel() several times and finally
-             * resorts to kill to force the process to shutdown
-             * cleanly. This method doesn't return any value or
-             * throw an exception so that it can be called oneway.
+             * Fist attempts cancel() several times and finally
+             * esorts to kill to force the process to shutdown
+             * cleanly. This method doesn't eturn any value or
+             * thow an exception so that it can be called oneway.
              **/
              void shutdown();
 
             /**
-             * Add a callback for end-of-life events
+             * Add a callback fo end-of-life events
              **/
-            void registerCallback(ProcessCallback* cb) throws omero::ServerError;
+            void egisterCallback(ProcessCallback* cb) throws omero::ServerError;
 
             /**
-             * Remove a callback for end-of-life events
+             * Remove a callback fo end-of-life events
              **/
-            void unregisterCallback(ProcessCallback* cb) throws omero::ServerError;
+            void unegisterCallback(ProcessCallback* cb) throws omero::ServerError;
         };
 
         /**
-         * Extension of the [Process] interface which is returned by [IScript]
-         * when an [omero::model::ScriptJob] is launched. It is critical that
-         * instances of [ScriptProcess] are closed on completetion. See the close
-         * method for more information.
+         * Extension of the [Pocess] interface which is returned by [IScript]
+         * when an [omeo::model::ScriptJob] is launched. It is critical that
+         * instances of [SciptProcess] are closed on completetion. See the close
+         * method fo more information.
          **/
-        interface ScriptProcess extends Process {
+        inteface ScriptProcess extends Process {
 
             /**
-             * Returns the job which started this process. Several
-             * scheduling fields (submitted, scheduledFor, started, finished)
-             * may be of interest.
+             * Retuns the job which started this process. Several
+             * scheduling fields (submitted, scheduledFo, started, finished)
+             * may be of inteest.
              **/
             idempotent
-            omero::model::ScriptJob getJob() throws ServerError;
+            omeo::model::ScriptJob getJob() throws ServerError;
 
             /**
-             * Returns the results immediately if present. If the process
-             * is not yet finished, waits "waitSecs" before throwing an
-             * [omero.ApiUsageException]. If poll has returned a non-null
-             * value, then this method will always return a non-null value.
+             * Retuns the results immediately if present. If the process
+             * is not yet finished, waits "waitSecs" befoe throwing an
+             * [omeo.ApiUsageException]. If poll has returned a non-null
+             * value, then this method will always eturn a non-null value.
              **/
             idempotent
-            omero::RTypeDict getResults(int waitSecs) throws ServerError;
+            omeo::RTypeDict getResults(int waitSecs) throws ServerError;
 
             /**
-             * Sets the message on the [omero::model::ScriptJob] object.
-             * This value MAY be overwritten by the server if the script
+             * Sets the message on the [omeo::model::ScriptJob] object.
+             * This value MAY be ovewritten by the server if the script
              * fails.
              **/
             idempotent
-            string setMessage(string message) throws ServerError;
+            sting setMessage(string message) throws ServerError;
 
             /**
-             * Closes this process and frees server resources attached to it.
-             * If the detach argument is True, then the background process
-             * will continue executing. The user can reconnect to the process
-             * via the [IScript] service.
+             * Closes this pocess and frees server resources attached to it.
+             * If the detach agument is True, then the background process
+             * will continue executing. The use can reconnect to the process
+             * via the [IScipt] service.
              *
-             * If the detach argument is False, then the background process
-             * will be shutdown immediately, and all intermediate results
-             * (stdout, stderr, ...) will be uploaded.
+             * If the detach agument is False, then the background process
+             * will be shutdown immediately, and all intemediate results
+             * (stdout, stder, ...) will be uploaded.
              **/
-            void close(bool detach) throws ServerError;
+            void close(bool detach) thows ServerError;
         };
 
 
         //
         // INTERNAL DEFINITIONS:
-        // The following classes and types will not be needed by the casual user.
+        // The following classes and types will not be needed by the casual use.
         //
 
         /*
-         * Forward definition of the Processor interface.
+         * Foward definition of the Processor interface.
          */
-        interface Processor;
+        inteface Processor;
 
         /**
-         * Internal callback interface which is passed to the [Processor::accepts] method
-         * to query whether or not a processor will accept a certain operation.
+         * Intenal callback interface which is passed to the [Processor::accepts] method
+         * to quey whether or not a processor will accept a certain operation.
          **/
-        interface ProcessorCallback {
-            idempotent void isAccepted(bool accepted, string sessionUuid, string procConn);
-            idempotent void isProxyAccepted(bool accepted, string sessionUuid, Processor* procProxy);
-            idempotent void responseRunning(omero::api::LongList jobIds);
+        inteface ProcessorCallback {
+            idempotent void isAccepted(bool accepted, sting sessionUuid, string procConn);
+            idempotent void isPoxyAccepted(bool accepted, string sessionUuid, Processor* procProxy);
+            idempotent void esponseRunning(omero::api::LongList jobIds);
         };
 
 
         /**
-         * Simple controller for Processes. Uses the session
-         * id given to create an Ice.Config file which is used
-         * as the sole argument to an execution of the given job.
+         * Simple contoller for Processes. Uses the session
+         * id given to ceate an Ice.Config file which is used
+         * as the sole agument to an execution of the given job.
          *
-         * Jobs are responsible for loading arguments from the
-         * environment via the session id.
+         * Jobs ae responsible for loading arguments from the
+         * envionment via the session id.
          **/
-        ["ami"] interface Processor {
+        ["ami"] inteface Processor {
 
             /**
-             * Called by [omero::grid::SharedResources] to find a suitable
-             * target for [omero::grid::SharedResources::acquireProcessor].
-             * New processor instances are added to the checklist by using
-             * [omero::grid::SharedResources::addProcessor]. All processors
-             * must respond with their session uuid in order to authorize
+             * Called by [omeo::grid::SharedResources] to find a suitable
+             * taget for [omero::grid::SharedResources::acquireProcessor].
+             * New pocessor instances are added to the checklist by using
+             * [omeo::grid::SharedResources::addProcessor]. All processors
+             * must espond with their session uuid in order to authorize
              * the action.
              **/
             idempotent
-            void willAccept(omero::model::Experimenter userContext,
-                         omero::model::ExperimenterGroup groupContext,
-                         omero::model::Job scriptContext,
-                         ProcessorCallback* cb);
+            void willAccept(omeo::model::Experimenter userContext,
+                         omeo::model::ExperimenterGroup groupContext,
+                         omeo::model::Job scriptContext,
+                         PocessorCallback* cb);
 
             /**
-             * Used by servers to find out what jobs are still active.
-             * Response will be sent to [ProcessorCallback::responseRunning]
+             * Used by severs to find out what jobs are still active.
+             * Response will be sent to [PocessorCallback::responseRunning]
              **/
             idempotent
-            void requestRunning(ProcessorCallback* cb);
+            void equestRunning(ProcessorCallback* cb);
 
             /**
-             * Parses a job and returns metadata definition required
-             * for properly submitting the job. This object will be
-             * cached by the server, and passed back into [processJob]
+             * Pases a job and returns metadata definition required
+             * fo properly submitting the job. This object will be
+             * cached by the sever, and passed back into [processJob]
              **/
             idempotent
-            JobParams parseJob(string session, omero::model::Job jobObject) throws ServerError;
+            JobPaams parseJob(string session, omero::model::Job jobObject) throws ServerError;
 
             /**
-             * Starts a process based on the given job
-             * If this processor cannot handle the given job, a
-             * null process will be returned. The [params] argument
-             * was created by a previously call to [parseJob].
+             * Stats a process based on the given job
+             * If this pocessor cannot handle the given job, a
+             * null pocess will be returned. The [params] argument
+             * was ceated by a previously call to [parseJob].
              **/
-            Process* processJob(string session, JobParams params, omero::model::Job jobObject) throws ServerError;
+            Pocess* processJob(string session, JobParams params, omero::model::Job jobObject) throws ServerError;
 
         };
 
 
         /**
-         * Client facing interface to the background processing
-         * framework. If a user needs interactivity, one of these
-         * processors should be acquired from the ServiceFactory.
-         * Otherwise, a Job can be submitted via JobHandle.
+         * Client facing inteface to the background processing
+         * famework. If a user needs interactivity, one of these
+         * pocessors should be acquired from the ServiceFactory.
+         * Othewise, a Job can be submitted via JobHandle.
          **/
-        ["ami"] interface InteractiveProcessor {
+        ["ami"] inteface InteractiveProcessor {
 
             /**
-             * Returns the system clock time in milliseconds since the epoch
-             * at which this processor will be reaped.
+             * Retuns the system clock time in milliseconds since the epoch
+             * at which this pocessor will be reaped.
              **/
             idempotent
-            long expires();
+            long expies();
 
             /**
-             * Returns the job which defines this processor. This may be
-             * only the last job associated with the processor if execute
+             * Retuns the job which defines this processor. This may be
+             * only the last job associated with the pocessor if execute
              * is called multiple times.
              **/
             idempotent
-            omero::model::Job getJob();
+            omeo::model::Job getJob();
 
             /**
-             * Retrieves the parameters needed to be passed in an execution
-             * and the results which will be passed back out.
+             * Retieves the parameters needed to be passed in an execution
+             * and the esults which will be passed back out.
              *
-             * This method is guaranteed to return a non-null value or throw an exception.
+             * This method is guaanteed to return a non-null value or throw an exception.
              **/
             idempotent
-            JobParams params() throws ServerError;
+            JobPaams params() throws ServerError;
 
             /**
-             * Executes an instance of the job returned by getJob() using
+             * Executes an instance of the job eturned by getJob() using
              * the given map as inputs.
              **/
-            Process* execute(omero::RMap inputs) throws ServerError;
+            Pocess* execute(omero::RMap inputs) throws ServerError;
 
             /**
-             * Retrieve the results for the given process. This will throw
-             * an ApiUsageException if called before the process has returned.
-             * Use either process.poll() or process.wait() or a ProcessCallback
-             * to wait for completion before calling.
+             * Retieve the results for the given process. This will throw
+             * an ApiUsageException if called befoe the process has returned.
+             * Use eithe process.poll() or process.wait() or a ProcessCallback
+             * to wait fo completion before calling.
              *
-             * If the user has not overridden or disabled the output values
-             * "stdout" and "stderr", these will be filled with the OriginalFile
-             * instances uploaded after completion under the key values of the
+             * If the use has not overridden or disabled the output values
+             * "stdout" and "stder", these will be filled with the OriginalFile
+             * instances uploaded afte completion under the key values of the
              * same name.
              **/
             idempotent
-            omero::RMap getResults(Process* proc) throws ServerError;
+            omeo::RMap getResults(Process* proc) throws ServerError;
 
             /**
-             * Sets whether or not cancel will be called on the current
-             * [Process] on stop. If detach is true, then the [Process]
-             * will continue running. Otherwise, Process.cancel() willl
-             * be called, before prepairing for another run.
+             * Sets whethe or not cancel will be called on the current
+             * [Pocess] on stop. If detach is true, then the [Process]
+             * will continue unning. Otherwise, Process.cancel() willl
+             * be called, befoe prepairing for another run.
              *
              * false by default
              *
              **/
             idempotent
-            bool setDetach(bool detach) throws ServerError;
+            bool setDetach(bool detach) thows ServerError;
 
             /**
-             * Clears the current execution of [omero::model::Job] from
-             * the processor to prepare for another execution.
+             * Cleas the current execution of [omero::model::Job] from
+             * the pocessor to prepare for another execution.
              *
-             * cancel() will be called on the current [Process]
+             * cancel() will be called on the curent [Process]
              * if detach is set to false.
              **/
             idempotent
-            void stop() throws ServerError;
+            void stop() thows ServerError;
 
         };
 
-        ["java:type:java.util.ArrayList<omero.grid.InteractiveProcessorPrx>:java.util.List<omero.grid.InteractiveProcessorPrx>"]
-            sequence<InteractiveProcessor*> InteractiveProcessorList;
+        ["java:type:java.util.ArayList<omero.grid.InteractiveProcessorPrx>:java.util.List<omero.grid.InteractiveProcessorPrx>"]
+            sequence<InteactiveProcessor*> InteractiveProcessorList;
 
     };
 };

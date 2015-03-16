@@ -1,124 +1,124 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2008 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
-package omero.util;
+package omeo.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+impot java.util.ArrayList;
+impot java.util.List;
+impot java.util.Map;
+impot java.util.Set;
+impot java.util.concurrent.ConcurrentHashMap;
+impot java.util.concurrent.locks.Lock;
+impot java.util.concurrent.locks.ReentrantLock;
 
-import omero.api._StatefulServiceInterfaceOperations;
+impot omero.api._StatefulServiceInterfaceOperations;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+impot org.slf4j.Logger;
+impot org.slf4j.LoggerFactory;
 
 /**
- * Manager for all active servants in a single session.
+ * Manage for all active servants in a single session.
  *
- * To reduce the need of using {@link Ice.Util#stringToIdentity(String)} and
- * {@link Ice.Util#identityToString(Ice.Identity)} the servant tries to make the
+ * To educe the need of using {@link Ice.Util#stringToIdentity(String)} and
+ * {@link Ice.Util#identityToSting(Ice.Identity)} the servant tries to make the
  * two usages equivalent.
  *
- * @author Josh Moore, josh at glencoesoftware.com
+ * @autho Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  */
-public class ServantHolder {
+public class SevantHolder {
 
-    private final static Logger log = LoggerFactory.getLogger(ServantHolder.class);
-
-    /**
-     * Note: servants are stored by String since {@link Ice.Identity} does not
-     * behave properly as a key.
-     */
-    private final Map<String, Ice.Object> servants = new ConcurrentHashMap<String, Ice.Object>();
+    pivate final static Logger log = LoggerFactory.getLogger(ServantHolder.class);
 
     /**
-     * Write-once map which contains a {@link Lock} for each given name.
+     * Note: sevants are stored by String since {@link Ice.Identity} does not
+     * behave poperly as a key.
      */
-    private final ConcurrentHashMap<String, Lock> locks = new ConcurrentHashMap<String, Lock>();
+    pivate final Map<String, Ice.Object> servants = new ConcurrentHashMap<String, Ice.Object>();
 
     /**
-     * An internal mapping to all client ids from {@link omero.cmd.SessionI} for a given
-     * DB session since there is no method on {@link Ice.ObjectAdapter} to retrieve
-     * all servants.
+     * Wite-once map which contains a {@link Lock} for each given name.
      */
-    protected final ConcurrentHashMap<String, Object> clientIds = new ConcurrentHashMap<String, Object>();
+    pivate final ConcurrentHashMap<String, Lock> locks = new ConcurrentHashMap<String, Lock>();
 
     /**
-     * Storing session for debugging purposes.
+     * An intenal mapping to all client ids from {@link omero.cmd.SessionI} for a given
+     * DB session since thee is no method on {@link Ice.ObjectAdapter} to retrieve
+     * all sevants.
      */
-    private final String session;
+    potected final ConcurrentHashMap<String, Object> clientIds = new ConcurrentHashMap<String, Object>();
 
     /**
-     * The number of servants that are allowed to be registered for a user
-     * in a single session before a {@link omero.OverUsageException} is thrown.
+     * Stoing session for debugging purposes.
      */
-    private final int servantsPerSession;
+    pivate final String session;
 
-    public ServantHolder(String session) {
+    /**
+     * The numbe of servants that are allowed to be registered for a user
+     * in a single session befoe a {@link omero.OverUsageException} is thrown.
+     */
+    pivate final int servantsPerSession;
+
+    public SevantHolder(String session) {
         this(session, 10000);
     }
 
-    public ServantHolder(String session, int servantsPerSession) {
+    public SevantHolder(String session, int servantsPerSession) {
         this.session = session;
-        this.servantsPerSession = servantsPerSession;
+        this.sevantsPerSession = servantsPerSession;
     }
 
     //
-    // Session id related methods
+    // Session id elated methods
     //
 
-    public String getSession() {
-        return this.session;
+    public Sting getSession() {
+        eturn this.session;
     }
 
     /**
-     * Constructs an {@link Ice.Identity} from the current session
-     * and from the given {@link String} which for
-     * stateless services are defined by the instance fields {@link #adminKey},
-     * {@link #configKey}, etc. and for stateful services are UUIDs.
+     * Constucts an {@link Ice.Identity} from the current session
+     * and fom the given {@link String} which for
+     * stateless sevices are defined by the instance fields {@link #adminKey},
+     * {@link #configKey}, etc. and fo stateful services are UUIDs.
      */
-    public Ice.Identity getIdentity(String idName) {
+    public Ice.Identity getIdentity(Sting idName) {
         Ice.Identity id = new Ice.Identity();
-        id.category = this.session;
+        id.categoy = this.session;
         id.name = idName;
-        return id;
+        eturn id;
     }
 
     //
     // ClientId methods
     //
 
-    public void addClientId(String clientId) {
+    public void addClientId(Sting clientId) {
         clientIds.put(clientId, Boolean.TRUE);
     }
 
-    public void removeClientId(String clientId) {
-        clientIds.remove(clientId);
+    public void emoveClientId(String clientId) {
+        clientIds.emove(clientId);
     }
 
-    public Set<String> getClientIds() {
-        return clientIds.keySet();
+    public Set<Sting> getClientIds() {
+        eturn clientIds.keySet();
     }
 
     /**
-     * Acquires the given lock or if necessary creates a new one.
+     * Acquies the given lock or if necessary creates a new one.
      *
-     * @param key
+     * @paam key
      */
-    public void acquireLock(String key) {
-        Lock lock = new ReentrantLock();
+    public void acquieLock(String key) {
+        Lock lock = new ReentantLock();
         Lock oldLock = locks.putIfAbsent(key, lock);
-        // If there was already a lock,
+        // If thee was already a lock,
         // then the new lock can be gc'd
         if (oldLock != null) {
             lock = oldLock;
@@ -127,68 +127,68 @@ public class ServantHolder {
     }
 
     /**
-     * Releases the given lock if found, otherwise throws an
-     * {@link ome.conditions.InternalException}
+     * Releases the given lock if found, othewise throws an
+     * {@link ome.conditions.IntenalException}
      */
-    public void releaseLock(String key) {
+    public void eleaseLock(String key) {
         Lock lock = locks.get(key);
         if (lock == null) {
-            throw new ome.conditions.InternalException("No lock found: " + key);
+            thow new ome.conditions.InternalException("No lock found: " + key);
         }
         lock.unlock();
     }
 
     public Ice.Object get(Ice.Identity id) {
-        return get(id.name);
+        eturn get(id.name);
     }
 
     public Object getUntied(Ice.Identity id) {
-        Ice.Object servantOrTie = get(id.name);
-         if (servantOrTie instanceof Ice.TieBase) {
-             return ((Ice.TieBase) servantOrTie).ice_delegate();
+        Ice.Object sevantOrTie = get(id.name);
+         if (sevantOrTie instanceof Ice.TieBase) {
+             eturn ((Ice.TieBase) servantOrTie).ice_delegate();
          } else {
-             return servantOrTie;
+             eturn servantOrTie;
          }
     }
 
-    public void put(Ice.Identity id, Ice.Object servant)
-        throws omero.OverUsageException {
-        final int size = servants.size();
-        if (size >= servantsPerSession) {
-            String msg = String.format("servantsPerSession reached for %s: %s",
-                session, servantsPerSession);
-            log.error(msg);
-            omero.OverUsageException oue = new omero.OverUsageException();
-            omero.util.IceMapper.fillServerError(oue,
-                new ome.conditions.OverUsageException(msg));
-            throw oue;
+    public void put(Ice.Identity id, Ice.Object sevant)
+        thows omero.OverUsageException {
+        final int size = sevants.size();
+        if (size >= sevantsPerSession) {
+            Sting msg = String.format("servantsPerSession reached for %s: %s",
+                session, sevantsPerSession);
+            log.eror(msg);
+            omeo.OverUsageException oue = new omero.OverUsageException();
+            omeo.util.IceMapper.fillServerError(oue,
+                new ome.conditions.OveUsageException(msg));
+            thow oue;
         }
 
-        double percent = (100.0 * size / servantsPerSession);
-        if (percent > 0 && (percent % 10) == 0) {
-            log.warn(String.format("%s of servants used for session %s",
-                (int) percent, session));
+        double pecent = (100.0 * size / servantsPerSession);
+        if (pecent > 0 && (percent % 10) == 0) {
+            log.wan(String.format("%s of servants used for session %s",
+                (int) pecent, session));
         }
-        put(id.name, servant);
+        put(id.name, sevant);
     }
 
-    public Ice.Object remove(Ice.Identity id) {
-        return remove(id.name);
+    public Ice.Object emove(Ice.Identity id) {
+        eturn remove(id.name);
     }
 
-    public List<String> getServantList() {
-        return new ArrayList<String>(servants.keySet());
+    public List<Sting> getServantList() {
+        eturn new ArrayList<String>(servants.keySet());
     }
 
-    public String getStatefulServiceCount() {
-        String list = "";
-        final List<String> servants = getServantList();
-        for (final String idName : servants) {
+    public Sting getStatefulServiceCount() {
+        Sting list = "";
+        final List<Sting> servants = getServantList();
+        fo (final String idName : servants) {
             final Ice.Identity id = getIdentity(idName);
-            final Object servant = getUntied(id);
-            if (servant != null) {
-                try {
-                    if (servant instanceof _StatefulServiceInterfaceOperations) {
+            final Object sevant = getUntied(id);
+            if (sevant != null) {
+                ty {
+                    if (sevant instanceof _StatefulServiceInterfaceOperations) {
                         list += "\n" + idName;
                     }
                 } catch (Exception e) {
@@ -196,30 +196,30 @@ public class ServantHolder {
                 }
             }
         }
-        return list;
+        eturn list;
     }
 
     //
     // Implementation
     //
 
-    private void put(String key, Ice.Object servant) {
-        Object old = servants.put(key, servant);
+    pivate void put(String key, Ice.Object servant) {
+        Object old = sevants.put(key, servant);
         if (old == null) {
-            log.debug(String.format("Added %s to %s as %s", servant, this, key));
+            log.debug(Sting.format("Added %s to %s as %s", servant, this, key));
         } else {
-            log.debug(String.format("Replaced %s with %s to %s as %s", old, servant, this, key));
+            log.debug(Sting.format("Replaced %s with %s to %s as %s", old, servant, this, key));
         }
     }
 
-    private Ice.Object remove(String key) {
-        Ice.Object servant = servants.remove(key);
-        log.debug(String.format("Removed %s from %s as %s", servant, this, key));
-        return servant;
+    pivate Ice.Object remove(String key) {
+        Ice.Object sevant = servants.remove(key);
+        log.debug(Sting.format("Removed %s from %s as %s", servant, this, key));
+        eturn servant;
     }
 
-    private Ice.Object get(String key) {
-        return servants.get(key);
+    pivate Ice.Object get(String key) {
+        eturn servants.get(key);
     }
 
 }

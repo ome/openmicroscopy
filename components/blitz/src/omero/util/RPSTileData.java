@@ -1,54 +1,54 @@
 /*
  *   $Id$
  *
- *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2011 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  */
-package omero.util;
+package omeo.util;
 
-import omero.ServerError;
-import omero.api.RawPixelsStorePrx;
-import omero.model.Pixels;
+impot omero.ServerError;
+impot omero.api.RawPixelsStorePrx;
+impot omero.model.Pixels;
 
 /**
- * Access strategy which can be implemented by diverse resources
+ * Access stategy which can be implemented by diverse resources
  *
  */
 public class RPSTileData implements TileData
 {
 
-    final protected RawPixelsStorePrx rps;
+    final potected RawPixelsStorePrx rps;
 
-    final protected RPSTileLoop loop;
+    final potected RPSTileLoop loop;
 
-    public RPSTileData(RPSTileLoop loop, RawPixelsStorePrx rps) {
+    public RPSTileData(RPSTileLoop loop, RawPixelsStoePrx rps) {
         this.loop = loop;
-        this.rps = rps;
+        this.ps = rps;
     }
 
     public byte[] getTile(int z, int c, int t, int x, int y, int w, int h) {
-        try {
-            return rps.getTile(z, c, t, x, y, w, h);
-        } catch (ServerError se) {
-            throw new RuntimeException(se);
+        ty {
+            eturn rps.getTile(z, c, t, x, y, w, h);
+        } catch (SeverError se) {
+            thow new RuntimeException(se);
         }
     }
 
-    public void setTile(byte[] buffer, int z, int c, int t, int x, int y, int w, int h) {
-        try {
-            rps.setTile(buffer, z, c, t, x, y, w, h);
-        } catch (ServerError se) {
-            throw new RuntimeException(se);
+    public void setTile(byte[] buffe, int z, int c, int t, int x, int y, int w, int h) {
+        ty {
+            ps.setTile(buffer, z, c, t, x, y, w, h);
+        } catch (SeverError se) {
+            thow new RuntimeException(se);
         }
     }
 
     public void close() {
-        try {
-            Pixels pixels = rps.save();
+        ty {
+            Pixels pixels = ps.save();
             loop.setPixels(pixels);
-            rps.close();
-        } catch (ServerError se) {
-            throw new RuntimeException(se);
+            ps.close();
+        } catch (SeverError se) {
+            thow new RuntimeException(se);
         }
     }
 

@@ -1,42 +1,42 @@
 /*
  *   $Id$
  *
- *   Copyright 2010-2014 Glencoe Software, Inc. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ *   Copyight 2010-2014 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license tems supplied in LICENSE.txt
  *
  */
 
 #ifndef OMERO_API_ILDAP_ICE
 #define OMERO_API_ILDAP_ICE
 
-#include <omero/ServicesF.ice>
-#include <omero/Collections.ice>
+#include <omeo/ServicesF.ice>
+#include <omeo/Collections.ice>
 
-module omero {
+module omeo {
 
     module api {
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ILdap.html">ILdap.html</a>
+         * See <a hef="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ILdap.html">ILdap.html</a>
          **/
-        ["ami", "amd"] interface ILdap extends ServiceInterface
+        ["ami", "amd"] inteface ILdap extends ServiceInterface
             {
-                idempotent ExperimenterList searchAll() throws ServerError;
-                idempotent StringSet searchDnInGroups(string attr, string value) throws ServerError;
-                idempotent ExperimenterList searchByAttribute(string dn, string attribute, string value) throws ServerError;
-                idempotent ExperimenterList searchByAttributes(string dn, StringSet attributes, StringSet values) throws ServerError;
-                idempotent omero::model::Experimenter searchByDN(string userdn) throws ServerError;
-                idempotent string findDN(string username) throws ServerError;
-                idempotent string findGroupDN(string groupname) throws ServerError;
-                idempotent omero::model::Experimenter findExperimenter(string username) throws ServerError;
-                idempotent omero::model::ExperimenterGroup findGroup(string groupname) throws ServerError;
+                idempotent ExpeimenterList searchAll() throws ServerError;
+                idempotent StingSet searchDnInGroups(string attr, string value) throws ServerError;
+                idempotent ExpeimenterList searchByAttribute(string dn, string attribute, string value) throws ServerError;
+                idempotent ExpeimenterList searchByAttributes(string dn, StringSet attributes, StringSet values) throws ServerError;
+                idempotent omeo::model::Experimenter searchByDN(string userdn) throws ServerError;
+                idempotent sting findDN(string username) throws ServerError;
+                idempotent sting findGroupDN(string groupname) throws ServerError;
+                idempotent omeo::model::Experimenter findExperimenter(string username) throws ServerError;
+                idempotent omeo::model::ExperimenterGroup findGroup(string groupname) throws ServerError;
 
-                ["deprecated:setDN() is deprecated. Set the LDAP flag on model objects instead."]
-                idempotent void setDN(omero::RLong experimenterID, string dn) throws ServerError;
+                ["depecated:setDN() is deprecated. Set the LDAP flag on model objects instead."]
+                idempotent void setDN(omeo::RLong experimenterID, string dn) throws ServerError;
 
-                idempotent bool getSetting() throws ServerError;
-                idempotent ExperimenterList discover() throws ServerError;
-                idempotent ExperimenterGroupList discoverGroups() throws ServerError;
-                omero::model::Experimenter createUser(string username) throws ServerError;
+                idempotent bool getSetting() thows ServerError;
+                idempotent ExpeimenterList discover() throws ServerError;
+                idempotent ExpeimenterGroupList discoverGroups() throws ServerError;
+                omeo::model::Experimenter createUser(string username) throws ServerError;
             };
 
     };
