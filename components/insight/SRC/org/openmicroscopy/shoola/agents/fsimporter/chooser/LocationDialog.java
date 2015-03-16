@@ -488,8 +488,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox = new JComboBox();
 		
 		usersBox = new JComboBox();
-		//Currently only for the administrator otherwise to do show the option
-		usersBox.setVisible(ImporterAgent.isAdministrator());
+		usersBox.setVisible(model.canImportAs());
 		
 		refreshButton = new JButton(TEXT_REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND);
@@ -713,18 +712,14 @@ class LocationDialog extends JDialog implements ActionListener,
 			GroupData selectedGroup) {
 		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
 		if (user.getId() == loggedInUser.getId()) return true;
-		if (selectedGroup.getPermissions().getPermissionsLevel()
-		        == GroupData.PERMISSIONS_PRIVATE) {
-		    return ImporterAgent.isAdministrator();
-		}
-		boolean isGroupOwner = false;
+		if (ImporterAgent.isAdministrator()) return true;
 		Set<ExperimenterData> leaders =
 				(Set<ExperimenterData>) selectedGroup.getLeaders();
 		for (ExperimenterData leader : leaders) {
 			if (leader.getId() == loggedInUser.getId())
-				isGroupOwner = true;
+				return true;
 		}
-		return ImporterAgent.isAdministrator() || isGroupOwner;
+		return false;
 	}
 
 	/**
@@ -1580,7 +1575,8 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 		}
 		ExperimenterData exp = getSelectedUser();
-		List<DataNode> l = map.get(exp.getId());
+		List<DataNode> l = null;
+		if (exp != null) l = map.get(exp.getId());
 		if (CollectionUtils.isNotEmpty(l))
 		    sorted.addAll(sort(l));
 		//items are ordered by users.
@@ -1588,10 +1584,13 @@ class LocationDialog extends JDialog implements ActionListener,
 		ExperimenterData user;
 		for (int j = 0; j < usersBox.getItemCount(); j++) {
 			user = getUser(j);
-			if (user != null) {
+			if (user != null && exp != null) {
 				id = user.getId();
-				if (id != exp.getId())
-					sorted.addAll(sort(map.get(id)));
+				if (id != exp.getId()) {
+				    l = map.get(id);
+				    if (l != null)
+				        sorted.addAll(sort(l));
+				}
 			}
 		}
 		return sorted;
@@ -1710,7 +1709,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			storeCurrentSelections();
 			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
 					null, new ImportLocationDetails(newDataType,
-							getSelectedUser().getId()));
+							getSelectedUser()));
 		}
 	}
 

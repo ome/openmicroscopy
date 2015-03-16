@@ -1380,19 +1380,6 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public DataObject getContainerFromFolder() { return containerFromFolder; }
-	
-	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is a HCS files, <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	public boolean isHCSFile()
-	{
-		if (isFolderAsContainer()) return false;
-		return ImportableObject.isHCSFile(importable.getFile());
-	}
 
 	/**
 	 * Returns <code>true</code> if the file has already been marked for

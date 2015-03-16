@@ -175,7 +175,7 @@ class ImporterComponent
 			Class<?> rootType = ProjectData.class;
 			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
 				rootType = ScreenData.class;
-			model.fireContainerLoading(rootType, true, false, -1);
+			model.fireContainerLoading(rootType, true, false, null);
 			fireStateChange();
 		}
 	}
@@ -609,7 +609,7 @@ class ImporterComponent
 		Class<?> rootType = ProjectData.class;
 		if (details.getDataType() == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
-		model.fireContainerLoading(rootType, false, false, details.getUserId());
+		model.fireContainerLoading(rootType, false, false, details.getUser());
 	}
 
 	/** 
@@ -756,7 +756,7 @@ class ImporterComponent
 		Class rootType = ProjectData.class;
 		if (chooser.getType() == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
-		model.fireContainerLoading(rootType, false, true, -1);
+		model.fireContainerLoading(rootType, false, true, null);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 
@@ -870,15 +870,12 @@ class ImporterComponent
 			}
 		}
 		model.saveROI(component, ids);
-		if (l.size() > 0) {
-		    if (PlateData.class.equals(klass)) l = l.subList(0, 0);
-		    else {
-		        if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
-		            l = l.subList(0, FileImportComponent.MAX_THUMBNAILS); 
-		        }
-		    }
-		    model.fireImportResultLoading(l, klass, component);
-		}
+        if (l.size() > 0 && !PlateData.class.equals(klass)) {
+            if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
+                l = l.subList(0, FileImportComponent.MAX_THUMBNAILS);
+            }
+            model.fireImportResultLoading(l, klass, component);
+        }
 	}
 
 	/** 

@@ -28,6 +28,7 @@ import ij.ImagePlus;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -392,16 +393,19 @@ class ImporterModel
 	 * @param refreshImport Flag indicating to refresh the on-going import.
 	 * @param changeGroup Flag indicating that the group has been modified
 	 * if <code>true</code>, <code>false</code> otherwise.
-	 * @param userID The id of the user to load the data for.
+	 * @param user The user to load the data for.
 	 */
 	void fireContainerLoading(Class rootType, boolean refreshImport, boolean 
-			changeGroup, long userID)
+			changeGroup, ExperimenterData user)
 	{
 		if (!(ProjectData.class.equals(rootType) ||
 			ScreenData.class.equals(rootType))) return;
-		if (userID < 0) userID = getExperimenterId();
+		if (user != null) {
+		    ctx.setExperimenter(user);
+		    ctx.sudo();
+		}
 		DataLoader loader = new DataLoader(component, ctx, rootType,
-				refreshImport, changeGroup, userID);
+				refreshImport, changeGroup);
 		loader.load();
 	}
 
@@ -528,7 +532,8 @@ class ImporterModel
      */
     boolean canImportAs()
     {
-        return ImporterAgent.isAdministrator();
+        if (ImporterAgent.isAdministrator()) return true;
+        return CollectionUtils.isNotEmpty(getGroupsLeaderOf());
     }
 
     /**
@@ -542,6 +547,36 @@ class ImporterModel
     boolean isSystemGroup(long id, String key)
     {
         return ImporterAgent.getRegistry().getAdminService().isSecuritySystemGroup(id, key);
+    }
+
+    /**
+     * Returns the collection of groups the current user is the leader of.
+     * 
+     * @return See above.
+     */
+    Set<GroupData> getGroupsLeaderOf()
+    {
+        Set<GroupData> values = new HashSet<GroupData>();
+        Collection<GroupData> groups = getAvailableGroups();
+        Iterator<GroupData> i = groups.iterator();
+        GroupData g;
+        Set<ExperimenterData> leaders;
+        ExperimenterData exp = ImporterAgent.getUserDetails();
+        long id = exp.getId();
+        Iterator<ExperimenterData> j;
+        while (i.hasNext()) {
+            g = (GroupData) i.next();
+            leaders = g.getLeaders();
+            if (CollectionUtils.isNotEmpty(leaders)) {
+                j = leaders.iterator();
+                while (j.hasNext()) {
+                    exp = (ExperimenterData) j.next();
+                    if (exp.getId() == id)
+                        values.add(g);
+                }
+            }
+        }
+        return values;
     }
 
     /**
