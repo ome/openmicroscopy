@@ -349,9 +349,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # validate experimenter is in the active group
     active_group = request.session.get('active_group') or conn.getEventContext().groupId
     # prepare members of group...
-    s = conn.groupSummary(active_group)
-    leaders = s["leaders"]
-    members = s["colleagues"]
+    leaders, members = conn.getObject("ExperimenterGroup", active_group).groupSummary()
     userIds = [u.id for u in leaders]
     userIds.extend( [u.id for u in members] )
     users = []
