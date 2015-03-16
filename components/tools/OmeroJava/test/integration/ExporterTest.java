@@ -17,6 +17,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -171,11 +173,11 @@ public class ExporterTest extends AbstractServerTest {
         TransformerFactory factory;
         Transformer transformer;
         InputStream stream;
-        InputStream in = null;
-        OutputStream out = null;
-        File output;
         Iterator<InputStream> i = transforms.iterator();
+        String inputAsString = FileUtils.readFileToString(inputXML);
         try {
+            StringWriter writer;
+            StringReader reader;
             while (i.hasNext()) {
                 stream = i.next();
                 factory = TransformerFactory.newInstance();
@@ -183,22 +185,22 @@ public class ExporterTest extends AbstractServerTest {
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
                 transformer = template.newTransformer();
-                output = File.createTempFile(RandomStringUtils.random(10), "."
-                        + OME_XML);
-                out = new FileOutputStream(output);
-                in = new FileInputStream(inputXML);
-                transformer.transform(new StreamSource(in), new StreamResult(out));
-                files.add(output);
-                inputXML = output;
+                reader = new StringReader(inputAsString);
+                StreamSource srcIn = new StreamSource(reader);
+                writer = new StringWriter();
+                StreamResult result = new StreamResult(writer);
+                transformer.transform(srcIn, result);
+                inputAsString = result.getWriter().toString();
                 stream.close();
-                out.close();
-                in.close();
+                reader.close();
+                writer.close();
             }
         } catch (Exception e) {
             throw new Exception("Cannot apply transform", e);
         }
         File f = File.createTempFile(RandomStringUtils.random(10), "."+ OME_XML);
         FileUtils.copyFile(inputXML, f);
+        FileUtils.writeStringToFile(f, inputAsString);
         return f;
     }
 
