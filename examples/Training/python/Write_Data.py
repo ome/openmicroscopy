@@ -62,7 +62,7 @@ project = conn.getObject("Project", projectId)
 project.linkAnnotation(tagAnn)
 
 
-# Create a 'map' annotation (list of key: value pairs)
+# New in OMERO 5.1: 'Map' annotations (list of key: value pairs)
 # =================================================================
 keyValueData = [["Drug Name", "Monastrol"],
                 ["Concentration", "5 mg/ml"]]
