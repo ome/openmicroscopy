@@ -14,7 +14,8 @@ FOR TRAINING PURPOSES ONLY!
 import omero
 from omero.rtypes import rdouble, rint, rstring
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 
 # Create a connection
@@ -22,11 +23,6 @@ from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 updateService = conn.getUpdateService()
-
-
-# Configuration
-# =================================================================
-imageId = 27544
 
 
 # Create ROI.

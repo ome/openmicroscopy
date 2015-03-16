@@ -12,18 +12,13 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
-
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import imageId
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-imageId = 27544     # This image must have at least 2 channels
 
 
 # Create an image from scratch

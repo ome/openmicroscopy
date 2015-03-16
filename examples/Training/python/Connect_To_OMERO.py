@@ -11,14 +11,8 @@
 FOR TRAINING PURPOSES ONLY!
 """
 
-# Configuration
-# =================================================================
-# These values will be imported by all the other training scripts.
-HOST = 'localhost'
-PORT = 4064
-USERNAME = 'username'
-PASSWORD = 'passwd'
 
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 from omero.gateway import BlitzGateway
 
 if __name__ == '__main__':

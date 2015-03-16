@@ -17,7 +17,7 @@ try:
     from PIL import Image
 except ImportError:
     import Image
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT, imageId
 
 
 # Create a connection
@@ -26,14 +26,10 @@ conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
 
-# Configuration
-# =================================================================
-imageId = 27544
-
-
 # Get thumbnail
 # =================================================================
 # Thumbnail is created using the current rendering settings on the image
+print imageId
 image = conn.getObject("Image", imageId)
 img_data = image.getThumbnail()
 renderedThumb = Image.open(StringIO(img_data))

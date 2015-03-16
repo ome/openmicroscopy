@@ -13,8 +13,9 @@ FOR TRAINING PURPOSES ONLY!
 
 import omero
 import omero.callbacks
+from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
 
 
 # Create a connection
@@ -22,11 +23,12 @@ from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 
-
-# Configuration
+# Create a new Project
 # =================================================================
-projectId = 507        # NB: This will be deleted!
-
+project = omero.model.ProjectI()
+project.setName(rstring("New Project"))
+project = conn.getUpdateService().saveAndReturnObject(project)
+projectId = project.id.val
 
 # Load the Project
 # =================================================================
