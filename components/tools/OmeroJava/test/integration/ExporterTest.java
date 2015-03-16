@@ -136,6 +136,12 @@ public class ExporterTest extends AbstractServerTest {
      */
     private static final int IMAGE_ROI = 2;
 
+    /**
+     * Flag indicating to create an image with annotated acquisition data
+     * using XML mock and import it.
+     */
+    private static final int IMAGE_ANNOTATED_DATA = 2;
+
     /** The collection of files that have to be deleted. */
     private List<File> files;
 
@@ -263,6 +269,31 @@ public class ExporterTest extends AbstractServerTest {
             throw new Exception("Cannot create image to import", e);
         }
     }
+
+    /**
+     * Creates an image to export.
+     *
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    private Image createImageWithAnnotatedDataToExport() throws Exception {
+        //create an import and image
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+                + OME_XML);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(), true);
+        List<Pixels> pix = null;
+        try {
+            // method tested in ImporterTest
+            pix = importFile(f, OME_XML, true);
+            return pix.get(0).getImage();
+        } catch (Throwable e) {
+            throw new Exception("Cannot create image to import", e);
+        }
+    }
+
     /**
      * Creates an image to export.
      *
@@ -467,6 +498,8 @@ public class ExporterTest extends AbstractServerTest {
         Image image = null;
         if (index == IMAGE_ROI) {
             image = createImageWithROIToExport();
+        } else if (index == IMAGE_ANNOTATED_DATA) {
+            image = createImageWithAnnotatedDataToExport();
         } else {
             image = createImageToExport();
         }
@@ -770,6 +803,31 @@ public class ExporterTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Test the export of an image as OME-XML with annotated acquisition data 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testDowngradeImageWithAnnotatedAcquisitionData(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = download(OME_XML, IMAGE_ANNOTATED_DATA);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed, target.getSchemas());
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+    
     /**
      * Test if an image validates.
      * @throws Exception Thrown if an error occurred.
