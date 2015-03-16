@@ -111,7 +111,7 @@ public class ImportContainer
 
     /**
      * Retrieves whether or not we disabling <code>StatsInfo</code> population.
-     * @returns <code>true</code> if we are to disable <code>StatsInfo</code>
+     * @return <code>true</code> if we are to disable <code>StatsInfo</code>
      * population. <code>false</code> otherwise.
      * @since OMERO 5.1.
      */
@@ -134,7 +134,7 @@ public class ImportContainer
     /**
      * Retrieves whether or not we disabling <code>Pixels</code> checksum
      * computation.
-     * @returns <code>true</code> if we are to disable <code>Pixels</code>
+     * @return <code>true</code> if we are to disable <code>Pixels</code>
      * checksum computation. <code>false</code> otherwise.
      * @since OMERO 5.1.
      */
