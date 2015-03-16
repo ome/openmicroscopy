@@ -183,18 +183,20 @@ $.fn.roi_display = function(options) {
             for (var i=0; i<shape_objects.length; i++) {
                 var s = shape_objects[i];
                 var shape_id = parseInt(s.id);
-                
                 if (shape_id == selected_shape_id) {
                     if (s.type == 'text') {
                         selectedClone = null;
-                        s.attr({'stroke': '#00a8ff'});
+                        strokeWidth = Math.ceil(s.attr('font-size')/10);
+                        s.attr({'stroke': '#00a8ff', 'stroke-width': strokeWidth});
                     } else {
+                        strokeWidth = (s.attr('stroke-width') > 0) ? Math.ceil(s.attr('stroke-width')/2) : 1;
                         selectedClone = s.clone();
-                        selectedClone.attr({'stroke': '#00a8ff', 'fill': null});
+                        selectedClone.attr({'stroke': '#00a8ff', 'stroke-width': strokeWidth,
+                                            'fill-opacity': 0});
                     }
                 } else {
                     if (s.type == 'text') {
-                        s.attr({'stroke': null});   // remove stroke
+                        s.attr({'stroke': null, 'stroke-width': null}); // remove stroke
                     }
                 }
             }
@@ -457,16 +459,13 @@ $.fn.roi_display = function(options) {
                                     var newY = (texty-txt.getBBox().height/2)+9;
                                     // moving the existing text to newY doesn't seem to work - instead, remove and draw a new one
                                     txt.remove();
-                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'].escapeHTML())).attr({'cursor':'default', 'fill': '#000'});
+                                    txt = paper.text(textx, newY, formatShapeText(shape['textValue'].escapeHTML()))
+                                               .attr({'cursor':'default', 'fill': shape['strokeColor']}); // this is Insight's behavior
                                     txt_box = txt.getBBox();
                                     var txt_w = txt_box.width*1.3;
                                     var txt_h = txt_box.height*1.3;
-                                    var txt_bg = paper.rect(textx-txt_w/2, texty-txt_h/2, txt_w, txt_h);
-                                    txt_bg.attr({'cursor':'default', 'fill': '#FFFCB7', 'fill-opacity': 0.78, 'stroke': null});
                                     txt.toFront();
-                                    // clicking the text (or text background) should do the same as clicking the shape
-                                    txt_bg.id = shape['id'] + "_text_bg";
-                                    txt_bg.click(handle_shape_click);
+                                    // clicking the text should do the same as clicking the shape
                                     txt.id = shape['id'] + "_shape_text";
                                     txt.click(handle_shape_click);
                                     
