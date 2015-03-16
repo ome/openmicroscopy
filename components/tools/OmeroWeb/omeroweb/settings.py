@@ -956,7 +956,7 @@ PIPELINE_JS = {
             '3rdparty/JQuerySpinBtn-1.3a/JQuerySpinBtn.js',
             'webgateway/js/ome.colorbtn.js',
             'webgateway/js/ome.postit.js',
-            '3rdparty/jquery.selectboxes.js',
+            '3rdparty/jquery.selectboxes-2.2.6.js',
             'webgateway/js/ome.rangewidget.js',
             '3rdparty/farbtastic-1.2/farbtastic.js',
             '3rdparty/jquery.mousewheel-3.0.6.js',
