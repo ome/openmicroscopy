@@ -140,7 +140,6 @@ import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
@@ -8402,6 +8401,22 @@ class OMEROGateway
 	}
 
 	/**
+	 * Checks if there is alreay a {@link Save} object for the same
+	 * {@link IObject} in <code>saves</code> list. 
+	 * @param save The Save to look for
+	 * @param saves The collection of Saves to look in
+	 * @return <code>true</code> if it's already in the list, <code>
+	 *     false</code> otherwise.
+	 */
+	private boolean contains(Save save, List<Save> saves) {
+	    for(Save save2 : saves) {
+	        if(save2.obj == save.obj)
+	            return true;
+	    }
+	    return false;
+	}
+	
+	/**
 	 * Moves data between groups.
 	 *
 	 * @param ctx The security context of the source group.
@@ -8417,8 +8432,11 @@ class OMEROGateway
 			Map<DataObject, List<IObject>> map, Map<String, String> options)
 		throws DSOutOfServiceException, DSAccessException
 	{
+	    // map ~ Map<'Object to move', 'Destinations to move the object to'>
 		Connector c = getConnector(ctx, true, true);
-		if (c == null) return null; // TODO:
+		if (c == null) 
+		    return null; 
+		
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			Entry<DataObject, List<IObject>> entry;
@@ -8429,82 +8447,31 @@ class OMEROGateway
 			Iterator<IObject> j;
 			List<Request> commands = new ArrayList<Request>();
 			List<Save> saves = new ArrayList<Save>();
-			Chgrp cmd;
-			long id;
 			Save save;
-			Map<Long, List<IObject>> images = new HashMap<Long, List<IObject>>();
+			Map<String, List<Long>> objects = new HashMap<String, List<Long>>();
 			while (i.hasNext()) {
 				entry = i.next();
 				data = entry.getKey();
 				l = entry.getValue();
-				if (data instanceof ImageData) {
-					images.put(data.getId(), l);
-				} else {
-					cmd = new Chgrp(createDeleteCommand(
-						data.getClass().getName()), data.getId(), options,
-						target.getGroupID());
-					commands.add(cmd);
-					j = l.iterator();
-					while (j.hasNext()) {
-						save = new Save();
-						save.obj = j.next();
-						saves.add(save);
-					}
+				String key = PojoMapper.convertTypeForSearchByQuery(data.getClass());
+				List<Long> values = objects.get(key);
+				if(values==null) {
+				    values = new ArrayList<Long>();
+				    objects.put(key, values);
 				}
+				values.add(data.getId());
+				
+				for (IObject obj : l) {
+                  save = new Save();
+                  save.obj = obj;
+                    if (!contains(save, saves))
+                        saves.add(save);
+              }
 			}
-			if (images.size() > 0) {
-				Set<DataObject> fsList = getFileSet(ctx, images.keySet());
-				List<Long> all = new ArrayList<Long>();
-				Iterator<DataObject> kk = fsList.iterator();
-				FilesetData fs;
-				long imageId;
-				List<Long> imageIds;
-				Iterator<Long> ii;
-				while (kk.hasNext()) {
-					fs = (FilesetData) kk.next();
-					imageIds = fs.getImageIds();
-					if (imageIds.size() > 0) {
-						imageId = imageIds.get(0);
-						cmd = new Chgrp(createDeleteCommand(
-								FilesetData.class.getName()), fs.getId(),
-								options, target.getGroupID());
-						commands.add(cmd);
-						all.addAll(imageIds);
-						ii = imageIds.iterator();
-						while (ii.hasNext()) {
-							l = images.get(ii.next());
-							j = l.iterator();
-							while (j.hasNext()) {
-								save = new Save();
-								save.obj = j.next();
-								saves.add(save);
-							}
-						}
-					}
-				}
-
-				//Now check that all the ids are covered.
-				Entry<Long, List<IObject>> ee;
-				Iterator<Entry<Long, List<IObject>>> e =
-						images.entrySet().iterator();
-				while (e.hasNext()) {
-					ee = e.next();
-					if (!all.contains(ee.getKey())) { //pre-fs data.
-						cmd = new Chgrp(createDeleteCommand(
-								ImageData.class.getName()), ee.getKey(),
-								options, target.getGroupID());
-						commands.add(cmd);
-						l = images.get(ee.getKey());
-						j = l.iterator();
-						while (j.hasNext()) {
-							save = new Save();
-							save.obj = j.next();
-							saves.add(save);
-						}
-					}
-				}
-			}
+			
+			commands.add(Requests.chgrp(objects, target.getGroupID()));
 			commands.addAll(saves);
+			
 			return c.submit(commands, target);
 		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
