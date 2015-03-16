@@ -44,9 +44,9 @@ jQuery.fn.viewportImage = function(options) {
     mediaroot = mediaroot || '/appmedia';
     
 
-    wrapdiv.prepend('<span class="wb_zoomIn" style="top: 10px;"><img src="'+mediaroot+'/3rdparty/panojs/images/32px_plus.png" title="Zoom in" style="width: 20px;"></span>');
-    wrapdiv.prepend('<span class="wb_zoom11" style="top: 40px;"><img src="'+mediaroot+'/3rdparty/panojs/images/32px_11.png" title="Zoom 1:1" style="width: 20px;"></span>');
-    wrapdiv.prepend('<span class="wb_zoomOut" style="top: 70px;"><img src="'+mediaroot+'/3rdparty/panojs/images/32px_minus.png" title="Zoom out" style="width: 20px;"></span>');
+    wrapdiv.prepend('<span class="wb_zoomIn" style="top: 10px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_plus.png" title="Zoom in" style="width: 20px;"></span>');
+    wrapdiv.prepend('<span class="wb_zoom11" style="top: 40px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_11.png" title="Zoom 1:1" style="width: 20px;"></span>');
+    wrapdiv.prepend('<span class="wb_zoomOut" style="top: 70px;"><img src="'+mediaroot+'/3rdparty/panojs-2.0.0/images/32px_minus.png" title="Zoom out" style="width: 20px;"></span>');
 
     if (panbars) {
     /* Panning sides */
@@ -538,9 +538,9 @@ jQuery.fn.viewportImage = function(options) {
                 imageWidth      : myPyramid.width,
                 imageHeight     : myPyramid.height,
                 initialZoom     : init_zoom,
-                staticBaseURL   : mediaroot+'3rdparty/panojs/images/',
-                blankTile       : mediaroot+'3rdparty/panojs/images/blank.gif',
-                loadingTile     : mediaroot+'3rdparty/panojs/images/blank.gif',
+                staticBaseURL   : mediaroot+'3rdparty/panojs-2.0.0/images/',
+                blankTile       : mediaroot+'3rdparty/panojs-2.0.0/images/blank.gif',
+                loadingTile     : mediaroot+'3rdparty/panojs-2.0.0/images/blank.gif',
                 zoomLevelScaling : zoomLevelScaling,
                 delay           : 300
             });
