@@ -17,7 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -249,7 +248,7 @@ public class ExporterTest extends AbstractServerTest {
                 + OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
-        writer.writeFile(f, xml.createImage(), true);
+        writer.writeFile(f, xml.createImageWithROI(), true);
         List<Pixels> pix = null;
         try {
             // method tested in ImporterTest
@@ -740,7 +739,32 @@ public class ExporterTest extends AbstractServerTest {
             if (transformed != null) transformed.delete();
         }
     }
-    
+
+    /**
+     * Test the export of an image as OME-XML.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testDowngradeImageWithROI(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = download(OME_XML, IMAGE_ROI);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed, target.getSchemas());
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
     /**
      * Test the export of an image as OME-XML.
      * @throws Exception Thrown if an error occurred.
