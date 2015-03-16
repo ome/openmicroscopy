@@ -146,10 +146,10 @@
                         var $query = $("input[name='query']"),
                             q = $.trim($query.val());
                         if (q.length <= 0) {
-                            alert("Search must contain some text.");
+                            OME.alert_dialog("Search must contain some text.");
                             return false;
                         } else if (q == "*") {
-                            alert("Wildcard searches (*) must contain more than a single wildcard.");
+                            OME.alert_dialog("Wildcard searches (*) must contain more than a single wildcard.");
                             return false;
                         }
 
@@ -161,11 +161,11 @@
                             var start = startdateinput.val();
                             var end = enddateinput.val();
                             if (start==null || start=="") {
-                                alert("Choose start date for range");
+                                OME.alert_dialog("Choose start date for range");
                                 return false;
                             }
                             if (start > end) {
-                                alert("Start date is after End date");
+                                OME.alert_dialog("Start date is after End date");
                                 return false;
                             }
                         }
