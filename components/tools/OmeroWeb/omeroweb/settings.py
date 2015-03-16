@@ -959,7 +959,7 @@ PIPELINE_JS = {
             '3rdparty/jquery.selectboxes.js',
             'webgateway/js/ome.rangewidget.js',
             '3rdparty/farbtastic-1.2/farbtastic.js',
-            '3rdparty/jquery.mousewheel.js',
+            '3rdparty/jquery.mousewheel-3.0.6.js',
         ),
         'output_filename': 'omeroweb.viewer.min.js',
     }
