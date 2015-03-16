@@ -26,6 +26,7 @@ ${RandomClick}          xpath=//form[@id="searching_form"]/h2
 ${AlertWindow}          xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(),"OK")]
 ${SearchInProgress}     xpath=//div[@id='content_details']//img[contains(@src,'webgateway/img/spinner.gif')]
 ${QueryError}           xpath=//div[@id='content_details']//div[contains(@class,'error')]
+${NoResultsFound}       xpath=//div[@id='content_details']//p[contains(@class,'center_message message_nodata')]
 
 ${Search_Query}         1
 ${Search_Query1}        test
@@ -41,14 +42,15 @@ ${EndDate}              2014-07-17
 ${WrongStartDate}       2014-07-20
 ${AcquiredDateCol}      4
 ${NotAnImage}           3
-${INTEGER}              0
+${ITERATION}              0
 ${alertText}            Wildcard searches (*) must contain more than a single wildcard.
+${FailureMessage}       Search should Not Contain an Alert Window.
 
 ${SEARCH URL}           ${WELCOME URL}search/
 
-@{SearchKeyWords}       *  ${Empty}  *:  "  -  :  ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  \  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"     
+@{SearchKeyWords}       *  \  *:  "  -  :  
 
-# @{SearchKeyWords}       *:  *          
+@{SearchKeyWords1}      ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"         
 
 *** Keywords ***
 
@@ -119,20 +121,38 @@ For-Loop-In-Range-Imported       [Arguments]         ${rows}
     \    ${RANDOM_STRING}   Get Table Cell    ${XpathTable}    ${INDEX}    4
     \    Run Keyword Unless    "${RANDOM_STRING}" == ""  Condition Check Imported Date  
 
-For-Loop-In-Range-Search-Keywords
+For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
     
     : FOR    ${INDEX}    IN    @{SearchKeyWords}
-    \   ${INTEGER}=     Evaluate    ${INTEGER}+${1}
+    \   ${ITERATION}=     Evaluate    ${ITERATION}+${1}
     \   Input Text      name=query          ${INDEX}
     \   Click Button    id=search_button
+    
     \   ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
     \   Run Keyword If    '${status}' == 'False'     Wait Until Keyword Succeeds     10     0.2    Page Should Not Contain Element   ${SearchInProgress} 
 
     \   ${status1}  Run Keyword And Return Status   Element Should Be Visible   ${QueryError}
     \   Run Keyword If    '${status1}' == 'True'    Sleep           ${ImplicitDelay}
+    \   Run Keyword If   '${status}' == 'False'       Should Be True     ${status1}
+    \   Run Keyword If   '${status1}' == 'False'       Should Be True     ${status}
     \   Run Keyword If    '${status1}' == 'True'    Omero Default Search   
 
-    # \   Run Keyword If     ${INTEGER}>6    Element Should Be Visible  id=dataTable  10  
+
+For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
+    
+    : FOR    ${INDEX}    IN    @{SearchKeyWords1}
+    \   ${ITERATION}=     Evaluate    ${ITERATION}+${1}
+    \   Input Text      name=query          ${INDEX}
+    \   Click Button    id=search_button
+    
+    \   ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
+    \   Run Keyword if      '${status}' == 'True'   Fail 
+
+    \   Run Keyword If    '${status}' == 'False'     Wait Until Keyword Succeeds     10     0.2    Page Should Not Contain Element   ${SearchInProgress} 
+    \   ${status2}   Run Keyword And Return status   Element Should Be Visible  id=dataTable        10
+    \   ${status3}   Run Keyword And Return status   Element Should Be Visible  ${NoResultsFound}   10
+    \   Run Keyword If   '${status2}' == 'False'       Should Be True     ${status3}
+    \   Run Keyword If   '${status3}' == 'False'       Should Be True     ${status2}
 
 
 Condition Check Imported Date
@@ -282,10 +302,19 @@ Test Object Types and Fields
 
     # Select Plate Alone
     Unselect All Checkboxes
-    Select Checkbox  projects
+    Select Checkbox  plates
     Click Button  id=search_button
     sleep                               ${ImplicitDELAY}
-    Page Should Contain Element         ${XpathProject}
+    Page Should Not Contain Element     ${XpathProject}
+    Page Should Not Contain Element     ${XpathDataset}
+    Page Should Not Contain Element     ${XpathImage}
+
+    # Select Screen Alone
+    Unselect All Checkboxes
+    Select Checkbox  screens
+    Click Button  id=search_button
+    sleep                               ${ImplicitDELAY}
+    Page Should Not Contain Element     ${XpathProject}
     Page Should Not Contain Element     ${XpathDataset}
     Page Should Not Contain Element     ${XpathImage}
     
@@ -323,8 +352,8 @@ Test Date Range
     Click Element   id=searching
     sleep                           ${ImplicitDELAY}    
     Click Button    id=search_button
-    Click Element                   ${AlertWindow}    
-
+    Click Element                   ${AlertWindow}   
+ 
     #Check with a From date > End date
     Clear Date Text Field
     Input Text      id=startdateinput    ${WrongStartDate}
@@ -344,7 +373,6 @@ Test Date Range
     Select All Checkboxes
     Click Button    id=search_button
     Click Element                   ${AlertWindow}
-
  
     
 Test Key Word Search
@@ -356,7 +384,6 @@ Test Key Word Search
     Click Element   ${RandomClick}
     sleep           0.5 
     Click Button    id=search_button
-    # Alert Should Be present
     Element Should Be Visible  xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//p[contains(text(),"${alertText}")]
     Click Element   ${AlertWindow}
     
@@ -401,7 +428,8 @@ Test Key Word Search
 
 Test All Keywords
 
-    For-Loop-In-Range-Search-Keywords
+    For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
+    For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
 
 Test Close All Browsers
     # ${se2lib}=    Get Library Instance    Selenium2Library
