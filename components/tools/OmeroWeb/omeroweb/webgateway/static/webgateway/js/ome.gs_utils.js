@@ -12,7 +12,7 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
-var gs_static_location_prefix=''; //configure it to access static files, used with 3rdparty/jquery.blockUI.js
+var gs_static_location_prefix=''; //configure it to access static files, used with 3rdparty/jquery.blockUI-2.66.0.js
 
 /**
  * Given a string that may contain an RGB, RRGGBB or the previous with a # prefix,
@@ -87,7 +87,7 @@ var gs_modalJson_cb;
 
 function gs_loadBlockUI (callback) {
   if (jQuery.blockUI === undefined) {
-    jQuery.getScript(gs_static_location_prefix + '3rdparty/jquery.blockUI.js', callback);
+    jQuery.getScript(gs_static_location_prefix + '3rdparty/jquery.blockUI-2.66.0.js', callback);
     return false;
   }
   return true;
