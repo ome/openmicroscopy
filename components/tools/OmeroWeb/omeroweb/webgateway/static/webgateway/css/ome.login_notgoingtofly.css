@@ -161,7 +161,7 @@ body {
 				-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.3);
 				-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.3);
 				box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 1px 2px rgba(0,0,0,.3);
-				behavior: url(../../3rdparty/pie/PIE.htc);
+				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
 				
 				padding:8px;
 				font-size:1.3em;
@@ -169,10 +169,10 @@ body {
 				color: hsl(210,70%,10%);
 				
 				text-shadow: 0 1px 0 rgba(255,255,255,.3);
-				behavior: url(../../3rdparty/pie/PIE.htc);
+				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
 				
 				border-radius:5px;
-				behavior: url(../../3rdparty/pie/PIE.htc);
+				behavior: url(../../3rdparty/pie-1.0beta5/PIE.htc);
 				
 				
 				border-radius:3px;
