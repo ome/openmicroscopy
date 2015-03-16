@@ -29,7 +29,7 @@
 from omero.cli import BaseControl
 from omero.cli import CLI
 
-from omero_ext.argparse import FileType
+from omero_ext.argparse import FileType, SUPPRESS
 
 from path import path
 
@@ -51,9 +51,14 @@ class DatabaseControl(BaseControl):
         script.add_argument(
             "-f", "--file", type=FileType(mode="w"),
             help="Optional file to save to. Use '-' for stdout.")
-        script.add_argument("dbversion", nargs="?")
-        script.add_argument("dbpatch", nargs="?")
-        script.add_argument("password", nargs="?")
+
+        script.add_argument("posversion", nargs="?", help=SUPPRESS)
+        script.add_argument("pospatch", nargs="?", help=SUPPRESS)
+        script.add_argument("pospassword", nargs="?", help=SUPPRESS)
+
+        script.add_argument("--version", help=SUPPRESS)
+        script.add_argument("--patch", help=SUPPRESS)
+        script.add_argument("--password", help="OMERO root password")
 
         pw = sub.add_parser(
             "password",
@@ -70,24 +75,28 @@ class DatabaseControl(BaseControl):
                 "--no-salt", action="store_true",
                 help="Disable the salting of passwords")
 
-    def _lookup(self, data, data2, key, map, hidden=False):
+    def _lookup(self, key, defaults, args):
         """
-        Read values from data and data2. If value is contained in data
-        then use it without question. If the value is in data2, offer
-        it as a default
+        Get a value from a flag arg, positional arg, or default properties
         """
-        map[key] = data.properties.getProperty("omero.db."+key)
-        if not map[key] or map[key] == "":
-            if data2:
-                default = data2.properties.getProperty("omero.db."+key)
-            else:
-                default = ""
-            map[key] = self.ctx.input("Please enter omero.db.%s [%s]: "
-                                      % (key, default), hidden)
-            if not map[key] or map[key] == "":
-                map[key] = default
-        if not map[key] or map[key] == "":
-                self.ctx.die(1, "No value entered")
+        propname = "omero.db." + key
+        vdef = defaults.properties.getProperty(propname)
+        varg = getattr(args, key)
+        vpos = getattr(args, 'pos' + key)
+        if varg:
+            if vpos:
+                self.ctx.die(
+                    1, "ERROR: Flag and positional argument given for %s" % key
+                    )
+            v = varg
+        elif vpos:
+            v = vpos
+        elif vdef:
+            v = vdef
+        else:
+            self.ctx.die(1, "No value found for %s" % propname)
+        self.ctx.err("Using %s for %s" % (v, key))
+        return v
 
     def _has_user_id(self, args):
         return args and "user_id" in args and args.user_id is not None
@@ -254,33 +263,27 @@ BEGIN;
         return data2
 
     def script(self, args):
+        if args.posversion is not None:
+            self.ctx.err("WARNING: Positional arguments are deprecated")
 
-        data = self.ctx.initData({})
-        data2 = self.loaddefaults()
-        map = {}
-        root_pass = None
-        try:
-            db_vers = args.dbversion
-            db_patch = args.dbpatch
-            if data2:
-                if len(db_vers) == 0:
-                    db_vers = data2.properties.getProperty("omero.db.version")
-                if len(db_patch) == 0:
-                    db_patch = data2.properties.getProperty("omero.db.patch")
-            data.properties.setProperty("omero.db.version", db_vers)
-            self.ctx.err("Using %s for version" % db_vers)
-            data.properties.setProperty("omero.db.patch", db_patch)
-            self.ctx.err("Using %s for patch" % db_patch)
-            root_pass = args.password
+        defaults = self.loaddefaults()
+        db_vers = self._lookup("version", defaults, args)
+        db_patch = self._lookup("patch", defaults, args)
+        root_pass = args.password
+        if root_pass:
+            if args.pospassword:
+                self.ctx.die(
+                    1, "ERROR: Flag and positional argument given for password"
+                    )
+        else:
+            root_pass = args.pospassword
+        if root_pass:
             self.ctx.err("Using password from commandline")
-        except Exception, e:
-            self.ctx.dbg("While getting arguments:"+str(e))
-        self._lookup(data, data2, "version", map)
-        self._lookup(data, data2, "patch", map)
+
         args.user_id = "0"
-        sql = self._sql_directory(map["version"], map["patch"])
-        map["pass"] = self._get_password_hash(args, root_pass, True)
-        self._create(sql, map["version"], map["patch"], map["pass"], args)
+        sql = self._sql_directory(db_vers, db_patch)
+        pwhash = self._get_password_hash(args, root_pass, True)
+        self._create(sql, db_vers, db_patch, pwhash, args)
 
 try:
     register("db", DatabaseControl, HELP)
