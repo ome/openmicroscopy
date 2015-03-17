@@ -6626,7 +6626,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
         si = self._obj.getStatsInfo()
         if si is None:
-            logger.error("getStatsInfo() is null. See #9695")
+            logger.debug("getStatsInfo() is null. See #9695")
             try:
                 minVals = {'int8': -128, 'uint8': 0, 'int16': -32768,
                            'uint16': 0, 'int32': -32768, 'uint32': 0,
@@ -6647,7 +6647,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         """
         si = self._obj.getStatsInfo()
         if si is None:
-            logger.error("getStatsInfo() is null. See #9695")
+            logger.debug("getStatsInfo() is null. See #9695")
             try:
                 maxVals = {'int8': 127, 'uint8': 255, 'int16': 32767,
                            'uint16': 65535, 'int32': 32767, 'uint32': 65535,
