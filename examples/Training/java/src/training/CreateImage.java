@@ -35,7 +35,7 @@ import java.util.Map;
 
 
 
-import ome.model.enums.UnitsLength;
+
 //Application-internal dependencies
 import omero.RLong;
 import omero.api.IContainerPrx;
@@ -49,6 +49,7 @@ import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.LengthI;
 import omero.model.PixelsType;
+import ome.model.enums.UnitsLength;
 import omero.sys.ParametersI;
 import pojos.ImageData;
 import pojos.PixelsData;
