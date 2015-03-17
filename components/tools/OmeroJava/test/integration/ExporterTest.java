@@ -406,7 +406,7 @@ public class ExporterTest extends AbstractServerTest {
 
     /**
      * Tests to export an image as OME-TIFF. The image has an annotation linked
-     * to it.
+     * to it. Downgrade the image.
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -439,15 +439,14 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Tests to export an image as OME-TIFF. The image has an annotation linked
-     * to it.
+     * Tests to export an image as OME-TIFF.
      *
      * @throws Exception
      *             Thrown if an error occurred.
      * @see RawFileStoreTest#testUploadFile()
      */
     @Test
-    public void testExportAsOMETIFFWithoutAnnotation() throws Exception {
+    public void testExportAsOMETIFF() throws Exception {
         // First create an image
         Image image = createImageToExport();
 
@@ -813,7 +812,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the export of an image as OME-XML.
+     * Test the downgrade of an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(dataProvider = "createTransform")
@@ -838,7 +837,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the export of an image as OME-XML.
+     * Test the downgrade of an image with ROi.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(dataProvider = "createTransform")
@@ -863,7 +862,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the export of an image as OME-XML with annotated acquisition data 
+     * Test the downgrade of an image with annotated acquisition data 
      * @throws Exception Thrown if an error occurred.
      */
     @Test(dataProvider = "createTransform")
@@ -888,7 +887,7 @@ public class ExporterTest extends AbstractServerTest {
     }
     
     /**
-     * Test if an image validates.
+     * Test if an image built with current schema validates.
      * @throws Exception Thrown if an error occurred.
      */
     public void testValidateImageWithAcquisition() throws Exception {
@@ -904,7 +903,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test if an image validates.
+     * Test if an image with ROI built with current schema validates.
      * @throws Exception Thrown if an error occurred.
      */
     public void testValidateImageWithROI() throws Exception {
@@ -920,7 +919,24 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the export of an image as OME-XML.
+     * Test if an image with annotated acquisition data built with current
+     * schema validates.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testValidateImageWithAnnotatedAcquisition() throws Exception {
+        File f = null;
+        try {
+            f = download(OME_XML, IMAGE_ANNOTATED_DATA);
+            validate(f);
+        } catch (Throwable e) {
+            throw new Exception("Cannot validate the image: ", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
+     * Test the export of an image as OME-XML. Downgrade it.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(dataProvider = "createTransform")
@@ -945,7 +961,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the export of an image as OME-XML.
+     * Test the export of an image as OME-XML. Downgrade it.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(dataProvider = "createTransform")
@@ -971,7 +987,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the export of an image with ROI as OME-XML.
+     * Test the export of an image with ROI as OME-XML. Downgrade it.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(dataProvider = "createTransform")
@@ -996,8 +1012,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Tests to export an image as OME-TIFF. The image has an annotation linked
-     * to it.
+     * Tests to export an image as OME-TIFF and downgrade it.
      *
      * @throws Exception
      *             Thrown if an error occurred.
