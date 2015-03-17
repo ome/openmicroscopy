@@ -147,6 +147,9 @@ public class ExporterTest extends AbstractServerTest {
     /** The various transforms read from the configuration file.*/
     private Map<String, List<String>> downgrades;
 
+    /** The collection of transforms to perform upgrade.*/
+    private Map<String, List<String>> upgrades;
+
     /** The current schema.*/
     private String currentSchema;
 
@@ -327,6 +330,7 @@ public class ExporterTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
+        upgrades = new HashMap<String, List<String>>();
         downgrades = currentSchema();
     }
 
@@ -339,6 +343,7 @@ public class ExporterTest extends AbstractServerTest {
     @AfterClass
     public void tearDown() throws Exception {
         downgrades.clear();
+        upgrades.clear();
     }
 
     /**
@@ -684,15 +689,27 @@ public class ExporterTest extends AbstractServerTest {
                             parseTarget((Element) t.item(k), transforms);
                         }
                     } else {
-                        NodeList upgrades = n.getElementsByTagName("upgrades");
+                        NodeList nl = n.getElementsByTagName("upgrades");
                         umap = new HashMap<String, List<String>>();
-                        for (int k = 0; k < upgrades.getLength(); k++) {
-                            Element node = (Element) upgrades.item(k);
+                        String src = attribute.getNodeValue();
+                        for (int k = 0; k < nl.getLength(); k++) {
+                            Element node = (Element) nl.item(k);
                             NodeList tt = node.getElementsByTagName(TARGET);
                             for (int l = 0; l < tt.getLength(); l++) {
                                 parseTarget((Element) tt.item(l), umap);
                             }
-                            
+                            //parse the map
+                            Iterator<Entry<String, List<String>>> kk = 
+                                    umap.entrySet().iterator();
+                            Entry<String, List<String>> e;
+                            List<String> vl;
+                            Iterator<String> jj;
+                            while (kk.hasNext()) {
+                                e = kk.next();
+                                if (e.getKey().equals(schema)) {
+                                    upgrades.put(src, e.getValue());
+                                }
+                            }
                         }
                     }
                 }
@@ -724,17 +741,21 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Creates the transformations.
-     * @return Object[][] data.
+     * Prepares elements used to perform downgrade or upgrade.
+     *
+     * @param values The map to create the transform from.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
      */
-    @DataProvider(name = "createTransform")
-    public Object[][] createTransform() throws Exception {
+    private Object[][] createList(Map<String, List<String>> values)
+            throws Exception
+    {
         List<Target> targets = new ArrayList<Target>();
         Object[][] data = null;
         List<String> l;
         Iterator<String> j;
         Entry<String, List<String>> e;
-        Iterator<Entry<String, List<String>>> i = downgrades.entrySet().iterator();
+        Iterator<Entry<String, List<String>>> i = values.entrySet().iterator();
         while (i.hasNext()) {
             e = i.next();
             l = e.getValue();
@@ -744,7 +765,7 @@ public class ExporterTest extends AbstractServerTest {
                 streams.add(this.getClass().getResourceAsStream(
                         "/transforms/"+j.next()));
             }
-            targets.add(new Target(streams, e.getKey(), null));
+            targets.add(new Target(streams, e.getKey()));
         }
         int index = 0;
         Iterator<Target> k = targets.iterator();
@@ -754,6 +775,42 @@ public class ExporterTest extends AbstractServerTest {
             index++;
         }
         return data;
+    }
+    /**
+     * Creates the transformations.
+     * @return Object[][] data.
+     */
+    @DataProvider(name = "createTransform")
+    public Object[][] createTransform() throws Exception {
+        return createList(downgrades);
+    }
+
+    /**
+     * Creates the upgrade transformation.
+     * @return Object[][] data.
+     */
+    @DataProvider(name = "createUpgrade")
+    public Object[][] createUpgrade() throws Exception {
+        return createList(upgrades);
+    }
+
+    /**
+     * Returns the list of transformations to generate the file to upgrade.
+     *
+     * @param target The schema to start from for the upgrade.
+     * @return See above.
+     */
+    private List<InputStream> retrieveDowngrade(String target)
+    {
+        List<String> list = downgrades.get(target);
+        if (CollectionUtils.isEmpty(list)) return null;
+        List<InputStream> streams = new ArrayList<InputStream>();
+        Iterator<String> j = list.iterator();
+        while (j.hasNext()) {
+            streams.add(this.getClass().getResourceAsStream(
+                    "/transforms/"+j.next()));
+        }
+        return streams;
     }
 
     /**
@@ -996,6 +1053,7 @@ public class ExporterTest extends AbstractServerTest {
         }
     }
 
+    
     class Target {
 
         /** The transforms to apply.*/
@@ -1004,20 +1062,16 @@ public class ExporterTest extends AbstractServerTest {
         /** The source schema.*/
         private String source;
 
-        /** The target schema.*/
-        private String target;
-
         /**
          * Creates a new instance.
          *
          * @param transforms The transforms to apply.
          * @param source The source schema.
          */
-        Target(List<InputStream> transforms, String target, String source)
+        Target(List<InputStream> transforms, String source)
         {
             this.transforms = transforms;
             this.source = source;
-            this.target = target;
         }
 
         /**
@@ -1033,13 +1087,6 @@ public class ExporterTest extends AbstractServerTest {
          * @return See above.
          */
         String getSource() { return source; }
-
-        /**
-         * Returns the target schema.
-         *
-         * @return See above.
-         */
-        String getTarget() { return target; }
 
     }
 
