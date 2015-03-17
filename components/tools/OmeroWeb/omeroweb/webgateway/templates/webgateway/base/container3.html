@@ -42,7 +42,7 @@
 {% block script %}
 {{ block.super }}
 
-    <script type="text/javascript" src="{% static "webgateway/js/ome.nav.js" %}"></script> <!-- handles expand  / collapse columns -->
+    <script type="text/javascript" src="{% static "webgateway/js/ome.nav.js"|add:url_suffix %}"></script> <!-- handles expand  / collapse columns -->
     
     <script type="text/javascript">
         $(document).ready(function(){

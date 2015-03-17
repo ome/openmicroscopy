@@ -25,7 +25,7 @@
 {% block link %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen-1.2.0/chosen.css' %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css' %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static 'webadmin/css/chosen.css'|add:url_suffix %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block title %}

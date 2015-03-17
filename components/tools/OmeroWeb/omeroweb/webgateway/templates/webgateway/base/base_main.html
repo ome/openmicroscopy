@@ -22,9 +22,9 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.toolbar.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.toolbar.css"|add:url_suffix %}" type="text/css" media="screen"/>
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar_ie.css" %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar_ie.css"|add:url_suffix %}" />
 	<![endif]-->
 {% endblock %}
 

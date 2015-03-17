@@ -840,7 +840,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.static",
-    "django.contrib.messages.context_processors.messages"
+    "django.contrib.messages.context_processors.messages",
+    "omeroweb.custom_context_processor.url_suffix"
 )
 
 # TEMPLATE_LOADERS: A tuple of template loader classes, specified as strings.

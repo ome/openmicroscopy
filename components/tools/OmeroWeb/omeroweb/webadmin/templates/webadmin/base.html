@@ -53,7 +53,7 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webadmin/css/dusty.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/dusty.css"|add:url_suffix %}" type="text/css" media="screen"/>
 {% endblock %}
 
 
