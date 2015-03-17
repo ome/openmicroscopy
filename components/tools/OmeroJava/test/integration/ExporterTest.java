@@ -39,8 +39,6 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 
 import loci.common.RandomAccessInputStream;
 import loci.common.RandomAccessOutputStream;
@@ -164,10 +162,8 @@ public class ExporterTest extends AbstractServerTest {
      *             Thrown if an error occurred during the validation
      */
     private void validate(File input) throws Exception {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        DocumentBuilder builder = dbf.newDocumentBuilder();
-        Document theDoc = builder.parse(new FileInputStream(input));
+        OmeValidator validator = new OmeValidator();
+        validator.parseFile(input);
     }
 
     /**
