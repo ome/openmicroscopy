@@ -148,8 +148,7 @@ class TestImport(CLITest):
             splitline = line.split()
             # For some reason the ome.system.UpgradeCheck logging is always
             # output independently of the debug level
-            if len(splitline) > 3 and splitline[2] in debug_levels and \
-                    not splitline[3] == 'ome.system.UpgradeCheck':
+            if len(splitline) > 3 and splitline[2] in debug_levels:
                 levels.append(splitline[2])
         return levels
 
@@ -279,6 +278,7 @@ class TestImport(CLITest):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
+        self.args += ['--skip', 'upgrade']
         self.args += [str(fakefile)]
         if prefix:
             self.args += [prefix]
@@ -287,7 +287,7 @@ class TestImport(CLITest):
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         levels = self.parse_debug_levels(o)
-        assert set(levels) <= set(debug_levels[debug_levels.index(level):])
+        assert set(levels) <= set(debug_levels[debug_levels.index(level):]), o
 
     def testImportSummary(self, tmpdir, capfd):
         """Test import summary output"""
