@@ -406,20 +406,22 @@ public class CommandLineImporter {
             + "                            \t     SHA1-160 (slow, default)\n\n"
             + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
             + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n\n"
-            + "    --no_pixels_checksum\tDisable computation of the pixels checksum,\n\n"
-            + "  e.g. $ bin/omero import -- --no_pixels_checksum foo.tiff\n"
-            + "       $ ./importer-cli --no_pixels_checksum bar.tiff\n\n"
-            + "    --no_stats_info\t\tDisable calculation of minima and maxima"
+            + "    --no-pixels-checksum\tDisable computation of the pixels checksum,\n\n"
+            + "  e.g. $ bin/omero import -- --no-pixels-checksum foo.tiff\n"
+            + "       $ ./importer-cli --no-pixels-checksum bar.tiff\n\n"
+            + "    --no-stats-info\t\tDisable calculation of minima and maxima"
             + " when as part of the Bio-Formats reader metadata ,\n\n"
-            + "  e.g. $ bin/omero import -- --no_stats_info foo.tiff\n"
-            + "       $ ./importer-cli --no_stats_info bar.tiff\n\n"
+            + "  e.g. $ bin/omero import -- --no-stats-info foo.tiff\n"
+            + "       $ ./importer-cli --no-stats-info bar.tiff\n\n"
             + "    --no-upgrade-check\t\tDisable upgrade check for each import\n"
+            + "  e.g. $ bin/omero import -- --no-upgrade-check foo.tiff\n"
+            + "       $ ./importer-cli --no-upgrade-check bar.tiff\n\n"
             + "\n"
             + "  Feedback:\n"
             + "  ---------\n\n"
-            + "    --qa_baseurl=ARG\tSpecify the base URL for reporting feedback\n"
-            + "  e.g. $ bin/omero import -- --qa_baseurl=https://qa.staging.openmicroscopy.org/qa\n"
-            + "       $ ./importer-cli --qa_baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "    --qa-baseurl=ARG\tSpecify the base URL for reporting feedback\n"
+            + "  e.g. $ bin/omero import -- --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "       $ ./importer-cli --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
         System.exit(1);
@@ -527,12 +529,12 @@ public class CommandLineImporter {
                 new LongOpt("exclude", LongOpt.REQUIRED_ARGUMENT, null, 20);
 
         LongOpt qaBaseURL = new LongOpt(
-                "qa_baseurl", LongOpt.REQUIRED_ARGUMENT, null, 21);
+                "qa-baseurl", LongOpt.REQUIRED_ARGUMENT, null, 21);
 
         LongOpt noStatsInfo =
-                new LongOpt("no_stats_info", LongOpt.NO_ARGUMENT, null, 22);
+                new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 22);
         LongOpt noPixelsChecksum =
-                new LongOpt("no_pixels_checksum", LongOpt.NO_ARGUMENT, null, 23);
+                new LongOpt("no-pixels-checksum", LongOpt.NO_ARGUMENT, null, 23);
         LongOpt noUpgradeCheck =
                 new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
 
