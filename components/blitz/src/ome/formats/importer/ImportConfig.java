@@ -320,7 +320,7 @@ public class ImportConfig {
 
     /**
      * Modifies the logging level of everything under the
-     * <code>ome.format</code> and <code>loci</code> package hierarchically.
+     * <code>ome.formats</code> and <code>loci</code> package hierarchically.
      * @param level if null, then {@link #ini#getDebugLevel()} will be used.
      */
      public void configureDebug(String levelString) {
@@ -332,7 +332,8 @@ public class ImportConfig {
          }
          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.formats")).setLevel(level);
          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.services.blitz")).setLevel(level);
-         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("loci")).setLevel(level);
+         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.system")).setLevel(level);
+		          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("loci")).setLevel(level);
      }
 
     //

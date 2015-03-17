@@ -278,7 +278,6 @@ class TestImport(CLITest):
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
-        self.args += ['--skip', 'upgrade']
         self.args += [str(fakefile)]
         if prefix:
             self.args += [prefix]
