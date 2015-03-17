@@ -167,7 +167,7 @@ public class ExporterTest extends AbstractServerTest {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         DocumentBuilder builder = dbf.newDocumentBuilder();
-        Document theDoc = builder.parse(input);
+        Document theDoc = builder.parse(new FileInputStream(input));
     }
 
     /**
