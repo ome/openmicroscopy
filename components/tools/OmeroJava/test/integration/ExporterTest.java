@@ -1053,7 +1053,35 @@ public class ExporterTest extends AbstractServerTest {
         }
     }
 
-    
+    /**
+     * Test the upgrade of an image.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createUpgrade")
+    public void testUpgradeImageWithAcquisition(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = download(OME_XML, IMAGE); //2015 image
+            List<InputStream> transforms = retrieveDowngrade(target.getSource());
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file.
+            upgraded = applyTransforms(transformed, target.getTransforms());
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot upgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
     class Target {
 
         /** The transforms to apply.*/
