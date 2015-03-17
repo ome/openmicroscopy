@@ -215,7 +215,7 @@ class ITest(object):
         return img
 
     def import_image(self, filename=None, client=None, extra_args=None,
-                     skip=None, **kwargs):
+                     skip="all", **kwargs):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"
