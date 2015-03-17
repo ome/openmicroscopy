@@ -199,7 +199,7 @@ public class ExporterTest extends AbstractServerTest {
                 writer = new StringWriter();
                 StreamResult result = new StreamResult(writer);
                 transformer.transform(srcIn, result);
-                inputAsString = result.getWriter().toString();
+                inputAsString = writer.getBuffer().toString();
                 stream.close();
                 reader.close();
                 writer.close();
