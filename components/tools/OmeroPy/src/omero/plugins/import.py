@@ -126,7 +126,7 @@ class ImportControl(BaseControl):
             help="Email for reported errors. Required --report (**)",
             metavar="EMAIL")
         feedback_group.add_argument(
-            "--qa-baseurl", "--qa_baseurl", dest="java_qa_baseurl",
+            "--qa-baseurl", dest="java_qa_baseurl",
             help=SUPPRESS)
 
         # DEPRECATED OPTIONS
@@ -203,12 +203,12 @@ class ImportControl(BaseControl):
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
         if args.skip in ['all', 'checksum']:
-            self.command_args.append("--no_pixels_checksum")
+            self.command_args.append("--no-pixels-checksum")
             self.command_args.append("--checksum_algorithm=File-Size-64")
         if args.skip in ['all', 'thumbnails']:
             self.command_args.append("--no_thumbnails")
         if args.skip in ['all', 'minmax']:
-            self.command_args.append("--no_stats_info")
+            self.command_args.append("--no-stats-info")
         if args.skip in ['all', 'upgrade']:
             self.command_args.append("--no-upgrade-check")
 
@@ -232,7 +232,7 @@ class ImportControl(BaseControl):
             "java_logs": ("--logs"),
             "java_email": ("--email"),
             "java_debug": ("--debug",),
-            "java_qa_baseurl": ("--qa_baseurl",),
+            "java_qa_baseurl": ("--qa-baseurl",),
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",
