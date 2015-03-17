@@ -144,9 +144,6 @@ public class ExporterTest extends AbstractServerTest {
      */
     private static final int IMAGE_ANNOTATED_DATA = 2;
 
-    /** The collection of files that have to be deleted. */
-    private List<File> files;
-
     /** The various transforms read from the configuration file.*/
     private Map<String, List<String>> sheets;
 
@@ -330,7 +327,6 @@ public class ExporterTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        files = new ArrayList<File>();
         sheets = currentSchema();
     }
 
@@ -342,11 +338,6 @@ public class ExporterTest extends AbstractServerTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-        Iterator<File> i = files.iterator();
-        while (i.hasNext()) {
-            i.next().delete();
-        }
-        files.clear();
         sheets.clear();
     }
 
