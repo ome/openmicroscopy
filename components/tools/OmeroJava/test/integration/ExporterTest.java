@@ -514,7 +514,6 @@ public class ExporterTest extends AbstractServerTest {
             l.add(omero.rtypes.rlong(id));
             param.add("imageIds", omero.rtypes.rlist(l));
 
-            
             param.map.put("id", omero.rtypes.rlong(
                     image.getPrimaryPixels().getId().getValue()));
             List<IObject> files = svc.findAllByQuery(createFileSetQuery(),
@@ -1054,7 +1053,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the upgrade of an image.
+     * Test the upgrade of an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(dataProvider = "createUpgrade")
@@ -1082,6 +1081,64 @@ public class ExporterTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Test the upgrade of an image with ROI.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createUpgrade")
+    public void testUpgradeImageWithROI(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = download(OME_XML, IMAGE_ROI); //2015 image
+            List<InputStream> transforms = retrieveDowngrade(target.getSource());
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file.
+            upgraded = applyTransforms(transformed, target.getTransforms());
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot upgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test the upgrade of an image with annotated acquisition.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createUpgrade")
+    public void testUpgradeImageWithAnnotatedAcquisition(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = download(OME_XML, IMAGE_ANNOTATED_DATA); //2015 image
+            List<InputStream> transforms = retrieveDowngrade(target.getSource());
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file.
+            upgraded = applyTransforms(transformed, target.getTransforms());
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot upgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+    
     class Target {
 
         /** The transforms to apply.*/
