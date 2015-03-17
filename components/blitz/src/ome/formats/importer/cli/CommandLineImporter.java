@@ -399,8 +399,16 @@ public class CommandLineImporter {
             + "                            \t     MD5-128, Murmur3-32, Murmur3-128,\n"
             + "                            \t     SHA1-160 (slow, default)\n\n"
             + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
-            + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n"
+            + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n\n"
+            + "    --no_pixels_checksum\tDisable computation of the pixels checksum,\n\n"
+            + "  e.g. $ bin/omero import -- --no_pixels_checksum foo.tiff\n"
+            + "       $ ./importer-cli --no_pixels_checksum bar.tiff\n\n"
+            + "    --no_stats_info\t\tDisable calculation of minima and maxima"
+            + " when as part of the Bio-Formats reader metadata ,\n\n"
+            + "  e.g. $ bin/omero import -- --no_stats_info foo.tiff\n"
+            + "       $ ./importer-cli --no_stats_info bar.tiff\n\n"
             + "\n"
+
             + "  Feedback:\n"
             + "  ---------\n\n"
             + "    --qa_baseurl=ARG\tSpecify the base URL for reporting feedback\n"
@@ -517,6 +525,8 @@ public class CommandLineImporter {
 
         LongOpt noStatsInfo =
                 new LongOpt("no_stats_info", LongOpt.NO_ARGUMENT, null, 22);
+        LongOpt noPixelsChecksum =
+                new LongOpt("no_pixels_checksum", LongOpt.NO_ARGUMENT, null, 23);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -531,7 +541,7 @@ public class CommandLineImporter {
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
-                                exclude, noStatsInfo,
+                                exclude, noStatsInfo, noPixelsChecksum,
                                 qaBaseURL, plateName, plateDescription});
         int a;
 
@@ -588,6 +598,7 @@ public class CommandLineImporter {
                 break;
             }
             case 8: {
+              log.info("Skipping thumbnails creation");
               config.doThumbnails.set(false);
               break;
             }
@@ -657,7 +668,13 @@ public class CommandLineImporter {
                 break;
             }
             case 22: {
+                log.info("Skipping minimum/maximum computation");
                 config.noStatsInfo.set(true);
+                break;
+            }
+            case 23: {
+                log.info("Skipping pixels checksum computation");
+                config.noPixelsChecksum.set(true);
                 break;
             }
             // ADVANCED END ---------------------------------------------------

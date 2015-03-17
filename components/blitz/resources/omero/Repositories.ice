@@ -291,6 +291,11 @@ module omero {
              omero::RBool noStatsInfo;
 
              /**
+              * Whether we are to disable pixels checksum computation.
+              **/
+             omero::RBool noPixelsChecksum;
+
+             /**
               * User choice of checksum algorithm for verifying upload.
               **/
              omero::model::ChecksumAlgorithm checksumAlgorithm;

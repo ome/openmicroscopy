@@ -136,6 +136,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private boolean noStatsInfo = false;
 
+    private boolean noPixelsChecksum = false;
+
     private String fileName = null;
 
     private String shortName = null;
@@ -219,7 +221,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 settings.doThumbnails.getValue();
             noStatsInfo = settings.noStatsInfo == null ? false :
                 settings.noStatsInfo.getValue();
-
+            noPixelsChecksum = settings.noPixelsChecksum == null ? false :
+                settings.noPixelsChecksum.getValue();
             detectAutoClose();
 
             fileName = file.getFullFsPath();
@@ -659,6 +662,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
              * (long) reader.getSizeY()) > maxPlaneSize) {
             return null;
         }
+        if (noPixelsChecksum) {
+            log.info("Skipping pixels checksum computation");
+            return null;
+        }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
         MessageDigest md;
         try {
@@ -685,7 +692,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
 
     /**
-     * Read a plane to cause min/max values to be calculated.
+     * Read a plane and update the pixels checksum
      *
      * @param size Sizes of the Pixels set.
      * @param z The Z-section offset to write to.

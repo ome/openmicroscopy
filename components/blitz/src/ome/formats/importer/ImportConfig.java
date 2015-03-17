@@ -108,6 +108,7 @@ public class ImportConfig {
     public final LongValue group;
     public final BoolValue doThumbnails;
     public final BoolValue noStatsInfo;
+    public final BoolValue noPixelsChecksum;
     public final StrValue email;
     public final StrValue userSpecifiedName;
     public final StrValue userSpecifiedDescription;
@@ -246,6 +247,7 @@ public class ImportConfig {
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         noStatsInfo  = new BoolValue("noStatsInfo", this, false);
+        noPixelsChecksum = new BoolValue("noPixelsChecksum", this, false);
         email        = new StrValue("email", this);
         qaBaseURL    = new StrValue("qaBaseURL", this, DEFAULT_QABASEURL);
         userSpecifiedName = new StrValue("userSpecifiedName", this);
@@ -421,35 +423,35 @@ public class ImportConfig {
     public boolean getStaticDisableUpgradeCheck() {
         return ini.getStaticDisableUpgradeCheck();
     }
-    
+
     /**
      * @return ini getForceFileArchiveOn
      */
     public boolean getForceFileArchiveOn() {
         return ini.getForceFileArchiveOn();
-    }    
+    }
 
     /**
      * @return ini getStaticDisableHistory
      */
     public boolean getStaticDisableHistory() {
         return ini.getStaticDisableHistory();
-    }   
-    
+    }
+
     /**
      * @return ini getUserDisableHistory
      */
     public boolean getUserDisableHistory() {
         return ini.getUserDisableHistory();
-    }      
-    
+    }
+
     /**
      * @param b - true if Quaqua should be used
       */
     public void setUserDisableHistory(boolean b) {
         ini.setUserDisableHistory(b);
     }
-    
+
     /**
      * @return ini version note
      */

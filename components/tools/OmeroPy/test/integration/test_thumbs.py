@@ -9,13 +9,11 @@
 
 """
 
-import pytest
 import library as lib
 
 from omero.rtypes import rint, unwrap
 
 
-@pytest.mark.long_running
 class TestThumbs(lib.ITest):
 
     def assertTb(self, buf, x=64, y=64):
@@ -36,7 +34,7 @@ class TestThumbs(lib.ITest):
         """
         pix = self.missing_pyramid()
         tb = self.client.sf.createThumbnailStore()
-        tb.setPixelsId(pix.id.val)
+        tb.setPixelsId(long(pix))
         tb.resetDefaults()
         return tb
 
@@ -60,7 +58,7 @@ class TestThumbs(lib.ITest):
         tb = self.client.sf.createThumbnailStore()
         try:
             tb.createThumbnailsByLongestSideSet(
-                rint(64), [pix1.id.val, pix2.id.val])
+                rint(64), [long(pix1), long(pix2)])
         finally:
             tb.close()
 
@@ -102,7 +100,7 @@ def make_test_set(method, x, y, *args):
         pix2 = self.missing_pyramid()
         tb = self.client.sf.createThumbnailStore()
         copy = list(args)
-        copy.append([pix1.id.val, pix2.id.val])
+        copy.append([long(pix1), long(pix2)])
         copy = tuple(copy)
         try:
             buf_map = getattr(tb, method)(*copy)
