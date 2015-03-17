@@ -37,16 +37,11 @@ class TestImgDetail(IWebTest):
         """
         Download of archived files for a non-SPW Image.
         """
-        client = self.client
-
-        admin = client.sf.getAdminService()
-        user = admin.getExperimenter(admin.getEventContext().userId)
-        userName = "%s %s" % (user.getFirstName().val, user.getLastName().val)
+        userName = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
 
         # Import "tinyTest.d3d.dv" and get ImageID
-        pids = self.import_image(client=client)
-        pixels = client.getSession().getQueryService().get("Pixels",
-                                                           long(pids[0]))
+        pids = self.import_image(client=self.client)
+        pixels = self.query.get("Pixels", long(pids[0]))
         iid = pixels.image.id.val
 
         json_url = reverse('webgateway.views.imageData_json', args=[iid])

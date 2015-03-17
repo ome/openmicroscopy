@@ -26,17 +26,14 @@
 """
 
 import library as lib
-import pytest
 import omero
 
 
 class TestMail(lib.ITest):
 
     def skipIfNot(self):
-        cfg = self.root.sf.getConfigService()
-        cfg = cfg.getConfigValue("omero.mail.fake")
-        if "true" != str(cfg).lower():
-            pytest.skip("omero.mail.fake not configured")
+        self.skip_if("omero.mail.fake", lambda x: str(x).lower() != "true",
+                     message="omero.mail.fake not configured")
 
         # If active, we make sure there is an admin
         # who will definitely have an email

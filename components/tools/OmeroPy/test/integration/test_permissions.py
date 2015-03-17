@@ -963,11 +963,8 @@ class TestPermissionProjections(lib.ITest):
     def testExtendedRestrictions(self, obj):
 
         # Check if this test should run
-        x = self.root.sf.getConfigService().getConfigValue(
-            "omero.policy.binary_access")
-
-        if x != "repository":
-            pytest.skip("Not repository")
+        self.skip_if("omero.policy.binary_access",
+                     lambda x: x != "repository")
 
         # Now set up a shared group
         admin = self.sf.getAdminService()

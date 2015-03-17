@@ -33,20 +33,15 @@ class TestChgrp(lib.ITest):
 
     def testChgrpImage(self):
 
-        # One user in two groups
-        client, exp = self.new_client_and_user()
-        update = client.sf.getUpdateService()
-        query = client.sf.getQueryService()
-
         # Data Setup
         img = self.new_image()
-        img = update.saveAndReturnObject(img)
+        img = self.update.saveAndReturnObject(img)
 
         # New method
         chgrp = omero.cmd.Chgrp(type="/Image", id=img.id.val, options=None)
-        handle = client.sf.submit(chgrp)
-        cb = CmdCallbackI(client, handle)
+        handle = self.sf.submit(chgrp)
+        cb = CmdCallbackI(self.client, handle)
         cb.loop(20, 750)
 
         # Check Data
-        query.get("Image", img.id.val)
+        self.query.get("Image", img.id.val)

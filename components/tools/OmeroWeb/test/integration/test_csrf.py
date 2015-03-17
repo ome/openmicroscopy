@@ -146,9 +146,7 @@ class TestCsrf(IWebTest):
 
     def test_move_data(self):
 
-        user_id = self.sf.getAdminService().getEventContext().userId
-        user = self.sf.getAdminService().getExperimenter(user_id)
-        group_id = self.new_group(experimenters=[user]).id.val
+        group_id = self.new_group(experimenters=[self.user]).id.val
 
         request_url = reverse('chgrp')
         data = {
@@ -312,13 +310,11 @@ class TestCsrf(IWebTest):
 
     def test_basket_actions(self):
 
-        user_to_share = self.new_user()
-
         # Create discussion
         request_url = reverse("basket_action", args=["createdisc"])
         data = {
             'enable': 'on',
-            'members': user_to_share.id.val,
+            'members': self.user.id.val,
             'message': 'foobar'
         }
         _post_response(self.django_client, request_url, data)
@@ -330,7 +326,7 @@ class TestCsrf(IWebTest):
         data = {
             'enable': 'on',
             'image': img.id.val,
-            'members': user_to_share.id.val,
+            'members': self.user.id.val,
             'message': 'foobar'
         }
 
@@ -348,7 +344,7 @@ class TestCsrf(IWebTest):
         _csrf_post_response(self.django_client, request_url, data)
 
         sid = self.sf.getShareService().createShare(
-            "foobar", rtime(None), images, [user_to_share], [], True)
+            "foobar", rtime(None), images, [self.user], [], True)
 
         request_url = reverse("manage_action_containers",
                               args=["save", "share", sid])
@@ -356,7 +352,7 @@ class TestCsrf(IWebTest):
         data = {
             'enable': 'on',
             'image': [i.id.val for i in images],
-            'members': user_to_share.id.val,
+            'members': self.user.id.val,
             'message': 'another foobar'
         }
         _post_response(self.django_client, request_url, data)
@@ -492,16 +488,13 @@ class TestCsrf(IWebTest):
     # ADMIN
     def test_myaccount(self):
 
-        user_id = self.sf.getAdminService().getEventContext().userId
-        user = self.sf.getAdminService().getExperimenter(user_id)
-
         request_url = reverse('wamyaccount', args=["save"])
         data = {
-            "omename": user.omeName.val,
-            "first_name": user.omeName.val,
-            "last_name": user.lastName.val,
+            "omename": self.user.omeName.val,
+            "first_name": self.user.omeName.val,
+            "last_name": self.user.lastName.val,
             "institution": "foo bar",
-            "default_group": user.copyGroupExperimenterMap()[0].parent.id.val
+            "default_group": self.group.id.val
         }
         _post_response(self.django_client, request_url, data)
         _csrf_post_response(self.django_client, request_url, data,
@@ -509,7 +502,7 @@ class TestCsrf(IWebTest):
 
     def test_avatar(self):
 
-        user_id = self.sf.getAdminService().getEventContext().userId
+        user_id = self.user.id.val
 
         # Due to EOF both posts must be test separately
         # Bad post
@@ -628,17 +621,14 @@ class TestCsrf(IWebTest):
 
     def test_edit_group_by_owner(self):
 
-        user_id = self.sf.getAdminService().getEventContext().userId
-        user = self.sf.getAdminService().getExperimenter(user_id)
-        group_id = self.sf.getAdminService().getEventContext().groupId
-        group = self.sf.getAdminService().getGroup(group_id)
+        self.add_groups(experimenter=self.user, groups=[self.group],
+                        owner=True)
 
-        self.add_groups(experimenter=user, groups=[group], owner=True)
-
-        request_url = reverse('wamanagegroupownerid', args=["save", group_id])
+        request_url = reverse('wamanagegroupownerid',
+                              args=["save", self.group.id.val])
         data = {
-            "members": user_id,
-            "owners": user_id,
+            "members": self.user.id.val,
+            "owners": self.user.id.val,
             "permissions": 0
         }
         _post_response(self.django_client, request_url, data)

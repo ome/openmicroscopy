@@ -29,6 +29,7 @@ import time
 import weakref
 import logging
 import subprocess
+import pytest
 
 import Ice
 import Glacier2
@@ -70,6 +71,9 @@ class Clients(object):
 class ITest(object):
 
     log = logging.getLogger("ITest")
+    # Default permissions for the group created in setup_class
+    # Can be overriden by test instances
+    DEFAULT_PERMS = 'rw----'
 
     @classmethod
     def setup_class(cls):
@@ -78,6 +82,7 @@ class ITest(object):
 
         cls.__clients = Clients()
 
+        # Create a root client
         p = Ice.createProperties(sys.argv)
         rootpass = p.getProperty("omero.rootpass")
 
@@ -89,13 +94,14 @@ class ITest(object):
         except:
             raise Exception("Could not initiate a root connection")
 
-        newuser = cls.new_user()
-        name = newuser.omeName.val
+        cls.group = cls.new_group(perms=cls.DEFAULT_PERMS)
+        cls.user = cls.new_user(group=cls.group)
         cls.client = omero.client()  # ok because adds self
         cls.__clients.add(cls.client)
         cls.client.setAgent("OMERO.py.test")
-        cls.sf = cls.client.createSession(name, name)
-
+        cls.sf = cls.client.createSession(
+            cls.user.omeName.val, cls.user.omeName.val)
+        cls.ctx = cls.sf.getAdminService().getEventContext()
         cls.update = cls.sf.getUpdateService()
         cls.query = cls.sf.getQueryService()
 
@@ -120,6 +126,14 @@ class ITest(object):
             return p
         else:
             assert False, "Could not find OmeroPy/; searched %s" % searched
+
+    def skip_if(self, config_key, condition, message=None):
+        """Skip test if configuration does not meet condition"""
+        config_service = self.root.sf.getConfigService()
+        config_value = config_service.getConfigValue(config_key)
+        if condition(config_value):
+            pytest.skip(message or '%s:%s does not meet condition'
+                        % (config_key, config_value))
 
     @classmethod
     def uuid(self):
@@ -747,13 +761,14 @@ class ITest(object):
 
         if test_should_pass:
             if isinstance(rsp, ERR):
-                assert False,\
-                    "Found ERR when test_should_pass==true: %s (%s) params=%s" %\
-                    (rsp.category, rsp.name, rsp.parameters)
+                assert False, (
+                    "Found ERR when test_should_pass==true: %s (%s) params=%s"
+                    % (rsp.category, rsp.name, rsp.parameters))
             assert State.FAILURE not in prx.getStatus().flags
         else:
             if isinstance(rsp, OK):
-                assert False, "Found OK when test_should_pass==false: %s" % rsp
+                assert False, (
+                    "Found OK when test_should_pass==false: %s" % rsp)
             assert State.FAILURE in prx.getStatus().flags
 
         return rsp

@@ -38,42 +38,33 @@ class TestScriptRepo(lib.ITest):
         repo = sr.getScriptRepository()
         assert repo
 
-    def scriptPrx(self):
-        return self.client.sf.getScriptService()
-
     def testGetOfficialScripts(self):
-        prx = self.scriptPrx()
-        officialScripts = prx.getScripts()
+        scriptService = self.sf.getScriptService()
+        officialScripts = scriptService.getScripts()
         count = len(officialScripts)
         assert count > 0
 
     def testGetUserScripts(self):
-        prx = self.scriptPrx()
-        myUserScripts = prx.getUserScripts([])
-        sid = prx.uploadScript(
+        scriptService = self.sf.getScriptService()
+        myUserScripts = scriptService.getUserScripts([])
+        sid = scriptService.uploadScript(
             "/test/foo.py",
             """if True:
             import omero, omero.scripts as OS
             OS.client("name")
             """)
 
-        myUserScripts = prx.getUserScripts([])
+        myUserScripts = scriptService.getUserScripts([])
         assert sid in [x.id.val for x in myUserScripts]
 
-        admin = self.client.sf.getAdminService()
-        oid = admin.getEventContext().userId
-        myUserScripts = prx.getUserScripts(
-            [omero.model.ExperimenterI(oid, False)])
+        myUserScripts = scriptService.getUserScripts(
+            [omero.model.ExperimenterI(self.user.id.val, False)])
         assert sid in [x.id.val for x in myUserScripts]
 
     @pytest.mark.broken(ticket="11494")
     def testGetGroupScripts(self):
-        prx = self.scriptPrx()
-        admin = self.client.sf.getAdminService()
-        gid = admin.getEventContext().groupId
-        gname = admin.getEventContext().groupName
-        grp = omero.model.ExperimenterGroupI(gid, False)
-        client = self.new_client(gname)
+        scriptService = self.sf.getScriptService()
+        client = self.new_client(self.group)
 
         sid = client.sf.getScriptService().uploadScript(
             "/test/otheruser.py",
@@ -82,7 +73,8 @@ class TestScriptRepo(lib.ITest):
             OS.client("testGetGroupScripts")
             """)
 
-        myGroupScripts = prx.getUserScripts([grp])
+        myGroupScripts = scriptService.getUserScripts(
+            [omero.model.ExperimenterGroupI(self.group.id.val, False)])
         assert sid in [x.id.val for x in myGroupScripts]
 
     def testCantUndulyLoadScriptRepoFromUuid(self):

@@ -33,7 +33,6 @@ from omero.rtypes import rstring, rtime
 class TestCounts(lib.ITest):
 
     def testBasicUsage(self):
-        usr = self.client.sf.getAdminService().getEventContext().userId
 
         img = ImageI()
         img.name = rstring("name")
@@ -41,14 +40,11 @@ class TestCounts(lib.ITest):
         tag = TagAnnotationI()
         img.linkAnnotation(tag)
 
-        img = self.client.sf.getUpdateService().saveAndReturnObject(img)
+        img = self.update.saveAndReturnObject(img)
 
-        img = self.client.sf.getQueryService().findByQuery(
-            """
-            select img from Image img
-            join fetch img.annotationLinksCountPerOwner
-            where img.id = %s
-            """ % (img.id.val), None
-            )
+        img = self.query.findByQuery(
+            "select img from Image img "
+            "join fetch img.annotationLinksCountPerOwner "
+            "where img.id = %s" % (img.id.val), None)
         assert img
-        assert img.getAnnotationLinksCountPerOwner()[usr] > 0
+        assert img.getAnnotationLinksCountPerOwner()[self.ctx.userId] > 0

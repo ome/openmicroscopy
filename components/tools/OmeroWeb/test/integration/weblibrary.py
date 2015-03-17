@@ -39,7 +39,7 @@ class IWebTest(lib.ITest):
         """Returns a logged in Django test client."""
         super(IWebTest, cls).setup_class()
         cls.django_clients = []
-        omeName = cls.sf.getAdminService().getEventContext().userName
+        omeName = cls.ctx.userName
         cls.django_client = cls.new_django_client(omeName, omeName)
         rootpass = cls.root.ic.getProperties().getProperty('omero.rootpass')
         cls.django_root_client = cls.new_django_client("root", rootpass)
