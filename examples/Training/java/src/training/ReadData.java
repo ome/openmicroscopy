@@ -33,16 +33,20 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Length;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.Screen;
 import omero.model.Well;
+import omero.model.enums.UnitsLength;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -212,6 +216,13 @@ public class ReadData
 		System.err.println(pixels.getSizeC()); // The number of channels.
 		System.err.println(pixels.getSizeX()); // The number of pixels along the X-axis.
 		System.err.println(pixels.getSizeY()); // The number of pixels along the Y-axis.
+
+		//Get Pixel Size for the above Image
+		Length sizeX = pixels.getPixelSizeX(null);
+		System.err.println("Pixel Size X:" + sizeX.getValue() + sizeX.getSymbol());
+		//To get the size the size with different units, E.g. Angstroms
+		Length sizeXang = pixels.getPixelSizeX(UnitsLength.ANGSTROM);
+		System.err.println("Pixel Size X:" + sizeXang.getValue() + sizeXang.getSymbol());
 	}
 	
 	/** 
