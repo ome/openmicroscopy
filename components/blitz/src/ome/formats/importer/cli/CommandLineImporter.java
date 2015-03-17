@@ -412,7 +412,7 @@ public class CommandLineImporter {
             + " when as part of the Bio-Formats reader metadata\n\n"
             + "  e.g. $ bin/omero import -- --no-stats-info foo.tiff\n"
             + "       $ ./importer-cli --no-stats-info bar.tiff\n\n"
-		    + "  --no_thumbnails\t\t\tDo not perform thumbnailing after import\n\n"
+		    + "  --no_thumbnails\t\tDo not perform thumbnailing after import\n\n"
             + "  e.g. $ bin/omero import -- --no_thumbnails foo.tiff\n"
             + "       $ ./importer-cli --no_thumbnails bar.tiff\n\n"
             + "    --no-upgrade-check\t\tDisable upgrade check for each import\n"
