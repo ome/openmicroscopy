@@ -121,6 +121,7 @@ public class ImportConfig {
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
     public final StrValue qaBaseURL;
+    public final BoolValue checkUpgrade;
 
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
@@ -250,6 +251,7 @@ public class ImportConfig {
         noPixelsChecksum = new BoolValue("noPixelsChecksum", this, false);
         email        = new StrValue("email", this);
         qaBaseURL    = new StrValue("qaBaseURL", this, DEFAULT_QABASEURL);
+        checkUpgrade  = new BoolValue("checkUpgrade", this, true);
         userSpecifiedName = new StrValue("userSpecifiedName", this);
         userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
@@ -362,9 +364,6 @@ public class ImportConfig {
      */
     public boolean isUpgradeNeeded() {
 
-        if (getStaticDisableUpgradeCheck()) {
-            log.debug("UpgradeCheck disabled.");
-        }
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
         String url = bundle.getString("omero.upgrades.url");
         UpgradeCheck check = new UpgradeCheck(url, getVersionNumber(), agent.get());
@@ -415,13 +414,6 @@ public class ImportConfig {
      */
     public String getAppTitle() {
         return ini.getAppTitle();
-    }
-
-    /**
-     * @return ini application title
-     */
-    public boolean getStaticDisableUpgradeCheck() {
-        return ini.getStaticDisableUpgradeCheck();
     }
 
     /**

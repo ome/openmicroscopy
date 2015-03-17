@@ -143,7 +143,13 @@ public class CommandLineImporter {
                 usage(); // EXITS TODO this should check for a "quiet" flag
             }
 
-            config.isUpgradeNeeded();
+            if (config.checkUpgrade.get()) {
+                config.isUpgradeNeeded();
+            }
+            else
+            {
+                log.debug("UpgradeCheck disabled.");
+            }
             store = config.createStore();
             store.logVersionInfo(config.getIniVersionNumber());
             reader.setMetadataOptions(
@@ -407,8 +413,8 @@ public class CommandLineImporter {
             + " when as part of the Bio-Formats reader metadata ,\n\n"
             + "  e.g. $ bin/omero import -- --no_stats_info foo.tiff\n"
             + "       $ ./importer-cli --no_stats_info bar.tiff\n\n"
+            + "    --no-upgrade-check\t\tDisable upgrade check for each import\n"
             + "\n"
-
             + "  Feedback:\n"
             + "  ---------\n\n"
             + "    --qa_baseurl=ARG\tSpecify the base URL for reporting feedback\n"
@@ -527,6 +533,8 @@ public class CommandLineImporter {
                 new LongOpt("no_stats_info", LongOpt.NO_ARGUMENT, null, 22);
         LongOpt noPixelsChecksum =
                 new LongOpt("no_pixels_checksum", LongOpt.NO_ARGUMENT, null, 23);
+        LongOpt noUpgradeCheck =
+                new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -542,7 +550,8 @@ public class CommandLineImporter {
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, noStatsInfo, noPixelsChecksum,
-                                qaBaseURL, plateName, plateDescription});
+                                noUpgradeCheck, qaBaseURL, plateName,
+                                plateDescription});
         int a;
 
         boolean doCloseCompleted = false;
@@ -675,6 +684,11 @@ public class CommandLineImporter {
             case 23: {
                 log.info("Skipping pixels checksum computation");
                 config.noPixelsChecksum.set(true);
+                break;
+			}
+            case 24: {
+                log.info("Disabling upgrade check");
+                config.checkUpgrade.set(false);
                 break;
             }
             // ADVANCED END ---------------------------------------------------

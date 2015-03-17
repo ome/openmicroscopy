@@ -169,19 +169,6 @@ public class IniFileLoader {
     {
         return staticPref("General", "appTitle", "OMERO.importer");
     }
-
-    /**
-     * @return application title
-     */
-    public boolean getStaticDisableUpgradeCheck()
-    {
-        boolean toReturn = false;
-        if (staticPrefs != null) {
-            Preferences general = staticPrefs.node("General");
-            toReturn = general.getBoolean("disableUpgradeCheck", false);
-        }
-        return toReturn;
-    }
     
     /**
      * @return application title

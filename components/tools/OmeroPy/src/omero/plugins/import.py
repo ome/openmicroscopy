@@ -66,7 +66,7 @@ Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
-SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails']
+SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 
 
 class ImportControl(BaseControl):
@@ -179,8 +179,8 @@ class ImportControl(BaseControl):
             "--depth", default=4, type=int,
             help="Number of directories to scan down for files")
         parser.add_argument(
-            "--skip", choices=SKIP_CHOICES,
-            type=str, help="Optional steps to skip during import")
+            "--skip", type=str, choices=SKIP_CHOICES,
+            help="Optional steps to skip during import")
         parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
@@ -209,6 +209,8 @@ class ImportControl(BaseControl):
             self.command_args.append("--no_thumbnails")
         if args.skip in ['all', 'minmax']:
             self.command_args.append("--no_stats_info")
+        if args.skip in ['all', 'upgrade']:
+            self.command_args.append("--no-upgrade-check")
 
     def set_java_arguments(self, args):
         """Set the arguments passed to Java"""
