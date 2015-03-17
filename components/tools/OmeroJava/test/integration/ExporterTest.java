@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
@@ -38,12 +39,15 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import loci.common.RandomAccessInputStream;
 import loci.common.RandomAccessOutputStream;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 import ome.specification.OmeValidator;
+import ome.specification.SchemaResolver;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import omero.RType;
@@ -156,14 +160,14 @@ public class ExporterTest extends AbstractServerTest {
      *
      * @param input
      *            The input to validate
-     * @param schemas
-     *            The schemas to use.
      * @throws Exception
      *             Thrown if an error occurred during the validation
      */
-    private void validate(File input, StreamSource[] schemas) throws Exception {
-        OmeValidator theValidator = new OmeValidator();
-        theValidator.validateFile(input, schemas);
+    private void validate(File input) throws Exception {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document theDoc = builder.parse(input);
     }
 
     /**
@@ -766,7 +770,7 @@ public class ExporterTest extends AbstractServerTest {
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
-            validate(transformed, target.getSchemas());
+            validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
@@ -791,7 +795,7 @@ public class ExporterTest extends AbstractServerTest {
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
-            validate(transformed, target.getSchemas());
+            validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
@@ -816,7 +820,7 @@ public class ExporterTest extends AbstractServerTest {
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
-            validate(transformed, target.getSchemas());
+            validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
@@ -836,10 +840,7 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         try {
             f = download(OME_XML, IMAGE);
-            StreamSource[] schemas = new StreamSource[1];
-            schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-                    "/released-schema/"+currentSchema+"/ome.xsd"));
-            validate(f, schemas);
+            validate(f);
         } catch (Throwable e) {
             throw new Exception("Cannot validate the image: ", e);
         } finally {
@@ -855,10 +856,7 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         try {
             f = download(OME_XML, IMAGE_ROI);
-            StreamSource[] schemas = new StreamSource[1];
-            schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-                    "/released-schema/"+currentSchema+"/ome.xsd"));
-            validate(f, schemas);
+            validate(f);
         } catch (Throwable e) {
             throw new Exception("Cannot validate the image: ", e);
         } finally {
@@ -879,7 +877,7 @@ public class ExporterTest extends AbstractServerTest {
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
-            validate(transformed, target.getSchemas());
+            validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
@@ -905,7 +903,7 @@ public class ExporterTest extends AbstractServerTest {
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
-            validate(transformed, target.getSchemas());
+            validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
@@ -930,7 +928,7 @@ public class ExporterTest extends AbstractServerTest {
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
-            validate(transformed, target.getSchemas());
+            validate(transformed);
             //import the file
             importFile(transformed, OME_XML);
         } catch (Throwable e) {
@@ -983,7 +981,7 @@ public class ExporterTest extends AbstractServerTest {
             transformedXML = File.createTempFile(RandomStringUtils.random(10),
                     "." + OME_XML);
             FileUtils.writeStringToFile(transformedXML, parser.getComment());
-            validate(transformedXML, target.getSchemas());
+            validate(transformedXML);
             //import the file
             importFile(result, OME_XML);
         } catch (Throwable e) {
