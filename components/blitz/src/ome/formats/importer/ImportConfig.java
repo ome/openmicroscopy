@@ -333,7 +333,7 @@ public class ImportConfig {
          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.formats")).setLevel(level);
          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.services.blitz")).setLevel(level);
          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.system")).setLevel(level);
-		          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("loci")).setLevel(level);
+         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("loci")).setLevel(level);
      }
 
     //
