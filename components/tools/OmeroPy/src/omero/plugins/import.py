@@ -179,7 +179,7 @@ class ImportControl(BaseControl):
             "--depth", default=4, type=int,
             help="Number of directories to scan down for files")
         parser.add_argument(
-            "--skip", type=str, choices=SKIP_CHOICES,
+            "--skip", type=str, choices=SKIP_CHOICES, nargs="*",
             help="Optional steps to skip during import")
         parser.add_argument(
             "path", nargs="*",
@@ -202,14 +202,17 @@ class ImportControl(BaseControl):
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
-        if args.skip in ['all', 'checksum']:
+        if not args.skip:
+            return
+
+        if ('all' in args.skip or 'checksum' in args.skip):
             self.command_args.append("--no-pixels-checksum")
             self.command_args.append("--checksum_algorithm=File-Size-64")
-        if args.skip in ['all', 'thumbnails']:
+        if ('all' in args.skip or 'thumbnails' in args.skip):
             self.command_args.append("--no_thumbnails")
-        if args.skip in ['all', 'minmax']:
+        if ('all' in args.skip or 'minmax' in args.skip):
             self.command_args.append("--no-stats-info")
-        if args.skip in ['all', 'upgrade']:
+        if ('all' in args.skip or 'upgrade' in args.skip):
             self.command_args.append("--no-upgrade-check")
 
     def set_java_arguments(self, args):
