@@ -188,7 +188,7 @@ public class ImportConfig {
 
     /**
      * Calls
-     * {@link ImportConfig#ImportConfig(Preferences, PreferenceContext, IniFileLoader, Properties)}
+     * {@link ImportConfig#ImportConfig(Preferences, IniFileLoader, Properties)}
      * with user preferences, a local {@link PreferenceContext}, an
      * {@link IniFileLoader} initialized with the given argument, and
      * {@link System#getProperties()}.
@@ -320,8 +320,10 @@ public class ImportConfig {
 
     /**
      * Modifies the logging level of everything under the
-     * <code>ome.formats</code> and <code>loci</code> package hierarchically.
-     * @param level if null, then {@link #ini#getDebugLevel()} will be used.
+     * <code>ome.formats</code>, <code>ome.services.blitz</code>,
+     * <code>ome.system</code> and <code>loci</code> packages hierarchically.
+     * @param levelString if null, then {@link #ini#getDebugLevel()} will be
+     * used.
      */
      public void configureDebug(String levelString) {
          Level level;
