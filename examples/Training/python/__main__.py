@@ -24,5 +24,3 @@ if __name__ == "__main__":
         execfile(os.path.join(training_dir, 'ROIS.py'))
         execfile(os.path.join(training_dir, 'Tables.py'))
         execfile(os.path.join(training_dir, 'Write_Data.py'))
-
-
