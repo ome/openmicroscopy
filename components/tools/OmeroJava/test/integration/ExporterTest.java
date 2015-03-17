@@ -261,6 +261,7 @@ public class ExporterTest extends AbstractServerTest {
       //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithROI(), true);
@@ -285,6 +286,7 @@ public class ExporterTest extends AbstractServerTest {
         //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(), true);
@@ -309,6 +311,7 @@ public class ExporterTest extends AbstractServerTest {
         //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
