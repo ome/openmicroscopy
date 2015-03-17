@@ -635,6 +635,11 @@ DEPRECATED_SETTINGS_MAPPINGS = {
          "false",
          parse_boolean,
          ("Use omero.policy.binary_access instead to restrict download.")],
+    "omero.web.viewer.initial_zoom_level":
+        ["VIEWER_INITIAL_ZOOM_LEVEL",
+         None,
+         leave_none_unset_int,
+         ("Use omero.client.viewer.initial_zoom_level instead")]
 }
 
 del CUSTOM_HOST
