@@ -208,7 +208,6 @@ public class ExporterTest extends AbstractServerTest {
             throw new Exception("Cannot apply transform", e);
         }
         File f = File.createTempFile(RandomStringUtils.random(10), "."+ OME_XML);
-        FileUtils.copyFile(inputXML, f);
         FileUtils.writeStringToFile(f, inputAsString);
         return f;
     }
@@ -257,7 +256,6 @@ public class ExporterTest extends AbstractServerTest {
       //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
-        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithROI(), true);
@@ -268,6 +266,8 @@ public class ExporterTest extends AbstractServerTest {
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
+        } finally {
+            if (f != null) f.delete();
         }
     }
 
@@ -282,7 +282,6 @@ public class ExporterTest extends AbstractServerTest {
         //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
-        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(), true);
@@ -293,6 +292,8 @@ public class ExporterTest extends AbstractServerTest {
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
+        } finally {
+            if (f != null) f.delete();
         }
     }
 
@@ -307,7 +308,6 @@ public class ExporterTest extends AbstractServerTest {
         //create an import and image
         File f = File.createTempFile(RandomStringUtils.random(10), "."
                 + OME_XML);
-        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
@@ -318,6 +318,8 @@ public class ExporterTest extends AbstractServerTest {
             return pix.get(0).getImage();
         } catch (Throwable e) {
             throw new Exception("Cannot create image to import", e);
+        } finally {
+            if (f != null) f.delete();
         }
     }
 
@@ -549,9 +551,11 @@ public class ExporterTest extends AbstractServerTest {
                 }
             } catch (Exception e) {
                 if (stream != null) stream.close();
+                if (f != null) f.delete();
                 throw new Exception("Unable to download image", e);
             }
         } catch (IOException e) {
+            if (f != null) f.delete();
             throw new Exception("Unable to download image", e);
         } finally {
             if (store != null) store.close();
@@ -1093,6 +1097,7 @@ public class ExporterTest extends AbstractServerTest {
         } finally {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
         }
     }
 
@@ -1122,6 +1127,7 @@ public class ExporterTest extends AbstractServerTest {
         } finally {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
         }
     }
 
@@ -1129,6 +1135,7 @@ public class ExporterTest extends AbstractServerTest {
      * Test the upgrade of an image with annotated acquisition.
      * @throws Exception Thrown if an error occurred.
      */
+
     @Test(dataProvider = "createUpgrade")
     public void testUpgradeImageWithAnnotatedAcquisition(Target target) throws Exception {
         File f = null;
@@ -1151,9 +1158,10 @@ public class ExporterTest extends AbstractServerTest {
         } finally {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
         }
     }
-    
+
     class Target {
 
         /** The transforms to apply.*/
