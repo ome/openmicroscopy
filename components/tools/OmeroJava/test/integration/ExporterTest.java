@@ -145,7 +145,7 @@ public class ExporterTest extends AbstractServerTest {
     private static final int IMAGE_ANNOTATED_DATA = 2;
 
     /** The various transforms read from the configuration file.*/
-    private Map<String, List<String>> sheets;
+    private Map<String, List<String>> downgrades;
 
     /** The current schema.*/
     private String currentSchema;
@@ -327,7 +327,7 @@ public class ExporterTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        sheets = currentSchema();
+        downgrades = currentSchema();
     }
 
     /**
@@ -338,7 +338,7 @@ public class ExporterTest extends AbstractServerTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-        sheets.clear();
+        downgrades.clear();
     }
 
     /**
@@ -671,6 +671,7 @@ public class ExporterTest extends AbstractServerTest {
         NodeList t;
         Map<String, List<String>> transforms =
                 new HashMap<String, List<String>>();
+        Map<String, List<String>> umap;
         for (int i = 0; i < list.getLength(); ++i) {
             n = (Element) list.item(i);
             map = n.getAttributes();
@@ -681,6 +682,17 @@ public class ExporterTest extends AbstractServerTest {
                         t = n.getElementsByTagName(TARGET);
                         for (int k = 0; k < t.getLength(); k++) {
                             parseTarget((Element) t.item(k), transforms);
+                        }
+                    } else {
+                        NodeList upgrades = n.getElementsByTagName("upgrades");
+                        umap = new HashMap<String, List<String>>();
+                        for (int k = 0; k < upgrades.getLength(); k++) {
+                            Element node = (Element) upgrades.item(k);
+                            NodeList tt = node.getElementsByTagName(TARGET);
+                            for (int l = 0; l < tt.getLength(); l++) {
+                                parseTarget((Element) tt.item(l), umap);
+                            }
+                            
                         }
                     }
                 }
@@ -722,7 +734,7 @@ public class ExporterTest extends AbstractServerTest {
         List<String> l;
         Iterator<String> j;
         Entry<String, List<String>> e;
-        Iterator<Entry<String, List<String>>> i = sheets.entrySet().iterator();
+        Iterator<Entry<String, List<String>>> i = downgrades.entrySet().iterator();
         while (i.hasNext()) {
             e = i.next();
             l = e.getValue();
@@ -732,7 +744,7 @@ public class ExporterTest extends AbstractServerTest {
                 streams.add(this.getClass().getResourceAsStream(
                         "/transforms/"+j.next()));
             }
-            targets.add(new Target(streams, e.getKey()));
+            targets.add(new Target(streams, e.getKey(), null));
         }
         int index = 0;
         Iterator<Target> k = targets.iterator();
@@ -992,17 +1004,20 @@ public class ExporterTest extends AbstractServerTest {
         /** The source schema.*/
         private String source;
 
+        /** The target schema.*/
+        private String target;
+
         /**
          * Creates a new instance.
          *
-         * @param schemas The schema used to validate the change.
          * @param transforms The transforms to apply.
          * @param source The source schema.
          */
-        Target(List<InputStream> transforms, String source)
+        Target(List<InputStream> transforms, String target, String source)
         {
             this.transforms = transforms;
             this.source = source;
+            this.target = target;
         }
 
         /**
@@ -1018,6 +1033,13 @@ public class ExporterTest extends AbstractServerTest {
          * @return See above.
          */
         String getSource() { return source; }
+
+        /**
+         * Returns the target schema.
+         *
+         * @return See above.
+         */
+        String getTarget() { return target; }
 
     }
 
