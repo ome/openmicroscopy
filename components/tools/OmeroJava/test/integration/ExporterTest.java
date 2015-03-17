@@ -732,7 +732,7 @@ public class ExporterTest extends AbstractServerTest {
                 streams.add(this.getClass().getResourceAsStream(
                         "/transforms/"+j.next()));
             }
-            targets.add(new Target( streams, e.getKey()));
+            targets.add(new Target(streams, e.getKey()));
         }
         int index = 0;
         Iterator<Target> k = targets.iterator();
