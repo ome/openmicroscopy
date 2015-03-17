@@ -742,10 +742,7 @@ public class ExporterTest extends AbstractServerTest {
                 streams.add(this.getClass().getResourceAsStream(
                         "/transforms/"+j.next()));
             }
-            StreamSource[] schemas = new StreamSource[1];
-            schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-                    "/released-schema/"+e.getKey()+"/ome.xsd"));
-            targets.add(new Target(schemas, streams, e.getKey()));
+            targets.add(new Target( streams, e.getKey()));
         }
         int index = 0;
         Iterator<Target> k = targets.iterator();
@@ -999,9 +996,6 @@ public class ExporterTest extends AbstractServerTest {
 
     class Target {
 
-        /** The schema used to validate the change.*/
-        private StreamSource[] schemas;
-
         /** The transforms to apply.*/
         private List<InputStream> transforms;
 
@@ -1015,20 +1009,11 @@ public class ExporterTest extends AbstractServerTest {
          * @param transforms The transforms to apply.
          * @param source The source schema.
          */
-        Target(StreamSource[] schemas, List<InputStream> transforms,
-                String source)
+        Target(List<InputStream> transforms, String source)
         {
-            this.schemas = schemas;
             this.transforms = transforms;
             this.source = source;
         }
-
-        /**
-         * Returns the schema used to validate.
-         *
-         * @return See above.
-         */
-        StreamSource[] getSchemas() { return schemas; }
 
         /**
          * Returns the transforms to apply.
