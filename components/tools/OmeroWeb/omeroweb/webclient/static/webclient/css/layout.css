@@ -842,6 +842,8 @@
     }
     .keyValueTable td, .keyValueTable th {
         width: 50%;
+        max-width: 100px;    /* still expands to 50% */
+        overflow: hidden;
         padding: 2px 5px !important;
         color: hsl(210,10%,30%) !important;
         vertical-align: middle;
