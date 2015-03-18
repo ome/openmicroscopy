@@ -327,12 +327,12 @@ will be prevented. Use --skipcheck to change the ports anyway.
 
 Examples:
 
-    %(prog)s --prefix=1                             # sets ports to: 14061, \
-14063, 14064
-    %(prog)s --prefix=1 --revert                    # sets ports back to: \
-4061, 4063, 4064
-    %(prog)s --registry=4444 --tcp=5555 --ssl=6666  # sets ports to: 4444 \
-5555  6666
+    %(prog)s --prefix=1
+        # sets ports to: 14061, 14063, 14064, 14080
+    %(prog)s --prefix=1 --revert
+        # sets ports back to: 4061, 4063, 4064, 4080
+    %(prog)s --registry=4444 --tcp=5555 --ssl=6666 --webserver 7777
+        # sets ports to: 4444, 5555, 6666, 7777
 
 """).parser
         ports.add_argument(
