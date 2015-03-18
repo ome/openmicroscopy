@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -178,32 +179,37 @@ public class ExporterTest extends AbstractServerTest {
         Transformer transformer;
         InputStream stream;
         Iterator<InputStream> i = transforms.iterator();
-        String inputAsString = FileUtils.readFileToString(inputXML);
+        File output;
+        InputStream in = null;
+        OutputStream out = null;
         try {
-            StringWriter writer;
-            StringReader reader;
             while (i.hasNext()) {
                 stream = i.next();
                 factory = TransformerFactory.newInstance();
-                factory.setURIResolver(new Resolver());
+                Resolver resolver = new Resolver();
+                factory.setURIResolver(resolver);
+                output = File.createTempFile(RandomStringUtils.random(10), "."
+                        + OME_XML);
+                output.deleteOnExit();
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
                 transformer = template.newTransformer();
-                reader = new StringReader(inputAsString);
-                StreamSource srcIn = new StreamSource(reader);
-                writer = new StringWriter();
-                StreamResult result = new StreamResult(writer);
-                transformer.transform(srcIn, result);
-                inputAsString = writer.getBuffer().toString();
+                transformer.setParameter(OutputKeys.ENCODING, "UTF-8");
+                out = new FileOutputStream(output);
+                in = new FileInputStream(inputXML);
+                transformer.transform(new StreamSource(in),
+                        new StreamResult(out));
+                inputXML = output;
                 stream.close();
-                reader.close();
-                writer.close();
+                out.close();
+                in.close();
+                resolver.close();
             }
         } catch (Exception e) {
             throw new Exception("Cannot apply transform", e);
         }
         File f = File.createTempFile(RandomStringUtils.random(10), "."+ OME_XML);
-        FileUtils.writeStringToFile(f, inputAsString);
+        FileUtils.copyFile(inputXML, f);
         return f;
     }
 
@@ -1125,12 +1131,21 @@ public class ExporterTest extends AbstractServerTest {
 
     class Resolver implements URIResolver {
 
+        /** The stream.*/
+        private InputStream stream;
+
+        /** Close the input stream if not <code>null</code>.*/
+        public void close()
+            throws Exception
+        {
+            if (stream != null) stream.close();
+        }
+
         @Override
         public Source resolve(String href, String base)
                 throws TransformerException {
-            InputStream s = this.getClass().getResourceAsStream(
-                    UNITS_CONVERSION);
-            return new StreamSource(s);
+            stream = this.getClass().getResourceAsStream(UNITS_CONVERSION);
+            return new StreamSource(stream);
         }
     }
 }
