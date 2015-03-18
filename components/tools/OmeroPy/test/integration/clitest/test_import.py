@@ -284,9 +284,10 @@ class TestImport(CLITest):
         self.args += ['--debug=%s' % level]
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        levels = self.parse_debug_levels(o)
-        assert set(levels) <= set(debug_levels[debug_levels.index(level):]), o
+        out, err = capfd.readouterr()
+        levels = self.parse_debug_levels(out)
+        expected_levels = set(debug_levels[debug_levels.index(level):])
+        assert set(levels) <= expected_levels, out
 
     def testImportSummary(self, tmpdir, capfd):
         """Test import summary output"""
