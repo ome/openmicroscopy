@@ -179,7 +179,7 @@ class ImportControl(BaseControl):
             "--depth", default=4, type=int,
             help="Number of directories to scan down for files")
         parser.add_argument(
-            "--skip", type=str, choices=SKIP_CHOICES, nargs="*",
+            "--skip", type=str, choices=SKIP_CHOICES, action='append',
             help="Optional steps to skip during import")
         parser.add_argument(
             "path", nargs="*",
