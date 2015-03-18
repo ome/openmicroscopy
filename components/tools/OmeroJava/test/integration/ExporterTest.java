@@ -739,6 +739,8 @@ public class ExporterTest extends AbstractServerTest {
             return extractCurrentSchema(currentSchema, doc);
         } catch (Exception e) {
             throw new Exception("Unable to parse the catalog.", e);
+        } finally {
+            if (stream != null) stream.close();
         }
     }
 
