@@ -48,15 +48,10 @@ import ome.specification.OmeValidator;
 import ome.specification.SchemaResolver;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
-import omero.RType;
 import omero.api.ExporterPrx;
-import omero.api.IQueryPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
-import omero.model.Fileset;
-import omero.model.FilesetEntry;
-import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
@@ -465,100 +460,28 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Creates the query to load the file set corresponding to a given image.
-     *
-     * @return See above.
-     */
-    private String createFileSetQuery()
-    {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("select fs from Fileset as fs ");
-        buffer.append("join fetch fs.images as image ");
-        buffer.append("left outer join fetch fs.usedFiles as usedFile ");
-        buffer.append("join fetch usedFile.originalFile as f ");
-        buffer.append("join fetch f.hasher ");
-        buffer.append("where image.id in (:imageIds)");
-        return buffer.toString();
-    }
-
-    /**
-     * Exports the file with the specified extension either
-     * <code>OME-XML</code> or <code>OME-TIFF</code>.
-     *
-     * @param extension The extension to use.
+     * Generates an <code>OME-XML</code> file.
+     * 
      * @param index The type of image to import. One of the constants defined
-     *              by this clase.
+     *              by this class.
      * @return The exporter file.
      * @throws Exception Thrown if an error occurred.
      */
-    private File download(String extension, int index)
+    private File createImageFile(int index)
             throws Exception
     {
         // First create an image
-        Image image = null;
-        if (index == IMAGE_ROI) {
-            image = createImageWithROIToExport();
-        } else if (index == IMAGE_ANNOTATED_DATA) {
-            image = createImageWithAnnotatedDataToExport();
-        } else {
-            image = createImageToExport();
-        }
         File f = File.createTempFile(RandomStringUtils.random(10), "."
-               + extension);
-        FileOutputStream stream = new FileOutputStream(f);
-        RawFileStorePrx store = null;
-        try {
-            IQueryPrx svc = factory.getQueryService();
-            ParametersI param = new ParametersI();
-            long id = image.getId().getValue();
-            List<RType> l = new ArrayList<RType>();
-            l.add(omero.rtypes.rlong(id));
-            param.add("imageIds", omero.rtypes.rlist(l));
-
-            param.map.put("id", omero.rtypes.rlong(
-                    image.getPrimaryPixels().getId().getValue()));
-            List<IObject> files = svc.findAllByQuery(createFileSetQuery(),
-                    param);
-            List<OriginalFile> values = new ArrayList<OriginalFile>();
-            Iterator<IObject> i = files.iterator();
-            Fileset set;
-            List<FilesetEntry> entries;
-            Iterator<FilesetEntry> j;
-            while (i.hasNext()) {
-                set = (Fileset) i.next();
-                entries = set.copyUsedFiles();
-                j = entries.iterator();
-                while (j.hasNext()) {
-                    FilesetEntry fs = j.next();
-                    id = fs.getOriginalFile().getId().getValue();
-                    break;
-                }
-            }
-            store = factory.createRawFileStore();
-            store.setFileId(id);
-            long size = -1;
-            long offset = 0;
-            try {
-                try {
-                    size = store.size();
-                    for (offset = 0; (offset+INC) < size;) {
-                        stream.write(store.read(offset, INC));
-                        offset += INC;
-                    }
-                } finally {
-                    stream.write(store.read(offset, (int) (size-offset)));
-                    stream.close();
-                }
-            } catch (Exception e) {
-                if (stream != null) stream.close();
-                if (f != null) f.delete();
-                throw new Exception("Unable to download image", e);
-            }
-        } catch (IOException e) {
-            if (f != null) f.delete();
-            throw new Exception("Unable to download image", e);
-        } finally {
-            if (store != null) store.close();
+                + OME_XML);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        if (index == IMAGE_ROI) {
+            writer.writeFile(f, xml.createImageWithROI(), true);
+        } else if (index == IMAGE_ANNOTATED_DATA) {
+            writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(),
+                    true);
+        } else {
+            writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
         }
         return f;
     }
@@ -569,7 +492,7 @@ public class ExporterTest extends AbstractServerTest {
      *
      * @param extension The extension to use.
      * @param index The type of image to import. One of the constants defined
-     *              by this clase.
+     *              by this class.
      * @return The exporter file.
      * @throws Exception Thrown if an error occurred.
      */
@@ -826,7 +749,7 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         try {
-            f = download(OME_XML, IMAGE);
+            f = createImageFile(IMAGE);
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
@@ -851,7 +774,7 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         try {
-            f = download(OME_XML, IMAGE_ROI);
+            f = createImageFile(IMAGE_ROI);
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
@@ -876,7 +799,7 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         try {
-            f = download(OME_XML, IMAGE_ANNOTATED_DATA);
+            f = createImageFile(IMAGE_ANNOTATED_DATA);
             //transform
             transformed = applyTransforms(f, target.getTransforms());
             //validate the file
@@ -899,7 +822,7 @@ public class ExporterTest extends AbstractServerTest {
     public void testValidateImageWithAcquisition() throws Exception {
         File f = null;
         try {
-            f = download(OME_XML, IMAGE);
+            f = createImageFile(IMAGE);
             validate(f);
         } catch (Throwable e) {
             throw new Exception("Cannot validate the image: ", e);
@@ -915,7 +838,7 @@ public class ExporterTest extends AbstractServerTest {
     public void testValidateImageWithROI() throws Exception {
         File f = null;
         try {
-            f = download(OME_XML, IMAGE_ROI);
+            f = createImageFile(IMAGE_ROI);
             validate(f);
         } catch (Throwable e) {
             throw new Exception("Cannot validate the image: ", e);
@@ -932,7 +855,7 @@ public class ExporterTest extends AbstractServerTest {
     public void testValidateImageWithAnnotatedAcquisition() throws Exception {
         File f = null;
         try {
-            f = download(OME_XML, IMAGE_ANNOTATED_DATA);
+            f = createImageFile(IMAGE_ANNOTATED_DATA);
             validate(f);
         } catch (Throwable e) {
             throw new Exception("Cannot validate the image: ", e);
@@ -1083,7 +1006,7 @@ public class ExporterTest extends AbstractServerTest {
         File transformed = null;
         File upgraded = null;
         try {
-            f = download(OME_XML, IMAGE); //2015 image
+            f = createImageFile(IMAGE); //2015 image
             List<InputStream> transforms = retrieveDowngrade(target.getSource());
             //Create file to upgrade
             transformed = applyTransforms(f, transforms);
@@ -1113,7 +1036,7 @@ public class ExporterTest extends AbstractServerTest {
         File transformed = null;
         File upgraded = null;
         try {
-            f = download(OME_XML, IMAGE_ROI); //2015 image
+            f = createImageFile(IMAGE_ROI); //2015 image
             List<InputStream> transforms = retrieveDowngrade(target.getSource());
             //Create file to upgrade
             transformed = applyTransforms(f, transforms);
@@ -1144,7 +1067,7 @@ public class ExporterTest extends AbstractServerTest {
         File transformed = null;
         File upgraded = null;
         try {
-            f = download(OME_XML, IMAGE_ANNOTATED_DATA); //2015 image
+            f = createImageFile(IMAGE_ANNOTATED_DATA); //2015 image
             List<InputStream> transforms = retrieveDowngrade(target.getSource());
             //Create file to upgrade
             transformed = applyTransforms(f, transforms);
