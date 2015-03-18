@@ -180,7 +180,7 @@ class ImportControl(BaseControl):
             help="Number of directories to scan down for files")
         parser.add_argument(
             "--skip", type=str, choices=SKIP_CHOICES, action='append',
-            help="Optional steps to skip during import")
+            help="Optional step to skip during import")
         parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
