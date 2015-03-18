@@ -717,7 +717,7 @@ http://stackoverflow.com/questions/3471461/raw-input-and-timeout/3911560
         else:
             client = self.ctx.conn(args)
             store = SessionsStore()
-            srv, usr, uuid = store.get_current()
+            srv, usr, uuid, port = store.get_current()
             props = store.get(srv, usr, uuid)
 
             from omero.scripts import parse_file
