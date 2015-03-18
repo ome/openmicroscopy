@@ -84,8 +84,8 @@ public class LinuxApplicationDataExtractor implements ApplicationDataExtractor
      * @param location
      *            the location pointing to the file to be opened
      * @returns the command string to launch the default application for the
-     *          file specified by {@code location} on Gnome based desktop will
-     *          use gnome-open and on KDE based will use kde-open
+     *          file specified by {@code location} with xdg-open which should
+     *          be available on all freedesktop.org compliant linux desktops
      */
     public String[] getDefaultOpenCommandFor(URL location) {
         String[] defaultCommands = new String[] { "xdg-open",
