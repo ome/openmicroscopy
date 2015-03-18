@@ -191,3 +191,10 @@ class TestSessions(CLITest):
         self.cli.invoke(self.args, strict=True)
         ec = self.cli.get_event_context()
         assert ec.groupName == group2.name.val
+
+    # File subcommand
+    # ========================================================================
+    def testFile(self):
+
+        self.args = ["sessions", "file"]
+        self.cli.invoke(self.args, strict=True)
