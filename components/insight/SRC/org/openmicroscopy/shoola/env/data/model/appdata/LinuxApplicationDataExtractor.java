@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -80,26 +80,17 @@ public class LinuxApplicationDataExtractor implements ApplicationDataExtractor
 				applicationPath);
 	}
 
-	/**
-	 * @param location
-	 *            the location pointing to the file to be opened
-	 * @returns the command string to launch the default application for the
-	 *          file specified by {@code location} on Gnome based desktop will
-	 *          use gnome-open and on KDE based will use kde-open
-	 */
-	public String[] getDefaultOpenCommandFor(URL location) {
-		String desktopEnvironment = System.getenv("XGB_DESKTOP");
-
-		String[] defaultCommands = new String[0];
-
-		if (desktopEnvironment.equalsIgnoreCase("unity")
-				|| desktopEnvironment.equalsIgnoreCase("gnome")) {
-			defaultCommands = new String[] { "gnome-open", location.toString() };
-		} else if (desktopEnvironment.equalsIgnoreCase("kde")) {
-			defaultCommands = new String[] { "kde-open", location.toString() };
-		}
-
-		return defaultCommands;
-	}
+    /**
+     * @param location
+     *            the location pointing to the file to be opened
+     * @returns the command string to launch the default application for the
+     *          file specified by {@code location} on Gnome based desktop will
+     *          use gnome-open and on KDE based will use kde-open
+     */
+    public String[] getDefaultOpenCommandFor(URL location) {
+        String[] defaultCommands = new String[] { "xdg-open",
+                location.toString() };
+        return defaultCommands;
+    }
 
 }
