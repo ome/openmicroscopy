@@ -21,6 +21,6 @@ if __name__ == "__main__":
         execfile(os.path.join(training_dir, 'Raw_Data_Access.py'))
         execfile(os.path.join(training_dir, 'Read_Data.py'))
         execfile(os.path.join(training_dir, 'Render_Images.py'))
-        execfile(os.path.join(training_dir, 'ROIS.py'))
+        execfile(os.path.join(training_dir, 'ROIs.py'))
         execfile(os.path.join(training_dir, 'Tables.py'))
         execfile(os.path.join(training_dir, 'Write_Data.py'))
