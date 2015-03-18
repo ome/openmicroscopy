@@ -285,28 +285,34 @@ public class IOUtil
 	    File[] entries = directory.listFiles();
 	    byte[] buffer = new byte[4096]; // Create a buffer for copying
 	    int bytesRead;
-	    FileInputStream in;
+	    FileInputStream in = null;
 	    File f;
 	    for (int i = 0; i < entries.length; i++) {
-	        f = entries[i];
-	        if (f.isHidden())
-	            continue;
-	        if (f.isDirectory()) {
-	            zipDir(f, out, f.getName());
-	            continue;
-	        }
-	        in = new FileInputStream(f); // Stream to read file
-	        String zipName = f.getName();
-	        if (!CommonsLangUtils.isEmpty(parentDirectoryName)) {
-	            zipName = FilenameUtils.concat(parentDirectoryName, zipName);
-	        }
-	        out.putNextEntry(new ZipEntry(zipName)); // Store entry
-	        while ((bytesRead = in.read(buffer)) != -1)
-	            out.write(buffer, 0, bytesRead);
-	        out.closeEntry();
-	        in.close();
+	        try {
+	            f = entries[i];
+	            if (f.isHidden())
+	                continue;
+	            if (f.isDirectory()) {
+	                zipDir(f, out, f.getName());
+	                continue;
+	            }
+	            in = new FileInputStream(f); // Stream to read file
+	            String zipName = f.getName();
+	            if (!CommonsLangUtils.isEmpty(parentDirectoryName)) {
+	                zipName = FilenameUtils.concat(parentDirectoryName, zipName);
+	            }
+	            out.putNextEntry(new ZipEntry(zipName)); // Store entry
+	            while ((bytesRead = in.read(buffer)) != -1)
+	                out.write(buffer, 0, bytesRead);
+	           
+            } catch (Exception e) {
+                throw new Exception("Failure while creating zip.", e);
+            } finally {
+                if (out != null) out.closeEntry();
+                if (in != null) in.close();
+            }
 	    }
-	        }
+	}
 
 	/**
 	 * Makes the zip.
@@ -407,6 +413,7 @@ public class IOUtil
 				values.put(entry.getName(), zfile.getInputStream(entry));
 			}
 		}
+		zfile.close();
 	}
 
 }
