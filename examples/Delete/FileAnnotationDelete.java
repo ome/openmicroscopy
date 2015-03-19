@@ -1,25 +1,21 @@
-import omero.LockTimeout;
 import omero.ServerError;
-import omero.cmd.Delete;
-import omero.cmd.DoAll;
-import omero.cmd.Request;
-import omero.cmd.OK;
 import omero.cmd.CmdCallbackI;
+import omero.cmd.Delete2;
+import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.api.ServiceFactoryPrx;
-import omero.grid.DeleteCallbackI;
 import omero.model.*;
 import static omero.rtypes.*;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Uses the default {@link DeleteCallbackI} instance
+ * Uses a {@link Delete2} request instance
  * to delete a FileAnnotation along with its associated
  * OriginalFile and any annotation links.
  */
@@ -44,15 +40,14 @@ public class FileAnnotationDelete {
             fa = (FileAnnotation) d.linkedAnnotationList().get(0);
 
 
-            Delete dc = new Delete("/Annotation", fa.getId().getValue(), null);
-            List<Request> commands = new ArrayList<Request>();
-            commands.add(dc);
-            DoAll all = new DoAll();
-            all.requests = commands;
+            Delete2 deleteCmd = new Delete2();
+            List<Long> ids = Collections.singletonList(fa.getId().getValue());
+            deleteCmd.targetObjects = new HashMap<String, List<Long>>();
+            deleteCmd.targetObjects.put("Annotation", ids);
             Map<String, String> callContext = new HashMap<String, String>();
             CmdCallbackI cb = null;
             try {
-                cb = new CmdCallbackI(c, s.submit(all, callContext));
+                cb = new CmdCallbackI(c, s.submit(deleteCmd, callContext));
                 cb.loop(10, 500);
                 Response rsp = cb.getResponse();
                 if (rsp instanceof OK) {

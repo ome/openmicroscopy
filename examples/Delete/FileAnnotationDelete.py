@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Uses the default {@link DeleteCallbackI} instance.
+Uses a omero.cmd.Delete2 request instance
 to delete a FileAnnotation along with its associated
 OriginalFile and any annotation links.
 """
@@ -31,14 +31,10 @@ try:
     link = s.getUpdateService().saveAndReturnObject(link)
     fa = link.child
 
-    graph_spec = "/Annotation"
-    options = {}
-    delCmd = omero.cmd.Delete(graph_spec, long(fa.id.val), options)
+    to_delete = {"Annotation": [fa.id.val]}
+    delCmd = omero.cmd.Delete2(targetObjects=to_delete)
 
-    dcs = [delCmd]
-    doall = omero.cmd.DoAll()
-    doall.requests = dcs
-    handle = s.submit(doall)
+    handle = s.submit(delCmd)
 
     callback = None
     try:
