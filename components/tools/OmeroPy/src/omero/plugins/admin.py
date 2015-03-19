@@ -319,20 +319,18 @@ dt_socket,address=8787,suspend=y" \\
             "ports",
             """Allows modifying the ports from a standard OMERO install
 
-To have two OMERO's running on the same machine, several ports must be
-modified from their default values.
-Internally, this command uses the omero.install.change_ports module.
-Changing  the ports on a running server is usually not what you want and
-will be prevented. Use --skipcheck to change the ports anyway.
+To have multiple OMERO servers running on the same machine several ports
+must be modified from their defaults. Changing the ports on a running server
+will be prevented, use --skipcheck to override this.
 
 Examples:
 
-    %(prog)s --prefix=1                             # sets ports to: 14061, \
-14063, 14064
-    %(prog)s --prefix=1 --revert                    # sets ports back to: \
-4061, 4063, 4064
-    %(prog)s --registry=4444 --tcp=5555 --ssl=6666  # sets ports to: 4444 \
-5555  6666
+  # Set ports to registry:14061, tcp:14063, ssl:14064, web:14080
+  %(prog)s --prefix=1
+  # Set ports back to defaults: 4061, 4063, 4064, 4080
+  %(prog)s --prefix=1 --revert
+  # Set ports to: 4444, 5555, 6666, 7777
+  %(prog)s --registry=4444 --tcp=5555 --ssl=6666 --webserver=7777
 
 """).parser
         ports.add_argument(
