@@ -2005,12 +2005,14 @@ def download_as(request, iid=None, conn=None, **kwargs):
             try:
                 for img in images:
                     z = t = None
-                    pilImg = img.renderImage(z, t)
-                    imgPathName = makeImageName(
-                        img.getName(), format, temp_zip_dir)
-                    pilImg.save(imgPathName)
-                    # Close RenderingEngine
-                    img._re.close()
+                    try:
+                        pilImg = img.renderImage(z, t)
+                        imgPathName = makeImageName(
+                            img.getName(), format, temp_zip_dir)
+                        pilImg.save(imgPathName)
+                    finally:
+                        # Close RenderingEngine
+                        img._re.close()
                 # create zip
                 zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
                 try:
