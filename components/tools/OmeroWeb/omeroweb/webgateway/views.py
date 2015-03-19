@@ -2009,6 +2009,8 @@ def download_as(request, iid=None, conn=None, **kwargs):
                     imgPathName = makeImageName(
                         img.getName(), format, temp_zip_dir)
                     pilImg.save(imgPathName)
+                    # Close RenderingEngine
+                    img._re.close()
                 # create zip
                 zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
                 try:
