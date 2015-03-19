@@ -13,20 +13,14 @@ FOR TRAINING PURPOSES ONLY!
 
 import omero
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import datasetId, imageId, plateId
 
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-imageId = 1
-datasetId = 2
-plateId = -1        # Don't need to set this
 
 
 def print_obj(obj, indent=0):
@@ -109,12 +103,13 @@ renderedImage = image.renderImage(z, t)
 # =================================================================
 sizeX = image.getPixelSizeX()       # E.g. 0.132
 print " Pixel Size X:", sizeX
-# Units support, new in OMERO 5.1.0
-sizeXobj = image.getPixelSizeX(units=True)
-print " Pixel Size X:", sizeXobj.getValue(), "(%s)" % sizeXobj.getSymbol()
-# To get the size with different units, E.g. Angstroms
-sizeXang = image.getPixelSizeX(units="ANGSTROM")
-print " Pixel Size X:", sizeXang.getValue(), "(%s)" % sizeXang.getSymbol()
+if sizeX:
+    # Units support, new in OMERO 5.1.0
+    sizeXobj = image.getPixelSizeX(units=True)
+    print " Pixel Size X:", sizeXobj.getValue(), "(%s)" % sizeXobj.getSymbol()
+    # To get the size with different units, E.g. Angstroms
+    sizeXang = image.getPixelSizeX(units="ANGSTROM")
+    print " Pixel Size X:", sizeXang.getValue(), "(%s)" % sizeXang.getSymbol()
 
 
 # Retrieve Screening data:
@@ -125,7 +120,6 @@ for screen in conn.getObjects("Screen"):
     print_obj(screen)
     for plate in screen.listChildren():
         print_obj(plate, 2)
-        plateId = plate.getId()
 
 
 # Retrieve Wells and Images within a Plate:

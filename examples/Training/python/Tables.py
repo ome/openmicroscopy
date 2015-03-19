@@ -14,7 +14,8 @@ FOR TRAINING PURPOSES ONLY!
 import omero
 import omero.grid
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import datasetId
 
 #
 # .. _python_omero_tables_code_samples:
@@ -23,12 +24,6 @@ from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-datasetId = 33
-
 
 # Create a name for the Original File (should be unique)
 # =================================================================

@@ -15,20 +15,14 @@ import os
 import omero
 from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+from Parse_OMERO_Properties import projectId
 
 
 # Create a connection
 # =================================================================
 conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
-
-
-# Configuration
-# =================================================================
-projectId = 2
-# Specify a local file. E.g. could be result of some analysis
-fileToUpload = "README.txt"   # This file should already exist
 
 
 # Create a new Dataset
@@ -62,7 +56,7 @@ project = conn.getObject("Project", projectId)
 project.linkAnnotation(tagAnn)
 
 
-# New in OMERO 5.1: 'Map' annotations (list of key: value pairs)
+# Create a 'map' annotation (list of key: value pairs)
 # =================================================================
 keyValueData = [["Drug Name", "Monastrol"],
                 ["Concentration", "5 mg/ml"]]
@@ -80,6 +74,12 @@ project.linkAnnotation(mapAnn)
 # How to create a file annotation and link to a Dataset
 # =================================================================
 dataset = conn.getObject("Dataset", datasetId)
+
+# Specify a local file. E.g. could be result of some analysis
+fileToUpload = "README.txt"   # This file should already exist
+with open(fileToUpload, 'w') as f:
+    f.write('annotation test')
+
 # create the original file and file annotation (uploads the file etc.)
 namespace = "imperial.training.demo"
 print "\nCreating an OriginalFile and FileAnnotation"
@@ -89,7 +89,7 @@ print "Attaching FileAnnotation to Dataset: ", "File ID:", fileAnn.getId(), \
     ",", fileAnn.getFile().getName(), "Size:", fileAnn.getFile().getSize()
 dataset.linkAnnotation(fileAnn)     # link it to dataset.
 
-
+os.remove(fileToUpload)
 # Download a file annotation linked to a Dataset
 # =================================================================
 # make a location to download the file. "download" folder.
