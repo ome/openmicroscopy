@@ -396,6 +396,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
          86400,
          int,
          "The age of session cookies, in seconds."],
+    "omero.web.session_cookie_domain":
+        ["SESSION_COOKIE_DOMAIN",
+         None,
+         leave_none_unset,
+         "The domain to use for session cookies"],
+    "omero.web.session_cookie_name":
+        ["SESSION_COOKIE_NAME",
+         None,
+         leave_none_unset,
+         "The name to use for session cookies"],
     "omero.web.logdir":
         ["LOGDIR", LOGDIR, str, "A path to the custom log directory."],
 
