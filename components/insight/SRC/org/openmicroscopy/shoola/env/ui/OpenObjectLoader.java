@@ -127,6 +127,12 @@ public class OpenObjectLoader
     	}
     }
     
+    @Override
+    protected void onException(String message, Throwable ex) {
+        super.onException(message, ex);
+        activity.notifyError("Error- Could not load object", ex.getMessage(), ex);
+    }
+
     /**
      * Cancels the ongoing data retrieval.
      * @see UserNotifierLoader#cancel()
