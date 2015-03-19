@@ -98,11 +98,14 @@ public class ExporterTest extends AbstractServerTest {
     /** Maximum size of pixels read at once. */
     private static final int INC = 262144;
 
-    /** The catalog file to find. */
-    private static final String CATALOG = "/transforms/ome-transforms.xml";
+    /** The location of the transforms. */
+    private static final String TRANSFORM_FOLDER = "transforms";
 
-    /** The conversion file to find. */
-    private static final String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
+    /** The catalog file to find. */
+    private static final String CATALOG = "ome-transforms.xml";
+
+    /** The conversion file to find.*/
+    private static final String UNITS_CONVERSION = "units-conversion.xsl";
 
     /** The <i>name</i> attribute. */
     private static final String CURRENT = "current";
@@ -657,7 +660,8 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Map<String, List<String>> currentSchema() throws Exception
     {
-        InputStream stream = this.getClass().getResourceAsStream(CATALOG);
+        String path = File.separator+TRANSFORM_FOLDER+File.separator+CATALOG;
+        InputStream stream = this.getClass().getResourceAsStream(path);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -1144,7 +1148,9 @@ public class ExporterTest extends AbstractServerTest {
         @Override
         public Source resolve(String href, String base)
                 throws TransformerException {
-            stream = this.getClass().getResourceAsStream(UNITS_CONVERSION);
+            String path = File.separator+TRANSFORM_FOLDER+File.separator+
+                    UNITS_CONVERSION;
+            stream = this.getClass().getResourceAsStream(path);
             return new StreamSource(stream);
         }
     }
