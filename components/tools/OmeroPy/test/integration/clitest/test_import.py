@@ -74,7 +74,7 @@ NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
 debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
 
 skip_fixtures = (
-    [], ['all'], ['checksum'], ['minmax'], ['upgrade'])
+    [], ['all'], ['checksum'], ['minmax'], ['thumbnails'], ['upgrade'])
 
 
 class TestImport(CLITest):
