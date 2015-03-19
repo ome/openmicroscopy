@@ -1,33 +1,54 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import integration.PermissionsTestAll.TestParam;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import loci.common.RandomAccessInputStream;
+import loci.common.RandomAccessOutputStream;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
 import ome.specification.OmeValidator;
+import ome.specification.SchemaResolver;
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 import omero.api.ExporterPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
@@ -41,11 +62,19 @@ import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Collections of tests for the <code>Exporter</code> service.
@@ -69,22 +98,68 @@ public class ExporterTest extends AbstractServerTest {
     /** Maximum size of pixels read at once. */
     private static final int INC = 262144;
 
-    /** The collection of files that have to be deleted. */
-    private List<File> files;
+    /** The catalog file to find. */
+    private static final String CATALOG = "/transforms/ome-transforms.xml";
+
+    /** The conversion file to find. */
+    private static final String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
+
+    /** The <i>name</i> attribute. */
+    private static final String CURRENT = "current";
+
+    /** The <i>schema</i> attribute. */
+    private static final String SCHEMA = "schema";
+
+    /** The <i>target</i> name. */
+    private static final String TARGET = "target";
+
+    /** The <i>transform</i> name. */
+    private static final String TRANSFORM = "transform";
+
+    /** The <i>source</i> node. */
+    private static final String SOURCE = "source";
+
+    /** The <i>file</i> attribute. */
+    private static final String FILE = "file";
+
+    /** Flag indicating to create an image using XML mock and import it.*/
+    private static final int IMAGE = 0;
+
+    /** Flag indicating to create a simple image.*/
+    private static final int SIMPLE_IMAGE = 1;
+
+    /**
+     * Flag indicating to create an image with ROI using XML mock and
+     * import it.
+     */
+    private static final int IMAGE_ROI = 2;
+
+    /**
+     * Flag indicating to create an image with annotated acquisition data
+     * using XML mock and import it.
+     */
+    private static final int IMAGE_ANNOTATED_DATA = 2;
+
+    /** The various transforms read from the configuration file.*/
+    private Map<String, List<String>> downgrades;
+
+    /** The collection of transforms to perform upgrade.*/
+    private Map<String, List<String>> upgrades;
+
+    /** The current schema.*/
+    private String currentSchema;
 
     /**
      * Validates the specified input.
      *
      * @param input
      *            The input to validate
-     * @param schemas
-     *            The schemas to use.
      * @throws Exception
      *             Thrown if an error occurred during the validation
      */
-    private void validate(File input, StreamSource[] schemas) throws Exception {
-        OmeValidator theValidator = new OmeValidator();
-        theValidator.validateFile(input, schemas);
+    private void validate(File input) throws Exception {
+        OmeValidator validator = new OmeValidator();
+        validator.parseFile(input);
     }
 
     /**
@@ -103,26 +178,39 @@ public class ExporterTest extends AbstractServerTest {
         TransformerFactory factory;
         Transformer transformer;
         InputStream stream;
+        Iterator<InputStream> i = transforms.iterator();
+        File output;
         InputStream in = null;
         OutputStream out = null;
-        File output;
-        Iterator<InputStream> i = transforms.iterator();
-        while (i.hasNext()) {
-            factory = TransformerFactory.newInstance();
-            stream = i.next();
-            output = File.createTempFile(RandomStringUtils.random(10), "."
-                    + OME_XML);
-            transformer = factory.newTransformer(new StreamSource(stream));
-            out = new FileOutputStream(output);
-            in = new FileInputStream(inputXML);
-            transformer.transform(new StreamSource(in), new StreamResult(out));
-            files.add(output);
-            inputXML = output;
-            stream.close();
-            out.close();
-            in.close();
+        try {
+            while (i.hasNext()) {
+                stream = i.next();
+                factory = TransformerFactory.newInstance();
+                Resolver resolver = new Resolver();
+                factory.setURIResolver(resolver);
+                output = File.createTempFile(RandomStringUtils.random(10), "."
+                        + OME_XML);
+                output.deleteOnExit();
+                Source src = new StreamSource(stream);
+                Templates template = factory.newTemplates(src);
+                transformer = template.newTransformer();
+                transformer.setParameter(OutputKeys.ENCODING, "UTF-8");
+                out = new FileOutputStream(output);
+                in = new FileInputStream(inputXML);
+                transformer.transform(new StreamSource(in),
+                        new StreamResult(out));
+                inputXML = output;
+                stream.close();
+                out.close();
+                in.close();
+                resolver.close();
+            }
+        } catch (Exception e) {
+            throw new Exception("Cannot apply transform", e);
         }
-        return inputXML;
+        File f = File.createTempFile(RandomStringUtils.random(10), "."+ OME_XML);
+        FileUtils.copyFile(inputXML, f);
+        return f;
     }
 
     /**
@@ -132,8 +220,7 @@ public class ExporterTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    private Image createImageToExport() throws Exception {
-        // First create an image
+    private Image createSimpleImageToExport() throws Exception {
         Image image = mmFactory.createImage();
         image = (Image) iUpdate.saveAndReturnObject(image);
         Pixels pixels = image.getPrimaryPixels();
@@ -160,6 +247,84 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
+     * Creates an image to export.
+     *
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    private Image createImageWithROIToExport() throws Exception {
+      //create an import and image
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+                + OME_XML);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImageWithROI(), true);
+        List<Pixels> pix = null;
+        try {
+            // method tested in ImporterTest
+            pix = importFile(f, OME_XML, true);
+            return pix.get(0).getImage();
+        } catch (Throwable e) {
+            throw new Exception("Cannot create image to import", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
+     * Creates an image to export.
+     *
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    private Image createImageWithAnnotatedDataToExport() throws Exception {
+        //create an import and image
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+                + OME_XML);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(), true);
+        List<Pixels> pix = null;
+        try {
+            // method tested in ImporterTest
+            pix = importFile(f, OME_XML, true);
+            return pix.get(0).getImage();
+        } catch (Throwable e) {
+            throw new Exception("Cannot create image to import", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
+     * Creates an image to export.
+     *
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    private Image createImageToExport() throws Exception {
+        //create an import and image
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+                + OME_XML);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
+        List<Pixels> pix = null;
+        try {
+            // method tested in ImporterTest
+            pix = importFile(f, OME_XML, true);
+            return pix.get(0).getImage();
+        } catch (Throwable e) {
+            throw new Exception("Cannot create image to import", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
      * Overridden to initialize the list.
      *
      * @see AbstractServerTest#setUp()
@@ -168,7 +333,8 @@ public class ExporterTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        files = new ArrayList<File>();
+        upgrades = new HashMap<String, List<String>>();
+        downgrades = currentSchema();
     }
 
     /**
@@ -179,16 +345,71 @@ public class ExporterTest extends AbstractServerTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-        Iterator<File> i = files.iterator();
-        while (i.hasNext()) {
-            i.next().delete();
-        }
-        files.clear();
+        downgrades.clear();
+        upgrades.clear();
+    }
+
+    /**
+     * Tests to export an image as OME-XML.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test
+    public void testExportAsOMEXML() throws Exception {
+        // First create an image
+        Image image = createImageToExport();
+
+        // now export
+        ExporterPrx exporter = factory.createExporter();
+        exporter.addImage(image.getId().getValue());
+        long size = exporter.generateXml();
+        assertTrue(size > 0);
+        // now read
+        byte[] values = exporter.read(0, (int) size);
+        assertNotNull(values);
+        assertEquals(values.length, size);
+        exporter.close();
+    }
+
+    /**
+     * Tests to export an image as OME-XML. The image has an annotation linked
+     * to it.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test
+    public void testExportAsOMEXMLWithAnnotation() throws Exception {
+        // First create an image
+        Image image = createImageToExport();
+
+        // Need to have an annotation otherwise does not work
+        FileAnnotationI fa = new FileAnnotationI();
+        fa.setDescription(omero.rtypes.rstring("test"));
+        FileAnnotation a = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        ImageAnnotationLinkI l = new ImageAnnotationLinkI();
+        l.setChild(a);
+        l.setParent(new ImageI(image.getId().getValue(), false));
+        iUpdate.saveAndReturnObject(l);
+
+        // now export
+        ExporterPrx exporter = factory.createExporter();
+        exporter.addImage(image.getId().getValue());
+        long size = exporter.generateXml();
+        assertTrue(size > 0);
+        // now read
+        byte[] values = exporter.read(0, (int) size);
+        assertNotNull(values);
+        assertEquals(values.length, size);
+        exporter.close();
     }
 
     /**
      * Tests to export an image as OME-TIFF. The image has an annotation linked
-     * to it.
+     * to it. Downgrade the image.
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -216,20 +437,19 @@ public class ExporterTest extends AbstractServerTest {
         // now read
         byte[] values = exporter.read(0, (int) size);
         assertNotNull(values);
-        assertTrue(values.length == size);
+        assertEquals(values.length, size);
         exporter.close();
     }
 
     /**
-     * Tests to export an image as OME-TIFF. The image has an annotation linked
-     * to it.
+     * Tests to export an image as OME-TIFF.
      *
      * @throws Exception
      *             Thrown if an error occurred.
      * @see RawFileStoreTest#testUploadFile()
      */
     @Test
-    public void testExportAsOMETIFFWithoutAnnotation() throws Exception {
+    public void testExportAsOMETIFF() throws Exception {
         // First create an image
         Image image = createImageToExport();
 
@@ -241,31 +461,73 @@ public class ExporterTest extends AbstractServerTest {
         // now read
         byte[] values = exporter.read(0, (int) size);
         assertNotNull(values);
-        assertTrue(values.length == size);
+        assertEquals(values.length, size);
         exporter.close();
     }
 
     /**
-     * Tests to export an image as OME-TIFF. The image has an annotation linked
-     * to it.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     * @see RawFileStoreTest#testUploadFile()
+     * Generates an <code>OME-XML</code> file.
+     * 
+     * @param index The type of image to import. One of the constants defined
+     *              by this class.
+     * @return The exporter file.
+     * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "broken")
-    public void testExportAsOMETIFFDowngrade() throws Exception {
+    private File createImageFile(int index)
+            throws Exception
+    {
         // First create an image
-        Image image = createImageToExport();
         File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_TIFF);
+                + OME_XML);
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        if (index == IMAGE_ROI) {
+            writer.writeFile(f, xml.createImageWithROI(), true);
+        } else if (index == IMAGE_ANNOTATED_DATA) {
+            writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(),
+                    true);
+        } else {
+            writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
+        }
+        return f;
+    }
+
+    /**
+     * Exports the file with the specified extension either
+     * <code>OME-XML</code> or <code>OME-TIFF</code>.
+     *
+     * @param extension The extension to use.
+     * @param index The type of image to import. One of the constants defined
+     *              by this class.
+     * @return The exporter file.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private File export(String extension, int index)
+            throws Exception
+    {
+        // First create an image
+        Image image = null;
+        if (index == SIMPLE_IMAGE) {
+            image = createSimpleImageToExport();
+        } else if (index == IMAGE_ROI) {
+            image = createImageWithROIToExport();
+        } else {
+            image = createImageToExport();
+        }
+        File f = File.createTempFile(RandomStringUtils.random(10), "."
+               + extension);
         FileOutputStream stream = new FileOutputStream(f);
         ExporterPrx store = null;
         try {
             try {
                 store = factory.createExporter();
                 store.addImage(image.getId().getValue());
-                long size = store.generateTiff();
+                long size;
+                if (OME_TIFF.equals(extension)) {
+                    size = store.generateTiff();
+                } else {
+                    size = store.generateXml();
+                }
                 long offset = 0;
                 try {
                     for (offset = 0; (offset + INC) < size;) {
@@ -291,48 +553,599 @@ public class ExporterTest extends AbstractServerTest {
                 throw e;
             }
         }
-        StreamSource[] schemas = new StreamSource[1];
+        return f;
+    }
 
-        schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-                "/Released-Schema/2010-06/ome.xsd"));
-
-        InputStream sheet = this.getClass().getResourceAsStream(
-                "/Xslt/2011-06-to-2010-06.xsl");
-        List<InputStream> transforms = Arrays.asList(sheet);
-
-        File downgraded = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_TIFF);
-        File inputXML = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
-        files.add(inputXML);
-        files.add(downgraded);
-        FileUtils.copyFile(f, downgraded);
-        // Extract the xml.
-        String c = new TiffParser(f.getAbsolutePath()).getComment();
-        FileUtils.writeStringToFile(inputXML, c);
-
-        // Apply the transforms to downgrade the file.
-        inputXML = applyTransforms(inputXML, transforms);
-        //
-        String path = downgraded.getAbsolutePath();
-        TiffSaver saver = new TiffSaver(path);
-        RandomAccessInputStream ra = new RandomAccessInputStream(path);
-        saver.overwriteComment(ra, FileUtils.readFileToString(inputXML));
-        ra.close();
-
-        // validate schema
-        File downgradedXML = File.createTempFile(RandomStringUtils.random(10),
-                "." + OME_XML);
-        c = new TiffParser(path).getComment();
-        FileUtils.writeStringToFile(downgradedXML, c);
-        validate(downgradedXML, schemas);
-        files.add(downgradedXML);
-        try {
-            List<Pixels> pixels = importFile(downgraded, OME_TIFF);
-            // Add checks.
-        } catch (Throwable e) {
-            throw new Exception("cannot import image", e);
+    /**
+     * Parse the target node.
+     *
+     * @param node The node to parse.
+     * @param sheets Hosts the result.
+     */
+    private void parseTarget(Element node, Map<String, List<String>> sheets)
+    {
+        Node attribute;
+        NamedNodeMap map;
+        NodeList transforms;
+        map = node.getAttributes();
+        String schema = null;
+        List<String> list = null;
+        for (int j = 0; j < map.getLength(); j++) {
+            attribute = map.item(j);
+            schema = attribute.getNodeValue();
+            transforms = node.getElementsByTagName(TRANSFORM);
+            list = new ArrayList<String>();
+            for (int i = 0; i < transforms.getLength(); i++) {
+                Node a;
+                NamedNodeMap m = transforms.item(i).getAttributes();
+                for (int k = 0; k < m.getLength(); k++) {
+                    attribute = m.item(k);
+                    if (FILE.equals(attribute.getNodeName()))
+                        list.add(attribute.getNodeValue());
+                }
+            }
+        }
+        if (StringUtils.isNotBlank(schema) && CollectionUtils.isNotEmpty(list)) {
+            sheets.put(schema, list);
         }
     }
 
+    /**
+     * Extracts the value of the current schema.
+     *
+     * @param schema The current value.
+     * @throws Exception Thrown when an error occurred while parsing the file.
+     */
+    private Map<String, List<String>> extractCurrentSchema(String schema,
+            Document document)
+        throws Exception
+    {
+        NodeList list = document.getElementsByTagName(SOURCE);
+        Element n;
+        Node attribute;
+        NamedNodeMap map;
+        NodeList t;
+        Map<String, List<String>> transforms =
+                new HashMap<String, List<String>>();
+        Map<String, List<String>> umap;
+        for (int i = 0; i < list.getLength(); ++i) {
+            n = (Element) list.item(i);
+            map = n.getAttributes();
+            for (int j = 0; j < map.getLength(); j++) {
+                attribute = map.item(j);
+                if (SCHEMA.equals(attribute.getNodeName())) {
+                    if (schema.equals(attribute.getNodeValue())) {
+                        t = n.getElementsByTagName(TARGET);
+                        for (int k = 0; k < t.getLength(); k++) {
+                            parseTarget((Element) t.item(k), transforms);
+                        }
+                    } else {
+                        NodeList nl = n.getElementsByTagName("upgrades");
+                        umap = new HashMap<String, List<String>>();
+                        String src = attribute.getNodeValue();
+                        for (int k = 0; k < nl.getLength(); k++) {
+                            Element node = (Element) nl.item(k);
+                            NodeList tt = node.getElementsByTagName(TARGET);
+                            for (int l = 0; l < tt.getLength(); l++) {
+                                parseTarget((Element) tt.item(l), umap);
+                            }
+                            //parse the map
+                            Iterator<Entry<String, List<String>>> kk = 
+                                    umap.entrySet().iterator();
+                            Entry<String, List<String>> e;
+                            List<String> vl;
+                            Iterator<String> jj;
+                            while (kk.hasNext()) {
+                                e = kk.next();
+                                if (e.getKey().equals(schema)) {
+                                    upgrades.put(src, e.getValue());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return transforms;
+    }
+
+    /**
+     * Reads the current schema.
+     *
+     * @return See above.
+     * @throws Exception Thrown if an error occurred while reading.
+     */
+    private Map<String, List<String>> currentSchema() throws Exception
+    {
+        InputStream stream = this.getClass().getResourceAsStream(CATALOG);
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = dbf.newDocumentBuilder();
+            Document doc = builder.parse(stream);
+            currentSchema = doc.getDocumentElement().getAttribute(CURRENT);
+            if (StringUtils.isBlank(currentSchema))
+                throw new Exception("No schema specified.");
+            return extractCurrentSchema(currentSchema, doc);
+        } catch (Exception e) {
+            throw new Exception("Unable to parse the catalog.", e);
+        } finally {
+            if (stream != null) stream.close();
+        }
+    }
+
+    /**
+     * Prepares elements used to perform downgrade or upgrade.
+     *
+     * @param values The map to create the transform from.
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private Object[][] createList(Map<String, List<String>> values)
+            throws Exception
+    {
+        List<Target> targets = new ArrayList<Target>();
+        Object[][] data = null;
+        List<String> l;
+        Iterator<String> j;
+        Entry<String, List<String>> e;
+        Iterator<Entry<String, List<String>>> i = values.entrySet().iterator();
+        while (i.hasNext()) {
+            e = i.next();
+            l = e.getValue();
+            List<InputStream> streams = new ArrayList<InputStream>();
+            j = l.iterator();
+            while (j.hasNext()) {
+                streams.add(this.getClass().getResourceAsStream(
+                        "/transforms/"+j.next()));
+            }
+            targets.add(new Target(streams, e.getKey()));
+        }
+        int index = 0;
+        Iterator<Target> k = targets.iterator();
+        data = new Object[targets.size()][1];
+        while (k.hasNext()) {
+            data[index][0] = k.next();
+            index++;
+        }
+        return data;
+    }
+    /**
+     * Creates the transformations.
+     * @return Object[][] data.
+     */
+    @DataProvider(name = "createTransform")
+    public Object[][] createTransform() throws Exception {
+        return createList(downgrades);
+    }
+
+    /**
+     * Creates the upgrade transformation.
+     * @return Object[][] data.
+     */
+    @DataProvider(name = "createUpgrade")
+    public Object[][] createUpgrade() throws Exception {
+        return createList(upgrades);
+    }
+
+    /**
+     * Returns the list of transformations to generate the file to upgrade.
+     *
+     * @param target The schema to start from for the upgrade.
+     * @return See above.
+     */
+    private List<InputStream> retrieveDowngrade(String target)
+    {
+        List<String> list = downgrades.get(target);
+        if (CollectionUtils.isEmpty(list)) return null;
+        List<InputStream> streams = new ArrayList<InputStream>();
+        Iterator<String> j = list.iterator();
+        while (j.hasNext()) {
+            streams.add(this.getClass().getResourceAsStream(
+                    "/transforms/"+j.next()));
+        }
+        return streams;
+    }
+
+    /**
+     * Test the downgrade of an image with acquisition data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testDowngradeImageWithAcquisition(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = createImageFile(IMAGE);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed);
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test the downgrade of an image with ROi.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testDowngradeImageWithROI(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = createImageFile(IMAGE_ROI);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed);
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test the downgrade of an image with annotated acquisition data 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testDowngradeImageWithAnnotatedAcquisitionData(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = createImageFile(IMAGE_ANNOTATED_DATA);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed);
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+    
+    /**
+     * Test if an image built with current schema validates.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testValidateImageWithAcquisition() throws Exception {
+        File f = null;
+        try {
+            f = createImageFile(IMAGE);
+            validate(f);
+        } catch (Throwable e) {
+            throw new Exception("Cannot validate the image: ", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
+     * Test if an image with ROI built with current schema validates.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testValidateImageWithROI() throws Exception {
+        File f = null;
+        try {
+            f = createImageFile(IMAGE_ROI);
+            validate(f);
+        } catch (Throwable e) {
+            throw new Exception("Cannot validate the image: ", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
+     * Test if an image with annotated acquisition data built with current
+     * schema validates.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testValidateImageWithAnnotatedAcquisition() throws Exception {
+        File f = null;
+        try {
+            f = createImageFile(IMAGE_ANNOTATED_DATA);
+            validate(f);
+        } catch (Throwable e) {
+            throw new Exception("Cannot validate the image: ", e);
+        } finally {
+            if (f != null) f.delete();
+        }
+    }
+
+    /**
+     * Test the export of an image as OME-XML. Downgrade it.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMEXMLDowngrade(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = export(OME_XML, IMAGE);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed);
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test the export of an image as OME-XML. Downgrade it.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMEXMLDowngradeSimpleImage(Target target)
+            throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = export(OME_XML, SIMPLE_IMAGE);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed);
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Test the export of an image with ROI as OME-XML. Downgrade it.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMEXMLDowngradeImageWithROI(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        try {
+            f = export(OME_XML, IMAGE_ROI);
+            //transform
+            transformed = applyTransforms(f, target.getTransforms());
+            //validate the file
+            validate(transformed);
+            //import the file
+            importFile(transformed, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+        }
+    }
+
+    /**
+     * Tests to export an image as OME-TIFF and downgrade it.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test(dataProvider = "createTransform")
+    public void testExportAsOMETIFFDowngrade(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        File inputXML = null;
+        File transformedXML = null;
+        File result = null;
+        RandomAccessInputStream in = null;
+        RandomAccessOutputStream out = null;
+        try {
+            f = export(OME_TIFF, IMAGE);
+            //extract XML and copy to tmp file
+            TiffParser parser = new TiffParser(f.getAbsolutePath());
+            inputXML = File.createTempFile(RandomStringUtils.random(10),
+                    "." + OME_XML);
+            FileUtils.writeStringToFile(inputXML, parser.getComment());
+            //transform XML
+            transformed = applyTransforms(inputXML, target.getTransforms());
+            //Generate OME-TIFF
+            result = File.createTempFile(RandomStringUtils.random(10), "."
+                    + OME_TIFF);
+            FileUtils.copyFile(f, result);
+            String path = result.getAbsolutePath();
+            TiffSaver saver = new TiffSaver(path);
+            saver.setBigTiff(parser.isBigTiff());
+            in = new RandomAccessInputStream(path);
+            saver.overwriteComment(in, FileUtils.readFileToString(transformed));
+            
+            //validate the OME-TIFF
+            parser = new TiffParser(result.getAbsolutePath());
+            transformedXML = File.createTempFile(RandomStringUtils.random(10),
+                    "." + OME_XML);
+            FileUtils.writeStringToFile(transformedXML, parser.getComment());
+            validate(transformedXML);
+            //import the file
+            importFile(result, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot downgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (inputXML != null) inputXML.delete();
+            if (result != null) result.delete();
+            if (transformedXML != null) transformedXML.delete();
+            if (in != null) in.close();
+        }
+    }
+
+    /**
+     * Test the upgrade of an image with acquisition data.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createUpgrade")
+    public void testUpgradeImageWithAcquisition(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = createImageFile(IMAGE); //2015 image
+            List<InputStream> transforms = retrieveDowngrade(target.getSource());
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file.
+            upgraded = applyTransforms(transformed, target.getTransforms());
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot upgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
+        }
+    }
+
+    /**
+     * Test the upgrade of an image with ROI.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(dataProvider = "createUpgrade")
+    public void testUpgradeImageWithROI(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = createImageFile(IMAGE_ROI); //2015 image
+            List<InputStream> transforms = retrieveDowngrade(target.getSource());
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file.
+            upgraded = applyTransforms(transformed, target.getTransforms());
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot upgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
+        }
+    }
+
+    /**
+     * Test the upgrade of an image with annotated acquisition.
+     * @throws Exception Thrown if an error occurred.
+     */
+
+    @Test(dataProvider = "createUpgrade")
+    public void testUpgradeImageWithAnnotatedAcquisition(Target target) throws Exception {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = createImageFile(IMAGE_ANNOTATED_DATA); //2015 image
+            List<InputStream> transforms = retrieveDowngrade(target.getSource());
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file.
+            upgraded = applyTransforms(transformed, target.getTransforms());
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot upgrade image: "+target.getSource(),
+                    e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
+        }
+    }
+
+    class Target {
+
+        /** The transforms to apply.*/
+        private List<InputStream> transforms;
+
+        /** The source schema.*/
+        private String source;
+
+        /**
+         * Creates a new instance.
+         *
+         * @param transforms The transforms to apply.
+         * @param source The source schema.
+         */
+        Target(List<InputStream> transforms, String source)
+        {
+            this.transforms = transforms;
+            this.source = source;
+        }
+
+        /**
+         * Returns the transforms to apply.
+         *
+         * @return See above.
+         */
+        List<InputStream> getTransforms() { return transforms; }
+
+        /**
+         * Returns the source schema.
+         *
+         * @return See above.
+         */
+        String getSource() { return source; }
+
+    }
+
+    class Resolver implements URIResolver {
+
+        /** The stream.*/
+        private InputStream stream;
+
+        /** Close the input stream if not <code>null</code>.*/
+        public void close()
+            throws Exception
+        {
+            if (stream != null) stream.close();
+        }
+
+        @Override
+        public Source resolve(String href, String base)
+                throws TransformerException {
+            stream = this.getClass().getResourceAsStream(UNITS_CONVERSION);
+            return new StreamSource(stream);
+        }
+    }
 }
