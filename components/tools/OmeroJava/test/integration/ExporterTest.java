@@ -962,8 +962,6 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         File inputXML = null;
-        File transformedXML = null;
-        File result = null;
         RandomAccessInputStream in = null;
         RandomAccessOutputStream out = null;
         try {
@@ -975,24 +973,15 @@ public class ExporterTest extends AbstractServerTest {
             FileUtils.writeStringToFile(inputXML, parser.getComment());
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
-            //Generate OME-TIFF
-            result = File.createTempFile(RandomStringUtils.random(10), "."
-                    + OME_TIFF);
-            FileUtils.copyFile(f, result);
-            String path = result.getAbsolutePath();
+            validate(transformed);
+            String comment = FileUtils.readFileToString(transformed);
+            String path = f.getAbsolutePath();
             TiffSaver saver = new TiffSaver(path);
             saver.setBigTiff(parser.isBigTiff());
             in = new RandomAccessInputStream(path);
-            saver.overwriteComment(in, FileUtils.readFileToString(transformed));
-            
-            //validate the OME-TIFF
-            parser = new TiffParser(result.getAbsolutePath());
-            transformedXML = File.createTempFile(RandomStringUtils.random(10),
-                    "." + OME_XML);
-            FileUtils.writeStringToFile(transformedXML, parser.getComment());
-            validate(transformedXML);
+            saver.overwriteComment(in, comment);
             //import the file
-            importFile(result, OME_XML);
+            importFile(f, OME_XML);
         } catch (Throwable e) {
             throw new Exception("Cannot downgrade image: "+target.getSource(),
                     e);
@@ -1000,8 +989,6 @@ public class ExporterTest extends AbstractServerTest {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
             if (inputXML != null) inputXML.delete();
-            if (result != null) result.delete();
-            if (transformedXML != null) transformedXML.delete();
             if (in != null) in.close();
         }
     }
