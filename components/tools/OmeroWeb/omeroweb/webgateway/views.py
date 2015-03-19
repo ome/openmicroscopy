@@ -1936,7 +1936,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
     return HttpResponse(rsp)
 
 
-@login_required(doConnectionCleanup=False)
+@login_required()
 def download_as(request, iid=None, conn=None, **kwargs):
     """
     Downloads the image as a single jpeg/png/tiff or as a zip (if more than
