@@ -593,7 +593,7 @@ class SessionsControl(BaseControl):
 
     def file(self, args):
         store = self.store(args)
-        srv, usr, uuid = store.get_current()
+        srv, usr, uuid, port = store.get_current()
         if srv and usr and uuid:
             self.ctx.out(str(store.dir / srv / usr / uuid))
 
