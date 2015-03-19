@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
-import ij.IJ;
 import ij.WindowManager;
 import info.clearthought.layout.TableLayout;
 
