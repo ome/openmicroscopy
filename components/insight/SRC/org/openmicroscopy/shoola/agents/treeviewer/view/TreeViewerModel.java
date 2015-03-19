@@ -37,9 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-//Third-party libraries
+import javax.activation.FileDataSource;
 
+//Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
@@ -1092,18 +1094,11 @@ class TreeViewerModel
 			return TreeViewerFactory.IMAGE_NOT_ARCHIVED;
 		} else if (object instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) object;
-			File f = new File(fa.getFileName());
-			/*
-			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-			type = map.getContentType(f);
-			f.delete();
-			return type;
-			*/
+			FileDataSource fds = new FileDataSource(fa.getFileName());
+            String type = fds.getContentType();
+            return type;
 		}
-		//MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-		//String type = map.getContentType(f);
-		//f.delete();
-		return null;//type;
+		return null;
 	}
 	
 	/**
