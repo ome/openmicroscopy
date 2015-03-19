@@ -38,7 +38,6 @@ from django.template import loader as template_loader
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseServerError, HttpResponseNotFound
 from django.http import HttpResponseForbidden
-from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.defaults import page_not_found
 from django.core.urlresolvers import reverse
@@ -57,13 +56,8 @@ def get_user_agent(request):
         pass
     return user_agent
 
+
 ###############################################################################
-
-
-def thanks(request):
-    return render_to_response("thanks.html", None)
-
-
 def send_feedback(request):
     error = None
     form = ErrorForm(data=request.REQUEST.copy())
