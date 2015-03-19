@@ -33,7 +33,7 @@ module omero {
                 idempotent void lookupPixels(long pixelsId) throws ServerError;
                 idempotent bool lookupRenderingDef(long pixelsId) throws ServerError;
                 idempotent void loadRenderingDef(long renderingDefId) throws ServerError;
-                idempotent void setOverlays(omero::RLong tablesId, omero::RLong imageId, LongIntMap rowColorMap) throws ServerError;
+                ["deprecated: use omero::romio::PlaneDefWithMasks instead"] idempotent void setOverlays(omero::RLong tablesId, omero::RLong imageId, LongIntMap rowColorMap) throws ServerError;
                 idempotent void load() throws ServerError;
                 idempotent void setModel(omero::model::RenderingModel model) throws ServerError;
                 idempotent omero::model::RenderingModel getModel() throws ServerError;

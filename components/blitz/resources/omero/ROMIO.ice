@@ -11,6 +11,7 @@
 
 #include <omero/ServerErrors.ice>
 #include <Ice/BuiltinSequences.ice>
+#include <omero/Collections.ice>
 
 module omero
 {
@@ -59,6 +60,18 @@ module romio
       int t;
       RegionDef region;
       int stride;
+    };
+
+    /**
+     * Extends PlaneDef by an option to toggle server side Mask rendering. By
+     * default all masks attached to the image fulfilling rendering criteria,
+     * will be rendered. This criteria is currently masks with a width and
+     * height equal to those of the image.
+     **/
+    class PlaneDefWithMasks extends PlaneDef
+    {
+      /** Optional (currently unimplemented) list of Masks to render. */
+      omero::api::LongList shapeIds;
     };
 
     class CodomainMapContext
