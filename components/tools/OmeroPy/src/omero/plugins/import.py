@@ -206,7 +206,6 @@ class ImportControl(BaseControl):
             return
 
         if ('all' in args.skip or 'checksum' in args.skip):
-            self.command_args.append("--no-pixels-checksum")
             self.command_args.append("--checksum_algorithm=File-Size-64")
         if ('all' in args.skip or 'thumbnails' in args.skip):
             self.command_args.append("--no_thumbnails")

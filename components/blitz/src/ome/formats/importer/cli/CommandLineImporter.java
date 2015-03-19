@@ -405,9 +405,6 @@ public class CommandLineImporter {
             + "                            \t     SHA1-160 (slow, default)\n\n"
             + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
             + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n\n"
-            + "    --no-pixels-checksum\tDisable computation of the pixels checksum\n\n"
-            + "  e.g. $ bin/omero import -- --no-pixels-checksum foo.tiff\n"
-            + "       $ ./importer-cli --no-pixels-checksum bar.tiff\n\n"
             + "    --no-stats-info\t\tDisable calculation of minima and maxima"
             + " when as part of the Bio-Formats reader metadata\n\n"
             + "  e.g. $ bin/omero import -- --no-stats-info foo.tiff\n"
@@ -535,10 +532,8 @@ public class CommandLineImporter {
 
         LongOpt noStatsInfo =
                 new LongOpt("no-stats-info", LongOpt.NO_ARGUMENT, null, 22);
-        LongOpt noPixelsChecksum =
-                new LongOpt("no-pixels-checksum", LongOpt.NO_ARGUMENT, null, 23);
         LongOpt noUpgradeCheck =
-                new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 24);
+                new LongOpt("no-upgrade-check", LongOpt.NO_ARGUMENT, null, 23);
 
         // DEPRECATED OPTIONS
         LongOpt plateName = new LongOpt(
@@ -553,7 +548,7 @@ public class CommandLineImporter {
                                 annotationLink, transferOpt, advancedHelp,
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
-                                exclude, noStatsInfo, noPixelsChecksum,
+                                exclude, noStatsInfo,
                                 noUpgradeCheck, qaBaseURL, plateName,
                                 plateDescription});
         int a;
@@ -686,11 +681,6 @@ public class CommandLineImporter {
                 break;
             }
             case 23: {
-                log.info("Skipping pixels checksum computation");
-                config.noPixelsChecksum.set(true);
-                break;
-			}
-            case 24: {
                 log.info("Disabling upgrade check");
                 config.checkUpgrade.set(false);
                 break;

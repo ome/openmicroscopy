@@ -60,7 +60,6 @@ public class ImportContainer
     private String userSpecifiedDescription;
     private boolean doThumbnails = true;
     private boolean noStatsInfo = false;
-    private boolean noPixelsChecksum = false;
     private List<Annotation> customAnnotationList;
     private IObject target;
     private String checksumAlgorithm;
@@ -129,30 +128,6 @@ public class ImportContainer
     public void setNoStatsInfo(boolean v)
     {
         noStatsInfo = v;
-    }
-
-    /**
-     * Retrieves whether or not we disabling <code>Pixels</code> checksum
-     * computation.
-     * @return <code>true</code> if we are to disable <code>Pixels</code>
-     * checksum computation. <code>false</code> otherwise.
-     * @since OMERO 5.1.
-     */
-    public boolean getNoPixelsChecksum()
-    {
-        return noPixelsChecksum;
-    }
-
-    /**
-     * Sets whether or not we are disabling <code>Pixels</code> checksum
-     * computation.
-     * @param v <code>true</code> if we are to disable <code>Pixels</code>
-     * checksum computation. <code>false</code> otherwise.
-     * @since OMERO 5.1.
-     */
-    public void setNoPixelsChecksum(boolean v)
-    {
-        noPixelsChecksum = v;
     }
 
     /**
@@ -347,7 +322,6 @@ public class ImportContainer
         // ImportUserSettings rather than misusing ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());
         settings.noStatsInfo = rbool(getNoStatsInfo());
-        settings.noPixelsChecksum = rbool(getNoPixelsChecksum());
         settings.userSpecifiedTarget = getTarget();
         settings.userSpecifiedName = getUserSpecifiedName() == null ? null
                 : rstring(getUserSpecifiedName());

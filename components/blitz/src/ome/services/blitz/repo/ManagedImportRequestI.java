@@ -136,8 +136,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private boolean noStatsInfo = false;
 
-    private boolean noPixelsChecksum = false;
-
     private String fileName = null;
 
     private String shortName = null;
@@ -221,8 +219,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 settings.doThumbnails.getValue();
             noStatsInfo = settings.noStatsInfo == null ? false :
                 settings.noStatsInfo.getValue();
-            noPixelsChecksum = settings.noPixelsChecksum == null ? false :
-                settings.noPixelsChecksum.getValue();
             detectAutoClose();
 
             fileName = file.getFullFsPath();
@@ -550,16 +546,19 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     public Object pixelData(PixelDataJob pdj) throws Throwable {
 
-        // Parse the binary data to generate min/max values
-        int seriesCount = reader.getSeriesCount();
-        for (int series = 0; series < seriesCount; series++) {
-            ImportSize size = new ImportSize(fileName,
-                    pixList.get(series), reader.getDimensionOrder());
-            Pixels pixels = pixList.get(series);
-            MessageDigest md = parseData(fileName, series, size);
-            if (md != null) {
-                final String s = Hex.encodeHexString(md.digest());
-                pixels.setSha1(store.toRType(s));
+        if (!reader.isMinMaxSet() && !noStatsInfo)
+        {
+            // Parse the binary data to generate min/max values
+            int seriesCount = reader.getSeriesCount();
+            for (int series = 0; series < seriesCount; series++) {
+                ImportSize size = new ImportSize(fileName,
+                        pixList.get(series), reader.getDimensionOrder());
+                Pixels pixels = pixList.get(series);
+                MessageDigest md = parseData(fileName, series, size);
+                if (md != null) {
+                   final String s = Hex.encodeHexString(md.digest());
+                   pixels.setSha1(store.toRType(s));
+                }
             }
         }
 
@@ -662,10 +661,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
              * (long) reader.getSizeY()) > maxPlaneSize) {
             return null;
         }
-        if (noPixelsChecksum) {
-            log.info("Skipping pixels checksum computation");
-            return null;
-        }
+
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
         MessageDigest md;
         try {

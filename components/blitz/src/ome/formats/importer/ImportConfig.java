@@ -108,7 +108,6 @@ public class ImportConfig {
     public final LongValue group;
     public final BoolValue doThumbnails;
     public final BoolValue noStatsInfo;
-    public final BoolValue noPixelsChecksum;
     public final StrValue email;
     public final StrValue userSpecifiedName;
     public final StrValue userSpecifiedDescription;
@@ -248,7 +247,6 @@ public class ImportConfig {
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         noStatsInfo  = new BoolValue("noStatsInfo", this, false);
-        noPixelsChecksum = new BoolValue("noPixelsChecksum", this, false);
         email        = new StrValue("email", this);
         qaBaseURL    = new StrValue("qaBaseURL", this, DEFAULT_QABASEURL);
         checkUpgrade  = new BoolValue("checkUpgrade", this, true);
