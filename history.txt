@@ -1,6 +1,21 @@
 OMERO version history
 =====================
 
+5.1.0-m5 (March 2015)
+---------------------
+
+Developer preview release - **only intended as a developer preview for
+updating code before the full public release of 5.1.0. Use at your own risk**.
+
+Changes include:
+
+-  implementation of OMERO.mail for emailing users via the server
+-  performance improvements for importing large datasets
+-  support for limiting the download of original files
+-  various fixes for searching and filtering map annotations and converting
+   between units
+-  deprecation of IUpdate.deleteObject API method
+
 5.1.0-m4 (February 2015)
 ------------------------
 
