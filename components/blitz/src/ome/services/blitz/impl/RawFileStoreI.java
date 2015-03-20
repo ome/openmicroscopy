@@ -182,6 +182,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         final RawFileStorePrx rfsPrx = repoPrx.fileById(fileId, adjustedCtx);
         OpsDelegate ops = new OpsDelegate(be, rfsTie, this, rfsPrx);
         ops.setApplicationContext(ctx);
+        ops.setHolder(holder);
         tie.ice_delegate(ops);
         return true;
     }
