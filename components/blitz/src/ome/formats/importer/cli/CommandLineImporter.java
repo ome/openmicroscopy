@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
@@ -558,10 +560,10 @@ public class CommandLineImporter {
         boolean getUsedFiles = false;
         config.agent.set("importer-cli");
 
-        // Once one of the properties has been set, setting the other
-        // is likely a bug and so we'll through an exception.
-        boolean userSpecifiedNameAlreadySet = false;
-        boolean userSpecifiedDescriptionAlreadySet = false;
+        // Create a map for handling conflicting option strings
+        Map<String, Boolean> conflictingArguments = new HashMap<String, Boolean>();
+        conflictingArguments.put("userSpecifiedName", false);
+        conflictingArguments.put("userSpecifiedDescription", false);
 
         List<String> annotationNamespaces = new ArrayList<String>();
         List<String> textAnnotations = new ArrayList<String>();
@@ -590,25 +592,19 @@ public class CommandLineImporter {
                 break;
             }
             case 6: {
-                if (userSpecifiedNameAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
-                userSpecifiedNameAlreadySet = true;
                 break;
             }
             case 7: {
-                if (userSpecifiedDescriptionAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
-                userSpecifiedDescriptionAlreadySet = true;
                 break;
             }
             case 8: {
-              log.info("Skipping thumbnails creation");
-              config.doThumbnails.set(false);
-              break;
+                log.info("Skipping thumbnails creation");
+                config.doThumbnails.set(false);
+                break;
             }
             case 9: {
                 config.agent.set(g.getOptarg());
@@ -688,19 +684,13 @@ public class CommandLineImporter {
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
             case 90: {
-                if (userSpecifiedNameAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
-                userSpecifiedNameAlreadySet = true;
                 break;
             }
             case 91: {
-                if (userSpecifiedDescriptionAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
-                userSpecifiedDescriptionAlreadySet = true;
                 break;
             }
             // END OF DEPRECATED OPTIONS
@@ -745,19 +735,15 @@ public class CommandLineImporter {
                 break;
             }
             case 'n': {
-                if (userSpecifiedNameAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
-                userSpecifiedNameAlreadySet = true;
-                break;            }
+                break;
+			}
             case 'x': {
-                if (userSpecifiedDescriptionAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
-                userSpecifiedDescriptionAlreadySet = true;
-                break;            }
+                break;
+			}
             case 'f': {
                 getUsedFiles = true;
                 break;
@@ -833,6 +819,20 @@ public class CommandLineImporter {
             }
         }
         System.exit(rc);
+    }
+
+    /**
+     * Set a conflicting argument and return the usage if the key is already
+	 * set
+	 * @param map map of conflicting properties
+	 * @param key configuration property to be set
+     */
+    public static void setArgument(Map <String, Boolean> map, String key) {
+        if (map.get(key)) {
+            // The property has already been set
+            usage();
+        }
+        map.put(key, true);
     }
 
     /**
