@@ -35,6 +35,7 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import never_cache
 
+from omero_version import build_year
 from omero_version import omero_version
 
 from omeroweb.webclient.decorators import render_response
@@ -43,7 +44,7 @@ from omeroweb.webclient.decorators import render_response
 @never_cache
 @render_response()
 def custom_index(request, conn=None, **kwargs):
-    context = {"version": omero_version}
+    context = {"version": omero_version, 'build_year': build_year}
 
     if settings.INDEX_TEMPLATE is not None:
         try:
@@ -64,7 +65,7 @@ def custom_index(request, conn=None, **kwargs):
 @never_cache
 @render_response()
 def index(request, conn=None, **kwargs):
-    context = {"version": omero_version}
+    context = {"version": omero_version, 'build_year': build_year}
 
     if settings.WEBSTART_TEMPLATE is not None:
         try:
