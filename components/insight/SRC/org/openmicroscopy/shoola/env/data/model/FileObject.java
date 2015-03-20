@@ -187,7 +187,7 @@ public class FileObject
             buffer.append(" splitz=false");
             buffer.append(" splitc=false");
             buffer.append(" splitt=false");
-            buffer.append(" saveroi=true");
+            buffer.append(" saveroi=false");
             buffer.append(" compression="+CompressionType.UNCOMPRESSED.getCompression());
             buffer.append(" imageid="+img.getID()+" ");
             IJ.runPlugIn("loci.plugins.LociExporter", buffer.toString());
