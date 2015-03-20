@@ -40,7 +40,7 @@ class TestImgDetail(IWebTest):
         userName = "%s %s" % (self.user.firstName.val, self.user.lastName.val)
 
         # Import "tinyTest.d3d.dv" and get ImageID
-        pids = self.import_image(client=self.client)
+        pids = self.import_image(client=self.client, skip=None)
         pixels = self.query.get("Pixels", long(pids[0]))
         iid = pixels.image.id.val
 

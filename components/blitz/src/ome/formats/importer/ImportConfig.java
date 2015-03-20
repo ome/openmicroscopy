@@ -108,7 +108,6 @@ public class ImportConfig {
     public final LongValue group;
     public final BoolValue doThumbnails;
     public final BoolValue noStatsInfo;
-    public final BoolValue noPixelsChecksum;
     public final StrValue email;
     public final StrValue userSpecifiedName;
     public final StrValue userSpecifiedDescription;
@@ -121,6 +120,7 @@ public class ImportConfig {
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
     public final StrValue qaBaseURL;
+    public final BoolValue checkUpgrade;
 
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
@@ -187,7 +187,7 @@ public class ImportConfig {
 
     /**
      * Calls
-     * {@link ImportConfig#ImportConfig(Preferences, PreferenceContext, IniFileLoader, Properties)}
+     * {@link ImportConfig#ImportConfig(Preferences, IniFileLoader, Properties)}
      * with user preferences, a local {@link PreferenceContext}, an
      * {@link IniFileLoader} initialized with the given argument, and
      * {@link System#getProperties()}.
@@ -247,9 +247,9 @@ public class ImportConfig {
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         noStatsInfo  = new BoolValue("noStatsInfo", this, false);
-        noPixelsChecksum = new BoolValue("noPixelsChecksum", this, false);
         email        = new StrValue("email", this);
         qaBaseURL    = new StrValue("qaBaseURL", this, DEFAULT_QABASEURL);
+        checkUpgrade  = new BoolValue("checkUpgrade", this, true);
         userSpecifiedName = new StrValue("userSpecifiedName", this);
         userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
@@ -318,8 +318,10 @@ public class ImportConfig {
 
     /**
      * Modifies the logging level of everything under the
-     * <code>ome.format</code> and <code>loci</code> package hierarchically.
-     * @param level if null, then {@link #ini#getDebugLevel()} will be used.
+     * <code>ome.formats</code>, <code>ome.services.blitz</code>,
+     * <code>ome.system</code> and <code>loci</code> packages hierarchically.
+     * @param levelString if null, then {@link #ini#getDebugLevel()} will be
+     * used.
      */
      public void configureDebug(String levelString) {
          Level level;
@@ -329,6 +331,8 @@ public class ImportConfig {
              level = Level.toLevel(levelString);
          }
          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.formats")).setLevel(level);
+         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.services.blitz")).setLevel(level);
+         ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("ome.system")).setLevel(level);
          ((ch.qos.logback.classic.Logger)LoggerFactory.getLogger("loci")).setLevel(level);
      }
 
@@ -362,9 +366,6 @@ public class ImportConfig {
      */
     public boolean isUpgradeNeeded() {
 
-        if (getStaticDisableUpgradeCheck()) {
-            log.debug("UpgradeCheck disabled.");
-        }
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
         String url = bundle.getString("omero.upgrades.url");
         UpgradeCheck check = new UpgradeCheck(url, getVersionNumber(), agent.get());
@@ -415,13 +416,6 @@ public class ImportConfig {
      */
     public String getAppTitle() {
         return ini.getAppTitle();
-    }
-
-    /**
-     * @return ini application title
-     */
-    public boolean getStaticDisableUpgradeCheck() {
-        return ini.getStaticDisableUpgradeCheck();
     }
 
     /**

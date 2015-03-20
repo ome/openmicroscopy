@@ -215,7 +215,7 @@ class ITest(object):
         return img
 
     def import_image(self, filename=None, client=None, extra_args=None,
-                     skip=None, **kwargs):
+                     skip="all", **kwargs):
         if filename is None:
             filename = self.OmeroPy / ".." / ".." / ".." / \
                 "components" / "common" / "test" / "tinyTest.d3d.dv"
@@ -296,7 +296,7 @@ class ITest(object):
     """
 
     def importMIF(self, seriesCount=1, name=None, client=None,
-                  with_companion=False, **kwargs):
+                  with_companion=False, skip="all", **kwargs):
         if client is None:
             client = self.client
         if name is None:
@@ -310,8 +310,8 @@ class ITest(object):
         fake = create_path(name, "&series=%d%s.fake" % (seriesCount, append))
         if with_companion:
             open(fake.abspath() + ".ini", "w")
-        pixelIds = self.import_image(filename=fake.abspath(), client=client,
-                                     **kwargs)
+        pixelIds = self.import_image(
+            filename=fake.abspath(), client=client, skip=skip, **kwargs)
         assert seriesCount == len(pixelIds)
 
         images = []

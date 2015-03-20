@@ -66,7 +66,7 @@ Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
 DEBUG_CHOICES = ["ALL", "DEBUG", "ERROR", "FATAL", "INFO", "TRACE", "WARN"]
-SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails']
+SKIP_CHOICES = ['all', 'checksum', 'minmax', 'thumbnails', 'upgrade']
 
 
 class ImportControl(BaseControl):
@@ -126,7 +126,7 @@ class ImportControl(BaseControl):
             help="Email for reported errors. Required --report (**)",
             metavar="EMAIL")
         feedback_group.add_argument(
-            "--qa_baseurl", dest="java_qa_baseurl",
+            "--qa-baseurl", dest="java_qa_baseurl",
             help=SUPPRESS)
 
         # DEPRECATED OPTIONS
@@ -163,21 +163,24 @@ class ImportControl(BaseControl):
             help="Turn debug logging on (**)",
             metavar="LEVEL")
         java_group.add_argument(
-            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
+            "--annotation-ns", "--annotation_ns", dest="java_ns",
+            metavar="ANNOTATION_NS",
             help="Namespace to use for subsequent annotation (**)")
         java_group.add_argument(
-            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
+            "--annotation-text", "--annotation_text", dest="java_text",
+            metavar="ANNOTATION_TEXT",
             help="Content for a text annotation (requires namespace) (**)")
         java_group.add_argument(
-            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
+            "--annotation-link", "--annotation_link", dest="java_link",
+            metavar="ANNOTATION_LINK",
             help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(
             "--depth", default=4, type=int,
             help="Number of directories to scan down for files")
         parser.add_argument(
-            "--skip", choices=SKIP_CHOICES,
-            type=str, help="Optional steps to skip during import")
+            "--skip", type=str, choices=SKIP_CHOICES, action='append',
+            help="Optional step to skip during import")
         parser.add_argument(
             "path", nargs="*",
             help="Path to be passed to the Java process")
@@ -199,13 +202,17 @@ class ImportControl(BaseControl):
 
     def set_skip_arguments(self, args):
         """Set the arguments to skip steps during import"""
-        if args.skip in ['all', 'checksum']:
-            self.command_args.append("--no_pixels_checksum")
+        if not args.skip:
+            return
+
+        if ('all' in args.skip or 'checksum' in args.skip):
             self.command_args.append("--checksum_algorithm=File-Size-64")
-        if args.skip in ['all', 'thumbnails']:
+        if ('all' in args.skip or 'thumbnails' in args.skip):
             self.command_args.append("--no_thumbnails")
-        if args.skip in ['all', 'minmax']:
-            self.command_args.append("--no_stats_info")
+        if ('all' in args.skip or 'minmax' in args.skip):
+            self.command_args.append("--no-stats-info")
+        if ('all' in args.skip or 'upgrade' in args.skip):
+            self.command_args.append("--no-upgrade-check")
 
     def set_java_arguments(self, args):
         """Set the arguments passed to Java"""
@@ -227,7 +234,7 @@ class ImportControl(BaseControl):
             "java_logs": ("--logs"),
             "java_email": ("--email"),
             "java_debug": ("--debug",),
-            "java_qa_baseurl": ("--qa_baseurl",),
+            "java_qa_baseurl": ("--qa-baseurl",),
             "java_ns": "--annotation_ns",
             "java_text": "--annotation_text",
             "java_link": "--annotation_link",

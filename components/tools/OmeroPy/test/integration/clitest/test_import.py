@@ -73,6 +73,9 @@ NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
              xstr(x.description_arg)) for x in NFS]
 debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
 
+skip_fixtures = (
+    [], ['all'], ['checksum'], ['minmax'], ['thumbnails'], ['upgrade'])
+
 
 class TestImport(CLITest):
 
@@ -142,16 +145,17 @@ class TestImport(CLITest):
         """Parse the debug levels from the stdout"""
 
         levels = []
+        loggers = []
         # First two lines are logging of ome.formats.importer.ImportConfig
         # INFO level and are always output
         for line in out.split('\n')[2:]:
             splitline = line.split()
             # For some reason the ome.system.UpgradeCheck logging is always
             # output independently of the debug level
-            if len(splitline) > 3 and splitline[2] in debug_levels and \
-                    not splitline[3] == 'ome.system.UpgradeCheck':
+            if len(splitline) > 3 and splitline[2] in debug_levels:
                 levels.append(splitline[2])
-        return levels
+                loggers.append(splitline[3])
+        return levels, loggers
 
     def parse_summary(self, err):
         """Parse the summary output from stderr"""
@@ -285,9 +289,10 @@ class TestImport(CLITest):
         self.args += ['--debug=%s' % level]
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        levels = self.parse_debug_levels(o)
-        assert set(levels) <= set(debug_levels[debug_levels.index(level):])
+        out, err = capfd.readouterr()
+        levels, loggers = self.parse_debug_levels(out)
+        expected_levels = debug_levels[debug_levels.index(level):]
+        assert set(levels) <= set(expected_levels), out
 
     def testImportSummary(self, tmpdir, capfd):
         """Test import summary output"""
@@ -401,3 +406,40 @@ class TestImport(CLITest):
         obj = self.get_object(e, 'Image')
 
         assert obj
+
+    @pytest.mark.parametrize(
+        "skipargs", skip_fixtures, ids=["_".join(x) for x in skip_fixtures])
+    def testSkipArguments(self, tmpdir, capfd, skipargs):
+        """Test symlink import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        for skiparg in skipargs:
+            self.args += ['--skip', skiparg]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        out, err = capfd.readouterr()
+        image = self.get_object(err, 'Image')
+
+        # Check min/max calculation
+        query = ("select p from Pixels p left outer "
+                 "join fetch p.channels as c "
+                 "join fetch c.logicalChannel as lc "
+                 "join fetch p.image as i where i.id = %s" % image.id.val)
+        pixels = self.query.findByQuery(query, None)
+        if 'minmax' in skipargs or 'all' in skipargs:
+            assert pixels.getChannel(0).getStatsInfo() is None
+            assert pixels.getSha1().val == "Foo"
+        else:
+            assert pixels.getChannel(0).getStatsInfo()
+            assert pixels.getSha1() != "Foo"
+
+        # Check UpgradeCheck skip
+        levels, loggers = self.parse_debug_levels(out)
+        if 'upgrade' in skipargs or 'all' in skipargs:
+            assert 'ome.system.UpgradeCheck' not in loggers, out
+        else:
+            assert 'ome.system.UpgradeCheck' in loggers, out
