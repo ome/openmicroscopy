@@ -1936,7 +1936,7 @@ def full_viewer(request, iid, conn=None, **kwargs):
     return HttpResponse(rsp)
 
 
-@login_required(doConnectionCleanup=False)
+@login_required()
 def download_as(request, iid=None, conn=None, **kwargs):
     """
     Downloads the image as a single jpeg/png/tiff or as a zip (if more than
@@ -2005,10 +2005,14 @@ def download_as(request, iid=None, conn=None, **kwargs):
             try:
                 for img in images:
                     z = t = None
-                    pilImg = img.renderImage(z, t)
-                    imgPathName = makeImageName(
-                        img.getName(), format, temp_zip_dir)
-                    pilImg.save(imgPathName)
+                    try:
+                        pilImg = img.renderImage(z, t)
+                        imgPathName = makeImageName(
+                            img.getName(), format, temp_zip_dir)
+                        pilImg.save(imgPathName)
+                    finally:
+                        # Close RenderingEngine
+                        img._re.close()
                 # create zip
                 zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
                 try:
