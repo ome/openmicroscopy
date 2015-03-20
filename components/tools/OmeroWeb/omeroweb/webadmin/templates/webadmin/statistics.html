@@ -26,22 +26,22 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% static "webadmin/css/drivespace.css" %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.table.css"|add:url_suffix %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webadmin/css/drivespace.css"|add:url_suffix %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static "3rdparty/jquery.tablesorter-2.0.3/jquery.tablesorter.css" %}" type="text/css" media="screen"/>
 
     
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css" %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.table_ie.css"|add:url_suffix %}" />
 	<![endif]-->
 	
 {% endblock %}
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.flot/jquery.flot.pie.js" %}"></script>
-    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot/excanvas.js" %}"></script><![endif]-->
+    <script type="text/javascript" src="{% static "3rdparty/jquery.flot-0.7/jquery.flot.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.flot-0.7/jquery.flot.pie.js" %}"></script>
+    <!--[if lte IE 8]><script language="javascript" type="text/javascript" src="{% static "3rdparty/jquery.flot-0.7/excanvas.js" %}"></script><![endif]-->
     
     <script type="text/javascript">
         $(document).ready(function() {

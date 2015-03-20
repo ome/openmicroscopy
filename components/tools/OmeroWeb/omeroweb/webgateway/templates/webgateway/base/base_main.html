@@ -22,9 +22,9 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.toolbar.css" %}" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.toolbar.css"|add:url_suffix %}" type="text/css" media="screen"/>
 	<!--[if lte IE 8]>
-		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar_ie.css" %}" />
+		<link rel="stylesheet" type="text/css" href="{% static "webgateway/css/ome.toolbar_ie.css"|add:url_suffix %}" />
 	<![endif]-->
 {% endblock %}
 
@@ -35,7 +35,7 @@
     {% include "webgateway/base/includes/script_src_popup.html" %}
 
     <!-- Turn touch events into drag events for jquery-ui -->
-    <script type="text/javascript" src="{% static "3rdparty/jquery.ui.touch-punch.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "3rdparty/jquery.ui.touch-punch-0.2.3.min.js" %}"></script>
 
     <!-- Make the width fit the mobile viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">

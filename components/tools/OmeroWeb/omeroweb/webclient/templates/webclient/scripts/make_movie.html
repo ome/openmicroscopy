@@ -35,7 +35,7 @@
 
 {% block script %}
     {{ block.super }}
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.make_movie.js" %}"></script>
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.make_movie.js"|add:url_suffix %}"></script>
 
     <style type="text/css">
         

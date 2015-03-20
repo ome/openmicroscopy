@@ -29,9 +29,9 @@
     {% block link %}
 		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 		<link rel="icon" href="/favicon.ico" type="image/x-icon">
-		<link rel="stylesheet" href="{% static "webgateway/css/reset.css" %}" type="text/css" />   
-		<link rel="stylesheet" href="{% static "webgateway/css/ome.body.css" %}" type="text/css" />
-		<link rel="stylesheet" href="{% static "webclient/css/dusty.css" %}" type="text/css" media="screen"/>
+		<link rel="stylesheet" href="{% static "webgateway/css/reset.css"|add:url_suffix %}" type="text/css" />   
+		<link rel="stylesheet" href="{% static "webgateway/css/ome.body.css"|add:url_suffix %}" type="text/css" />
+		<link rel="stylesheet" href="{% static "webclient/css/dusty.css"|add:url_suffix %}" type="text/css" media="screen"/>
 		
     {% endblock %}
 

@@ -23,8 +23,8 @@
 
 {% block link %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static "webclient/css/layout.css" %}" type="text/css" />
-    <link rel="stylesheet" href="{% static "webgateway/css/ome.login.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "webclient/css/layout.css"|add:url_suffix %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "webgateway/css/ome.login.css"|add:url_suffix %}" type="text/css" />
 {% endblock %}
 
 {% block title %}
@@ -35,7 +35,7 @@
 {% block script %}
     
 	{% include "webgateway/base/includes/script_src_jquery.html" %}
-	<script src="{% static 'webclient/javascript/jquery.infieldlabel.js' %}" type="text/javascript"></script>
+	<script src="{% static 'webclient/javascript/jquery.infieldlabel-0.1.js' %}" type="text/javascript"></script>
 	
 {% endblock %}
 
