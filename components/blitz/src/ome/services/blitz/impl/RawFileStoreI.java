@@ -61,6 +61,11 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.sf = sf;
+        setHolder(sf.holder);
+    }
+
+    public ServiceFactoryI getServiceFactory() throws ServerError {
+        return this.sf;
     }
 
     public void setTie(TieBase tie) throws ServerError {
