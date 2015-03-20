@@ -15,6 +15,8 @@ Changes include:
 -  various fixes for searching and filtering map annotations and converting
    between units
 -  deprecation of IUpdate.deleteObject API method
+-  versioning of all JavaScript files to fix browser refresh problems
+-  clarifying usage of OMERO.web views and templates including RequestContext
 
 5.1.0-m4 (February 2015)
 ------------------------
