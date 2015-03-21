@@ -720,6 +720,7 @@ public class CommandLineImporter {
                 break;
             }
             case 93: {
+                setArgument(conflictingArguments, "checksumAlgorithm");
                 String arg = g.getOptarg();
                 log.info("Setting checksum algorithm to {}", arg);
                 config.checksumAlgorithm.set(arg);
