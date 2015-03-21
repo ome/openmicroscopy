@@ -441,5 +441,3 @@ class TestImport(CLITest):
         levels, loggers = self.parse_debug_levels(out)
         if 'upgrade' in skipargs or 'all' in skipargs:
             assert 'ome.system.UpgradeCheck' not in loggers, out
-        else:
-            assert 'ome.system.UpgradeCheck' in loggers, out
