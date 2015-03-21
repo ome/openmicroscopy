@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #
@@ -108,7 +107,7 @@ class TestImport(CLITest):
         return query.get(obj_type, int(match.group('id')),
                          {"omero.group": "-1"})
 
-    def get_linked_annotation(self, oid):
+    def get_linked_annotations(self, oid):
         """Retrieve the comment annotation linked to the image"""
 
         params = omero.sys.ParametersI()
@@ -117,7 +116,7 @@ class TestImport(CLITest):
         query += " where exists ("
         query += " select aal from ImageAnnotationLink as aal"
         query += " where aal.child=t.id and aal.parent.id=:id) "
-        return self.query.findByQuery(query, params)
+        return self.query.findAllByQuery(query, params, None)
 
     def get_dataset(self, iid):
         """Retrieve the parent dataset linked to the image"""
@@ -189,46 +188,65 @@ class TestImport(CLITest):
         if fixture.description_arg:
             assert obj.getDescription().val == 'description'
 
-    def testAnnotationText(self, tmpdir, capfd):
+    @pytest.mark.parametrize(
+        'annotation_prefix', ('--annotation_', '--annotation-'))
+    @pytest.mark.parametrize('n', [1, 2])
+    @pytest.mark.parametrize('argtype', ['Python', 'Java'])
+    def testAnnotationText(self, tmpdir, capfd, argtype, n, annotation_prefix):
         """Test argument creating a comment annotation linked to the import"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
         self.args += [str(fakefile)]
-        self.args += ['--annotation_ns', 'annotation_ns']
-        self.args += ['--annotation_text', 'annotation_text']
+        if argtype == 'Java':
+            self.args += ['--']
+        ns = ['ns%s' % i for i in range(n)]
+        text = ['ns%s' % i for i in range(n)]
+        for i in range(n):
+            self.args += [annotation_prefix + 'ns', ns[i]]
+            self.args += [annotation_prefix + 'text', text[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         obj = self.get_object(e, 'Image')
-        annotation = self.get_linked_annotation(obj.id.val)
+        annotations = self.get_linked_annotations(obj.id.val)
 
-        assert annotation
-        assert annotation.textValue.val == 'annotation_text'
-        assert annotation.ns.val == 'annotation_ns'
+        assert len(annotations) == n
+        assert set([x.ns.val for x in annotations]) == set(ns)
+        assert set([x.textValue.val for x in annotations]) == set(text)
 
-    def testAnnotationLink(self, tmpdir, capfd):
+    @pytest.mark.parametrize('argtype', ['Python', 'Java'])
+    @pytest.mark.parametrize('n', [1, 2])
+    @pytest.mark.parametrize(
+        'annotation_args', ('--annotation_link', '--annotation-link'))
+    def testAnnotationLink(self, tmpdir, capfd, argtype, n, annotation_args):
         """Test argument linking imported image to a comment annotation"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
-        comment = omero.model.CommentAnnotationI()
-        comment.textValue = rstring('test')
-        comment = self.update.saveAndReturnObject(comment)
+        comment_ids = []
+        for i in range(n):
+            comment = omero.model.CommentAnnotationI()
+            comment.textValue = rstring('test')
+            comment = self.update.saveAndReturnObject(comment)
+            comment_ids.append(comment.id.val)
 
         self.args += [str(fakefile)]
-        self.args += ['--annotation_link', '%s' % comment.id.val]
+        if argtype == 'Java':
+            self.args += ['--']
+        for i in range(n):
+            self.args += [annotation_args, '%s' % comment_ids[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         obj = self.get_object(e, 'Image')
-        annotation = self.get_linked_annotation(obj.id.val)
+        annotations = self.get_linked_annotations(obj.id.val)
 
-        assert annotation
-        assert annotation.id.val == comment.id.val
+        assert len(annotations) == n
+        assert set([x.id.val for x in annotations]) == set(comment_ids)
 
     def testDatasetArgument(self, tmpdir, capfd):
         """Test argument linking imported image to a dataset"""
