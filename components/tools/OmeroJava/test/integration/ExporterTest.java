@@ -960,22 +960,31 @@ public class ExporterTest extends AbstractServerTest {
         File inputXML = null;
         RandomAccessInputStream in = null;
         RandomAccessOutputStream out = null;
+        RandomAccessOutputStream tiffOutput = null;
+        File tiffXML = null;
         try {
             f = export(OME_TIFF, IMAGE);
             //extract XML and copy to tmp file
-            TiffParser parser = new TiffParser(f.getAbsolutePath());
+            String path = f.getAbsolutePath();
+            TiffParser parser = new TiffParser(path);
             inputXML = File.createTempFile(RandomStringUtils.random(10),
                     "." + OME_XML);
             FileUtils.writeStringToFile(inputXML, parser.getComment());
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
-            validate(transformed);
             String comment = FileUtils.readFileToString(transformed);
-            String path = f.getAbsolutePath();
-            TiffSaver saver = new TiffSaver(path);
+
+            tiffOutput = new RandomAccessOutputStream(path);
+            TiffSaver saver = new TiffSaver(tiffOutput, path);
             saver.setBigTiff(parser.isBigTiff());
             in = new RandomAccessInputStream(path);
             saver.overwriteComment(in, comment);
+            tiffOutput.close();
+            parser = new TiffParser(path);
+            tiffXML = File.createTempFile(RandomStringUtils.random(10),
+                    "." + OME_XML);
+            FileUtils.writeStringToFile(tiffXML, parser.getComment());
+            validate(tiffXML);
             //import the file
             importFile(f, OME_XML);
         } catch (Throwable e) {
@@ -986,6 +995,7 @@ public class ExporterTest extends AbstractServerTest {
             if (transformed != null) transformed.delete();
             if (inputXML != null) inputXML.delete();
             if (in != null) in.close();
+            if (tiffXML != null) tiffXML.delete();
         }
     }
 
