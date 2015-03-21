@@ -205,9 +205,9 @@ class ImportControl(BaseControl):
             return
 
         if ('all' in args.skip or 'checksum' in args.skip):
-            self.command_args.append("--checksum_algorithm=File-Size-64")
+            self.command_args.append("--checksum-algorithm=File-Size-64")
         if ('all' in args.skip or 'thumbnails' in args.skip):
-            self.command_args.append("--no_thumbnails")
+            self.command_args.append("--no-thumbnails")
         if ('all' in args.skip or 'minmax' in args.skip):
             self.command_args.append("--no-stats-info")
         if ('all' in args.skip or 'upgrade' in args.skip):
@@ -234,9 +234,9 @@ class ImportControl(BaseControl):
             "java_email": ("--email"),
             "java_debug": ("--debug",),
             "java_qa_baseurl": ("--qa-baseurl",),
-            "java_ns": "--annotation_ns",
-            "java_text": "--annotation_text",
-            "java_link": "--annotation_link",
+            "java_ns": "--annotation-ns",
+            "java_text": "--annotation-text",
+            "java_link": "--annotation-link",
             "java_advanced_help": "--advanced-help",
             }
 
