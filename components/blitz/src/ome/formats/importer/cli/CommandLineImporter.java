@@ -543,7 +543,7 @@ public class CommandLineImporter {
         LongOpt plateDescription = new LongOpt(
                 "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 91);
         LongOpt noThumbnailsDeprecated = new LongOpt(
-                "no_thumbnails", LongOpt.REQUIRED_ARGUMENT, null, 92);
+                "no_thumbnails", LongOpt.NO_ARGUMENT, null, 92);
         LongOpt checksumAlgorithmDeprecated = new LongOpt(
                 "checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 93);
         LongOpt annotationNamespaceDeprecated =
