@@ -198,31 +198,27 @@ class TestImport(CLITest):
         return re.findall('\d:[\d]{2}:[\d]{2}\.[\d]{3}|\d',
                           err.split('\n')[-2])
 
-    @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
-    def testNamingArguments(self, fixture, tmpdir, capfd):
-        """Test naming arguments for the imported image/plate"""
+    def testAutoClose(self, tmpdir, capfd,):
+        """Test auto-close argument"""
 
-        if fixture.obj_type == 'Image':
-            fakefile = tmpdir.join("test.fake")
-        else:
-            fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
-                                   "fields=1&plateAcqs=1.fake")
+        fakefile = tmpdir.join("test.fake")
         fakefile.write('')
+
         self.args += [str(fakefile)]
-        if fixture.name_arg:
-            self.args += [fixture.name_arg, 'name']
-        if fixture.description_arg:
-            self.args += [fixture.description_arg, 'description']
-
-        # Invoke CLI import command and retrieve stdout/stderr
+        self.args += ['--', '--auto_close']
         self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, fixture.obj_type)
 
-        if fixture.name_arg:
-            assert obj.getName().val == 'name'
-        if fixture.description_arg:
-            assert obj.getDescription().val == 'description'
+        # Check that there are no servants leftover
+        stateful = []
+        for x in range(10):
+            stateful = self.client.getStatefulServices()
+            if stateful:
+                import time
+                time.sleep(0.5)  # Give the backend some time to close
+            else:
+                break
+
+        assert len(stateful) == 0
 
     @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
     def testAnnotationText(self, tmpdir, capfd, fixture):
@@ -438,22 +434,31 @@ class TestImport(CLITest):
         assert obj.details.owner.id.val == user.id.val
         assert obj.details.group.id.val == group2.id.val
 
-    def testSymlinkImport(self, tmpdir, capfd):
-        """Test symlink import"""
+    @pytest.mark.parametrize("fixture", NFS, ids=NFS_names)
+    def testNamingArguments(self, fixture, tmpdir, capfd):
+        """Test naming arguments for the imported image/plate"""
 
-        fakefile = tmpdir.join("ln_s.fake")
+        if fixture.obj_type == 'Image':
+            fakefile = tmpdir.join("test.fake")
+        else:
+            fakefile = tmpdir.join("SPW&plates=1&plateRows=1&plateCols=1&"
+                                   "fields=1&plateAcqs=1.fake")
         fakefile.write('')
-        fakefile.chmod(stat.S_IREAD)
-
         self.args += [str(fakefile)]
-        self.args += ['--', '--transfer', 'ln_s']
+        if fixture.name_arg:
+            self.args += [fixture.name_arg, 'name']
+        if fixture.description_arg:
+            self.args += [fixture.description_arg, 'description']
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Image')
+        obj = self.get_object(e, fixture.obj_type)
 
-        assert obj
+        if fixture.name_arg:
+            assert obj.getName().val == 'name'
+        if fixture.description_arg:
+            assert obj.getDescription().val == 'description'
 
     @pytest.mark.parametrize(
         "skipargs", skip_fixtures, ids=["_".join(x) for x in skip_fixtures])
@@ -489,3 +494,42 @@ class TestImport(CLITest):
         levels, loggers = self.parse_debug_levels(out)
         if 'upgrade' in skipargs or 'all' in skipargs:
             assert 'ome.system.UpgradeCheck' not in loggers, out
+
+    def testSymlinkImport(self, tmpdir, capfd):
+        """Test symlink import"""
+
+        fakefile = tmpdir.join("ln_s.fake")
+        fakefile.write('')
+        fakefile.chmod(stat.S_IREAD)
+
+        self.args += [str(fakefile)]
+        self.args += ['--', '--transfer', 'ln_s']
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+
+        assert obj
+
+    @pytest.mark.broken(ticket="11539")
+    def testTargetInDifferentGroup(self, tmpdir, capfd):
+        new_group = self.new_group(experimenters=[self.user])
+        self.sf.getAdminService().getEventContext()  # Refresh
+        dataset = omero.model.DatasetI()
+        dataset.name = rstring('testTargetInDifferentGroup')
+        dataset = self.update.saveAndReturnObject(
+            dataset, {"omero.group": str(new_group.id.val)})
+        assert dataset.details.group.id.val == new_group.id.val
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        self.args += ['-d', '%s' % dataset.id.val]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        o, e = capfd.readouterr()
+        obj = self.get_object(e, 'Image')
+
+        assert obj.details.id.val == new_group.id.val
