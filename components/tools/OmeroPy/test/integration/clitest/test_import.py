@@ -72,6 +72,42 @@ NFS_names = ['%s%s%s' % (x.obj_type, xstr(x.name_arg),
              xstr(x.description_arg)) for x in NFS]
 debug_levels = ['ALL', 'TRACE',  'DEBUG', 'INFO', 'WARN', 'ERROR']
 
+
+class AnnotationFixture(object):
+    """
+    Fixture to test annotation arguments of bin/omero import
+    """
+
+    def __init__(self, arg_type, n, is_deprecated):
+        self.arg_type = arg_type
+        self.n = n
+        self.is_deprecated = is_deprecated
+        if self.is_deprecated:
+            self.annotation_ns_arg = "--annotation_ns"
+            self.annotation_text_arg = "--annotation_text"
+            self.annotation_link_arg = "--annotation_link"
+        else:
+            self.annotation_ns_arg = "--annotation-ns"
+            self.annotation_text_arg = "--annotation-text"
+            self.annotation_link_arg = "--annotation-link"
+
+    def get_name(self):
+        if self.is_deprecated:
+            return '%s-%s-Deprecated' % (self.arg_type, self.n)
+        else:
+            return '%s-%s-Official' % (self.arg_type, self.n)
+
+AF = AnnotationFixture
+AFS = (
+    AF("Python", 1, False),
+    AF("Python", 1, True),
+    AF("Java", 1, False),
+    AF("Java", 1, True),
+    # Multiple annotation input are supported at the Java level only for now
+    AF("Java", 2, False),
+    AF("Java", 2, True))
+AFS_names = [x.get_name() for x in AFS]
+
 skip_fixtures = (
     [], ['all'], ['checksum'], ['minmax'], ['thumbnails'], ['upgrade'])
 
@@ -188,23 +224,20 @@ class TestImport(CLITest):
         if fixture.description_arg:
             assert obj.getDescription().val == 'description'
 
-    @pytest.mark.parametrize(
-        'annotation_prefix', ('--annotation_', '--annotation-'))
-    @pytest.mark.parametrize('n', [1, 2])
-    @pytest.mark.parametrize('argtype', ['Python', 'Java'])
-    def testAnnotationText(self, tmpdir, capfd, argtype, n, annotation_prefix):
+    @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
+    def testAnnotationText(self, tmpdir, capfd, fixture):
         """Test argument creating a comment annotation linked to the import"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
         self.args += [str(fakefile)]
-        if argtype == 'Java':
+        if fixture.arg_type == 'Java':
             self.args += ['--']
-        ns = ['ns%s' % i for i in range(n)]
-        text = ['ns%s' % i for i in range(n)]
-        for i in range(n):
-            self.args += [annotation_prefix + 'ns', ns[i]]
-            self.args += [annotation_prefix + 'text', text[i]]
+        ns = ['ns%s' % i for i in range(fixture.n)]
+        text = ['text%s' % i for i in range(fixture.n)]
+        for i in range(fixture.n):
+            self.args += [fixture.annotation_ns_arg, ns[i]]
+            self.args += [fixture.annotation_text_arg, text[i]]
 
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
@@ -212,40 +245,37 @@ class TestImport(CLITest):
         obj = self.get_object(e, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
-        assert len(annotations) == n
+        assert len(annotations) == fixture.n
         assert set([x.ns.val for x in annotations]) == set(ns)
         assert set([x.textValue.val for x in annotations]) == set(text)
 
-    @pytest.mark.parametrize('argtype', ['Python', 'Java'])
-    @pytest.mark.parametrize('n', [1, 2])
-    @pytest.mark.parametrize(
-        'annotation_args', ('--annotation_link', '--annotation-link'))
-    def testAnnotationLink(self, tmpdir, capfd, argtype, n, annotation_args):
+    @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
+    def testAnnotationLink(self, tmpdir, capfd, fixture):
         """Test argument linking imported image to a comment annotation"""
 
         fakefile = tmpdir.join("test.fake")
         fakefile.write('')
 
         comment_ids = []
-        for i in range(n):
+        for i in range(fixture.n):
             comment = omero.model.CommentAnnotationI()
-            comment.textValue = rstring('test')
+            comment.textValue = rstring('comment%s' % i)
             comment = self.update.saveAndReturnObject(comment)
             comment_ids.append(comment.id.val)
 
         self.args += [str(fakefile)]
-        if argtype == 'Java':
+        if fixture.arg_type == 'Java':
             self.args += ['--']
-        for i in range(n):
-            self.args += [annotation_args, '%s' % comment_ids[i]]
-
+        for i in range(fixture.n):
+            self.args += [fixture.annotation_link_arg, '%s' % comment_ids[i]]
+        print self.args
         # Invoke CLI import command and retrieve stdout/stderr
         self.cli.invoke(self.args, strict=True)
         o, e = capfd.readouterr()
         obj = self.get_object(e, 'Image')
         annotations = self.get_linked_annotations(obj.id.val)
 
-        assert len(annotations) == n
+        assert len(annotations) == fixture.n
         assert set([x.id.val for x in annotations]) == set(comment_ids)
 
     def testDatasetArgument(self, tmpdir, capfd):
