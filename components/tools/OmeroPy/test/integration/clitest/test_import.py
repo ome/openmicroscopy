@@ -227,6 +227,23 @@ class TestImport(CLITest):
 
         assert len(stateful) == 0
 
+    @pytest.mark.parametrize("arg", [
+        '--checksum-algorithm', '--checksum_algorithm'])
+    @pytest.mark.parametrize("algorithm", [
+        'Adler-32', 'CRC-32', 'File-Size-64', 'MD5-128', 'Murmur3-32',
+        'Murmur3-128', 'SHA1-160'])
+    def testChecksumAlgorithm(self, tmpdir, capfd, arg, algorithm):
+        """Test checksum algorithm argument"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        self.args += ['--', arg, algorithm]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+
     @pytest.mark.parametrize("fixture", AFS, ids=AFS_names)
     def testAnnotationText(self, tmpdir, capfd, fixture):
         """Test argument creating a comment annotation linked to the import"""
