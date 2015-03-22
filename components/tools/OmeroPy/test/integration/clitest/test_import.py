@@ -198,6 +198,13 @@ class TestImport(CLITest):
         return re.findall('\d:[\d]{2}:[\d]{2}\.[\d]{3}|\d',
                           err.split('\n')[-2])
 
+    def get_thumbnail(self, iid):
+        query = ("select t from Thumbnail t "
+                 "join fetch t.pixels p "
+                 "join fetch p.image as i where i.id = %s" % iid)
+        t = self.query.findByQuery(query, None)
+        return t
+
     def testAutoClose(self, tmpdir, capfd,):
         """Test auto-close argument"""
 
@@ -460,6 +467,24 @@ class TestImport(CLITest):
         if fixture.description_arg:
             assert obj.getDescription().val == 'description'
 
+    @pytest.mark.parametrize("arg", ['--no-thumbnails', '--no_thumbnails'])
+    def testNoThumbnails(self, tmpdir, capfd, arg):
+        """Test symlink import"""
+
+        fakefile = tmpdir.join("test.fake")
+        fakefile.write('')
+
+        self.args += [str(fakefile)]
+        self.args += ['--', arg]
+
+        # Invoke CLI import command and retrieve stdout/stderr
+        self.cli.invoke(self.args, strict=True)
+        out, err = capfd.readouterr()
+        image = self.get_object(err, 'Image')
+
+        # Check no thumbnails
+        assert self.get_thumbnail(image.id.val) is None
+
     @pytest.mark.parametrize(
         "skipargs", skip_fixtures, ids=["_".join(x) for x in skip_fixtures])
     def testSkipArguments(self, tmpdir, capfd, skipargs):
@@ -489,6 +514,12 @@ class TestImport(CLITest):
         else:
             assert pixels.getChannel(0).getStatsInfo()
             assert pixels.getSha1() != "Foo"
+
+        # Check no thumbnails
+        if 'thumbnails' in skipargs or 'all' in skipargs:
+            assert self.get_thumbnail(image.id.val) is None
+        else:
+            assert self.get_thumbnail(image.id.val)
 
         # Check UpgradeCheck skip
         levels, loggers = self.parse_debug_levels(out)
