@@ -98,15 +98,6 @@ public class DowngradeChooser
 	public void parseData(String file)
 		throws Exception
 	{
-		addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (CANCEL_SELECTION_PROPERTY.equals(evt.getPropertyName())) {
-					parser.close();
-				}
-				
-			}
-		});
 		helpButton = new JButton();
 		UIUtilities.unifiedButtonLookAndFeel(helpButton);
 		helpButton.setIcon(IconManager.getInstance().getIcon(IconManager.HELP));

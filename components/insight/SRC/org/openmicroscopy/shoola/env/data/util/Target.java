@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -82,13 +83,7 @@ public class Target {
 	 * <code>schema</code>.
 	 */
 	private List<String> transforms;
-	
-	/** 
-	 * The collection of transformations to apply to go to the specified
-	 * <code>schema</code>.
-	 */
-	private List<InputStream> styleSheets;
-	
+
 	/** The node to parse.*/
 	private Element node;
 	
@@ -118,35 +113,9 @@ public class Target {
 		if (node == null) 
 			throw new IllegalArgumentException("No node to handle.");
 		transforms = new ArrayList<String>();
-		styleSheets = new ArrayList<InputStream>();
 		this.node = node;
 	}
-	
-	/**
-	 * Replaces the string by the corresponding input stream.
-	 * 
-	 * @param values The values to set.
-	 */
-	void formatTransforms(Map<String, InputStream> values)
-	{
-		Iterator<String> i = transforms.iterator();
-		String key;
-		Entry e;
-		Iterator j;
-		String value;
-		while (i.hasNext()) {
-			key = i.next();
-			j = values.entrySet().iterator();
-			while (j.hasNext()) {
-				e = (Entry) j.next();
-				value = (String) e.getKey();
-				if (value.contains(key)) {
-					styleSheets.add((InputStream) e.getValue());
-				}
-			}
-		}
-	}
-	
+
 	/**
 	 * Parses the node.
 	 * 
@@ -180,7 +149,23 @@ public class Target {
 	 * 
 	 * @return See above.
 	 */
-	public List<InputStream> getTransforms() { return styleSheets; }
+	public List<InputStream> getTransforms()
+	{
+	    List<InputStream> styleSheets = new ArrayList<InputStream>();
+	    Iterator<String> j = transforms.iterator();
+	    String name;
+	    if (!UIUtilities.isWindowsOS()) {
+	        name = "/"+TransformsParser.TRANSFORM_FOLDER;
+	    } else {
+	        name = TransformsParser.TRANSFORM_FOLDER;
+	    }
+	    while (j.hasNext()) {
+	        name += j.next();
+	        styleSheets.add(
+	                this.getClass().getClassLoader().getResourceAsStream(name));
+        }
+	    return styleSheets;
+	}
 	
 	/**
 	 * Returns the name of the schema.
@@ -203,18 +188,6 @@ public class Target {
 	 */
 	public String getInformation() { return info; }
 
-	/** Closes the streams.*/
-	public void close()
-	{
-		if (styleSheets == null) return;
-		Iterator<InputStream> i = styleSheets.iterator();
-		while (i.hasNext()) {
-			try {
-				i.next().close();
-			} catch (Exception e) {}
-		}
-	}
-	
 	/**
 	 * Overridden to return the name of the schema.
 	 */

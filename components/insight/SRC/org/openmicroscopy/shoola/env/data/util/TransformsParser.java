@@ -34,6 +34,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -54,8 +55,11 @@ public class TransformsParser
     /** The jar to find. */
     public static String SPECIFICATION = "specification";
 
+    /** Folder hosting the style sheets.*/
+    static String TRANSFORM_FOLDER = "transforms/";
+
     /** The catalog file to find. */
-    private static String CATALOG = "/transforms/ome-transforms.xml";
+    private static String CATALOG = "transforms/ome-transforms.xml";
 
     /** The <i>name</i> attribute. */
     private static String CURRENT = "current";
@@ -68,9 +72,6 @@ public class TransformsParser
 
     /** The possible downgrade schema.*/
     private List<Target> targets;
-
-    /** The jar to load.*/
-    private Map<String, InputStream> values;
 
     /** The current schema.*/
     private String current;
@@ -101,7 +102,6 @@ public class TransformsParser
                         for (int k = 0; k < t.getLength(); k++) {
                             target = new Target((Element) t.item(k));
                             target.parse();
-                            target.formatTransforms(values);
                             targets.add(target);
                         }
                     }
@@ -116,15 +116,6 @@ public class TransformsParser
     public TransformsParser()
     {
         targets = new ArrayList<Target>();
-    }
-
-    /** Closes the input stream.*/
-    public void close()
-    {
-        Iterator<Target> i = targets.iterator();
-        while (i.hasNext()) {
-            i.next().close();
-        }
     }
 
     /**
@@ -150,7 +141,11 @@ public class TransformsParser
     public void parse(String path)
             throws Exception
     {
-        InputStream stream = this.getClass().getResourceAsStream(CATALOG);
+        String name = CATALOG;
+        if (!UIUtilities.isWindowsOS()) {
+            name = "/"+name;
+        }
+        InputStream stream = this.getClass().getResourceAsStream(name);
         if (stream == null)
             throw new Exception("No Catalog found.");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
