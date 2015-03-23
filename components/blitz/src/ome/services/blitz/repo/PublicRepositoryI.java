@@ -602,7 +602,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     checked.getId(), checked, mode, __current);
             rfs = new RepoRawFileStoreI(be, service, adjustedCurr);
             rfs.setApplicationContext(this.context);
-            rfs.setHolder(rfs.getServiceFactory().holder);
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;
