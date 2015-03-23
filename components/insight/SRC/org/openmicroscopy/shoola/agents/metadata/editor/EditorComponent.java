@@ -910,12 +910,14 @@ class EditorComponent
 						return;
 					}
 						
-					Collection tags = model.getExistingTags();
+					Collection tags = model.isMultiSelection() ? model.getAllTags() : model.getTags();
 					dialog = controller.createFigureDialog(name, 
 							pixels, FigureDialog.THUMBNAILS);
 					dialog.setParentRef(model.getParentRootObject());
-					if (tags != null) dialog.setTags(tags);
-					else model.loadExistingTags();
+					if (tags != null) 
+					    dialog.setTags(tags);
+					else 
+					    model.loadExistingTags();
 					dialog.centerDialog();
 					break;
 				case FigureDialog.MOVIE:
