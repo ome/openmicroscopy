@@ -580,7 +580,6 @@ public class CommandLineImporter {
         Map<String, Boolean> conflictingArguments = new HashMap<String, Boolean>();
         conflictingArguments.put("userSpecifiedName", false);
         conflictingArguments.put("userSpecifiedDescription", false);
-        conflictingArguments.put("noThumbnails", false);
         conflictingArguments.put("checksumAlgorithm", false);
 
         List<String> annotationNamespaces = new ArrayList<String>();
@@ -620,7 +619,6 @@ public class CommandLineImporter {
                 break;
             }
             case 8: {
-                setArgument(conflictingArguments, "noThumbnails");
                 log.info("Skipping thumbnails creation");
                 config.doThumbnails.set(false);
                 break;
@@ -714,7 +712,6 @@ public class CommandLineImporter {
                 break;
             }
             case 92: {
-                setArgument(conflictingArguments, "noThumbnails");
                 log.info("Skipping thumbnails creation");
                 config.doThumbnails.set(false);
                 break;
@@ -875,6 +872,7 @@ public class CommandLineImporter {
     public static void setArgument(Map <String, Boolean> map, String key) {
         if (map.get(key)) {
             // The property has already been set
+            log.error("Conflicting arguments setting {}.", key);
             usage();
         }
         map.put(key, true);
