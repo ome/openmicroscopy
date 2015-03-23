@@ -8,6 +8,34 @@ Resource          ../../resources/web/tree.txt
 Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
 Suite Teardown      Close all browsers
 
+*** Keywords ***
+
+
+Pick Color
+    [Arguments]          ${btnColor}        ${hexColor}       ${rgbColor}
+    Click Element                           xpath=//button[@id="wblitz-ch0-color"]
+    Wait Until Element Is Visible           id=cbpicker-box
+    # Click yellow color-picker button
+    Click Element                           xpath=//button[contains(@class, "preset-color-btn")][contains(@style, "background-color: #${btnColor}")]
+    Textfield Value Should Be               cbpicker-tb         ${hexColor}
+    Click Element                           cbpicker-OK-btn
+    # Wait for the channel toggle button to turn yellow
+    Wait For Channel Color                  ${rgbColor}
+
+Wait For Channel Color
+    [Arguments]          ${rgbColor}
+    Wait Until Page Contains Element        xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]
+
+Wait For BlockUI
+    Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
+    Wait For Condition                      return ($("div.blockOverlay").length == 0)
+
+Wait For Preview Reload
+    # Wait For Condition                      return ($("#viewport-img").length == 0)
+    Sleep                                   0.5
+    Wait Until Page Contains Element        id=viewport-img
+
+
 *** Test Cases ***
 
 Test Rdef Copy Paste Save
@@ -18,50 +46,115 @@ Test Rdef Copy Paste Save
     Wait Until Page Contains Element        xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
     ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
     Click Link                              Preview
+
+    # Click 'Copy' in Preview panel, then right-click on Image in tree and 'Paste and Save'
+    # Test success of paste by thumbnail refresh
     Wait Until Page Contains Element        id=viewport-img
     Sleep                                   0.5
+    Wait Until Page Contains Element        xpath=//button[@id="wblitz-ch0-color"]
+
+    # Undo, Redo & Save should be disabled
+    Element Should Be Disabled              id=rdef-undo-btn
+    Element Should Be Disabled              id=rdef-redo-btn
+    Element Should Be Disabled              id=rdef-setdef-btn
+
+    # Color-picker, Yellow then Blue.
+    Pick Color          ff0       FFFF00        rgb(255, 255, 0)
+    Pick Color          00f       0000FF        rgb(0, 0, 255)
+
+    # ONLY Redo should be disabled
+    Element Should Be Enabled               id=rdef-undo-btn
+    Element Should Be Disabled              id=rdef-redo-btn
+    Element Should Be Enabled               id=rdef-setdef-btn
+    # Click Undo - Channel should be Yellow
+    Click Element                           id=rdef-undo-btn
+    Wait For Channel Color                  rgb(255, 255, 0)
+    # And all buttons Undo, Redo & Save enabled
+    Element Should Be Enabled               id=rdef-undo-btn
+    Element Should Be Enabled               id=rdef-redo-btn
+    Element Should Be Enabled               id=rdef-setdef-btn
+
+    # Save (with Yellow channel) & wait for thumbnail to update
+    ${thumbSrc}=                            Execute Javascript  return $("button.clicked img.rdef").attr('src')
+    Click Element                           id=rdef-setdef-btn
+    Wait For BlockUI
+    Wait For Condition                      return ($("button.clicked img.rdef").attr('src') != '${thumbSrc}')
+    # Redo (to Blue channel)
+    Click Element                           id=rdef-redo-btn
+    Wait For Channel Color                  rgb(0, 0, 255)
+    # Copy (paste button is enabled)
     Click Element                           xpath=//button[contains(@class, "copy_rdef")]
     Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
-    # Test success of paste in right-click menu by thumbnail refresh
-    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
-    Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
-    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
-    Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "Paste and Save")]    #li[6]//li[2]/a   # Paste
-    # Confirm dialog (make sure we pick the currently visible dialog)
-    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
-    Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
-    # Test Set Owner's in same way
-    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
-    Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
-    Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
-    Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "Set Owner")]   # Set Owner's
-    # Confirm dialog (make sure we pick the currently visible dialog)
-    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
-    Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
 
-    Go To                                   ${WELCOME URL}img_detail/${imageId}
-    # Toggle the color, then paste settings and check it has reverted
-    Wait Until Page Contains Element        id=wblitz-ch0
-    ${checked1}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
-    Click Element                           id=wblitz-rmodel
-    ${checked2}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
-    Should Not Be True                      "${checked1}" == "${checked2}"
-    Click Link                              Edit
+    # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
+    Click Element                           id=image_icon-${imageId}
+    Wait For Preview Reload
+    Wait For Channel Color                  rgb(255, 255, 0)
+
+    # Select Next Image by using 'Down Arrow'
+    Key Down                                40
+    Wait For Preview Reload
+    # Images should be compatible, so 'Paste' should become enabled.
+    Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+
+    # Paste (Blue channel)
     Click Element                           xpath=//button[contains(@class, "paste_rdef")]
-    ${selector}=                            Set Variable If    ${checked1}    1    0
-    Log   ${selector}
-    Wait For Condition                      return ($("#wblitz-rmodel:checked").length == ${selector})
+    Wait For Channel Color                  rgb(0, 0, 255)
 
-    # Toggle the color again, Save, refresh page to check
-    Set Selenium Speed                      0.5
-    Click Element                           id=wblitz-rmodel
-    Wait Until Page Contains Element        id=rdef-setdef-btn
-    Click Element                           id=rdef-setdef-btn
-    # Wait for response
-    Wait Until Page Contains Element        id=weblitz-viewport-msg
-    Wait For Condition                      return ($(".blockUI").length == 0)
-    Reload Page
-    Wait Until Page Contains Element        id=wblitz-ch0
-    ${checked3}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
-    Should Be True                          "${checked2}" == "${checked3}"
+    # Save to all (Blue channel)
+    Click Element                           id=rdef-save-all
+
+    # Return to Previous Image
+    Click Element                           id=image_icon-${imageId}
+    Wait For Preview Reload
+    Wait For Channel Color                  rgb(0, 0, 255)
+
+
+
+    # Click Element                           xpath=//button[contains(@class, "copy_rdef")]
+    # Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
+    # ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
+    # Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
+    # Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
+    # Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "Paste and Save")]
+    # # Confirm dialog (make sure we pick the currently visible dialog)
+    # Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
+    # Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
+
+    # # Test Set Owner's in same way (thumbnail refresh)
+    # ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
+    # Open Context Menu                       xpath=//li[@id='image-${imageId}']/a
+    # Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
+    # Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "Set Owner")]   # Set Owner's
+    # # Confirm dialog (make sure we pick the currently visible dialog)
+    # Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
+    # Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
+
+
+    # # Open full image viewer
+    # # Toggle the color, then paste settings and check it has reverted
+    # Go To                                   ${WELCOME URL}img_detail/${imageId}
+    # Wait Until Page Contains Element        id=wblitz-ch0
+    # ${checked1}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    # Click Element                           id=wblitz-rmodel
+    # ${checked2}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    # Should Not Be True                      "${checked1}" == "${checked2}"
+    # Click Link                              Edit
+    # Click Element                           xpath=//button[contains(@class, "paste_rdef")]
+    # ${selector}=                            Set Variable If    ${checked1}    1    0
+    # Log   ${selector}
+    # Wait For Condition                      return ($("#wblitz-rmodel:checked").length == ${selector})
+
+    # # Toggle the color again, Save, refresh page to check
+    # Set Selenium Speed                      0.5
+    # Click Element                           id=wblitz-rmodel
+    # Wait Until Page Contains Element        id=rdef-setdef-btn
+    # Click Element                           id=rdef-setdef-btn
+    # # Wait for response
+    # Wait Until Page Contains Element        id=weblitz-viewport-msg
+    # Wait For Condition                      return ($(".blockUI").length == 0)
+    # Reload Page
+    # Wait Until Page Contains Element        id=wblitz-ch0
+    # ${checked3}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    # Should Be True                          "${checked2}" == "${checked3}"
 
