@@ -154,15 +154,18 @@ public class Target {
 	    List<InputStream> styleSheets = new ArrayList<InputStream>();
 	    Iterator<String> j = transforms.iterator();
 	    String name;
-	    if (!UIUtilities.isWindowsOS()) {
-	        name = "/"+TransformsParser.TRANSFORM_FOLDER;
-	    } else {
-	        name = TransformsParser.TRANSFORM_FOLDER;
-	    }
+	    InputStream stream;
 	    while (j.hasNext()) {
-	        name += j.next();
-	        styleSheets.add(
-	                this.getClass().getClassLoader().getResourceAsStream(name));
+	        name = j.next();
+	        if (!UIUtilities.isWindowsOS()) {
+	            stream = this.getClass().getResourceAsStream(
+	                    "/"+TransformsParser.TRANSFORM_FOLDER+name);
+	        } else {
+	            name = TransformsParser.TRANSFORM_FOLDER;
+	            stream = this.getClass().getClassLoader().getResourceAsStream(
+	                    TransformsParser.TRANSFORM_FOLDER+name);
+	        }
+	        styleSheets.add(stream);
         }
 	    return styleSheets;
 	}

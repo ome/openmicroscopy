@@ -142,10 +142,13 @@ public class TransformsParser
             throws Exception
     {
         String name = CATALOG;
+        InputStream stream = null;
         if (!UIUtilities.isWindowsOS()) {
             name = "/"+name;
+            stream = this.getClass().getResourceAsStream(name);
+        } else {
+            stream = this.getClass().getClassLoader().getResourceAsStream(name);
         }
-        InputStream stream = this.getClass().getResourceAsStream(name);
         if (stream == null)
             throw new Exception("No Catalog found.");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
