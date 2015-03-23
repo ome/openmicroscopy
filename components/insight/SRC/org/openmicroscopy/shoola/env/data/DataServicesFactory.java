@@ -620,7 +620,7 @@ public class DataServicesFactory
                 Registry agentReg;
                 for (Object agent : agents) {
                     agentReg = ((AgentInfo) agent).getRegistry();
-                    if (agentReg.lookup(key) == null)
+                    if (agentReg != null && agentReg.lookup(key) == null)
                         agentReg.bind(key, props.get(key));
                 }
             }
