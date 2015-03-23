@@ -212,6 +212,7 @@
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [I]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [I]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Image[I].wellSamples = WS:[E]" p:changes="WS:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.channels = [I]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.settings = [I]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [I]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[I].relatedTo = P:[E]{!a}" p:changes="P:{a}"/>
@@ -300,6 +301,7 @@
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Image[D].wellSamples = WS:[E]" p:changes="WS:[O]"/>
+        <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.channels = [D]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.settings = [D]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="P:Pixels[E]{!a}.relatedTo = [D]" p:changes="P:{a}"/>
         <bean parent="graphPolicyRule" p:matches="Pixels[D].relatedTo = P:[E]{!a}" p:changes="P:{a}"/>
