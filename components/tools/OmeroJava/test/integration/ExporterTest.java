@@ -965,17 +965,18 @@ public class ExporterTest extends AbstractServerTest {
         RandomAccessOutputStream tiffOutput = null;
         File tiffXML = null;
         try {
+            String encoding = "UTF-8";
             f = export(OME_TIFF, IMAGE);
             //extract XML and copy to tmp file
             String path = f.getAbsolutePath();
             TiffParser parser = new TiffParser(path);
             inputXML = File.createTempFile(RandomStringUtils.random(100, false,
                     true),"." + OME_XML);
-            FileUtils.writeStringToFile(inputXML, parser.getComment());
+            FileUtils.writeStringToFile(inputXML, parser.getComment(), encoding);
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
             validate(transformed);
-            String comment = FileUtils.readFileToString(transformed);
+            String comment = FileUtils.readFileToString(transformed, encoding);
 
             tiffOutput = new RandomAccessOutputStream(path);
             TiffSaver saver = new TiffSaver(tiffOutput, path);
