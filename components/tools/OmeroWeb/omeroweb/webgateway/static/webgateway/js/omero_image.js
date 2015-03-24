@@ -68,6 +68,7 @@
         viewport.viewportmsg.html("Resetting...").show();
         $.getJSON(viewport.viewport_server + '/imgData/' + viewport.loadedImg.id + '/?getDefaults=true',
             function(data){
+                viewport.viewportmsg.hide();
                 viewport.loadedImg._load(data);
 
                 // seems we need to do a lot of work to update UI
