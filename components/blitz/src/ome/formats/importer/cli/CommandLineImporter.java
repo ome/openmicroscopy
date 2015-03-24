@@ -421,8 +421,10 @@ public class CommandLineImporter {
             + "  Feedback:\n"
             + "  ---------\n\n"
             + "    --qa-baseurl=ARG\tSpecify the base URL for reporting feedback\n"
-            + "  e.g. $ bin/omero import -- --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
-            + "       $ ./importer-cli --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "  e.g. $ bin/omero import -- --email email@domain --report"
+            + " --logs --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "       $ ./importer-cli --email email@domain --report --logs"
+            + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
         System.exit(1);
