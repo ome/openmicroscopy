@@ -70,5 +70,5 @@ Copyright
 .. _OMERO: http://openmicroscopy.org/
 .. _PIL: http://www.pythonware.com/products/pil/
 .. _Matplotlib: http://matplotlib.org/
-.. _Running and writing tests: http://www.openmicroscopy.org/site/support/omero5/developers/testing.html
+.. _Running and writing tests: http://www.openmicroscopy.org/site/support/omero5.1/developers/testing.html
 

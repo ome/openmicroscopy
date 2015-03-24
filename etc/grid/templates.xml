@@ -68,7 +68,7 @@
            default if you are seeing "Protocol family unavailable"
            errors. To do that, use bin/omero config set Ice.IPv6 0
 
-           See https://www.openmicroscopy.org/site/support/omero5/sysadmins/troubleshooting.html#server-fails-to-start
+           See https://www.openmicroscopy.org/site/support/omero5.1/sysadmins/troubleshooting.html#server-fails-to-start
            for more information.
         -->
         <property name="Ice.IPv6" value="0"/>

@@ -39,7 +39,7 @@ can see data but not annotate or modify it. In read-annotate groups,
 annotation is permitted by group members.
 
 More information is available at:
-http://www.openmicroscopy.org/site/support/omero5/sysadmins/\
+http://www.openmicroscopy.org/site/support/omero5.1/sysadmins/\
 server-permissions.html
         """
 

@@ -23,7 +23,7 @@ def replace_file(input_path, pattern, version):
         infile.close()
 
 docs_pattern = r"(?P<baseurl>site/support/omero)(\d+(.\d+)?)"
-
+extensions = ('.txt', '.md', '.java', '.ice', '.html', '.xml', '.py', '.rst')
 
 def bump_version(version):
     """Replace versions in documentation links"""
@@ -31,7 +31,7 @@ def bump_version(version):
     # Replace versions in components pom.xml
     for base, dirs, files in os.walk('.'):
         for file in files:
-            if file.endswith(('.txt', '.md', '.java')):
+            if file.endswith(extensions):
                 replace_file(os.path.join(base, file), docs_pattern, version)
 
 

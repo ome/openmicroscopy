@@ -113,7 +113,7 @@ if __name__ == "__main__":
         'Edit_Descriptions.py',
         ("Edits the descriptions of multiple Images, either specified via"
          " Image IDs or by the Dataset IDs.\nSee"
-         " http://www.openmicroscopy.org/site/support/omero5/developers/"
+         " http://www.openmicroscopy.org/site/support/omero5.1/developers/"
          "scripts/user-guide.html for the tutorial that uses this script."),
 
         scripts.String(

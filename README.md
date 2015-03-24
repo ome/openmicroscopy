@@ -3,7 +3,7 @@
 Also see [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 Full developer documentation for OMERO is available from
-http://www.openmicroscopy.org/site/support/omero5/developers/
+http://www.openmicroscopy.org/site/support/omero5.1/developers/
 
 For general guidance on contributing to OME projects, see
 http://www.openmicroscopy.org/site/support/contributing/
