@@ -1896,7 +1896,6 @@ public class UIUtilities
 	public static JXTaskPane createTaskPane(String title, Color background)
 	{
 		JXTaskPane taskPane = new JXTaskPane();
-		if (isLinuxOS()) taskPane.setAnimated(false);
 		
 		Container c = taskPane.getContentPane();
 		if (background != null) {

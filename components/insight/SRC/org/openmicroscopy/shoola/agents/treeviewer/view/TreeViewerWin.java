@@ -33,6 +33,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -246,10 +248,10 @@ class TreeViewerWin
     		finder.addPropertyChangeListener(controller);
     		searchPane = new TaskPaneBrowser(new JScrollPane(finder), "search");
     		container.add(searchPane);
-    		JScrollPane s = new JScrollPane(container);
-    		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-            browsersDisplay = s;
-    		
+    		//JScrollPane s = new JScrollPane(container);
+    		//s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+            //browsersDisplay = s;
+    		browsersDisplay = container;
     	} else {
     		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
     				JTabbedPane.WRAP_TAB_LAYOUT);
@@ -525,6 +527,22 @@ class TreeViewerWin
 				}
 			}
 		};
+		
+		addComponentListener(new ComponentListener() {
+            @Override
+            public void componentShown(ComponentEvent e) {}
+            
+            @Override
+            public void componentResized(ComponentEvent e) {
+                ((JXTaskPaneContainerSingle)container).reAdjustSizes();
+            }
+            
+            @Override
+            public void componentMoved(ComponentEvent e) { }
+            
+            @Override
+            public void componentHidden(ComponentEvent e) {}
+        });
     }
 
     /** Handles the change of location of the divider of the split panes.*/
@@ -633,12 +651,8 @@ class TreeViewerWin
     void selectFirstPane()
     { 
     	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
-    		if (firstPane != null) firstPane.setCollapsed(false);
-        	if (!UIUtilities.isLinuxOS()) {
-        		List<JXTaskPane> list = container.getTaskPanes();
-        		for (JXTaskPane pane: list) 
-            		pane.setAnimated(true);
-        	}
+    		if (firstPane != null)
+    		    firstPane.setCollapsed(false);
     	}
     }
     
@@ -1243,10 +1257,6 @@ class TreeViewerWin
     			if (searchPane != null) searchPane.setCollapsed(false);
     		}
     		
-        	if (!UIUtilities.isLinuxOS()) {
-        		for (JXTaskPane pane: list) 
-            		pane.setAnimated(true);
-        	}
 			container.addPropertyChangeListener(controller);
     	}
     	

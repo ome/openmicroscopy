@@ -25,21 +25,18 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.Component;
-import java.awt.Container;
+import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.BorderFactory;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
+
 
 //Application-internal dependencies
 
@@ -65,33 +62,21 @@ public class JXTaskPaneContainerSingle
 	/** Bound property indicating the selection of a new task pane. */
 	public static final String SELECTED_TASKPANE_PROPERTY = "selectedTaskPane";
 
-	/** The map hosting the <code>JXTaskPane</code>s. */
-	private Map<JXTaskPane, Integer> panes;
+	/** The list holding the <code>JXTaskPane</code>s. */
+	private List<JXTaskPane> panes;
 	
 	/** Flag indicating that a tab pane can or cannot be expanded. */
 	private boolean	expandable;
-	
-	/** The height of a <code>JXTaskPane</code> when collapsed.*/
-	private int minimumHeight;
-	
-	private TableLayout layout;
-	
+
 	/** Initializes the component. */
 	private void initialize()
 	{
 		expandable = true;
-		panes = new HashMap<JXTaskPane, Integer>();
-		if (getLayout() instanceof VerticalLayout) {
-			VerticalLayout vl = (VerticalLayout) getLayout();
-			vl.setGap(1);
-		}
-		layout = new TableLayout();
-		double[] columns = {TableLayout.FILL};
-		
-		layout.setColumn(columns);
-		setLayout(layout);
+		panes = new ArrayList<JXTaskPane>();
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
+		
+		((VerticalLayout)getLayout()).setGap(1);
 	}
 	
 	/** Creates a new instance. */
@@ -137,11 +122,7 @@ public class JXTaskPaneContainerSingle
 	 */
 	public List<JXTaskPane> getTaskPanes()
 	{
-		List<JXTaskPane> list = new ArrayList<JXTaskPane>();
-		Iterator<JXTaskPane> iterator = panes.keySet().iterator();
-		while(iterator.hasNext())
-			list.add(iterator.next());
-		return list;
+		return panes;
 	}
 	
 	/**
@@ -151,61 +132,67 @@ public class JXTaskPaneContainerSingle
 	 */
 	public void add(JXTaskPane component)
 	{
-		int index = panes.size();
-		//super.add(component);
-		panes.put(component, index);
-		if (component.isCollapsed())
-			minimumHeight = component.getPreferredSize().height;
-		layout.insertRow(index, TableLayout.PREFERRED);
-		super.add(component, "0, "+index);
-		component.addPropertyChangeListener(
-				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
+		panes.add(component);
+		super.add(component);
+		component.addPropertyChangeListener( this);
 	}
 
-	/**
-	 * Reacts to the expansion of <code>JXTaskPane</code>s.
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		JXTaskPane src = (JXTaskPane) evt.getSource();
-		if (!expandable) {
-			src.setCollapsed(true);
-			src.setSpecial(false);
-			return;
-		}
-		Container parent = src.getParent();
-		Component[] comp = parent.getComponents();
-		Component c;
-		JXTaskPane p;
-		if (src.isCollapsed()) {
-			if (hasTaskPaneExpanded()) return;
-			for (int i = 0; i < comp.length; i++) {
-				c = comp[i];
-				if (c instanceof JXTaskPane) {
-					p = (JXTaskPane) c;
-					if (p == src) {
-						layout.setRow(i, minimumHeight);
-					}
-				}
-			}
-			firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
-			return;
-		}
-		
-		for (int i = 0; i < comp.length; i++) {
-			c = comp[i];
-			if (c instanceof JXTaskPane) {
-				p = (JXTaskPane) c;
-				if (p != src) {
-					p.setCollapsed(true);
-					p.setSpecial(false);
-					layout.setRow(i, minimumHeight);
-				} else layout.setRow(i, TableLayout.FILL);
-			}
-		}
-		src.setSpecial(true);
-		firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
-	}
+    /**
+     * Reacts to the expansion of <code>JXTaskPane</code>s.
+     * 
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(evt.getPropertyName().equals("collapsed")) {
+            JXTaskPane pane = (JXTaskPane)evt.getSource();
+            boolean collapsed = (boolean)(evt.getNewValue());
+            if(!collapsed) {
+                collapseAllBut(pane);
+            }
+            
+            reAdjustSizes();
+        }
+    }
 
+    private void collapseAllBut(JXTaskPane dontCollapse) {
+        for(JXTaskPane pane : panes) {
+            if(pane != dontCollapse) {
+                pane.setCollapsed(true);
+            }
+        }
+    }
+
+    public void reAdjustSizes() {
+        JXTaskPane exp = getExpandedPane();
+        
+        if(exp == null)
+            return;
+        
+        for(JXTaskPane pane : panes) {
+            if(pane.isCollapsed())
+                pane.setPreferredSize(null);
+        }
+        
+        exp.setPreferredSize(getAvailableSizeFor(exp));
+    }
+    
+    private JXTaskPane getExpandedPane() {
+        for(JXTaskPane pane : panes) {
+            if(!pane.isCollapsed())
+                return pane;
+        }
+        return null;
+    }
+    
+    private Dimension getAvailableSizeFor(JXTaskPane pane) {
+        Dimension d = getSize();
+        for(JXTaskPane p : panes) {
+            if(p!=pane) {
+                d.height -= p.getPreferredSize().height+1;
+            }
+        }
+        d.height -= 2;
+        return d;
+    }
+ 
 }
