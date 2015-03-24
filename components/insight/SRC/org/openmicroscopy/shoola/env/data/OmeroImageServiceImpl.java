@@ -1420,7 +1420,7 @@ class OmeroImageServiceImpl
                 Resolver resolver = new Resolver();
                 factory.setURIResolver(resolver);
                 output = File.createTempFile(
-                        RandomStringUtils.random(60, false, true),".ome.xml");
+                        RandomStringUtils.random(60, false, true),"."+XMLFilter.OME_XML);
                 output.deleteOnExit();
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
@@ -1492,7 +1492,7 @@ class OmeroImageServiceImpl
 		try {
 			if (index == EXPORT_AS_OMETIFF) {
 				tmp = File.createTempFile(RandomStringUtils.random(60, false, true),
-	                    ".ome.xml");
+	                    "."+XMLFilter.OME_XML);
 				String c = new TiffParser(f.getAbsolutePath()).getComment();
 				FileUtils.writeStringToFile(tmp, c);
 				transformed = applyTransforms(tmp, transforms);
