@@ -198,6 +198,7 @@
         <attribute name="Trusted-Only" value="true"/>
       </manifest>
     </jar>
+    <copy file="${dist.dir}/${dist.jar.file}" tofile="${build.dir}/../target/${dist.jar.file}"/>
   </target>
   <target name="jar-ij" depends="dist-init">
     <pathconvert property="dist.jar.manifest.cp"

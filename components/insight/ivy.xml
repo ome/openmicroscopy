@@ -9,6 +9,7 @@
     <conf name="release"/>
   </configurations>
   <publications>
+    <artifact name="omero.insight" type="jar"/>
     <artifact name="insight" type="jar"/>
     <artifact name="insight" type="pom"/>
     <artifact name="insight" type="source" ext="jar" m:classifier="sources"/>
