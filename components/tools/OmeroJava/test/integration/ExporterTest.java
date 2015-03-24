@@ -974,6 +974,7 @@ public class ExporterTest extends AbstractServerTest {
             FileUtils.writeStringToFile(inputXML, parser.getComment());
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
+            validate(transformed);
             String comment = FileUtils.readFileToString(transformed);
 
             tiffOutput = new RandomAccessOutputStream(path);
@@ -982,13 +983,8 @@ public class ExporterTest extends AbstractServerTest {
             in = new RandomAccessInputStream(path);
             saver.overwriteComment(in, comment);
             tiffOutput.close();
-            parser = new TiffParser(path);
-            tiffXML = File.createTempFile(RandomStringUtils.random(100, false,
-                    true),"." + OME_XML);
-            FileUtils.writeStringToFile(tiffXML, parser.getComment());
-            validate(tiffXML);
             //import the file
-            importFile(f, OME_XML);
+            importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("Cannot downgrade image: "+target.getSource(),
                     e);
