@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1498,7 +1499,6 @@ class OmeroImageServiceImpl
 			} else {
 			    transformed = applyTransforms(f, transforms);
 			}
-			
 			//Copy the result
 			if (index == EXPORT_AS_OME_XML) {
 			    file.delete();
@@ -1506,17 +1506,10 @@ class OmeroImageServiceImpl
 			    FileUtils.copyFile(transformed, r);
 			    return r;
 			} else {
-			    result = File.createTempFile(RandomStringUtils.random(60, false,
-			            true), "."+ OMETIFFFilter.OME_TIFF);
-			    FileUtils.copyFile(f, result);
-			    file.delete();
-				TiffSaver saver = new TiffSaver(result.getAbsolutePath());
-				ra = new RandomAccessInputStream(result.getAbsolutePath());
-				saver.overwriteComment(ra,
-						FileUtils.readFileToString(transformed));
-				r = new File(path);
-				FileUtils.copyFile(result, r);
-				return r;
+				TiffSaver saver = new TiffSaver(file.getAbsolutePath());
+				ra = new RandomAccessInputStream(file.getAbsolutePath());
+				saver.overwriteComment(ra, FileUtils.readFileToString(transformed));
+				return file;
 			}
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Unable to apply the transforms",
