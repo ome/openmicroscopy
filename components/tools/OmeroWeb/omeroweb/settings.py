@@ -283,29 +283,29 @@ INTERNAL_SETTINGS_MAPPING = {
           "Django will email these people with the full exception"
           " information. Each member of the tuple should be a tuple of (Full"
           " name, email address).")],
-    "omero.web.admins.server_email":
+    "omero.mail.from":
         ["SERVER_EMAIL",
          None,
          identity,
          ("The email address that error messages come from, such as those"
           " sent to :property:`omero.web.admins`.  Requires EMAIL properties"
           " below.")],
-    "omero.web.admins.email_host":
+    "omero.mail.host":
         ["EMAIL_HOST",
          None,
          identity,
          "The SMTP server host to use for sending email."],
-    "omero.web.admins.email_host_password":
+    "omero.mail.password":
         ["EMAIL_HOST_PASSWORD",
          None,
          identity,
          "Password to use for the SMTP server."],
-    "omero.web.admins.email_host_user":
+    "omero.mail.username":
         ["EMAIL_HOST_USER",
          None,
          identity,
          "Username to use for the SMTP server."],
-    "omero.web.admins.email_port":
+    "omero.mail.port":
         ["EMAIL_PORT",
          None,
          identity,
@@ -315,7 +315,7 @@ INTERNAL_SETTINGS_MAPPING = {
          "[OMERO.web - admin notification]",
          str,
          "Subject-line prefix for email messages"],
-    "omero.web.admins.email_use_tls":
+    "omero.mail.smtp.starttls.enable":
         ["EMAIL_USE_TLS",
          "false",
          parse_boolean,
