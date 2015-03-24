@@ -25,6 +25,7 @@ def replace_file(input_path, pattern, version):
 docs_pattern = r"(?P<baseurl>site/support/omero)(\d+(.\d+)?)"
 extensions = ('.txt', '.md', '.java', '.ice', '.html', '.xml', '.py', '.rst')
 
+
 def bump_version(version):
     """Replace versions in documentation links"""
 
