@@ -307,7 +307,7 @@ INTERNAL_SETTINGS_MAPPING = {
          "Username to use for the SMTP server."],
     "omero.mail.port":
         ["EMAIL_PORT",
-         None,
+         25,
          identity,
          "Port to use for the SMTP server."],
     "omero.web.admins.email_subject_prefix":
