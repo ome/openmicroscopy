@@ -1712,12 +1712,19 @@ def reset_rdef_json(request, toOwners=False, conn=None, **kwargs):
     toids = map(lambda x: long(x), toids)
 
     rss = conn.getRenderingSettingsService()
-    if toOwners:
-        rss.resetDefaultsByOwnerInSet(to_type, toids)
-    else:
-        rss.resetDefaultsInSet(to_type, toids)
 
-    return {'OK': True}
+    # get the first object and set the group to match
+    conn.SERVICE_OPTS.setOmeroGroup('-1')
+    o = conn.getObject(to_type, toids[0])
+    gid = o.getDetails().group.id.val
+    conn.SERVICE_OPTS.setOmeroGroup(gid)
+
+    if toOwners:
+        rv = rss.resetDefaultsByOwnerInSet(to_type, toids, conn.SERVICE_OPTS)
+    else:
+        rv = rss.resetDefaultsInSet(to_type, toids, conn.SERVICE_OPTS)
+
+    return rv
 
 
 @login_required()
