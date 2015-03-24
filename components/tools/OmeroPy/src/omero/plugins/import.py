@@ -117,23 +117,19 @@ class ImportControl(BaseControl):
             'Optional arguments passed strictly to Java allowing to report'
             ' errors to the OME team.')
         feedback_group.add_argument(
-            "--report", action="store_true", dest="java_report",
-            help="Report errors to the OME team (**)")
-        feedback_group.add_argument(
             "--upload", action="store_true", dest="java_upload",
-            help=("Upload broken files and log file (if any) with report."
-                  " Required --report (**)"))
+            help=("Upload broken files and log file (if any) with report"))
         feedback_group.add_argument(
             "--logs", action="store_true", dest="java_logs",
-            help=("Upload log file (if any) with report."
-                  " Required --report (**)"))
+            help=("Upload log file (if any) with report"))
         feedback_group.add_argument(
             "--email", dest="java_email",
-            help="Email for reported errors. Required --report (**)",
+            help="Email for reported errors",
             metavar="EMAIL")
         feedback_group.add_argument(
-            "--qa-baseurl", dest="java_qa_baseurl",
-            help=SUPPRESS)
+            "--report", action="store_true", dest="java_report", help=SUPPRESS)
+        feedback_group.add_argument(
+            "--qa-baseurl", dest="java_qa_baseurl", help=SUPPRESS)
 
         # Annotation options
         annotation_group = parser.add_argument_group(
