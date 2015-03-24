@@ -2,7 +2,7 @@
  * training.DeleteData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2015 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,11 +26,13 @@ package training;
 
 
 //Java imports
-import java.util.Arrays;
-//Third-party libraries
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-//Application-internal dependencies
-import omero.cmd.Delete;
+//OMERO dependencies
+import omero.cmd.Delete2;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.model.Image;
@@ -74,9 +76,12 @@ public class DeleteData
 		img.setDescription(omero.rtypes.rstring("descriptionImage1"));
 		img = (Image) connector.getUpdateService().saveAndReturnObject(img);
 		
-		Delete[] cmds = new Delete[1];
-		cmds[0] = new Delete("/Image", img.getId().getValue(), null);
-		Response rsp = connector.submit(Arrays.<Request>asList(cmds));
+		Delete2 deleteCmd = new Delete2();
+		List<Long> ids = Collections.singletonList(img.getId().getValue());
+		deleteCmd.targetObjects = new HashMap<String, List<Long>>();
+		deleteCmd.targetObjects.put("Image", ids);
+		List<Request> requests = Collections.<Request>singletonList(deleteCmd);
+		Response rsp = connector.submit(requests);
 		System.err.println(rsp);
 	}
 	/**
