@@ -57,7 +57,7 @@
     <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
     <dependency org="org.apache.poi" name="poi" rev="${versions.poi}"/>
     <dependency org="org.apache.axis2" name="axis2-saaj" rev="${versions.saaj}"/>
-    <dependency org="org.swinglabs" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="org.swinglabs" name="swingx-all" rev="${versions.swingx-all}"/>
     <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
     <dependency org="axis" name="axis-wsdl4j" rev="${versions.wsdl4j}"/>
     <dependency org="com.mortennobel" name="java-image-scaling" rev="${versions.java-image-scaling}"/>
