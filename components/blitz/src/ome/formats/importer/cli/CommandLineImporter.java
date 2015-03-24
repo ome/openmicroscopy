@@ -328,12 +328,15 @@ public class CommandLineImporter {
             + "  -l READER_FILE\t\t\tUse the list of readers rather than the default\n"
             + "  -d DATASET_ID\t\t\t\tOMERO dataset ID to import image into\n"
             + "  -r SCREEN_ID\t\t\t\tOMERO screen ID to import plate into\n"
-
-            + "  --report\t\t\t\tReport errors to the OME team\n"
-            + "  --upload\t\t\t\tUpload broken files and log file (if any) with report. Required --report\n"
-            + "  --logs\t\t\t\tUpload log file (if any) with report. Required --report\n"
-            + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
+            + "\n"
+            + "Feedback arguments:\n"
+            + "Report errors to the OME team\n"
+            + "  --upload\t\t\t\tUpload broken files and log file (if any) with report\n"
+            + "  --logs\t\t\t\tUpload log file (if any) with report\n"
+            + "  --email EMAIL\t\t\t\tEmail for reported errors\n"
+            + "\n"
+            + "Annotation arguments:\n"
             + "  --annotation-ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
             + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
             + "  --annotation-link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
@@ -421,8 +424,10 @@ public class CommandLineImporter {
             + "  Feedback:\n"
             + "  ---------\n\n"
             + "    --qa-baseurl=ARG\tSpecify the base URL for reporting feedback\n"
-            + "  e.g. $ bin/omero import -- --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
-            + "       $ ./importer-cli --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "  e.g. $ bin/omero import --upload --email email@domain"
+            + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "       $ ./importer-cli --upload --email email@domain"
+            + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
         System.exit(1);
@@ -482,14 +487,13 @@ public class CommandLineImporter {
         config.email.set("");
         config.sendFiles.set(false);
         config.sendLogFile.set(false);
-        config.sendReport.set(false);
+        config.sendReport.set(false);  // To be deprecated
         config.contOnError.set(false);
         config.debug.set(false);
         config.encryptedConnection.set(false);
 
         LongOpt debug = new LongOpt(
                 "debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
-        LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
         LongOpt email = new LongOpt(
@@ -552,6 +556,7 @@ public class CommandLineImporter {
             new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT, null, 95);
         LongOpt annotationLinkDeprecated =
             new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT, null, 96);
+        LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 97);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
@@ -592,15 +597,14 @@ public class CommandLineImporter {
                 config.configureDebug(g.getOptarg());
                 break;
             }
-            case 2: {
-                config.sendReport.set(true);
-                break;
-            }
+
             case 3: {
+                config.sendReport.set(true);
                 config.sendFiles.set(true);
                 break;
             }
             case 4: {
+                config.sendReport.set(true);
                 config.sendLogFile.set(true);
                 break;
             }
@@ -733,6 +737,10 @@ public class CommandLineImporter {
             }
             case 96: {
                 annotationIds.add(Long.parseLong(g.getOptarg()));
+                break;
+            }
+            case 97: {
+                config.sendReport.set(true);
                 break;
             }
             // END OF DEPRECATED OPTIONS
