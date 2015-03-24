@@ -156,11 +156,12 @@ public class Target {
                 stream = this.getClass().getResourceAsStream(
                         "/"+TransformsParser.TRANSFORM_FOLDER+name);
             } else {
-                name = TransformsParser.TRANSFORM_FOLDER;
                 stream = this.getClass().getClassLoader().getResourceAsStream(
                         TransformsParser.TRANSFORM_FOLDER+name);
             }
-            styleSheets.add(stream);
+            if (stream != null) {
+                styleSheets.add(stream);
+            }
         }
         return styleSheets;
     }
