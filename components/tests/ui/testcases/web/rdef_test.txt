@@ -10,6 +10,10 @@ Suite Teardown      Close all browsers
 
 *** Keywords ***
 
+Log Out
+    Click Element                   xpath=//div[@id='show_user_dropdown']/span
+    Click Link                      link=Logout
+    Location Should Be              ${WEBCLIENT LOGIN URL}
 
 Pick Color
     [Arguments]          ${btnColor}        ${hexColor}       ${rgbColor}
@@ -27,31 +31,30 @@ Wait For Channel Color
     Wait Until Page Contains Element        xpath=//button[@id="rd-wblitz-ch0"][contains(@style, "background-color: ${rgbColor}")]
 
 Wait For BlockUI
-    Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
+    # Wait Until Element Is Visible           xpath=//div[contains(@class, 'blockOverlay')]
+    Sleep                                   0.1
     Wait For Condition                      return ($("div.blockOverlay").length == 0)
 
-Wait For Preview Reload
+Wait For Preview Load
     # Wait For Condition                      return ($("#viewport-img").length == 0)
     Sleep                                   0.5
-    Wait Until Page Contains Element        id=viewport-img
+    Wait Until Page Contains Element        xpath=//button[@id="wblitz-ch0-color"]
 
+Wait For Image Panel
+    Wait Until Page Contains Element        xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
+    ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+    [Return]                                ${imageId}
 
 *** Test Cases ***
 
 Test Rdef Copy Paste Save
-    [Documentation]     Copy and Paste rdef, then save
+    [Documentation]     Tests Copy and Paste rdef, then Save and 'Save All'
 
     Select Experimenter
     Select And Expand Image
-    Wait Until Page Contains Element        xpath=//tr[contains(@class, 'data_heading_id')]/th[contains(text(), 'Image')]
-    ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
+    ${imageId}=                             Wait For Image Panel
     Click Link                              Preview
-
-    # Click 'Copy' in Preview panel, then right-click on Image in tree and 'Paste and Save'
-    # Test success of paste by thumbnail refresh
-    Wait Until Page Contains Element        id=viewport-img
-    Sleep                                   0.5
-    Wait Until Page Contains Element        xpath=//button[@id="wblitz-ch0-color"]
+    Wait For Preview Load
 
     # Undo, Redo & Save should be disabled
     Element Should Be Disabled              id=rdef-undo-btn
@@ -88,12 +91,12 @@ Test Rdef Copy Paste Save
 
     # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
     Click Element                           id=image_icon-${imageId}
-    Wait For Preview Reload
+    Wait For Preview Load
     Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image by using 'Down Arrow'
     Key Down                                40
-    Wait For Preview Reload
+    Wait For Preview Load
     # Images should be compatible, so 'Paste' should become enabled.
     Wait Until Page Contains Element        xpath=//button[contains(@class, "paste_rdef")][not(@disabled="disabled")]
 
@@ -106,8 +109,71 @@ Test Rdef Copy Paste Save
 
     # Return to Previous Image
     Click Element                           id=image_icon-${imageId}
-    Wait For Preview Reload
+    Wait For Preview Load
     Wait For Channel Color                  rgb(0, 0, 255)
+
+
+Test Owners Rdef
+    [Documentation]     Log in as non-owner and apply Imported and Owner's settings.
+
+    Go To                                   ${WELCOME URL}
+    Select Experimenter
+    Select And Expand Image
+    ${imageId}=                             Wait For Image Panel
+    Click Link                              Preview
+    Wait For Preview Load
+
+    # Set to "Imported"
+    Click Element                           id=rdef-reset-btn
+    Wait For Channel Color                  rgb(128, 128, 128)
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+
+    # Need user to save an Rdef that is different from 'Imported'
+    # Save Channel 'Green' and Window End: 100
+    Unselect Checkbox                       rd-wblitz-rmodel
+    Pick Color                              0f0         00FF00          rgb(0, 255, 0)
+    Input Text                              id=wblitz-ch0-cw-end        100
+    Click Element                           id=rdef-setdef-btn
+    Wait For BlockUI
+    Log Out
+
+    # Log in as Root - go to user's Image
+    User "${ROOT USERNAME}" logs in with password "${ROOT PASSWORD}"
+    Go To                                   ${WELCOME URL}?show=image-${imageId}
+    Wait For Image Panel
+    Click Link                              Preview
+    Wait For Preview Load
+
+    # Set to "Imported"
+    Click Element                           id=rdef-reset-btn
+    Wait For Channel Color                  rgb(128, 128, 128)
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Checkbox Should Be Selected             rd-wblitz-rmodel
+
+    # Set to Owner's (click on thumbnail)
+    Click Element                           xpath=//button[contains(@class, 'rdef')][descendant::span[contains(@class, 'owner')]]
+    Wait For Channel Color                  rgb(0, 255, 0)
+    Textfield Value Should Be               wblitz-ch0-cw-end           100
+    Checkbox Should Not Be Selected         rd-wblitz-rmodel
+
+    # Set to Full Range
+    Click Element                           id=rdef-fullrange-btn
+    Wait For Channel Color                  rgb(0, 255, 0)
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Checkbox Should Not Be Selected         rd-wblitz-rmodel
+
+    # Save some different settings (Red channel)
+    Unselect Checkbox                       rd-wblitz-rmodel
+    Pick Color                              f00         FF0000          rgb(255, 0, 0)
+    Input Text                              id=wblitz-ch0-cw-end        200
+    Click Element                           id=rdef-setdef-btn
+    Wait For BlockUI
+
+    # Min/Max (Don't save)
+    Click Element                           id=rdef-minmax-btn
+    Wait For Channel Color                  rgb(255, 0, 0)
+    Textfield Value Should Be               wblitz-ch0-cw-end           255
+    Checkbox Should Not Be Selected         rd-wblitz-rmodel
 
 
 
