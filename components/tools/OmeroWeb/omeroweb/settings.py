@@ -113,10 +113,14 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
     },
     'loggers': {
         'django.request': {  # Stop SQL debug from logging to main logger
-            'handlers': ['request_handler'],
+            'handlers': ['request_handler', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': False
         },
