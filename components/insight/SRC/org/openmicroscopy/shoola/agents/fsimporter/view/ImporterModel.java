@@ -494,10 +494,18 @@ class ImporterModel
 	 * @param pixels The objects to load.
 	 * @param type The type of data to handle.
 	 * @param component The component the result is for.
+	 * @param user The experimenter to import data for.
 	 */
 	void fireImportResultLoading(Collection<DataObject> pixels, Class<?> type,
-			Object component)
+			Object component, ExperimenterData user)
 	{
+	    if (user != null) {
+	        long currentUser = ImporterAgent.getUserDetails().getId();
+	        if (currentUser != user.getId()) {
+	            ctx.setExperimenter(user);
+	            ctx.sudo();
+	        }
+        }
 		ImportResultLoader loader = new ImportResultLoader(this.component, ctx,
 				pixels, type, component);
 		loader.load();

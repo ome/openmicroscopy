@@ -1852,7 +1852,17 @@ class OmeroImageServiceImpl
 			throws DSAccessException, DSOutOfServiceException
 	{
 		if (ctx == null) return null;
+		//check import as
 		Connector c = gateway.getConnector(ctx, true, false);
+		ExperimenterData exp = ctx.getExperimenterData();
+        if (exp != null && ctx.isSudo()) {
+            try {
+                c = c.getConnector(exp.getUserName());
+            } catch (Throwable e) {
+                throw new DSOutOfServiceException(
+                        "Cannot create ThumbnailStore", e);
+            }
+        }
 		// Pass close responsibility off to the caller.
 		return c.getThumbnailService();
 	}
