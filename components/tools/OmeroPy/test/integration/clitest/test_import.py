@@ -26,6 +26,7 @@ import pytest
 import stat
 import re
 import omero
+from omero.cli import NonZeroReturnCode
 from omero.rtypes import rstring
 
 
@@ -560,8 +561,13 @@ class TestImport(CLITest):
 
         assert obj
 
-    @pytest.mark.broken(ticket="11539")
     def testTargetInDifferentGroup(self, tmpdir, capfd):
+        """
+        The workflow this test exercises is currently broken. Until
+        it is investigated and fixed the error is trapped early and
+        an exception is raised. The test is modified to test for this
+        fail case. See ticket 12781 (and 11539).
+        """
         new_group = self.new_group(experimenters=[self.user])
         self.sf.getAdminService().getEventContext()  # Refresh
         dataset = omero.model.DatasetI()
@@ -576,8 +582,10 @@ class TestImport(CLITest):
         self.args += ['-d', '%s' % dataset.id.val]
 
         # Invoke CLI import command and retrieve stdout/stderr
-        self.cli.invoke(self.args, strict=True)
-        o, e = capfd.readouterr()
-        obj = self.get_object(e, 'Image')
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
 
-        assert obj.details.id.val == new_group.id.val
+        # o, e = capfd.readouterr()
+        # obj = self.get_object(e, 'Image')
+
+        # assert obj.details.id.val == new_group.id.val
