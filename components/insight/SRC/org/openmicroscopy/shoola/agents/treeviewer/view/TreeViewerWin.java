@@ -234,9 +234,7 @@ class TreeViewerWin
 		finder.addPropertyChangeListener(controller);
 		searchPane = new TaskPaneBrowser(new JScrollPane(finder), "search");
 		container.add(searchPane);
-		JScrollPane s = new JScrollPane(container);
-		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-        browsersDisplay = s;
+		browsersDisplay = container;
     }
 
     /**
@@ -451,7 +449,7 @@ class TreeViewerWin
             
             @Override
             public void componentResized(ComponentEvent e) {
-                ((JXTaskPaneContainerSingle)container).reAdjustSizes();
+                container.reAdjustSizes();
             }
             
             @Override

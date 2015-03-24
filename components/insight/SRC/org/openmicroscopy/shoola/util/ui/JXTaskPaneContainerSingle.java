@@ -134,7 +134,7 @@ public class JXTaskPaneContainerSingle
 	{
 		panes.add(component);
 		super.add(component);
-		component.addPropertyChangeListener( this);
+		component.addPropertyChangeListener(this);
 	}
 
     /**
@@ -145,12 +145,14 @@ public class JXTaskPaneContainerSingle
     public void propertyChange(PropertyChangeEvent evt) {
         if(evt.getPropertyName().equals("collapsed")) {
             JXTaskPane pane = (JXTaskPane)evt.getSource();
-            boolean collapsed = (boolean)(evt.getNewValue());
+            boolean collapsed = (Boolean)(evt.getNewValue());
             if(!collapsed) {
                 collapseAllBut(pane);
             }
             
             reAdjustSizes();
+            
+            firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, pane);
         }
     }
 
@@ -194,5 +196,5 @@ public class JXTaskPaneContainerSingle
         d.height -= 2;
         return d;
     }
- 
+    
 }
