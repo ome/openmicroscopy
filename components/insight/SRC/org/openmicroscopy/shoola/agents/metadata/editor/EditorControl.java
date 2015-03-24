@@ -417,10 +417,7 @@ class EditorControl
 				FileChooser.SAVE, "Export",
 				"Select where to export the image as OME-TIFF.", exportFilters);
 		try {
-			String path = 
-					MetadataViewerAgent.getRegistry().getTaskBar().
-					getLibFileRelative(TransformsParser.SPECIFICATION+".jar");
-			chooser.parseData(path);
+			chooser.parseData();
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print(e);

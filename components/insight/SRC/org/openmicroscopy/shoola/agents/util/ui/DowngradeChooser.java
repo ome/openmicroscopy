@@ -91,11 +91,11 @@ public class DowngradeChooser
 		super(owner, dialogType, title, message, filters);
 	}
 	
-	/** Loads the specification if available.
-	 * 
+	/**
+	 * Loads the specification if available.
 	 * @throws Thrown when an error occurred while parsing the catalog.
 	 */
-	public void parseData(String file)
+	public void parseData()
 		throws Exception
 	{
 		helpButton = new JButton();
@@ -114,7 +114,7 @@ public class DowngradeChooser
 			}
 		});
 		parser = new TransformsParser();
-		parser.parse(file);
+		parser.parse();
 		targets = parser.getTargets();
 		Collections.reverse(targets);
 		//Build the UI

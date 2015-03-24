@@ -26,9 +26,7 @@ package org.openmicroscopy.shoola.env.data.util;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -78,7 +76,7 @@ public class TransformsParser
 
     /**
      * Extracts the value of the current schema.
-     * 
+     *
      * @param schema The current value.
      * @throws Exception Thrown when an error occurred while parsing the file.
      */
@@ -134,11 +132,9 @@ public class TransformsParser
 
     /**
      * Parses the catalog.
-     * 
-     * @param path The relative path.
      * @throws Exception Thrown when an error occurred while parsing the file.
      */
-    public void parse(String path)
+    public void parse()
             throws Exception
     {
         String name = CATALOG;
