@@ -27,9 +27,4 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <entry name="MultiUser" type="boolean">true</entry>
   <entry name="MutliGroup" type="boolean">false</entry>
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * Indicates how to lay out the browsers. We currently support JTabbedPane
-   * and JXTaskPane.
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-  <entry name="BrowserLayout">JXTaskPane</entry>
 </agent>

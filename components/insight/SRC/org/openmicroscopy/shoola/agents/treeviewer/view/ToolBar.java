@@ -707,9 +707,6 @@ class ToolBar
         bars.setBorder(null);
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
-        if (!TreeViewerWin.JXTASKPANE_TYPE.equals(view.getLayoutType())) {
-            bars.add(createSearchBar());
-        }
 
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));

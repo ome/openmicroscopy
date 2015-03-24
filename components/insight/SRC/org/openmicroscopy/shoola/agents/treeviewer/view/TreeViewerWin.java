@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerWin
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -43,7 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -104,9 +102,6 @@ class TreeViewerWin
 	
 	/** The text of the <code>Edit</code> menu.*/
 	static final String RENDERING_SETTINGS_MENU = "Rendering Settings";
-	
-	/** Identifies the <code>JXTaskPane</code> layout. */
-	static final String			JXTASKPANE_TYPE = "JXTaskPane";
 
 	/** Indicates how much to give to the Metadata View. */
 	private static final double WEIGHT = 0.8;
@@ -152,9 +147,6 @@ class TreeViewerWin
     
     /** Constants indicating the display mode. */
     private int					displayMode;
-    
-	/** The scrollPane hosting the advanced finder. */
-	private JScrollPane			finderScrollPane;
 	
 	/** The component that has been removed. */
 	private Component			leftComponent;
@@ -209,77 +201,42 @@ class TreeViewerWin
     {
     	Map<Integer, Browser> browsers = model.getBrowsers();
     	Browser browser;
-    	if (getLayoutType().equals(JXTASKPANE_TYPE)) {
-    		container = new JXTaskPaneContainerSingle();
-    		container.addPropertyChangeListener(controller);
-    		JXTaskPane pane;
-            final List<String>  browserNames = Lists.newArrayList("project", "screen", "file", "tag");
-            final List<Integer> browserOrder = Lists.newArrayList(
-                    Browser.PROJECTS_EXPLORER, Browser.SCREENS_EXPLORER, Browser.FILES_EXPLORER, Browser.TAGS_EXPLORER);
-            int browserIndex = browserOrder.indexOf(TreeViewerAgent.getDefaultHierarchy());
-            switch (Integer.signum(browserIndex)) {
-            case 1:
-                browserNames.add(0, browserNames.remove(browserIndex));
-                browserOrder.add(0, browserOrder.remove(browserIndex));
-                /* intentional fall-through */
-            case 0:
-                for (browserIndex = 0; browserIndex < browserOrder.size(); browserIndex++) {
-                    pane = new TaskPaneBrowser(browsers.get(browserOrder.get(browserIndex)), browserNames.get(browserIndex));
-                    if (browserIndex == 0) {
-                        firstPane = pane;
-                    }
-                    container.add(pane);
+		container = new JXTaskPaneContainerSingle();
+		container.addPropertyChangeListener(controller);
+		JXTaskPane pane;
+        final List<String>  browserNames = Lists.newArrayList("project", "screen", "file", "tag");
+        final List<Integer> browserOrder = Lists.newArrayList(
+                Browser.PROJECTS_EXPLORER, Browser.SCREENS_EXPLORER, Browser.FILES_EXPLORER, Browser.TAGS_EXPLORER);
+        int browserIndex = browserOrder.indexOf(TreeViewerAgent.getDefaultHierarchy());
+        switch (Integer.signum(browserIndex)) {
+        case 1:
+            browserNames.add(0, browserNames.remove(browserIndex));
+            browserOrder.add(0, browserOrder.remove(browserIndex));
+            /* intentional fall-through */
+        case 0:
+            for (browserIndex = 0; browserIndex < browserOrder.size(); browserIndex++) {
+                pane = new TaskPaneBrowser(browsers.get(browserOrder.get(browserIndex)), browserNames.get(browserIndex));
+                if (browserIndex == 0) {
+                    firstPane = pane;
                 }
+                container.add(pane);
             }
-
-    		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
-    		//container.add(new TaskPaneBrowser(browser));
-             
-            
-            
-            browser = browsers.get(Browser.IMAGES_EXPLORER);
-            container.add(new TaskPaneBrowser(browser, "image"));
-            if (model.isLeader() || model.isAdministrator()) {
-                browser = browsers.get(Browser.ADMIN_EXPLORER);
-                final TaskPaneBrowser tpb = new TaskPaneBrowser(browser, "administration");
-                container.add(tpb);
-            }
-            AdvancedFinder finder = model.getAdvancedFinder();
-    		finder.addPropertyChangeListener(controller);
-    		searchPane = new TaskPaneBrowser(new JScrollPane(finder), "search");
-    		container.add(searchPane);
-    		//JScrollPane s = new JScrollPane(container);
-    		//s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-            //browsersDisplay = s;
-    		browsersDisplay = container;
-    	} else {
-    		JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
-    				JTabbedPane.WRAP_TAB_LAYOUT);
-            tabs.setAlignmentX(LEFT_ALIGNMENT);
-            Font font = (Font) TreeViewerAgent.getRegistry().lookup(
-                    "/resources/fonts/Titles");
-            tabs.setFont(font);
-            tabs.setForeground(UIUtilities.STEELBLUE);
-            
-            browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
-            if (browser.isDisplayed())
-                tabs.addTab(browser.getTitle(), browser.getIcon(), 
-                		browser.getUI());
-
-            browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
-            if (browser.isDisplayed())
-                tabs.addTab(browser.getTitle(), browser.getIcon(), 
-                		browser.getUI());
-            browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
-            if (browser.isDisplayed())
-                tabs.addTab(browser.getTitle(), browser.getIcon(), 
-                		browser.getUI());
-            browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
-            if (browser.isDisplayed())
-                tabs.addTab(browser.getTitle(), browser.getIcon(), 
-                		browser.getUI());
-            browsersDisplay = tabs;
-    	}
+        }
+        
+        browser = browsers.get(Browser.IMAGES_EXPLORER);
+        container.add(new TaskPaneBrowser(browser, "image"));
+        if (model.isLeader() || model.isAdministrator()) {
+            browser = browsers.get(Browser.ADMIN_EXPLORER);
+            final TaskPaneBrowser tpb = new TaskPaneBrowser(browser, "administration");
+            container.add(tpb);
+        }
+        AdvancedFinder finder = model.getAdvancedFinder();
+		finder.addPropertyChangeListener(controller);
+		searchPane = new TaskPaneBrowser(new JScrollPane(finder), "search");
+		container.add(searchPane);
+		JScrollPane s = new JScrollPane(container);
+		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        browsersDisplay = s;
     }
 
     /**
@@ -293,8 +250,6 @@ class TreeViewerWin
         List<JMenu> menus = new ArrayList<JMenu>();
         menus.add(createFileMenu());
         menus.add(createEditMenu());
-        JMenu m = createViewMenu();
-        if (m != null) menus.add(m);
         JMenuBar bar = tb.getTaskBarMenuBar();
         bar.setName("menu bar");
         List<JMenu> existingMenus = new ArrayList<JMenu>();
@@ -347,44 +302,6 @@ class TreeViewerWin
     	item.setText(a.getActionName());
     	menu.add(item);
     	return menu;
-    }
-    
-    /**
-     * Helper method to create the Views menu.
-     * 
-     * @return The Views menu.
-     */
-    private JMenu createViewMenu()
-    {
-        if (getLayoutType().equals(JXTASKPANE_TYPE)) return null;
-        JMenu menu = new JMenu("View");
-        menu.setMnemonic(KeyEvent.VK_V);
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-        Map<Integer, Browser> browsers = model.getBrowsers();
-        Browser browser = browsers.get(Browser.PROJECTS_EXPLORER);
-        item.setSelected(browser.isDisplayed());
-        item.setAction(controller.getAction(
-                TreeViewerControl.HIERARCHY_EXPLORER));
-        menu.add(item);
-        item = new JCheckBoxMenuItem();
-        browser = browsers.get(Browser.FILES_EXPLORER);
-        item.setSelected(browser.isDisplayed());
-        item.setAction(
-                controller.getAction(TreeViewerControl.FILES_EXPLORER));
-        menu.add(item);
-        item = new JCheckBoxMenuItem();
-        browser = browsers.get(Browser.TAGS_EXPLORER);
-        item.setSelected(browser.isDisplayed());
-        item.setAction(
-                controller.getAction(TreeViewerControl.TAGS_EXPLORER));
-        menu.add(item);
-        item = new JCheckBoxMenuItem();
-        browser = browsers.get(Browser.IMAGES_EXPLORER);
-        item.setSelected(browser.isDisplayed());
-        item.setAction(
-                controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
-        menu.add(item);
-        return menu;
     }
 
     /**
@@ -650,10 +567,8 @@ class TreeViewerWin
     /** Expands the first pane. */
     void selectFirstPane()
     { 
-    	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
-    		if (firstPane != null)
-    		    firstPane.setCollapsed(false);
-    	}
+		if (firstPane != null) 
+		    firstPane.setCollapsed(false);
     }
     
     /** Adds the metadata editor. */
@@ -681,24 +596,20 @@ class TreeViewerWin
      */
     void selectPane(int browserType)
     {
-    	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
-    		List<JXTaskPane> list = container.getTaskPanes();
-    		TaskPaneBrowser p;
-    		Browser b;
-    		container.removePropertyChangeListener(controller);
-    		for (JXTaskPane pane: list)  {
-    			if (pane instanceof TaskPaneBrowser) {
-    				p = (TaskPaneBrowser) pane;
-    				b = p.getBrowser();
-    				if (b != null && b.getBrowserType() == browserType) {
-    					p.setCollapsed(false);
-    				}
-    			}
-    		}
-    		container.addPropertyChangeListener(controller);
-    	} else {
-    		
-    	}
+		List<JXTaskPane> list = container.getTaskPanes();
+		TaskPaneBrowser p;
+		Browser b;
+		container.removePropertyChangeListener(controller);
+		for (JXTaskPane pane: list)  {
+			if (pane instanceof TaskPaneBrowser) {
+				p = (TaskPaneBrowser) pane;
+				b = p.getBrowser();
+				if (b != null && b.getBrowserType() == browserType) {
+					p.setCollapsed(false);
+				}
+			}
+		}
+		container.addPropertyChangeListener(controller);
     }
     
     /**
@@ -706,19 +617,6 @@ class TreeViewerWin
      */
     void selectSearchPane() {
         searchPane.setCollapsed(false);
-    }
-    
-    /** 
-     * Returns the type of layout of the browser.
-     * 
-     * @return See above.
-     */
-    String getLayoutType()
-    {
-    	String type = (String) 
-		TreeViewerAgent.getRegistry().lookup("BrowserLayout");
-    	if (type == null) type = "";
-		return type;
     }
     
     /** Closes and disposes of the window. */
@@ -854,24 +752,6 @@ class TreeViewerWin
             	splitPane.setRightComponent(viewerPane);
         	} else splitPane.setRightComponent(rightPane);
         	splitPane.setDividerLocation(location);
-    	} else {
-    		/*
-    		if (toDetach) {
-    			//open the viewer in a separate view.
-    			DataBrowser db = model.getDataViewer();
-    			if (db != null)
-    				viewerPane.setBottomComponent(db.getUI(false));
-            	viewerPane.setResizeWeight(WEIGHT);
-    		} else {
-    			model.setFullScreen(false);
-    			toolBar.setFullScreenSelected(true);
-    			int location  = splitPane.getDividerLocation();
-            	splitPane.removeAll();
-            	splitPane.setLeftComponent(browsersDisplay);
-            	splitPane.setRightComponent(rightPane);
-            	splitPane.setDividerLocation(location);
-    		}
-    		*/
     	}
 	}
     
@@ -932,33 +812,10 @@ class TreeViewerWin
     /** Displays or hides the search component. */
     void showAdvancedFinder()
     {
-    	if (!getLayoutType().equals(JXTASKPANE_TYPE)) {
-    		if (displayMode == TreeViewer.SEARCH_MODE)
-        		displayMode = TreeViewer.EXPLORER_MODE;
-        	else if (displayMode == TreeViewer.EXPLORER_MODE)
-        		displayMode = TreeViewer.SEARCH_MODE;
-        	splitPane.setDividerLocation(splitPane.getDividerLocation());
-        	if (finderScrollPane == null) {
-        		AdvancedFinder finder = model.getAdvancedFinder();
-        		finder.addPropertyChangeListener(controller);
-        		finderScrollPane = new JScrollPane(finder);
-        	}
-        	switch (displayMode) {
-    			case TreeViewer.SEARCH_MODE:
-    				splitPane.remove(browsersDisplay);
-    	    		splitPane.setLeftComponent(finderScrollPane);
-    				break;
-    			case TreeViewer.EXPLORER_MODE:
-    				splitPane.remove(finderScrollPane);
-    	    		splitPane.setLeftComponent(browsersDisplay);
-    				break;
-    		}
-    	} else {
-    		if (displayMode == TreeViewer.SEARCH_MODE)
-        		displayMode = TreeViewer.EXPLORER_MODE;
-        	else if (displayMode == TreeViewer.EXPLORER_MODE)
-        		displayMode = TreeViewer.SEARCH_MODE;
-    	}
+		if (displayMode == TreeViewer.SEARCH_MODE)
+    		displayMode = TreeViewer.EXPLORER_MODE;
+    	else if (displayMode == TreeViewer.EXPLORER_MODE)
+    		displayMode = TreeViewer.SEARCH_MODE;
     }
     
     /**
@@ -1012,8 +869,8 @@ class TreeViewerWin
                 browser.onComponentStateChange(b);
             }
         }
-        //if (browser != null) browser.onComponentStateChange(b);
-        if (container != null) container.setExpandable(b);
+        if (container != null) 
+            container.setExpandable(b);
         browsersDisplay.setEnabled(b);
     }
     
@@ -1038,8 +895,10 @@ class TreeViewerWin
      */
     void setStatusIcon(boolean b)
     {
-        if (b) setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        else setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        if (b) 
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        else 
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         statusBar.setStatusIcon(b); 
     }
     
@@ -1217,33 +1076,16 @@ class TreeViewerWin
 		layoutBrowsers();
 		splitPane.setLeftComponent(browsersDisplay);
 		Browser result = null;
-    	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
-    		//if (firstPane != null) firstPane.setCollapsed(false);
-    		Browser browser = model.getSelectedBrowser();
-    		Browser b;
-    		List<JXTaskPane> list = container.getTaskPanes();
-    		TaskPaneBrowser tpb;
-    		container.removePropertyChangeListener(controller);
-    		if (browser != null) {
-    			if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
-        			if (TreeViewerAgent.isAdministrator()) {
-        				for (JXTaskPane pane: list) {
-        					if (pane instanceof TaskPaneBrowser) {
-        						tpb = (TaskPaneBrowser) pane;
-        						b = tpb.getBrowser();
-        						if (b == browser) {
-        							tpb.setCollapsed(false);
-        						}
-        					}
-        				}
-        			} else {
-        				if (firstPane != null) {
-        					result = ((TaskPaneBrowser) firstPane).getBrowser();
-        					firstPane.setCollapsed(false);
-        				}
-        			}
-        		} else {
-        			for (JXTaskPane pane: list) {
+		
+		Browser browser = model.getSelectedBrowser();
+		Browser b;
+		List<JXTaskPane> list = container.getTaskPanes();
+		TaskPaneBrowser tpb;
+		container.removePropertyChangeListener(controller);
+		if (browser != null) {
+			if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+    			if (TreeViewerAgent.isAdministrator()) {
+    				for (JXTaskPane pane: list) {
     					if (pane instanceof TaskPaneBrowser) {
     						tpb = (TaskPaneBrowser) pane;
     						b = tpb.getBrowser();
@@ -1252,14 +1094,30 @@ class TreeViewerWin
     						}
     					}
     				}
-        		}
-    		} else { //that's the search.
-    			if (searchPane != null) searchPane.setCollapsed(false);
+    			} else {
+    				if (firstPane != null) {
+    					result = ((TaskPaneBrowser) firstPane).getBrowser();
+    					firstPane.setCollapsed(false);
+    				}
+    			}
+    		} else {
+    			for (JXTaskPane pane: list) {
+					if (pane instanceof TaskPaneBrowser) {
+						tpb = (TaskPaneBrowser) pane;
+						b = tpb.getBrowser();
+						if (b == browser) {
+							tpb.setCollapsed(false);
+						}
+					}
+				}
     		}
-    		
-			container.addPropertyChangeListener(controller);
+		} else { //that's the search.
+			if (searchPane != null) 
+			    searchPane.setCollapsed(false);
     	}
     	
+		container.addPropertyChangeListener(controller);
+		
 		validate();
 		repaint();
 		return result;
