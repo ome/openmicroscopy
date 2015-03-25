@@ -52,6 +52,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import loci.common.Constants;
 import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
 import loci.formats.tiff.TiffParser;
@@ -1491,7 +1492,7 @@ class OmeroImageServiceImpl
 		File result = null;
 		File transformed = null;
 		RandomAccessInputStream ra = null;
-		String encoding = "UTF-8";
+		String encoding = Constants.ENCODING;
 		try {
 			if (index == EXPORT_AS_OMETIFF) {
 				tmp = File.createTempFile(RandomStringUtils.random(60, false, true),
