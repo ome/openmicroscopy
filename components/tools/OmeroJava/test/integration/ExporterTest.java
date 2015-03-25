@@ -1099,7 +1099,7 @@ public class ExporterTest extends AbstractServerTest {
 
     // Path not in ome-transforms but stylesheets are available
     /**
-     * Test the upgrade of an image from 2003-FC to 2008-09
+     * Test the upgrade of an image from 2003-FC to 2008-09.
      * @throws Exception Thrown if an error occurred.
      */
     public void testUpgradeImage2003FCto200809() throws Exception
@@ -1112,7 +1112,7 @@ public class ExporterTest extends AbstractServerTest {
             List<InputStream> transforms = retrieveDowngrade("2003-FC");
             //Create file to upgrade
             transformed = applyTransforms(f, transforms);
-            //now upgrade the file. to 2008-09
+            //now upgrade the file to 2008-09
             List<InputStream> upgrades = new ArrayList<InputStream>();
             upgrades.add(getStream("2003-FC-to-2008-09.xsl"));
             upgraded = applyTransforms(transformed, upgrades);
@@ -1129,10 +1129,8 @@ public class ExporterTest extends AbstractServerTest {
         }
     }
 
-
-
     /**
-     * Test the upgrade of an image from 2007-06 to 2008-02
+     * Test the upgrade of an image from 2007-06 to 2008-02.
      * @throws Exception Thrown if an error occurred.
      */
     public void testUpgradeImage200706to200802() throws Exception
@@ -1145,7 +1143,7 @@ public class ExporterTest extends AbstractServerTest {
             List<InputStream> transforms = retrieveDowngrade("2007-06");
             //Create file to upgrade
             transformed = applyTransforms(f, transforms);
-            //now upgrade the file. to 2008-09
+            //now upgrade the file to 2008-02
             List<InputStream> upgrades = new ArrayList<InputStream>();
             upgrades.add(getStream("2007-06-to-2008-02.xsl"));
             upgraded = applyTransforms(transformed, upgrades);
@@ -1163,7 +1161,7 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
-     * Test the upgrade of an image from 2007-06 to 2008-09
+     * Test the upgrade of an image from 2007-06 to 2008-09.
      * @throws Exception Thrown if an error occurred.
      */
     public void testUpgradeImage200706to200809() throws Exception
@@ -1176,7 +1174,7 @@ public class ExporterTest extends AbstractServerTest {
             List<InputStream> transforms = retrieveDowngrade("2007-06");
             //Create file to upgrade
             transformed = applyTransforms(f, transforms);
-            //now upgrade the file. to 2008-09
+            //now upgrade the file to 2008-09
             List<InputStream> upgrades = new ArrayList<InputStream>();
             upgrades.add(getStream("2007-06-to-2008-09.xsl"));
             upgraded = applyTransforms(transformed, upgrades);
