@@ -442,9 +442,9 @@ class TestCsrf(IWebTest):
             'to_type': 'image'
         }
 
-        _post_response(self.django_root_client, request_url, data,
+        _post_response(self.django_client, request_url, data,
                        status_code=403)
-        _csrf_post_response(self.django_root_client, request_url, data)
+        _csrf_post_response(self.django_client, request_url, data)
 
     def test_ome_tiff_script(self):
 
