@@ -182,11 +182,12 @@ public class ExporterTest extends AbstractServerTest {
         File output;
         InputStream in = null;
         OutputStream out = null;
-        try {
-            while (i.hasNext()) {
-                stream = i.next();
+        Resolver resolver = null;
+        while (i.hasNext()) {
+            stream = i.next();
+            try {
                 factory = TransformerFactory.newInstance();
-                Resolver resolver = new Resolver();
+                resolver = new Resolver();
                 factory.setURIResolver(resolver);
                 output = File.createTempFile(
                         RandomStringUtils.random(100, false, true),
@@ -201,13 +202,14 @@ public class ExporterTest extends AbstractServerTest {
                 transformer.transform(new StreamSource(in),
                         new StreamResult(out));
                 inputXML = output;
-                stream.close();
-                out.close();
-                in.close();
-                resolver.close();
+            } catch (Exception e) {
+                throw new Exception("Cannot apply transform", e);
+            } finally {
+                if (stream != null) stream.close();
+                if (out != null) out.close();
+                if (in != null) in.close();
+                if (resolver != null) resolver.close();
             }
-        } catch (Exception e) {
-            throw new Exception("Cannot apply transform", e);
         }
         File f = File.createTempFile(
                 RandomStringUtils.random(100, false, true), "."+ OME_XML);
