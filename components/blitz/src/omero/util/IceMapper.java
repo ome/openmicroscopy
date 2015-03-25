@@ -226,7 +226,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         public Object mapReturnValue(IceMapper mapper, Object value)
                 throws Ice.UserException {
-        	return value;
+            return value;
         }
     };
 
@@ -560,7 +560,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         pd.setStride(def.stride);
         omero.romio.RegionDef r = def.region;
         if (r != null) {
-        	pd.setRegion(new RegionDef(r.x, r.y, r.width, r.height));
+            pd.setRegion(new RegionDef(r.x, r.y, r.width, r.height));
         }
         if (def instanceof PlaneDefWithMasks) {
             pd.setRenderShapes(true);
