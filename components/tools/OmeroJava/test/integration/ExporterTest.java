@@ -41,6 +41,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import loci.common.Constants;
 import loci.common.RandomAccessInputStream;
 import loci.common.RandomAccessOutputStream;
 import loci.formats.tiff.TiffParser;
@@ -196,7 +197,7 @@ public class ExporterTest extends AbstractServerTest {
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
                 transformer = template.newTransformer();
-                transformer.setParameter(OutputKeys.ENCODING, "UTF-8");
+                transformer.setParameter(OutputKeys.ENCODING, Constants.ENCODING);
                 out = new FileOutputStream(output);
                 in = new FileInputStream(inputXML);
                 transformer.transform(new StreamSource(in),
@@ -976,18 +977,19 @@ public class ExporterTest extends AbstractServerTest {
         RandomAccessOutputStream tiffOutput = null;
         File tiffXML = null;
         try {
-            String encoding = "UTF-8";
             f = export(OME_TIFF, IMAGE);
             //extract XML and copy to tmp file
             String path = f.getAbsolutePath();
             TiffParser parser = new TiffParser(path);
             inputXML = File.createTempFile(RandomStringUtils.random(100, false,
                     true),"." + OME_XML);
-            FileUtils.writeStringToFile(inputXML, parser.getComment(), encoding);
+            FileUtils.writeStringToFile(inputXML, parser.getComment(),
+                    Constants.ENCODING);
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
             validate(transformed);
-            String comment = FileUtils.readFileToString(transformed, encoding);
+            String comment = FileUtils.readFileToString(transformed,
+                    Constants.ENCODING);
 
             tiffOutput = new RandomAccessOutputStream(path);
             TiffSaver saver = new TiffSaver(tiffOutput, path);
