@@ -101,7 +101,7 @@ public class ExporterTest extends AbstractServerTest {
     /** The catalog file to find. */
     private static final String CATALOG = "/transforms/ome-transforms.xml";
 
-    /** The conversion file to find. */
+    /** The conversion file to find.*/
     private static final String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
 
     /** The <i>name</i> attribute. */
@@ -188,8 +188,9 @@ public class ExporterTest extends AbstractServerTest {
                 factory = TransformerFactory.newInstance();
                 Resolver resolver = new Resolver();
                 factory.setURIResolver(resolver);
-                output = File.createTempFile(RandomStringUtils.random(10), "."
-                        + OME_XML);
+                output = File.createTempFile(
+                        RandomStringUtils.random(100, false, true),
+                        "."+ OME_XML);
                 output.deleteOnExit();
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
@@ -208,7 +209,8 @@ public class ExporterTest extends AbstractServerTest {
         } catch (Exception e) {
             throw new Exception("Cannot apply transform", e);
         }
-        File f = File.createTempFile(RandomStringUtils.random(10), "."+ OME_XML);
+        File f = File.createTempFile(
+                RandomStringUtils.random(100, false, true), "."+ OME_XML);
         FileUtils.copyFile(inputXML, f);
         return f;
     }
@@ -255,8 +257,8 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Image createImageWithROIToExport() throws Exception {
       //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "."+ OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithROI(), true);
@@ -281,8 +283,8 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Image createImageWithAnnotatedDataToExport() throws Exception {
         //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "."+ OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(), true);
@@ -307,8 +309,8 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Image createImageToExport() throws Exception {
         //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "." + OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
@@ -477,8 +479,8 @@ public class ExporterTest extends AbstractServerTest {
             throws Exception
     {
         // First create an image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "." + OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         if (index == IMAGE_ROI) {
@@ -514,8 +516,8 @@ public class ExporterTest extends AbstractServerTest {
         } else {
             image = createImageToExport();
         }
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-               + extension);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "."+ extension);
         FileOutputStream stream = new FileOutputStream(f);
         ExporterPrx store = null;
         try {
@@ -958,37 +960,32 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         File inputXML = null;
-        File transformedXML = null;
-        File result = null;
         RandomAccessInputStream in = null;
         RandomAccessOutputStream out = null;
+        RandomAccessOutputStream tiffOutput = null;
+        File tiffXML = null;
         try {
+            String encoding = "UTF-8";
             f = export(OME_TIFF, IMAGE);
             //extract XML and copy to tmp file
-            TiffParser parser = new TiffParser(f.getAbsolutePath());
-            inputXML = File.createTempFile(RandomStringUtils.random(10),
-                    "." + OME_XML);
-            FileUtils.writeStringToFile(inputXML, parser.getComment());
+            String path = f.getAbsolutePath();
+            TiffParser parser = new TiffParser(path);
+            inputXML = File.createTempFile(RandomStringUtils.random(100, false,
+                    true),"." + OME_XML);
+            FileUtils.writeStringToFile(inputXML, parser.getComment(), encoding);
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
-            //Generate OME-TIFF
-            result = File.createTempFile(RandomStringUtils.random(10), "."
-                    + OME_TIFF);
-            FileUtils.copyFile(f, result);
-            String path = result.getAbsolutePath();
-            TiffSaver saver = new TiffSaver(path);
+            validate(transformed);
+            String comment = FileUtils.readFileToString(transformed, encoding);
+
+            tiffOutput = new RandomAccessOutputStream(path);
+            TiffSaver saver = new TiffSaver(tiffOutput, path);
             saver.setBigTiff(parser.isBigTiff());
             in = new RandomAccessInputStream(path);
-            saver.overwriteComment(in, FileUtils.readFileToString(transformed));
-            
-            //validate the OME-TIFF
-            parser = new TiffParser(result.getAbsolutePath());
-            transformedXML = File.createTempFile(RandomStringUtils.random(10),
-                    "." + OME_XML);
-            FileUtils.writeStringToFile(transformedXML, parser.getComment());
-            validate(transformedXML);
+            saver.overwriteComment(in, comment);
+            tiffOutput.close();
             //import the file
-            importFile(result, OME_XML);
+            importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("Cannot downgrade image: "+target.getSource(),
                     e);
@@ -996,9 +993,8 @@ public class ExporterTest extends AbstractServerTest {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
             if (inputXML != null) inputXML.delete();
-            if (result != null) result.delete();
-            if (transformedXML != null) transformedXML.delete();
             if (in != null) in.close();
+            if (tiffXML != null) tiffXML.delete();
         }
     }
 
