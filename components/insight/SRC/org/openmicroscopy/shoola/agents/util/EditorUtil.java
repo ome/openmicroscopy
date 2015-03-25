@@ -2465,13 +2465,19 @@ public class EditorUtil
     {
         String date = "";
         Timestamp time = null;
-        if (object == null) return date;
+        if (object == null) 
+            return date;
+        
         if (object instanceof AnnotationData)
             time = ((AnnotationData) object).getLastModified();
         else if (object instanceof ImageData)
             time = getAcquisitionTime((ImageData) object);
-        else time = object.getCreated();
-        if (time != null) date = UIUtilities.formatDefaultDate(time);
+        else 
+            time = object.getCreated();
+        
+        if (time != null && time.getTime()>0) 
+            date = UIUtilities.formatDefaultDate(time);
+        
         return date;
     }
 
