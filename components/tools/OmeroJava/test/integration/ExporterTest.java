@@ -150,6 +150,9 @@ public class ExporterTest extends AbstractServerTest {
     /** The current schema.*/
     private String currentSchema;
 
+    /** Flag indicating if the platform is Windows or not.*/
+    private boolean windowsOS;
+
     /**
      * Validates the specified input.
      *
@@ -340,6 +343,8 @@ public class ExporterTest extends AbstractServerTest {
         super.setUp();
         upgrades = new HashMap<String, List<String>>();
         downgrades = currentSchema();
+        String osName = System.getProperty("os.name").toLowerCase();
+        windowsOS = osName.startsWith("windows");
     }
 
     /**
@@ -739,6 +744,10 @@ public class ExporterTest extends AbstractServerTest {
      */
     private InputStream getStream(String name)
     {
+        if (windowsOS) {
+            return this.getClass().getClassLoader().getResourceAsStream(
+                    "transforms/"+name);
+        }
         return this.getClass().getResourceAsStream("/transforms/"+name);
     }
 
