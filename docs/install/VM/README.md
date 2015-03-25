@@ -28,7 +28,7 @@ virtual machine.
 3. Environment Setup:
 
 	See the [virtual appliance user documentation](
-	http://www.openmicroscopy.org/site/support/omero5/users/virtual-appliance.html)
+	http://www.openmicroscopy.org/site/support/omero5.1/users/virtual-appliance.html)
 	
 	Place the VDI in your VirtualBox harddisk directory. On Mac OS X this should be `$HOME/Library/VirtualBox/HardDisks/` and on Linux `$HOME/.VirtualBox/HardDisks/`
 	
