@@ -99,10 +99,10 @@ public class ExporterTest extends AbstractServerTest {
     private static final int INC = 262144;
 
     /** The catalog file to find. */
-    private static final String CATALOG = "/transforms/ome-transforms.xml";
+    private static final String CATALOG = "ome-transforms.xml";
 
     /** The conversion file to find.*/
-    private static final String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
+    private static final String UNITS_CONVERSION = "units-conversion.xsl";
 
     /** The <i>name</i> attribute. */
     private static final String CURRENT = "current";
@@ -659,7 +659,7 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Map<String, List<String>> currentSchema() throws Exception
     {
-        InputStream stream = this.getClass().getResourceAsStream(CATALOG);
+        InputStream stream = getStream(CATALOG);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -1242,7 +1242,7 @@ public class ExporterTest extends AbstractServerTest {
         @Override
         public Source resolve(String href, String base)
                 throws TransformerException {
-            stream = this.getClass().getResourceAsStream(UNITS_CONVERSION);
+            stream = getStream(UNITS_CONVERSION);
             return new StreamSource(stream);
         }
     }
