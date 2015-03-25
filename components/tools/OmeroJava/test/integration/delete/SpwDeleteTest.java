@@ -166,7 +166,7 @@ public class SpwDeleteTest extends AbstractServerTest {
     private List<Pixels> create(Creator creator) throws Exception {
 
         File f = File.createTempFile("testImportPlate", "." + OME_FORMAT);
-
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = creator.create(xml);
