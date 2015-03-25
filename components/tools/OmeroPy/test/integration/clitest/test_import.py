@@ -597,3 +597,26 @@ class TestImport(CLITest):
         # obj = self.get_object(e, 'Image')
 
         # assert obj.details.id.val == new_group.id.val
+
+    @pytest.mark.parametrize("container,filename,arg", target_fixtures)
+    def testUnknownTarget(self, container, filename, arg, tmpdir):
+        target = eval("omero.model."+container+"I")()
+        target.name = rstring('testUnknownTarget')
+        target = self.update.saveAndReturnObject(target)
+
+        params = omero.sys.ParametersI()
+        query = "select c from " + container + " as c"
+        targets = self.query.findAllByQuery(
+            query, params, {"omero.group": "-1"})
+        tids = [t.id.val for t in targets]
+        assert target.id.val in tids
+        unknown = max(tids) + 1
+        assert unknown not in tids
+
+        fakefile = tmpdir.join(filename)
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        self.args += [arg, '%s' % unknown]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
