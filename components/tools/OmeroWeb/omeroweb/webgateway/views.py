@@ -1716,8 +1716,9 @@ def reset_rdef_json(request, toOwners=False, conn=None, **kwargs):
     # get the first object and set the group to match
     conn.SERVICE_OPTS.setOmeroGroup('-1')
     o = conn.getObject(to_type, toids[0])
-    gid = o.getDetails().group.id.val
-    conn.SERVICE_OPTS.setOmeroGroup(gid)
+    if o is not None:
+        gid = o.getDetails().group.id.val
+        conn.SERVICE_OPTS.setOmeroGroup(gid)
 
     if toOwners:
         rv = rss.resetDefaultsByOwnerInSet(to_type, toids, conn.SERVICE_OPTS)

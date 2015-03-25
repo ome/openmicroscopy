@@ -416,11 +416,11 @@ class TestCsrf(IWebTest):
         code.
         """
 
-        img = self.createTestImage()
+        img = self.createTestImage(session=self.sf)
 
         # Reset through webclient as it is calling directly
         # webgateway.reset_image_rdef_json
-        request_url = reverse('reset_owners_rdef_json')
+        request_url = reverse('reset_rdef_json')
         data = {
             'toids': img.id.val,
             'to_type': 'image'
