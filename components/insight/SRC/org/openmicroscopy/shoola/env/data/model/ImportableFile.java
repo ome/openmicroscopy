@@ -229,6 +229,7 @@ public class ImportableFile
 		newObject.file = this.file;
 		newObject.refNode = this.refNode;
 		newObject.group = this.group;
+		newObject.user = this.user;
 		newObject.status = new StatusLabel(this.file);
 		return newObject;
 	}
