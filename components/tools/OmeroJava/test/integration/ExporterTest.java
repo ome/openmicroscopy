@@ -1134,7 +1134,7 @@ public class ExporterTest extends AbstractServerTest {
             //import the file
             importFile(upgraded, OME_XML);
         } catch (Throwable e) {
-            throw new Exception("Cannot transform image to 2008-09 ", e);
+            throw new Exception("Cannot transform image to 2008-09", e);
         } finally {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
