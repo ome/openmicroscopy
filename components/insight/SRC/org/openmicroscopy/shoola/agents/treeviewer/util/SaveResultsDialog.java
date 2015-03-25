@@ -115,11 +115,12 @@ public class SaveResultsDialog
         List<Object> images = new ArrayList<Object>();
         FileObject img;
         List<Object> toImport = new ArrayList<Object>();
+        ImagePlus plus;
         if (activeWindow) {
-            ImagePlus plus = WindowManager.getCurrentImage();
+            plus = WindowManager.getCurrentImage();
             if (plus != null) {
                 img = new FileObject(plus);
-                if (img.getOMEROID() < 0) {
+                if (img.getOMEROID() < 0 || plus.changes) {
                     toImport.add(img);
                   //check if there are associated files
                     int[] values = WindowManager.getIDList();
@@ -139,9 +140,13 @@ public class SaveResultsDialog
             int[] values = WindowManager.getIDList();
             if (values != null) {
                 for (int i = 0; i < values.length; i++) {
-                    img = new FileObject(WindowManager.getImage(values[i]));
-                    if (img.getOMEROID() < 0) toImport.add(img);
-                    else images.add(img);
+                    plus = WindowManager.getImage(values[i]);
+                    img = new FileObject(plus);
+                    if (img.getOMEROID() < 0 || plus.changes) {
+                        toImport.add(img);
+                    } else {
+                        images.add(img);
+                    }
                 }
             }
         }
