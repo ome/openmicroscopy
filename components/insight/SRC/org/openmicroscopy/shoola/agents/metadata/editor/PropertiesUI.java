@@ -748,7 +748,7 @@ public class PropertiesUI
 		c.fill = GridBagConstraints.NONE;
 		c.weightx = 1;
 		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = new Insets(0, 2, 2, 2);
+		c.insets = new Insets(0, 0, 2, 2);
 		c.gridy = 0;
 		c.gridx = 0;
     	JLabel l = new JLabel();
@@ -780,8 +780,8 @@ public class PropertiesUI
         	content.add(value, c);
         	c.gridy++; 
 		} catch (Exception e) {
-			
 		}
+    	
     	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION+":", Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
@@ -1064,8 +1064,10 @@ public class PropertiesUI
 			Timestamp crDate = dob.getCreated();
 			if (crDate != null) {
 				JLabel createDateLabel = new JLabel();
+				Font font = createDateLabel.getFont();
+                int size = font.getSize()-2;
 				createDateLabel.setFont((new JLabel()).getFont().deriveFont(
-						Font.BOLD));
+						Font.BOLD, size));
 				createDateLabel.setText(CREATIONDATE_TEXT
 						+ UIUtilities.formatDefaultDate(crDate));
 
