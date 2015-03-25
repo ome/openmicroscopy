@@ -422,10 +422,10 @@ public class CommandLineImporter {
             + "  ---------\n\n"
             + "    --qa-baseurl=ARG\tSpecify the base URL for reporting feedback\n"
             + "  e.g. $ bin/omero import broken_image.tif"
-            + " -- --email email@domain --report --upload --logs"
+            + " -- --email EMAIL --report --upload --logs"
             + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
             + "       $ ./importer-cli broken_image.tif"
-            + " --email email@domain --report --upload --logs"
+            + " --email EMAIL --report --upload --logs"
             + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
