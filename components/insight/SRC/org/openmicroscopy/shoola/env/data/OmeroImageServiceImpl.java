@@ -1416,14 +1416,16 @@ class OmeroImageServiceImpl
         File output;
         InputStream in = null;
         OutputStream out = null;
-        try {
-            while (i.hasNext()) {
-                stream = i.next();
+        Resolver resolver = null;
+        while (i.hasNext()) {
+            stream = i.next();
+            try {
                 factory = TransformerFactory.newInstance();
-                Resolver resolver = new Resolver();
+                resolver = new Resolver();
                 factory.setURIResolver(resolver);
                 output = File.createTempFile(
-                        RandomStringUtils.random(60, false, true),"."+XMLFilter.OME_XML);
+                        RandomStringUtils.random(60, false, true),
+                        "."+XMLFilter.OME_XML);
                 output.deleteOnExit();
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
@@ -1433,17 +1435,18 @@ class OmeroImageServiceImpl
                 in = new FileInputStream(inputXML);
                 transformer.transform(new StreamSource(in),
                         new StreamResult(out));
-                inputXML = output;
-                stream.close();
-                out.close();
-                in.close();
-                resolver.close();
+                inputXML = output; 
+            } catch (Exception e) {
+                throw new Exception("Cannot apply transform", e);
+            } finally {
+                if (resolver != null) resolver.close();
+                if (stream != null) stream.close();
+                if (in != null) in.close();
+                if (out != null) out.close();
             }
-        } catch (Exception e) {
-            throw new Exception("Cannot apply transform", e);
         }
         File f = File.createTempFile(
-                RandomStringUtils.random(60, false, true),".ome.xml");
+                RandomStringUtils.random(60, false, true), "."+XMLFilter.OME_XML);
         FileUtils.copyFile(inputXML, f);
         return f;
     }
