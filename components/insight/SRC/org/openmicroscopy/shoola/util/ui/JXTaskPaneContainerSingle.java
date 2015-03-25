@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle
  *
  *------------------------------------------------------------------------------
- * Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ * Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,14 +64,10 @@ public class JXTaskPaneContainerSingle
 
 	/** The list holding the <code>JXTaskPane</code>s. */
 	private List<JXTaskPane> panes;
-	
-	/** Flag indicating that a tab pane can or cannot be expanded. */
-	private boolean	expandable;
 
 	/** Initializes the component. */
 	private void initialize()
 	{
-		expandable = true;
 		panes = new ArrayList<JXTaskPane>();
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
@@ -84,18 +80,7 @@ public class JXTaskPaneContainerSingle
 	{
 		initialize();
 	}
-	
-	/**
-	 * Passes <code>true</code> to allow a component to be expanded,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param expandable The value to set.
-	 */
-	public void setExpandable(boolean expandable)
-	{
-		this.expandable = expandable;
-	}
-	
+
 	/**
 	 * Returns <code>true</code> if one of the <code>JXTaskPane</code>s 
 	 * is expanded, <code>false</code> otherwise.
@@ -156,28 +141,42 @@ public class JXTaskPaneContainerSingle
         }
     }
 
+    /**
+     * Collapses all TaskPanes except the one provided as argument
+     * 
+     * @param dontCollapse
+     *            The TaskPane to *not* collapse or <code>null</code> to
+     *            collapse all
+     */
     private void collapseAllBut(JXTaskPane dontCollapse) {
         for(JXTaskPane pane : panes) {
-            if(pane != dontCollapse) {
+            if(dontCollapse == null || pane != dontCollapse) {
                 pane.setCollapsed(true);
             }
         }
     }
 
+    /**
+     * Re-Adjusts the preferred sizes of the different TaskPanes;
+     * Should be called after collapse/expand actions or container
+     * size changes
+     */
     public void reAdjustSizes() {
-        JXTaskPane exp = getExpandedPane();
-        
-        if(exp == null)
-            return;
-        
         for(JXTaskPane pane : panes) {
             if(pane.isCollapsed())
                 pane.setPreferredSize(null);
         }
         
-        exp.setPreferredSize(getAvailableSizeFor(exp));
+        JXTaskPane exp = getExpandedPane();
+        if(exp!=null)
+            exp.setPreferredSize(getAvailableSizeFor(exp));
     }
     
+    /**
+     * Return the currently expanded TaskPane; <code>null</code>
+     * if none is expanded
+     * @return See above
+     */
     private JXTaskPane getExpandedPane() {
         for(JXTaskPane pane : panes) {
             if(!pane.isCollapsed())
@@ -186,6 +185,11 @@ public class JXTaskPaneContainerSingle
         return null;
     }
     
+    /**
+     * Determines the size available for the give TaskPane
+     * @param pane The TaskPane to get the available size for
+     * @return See above
+     */
     private Dimension getAvailableSizeFor(JXTaskPane pane) {
         Dimension d = getSize();
         for(JXTaskPane p : panes) {
