@@ -202,7 +202,7 @@ module omero {
          const string KEYWORDFLIMBACKGROUND = "Background";
        };
     };
-    
+
     module jobs {
 
       /**

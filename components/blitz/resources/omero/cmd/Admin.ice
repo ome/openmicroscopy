@@ -20,7 +20,7 @@
 module omero {
 
     module cmd {
-        
+
          /**
          * Requests a reset password for the given user.
          * 
@@ -40,7 +40,7 @@ module omero {
          **/
          class ResetPasswordResponse extends Response {
          };
-        
+
     };
 };
 
