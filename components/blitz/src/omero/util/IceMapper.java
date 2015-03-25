@@ -637,7 +637,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         if (params.theFilter != null) {
             p.setFilter(convert(params.theFilter));
         }
-        
+
         if (params.theOptions != null) {
             p.setOptions(convert(params.theOptions));
         }
@@ -671,13 +671,13 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     public static ome.parameters.Options convert(Options o) {
-        
+
         if (o == null) {
             return null;
         }
-        
+
         ome.parameters.Options options = new ome.parameters.Options();
-        
+
         if (o.orphan != null) {
             options.orphan = o.orphan.getValue();
         }
@@ -689,10 +689,10 @@ public class IceMapper extends ome.util.ModelMapper implements
         if (o.acquisitionData != null) {
             options.acquisitionData = o.acquisitionData.getValue();
         }
-        
+
         return options;
 }
-    
+
     public static ome.parameters.Filter convert(Filter f) {
 
         if (f == null) {
