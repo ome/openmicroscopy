@@ -46,6 +46,7 @@ import loci.common.RandomAccessInputStream;
 import loci.common.RandomAccessOutputStream;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
+import ome.services.blitz.util.CurrentPlatform;
 import ome.specification.OmeValidator;
 import ome.specification.SchemaResolver;
 import ome.specification.XMLMockObjects;
@@ -343,8 +344,7 @@ public class ExporterTest extends AbstractServerTest {
         super.setUp();
         upgrades = new HashMap<String, List<String>>();
         downgrades = currentSchema();
-        String osName = System.getProperty("os.name").toLowerCase();
-        windowsOS = osName.startsWith("windows");
+        windowsOS = CurrentPlatform.isWindows();
     }
 
     /**
