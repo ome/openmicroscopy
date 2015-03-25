@@ -72,7 +72,7 @@ public class FailedLoginMailSender extends MailSender implements
             return;
         }
 
-        if (lam.success) {
+        if (lam.success == null || lam.success) {
             return;
         }
 

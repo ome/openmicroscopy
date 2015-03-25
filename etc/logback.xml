@@ -143,6 +143,8 @@
   <logger name="org.hibernate.pretty" level="ERROR"/>
   <logger name="org.hibernate.type" level="ERROR"/>
   <logger name="org.hibernate.validator" level="ERROR"/>
+  <!-- Thrown from BinaryAccessPolicy -->
+  <logger name="org.hibernate.AssertionFailure" level="OFF" additivity="false"/>
 
     <!-- Import logs //////////////////////////////////////////////////////////// -->
   <logger name="ome.services.blitz.repo.ManagedImportRequestI">
