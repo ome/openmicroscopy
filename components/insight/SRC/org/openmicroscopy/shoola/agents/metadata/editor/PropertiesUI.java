@@ -158,7 +158,7 @@ public class PropertiesUI
     /** Maximum number of characters shown per line in the
      *  channel names component
      */
-    private static final int MAX_CHANNELNAMES_LENGTH_IN_CHARS = 100;
+    private static final int MAX_CHANNELNAMES_LENGTH_IN_CHARS = 40;
     
     /** Button to edit the name. */
 	private JToggleButton				editName;
@@ -869,9 +869,7 @@ public class PropertiesUI
         content.add(roiCountLabel, c);
         loadROICount(image);
         
-    	JPanel p = UIUtilities.buildComponentPanel(content);
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-        return p;
+        return content;
     }
     
     /** 
