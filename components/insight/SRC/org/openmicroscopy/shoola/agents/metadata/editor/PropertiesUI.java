@@ -1058,6 +1058,7 @@ public class PropertiesUI
 		} else if (refObject instanceof DatasetData
 				|| refObject instanceof ProjectData
 				|| refObject instanceof PlateData
+				|| refObject instanceof PlateAcquisitionData
 				|| refObject instanceof ScreenData) {
 			DataObject dob = (DataObject) refObject;
 			
