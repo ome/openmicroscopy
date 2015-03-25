@@ -1903,6 +1903,10 @@ public class OMEROMetadataStoreClient
                             klass.getName(), id));
             }
             long grpID = obj.getDetails().getGroup().getId().getValue();
+            if (grpID != eventContext.groupId) {
+                throw new RuntimeException(String.format("Target container in group: %s, not current group: %s",
+                            grpID, eventContext.groupId));
+            }
             setCurrentGroup(grpID);
             return obj;
         }
