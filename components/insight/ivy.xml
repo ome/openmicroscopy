@@ -9,9 +9,9 @@
     <conf name="release"/>
   </configurations>
   <publications>
-    <artifact name="insight-gui" type="jar"/>
     <artifact name="insight" type="jar"/>
     <artifact name="insight" type="pom"/>
+    <artifact name="insight" type="gui" ext="jar" m:classifier="gui"/>
     <artifact name="insight" type="source" ext="jar" m:classifier="sources"/>
     <artifact name="insight" type="javadoc" ext="jar" m:classifier="javadoc"/>
     <artifact name="insight" type="zip" conf="release"/>
