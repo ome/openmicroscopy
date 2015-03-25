@@ -1400,11 +1400,13 @@ class OmeroImageServiceImpl
      *            The file to transforms.
      * @param transforms
      *            The collection of transforms.
+     * @param encoding The encoding to use.
      * @return See above.
      * @throws Exception
      *             Thrown if an error occurred during the transformations.
      */
-    private File applyTransforms(File inputXML, List<InputStream> transforms)
+    private File applyTransforms(File inputXML, List<InputStream> transforms,
+            String encoding)
             throws Exception {
         TransformerFactory factory;
         Transformer transformer;
@@ -1425,7 +1427,7 @@ class OmeroImageServiceImpl
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
                 transformer = template.newTransformer();
-                transformer.setParameter(OutputKeys.ENCODING, "UTF-8");
+                transformer.setParameter(OutputKeys.ENCODING, encoding);
                 out = new FileOutputStream(output);
                 in = new FileInputStream(inputXML);
                 transformer.transform(new StreamSource(in),
@@ -1489,15 +1491,16 @@ class OmeroImageServiceImpl
 		File result = null;
 		File transformed = null;
 		RandomAccessInputStream ra = null;
+		String encoding = "UTF-8";
 		try {
 			if (index == EXPORT_AS_OMETIFF) {
 				tmp = File.createTempFile(RandomStringUtils.random(60, false, true),
 	                    "."+XMLFilter.OME_XML);
 				String c = new TiffParser(f.getAbsolutePath()).getComment();
-				FileUtils.writeStringToFile(tmp, c);
-				transformed = applyTransforms(tmp, transforms);
+				FileUtils.writeStringToFile(tmp, c, encoding);
+				transformed = applyTransforms(tmp, transforms, encoding);
 			} else {
-			    transformed = applyTransforms(f, transforms);
+			    transformed = applyTransforms(f, transforms, encoding);
 			}
 			//Copy the result
 			if (index == EXPORT_AS_OME_XML) {
@@ -1508,7 +1511,8 @@ class OmeroImageServiceImpl
 			} else {
 				TiffSaver saver = new TiffSaver(file.getAbsolutePath());
 				ra = new RandomAccessInputStream(file.getAbsolutePath());
-				saver.overwriteComment(ra, FileUtils.readFileToString(transformed));
+				saver.overwriteComment(ra,
+				        FileUtils.readFileToString(transformed, encoding));
 				return file;
 			}
 		} catch (Exception e) {
