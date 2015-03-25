@@ -31,7 +31,7 @@ module omero {
                 omero::RInt        offset;
                 omero::RLong       userId;
                 omero::RLong       groupId;
-				omero::RString	   namespace;
+                omero::RString     namespace;
             };
 
         /**
@@ -177,7 +177,7 @@ module omero {
                 /**
                  * Returns a list of [omero::model::FileAnnotation] instances with the namespace
                  * "openmicroscopy.org/measurements" which are attached to the [omero::model::Plate]
-		 * containing the given image AND which are attached to at least one [omero::model::Roi]
+                 * containing the given image AND which are attached to at least one [omero::model::Roi]
                  *
                  * @param opts, userId and groupId are respected based on the ownership of the annotation.
                  **/
