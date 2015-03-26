@@ -7,6 +7,7 @@
 package integration.delete;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,7 +16,9 @@ import java.util.Map.Entry;
 
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
+import omero.cmd.DoAll;
+import omero.cmd.Request;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -38,6 +41,8 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 import org.testng.Assert;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Tests for deleting hierarchies and the effects that that should have under
@@ -81,12 +86,20 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     	link.setChild((Image) i2.proxy());
     	link.setParent((Dataset) d2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	Delete[] commands = new Delete[2];
-    	commands[0] = new Delete(DeleteServiceTest.REF_DATASET,
-    			d1.getId().getValue(), null);
-    	commands[1] = new Delete(DeleteServiceTest.REF_DATASET,
-    			d2.getId().getValue(), null);
-    	delete(client, commands);
+    	List<Request> commands = new ArrayList<Request>();
+    	Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(d1.getId().getValue()));
+        commands.add(dc);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(d2.getId().getValue()));
+        commands.add(dc);
+        DoAll all = new DoAll();
+        all.requests = commands;
+        doChange(client, factory, all, false, null);
     }
 
 }
