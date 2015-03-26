@@ -11,7 +11,7 @@ import java.util.List;
 
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
-import omero.cmd.Delete;
+
 import omero.cmd.Delete2;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -77,7 +77,7 @@ public class RelatedToTest extends AbstractServerTest {
         pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
         Pixels pixels = pixels1.getRelatedTo();
         assertNotNull(pixels);
-        assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
+        assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
         final Delete2 dc = new Delete2();
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
@@ -120,7 +120,7 @@ public class RelatedToTest extends AbstractServerTest {
         pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
         Pixels pixels = pixels1.getRelatedTo();
         assertNotNull(pixels);
-        assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
+        assertEquals(pixels.getId().getValue(), pixels2.getId().getValue());
 
         final Delete2 dc = new Delete2();
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
