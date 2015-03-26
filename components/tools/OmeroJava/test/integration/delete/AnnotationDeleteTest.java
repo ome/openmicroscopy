@@ -12,6 +12,7 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Map;
 import omero.RLong;
 import omero.RString;
 import omero.cmd.Delete;
+import omero.cmd.Delete2;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.FileAnnotation;
@@ -37,6 +39,9 @@ import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -87,7 +92,10 @@ public class AnnotationDeleteTest extends AbstractServerTest {
                 .saveAndReturnObject(new TagAnnotationI());
         IObject link = mmFactory.createAnnotationLink(obj.proxy(), ann);
         link = iUpdate.saveAndReturnObject(link);
-        delete(client, new Delete(command, id.getValue(), null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(command,
+                Collections.singletonList(id.getValue()));
+        callback(true, client, dc);
         assertDoesNotExist(obj);
         assertDoesNotExist(link);
         if (annIsDeleted) {
@@ -171,10 +179,11 @@ public class AnnotationDeleteTest extends AbstractServerTest {
             fa.setFile(mmFactory.createOriginalFile());
             fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
             file = fa.getFile();
-
-            delete(client, new Delete(DeleteServiceTest.REF_ANN, fa.getId()
-                    .getValue(), null));
-
+            final Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Annotation.class.getSimpleName(),
+                    Collections.singletonList(fa.getId().getValue()));
+            callback(true, client, dc);
             assertDoesNotExist(fa);
             assertDoesNotExist(file);
         }
@@ -205,9 +214,11 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         disconnect();
 
         loginUser(owner);
-        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, i1.getId()
-                .getValue(), null));
-
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(i1.getId().getValue()));
+        callback(true, client, dc);
         assertDoesNotExist(i1);
         assertDoesNotExist(link);
         assertDoesNotExist(rating);
@@ -230,7 +241,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         newUserAndGroup("rw----");
         Annotation ann = (Annotation) iUpdate
                 .saveAndReturnObject(new TagAnnotationI());
-        annotateSaveDeleteAndCheck(ann, DeleteServiceTest.REF_ANN,
+        annotateSaveDeleteAndCheck(ann, Annotation.class.getSimpleName(),
                 ann.getId());
     }
 
@@ -247,7 +258,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .createImage());
         Channel ch = image.getPrimaryPixels().getChannel(0);
-        annotateSaveDeleteAndCheck(ch, DeleteServiceTest.REF_IMAGE,
+        annotateSaveDeleteAndCheck(ch, Image.class.getSimpleName(),
                 image.getId());
     }
 
@@ -263,7 +274,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         newUserAndGroup("rw----");
         OriginalFile file = (OriginalFile) iUpdate
                 .saveAndReturnObject(mmFactory.createOriginalFile());
-        annotateSaveDeleteAndCheck(file, DeleteServiceTest.REF_ORIGINAL_FILE,
+        annotateSaveDeleteAndCheck(file, OriginalFile.class.getSimpleName(),
                 file.getId());
     }
 
@@ -280,7 +291,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .createImage());
         PlaneInfo info = image.getPixels(0).copyPlaneInfo().get(0);
-        annotateSaveDeleteAndCheck(info, DeleteServiceTest.REF_IMAGE,
+        annotateSaveDeleteAndCheck(info, Image.class.getSimpleName(),
                 image.getId());
     }
 
@@ -297,7 +308,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         Image image = (Image) iUpdate.saveAndReturnObject(mmFactory
                 .createImageWithRoi());
         Roi roi = image.copyRois().get(0);
-        annotateSaveDeleteAndCheck(roi, DeleteServiceTest.REF_ROI, roi.getId());
+        annotateSaveDeleteAndCheck(roi, Roi.class.getSimpleName(), roi.getId());
     }
 
 }
