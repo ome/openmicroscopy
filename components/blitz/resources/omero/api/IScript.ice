@@ -134,7 +134,7 @@ module omero {
                  * Modify the text for the given script object.
                  *
                  * @param script see above.
-                 * @throw  ApiUsageException
+                 * @throws ApiUsageException
                  * @throws SecurityViolation
                  **/
                 void editScript(omero::model::OriginalFile fileObject, string scriptText) throws ServerError;
