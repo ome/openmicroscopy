@@ -3067,6 +3067,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 Collections.singletonList(id));
         ChildOption co = new ChildOption();
         co.excludeType = options;
+        dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
 
         assertDoesNotExist(p);
@@ -3105,6 +3106,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 Collections.singletonList(id));
         ChildOption co = new ChildOption();
         co.excludeType = Collections.singletonList(Plate.class.getSimpleName());
+        dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
 
         assertDoesNotExist(s);
@@ -3139,6 +3141,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 Collections.singletonList(id));
         ChildOption co = new ChildOption();
         co.excludeType = Collections.singletonList(Image.class.getSimpleName());
+        dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
 
         assertDoesNotExist(d);
