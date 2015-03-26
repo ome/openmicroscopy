@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 
 import ome.xml.model.OME;
-import omero.cmd.Delete;
 import omero.cmd.Delete2;
 import omero.cmd.graphs.ChildOption;
 import omero.model.Experiment;
@@ -117,33 +116,6 @@ public class SpwDeleteTest extends AbstractServerTest {
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                 Screen.class.getSimpleName(), Collections.singletonList(sid));
         callback(true, client, dc);
-
-        assertDoesNotExist(screen);
-        assertExists(plate);
-
-    }
-
-    /**
-     * This tests using the /Plate+Only specifier as opposed to the class name.
-     * Currently not implemented.
-     */
-    @Test(groups = { "broken", "ticket:3195", "UNSUPPORTED" })
-    public void testScreenKeepPlateOnly() throws Exception {
-
-        newUserAndGroup("rw----");
-
-        List<Pixels> pixels = createScreen();
-
-        Pixels p = pixels.get(0);
-        WellSample ws = getWellSample(p);
-        Plate plate = ws.getWell().getPlate();
-        Screen screen = plate.copyScreenLinks().get(0).getParent();
-        long sid = screen.getId().getValue();
-
-        Map<String, String> op = new HashMap<String, String>();
-        op.put("/Plate+Only", "KEEP");
-
-        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, sid, op));
 
         assertDoesNotExist(screen);
         assertExists(plate);
