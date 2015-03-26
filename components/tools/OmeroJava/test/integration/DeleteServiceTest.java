@@ -240,6 +240,16 @@ public class DeleteServiceTest extends AbstractServerTest {
         SHARABLE_TO_KEEP.put(REF_MAP, KEEP);
     }
 
+    /** The options to keep the sharable annotations. */
+    public static final List<String> SHARABLE_TO_KEEP_LIST;
+
+    static {
+        SHARABLE_TO_KEEP_LIST = new ArrayList<String>();
+        SHARABLE_TO_KEEP_LIST.add("TagAnnotation");
+        SHARABLE_TO_KEEP_LIST.add("TermAnnotation");
+        SHARABLE_TO_KEEP_LIST.add("FileAnnotation");
+        SHARABLE_TO_KEEP_LIST.add("MapAnnotation");
+    }
     /**
      * Since so many tests rely on counting the number of objects present
      * globally, we're going to start each method with a new user in a new

@@ -10,9 +10,11 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
+import omero.cmd.graphs.ChildOption;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -24,6 +26,9 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -72,9 +77,12 @@ public class AnnotationMoveTest extends AbstractServerTest {
         // reconnect as user1
         init(clientUser1);
         // now move the image.
-
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         // Annotation of user1 should be removed
         ParametersI param = new ParametersI();
@@ -124,8 +132,13 @@ public class AnnotationMoveTest extends AbstractServerTest {
         List<Long> annotationIds = createNonSharableAnnotation(img, null);
         // now move the image.
         long id = img.getId().getValue();
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
+
         ParametersI param = new ParametersI();
         param.addId(id);
         StringBuilder sb = new StringBuilder();
@@ -165,8 +178,12 @@ public class AnnotationMoveTest extends AbstractServerTest {
         List<Long> annotationIds = createSharableAnnotation(img, null);
         // now move the image.
         long id = img.getId().getValue();
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
         StringBuilder sb = new StringBuilder();
@@ -207,8 +224,15 @@ public class AnnotationMoveTest extends AbstractServerTest {
         assertTrue(annotationIds.size() > 0);
         // now move the image.
         long id = img.getId().getValue();
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
-                DeleteServiceTest.SHARABLE_TO_KEEP, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        final ChildOption option = new ChildOption();
+        option.excludeType = DeleteServiceTest.SHARABLE_TO_KEEP_LIST;
+        dc.childOptions = Collections.singletonList(option);
+        callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
         StringBuilder sb = new StringBuilder();
