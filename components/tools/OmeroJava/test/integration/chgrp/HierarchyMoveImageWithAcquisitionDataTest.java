@@ -153,7 +153,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         // Perform the move operation.
         final Chgrp2 dc = new Chgrp2();
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
+                Image.class.getSimpleName(),
                 Collections.singletonList(originalImageId));
         dc.groupId = targetGroupId;
         callback(true, client, dc);
