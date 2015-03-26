@@ -1971,7 +1971,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         final ChildOption co = new ChildOption();
         co.excludeType = Collections.singletonList(FileAnnotation.class.getSimpleName());
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Dataset.class.getSimpleName(),
+                Image.class.getSimpleName(),
                 Collections.singletonList(img.getId().getValue()));
         dc.childOptions = Collections.singletonList(co);
         callback(true, client, dc);
