@@ -109,7 +109,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         assertNull(iQuery.findByQuery(sb.toString(), param));
 
         EventContext ec = loginUser(g);
-        assertTrue(g.getId().getValue() == ec.groupId);
+        assertEquals(g.getId().getValue(), ec.groupId);
         assertNotNull(iQuery.findByQuery(sb.toString(), param));
     }
 
@@ -308,7 +308,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(shapeIds);
         sql = "select d from Shape as d where d.id in (:ids)";
         List results = iQuery.findAllByQuery(sql, param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
 
         // Check that the data moved
         loginUser(g);
@@ -394,7 +394,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
 
         // check the well samples.
         sb = new StringBuilder();
@@ -402,7 +402,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
 
         // check the image.
         sb = new StringBuilder();
@@ -410,7 +410,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
         if (pa != null) {
             param = new ParametersI();
             param.addId(pa.getId().getValue());
@@ -520,7 +520,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sb.append("left outer join fetch well.plate as pt ");
         sb.append("where pt.id = :plateID");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
 
         // check the well samples.
         sb = new StringBuilder();
@@ -528,7 +528,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(wellSampleIds);
         sb.append("select p from WellSample as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
 
         // check the image.
         sb = new StringBuilder();
@@ -536,7 +536,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(imageIds);
         sb.append("select p from Image as p where p.id in (:ids)");
         results = iQuery.findAllByQuery(sb.toString(), param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
 
         loginUser(g);
         // check the well
@@ -877,7 +877,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         StringBuilder sb = new StringBuilder();
         sb.append("select a from Annotation as a ");
         sb.append("where a.id = :id");
-        assertTrue(iQuery.findAllByQuery(sb.toString(), param).size() == 0);
+        assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
 
         loginUser(g);
         assertTrue(iQuery.findAllByQuery(sb.toString(), param).size() > 0);
@@ -937,7 +937,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         param.addIds(ids);
         String sql = "select i from Image as i where i.id in (:ids)";
         List results = iQuery.findAllByQuery(sql, param);
-        assertTrue(results.size() == 0);
+        assertEquals(results.size(), 0);
 
         param = new ParametersI();
         param.addId(d.getId().getValue());
