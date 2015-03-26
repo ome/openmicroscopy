@@ -79,6 +79,7 @@ thread_pool = None
 # Special column names we may add depending on the data type
 PLATE_NAME_COLUMN = 'Plate Name'
 WELL_NAME_COLUMN = 'Well Name'
+IMAGE_NAME_COLUMN = 'Image Name'
 
 class Skip(object):
     """Instance to denote a row skip request."""
@@ -98,13 +99,16 @@ class HeaderResolver(object):
     """
 
     DEFAULT_COLUMN_SIZE = 1
+    REMOVE_WELL_COLUMN = False
+    WELL_COLUMN_INDEX = 0
 
     plate_keys = {
             'well': WellColumn,
             'field': ImageColumn,
             'row': LongColumn,
             'column': LongColumn,
-            'wellsample': ImageColumn
+            'wellsample': ImageColumn,
+            'image': ImageColumn
     }
 
     screen_keys = dict({
@@ -115,6 +119,14 @@ class HeaderResolver(object):
         self.target_object = target_object
         self.headers = [v.replace('/', '\\') for v in headers]
         self.headers_as_lower = [v.lower() for v in self.headers]
+        if 'image' in self.headers_as_lower:
+            log.info('Image column found. Ignoring well column.')
+            self.REMOVE_WELL_COLUMN = True
+            try:
+                self.WELL_COLUMN_INDEX = self.headers_as_lower.index('well')
+            except ValueError:
+                self.REMOVE_WELL_COLUMN = False
+                log.debug('No well columns defined.')
 
     def create_columns(self):
         target_class = self.target_object.__class__
@@ -148,6 +160,9 @@ class HeaderResolver(object):
             if column.__class__ is WellColumn:
                 columns.append(StringColumn(WELL_NAME_COLUMN, '',
                                self.DEFAULT_COLUMN_SIZE, list()))
+            if column.__class__ is ImageColumn:
+                columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
+                               self.DEFAULT_COLUMN_SIZE, list()))
         return columns
 
     def create_columns_plate(self):
@@ -166,6 +181,9 @@ class HeaderResolver(object):
                                self.DEFAULT_COLUMN_SIZE, list()))
             if column.__class__ is WellColumn:
                 columns.append(StringColumn(WELL_NAME_COLUMN, '',
+                               self.DEFAULT_COLUMN_SIZE, list()))
+            if column.__class__ is ImageColumn:
+                columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
                                self.DEFAULT_COLUMN_SIZE, list()))
         return columns
 
@@ -205,6 +223,7 @@ class ValueResolver(object):
                 'where s.id = :id', parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
+        self.images_by_id = dict()
         self.wells_by_location = dict()
         self.wells_by_id = dict()
         self.plates_by_name = dict()
@@ -216,14 +235,19 @@ class ValueResolver(object):
                     'select p from Plate as p '
                     'join fetch p.wells as w '
                     'join fetch w.wellSamples as ws '
+                    'join fetch ws.image as i '
                     'where p.id = :id', parameters, {'omero.group': '-1'})
             self.plates_by_name[plate.name.val] = plate
             self.plates_by_id[plate.id.val] = plate
             wells_by_location = dict()
             wells_by_id = dict()
+            images_by_id = dict()
             self.wells_by_location[plate.name.val] = wells_by_location
             self.wells_by_id[plate.id.val] = wells_by_id
-            self.parse_plate(plate, wells_by_location, wells_by_id)
+            self.images_by_id[plate.id.val] = images_by_id
+            self.parse_plate(
+                plate, wells_by_location, wells_by_id, images_by_id
+            )
 
     def load_plate(self):
         query_service = self.client.getSession().getQueryService()
@@ -234,6 +258,7 @@ class ValueResolver(object):
                 'select p from Plate as p '
                 'join fetch p.wells as w '
                 'join fetch w.wellSamples as ws '
+                'join fetch ws.image as i '
                 'where p.id = :id', parameters, {'omero.group': '-1'})
         if self.target_object is None:
             raise MetadataError('Could not find target object!')
@@ -241,11 +266,18 @@ class ValueResolver(object):
         self.wells_by_id = dict()
         wells_by_location = dict()
         wells_by_id = dict()
+
+        self.images_by_id = dict()
+        images_by_id = dict()
+
         self.wells_by_location[self.target_object.name.val] = wells_by_location
         self.wells_by_id[self.target_object.id.val] = wells_by_id
-        self.parse_plate(self.target_object, wells_by_location, wells_by_id)
+        self.images_by_id[self.target_object.id.val] = images_by_id
+        self.parse_plate(
+            self.target_object, wells_by_location, wells_by_id, images_by_id
+        )
 
-    def parse_plate(self, plate, wells_by_location, wells_by_id):
+    def parse_plate(self, plate, wells_by_location, wells_by_id, images_by_id):
         # TODO: This should use the PlateNamingConvention. We're assuming rows
         # as alpha and columns as numeric.
         for well in plate.copyWells():
@@ -258,6 +290,10 @@ class ValueResolver(object):
             except KeyError:
                 wells_by_location[self.AS_ALPHA[row]] = columns = dict()
             columns[column] = well
+
+            for wellSample in well.copyWellSamples():
+                image = wellSample.getImage()
+                images_by_id[image.id.val] = image
         log.debug('Completed parsing plate: %s' % plate.name.val)
         for row in wells_by_location:
             log.debug('%s: %r' % (row, wells_by_location[row].keys()))
@@ -268,6 +304,25 @@ class ValueResolver(object):
     def resolve(self, column, value, row):
         column_class = column.__class__
         column_as_lower = column.name.lower()
+        if ImageColumn is column_class:
+            if len(self.images_by_id) == 1:
+                images_by_id = self.images_by_id.values()[0]
+            else:
+                for column,plate in row:
+                    if column.__class__ is PlateColumn:
+                        images_by_id = self.images_by_id[plate.id.val]
+                        log.info("Got plate %i", plate.id.val)
+                    break
+            if images_by_id is None:
+                raise MetadataError(
+                    'Unable to locate Plate column in Row: %r' % row
+                )
+            try:
+                return images_by_id[long(value)].id.val
+            except KeyError:
+                log.debug('Image Id: %i not found!' % (value))
+                return -1L
+            return 
         if WellColumn is column_class:
             m = self.WELL_REGEX.match(value)
             if m is None or len(m.groups()) != 2:
@@ -347,8 +402,8 @@ class ParsingContext(object):
     def parse_from_handle(self, data):
         rows = list(csv.reader(data, delimiter=','))
         log.debug('Header: %r' % rows[0])
-        header_resolver = HeaderResolver(self.target_object, rows[0])
-        self.columns = header_resolver.create_columns()
+        self.header_resolver = HeaderResolver(self.target_object, rows[0])
+        self.columns = self.header_resolver.create_columns()
         log.debug('Columns: %r' % self.columns)
         self.populate(rows[1:])
         self.post_process()
@@ -375,6 +430,7 @@ class ParsingContext(object):
             values = list()
             row = [(self.columns[i], value) for i, value in enumerate(row)]
             for column, original_value in row:
+                log.debug('Original value %s, %s' % (original_value, column))
                 value = self.value_resolver.resolve(column, original_value, row)
                 if value.__class__ is Skip:
                     break
@@ -389,7 +445,8 @@ class ParsingContext(object):
             if value.__class__ is not Skip:
                 values.reverse()
                 for column in self.columns:
-                    if column.name in (PLATE_NAME_COLUMN, WELL_NAME_COLUMN):
+                    if column.name in (PLATE_NAME_COLUMN, WELL_NAME_COLUMN,
+                                       IMAGE_NAME_COLUMN):
                         continue
                     try:
                         column.values.append(values.pop())
@@ -404,6 +461,8 @@ class ParsingContext(object):
         well_column = None
         well_name_column = None
         plate_name_column = None
+        image_column = None
+        image_name_column = None
         for column in self.columns:
             columns_by_name[column.name] = column
             if column.__class__ is PlateColumn:
@@ -414,7 +473,12 @@ class ParsingContext(object):
                 well_name_column = column
             elif column.name == PLATE_NAME_COLUMN:
                 plate_name_column = column
-        if well_name_column is None and plate_name_column is None:
+            elif column.name == IMAGE_NAME_COLUMN:
+                image_name_column = column
+            elif column.__class__ is ImageColumn:
+                image_column = column
+        if well_name_column is None and plate_name_column is None \
+                and image_name_column is None:
             log.info('Nothing to do during post processing.')
         for i in range(0, len(self.columns[0].values)):
             if well_name_column is not None:
@@ -439,6 +503,24 @@ class ParsingContext(object):
                 well_name_column.values.append(v)
             else:
                 log.info('Missing well name column, skipping.')
+
+            if image_name_column is not None:
+                if PlateI is self.value_resolver.target_class:
+                    plate = self.value_resolver.target_object.id.val
+                elif ScreenI is self.value_resolver.target_class:
+                    plate = columns_by_name['Plate'].values[i]
+                try:
+                    image = self.value_resolver.images_by_id[plate]
+                    image = image[image_column.values[i]]
+                except KeyError:
+                    log.error('Missing row or column for image name population!')
+                    raise
+                name = image.name.val
+                image_name_column.size = len(name)
+                image_name_column.values.append(name)
+            else:
+                log.info('Missing image name column, skipping.')
+
             if plate_name_column is not None:
                 plate = columns_by_name['Plate'].values[i]
                 plate = self.value_resolver.plates_by_id[plate]
@@ -447,6 +529,9 @@ class ParsingContext(object):
                 plate_name_column.values.append(v)
             else:
                 log.info('Missing plate name column, skipping.')
+        if self.header_resolver.REMOVE_WELL_COLUMN:
+            log.info(self.columns)
+            self.columns.pop(self.header_resolver.WELL_COLUMN_INDEX)
 
     def write_to_omero(self):
         sf = self.client.getSession()
