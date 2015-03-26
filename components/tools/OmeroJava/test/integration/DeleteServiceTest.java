@@ -795,7 +795,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         Delete2 dc = new Delete2();
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                 Project.class.getSimpleName(),
-                Collections.singletonList(d.getId().getValue()));
+                Collections.singletonList(p.getId().getValue()));
         callback(true, client, dc);
 
         // Check if objects have been deleted
