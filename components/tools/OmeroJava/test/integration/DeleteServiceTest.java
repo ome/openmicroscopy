@@ -558,7 +558,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             // Now delete the plate
             Delete2 dc = new Delete2();
             dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                    Instrument.class.getSimpleName(),
+                    Plate.class.getSimpleName(),
                     Collections.singletonList(p.getId().getValue()));
             callback(true, client, dc);
 
@@ -2553,7 +2553,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             final ChildOption co = new ChildOption();
             co.excludeNs = Collections.singletonList(NAMESPACE);
             dc.childOptions = Collections.singletonList(co);
-            callback(true, client, dc);
+            callback(false, client, dc);
 
             assertDoesNotExist(obj);
 
@@ -2618,7 +2618,7 @@ public class DeleteServiceTest extends AbstractServerTest {
             final ChildOption co = new ChildOption();
             co.excludeNs = ns;
             dc.childOptions = Collections.singletonList(co);
-            callback(true, client, dc);
+            callback(false, client, dc);
 
             assertDoesNotExist(obj);
 
