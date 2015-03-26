@@ -550,8 +550,15 @@ public class AnnotationMoveTest extends AbstractServerTest {
         iUpdate.saveAndReturnArray(links);
 
         long id = img1.getId().getValue();
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
-                DeleteServiceTest.SHARABLE_TO_KEEP, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        final ChildOption option = new ChildOption();
+        option.excludeType = DeleteServiceTest.SHARABLE_TO_KEEP_LIST;
+        dc.childOptions = Collections.singletonList(option);
+        callback(true, client, dc);
 
         ParametersI param = new ParametersI();
         param.addId(c.getId().getValue());
