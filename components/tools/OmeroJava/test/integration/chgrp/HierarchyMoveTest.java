@@ -12,13 +12,14 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
 import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
@@ -60,8 +61,10 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
+import com.google.common.collect.ImmutableMap;
+
+import static org.testng.AssertJUnit.*;
 import pojos.FileAnnotationData;
 
 /**
@@ -89,8 +92,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         Image img = (Image) iUpdate
                 .saveAndReturnObject(mmFactory.createImage());
         long id = img.getId().getValue();
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -147,8 +154,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         }
 
         // Move the image
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
 
@@ -278,8 +289,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
             shapeIds.add(shape.getId().getValue());
         }
         // Move the image.
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, image.getId()
-                .getValue(), null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(image.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         // check if the objects have been delete.
 
@@ -364,8 +379,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         }
         // Now delete the plate
         // Move the plate.
-        doChange(new Chgrp(DeleteServiceTest.REF_PLATE, p.getId().getValue(),
-                null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Plate.class.getSimpleName(),
+                Collections.singletonList(p.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         // check the well
         param = new ParametersI();
@@ -484,10 +503,14 @@ public class HierarchyMoveTest extends AbstractServerTest {
                 imageIds.add(field.getImage().getId().getValue());
             }
         }
-        // Now delete the plate
+
         // Move the plate.
-        doChange(new Chgrp(DeleteServiceTest.REF_PLATE, p.getId().getValue(),
-                null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Plate.class.getSimpleName(),
+                Collections.singletonList(p.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         // check the well
         param = new ParametersI();
@@ -576,8 +599,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        doChange(new Chgrp(DeleteServiceTest.REF_SCREEN, screen.getId()
-                .getValue(), null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Screen.class.getSimpleName(),
+                Collections.singletonList(screen.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();
         ids.add(p1.getId().getValue());
@@ -648,8 +675,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         p = link.getChild();
         long plateID = p.getId().getValue();
 
-        doChange(new Chgrp(DeleteServiceTest.REF_SCREEN, screenId, null, g
-                .getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Screen.class.getSimpleName(),
+                Collections.singletonList(screenId));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         sql = "select r from Screen as r ";
         sql += "where r.id = :id";
@@ -729,11 +760,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
         p = link.getChild();
         long plateID = p.getId().getValue();
-        Map<String, String> options = new HashMap<String, String>();
-        options.put("/Well/WellReagentLink", DeleteServiceTest.FORCE);
-        doChange(new Chgrp(DeleteServiceTest.REF_PLATE, plateID, null, g
-                .getId().getValue()));
-
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Plate.class.getSimpleName(),
+                Collections.singletonList(plateID));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         sql = "select r from Screen as r ";
         sql += "where r.id = :id";
         param = new ParametersI();
@@ -832,9 +864,13 @@ public class HierarchyMoveTest extends AbstractServerTest {
         links.add(il);
         iUpdate.saveAndReturnArray(links);
 
-        doChange(new Chgrp(DeleteServiceTest.REF_PLATE, p.getId().getValue(),
-                null, g.getId().getValue()));
-
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Plate.class.getSimpleName(),
+                Collections.singletonList(p.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
+ 
         // Shouldn't have measurements
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -889,8 +925,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         ids.add(image1.getId().getValue());
         ids.add(image2.getId().getValue());
 
-        doChange(new Chgrp(DeleteServiceTest.REF_PROJECT, p.getId().getValue(),
-                null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Project.class.getSimpleName(),
+                Collections.singletonList(p.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         // Check if objects have been deleted
         ParametersI param = new ParametersI();
@@ -964,8 +1004,12 @@ public class HierarchyMoveTest extends AbstractServerTest {
         links.add(link);
         iUpdate.saveAndReturnArray(links);
 
-        doChange(new Chgrp(DeleteServiceTest.REF_SCREEN, s1.getId().getValue(),
-                null, g.getId().getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Screen.class.getSimpleName(),
+                Collections.singletonList(s1.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         List<Long> ids = new ArrayList<Long>();
         ids.add(p1.getId().getValue());
