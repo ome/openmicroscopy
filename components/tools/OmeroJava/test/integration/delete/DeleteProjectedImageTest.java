@@ -142,14 +142,14 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
             dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                     Image.class.getSimpleName(),
                     Collections.singletonList(id));
-            callback(true, client, dc);
+            callback(passes, client, dc);
             break;
         case PROJECTED_IMAGE:
             dc = new Delete2();
             dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                     Image.class.getSimpleName(),
                     Collections.singletonList(projectedID));
-            callback(true, client, dc);
+            callback(passes, client, dc);
             break;
         case BOTH_IMAGES:
             List<Request> commands = new ArrayList<Request>();
