@@ -26,11 +26,13 @@ import integration.DeleteServiceTest;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ome.xml.model.OME;
 import omero.ServerError;
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
+import omero.model.Dataset;
 import omero.model.ExperimenterGroup;
 import omero.model.Image;
 import omero.model.Instrument;
@@ -39,10 +41,13 @@ import omero.model.LightSource;
 import omero.model.Pixels;
 import omero.sys.ParametersI;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
+import com.google.common.collect.ImmutableMap;
+
+import static org.testng.AssertJUnit.*;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 
@@ -67,7 +72,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
     }
 
     private Pixels createImageWithAcquisitionData() throws Exception {
-        File f = File.createTempFile("testImportImageWithAcquisitionData",
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
                 ".ome.xml");
         f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
@@ -146,9 +151,12 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         loginUser(sourceGroup);
 
         // Perform the move operation.
-        Chgrp command = new Chgrp(DeleteServiceTest.REF_IMAGE, originalImageId,
-                null, targetGroupId);
-        doChange(command);
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(originalImageId));
+        dc.groupId = targetGroupId;
+        callback(true, client, dc);
 
         // check if the image have been moved.
         Image returnedSourceImage = getImageWithId(originalImageId);
