@@ -291,8 +291,8 @@ class ValueResolver(object):
                 wells_by_location[self.AS_ALPHA[row]] = columns = dict()
             columns[column] = well
 
-            for wellSample in well.copyWellSamples():
-                image = wellSample.getImage()
+            for well_sample in well.copyWellSamples():
+                image = well_sample.getImage()
                 images_by_id[image.id.val] = image
         log.debug('Completed parsing plate: %s' % plate.name.val)
         for row in wells_by_location:
