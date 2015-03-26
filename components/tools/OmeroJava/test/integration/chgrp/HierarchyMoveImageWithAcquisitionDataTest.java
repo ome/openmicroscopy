@@ -215,7 +215,7 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
         assertEquals(laser.getSerialNumber().getValue(), xml.getSerialNumber());
         assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
         assertEquals(laser.getPower().getValue(), xml.getPower());
-        assertTrue(laser.getType().getValue().getValue()
-                .equals(XMLMockObjects.LASER_TYPE.getValue()));
+        assertEquals(laser.getType().getValue().getValue(),
+                XMLMockObjects.LASER_TYPE.getValue());
     }
 }
