@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.TextualAnnotationComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -123,7 +123,7 @@ class TextualAnnotationComponent
         area.setText(data.getText());
         area.setAllowOneClick(true);
         area.addPropertyChangeListener(this);
-        //area.wrapText(getSize().width);
+        area.setWrapWord(true);
         addComponentListener(new ComponentAdapter() {
 
 			public void componentResized(ComponentEvent e) {

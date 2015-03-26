@@ -505,15 +505,15 @@ public class OMEWikiComponent
 	 */
 	public void wrapText(int width, String newLineStr)
 	{
-		if (!wrapWord || pane == null) return;
+		if (pane == null) 
+		    return;
 		String value = getText();
 		if (value == null) return;
 		value = prepare(value, false);
 		FontMetrics fm = getFontMetrics(getFont());
 		int charWidth = fm.charWidth('m');
 		columns = (int) (1.5 * width) / charWidth;
-		setText(CommonsLangUtils.wrap(value, columns, newLineStr, false));
-
+		setText(CommonsLangUtils.wrap(value, columns, newLineStr, wrapWord));
 	}
 	
 	/**
