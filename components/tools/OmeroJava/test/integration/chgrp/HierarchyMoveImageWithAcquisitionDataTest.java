@@ -56,9 +56,6 @@ import ome.specification.XMLWriter;
 public class HierarchyMoveImageWithAcquisitionDataTest extends
         AbstractServerTest {
 
-    /** The collection of files that have to be deleted. */
-    private List<File> files = new ArrayList<File>();
-
     /**
      * Overridden to delete the files.
      *
@@ -67,24 +64,19 @@ public class HierarchyMoveImageWithAcquisitionDataTest extends
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-        for (File file : files) {
-            file.delete();
-        }
-
-        files.clear();
     }
 
     private Pixels createImageWithAcquisitionData() throws Exception {
-        File f = File.createTempFile("testImportImageWithAcquisitionData", "."
-                + OME_FORMAT);
-        files.add(f);
+        File f = File.createTempFile("testImportImageWithAcquisitionData",
+                ".ome.xml");
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = xml.createImageWithAcquisitionData();
         writer.writeFile(f, ome, true);
 
         try {
-            List<Pixels> pixels = importFile(f, OME_FORMAT);
+            List<Pixels> pixels = importFile(f, "ome.xml");
             return pixels.get(0);
         } catch (Throwable e) {
             throw new Exception("cannot import image", e);
