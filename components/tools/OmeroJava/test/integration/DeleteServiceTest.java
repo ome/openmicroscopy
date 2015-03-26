@@ -1716,7 +1716,7 @@ public class DeleteServiceTest extends AbstractServerTest {
                 if (annotations[k]) {
                     final Delete2 dc = new Delete2();
                     final ChildOption co = new ChildOption();
-                    co.excludeType = Collections.singletonList(FileAnnotation.class.getSimpleName());
+                    co.excludeType = SHARABLE_TO_KEEP_LIST;
                     dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                             Plate.class.getSimpleName(),
                             Collections.singletonList(p.getId().getValue()));
