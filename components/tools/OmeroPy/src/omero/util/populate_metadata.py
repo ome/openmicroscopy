@@ -313,7 +313,9 @@ class ValueResolver(object):
                         images_by_id = self.images_by_id[
                             self.plates_by_name[plate].id.val
                         ]
-                        log.info("Got plate %i", plate.id.val)
+                        log.debug(
+                            "Got plate %i", self.plates_by_name[plate].id.val
+                        )
                     break
             if images_by_id is None:
                 raise MetadataError(
