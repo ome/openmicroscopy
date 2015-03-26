@@ -31,7 +31,6 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.Delete;
 import omero.cmd.Delete2;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
