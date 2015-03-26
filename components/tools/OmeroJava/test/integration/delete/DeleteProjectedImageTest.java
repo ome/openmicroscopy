@@ -12,25 +12,27 @@ import static org.testng.AssertJUnit.assertNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 import omero.SecurityViolation;
 import omero.api.IProjectionPrx;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Deleted projected image and/or source image.
@@ -133,19 +135,34 @@ public class DeleteProjectedImageTest  extends AbstractServerTest {
         if (deleteMemberRole == AbstractServerTest.ADMIN)
             logRootIntoGroup(ctx);
         //delete the image(s)
+        Delete2 dc;
         switch (action) {
         case SOURCE_IMAGE:
-            delete(passes, client, new Delete(DeleteServiceTest.REF_IMAGE, id, null));
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(id));
+            callback(true, client, dc);
             break;
         case PROJECTED_IMAGE:
-            delete(passes, client, new Delete(DeleteServiceTest.REF_IMAGE, projectedID,
-                    null));
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(projectedID));
+            callback(true, client, dc);
             break;
         case BOTH_IMAGES:
             List<Request> commands = new ArrayList<Request>();
-            commands.add(new Delete(DeleteServiceTest.REF_IMAGE, id, null));
-            commands.add(new Delete(DeleteServiceTest.REF_IMAGE, projectedID,
-                    null));
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(id));
+            commands.add(dc);
+            dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Image.class.getSimpleName(),
+                    Collections.singletonList(projectedID));
+            commands.add(dc);
             DoAll all = new DoAll();
             all.requests = commands;
             doChange(client, factory, all, passes, null);
