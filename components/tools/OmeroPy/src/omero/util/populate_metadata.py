@@ -308,9 +308,11 @@ class ValueResolver(object):
             if len(self.images_by_id) == 1:
                 images_by_id = self.images_by_id.values()[0]
             else:
-                for column,plate in row:
+                for column, plate in row:
                     if column.__class__ is PlateColumn:
-                        images_by_id = self.images_by_id[plate.id.val]
+                        images_by_id = self.images_by_id[
+                            self.plates_by_name[plate].id.val
+                        ]
                         log.info("Got plate %i", plate.id.val)
                     break
             if images_by_id is None:
