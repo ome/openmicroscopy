@@ -122,25 +122,39 @@ public class RolesTest extends AbstractServerTest {
         // Create a link canLink
         // Try to delete the link i.e. canDelete
         try {
-            iUpdate.deleteObject(l);
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    DatasetImageLink.class.getSimpleName(),
+                    Collections.singletonList(l.getId().getValue()));
+            callback(false, client, dc);
+        } catch (Exception e) {
+
             fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
+        }
+
+        try {
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    DatasetAnnotationLink.class.getSimpleName(),
+                    Collections.singletonList(dl.getId().getValue()));
+            callback(false, client, dc);
         } catch (Exception e) {
+            fail("Member should not be allowed to delete "
+                    + "an image/dataset link.");
         }
 
         // Try to delete the annotation i.e. canDelete
         try {
-            iUpdate.deleteObject(dl);
-            fail("Member should not be allowed to delete an annoation link.");
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Annotation.class.getSimpleName(),
+                    Collections.singletonList(ann.getId().getValue()));
+            callback(false, client, dc);
         } catch (Exception e) {
+            fail("Member should not be allowed to delete " + "the annotation.");
         }
 
-        // Try to delete the annotation i.e. canDelete
-        try {
-            iUpdate.deleteObject(ann);
-            fail("Member should not be allowed to delete an annoation.");
-        } catch (Exception e) {
-        }
 
         // Try to link an image i.e. canLink
         try {
@@ -227,13 +241,25 @@ public class RolesTest extends AbstractServerTest {
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         try {
@@ -318,13 +344,25 @@ public class RolesTest extends AbstractServerTest {
 
         // Create a link canLink
         // Try to delete the link i.e. canDelete
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         try {
@@ -420,24 +458,37 @@ public class RolesTest extends AbstractServerTest {
         // Create a link canLink
         // Try to delete the link i.e. canDelete
         try {
-            iUpdate.deleteObject(l);
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    DatasetImageLink.class.getSimpleName(),
+                    Collections.singletonList(l.getId().getValue()));
+            callback(false, client, dc);
+        } catch (Exception e) {
+
             fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
+        }
+
+        try {
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    DatasetAnnotationLink.class.getSimpleName(),
+                    Collections.singletonList(dl.getId().getValue()));
+            callback(false, client, dc);
         } catch (Exception e) {
+            fail("Member should not be allowed to delete "
+                    + "an image/dataset link.");
         }
 
         // Try to delete the annotation i.e. canDelete
         try {
-            iUpdate.deleteObject(dl);
-            fail("Member should not be allowed to delete an annoation link.");
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Annotation.class.getSimpleName(),
+                    Collections.singletonList(ann.getId().getValue()));
+            callback(false, client, dc);
         } catch (Exception e) {
-        }
-
-        // Try to delete the annotation i.e. canDelete
-        try {
-            iUpdate.deleteObject(ann);
-            fail("Member should not be allowed to delete an annoation.");
-        } catch (Exception e) {
+            fail("Member should not be allowed to delete " + "the annotation.");
         }
 
         // Try to link an image i.e. canLink
@@ -527,13 +578,25 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
@@ -609,13 +672,25 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
@@ -697,25 +772,37 @@ public class RolesTest extends AbstractServerTest {
         // Create a link canLink
         // Try to delete the link i.e. canDelete
         try {
-            iUpdate.deleteObject(l);
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    DatasetImageLink.class.getSimpleName(),
+                    Collections.singletonList(l.getId().getValue()));
+            callback(false, client, dc);
+        } catch (Exception e) {
+
             fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
-        } catch (Exception e) {
         }
 
-        // Try to delete the annotation link i.e. canDelete
         try {
-            iUpdate.deleteObject(dl);
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    DatasetAnnotationLink.class.getSimpleName(),
+                    Collections.singletonList(dl.getId().getValue()));
+            callback(false, client, dc);
+        } catch (Exception e) {
             fail("Member should not be allowed to delete "
                     + "an image/dataset link.");
-        } catch (Exception e) {
         }
 
         // Try to delete the annotation i.e. canDelete
         try {
-            iUpdate.deleteObject(ann);
-            fail("Member should not be allowed to delete " + "the annotation.");
+            Delete2 dc = new Delete2();
+            dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                    Annotation.class.getSimpleName(),
+                    Collections.singletonList(ann.getId().getValue()));
+            callback(false, client, dc);
         } catch (Exception e) {
+            fail("Member should not be allowed to delete " + "the annotation.");
         }
 
         // Try to link an image i.e. canLink
@@ -801,13 +888,25 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
@@ -883,13 +982,25 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
@@ -964,13 +1075,25 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
-        // Try to delete the annotation i.e. canAnnotate
-        iUpdate.deleteObject(dl);
+        // Try to delete the annotation link i.e. canDelete
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
-        // Try to delete the annotation i.e. canAnnotate
-        iUpdate.deleteObject(ann);
+        // Try to delete the annotation i.e. canDelete
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
         // Try to delete the dataset i.e. canDelete
 
         // Try to link an image i.e. canLink
@@ -990,7 +1113,7 @@ public class RolesTest extends AbstractServerTest {
         // Try to edit i.e. canEdit
         d.setName(rstring("newNAme"));
         iUpdate.saveAndReturnObject(d);
-        final Delete2 dc = new Delete2();
+        dc = new Delete2();
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                 Dataset.class.getSimpleName(), Collections.singletonList(id));
         callback(true, client, dc);
@@ -1052,13 +1175,25 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
@@ -1133,13 +1268,25 @@ public class RolesTest extends AbstractServerTest {
         assertTrue(perms.canLink());
 
         // Try to delete the link i.e. canLink
-        iUpdate.deleteObject(l);
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetImageLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation link i.e. canDelete
-        iUpdate.deleteObject(dl);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                DatasetAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(dl.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to delete the annotation i.e. canDelete
-        iUpdate.deleteObject(ann);
+        dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Annotation.class.getSimpleName(),
+                Collections.singletonList(ann.getId().getValue()));
+        callback(true, client, dc);
 
         // Try to link an image i.e. canLink
         img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
