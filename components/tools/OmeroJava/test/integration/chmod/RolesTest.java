@@ -24,15 +24,18 @@
 package integration.chmod;
 
 
+import java.util.Collections;
 import java.util.List;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
-
-
 import static omero.rtypes.rstring;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
@@ -987,7 +990,10 @@ public class RolesTest extends AbstractServerTest {
         // Try to edit i.e. canEdit
         d.setName(rstring("newNAme"));
         iUpdate.saveAndReturnObject(d);
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, id, null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(), Collections.singletonList(id));
+        callback(true, client, dc);
     }
 
     /**
