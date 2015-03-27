@@ -99,8 +99,6 @@ class HeaderResolver(object):
     """
 
     DEFAULT_COLUMN_SIZE = 1
-    REMOVE_WELL_COLUMN = False
-    WELL_COLUMN_INDEX = 0
 
     plate_keys = {
             'well': WellColumn,
@@ -119,14 +117,6 @@ class HeaderResolver(object):
         self.target_object = target_object
         self.headers = [v.replace('/', '\\') for v in headers]
         self.headers_as_lower = [v.lower() for v in self.headers]
-        if 'image' in self.headers_as_lower:
-            log.info('Image column found. Ignoring well column.')
-            self.REMOVE_WELL_COLUMN = True
-            try:
-                self.WELL_COLUMN_INDEX = self.headers_as_lower.index('well')
-            except ValueError:
-                self.REMOVE_WELL_COLUMN = False
-                log.debug('No well columns defined.')
 
     def create_columns(self):
         target_class = self.target_object.__class__
@@ -142,6 +132,15 @@ class HeaderResolver(object):
             return self.create_columns_dataset()
         raise MetadataError('Unsupported target object class: %s' \
                             % target_class)
+
+    def columns_sanity_check(self, columns):
+        column_types = [column.__class__ for column in columns]
+        if WellColumn in column_types and ImageColumn in column_types:
+            log.debug(column_types)
+            raise MetadataError(
+                'Well Column and Image Column cannot be resolved at ' \
+                'the same time. Pick one.')
+        log.debug('Sanity check passed')
 
     def create_columns_screen(self):
         columns = list()
@@ -163,6 +162,7 @@ class HeaderResolver(object):
             if column.__class__ is ImageColumn:
                 columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
                                self.DEFAULT_COLUMN_SIZE, list()))
+        self.columns_sanity_check(columns)                      
         return columns
 
     def create_columns_plate(self):
@@ -185,6 +185,7 @@ class HeaderResolver(object):
             if column.__class__ is ImageColumn:
                 columns.append(StringColumn(IMAGE_NAME_COLUMN, '',
                                self.DEFAULT_COLUMN_SIZE, list()))
+        self.columns_sanity_check(columns)
         return columns
 
     def create_columns_dataset(self):
@@ -533,9 +534,6 @@ class ParsingContext(object):
                 plate_name_column.values.append(v)
             else:
                 log.info('Missing plate name column, skipping.')
-        if self.header_resolver.REMOVE_WELL_COLUMN:
-            log.info(self.columns)
-            self.columns.pop(self.header_resolver.WELL_COLUMN_INDEX)
 
     def write_to_omero(self):
         sf = self.client.getSession()
