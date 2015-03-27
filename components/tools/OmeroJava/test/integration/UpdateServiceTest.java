@@ -15,11 +15,14 @@ import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.BooleanAnnotation;
@@ -94,6 +97,8 @@ import omero.model.XmlAnnotationI;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 import pojos.BooleanAnnotationData;
 import pojos.DatasetData;
@@ -655,7 +660,6 @@ public class UpdateServiceTest extends AbstractServerTest {
 
     /**
      * Tests to unlink of an annotation. Creates only one type of annotation.
-     * This method uses the <code>deleteObject</code> method.
      *
      * @throws Exception
      *             Thrown if an error occurred.
@@ -676,7 +680,11 @@ public class UpdateServiceTest extends AbstractServerTest {
         assertNotNull(l);
         long id = l.getId().getValue();
         // annotation and image are linked. Remove the link.
-        iUpdate.deleteObject(l);
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                ImageAnnotationLink.class.getSimpleName(),
+                Collections.singletonList(l.getId().getValue()));
+        callback(true, client, dc);
         // now check that the image is no longer linked to the annotation
         String sql = "select link from ImageAnnotationLink as link";
         sql += " where link.id = :id";
