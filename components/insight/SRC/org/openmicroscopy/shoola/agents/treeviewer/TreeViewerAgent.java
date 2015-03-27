@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.event.SaveEvent;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
@@ -484,6 +485,18 @@ public class TreeViewerAgent
     }
     
     /**
+     * Passes ReloadThumbsEvent on to the Treeviewer 
+     */
+    private void handleReloadThumbsEvent(ReloadThumbsEvent evt) {
+        ExperimenterData exp = (ExperimenterData) registry.lookup(
+                LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null) 
+            return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.reloadThumbs(evt.getImageIds());
+    }
+    
+    /**
      * Passes the SearchSelectionEvent on to the Treeviewer 
      */
     private void handleSearchSelectionEvent(SearchSelectionEvent evt) {
@@ -592,6 +605,7 @@ public class TreeViewerAgent
         bus.register(this, SearchSelectionEvent.class);
         bus.register(this, SaveEvent.class);
         bus.register(this, DownloadEvent.class);
+        bus.register(this, ReloadThumbsEvent.class);
     }
 
     /**
@@ -658,6 +672,8 @@ public class TreeViewerAgent
             handleSaveEvent((SaveEvent) e);
 		else if (e instanceof DownloadEvent)
             handleDownloadEvent((DownloadEvent) e);
+		else if (e instanceof ReloadThumbsEvent)
+            handleReloadThumbsEvent((ReloadThumbsEvent) e);
 	}
 
 }

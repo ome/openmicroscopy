@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
@@ -289,6 +290,25 @@ public class MetadataViewerAgent
     }
     
     /**
+     * Reload thumbnails
+     * 
+     * @param evt
+     *            The ReloadThumbsEvent containing information about the images
+     *            to reload the thumbnails for
+     */
+    private void handleReloadThumbs(ReloadThumbsEvent evt) {
+        Iterator<Long> i = evt.getImageIds().iterator();
+        MetadataViewer viewer;
+        while (i.hasNext()) {
+            viewer = MetadataViewerFactory.getViewerFromId(
+                    ImageData.class.getName(), i.next());
+            if (viewer != null) {
+                viewer.loadViewedBy();
+            }
+        }
+    }
+    
+    /**
      * Updates the view when the channels have been updated.
      * 
      * @param evt The event to handle.
@@ -393,6 +413,7 @@ public class MetadataViewerAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, CopyRndSettings.class);
         bus.register(this, RndSettingsPasted.class);
+        bus.register(this, ReloadThumbsEvent.class);
     }
 
     /**
@@ -441,6 +462,8 @@ public class MetadataViewerAgent
                    	 handleCopyRndSettings((CopyRndSettings) e);
 		else if (e instanceof RndSettingsPasted) 
                     	handleRndSettingsPasted((RndSettingsPasted) e);
+		else if (e instanceof ReloadThumbsEvent) 
+            handleReloadThumbs((ReloadThumbsEvent) e);
 	}
 
 }

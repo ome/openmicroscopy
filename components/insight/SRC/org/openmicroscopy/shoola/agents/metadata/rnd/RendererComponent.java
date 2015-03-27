@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,11 +42,14 @@ import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.event.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -222,6 +227,46 @@ class RendererComponent
         this.model = model;
         controller = new RendererControl();
         view = new RendererUI();
+        
+        // discard unsaved rendering settings, but save Z/T changes
+        // if the user moves away from the rendering settings tab
+        view.addHierarchyListener(new HierarchyListener() {
+            @Override
+            public void hierarchyChanged(HierarchyEvent e) {
+                if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) == HierarchyEvent.SHOWING_CHANGED) {
+                    if (!view.isShowing()) {
+                        Registry r = MetadataViewerAgent.getRegistry();
+
+                        // reset the settings (does not reset Z/T changes)
+                        try {
+                            discardChanges();
+                        } catch (Exception ex) {
+                            r.getLogger().warn(RendererComponent.this,
+                                    "Could not reset rendering settings");
+                        }
+
+                        if (isModified(true)) {
+                            // if there are Z/T changes, save them
+                            try {
+                                saveCurrentSettings();
+                                r.getEventBus()
+                                        .post(new ReloadThumbsEvent(
+                                                RendererComponent.this.model
+                                                        .getRefImage().getId()));
+                            } catch (Exception ex) {
+                                r.getLogger().warn(RendererComponent.this,
+                                        "Could not save rendering settings");
+                            }
+                        }
+
+                        if (RendererComponent.this.model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
+                            firePropertyChange(RENDER_PLANE_PROPERTY,
+                                    Boolean.valueOf(false),
+                                    Boolean.valueOf(true));
+                    }
+                }
+            }
+        });
         
         this.model.getRndDefHistory().addPropertyChangeListener(controller);
     }
@@ -918,18 +963,32 @@ class RendererComponent
 			handleException(e);
 		}
 	}
+	
+	
 
-	/** 
+    /**
      * Implemented as specified by the {@link Renderer} interface.
+     * 
      * @see Renderer#saveCurrentSettings(boolean)
      */
-	public RndProxyDef saveCurrentSettings()
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-	        RndProxyDef def = model.saveCurrentSettings();
-		return def;
-	}
+    public RndProxyDef saveCurrentSettings() throws RenderingServiceException,
+            DSOutOfServiceException {
+        RndProxyDef def = model.saveCurrentSettings();
+        return def;
+    }
 
+    /**
+     * Discards unsaved rendering settings (apart from Z/T changes)
+     */
+    public void discardChanges() throws RenderingServiceException,
+            DSOutOfServiceException {
+        if (isModified(false)) {
+            model.discardChanges();
+            view.resetDefaultRndSettings();
+            view.renderPreview();
+        }
+    }
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#saveSettings()
@@ -1010,10 +1069,10 @@ class RendererComponent
 
        /** 
         * Implemented as specified by the {@link Renderer} interface.
-        * @see Renderer#isModified()
+        * @see Renderer#isModified(boolean)
         */
-	public boolean isModified() {
-	    return model.isModified();
+	public boolean isModified(boolean checkPlane) {
+	    return model.isModified(checkPlane);
 	}
 	
 	/** 

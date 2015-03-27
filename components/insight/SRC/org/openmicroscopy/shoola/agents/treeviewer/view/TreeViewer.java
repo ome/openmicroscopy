@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -1189,4 +1189,11 @@ public interface TreeViewer
      */
     boolean isSystemGroup(long groupID, String key);
 
+    /**
+     * Reload the thumbnails of the specified images
+     * 
+     * @param imageIds
+     *            The ids of the images which thumbnails should be reloaded
+     */
+    void reloadThumbs(List<Long> imageIds);
 }

@@ -297,7 +297,9 @@ class RendererModel
 	/** Discards component. */
 	void discard() 
 	{
-		if (rndControl == null) return;
+		if (rndControl == null) 
+		    return;
+		
 		RenderingControlShutDown loader =
 			new RenderingControlShutDown(ctx, rndControl.getPixelsID());
 		loader.load();
@@ -1246,6 +1248,16 @@ class RendererModel
 		return def;
 	}
 	
+    /**
+     * Discard unsaved rendering settings, apart from Z/T changes
+     */
+    void discardChanges() throws RenderingServiceException,
+            DSOutOfServiceException {
+        if (rndControl != null && rndDef != null) {
+            rndControl.resetSettings(rndDef);
+        }
+    }
+	
 	/**
 	 * Undoes the last change to the rendering settings
 	 * @throws RenderingServiceException
@@ -1393,18 +1405,19 @@ class RendererModel
 		return rndControl.isSameSettings(def, checkPlane);
 	}
 	
-       /**
-        * Returns <code>true</code> if the rendering settings 
-        * have been modified
-        *
-        * @return See above.
-        */
-	boolean isModified() {
-	    if(rndControl!=null) {
-	        return !rndControl.isSameSettings(rndDef, false);
-	    }
-	    return false;
-	}
+    /**
+     * Returns <code>true</code> if the rendering settings have been modified
+     * 
+     * @param checkPlane
+     *            Pass <code>true</code> to take Z/T changes into account
+     * @return See above.
+     */
+    boolean isModified(boolean checkPlane) {
+        if (rndControl != null) {
+            return !rndControl.isSameSettings(rndDef, checkPlane);
+        }
+        return false;
+    }
 
     /**
      * Returns <code>true</code> if the image with the active channels
