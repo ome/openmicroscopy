@@ -150,10 +150,10 @@ module omero {
         ["java:type:java.util.ArrayList<omero.cmd.HandlePrx>:java.util.List<omero.cmd.HandlePrx>"]
         sequence<Handle*> HandleList;
 
-	/**
-	 * Starting point for all command-based OMERO.blitz interaction.
-	 **/
-	interface Session extends Glacier2::Session {
+        /**
+         * Starting point for all command-based OMERO.blitz interaction.
+         **/
+        interface Session extends Glacier2::Session {
             ["amd", "ami"] Handle* submit(Request req);
         };
 

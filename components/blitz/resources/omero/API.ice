@@ -52,48 +52,48 @@ module omero {
      **/
     module api {
 
-	/**
-	 * Primary callback interface for interaction between client and
-	 * server session ("ServiceFactory"). Where possible these methods
-	 * will be called one-way to prevent clients from hanging the server.
-	 **/
+        /**
+         * Primary callback interface for interaction between client and
+         * server session ("ServiceFactory"). Where possible these methods
+         * will be called one-way to prevent clients from hanging the server.
+         **/
 
-	["ami"] interface ClientCallback
-	{
+        ["ami"] interface ClientCallback
+        {
 
-	    /**
-	     * Heartbeat-request made by the server to guarantee that the client
-	     * is alive. If the client is still active, then some method should
-	     * be made on the server to update the last idle time.
-	     **/
-	    void requestHeartbeat();
+            /**
+             * Heartbeat-request made by the server to guarantee that the client
+             * is alive. If the client is still active, then some method should
+             * be made on the server to update the last idle time.
+             **/
+            void requestHeartbeat();
 
-	    /**
-	     * The session to which this ServiceFactory is connected has been
-	     * closed. Almost no further method calls (if any) are possible.
-	     * Create a new session via omero.client.createSession()
-	     **/
-	    void sessionClosed();
+            /**
+             * The session to which this ServiceFactory is connected has been
+             * closed. Almost no further method calls (if any) are possible.
+             * Create a new session via omero.client.createSession()
+             **/
+            void sessionClosed();
 
-	    /**
-	     * Message that the server will be shutting down in the
-	     * given number of milliseconds, after which all new and
-	     * running method invocations will recieve a CancelledException.
-	     **/
-	    void shutdownIn(long milliseconds);
+            /**
+             * Message that the server will be shutting down in the
+             * given number of milliseconds, after which all new and
+             * running method invocations will recieve a CancelledException.
+             **/
+            void shutdownIn(long milliseconds);
 
-	};
+        };
 
 
-	/**
-	 * Starting point for all OMERO.blitz interaction.
+        /**
+         * Starting point for all OMERO.blitz interaction.
          *
          * <p> A ServiceFactory once acquired can be used to create any number
          * of service proxies to the server. Most services implement [ServiceInterface]
          * or its subinterface [StatefulServiceInterface]. </p>
-	 **/
-	interface ServiceFactory extends omero::cmd::Session
-	{
+         **/
+        interface ServiceFactory extends omero::cmd::Session
+        {
 
             // Security context
 
@@ -139,42 +139,42 @@ module omero {
              **/
             void setSecurityPassword(string password) throws ServerError;
 
-	    // Central OMERO.blitz stateless services.
+            // Central OMERO.blitz stateless services.
 
-	    IAdmin*          getAdminService() throws ServerError;
-	    IConfig*         getConfigService() throws ServerError;
-	    IContainer*      getContainerService() throws ServerError;
-	    IDelete*         getDeleteService() throws ServerError;
-	    ILdap*           getLdapService() throws ServerError;
-	    IPixels*         getPixelsService() throws ServerError;
-	    IProjection*     getProjectionService() throws ServerError;
-	    IQuery*          getQueryService() throws ServerError;
-	    IRenderingSettings* getRenderingSettingsService() throws ServerError;
-	    IRepositoryInfo* getRepositoryInfoService() throws ServerError;
-	    IRoi*            getRoiService() throws ServerError;
-	    IScript*         getScriptService() throws ServerError;
-	    ISession*        getSessionService() throws ServerError;
-	    IShare*          getShareService() throws ServerError;
-	    ITimeline*       getTimelineService() throws ServerError;
-	    ITypes*          getTypesService() throws ServerError;
-	    IUpdate*         getUpdateService() throws ServerError;
-	    IMetadata*       getMetadataService() throws ServerError;
+            IAdmin*          getAdminService() throws ServerError;
+            IConfig*         getConfigService() throws ServerError;
+            IContainer*      getContainerService() throws ServerError;
+            IDelete*         getDeleteService() throws ServerError;
+            ILdap*           getLdapService() throws ServerError;
+            IPixels*         getPixelsService() throws ServerError;
+            IProjection*     getProjectionService() throws ServerError;
+            IQuery*          getQueryService() throws ServerError;
+            IRenderingSettings* getRenderingSettingsService() throws ServerError;
+            IRepositoryInfo* getRepositoryInfoService() throws ServerError;
+            IRoi*            getRoiService() throws ServerError;
+            IScript*         getScriptService() throws ServerError;
+            ISession*        getSessionService() throws ServerError;
+            IShare*          getShareService() throws ServerError;
+            ITimeline*       getTimelineService() throws ServerError;
+            ITypes*          getTypesService() throws ServerError;
+            IUpdate*         getUpdateService() throws ServerError;
+            IMetadata*       getMetadataService() throws ServerError;
 
-	    // Central OMERO.blitz stateful services.
+            // Central OMERO.blitz stateful services.
 
-	    /**
-	     * The gateway service provided here is deprecated in OMERO 4.3
-	     * see <a href="http://trac.openmicroscopy.org.uk/ome/wiki/Api/DeprecatedServices">Deprecated Services</a>
-	     * for more information and alternative usage.
-	     **/
-	    ["deprecated:createGateway() is deprecated"] Gateway*         createGateway() throws ServerError;
-	    Exporter*        createExporter() throws ServerError;
-	    JobHandle*       createJobHandle() throws ServerError;
-	    RawFileStore*    createRawFileStore() throws ServerError;
-	    RawPixelsStore*  createRawPixelsStore() throws ServerError;
-	    RenderingEngine* createRenderingEngine() throws ServerError;
-	    Search*          createSearchService() throws ServerError;
-	    ThumbnailStore*  createThumbnailStore() throws ServerError;
+            /**
+             * The gateway service provided here is deprecated in OMERO 4.3
+             * see <a href="http://trac.openmicroscopy.org.uk/ome/wiki/Api/DeprecatedServices">Deprecated Services</a>
+             * for more information and alternative usage.
+             **/
+            ["deprecated:createGateway() is deprecated"] Gateway*         createGateway() throws ServerError;
+            Exporter*        createExporter() throws ServerError;
+            JobHandle*       createJobHandle() throws ServerError;
+            RawFileStore*    createRawFileStore() throws ServerError;
+            RawPixelsStore*  createRawPixelsStore() throws ServerError;
+            RenderingEngine* createRenderingEngine() throws ServerError;
+            Search*          createSearchService() throws ServerError;
+            ThumbnailStore*  createThumbnailStore() throws ServerError;
 
             // Shared resources -----------------------------------------------
 
@@ -193,104 +193,104 @@ module omero {
 
             // General methods ------------------------------------------------
 
-	    /**
-	     * Allows looking up any stateless service by name.
+            /**
+             * Allows looking up any stateless service by name.
              *
              * See Constants.ice for examples of services.
              * If a service has been added by third-parties,
              * getByName can be used even though no concrete
              * method is available.
-	     **/
-	    ServiceInterface* getByName(string name) throws ServerError;
+             **/
+            ServiceInterface* getByName(string name) throws ServerError;
 
-	    /**
-	     * Allows looking up any stateful service by name.
+            /**
+             * Allows looking up any stateful service by name.
              *
              * See Constants.ice for examples of services.
              * If a service has been added by third-parties,
              * createByName can be used even though no concrete
              * method is available.
-	     **/
-	    StatefulServiceInterface* createByName(string name) throws ServerError;
+             **/
+            StatefulServiceInterface* createByName(string name) throws ServerError;
 
-	    /**
-	     * Subscribe to a given topic. The topic must exist and the user must
-	     * have sufficient permissions for that topic. Further the proxy object
-	     * must match the required type for the topic as encoded in the topic
-	     * name.
-	     **/
-	    void subscribe(string topicName, Object* prx) throws ServerError;
+            /**
+             * Subscribe to a given topic. The topic must exist and the user must
+             * have sufficient permissions for that topic. Further the proxy object
+             * must match the required type for the topic as encoded in the topic
+             * name.
+             **/
+            void subscribe(string topicName, Object* prx) throws ServerError;
 
-	    /**
-	     * Sets the single callback used by the ServiceFactory
-	     * to communicate with the client application. A default
-	     * callback is set by the omero::client object on
-	     * session creation which should suffice for most usage.
-	     *
-	     * See the client object's documentation in each language
-	     * mapping for ways to use the callback.
-	     **/
-	    void setCallback(ClientCallback* callback) throws ServerError;
+            /**
+             * Sets the single callback used by the ServiceFactory
+             * to communicate with the client application. A default
+             * callback is set by the omero::client object on
+             * session creation which should suffice for most usage.
+             *
+             * See the client object's documentation in each language
+             * mapping for ways to use the callback.
+             **/
+            void setCallback(ClientCallback* callback) throws ServerError;
 
-	    /**
-	     * Deprecated misnomer.
-	     **/
-	    ["deprecated:close() is deprecated. use closeOnDestroy() instead."] void close() throws ServerError;
+            /**
+             * Deprecated misnomer.
+             **/
+            ["deprecated:close() is deprecated. use closeOnDestroy() instead."] void close() throws ServerError;
 
-	    /**
-	     * Marks the session for closure rather than detachment, which will
-	     * be triggered by the destruction of the Glacier2 connection via
-	     * router.destroySession()
-	     *
-	     * Closing the session rather the detaching is more secure, since all
-	     * resources are removed from the server and can safely be set once
-	     * it is clear that a client is finished with those resources.
-	     **/
-	    void closeOnDestroy() throws ServerError;
+            /**
+             * Marks the session for closure rather than detachment, which will
+             * be triggered by the destruction of the Glacier2 connection via
+             * router.destroySession()
+             *
+             * Closing the session rather the detaching is more secure, since all
+             * resources are removed from the server and can safely be set once
+             * it is clear that a client is finished with those resources.
+             **/
+            void closeOnDestroy() throws ServerError;
 
-	    /**
-	     * Marks the session for detachment rather than closure, which will
-	     * be triggered by the destruction of the Glacier2 connection via
-	     * router.destroySession()
-	     *
-	     * This is the default and allows a lost session to be reconnected,
-	     * at a slight security cost since the session will persist longer
-	     * and can be used by others if the UUID is intercepted.
-	     **/
-	    void detachOnDestroy() throws ServerError;
+            /**
+             * Marks the session for detachment rather than closure, which will
+             * be triggered by the destruction of the Glacier2 connection via
+             * router.destroySession()
+             *
+             * This is the default and allows a lost session to be reconnected,
+             * at a slight security cost since the session will persist longer
+             * and can be used by others if the UUID is intercepted.
+             **/
+            void detachOnDestroy() throws ServerError;
 
-	    // Session management
+            // Session management
 
-	    /**
-	     * Returns a list of string ids for currently active services. This will
-	     * _not_ keep services alive, and in fact checks for all expired services
-	     * and removes them.
-	     **/
-	    StringSet activeServices() throws ServerError;
+            /**
+             * Returns a list of string ids for currently active services. This will
+             * _not_ keep services alive, and in fact checks for all expired services
+             * and removes them.
+             **/
+            StringSet activeServices() throws ServerError;
 
-	    /**
-	     * Requests that the given services be marked as alive. It is
-	     * possible that one of the services has already timed out, in which
-	     * case the returned long value will be non-zero.
-	     *
-	     * Specifically, the bit representing the 0-based index will be 1:
-	     *
-	     *        if (retval & 1&lt;&lt;idx == 1&lt;&lt;idx) { // not alive }
-	     *
-	     * Except for fatal server or session errors, this method should never
-	     * throw an exception.
-	     **/
-	    long keepAllAlive(ServiceList proxies) throws ServerError;
+            /**
+             * Requests that the given services be marked as alive. It is
+             * possible that one of the services has already timed out, in which
+             * case the returned long value will be non-zero.
+             *
+             * Specifically, the bit representing the 0-based index will be 1:
+             *
+             *        if (retval & 1&lt;&lt;idx == 1&lt;&lt;idx) { // not alive }
+             *
+             * Except for fatal server or session errors, this method should never
+             * throw an exception.
+             **/
+            long keepAllAlive(ServiceList proxies) throws ServerError;
 
-	    /**
-	     * Returns true if the given service is alive.
-	     *
-	     * Except for fatal server or session errors, this method should never
-	     * throw an exception.
-	     **/
-	    bool keepAlive(ServiceInterface* proxy) throws ServerError;
+            /**
+             * Returns true if the given service is alive.
+             *
+             * Except for fatal server or session errors, this method should never
+             * throw an exception.
+             **/
+            bool keepAlive(ServiceInterface* proxy) throws ServerError;
 
-	};
+        };
 
     };
 };

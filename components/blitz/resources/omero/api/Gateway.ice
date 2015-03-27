@@ -355,7 +355,7 @@ module omero {
                              omero::model::PixelsType pixelsType, string name,
                              string description)
                 throws omero::ServerError;
-            
+
             /**
              * Get the images from the dataset with name, this can use wild cards.
              * @param datasetId see above.

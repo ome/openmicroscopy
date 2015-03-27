@@ -13,7 +13,7 @@
 module omero {
  module grid {
   module monitors {
-      
+
     /*
      *  ==========================
      *  MonitorClient Declarations
@@ -160,7 +160,7 @@ module omero {
      */
 
     interface FileServer {
-        
+
         /*
          * Directory level methods
          * -----------------------
@@ -182,7 +182,7 @@ module omero {
          **/
         idempotent Ice::StringSeq getDirectory(string absPath, string filter)
             throws omero::OmeroFSError;
-            
+
         /**
          * Get an absolute directory from an OMERO.fs server. 
          * 
