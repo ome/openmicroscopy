@@ -9,9 +9,9 @@ the January 2015 schema, including support for units and new more
 flexible user-added metadata; and introducing new user features, new supported
 formats and many fixes and performance improvements:
 
--  support for units throughout the Data Model allowing for example, image
-   sizes for electron microscopy to be stored in nanometers rather than all
-   image sizes being set as micrometers
+-  support for units throughout the Data Model allowing for example, pixel
+   sizes for electron microscopy to be stored in nanometers rather than being
+   set as micrometers
 -  new, searchable key-value pairs annotations for adding experimental
    metadata
 -  improved workflow for rendering settings in the UI and parity between the
