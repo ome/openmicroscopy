@@ -1651,12 +1651,9 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
-            try:
+            if isinstance(e, omero.model.ImageI):
                 obj = omero.gateway.ImageWrapper(self, e)
-            except:
-                obj = omero.gateway.BlitzObjectWrapper(self, None)
-                obj._obj = e
-            yield obj
+                yield obj
 
     def getComments(self, share_id):
         """
