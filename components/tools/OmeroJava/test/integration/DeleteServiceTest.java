@@ -33,7 +33,6 @@ import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
-import omero.cmd.Delete;
 import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
@@ -1395,7 +1394,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         String sql;
         List<IObject> l;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = convert(entry.getKey());
+            type = entry.getKey();
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
@@ -1438,7 +1437,7 @@ public class DeleteServiceTest extends AbstractServerTest {
         for (int j = 0; j < values.length; j++) {
             Map<String, IObject> objects = createIObjects();
             for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-                type = convert(entry.getKey());
+                type = entry.getKey();
                 obj = entry.getValue();
                 id = obj.getId().getValue();
                 annotationIds = createSharableAnnotation(obj, null);
@@ -2538,22 +2537,20 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = convert(entry.getKey());
+            type = entry.getKey();
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
 
-            options = new HashMap<String, String>();
-            options.put(REF_ANN, KEEP + SEPARATOR + EXCLUDE + NAMESPACE);
-            //delete(new Delete(type, id, options));
             final Delete2 dc = new Delete2();
             dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                     type, Collections.singletonList(id));
             final ChildOption co = new ChildOption();
-            co.excludeNs = Collections.singletonList(NAMESPACE);
+            co.includeNs = Collections.singletonList(NAMESPACE);
+            co.excludeType = Collections.singletonList(Annotation.class.getSimpleName());
             dc.childOptions = Collections.singletonList(co);
-            callback(false, client, dc);
+            callback(true, client, dc);
 
             assertDoesNotExist(obj);
 
@@ -2562,14 +2559,14 @@ public class DeleteServiceTest extends AbstractServerTest {
             assertTrue(annotationIds.size() > 0);
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), annotationIds.size(),
-                    l.size());
+            assertEquals(obj + "-->" + l.toString(), 0, l.size());
             param = new ParametersI();
             param.addIds(annotationIdsNS);
             assertTrue(annotationIdsNS.size() > 0);
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), 0, l.size());
+            assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
+                    l.size());
         }
     }
 
@@ -2597,18 +2594,13 @@ public class DeleteServiceTest extends AbstractServerTest {
         List<IObject> l;
         Map<String, String> options;
         for (Map.Entry<String, IObject> entry : objects.entrySet()) {
-            type = convert(entry.getKey());
+            type = entry.getKey();
             obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS.addAll(createNonSharableAnnotation(obj, NAMESPACE));
             annotationIdsNS
                     .addAll(createNonSharableAnnotation(obj, NAMESPACE_2));
-            options = new HashMap<String, String>();
-            options.put(REF_ANN, KEEP + SEPARATOR + EXCLUDE + NAMESPACE
-                    + NS_SEPARATOR + NAMESPACE_2);
-            //delete(new Delete(type, id, options));
-
             List<String> ns = new ArrayList<String>();
             ns.add(NAMESPACE);
             ns.add(NAMESPACE_2);
@@ -2616,9 +2608,10 @@ public class DeleteServiceTest extends AbstractServerTest {
             dc.targetObjects = ImmutableMap.<String, List<Long>>of(
                     type, Collections.singletonList(id));
             final ChildOption co = new ChildOption();
-            co.excludeNs = ns;
+            co.includeNs = ns;
+            co.excludeType = Collections.singletonList(Annotation.class.getSimpleName());
             dc.childOptions = Collections.singletonList(co);
-            callback(false, client, dc);
+            callback(true, client, dc);
 
             assertDoesNotExist(obj);
 
@@ -2627,14 +2620,14 @@ public class DeleteServiceTest extends AbstractServerTest {
             assertTrue(annotationIds.size() > 0);
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), annotationIds.size(),
-                    l.size());
+            assertEquals(obj + "-->" + l.toString(), 0, l.size());
             param = new ParametersI();
             param.addIds(annotationIdsNS);
             assertTrue(annotationIdsNS.size() > 0);
             sql = "select i from Annotation as i where i.id in (:ids)";
             l = iQuery.findAllByQuery(sql, param);
-            assertEquals(obj + "-->" + l.toString(), 0, l.size());
+            assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
+                    l.size());
         }
     }
 
