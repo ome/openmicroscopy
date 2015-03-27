@@ -31,6 +31,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,16 +44,19 @@ import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import loci.common.Constants;
 import loci.common.RandomAccessInputStream;
 import loci.formats.ImageReader;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
-
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RawPixelsStorePrx;
@@ -74,7 +78,9 @@ import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.bag.TransformedBag;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -89,6 +95,7 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import org.openmicroscopy.shoola.env.data.util.Resolver;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -1386,7 +1393,64 @@ class OmeroImageServiceImpl
 			throw new IllegalArgumentException("No image specified.");
 		return gateway.saveROI(ctx, imageID, userID, roiList);
 	}
-	
+
+	/**
+     * Applies the transforms to the specified XML file.
+     *
+     * @param inputXML
+     *            The file to transforms.
+     * @param transforms
+     *            The collection of transforms.
+     * @param encoding The encoding to use.
+     * @return See above.
+     * @throws Exception
+     *             Thrown if an error occurred during the transformations.
+     */
+    private File applyTransforms(File inputXML, List<InputStream> transforms,
+            String encoding)
+            throws Exception {
+        TransformerFactory factory;
+        Transformer transformer;
+        InputStream stream;
+        Iterator<InputStream> i = transforms.iterator();
+        File output;
+        InputStream in = null;
+        OutputStream out = null;
+        Resolver resolver = null;
+        while (i.hasNext()) {
+            stream = i.next();
+            try {
+                factory = TransformerFactory.newInstance();
+                resolver = new Resolver();
+                factory.setURIResolver(resolver);
+                output = File.createTempFile(
+                        RandomStringUtils.random(60, false, true),
+                        "."+XMLFilter.OME_XML);
+                output.deleteOnExit();
+                Source src = new StreamSource(stream);
+                Templates template = factory.newTemplates(src);
+                transformer = template.newTransformer();
+                transformer.setParameter(OutputKeys.ENCODING, encoding);
+                out = new FileOutputStream(output);
+                in = new FileInputStream(inputXML);
+                transformer.transform(new StreamSource(in),
+                        new StreamResult(out));
+                inputXML = output; 
+            } catch (Exception e) {
+                throw new Exception("Cannot apply transform", e);
+            } finally {
+                if (resolver != null) resolver.close();
+                if (stream != null) stream.close();
+                if (in != null) in.close();
+                if (out != null) out.close();
+            }
+        }
+        File f = File.createTempFile(
+                RandomStringUtils.random(60, false, true), "."+XMLFilter.OME_XML);
+        FileUtils.copyFile(inputXML, f);
+        return f;
+    }
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#exportImageAsOMEObject(SecurityContext, int, long,
@@ -1423,80 +1487,49 @@ class OmeroImageServiceImpl
 		if (target == null) return f;
 		//Apply the transformations
 		List<InputStream> transforms = target.getTransforms();
-		if (transforms == null || transforms.size() == 0) return f;
+		if (CollectionUtils.isEmpty(transforms)) return f;
 		//Apply each transform one after another.
-		Iterator<InputStream> i = transforms.iterator();
-		//Create a tmp file then we will copy to the correct location
 		
-		TransformerFactory factory;
-        Transformer transformer;
-		InputStream stream;
 		File r;
-		File output = null;
-		String ext = "."+XMLFilter.OME_XML;
-		List<File> files = new ArrayList<File>();
-		InputStream in = null;
-		OutputStream out = null;
 		File tmp = null;
+		File result = null;
+		File transformed = null;
+		RandomAccessInputStream ra = null;
+		String encoding = Constants.ENCODING;
 		try {
-			File inputXML = File.createTempFile(""+Math.random(),
-					ext);
-			files.add(inputXML);
 			if (index == EXPORT_AS_OMETIFF) {
-				tmp = File.createTempFile(""+Math.random(),
-						"."+OMETIFFFilter.OME_TIFF);
-				files.add(tmp);
-				FileUtils.copyFile(f, tmp);
+				tmp = File.createTempFile(RandomStringUtils.random(60, false, true),
+	                    "."+XMLFilter.OME_XML);
 				String c = new TiffParser(f.getAbsolutePath()).getComment();
-				FileUtils.writeStringToFile(inputXML, c);
+				FileUtils.writeStringToFile(tmp, c, encoding);
+				transformed = applyTransforms(tmp, transforms, encoding);
 			} else {
-				FileUtils.copyFile(f, inputXML);
+			    transformed = applyTransforms(f, transforms, encoding);
 			}
-			while (i.hasNext()) {
-				factory = TransformerFactory.newInstance();
-				stream = i.next();
-				output = File.createTempFile(""+Math.random(), ext);
-				transformer = factory.newTransformer(new StreamSource(stream));
-				out = new FileOutputStream(output);
-				in =  new FileInputStream(inputXML);
-				transformer.transform(new StreamSource(in),
-						new StreamResult(out));
-				files.add(output);
-				inputXML = output;
-				stream.close();
-				out.close();
-				in.close();
-			}
-			
-			file.delete();
 			//Copy the result
-			r = new File(path);
-			if (index == EXPORT_AS_OME_XML)
-				FileUtils.copyFile(inputXML, r);
-			else {
-				FileUtils.copyFile(tmp, r);
-				TiffSaver saver = new TiffSaver(path);
-				RandomAccessInputStream ra = new RandomAccessInputStream(path);
-				saver.overwriteComment(ra, 
-						FileUtils.readFileToString(inputXML));
-				ra.close();
-			}
-			//delete file
-			Iterator<File> j = files.iterator();
-			while (j.hasNext()) {
-				j.next().delete();
+			if (index == EXPORT_AS_OME_XML) {
+			    file.delete();
+			    r = new File(path);
+			    FileUtils.copyFile(transformed, r);
+			    return r;
+			} else {
+				TiffSaver saver = new TiffSaver(file.getAbsolutePath());
+				ra = new RandomAccessInputStream(file.getAbsolutePath());
+				saver.overwriteComment(ra,
+				        FileUtils.readFileToString(transformed, encoding));
+				return file;
 			}
 		} catch (Exception e) {
-			try {
-				if (in != null) in.close();
-				if (out != null) out.close();
-			} catch (Exception ex) {}
-			
 			throw new IllegalArgumentException("Unable to apply the transforms",
 					e);
+		} finally {
+		    if (transformed != null) transformed.delete();
+		    if (tmp != null) tmp.delete();
+		    try {
+		        if (ra != null) ra.close();
+            } catch (Exception e2) {}
+		    if (result != null) result.delete();
 		}
-		
-		return r;
 	}
 
 	/** 
