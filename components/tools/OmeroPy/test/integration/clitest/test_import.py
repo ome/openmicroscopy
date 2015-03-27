@@ -561,7 +561,15 @@ class TestImport(CLITest):
 
         assert obj
 
-    def testTargetInDifferentGroup(self, tmpdir, capfd):
+    target_fixtures = [
+        ("Dataset", "test.fake", '-d'),
+        ("Screen",
+         "SPW&plates=1&plateRows=1&plateCols=1&fields=1&plateAcqs=1.fake",
+         "-r")]
+
+    @pytest.mark.parametrize("container,filename,arg", target_fixtures)
+    def testTargetInDifferentGroup(self, container, filename, arg,
+                                   tmpdir, capfd):
         """
         The workflow this test exercises is currently broken. Until
         it is investigated and fixed the error is trapped early and
@@ -570,16 +578,16 @@ class TestImport(CLITest):
         """
         new_group = self.new_group(experimenters=[self.user])
         self.sf.getAdminService().getEventContext()  # Refresh
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring('testTargetInDifferentGroup')
-        dataset = self.update.saveAndReturnObject(
-            dataset, {"omero.group": str(new_group.id.val)})
-        assert dataset.details.group.id.val == new_group.id.val
+        target = eval("omero.model."+container+"I")()
+        target.name = rstring('testTargetInDifferentGroup')
+        target = self.update.saveAndReturnObject(
+            target, {"omero.group": str(new_group.id.val)})
+        assert target.details.group.id.val == new_group.id.val
 
-        fakefile = tmpdir.join("test.fake")
+        fakefile = tmpdir.join(filename)
         fakefile.write('')
         self.args += [str(fakefile)]
-        self.args += ['-d', '%s' % dataset.id.val]
+        self.args += [arg, '%s' % target.id.val]
 
         # Invoke CLI import command and retrieve stdout/stderr
         with pytest.raises(NonZeroReturnCode):
@@ -589,3 +597,26 @@ class TestImport(CLITest):
         # obj = self.get_object(e, 'Image')
 
         # assert obj.details.id.val == new_group.id.val
+
+    @pytest.mark.parametrize("container,filename,arg", target_fixtures)
+    def testUnknownTarget(self, container, filename, arg, tmpdir):
+        target = eval("omero.model."+container+"I")()
+        target.name = rstring('testUnknownTarget')
+        target = self.update.saveAndReturnObject(target)
+
+        params = omero.sys.ParametersI()
+        query = "select c from " + container + " as c"
+        targets = self.query.findAllByQuery(
+            query, params, {"omero.group": "-1"})
+        tids = [t.id.val for t in targets]
+        assert target.id.val in tids
+        unknown = max(tids) + 1
+        assert unknown not in tids
+
+        fakefile = tmpdir.join(filename)
+        fakefile.write('')
+        self.args += [str(fakefile)]
+        self.args += [arg, '%s' % unknown]
+
+        with pytest.raises(NonZeroReturnCode):
+            self.cli.invoke(self.args, strict=True)
