@@ -1,6 +1,6 @@
 /*
  *   $Id$
- *  Copyright 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -768,7 +768,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             
             channelBinding = channelBindings.get(i);
             channelBinding.setFamily(family);
-            channelBinding.setCoefficient(new Double(1));
+            channelBinding.setCoefficient(1.0);
     
             // If we have more than one channel set each of the first three
             // active, otherwise only activate the first.

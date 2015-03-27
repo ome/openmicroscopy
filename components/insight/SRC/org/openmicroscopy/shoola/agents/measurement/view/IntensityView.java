@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.IntensityView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -576,7 +576,7 @@ class IntensityView
 			if (x >= sizeX || y >= sizeY) continue;
 			
 			if (pixels.containsKey(point)) value = entry.getValue();
-			else value = new Double(0);
+			else value = 0.0;
 			data[x][y] = value;
 		}
 		tableModel = new IntensityModel(data);
@@ -795,7 +795,7 @@ class IntensityView
 			if (x >= sizeX || y >= sizeY) continue;
 			
 			if (pixels.containsKey(point)) value = entry.getValue();
-			else value = new Double(0);
+			else value = 0.0;
 			data[x][y] = value;
 		}
 		tableModel = new IntensityModel(data);
