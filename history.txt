@@ -1,7 +1,7 @@
 OMERO version history
 =====================
 
-5.1.0 (March 2015)
+5.1.0 (April 2015)
 ------------------
 
 A full, production-ready release of OMERO 5.1.0; updating the Data Model to
@@ -25,6 +25,9 @@ formats and many fixes and performance improvements:
 -  import times are much improved for large datasets such as HCS and SPIM data
 -  improved performance for many file formats and new supported formats via
    Bio-Formats (now over 140)
+-  improved rendering by removing calculation of PGI (Pretty Good Image) so
+   that default rendering settings are now set to global min/max if it is
+   calculated, or to full pixel range
 -  new OMERO.mail feature lets admins configure the server to email users
 -  support for configuring the server download policy to control access to
    original file download for public-facing OMERO.web deployments
