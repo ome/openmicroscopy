@@ -22,12 +22,12 @@ formats and many fixes and performance improvements:
    now usable by group owners as well, allowing you to import data that will
    then be owned by the user you import it for
 -  improved performance for moving and deleting data
+-  removed the auto-levels calculation for initial rendering settings to
+   substantially speed up performance, by using the min/max pixel intensities,
+   or defaulting to full pixel range where min/max is unavailable
 -  import times are much improved for large datasets such as HCS and SPIM data
 -  improved performance for many file formats and new supported formats via
    Bio-Formats (now over 140)
--  improved rendering by removing calculation of PGI (Pretty Good Image) so
-   that default rendering settings are now set to global min/max if it is
-   calculated, or to full pixel range
 -  new OMERO.mail feature lets admins configure the server to email users
 -  support for configuring the server download policy to control access to
    original file download for public-facing OMERO.web deployments
