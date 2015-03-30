@@ -106,59 +106,6 @@ public class AnnotationDeleteTest extends AbstractServerTest {
     }
 
     /**
-     * Test to ensure that a user cannot force a delete.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = "ticket:2959")
-    public void testForceCannotBeSetByUser() throws Exception {
-        /* note that users in read-write groups can delete each other's data,
-         * the only issue here is that FORCE may not be specified */
-        EventContext owner = newUserAndGroup("rwrw--");
-        FileAnnotation fa = new FileAnnotationI();
-        fa.setFile(mmFactory.createOriginalFile());
-        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        OriginalFile file = fa.getFile();
-        disconnect();
-
-        newUserInGroup(owner);
-        Map<String, String> options = new HashMap<String, String>();
-        options.put(DeleteServiceTest.REF_ANN, DeleteServiceTest.FORCE);
-        delete(false, client, new Delete(DeleteServiceTest.REF_ANN, fa.getId()
-                .getValue(), options));
-
-        assertExists(fa);
-        assertExists(file);
-    }
-
-    /**
-     * Test to ensure that an administrator can force a delete.
-     *
-     * @throws Exception
-     *             Thrown if an error occurred.
-     */
-    @Test(groups = "ticket:2959")
-    public void testForceCanBeSetByAdmin() throws Exception {
-        EventContext owner = newUserAndGroup("rwrw--");
-        FileAnnotation fa = new FileAnnotationI();
-        fa.setFile(mmFactory.createOriginalFile());
-        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        OriginalFile file = fa.getFile();
-        disconnect();
-
-        logRootIntoGroup(owner);
-        Map<String, String> options = new HashMap<String, String>();
-        // Would delete other users' data
-        options.put(DeleteServiceTest.REF_ANN, DeleteServiceTest.FORCE);
-        delete(true, client, new Delete(DeleteServiceTest.REF_ANN, fa.getId()
-                .getValue(), options));
-
-        assertDoesNotExist(fa);
-        assertDoesNotExist(file);
-    }
-
-    /**
      * Test to delete the file annotation of a given namespace.
      *
      * @throws Exception
