@@ -13,21 +13,25 @@ formats and many fixes and performance improvements:
    sizes for electron microscopy to be stored in nanometers rather than being
    set as micrometers
 -  new, searchable key-value pairs annotations for adding experimental
-   metadata
+   metadata (replacing OMERO.editor, which has been removed)
 -  improved workflow for rendering settings in the UI and parity between the
    clients
 -  import images to OMERO from ImageJ and save ROIs and overlays from ImageJ
    to OMERO
--  'Import As' for group owners as well as administrators
+-  importing as another user, previously only available for administrators, is
+   now usable by group owners as well, allowing you to import data that will
+   then be owned by the user you import it for
 -  improved performance for moving and deleting data
 -  import times are much improved for large datasets such as HCS and SPIM data
 -  improved performance for many file formats and new supported formats via
    Bio-Formats (now over 140)
 -  new OMERO.mail feature lets admins configure the server to email users
--  support for limiting the download of original files
+-  support for configuring the server download policy to control access to
+   original file download for public-facing OMERO.web deployments
 -  many developer updates such as removal of deprecated methods, and updates
    to OMERO.web and the C++ implementation (see the 5.1.0-m1 to 5.1.0-m5
-   developer preview release details below)
+   developer preview release details below and the 'What's New' for developers
+   page)
 
 5.1.0-m5 (March 2015)
 ---------------------
