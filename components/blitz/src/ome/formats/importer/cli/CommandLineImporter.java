@@ -371,6 +371,7 @@ public class CommandLineImporter {
             + "          ln              \t# Use hard-link.\n"
             + "          ln_s            \t# Use soft-link.\n"
             + "          ln_rm           \t# Caution! Hard-link followed by source deletion.\n"
+            + "          ln_s_rm         \t# Caution! Soft-link followed by source deletion.\n"
             + "          cp              \t# Use local copy command.\n"
             + "          cp_rm           \t# Caution! Copy followed by source deletion.\n\n"
             + "\n"

@@ -65,7 +65,7 @@ public class SymlinkFileTransfer extends AbstractExecFileTransfer {
     /**
      * No cleanup is needed for soft-linking.
      */
-    public void afterTransfer(int errors, List<String> srcFiles) {
+    public void afterTransfer(int errors, List<String> srcFiles) throws CleanupFailure {
         // no-op
     }
 }
