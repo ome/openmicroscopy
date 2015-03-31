@@ -197,13 +197,13 @@ public class ROIReader {
             settings.setFill(roi.getFillColor());
         }
         if((Integer) roi.getCPosition() != null); {
-            int c = roi.getCPosition();shape.setC(c);
+            int c = roi.getCPosition();shape.setC(c-1);
         }
         if ((Integer) roi.getZPosition() != null);{
-            int z = roi.getZPosition();shape.setZ(z);
+            int z = roi.getZPosition();shape.setZ(z-1);
         }
         if ((Integer) roi.getTPosition() != null);{
-            int t = roi.getTPosition();shape.setT(t);
+            int t = roi.getTPosition();shape.setT(t-1);
         }
     }
 
