@@ -92,6 +92,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 
 
@@ -165,6 +166,9 @@ class ImViewerComponent
     
     /** Flag indicating that it was not possible to save the settings.*/
     private boolean failureToSave;
+    
+    /** The ImageAcquisitionData */
+    private ImageAcquisitionData acquisitionData;
     
 	/**
 	 * Creates and returns an image including the ROI
@@ -3406,4 +3410,22 @@ class ImViewerComponent
         refresh();
     }
 
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#setImageAcquisitionData(ImageAcquisitionData)
+     */
+    public void setImageAcquisitionData(ImageAcquisitionData data) {
+        this.acquisitionData = data;
+        view.setMagnificationStatus();
+    }
+
+    /**
+     * Implemented as specified by the {@link ImViewer} interface.
+     * 
+     * @see ImViewer#getImageAcquisitionData()
+     */
+    public ImageAcquisitionData getImageAcquisitionData() {
+        return this.acquisitionData;
+    }
 }
