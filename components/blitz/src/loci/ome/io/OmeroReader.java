@@ -588,7 +588,7 @@ public class OmeroReader extends FormatReader {
         if (r == null) {
             return null;
         }
-        return new NonNegativeInteger(r.getValue());
+        return new NonNegativeInteger(r.getValue()+1);
     }
 
     /** Converts omero.model.Shape (omero.model.RectI in this case) to ome.xml.model.* and updates the MetadataStore */
