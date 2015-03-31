@@ -347,6 +347,7 @@ set(OMERO_CLIENT_STATIC_HEADERS
     src/omero/callbacks.h
     src/omero/client.h
     src/omero/clientF.h
+    src/omero/conversions.h
     src/omero/min.h
     src/omero/ObjectFactory.h)
 
