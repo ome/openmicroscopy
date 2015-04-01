@@ -181,34 +181,16 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         mv.groupId = secondGroup.getId().getValue();
 
         Response rsp = doChange(client, factory, mv, false); // Don't pass
-        // See ticket:10846 This is no longer true, since the exception
-        // is being thrown elsewhere.
-        /*
-        GraphConstraintERR err = (GraphConstraintERR) rsp;
-        Map<String, long[]> constraints = err.constraints;
-        long[] filesetIds = constraints.get("Fileset");
-        assertEquals(1, filesetIds.length);
-        assertEquals(fs0, filesetIds[0]);
-        */
-
         // However, it should still be possible to delete the 2 images
         // and have the fileset cleaned up.
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(img0);
+        ids.add(img1);
         List<Request> commands = new ArrayList<Request>();
         Delete2 dc = new Delete2();
         dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img0));
-        commands.add(dc);
-        dc = new Delete2();
-        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
-                Image.class.getSimpleName(),
-                Collections.singletonList(img1));
-        commands.add(dc);
-        DoAll all = new DoAll();
-        all.requests = commands;
-        doChange(client, factory, all, true, null);
-
-        // FIXME: This needs to be worked on. The fileset still exists.
+                Image.class.getSimpleName(), ids);
+        callback(true, client, dc);
         assertDoesNotExist(new FilesetI(fs0, false));
     }
 
