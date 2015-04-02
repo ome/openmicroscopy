@@ -42,13 +42,13 @@ ip.parse(session, ids, type);
 objectType = objectTypes(strcmp(type, objectNames));
 
 % Create a list of delete commands
-idlist=java.util.ArrayList();ChildList = java.util.ArrayList();
+idlist=java.util.ArrayList();
 for i = 1 : numel(ids)
     idlist.add(java.lang.Long(ids(i)));
 end
 targetObj = java.util.Hashtable;
 targetObj.put(objectType.delete(2:end),idlist);
-deleteCommands = omero.cmd.Delete2(targetObj, ChildList, true);
+deleteCommands = omero.cmd.Delete2(targetObj, [], false);
 
 % Submit the delete commands
 session.submit(deleteCommands);
