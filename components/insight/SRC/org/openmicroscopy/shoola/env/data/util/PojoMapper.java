@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.util.PojoMapper
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import omero.RString;
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
@@ -81,6 +82,7 @@ import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.XmlAnnotation;
+import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -399,6 +401,56 @@ public class PojoMapper
         else if (nodeType.equals(Plate.class)
                 || nodeType.equals(PlateData.class))
             return Plate.class.getSimpleName();
+        throw new IllegalArgumentException("type not supported");
+    }
+    
+    /**
+     * Returns the name of the data type which has to used for Graph actions,
+     * see {@link Requests}
+     * 
+     * @param dataType
+     * @return See above
+     */
+    public static String getGraphType(Class<? extends DataObject> dataType) {
+
+        // containers
+        if (dataType.equals(DatasetData.class))
+            return Dataset.class.getSimpleName();
+        if (dataType.equals(ProjectData.class))
+            return Project.class.getSimpleName();
+        if (dataType.equals(ScreenData.class))
+            return Screen.class.getSimpleName();
+        if (dataType.equals(WellData.class))
+            return Well.class.getSimpleName();
+        if (dataType.equals(PlateData.class))
+            return Plate.class.getSimpleName();
+        if (dataType.equals(PlateAcquisitionData.class))
+            return PlateAcquisition.class.getSimpleName();
+
+        // annotations
+        if (dataType.equals(AnnotationData.class))
+            return Annotation.class.getSimpleName();
+        if (dataType.equals(TagAnnotationData.class))
+            return TagAnnotation.class.getSimpleName();
+        if (dataType.equals(BooleanAnnotationData.class))
+            return BooleanAnnotation.class.getSimpleName();
+        if (dataType.equals(TermAnnotationData.class))
+            return TermAnnotation.class.getSimpleName();
+        if (dataType.equals(FileAnnotationData.class))
+            return FileAnnotation.class.getSimpleName();
+        if (dataType.equals(TextualAnnotationData.class))
+            return CommentAnnotation.class.getSimpleName();
+        if (dataType.equals(MapAnnotationData.class))
+            return MapAnnotation.class.getSimpleName();
+        if (dataType.equals(TimeAnnotationData.class))
+            return TimestampAnnotation.class.getSimpleName();
+        if (dataType.equals(XMLAnnotationData.class))
+            return XmlAnnotation.class.getSimpleName();
+
+        // other
+        if (dataType.equals(ImageData.class))
+            return Image.class.getSimpleName();
+
         throw new IllegalArgumentException("type not supported");
     }
     
