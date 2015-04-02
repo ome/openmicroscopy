@@ -24,6 +24,7 @@ using namespace std;
 using namespace omero;
 using namespace omero::api;
 using namespace omero::cmd;
+using namespace omero::cmd::graphs;
 using namespace omero::callbacks;
 using namespace omero::model;
 using namespace omero::rtypes;
@@ -144,7 +145,7 @@ public:
     long id;
     long grp;
     long wait;
-    ChgrpPtr req;
+    Chgrp2Ptr req;
     ResponsePtr rsp;
     HandlePrx handle;
     CmdCallbackIPtr cb;
@@ -162,12 +163,15 @@ public:
         grp = strToNum<long>(grpstr);
         wait = strToNum<long>(waitstr);
 
-        map<string, string> options;
-        req = new Chgrp();
-        req->type = typestr;
-        req->id = id;
-        req->grp = grp;
-        req->options = options;
+        LongList objectIds;
+        StringLongListMap objects;
+        ChildOptions options;
+        req = new Chgrp2();
+        objectIds.push_back(id);
+        objects[typestr] = objectIds;
+        req->targetObjects = objects;
+        req->groupId = grp;
+        req->childOptions = options;
     }
 
     void ctrlc(int /*sig*/) {
