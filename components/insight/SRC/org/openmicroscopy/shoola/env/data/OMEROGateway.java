@@ -2659,10 +2659,8 @@ class OMEROGateway
                 idsThisClass.add(objectId);
             }
             /* now delete the objects */
-            final Request request = Requests.delete(objectIds);
-            final client client = getConnector(ctx, true, false).getClient();
-            final HandlePrx handle = client.getSession().submit(request);
-            new RequestCallback(client, handle).loop(50, 250);
+            Request request = Requests.delete(objectIds);
+            submit(Arrays.asList(request), ctx);
         } catch (Throwable t) {
             handleException(t, "Cannot delete the object.");
         }
@@ -8453,7 +8451,7 @@ class OMEROGateway
 				entry = i.next();
 				data = entry.getKey();
 				l = entry.getValue();
-				String key = PojoMapper.convertTypeForSearchByQuery(data.getClass());
+				String key = PojoMapper.getGraphType(data.getClass());
 				List<Long> values = objects.get(key);
 				if(values==null) {
 				    values = new ArrayList<Long>();
