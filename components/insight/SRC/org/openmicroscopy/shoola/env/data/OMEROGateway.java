@@ -2659,8 +2659,10 @@ class OMEROGateway
                 idsThisClass.add(objectId);
             }
             /* now delete the objects */
-            Request request = Requests.delete(objectIds);
-            submit(Arrays.asList(request), ctx);
+            final Request request = Requests.delete(objectIds);
+            final client client = getConnector(ctx, true, false).getClient();
+            final HandlePrx handle = client.getSession().submit(request);
+            new RequestCallback(client, handle).loop(50, 250);
         } catch (Throwable t) {
             handleException(t, "Cannot delete the object.");
         }
