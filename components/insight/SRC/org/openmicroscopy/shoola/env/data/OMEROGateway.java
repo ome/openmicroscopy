@@ -5678,54 +5678,6 @@ class OMEROGateway
 		return new HashMap();
 	}
 
-	/**
-	 * Removes the description linked to the tags.
-	 *
-	 * @param ctx The security context.
-	 * @param tagID  The id of tag to handle.
-	 * @param userID The id of the user who annotated the tag.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to
-	 *                                  retrieve data from OMEDS service.
-	 */
-	void removeTagDescription(SecurityContext ctx, long tagID, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-	    Connector c = getConnector(ctx, true, false);
-		try {
-		    IQueryPrx service = c.getQueryService();
-			String type = "ome.model.annotations.TextAnnotation";
-			ParametersI param = new ParametersI();
-			param.addLong("uid", userID);
-			param.addLong("id", tagID);
-
-			String sql =  "select link from AnnotationAnnotationLink as link ";
-			sql += "where link.parent.id = :id";
-			sql += " and link.child member of "+type;
-			sql += " and link.details.owner.id = :uid";
-
-			List l = service.findAllByQuery(sql, param);
-			//remove all the links if any
-			if (l != null) {
-				Iterator i = l.iterator();
-				AnnotationAnnotationLink link;
-				IObject child;
-				while (i.hasNext()) {
-					link = (AnnotationAnnotationLink) i.next();
-					child = link.getChild();
-					if (!((child instanceof TagAnnotation) ||
-						(child instanceof TermAnnotation)))  {
-						deleteObject(ctx, link);
-						deleteObject(ctx, child);
-					}
-				}
-			}
-		} catch (Exception e) {
-			handleException(e, "Cannot remove the tag description.");
-		}
-	}
-
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
