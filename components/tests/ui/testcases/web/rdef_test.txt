@@ -108,6 +108,7 @@ Test Rdef Copy Paste Save
     # Check that 'Save' has worked by refreshing right panel (click on thumbnail)
     Click Element                           id=image_icon-${imageId}
     Wait For Preview Load
+    # Channel should be Yellow
     Wait For Channel Color                  rgb(255, 255, 0)
 
     # Select Next Image by using 'Down Arrow'
@@ -123,7 +124,7 @@ Test Rdef Copy Paste Save
     # Save to all (Blue channel)
     Click Element                           id=rdef-save-all
 
-    # Return to Previous Image
+    # Return to Previous Image (now Blue)
     Click Element                           id=image_icon-${imageId}
     Wait For Preview Load
     Wait For Channel Color                  rgb(0, 0, 255)
