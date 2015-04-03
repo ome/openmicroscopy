@@ -2830,6 +2830,8 @@ class _BlitzGateway (object):
                 ')'
         queryService = self.getQueryService()
         count, size = queryService.projection(query, params, self.SERVICE_OPTS)[0]
+        if size is None:
+            size = 0
 
         query = 'select ann.id, ann.ns, ann.textValue '\
                 'from Fileset as fileset '\
