@@ -63,16 +63,19 @@ def images_with_original_files(request, gatewaywrapper):
     gatewaywrapper.loginAsAuthor()
     gw = gatewaywrapper.gateway
     update_service = gw.getUpdateService()
+    original_files = list()
+    for original_file_index in range(2):
+        original_file = OriginalFileI()
+        original_file.name = rstring(
+            'filename_%d.ext' % original_file_index
+        )
+        original_file.path = rstring('/server/path/')
+        original_file.size = rlong(50L)
+        original_files.append(original_file)
     images = list()
     for image_index in range(2):
         image = create_image(image_index)
-        for original_file_index in range(2):
-            original_file = OriginalFileI()
-            original_file.name = rstring(
-                'filename_%d.ext' % original_file_index
-            )
-            original_file.path = rstring('/server/path/')
-            original_file.size = rlong(50L)
+        for original_file in original_files:
             image.getPrimaryPixels().linkOriginalFile(original_file)
         images.append(image)
     image_ids = update_service.saveAndReturnIds(images)
