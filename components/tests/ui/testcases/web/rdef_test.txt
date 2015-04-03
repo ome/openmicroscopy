@@ -166,6 +166,9 @@ Test Owners Rdef
     Click Link                              Preview
     Wait For Preview Load
 
+    # Bit more reliable with this, but try to remove it if possible...
+    Set Selenium Speed                      0.5
+
     # Set to "Imported"
     Click Element                           id=rdef-reset-btn
     Wait For Channel Color                  ${importedChColor}
@@ -196,7 +199,7 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           255
 
     # New settings (White channel, max 200) and 'Copy'
-    Set Selenium Speed                      1
+    # Set Selenium Speed                      1
     Input Text                              id=wblitz-ch0-cw-end        200
     Pick Color                              fff         FFFFFF          rgb(255, 255, 255)
     Click Element                           xpath=//button[contains(@class, "copy_rdef")]
@@ -223,7 +226,7 @@ Test Owners Rdef
     Wait For Channel Color                  rgb(0, 255, 0)
     Textfield Value Should Be               wblitz-ch0-cw-end           100
 
-    # Test Set Imported on first Image
+    # Test "Set Imported" on first Image
     ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
     Right Click Rendering Settings          image-${imageId}            Set Imported and Save
     Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
@@ -233,30 +236,29 @@ Test Owners Rdef
     Wait For Channel Color                  ${importedChColor}
     Textfield Value Should Be               wblitz-ch0-cw-end           ${importedMax}
 
-    # # Open full image viewer
-    # # Toggle the color, then paste settings and check it has reverted
-    # Go To                                   ${WELCOME URL}img_detail/${imageId}
-    # Wait Until Page Contains Element        id=wblitz-ch0
-    # ${checked1}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
-    # Click Element                           id=wblitz-rmodel
-    # ${checked2}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
-    # Should Not Be True                      "${checked1}" == "${checked2}"
-    # Click Link                              Edit
-    # Click Element                           xpath=//button[contains(@class, "paste_rdef")]
-    # ${selector}=                            Set Variable If    ${checked1}    1    0
-    # Log   ${selector}
-    # Wait For Condition                      return ($("#wblitz-rmodel:checked").length == ${selector})
+    # Open full image viewer
+    # Toggle the color, then paste settings and check it has reverted
+    Go To                                   ${WELCOME URL}img_detail/${imageId}
+    Wait Until Page Contains Element        id=wblitz-ch0
+    ${checked1}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    Click Element                           id=wblitz-rmodel
+    ${checked2}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
+    Should Not Be True                      "${checked1}" == "${checked2}"
+    Click Link                              Edit
+    # We are currently at 'Imported' settings
+    Textfield Value Should Be               wblitz-ch0-cw-end    255
 
-    # # Toggle the color again, Save, refresh page to check
-    # Set Selenium Speed                      0.5
-    # Click Element                           id=wblitz-rmodel
-    # Wait Until Page Contains Element        id=rdef-setdef-btn
-    # Click Element                           id=rdef-setdef-btn
-    # # Wait for response
-    # Wait Until Page Contains Element        id=weblitz-viewport-msg
-    # Wait For Condition                      return ($(".blockUI").length == 0)
-    # Reload Page
-    # Wait Until Page Contains Element        id=wblitz-ch0
-    # ${checked3}=                            Execute Javascript  return ($("#wblitz-rmodel:checked").length == 1)
-    # Should Be True                          "${checked2}" == "${checked3}"
+    # Paste to settings above
+    Click Element                           xpath=//button[contains(@class, "paste_rdef")]
+    # Save
+    Click Element                           id=rdef-setdef-btn
+    # Wait for response
+    Wait Until Page Contains Element        id=weblitz-viewport-msg
+    Wait For Condition                      return ($(".blockUI").length == 0)
+
+    # Refresh page to check Save
+    Reload Page
+    Wait Until Page Contains Element        id=wblitz-ch0
+    Click Link                              Edit
+    Textfield Value Should Be               wblitz-ch0-cw-end    200
 
