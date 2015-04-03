@@ -8776,22 +8776,33 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         Returns a generator of :class:`OriginalFileWrapper` corresponding to
         the Imported image files that created this image, if available.
         """
-        # If we have an FS image, return Fileset files.
-        fs = self.getFileset()
-        if fs is not None:
-            for usedfile in fs.copyUsedFiles():
-                yield OriginalFileWrapper(self._conn, usedfile.originalFile)
+        query_service = self._conn.getQueryService()
 
-        # Otherwise, return Original Archived Files
-        pid = self.getPixelsId()
-        params = omero.sys.Parameters()
-        params.map = {"pid": rlong(pid)}
-        query = ("select link from PixelsOriginalFileMap link "
-                 "join fetch link.parent as p where link.child.id=:pid")
-        links = self._conn.getQueryService().findAllByQuery(
-            query, params, self._conn.SERVICE_OPTS)
-        for l in links:
-            yield OriginalFileWrapper(self._conn, l.parent)
+        # If we have an FS image, return Fileset files.
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query = 'select ofile from FilesetEntry as fse '\
+                'join fse.fileset as fileset '\
+                'join fse.originalFile as ofile '\
+                'join fileset.images as image '\
+                'where image.id in (:id)'
+        original_files = query_service.findAllByQuery(
+            query, params, self._conn.SERVICE_OPTS
+        )
+
+        if len(original_files) == 0:
+            # Otherwise, return Original Archived Files
+            params = omero.sys.ParametersI()
+            params.addId(self.getPixelsId())
+            query = 'select ofile from PixelsOriginalFileMap as link '\
+                    'join link.parent as ofile ' \
+                    'where link.child.id = :id'
+            original_files = query_service.findAllByQuery(
+                query, params, self._conn.SERVICE_OPTS
+            )
+
+        for original_file in original_files:
+            yield OriginalFileWrapper(self._conn, original_file)
 
     def getFileset(self):
         """
