@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 
 import omero.api.IRenderingSettingsPrx;
-import omero.cmd.Delete;
 import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;

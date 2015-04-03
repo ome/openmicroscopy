@@ -20,7 +20,6 @@ import java.util.Map;
 
 import omero.RLong;
 import omero.RString;
-import omero.cmd.Delete;
 import omero.cmd.Delete2;
 import omero.model.Annotation;
 import omero.model.Channel;
