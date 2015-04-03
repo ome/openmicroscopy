@@ -2167,36 +2167,11 @@ def original_file_paths(request, iid, conn=None, **kwargs):
     image
     """
 
-    qs = conn.getQueryService()
-    params = omero.sys.ParametersI()
-    params.addLong("iid", iid)
-    query = "select fse from FilesetEntry fse join fetch fse.fileset as fs "\
-            "left outer join fetch fs.usedFiles as usedFile " \
-            "join fetch usedFile.originalFile " \
-            "left outer join fs.images as image where image.id=:iid"
-
-    result = qs.findAllByQuery(query, params, conn.SERVICE_OPTS)
-
-    fileNames = []
-    clientPaths = []
-    if len(result) > 0:
-        fileset = result[0].fileset
-        for f in fileset.copyUsedFiles():
-            path = unwrap(f.originalFile.path)
-            name = unwrap(f.originalFile.name)
-            fileNames.append("%s%s" % (path, name))
-
-        for fse in result:
-            clientPaths.append(unwrap(fse.clientPath))
-
-    else:
-        # Images with No Fileset, check for any Archived Origina files
-        image = conn.getObject("Image", iid)
-        if image is not None:
-            files = list(image.getImportedImageFiles())
-            fileNames = [f.getPath() + f.getName() for f in files]
-
-    return {'repo': fileNames, 'client': clientPaths}
+    image = conn.getObject("Image", iid)
+    if image is None:
+        raise Http404
+    paths = image.getImportedImageFilePaths()
+    return {'repo': paths['server_paths'], 'client': paths['client_paths']}
 
 
 @login_required()
