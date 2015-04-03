@@ -184,6 +184,24 @@ class TestFileset(object):
             files = list(image.getImportedImageFiles())
             assert len(files) == 4
 
+    def testGetImportedImageFilePaths(
+            self, gatewaywrapper, fileset_with_images):
+        for image in fileset_with_images.copyImages():
+            paths = image.getImportedImageFilePaths()
+            paths['server_paths'].sort()
+            assert paths['server_paths'] == [
+                '/server/path/filename_0.ext',
+                '/server/path/filename_0.ext',
+                '/server/path/filename_1.ext',
+                '/server/path/filename_1.ext'
+            ]
+            paths['client_paths'].sort()
+            assert paths['client_paths'] == [
+                '/client/path/filename_0.ext',
+                '/client/path/filename_0.ext',
+                '/client/path/filename_1.ext',
+                '/client/path/filename_1.ext'
+            ]
 
 class TestArchivedOriginalFiles(object):
 
@@ -257,3 +275,14 @@ class TestArchivedOriginalFiles(object):
         for image in images_with_original_files:
             files = list(image.getImportedImageFiles())
             assert len(files) == 2
+
+    def testGetImportedImageFilePaths(
+            self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            paths = image.getImportedImageFilePaths()
+            paths['server_paths'].sort()
+            assert paths['server_paths'] == [
+                '/server/path/filename_0.ext',
+                '/server/path/filename_1.ext',
+            ]
+            assert len(paths['client_paths']) == 0

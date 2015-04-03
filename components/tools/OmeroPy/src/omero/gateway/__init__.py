@@ -8804,6 +8804,49 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         for original_file in original_files:
             yield OriginalFileWrapper(self._conn, original_file)
 
+    def getImportedImageFilePaths (self):
+        """
+        Returns a generator of path strings corresponding to the Imported
+        image files that created this image, if available.
+        """
+        query_service = self._conn.getQueryService()
+        server_paths = list()
+        client_paths = list()
+
+        # If we have an FS image, return Fileset files.
+        params = omero.sys.ParametersI()
+        params.addId(self.getId())
+        query = 'select ofile.path, ofile.name, fse.clientPath '\
+                'from FilesetEntry as fse '\
+                'join fse.fileset as fileset '\
+                'join fse.originalFile as ofile '\
+                'join fileset.images as image '\
+                'where image.id in (:id)'
+        rows = query_service.projection(
+            query, params, self._conn.SERVICE_OPTS
+        )
+        for row in rows:
+            path, name, clientPath = row
+            server_paths.append('%s%s' % (unwrap(path), unwrap(name)))
+            client_paths.append(unwrap(clientPath))
+
+        if len(rows) == 0:
+            # Otherwise, return Original Archived Files
+            params = omero.sys.ParametersI()
+            params.addId(self.getPixelsId())
+            query = 'select ofile.path, ofile.name '\
+                    '    from PixelsOriginalFileMap as link '\
+                    'join link.parent as ofile ' \
+                    'where link.child.id = :id'
+            rows = query_service.projection(
+                query, params, self._conn.SERVICE_OPTS
+            )
+            for row in rows:
+                path, name = row
+                server_paths.append('%s%s' % (unwrap(path), unwrap(name)))
+
+        return {'server_paths': server_paths, 'client_paths': client_paths}
+
     def getFileset(self):
         """
         Returns the Fileset linked to this Image.
