@@ -2818,33 +2818,43 @@ class _BlitzGateway (object):
         :param imageIds:    Image IDs list
         :return:            Dict of files 'count' and 'size'
         """
-
         params = omero.sys.ParametersI()
         params.addIds(imageIds)
-
-        query = "select distinct(fse) from FilesetEntry as fse "\
-                "left outer join fetch fse.fileset as fs "\
-                "left outer join fetch fs.annotationLinks as link "\
-                "left outer join fetch link.child as a "\
-                "left outer join fetch fse.originalFile as f "\
-                "left outer join fs.images as image where image.id in (:ids)"
+        query = 'select count(fse), sum(fse.originalFile.size) '\
+                'from FilesetEntry as fse where fse.id in ('\
+                '   select distinct(i_fse.id) from FilesetEntry as i_fse '\
+                '   join i_fse.fileset as i_fileset'\
+                '   join i_fse.originalFile '\
+                '   join i_fileset.images as i_image '\
+                '   where i_image.id in (:ids)'\
+                ')'
         queryService = self.getQueryService()
-        fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
-        fsCount = len(fsinfo)
-        anns = []
-        for fse in fsinfo:
-            for l in fse.fileset.copyAnnotationLinks():
-                a = {'ns': unwrap(l.child.ns),
-                     'id': l.child.id.val}
-                if (hasattr(l.child, 'textValue')):
-                    a['value'] = unwrap(l.child.textValue)
-                anns.append(a)
-        fsSize = sum([f.originalFile.getSize().val for f in fsinfo])
-        filesetFileInfo = {'fileset': True,
-                           'count': fsCount,
-                           'size': fsSize,
-                           'annotations': anns}
-        return filesetFileInfo
+        count, size = queryService.projection(query, params, self.SERVICE_OPTS)[0]
+
+        query = 'select ann.id, ann.ns, ann.textValue '\
+                'from Fileset as fileset '\
+                'left outer join fileset.annotationLinks as a_link '\
+                'left outer join a_link.child as ann '\
+                'where fileset.id in ('\
+                '   select distinct(i_fileset.id) from Fileset as i_fileset '\
+                '   join i_fileset.images as i_image '\
+                '   where i_image.id in (:ids)'\
+                ')'
+        queryService = self.getQueryService()
+        annotations = list()
+        rows = queryService.projection(query, params, self.SERVICE_OPTS)
+        for row in rows:
+            annotation_id, ns, text_value = row
+            annotation = {
+                'id': unwrap(annotation_id), 'ns': unwrap(ns)
+            }
+            if text_value is not None:
+                annotation['value'] = unwrap(text_value)
+            annotations.append(annotation)
+        return {
+            'fileset': True, 'count': unwrap(count), 'size': unwrap(size),
+            'annotations': annotations
+        }
 
     def getArchivedFilesInfo(self, imageIds):
         """
