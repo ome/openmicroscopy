@@ -37,5 +37,5 @@ for  i = 1 : nObjects
     d(i).name = names{i};
     d(i).class = ['omero.model.' classnames{i}];
     d(i).Iobject = str2func([d(i).class 'I']);
-    d(i).delete = ['/' classnames{i}];
+    d(i).delete = [classnames{i}];
 end
