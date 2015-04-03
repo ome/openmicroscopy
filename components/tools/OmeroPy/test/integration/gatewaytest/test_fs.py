@@ -40,6 +40,45 @@ def uuid():
     return str(uuid4())
 
 
+def create_image(image_index):
+    image = ImageI()
+    image.name = rstring('%s_%d' % (uuid(), image_index))
+    image.acquisitionDate = rtime(0)
+    pixels = PixelsI()
+    pixels.sha1 = rstring('')
+    pixels.sizeX = rint(1)
+    pixels.sizeY = rint(1)
+    pixels.sizeZ = rint(1)
+    pixels.sizeC = rint(1)
+    pixels.sizeT = rint(1)
+    pixels.dimensionOrder = DimensionOrderI(1L, False)  # XYZCT
+    pixels.pixelsType = PixelsTypeI(1L, False)  # bit
+    image.addPixels(pixels)
+    return image
+
+
+@pytest.fixture()
+def images_with_original_files(request, gatewaywrapper):
+    """Creates Images with associated OriginalFiles."""
+    gatewaywrapper.loginAsAuthor()
+    gw = gatewaywrapper.gateway
+    update_service = gw.getUpdateService()
+    images = list()
+    for image_index in range(2):
+        image = create_image(image_index)
+        for original_file_index in range(2):
+            original_file = OriginalFileI()
+            original_file.name = rstring(
+                'filename_%d.ext' % original_file_index
+            )
+            original_file.path = rstring('/server/path/')
+            original_file.size = rlong(50L)
+            image.getPrimaryPixels().linkOriginalFile(original_file)
+        images.append(image)
+    image_ids = update_service.saveAndReturnIds(images)
+    return [gw.getObject('Image', image_id) for image_id in image_ids]
+
+
 @pytest.fixture()
 def fileset_with_images(request, gatewaywrapper):
     """Creates and returns a Fileset with associated Images."""
@@ -48,30 +87,18 @@ def fileset_with_images(request, gatewaywrapper):
     fileset = FilesetI()
     fileset.templatePrefix = rstring('')
     for image_index in range(2):
-        image = ImageI()
-        image.name = rstring('%s_%d' % (uuid(), image_index))
-        image.acquisitionDate = rtime(0)
-        pixels = PixelsI()
-        pixels.sha1 = rstring('')
-        pixels.sizeX = rint(1)
-        pixels.sizeY = rint(1)
-        pixels.sizeZ = rint(1)
-        pixels.sizeC = rint(1)
-        pixels.sizeT = rint(1)
-        pixels.dimensionOrder = DimensionOrderI(1L, False)  # XYZCT
-        pixels.pixelsType = PixelsTypeI(1L, False)  # bit
-        for index in range(2):
+        image = create_image(image_index)
+        for fileset_index in range(2):
             fileset_entry = FilesetEntryI()
             fileset_entry.clientPath = rstring(
-                '/client/path/filename_%d.ext' % index
+                '/client/path/filename_%d.ext' % fileset_index
             )
             original_file = OriginalFileI()
-            original_file.name = rstring('filename_%d.ext' % index)
+            original_file.name = rstring('filename_%d.ext' % fileset_index)
             original_file.path = rstring('/server/path/')
             original_file.size = rlong(50L)
             fileset_entry.originalFile = original_file
             fileset.addFilesetEntry(fileset_entry)
-        image.addPixels(pixels)
         fileset.addImage(image)
     comment_annotation = CommentAnnotationI()
     comment_annotation.ns = rstring('comment_annotation')
@@ -148,3 +175,71 @@ class TestFileset(object):
     def testGetFileset(self, gatewaywrapper, fileset_with_images):
         for image in fileset_with_images.copyImages():
             assert image.getFileset() is not None
+
+
+class TestArchivedOriginalFiles(object):
+
+    def assertArchivedFilesInfo(self, files_info):
+        assert files_info['fileset'] is False
+        assert files_info['count'] == 2
+        assert files_info['size'] == 100
+
+    def testCountArchivedFiles(
+            self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            assert image.countArchivedFiles() == 2
+
+    def testCountFilesetFiles(
+            self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            assert image.countFilesetFiles() == 0
+
+    def testCountImportedImageFiles(
+            self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            assert image.countImportedImageFiles() == 2
+
+    def testGetImportedFilesInfo(
+            self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            files_info = image.getImportedFilesInfo()
+            self.assertArchivedFilesInfo(files_info)
+
+    def testGetArchivedFiles(
+            self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            len(list(image.getArchivedFiles())) == 2
+
+    def testGetImportedImageFiles(
+            self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            len(list(image.getImportedImageFiles())) == 2
+
+    def testGetArchivedFilesInfo(
+            self, gatewaywrapper, images_with_original_files):
+        gw = gatewaywrapper.gateway
+        for image in images_with_original_files:
+            files_info = gw.getArchivedFilesInfo([image.id])
+            self.assertArchivedFilesInfo(files_info)
+
+    def testGetFilesetFilesInfo(
+            self, gatewaywrapper, images_with_original_files):
+        gw = gatewaywrapper.gateway
+        for image in images_with_original_files:
+            files_info = gw.getFilesetFilesInfo([image.id])
+            assert files_info == {
+                'annotations': list(), 'fileset': True, 'count': 0, 'size': 0
+            }
+
+    def testGetFilesetFilesInfoMultiple(
+            self, gatewaywrapper, images_with_original_files):
+        gw = gatewaywrapper.gateway
+        image_ids = [v.id for v in images_with_original_files]
+        files_info = gw.getFilesetFilesInfo(image_ids)
+        assert files_info == {
+            'annotations': list(), 'fileset': True, 'count': 0, 'size': 0
+        }
+
+    def testGetFileset(self, gatewaywrapper, images_with_original_files):
+        for image in images_with_original_files:
+            assert image.getFileset() is None
