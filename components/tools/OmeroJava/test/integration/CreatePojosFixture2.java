@@ -164,14 +164,6 @@ public class CreatePojosFixture2 {
         annotations();
     }
 
-    public void deleteAllPojos() throws Exception {
-        for (int i = toAdd.size() - 1; i >= 0; i--) {
-            iUpdate.deleteObject(toAdd.get(i));
-        }
-        iAdmin.deleteExperimenter(e);
-        // TODO iAdmin.deleteGroup(g);
-    }
-
     public void init() {
         if (!init) {
             // moved to ctor
