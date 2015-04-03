@@ -2866,21 +2866,20 @@ class _BlitzGateway (object):
         :param imageIds:    Image IDs list
         :return:            Dict of files 'count' and 'size'
         """
-
         params = omero.sys.ParametersI()
         params.addIds(imageIds)
-        query = "select distinct(link) from PixelsOriginalFileMap as link "\
-                "left outer join fetch link.parent as f "\
-                "left outer join link.child as pixels "\
-                "where pixels.image.id in (:ids)"
+        query = 'select count(link), sum(link.parent.size) '\
+                'from PixelsOriginalFileMap as link '\
+                'where link.id in ('\
+                '    select distinct(i_link.id) '\
+                '        from PixelsOriginalFileMap as i_link '\
+                '    where i_link.child.image.id in (:ids)'\
+                ')'
         queryService = self.getQueryService()
-        fsinfo = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
-        fsCount = len(fsinfo)
-        fsSize = sum([f.parent.getSize().val for f in fsinfo])
-        filesetFileInfo = {'fileset': False,
-                           'count': fsCount,
-                           'size': fsSize}
-        return filesetFileInfo
+        count, size = queryService.projection(query, params, self.SERVICE_OPTS)[0]
+        if size is None:
+            size = 0
+        return {'fileset': False, 'count': unwrap(count), 'size': unwrap(size)}
 
     ############################
     # Timeline service getters #
