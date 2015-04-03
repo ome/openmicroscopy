@@ -20,13 +20,13 @@
 module omero {
 
     module cmd {
-		
+
          /**
          * Requests a reset password for the given user.
          * 
          * examples:
          *  - omero.cmd.ResetPasswordRequest(omename, email)
-         * 		sends new password to the given user
+         *      sends new password to the given user
          **/
          class ResetPasswordRequest extends Request {
              string omename;
@@ -40,7 +40,7 @@ module omero {
          **/
          class ResetPasswordResponse extends Response {
          };
-        
+
     };
 };
 

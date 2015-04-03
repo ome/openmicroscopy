@@ -113,10 +113,14 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
     },
     'loggers': {
         'django.request': {  # Stop SQL debug from logging to main logger
-            'handlers': ['request_handler'],
+            'handlers': ['request_handler', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': False
         },
@@ -273,41 +277,33 @@ INTERNAL_SETTINGS_MAPPING = {
     "omero.web.webstart_admins_only":
         ["WEBSTART_ADMINS_ONLY", "false", parse_boolean, None],
 
-    # Internal email notification for admins
-    "omero.web.admins":
-        ["ADMINS",
-         '[]',
-         json.loads,
-         ("A tuple that lists people who get code error notifications. When "
-          ":property:`omero.web.debug` False and a view raises an exception, "
-          "Django will email these people with the full exception"
-          " information. Each member of the tuple should be a tuple of (Full"
-          " name, email address).")],
-    "omero.web.admins.server_email":
+    # Internal email notification for omero.web.admins,
+    # loaded from config.xml directly
+    "omero.mail.from":
         ["SERVER_EMAIL",
          None,
          identity,
          ("The email address that error messages come from, such as those"
           " sent to :property:`omero.web.admins`.  Requires EMAIL properties"
           " below.")],
-    "omero.web.admins.email_host":
+    "omero.mail.host":
         ["EMAIL_HOST",
          None,
          identity,
          "The SMTP server host to use for sending email."],
-    "omero.web.admins.email_host_password":
+    "omero.mail.password":
         ["EMAIL_HOST_PASSWORD",
          None,
          identity,
          "Password to use for the SMTP server."],
-    "omero.web.admins.email_host_user":
+    "omero.mail.username":
         ["EMAIL_HOST_USER",
          None,
          identity,
          "Username to use for the SMTP server."],
-    "omero.web.admins.email_port":
+    "omero.mail.port":
         ["EMAIL_PORT",
-         None,
+         25,
          identity,
          "Port to use for the SMTP server."],
     "omero.web.admins.email_subject_prefix":
@@ -315,7 +311,7 @@ INTERNAL_SETTINGS_MAPPING = {
          "[OMERO.web - admin notification]",
          str,
          "Subject-line prefix for email messages"],
-    "omero.web.admins.email_use_tls":
+    "omero.mail.smtp.starttls.enable":
         ["EMAIL_USE_TLS",
          "false",
          parse_boolean,
@@ -334,6 +330,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
          "false",
          parse_boolean,
          "A boolean that turns on/off debug mode."],
+    "omero.web.admins":
+        ["ADMINS",
+         '[]',
+         json.loads,
+         ("A list of people who get code error notifications whenever the "
+          "application identify broken link or raises an unhandled exception "
+          "that results in an internal server error. This gives the "
+          "administrators immediate notification of any errors, "
+          "see :doc:`/sysadmins/mail`. "
+          "Example:``'[[\"Full Name\", \"email address\"]]'``.")],
     "omero.web.application_server":
         ["APPLICATION_SERVER",
          DEFAULT_SERVER_TYPE,
@@ -381,7 +387,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
           "sessions vs. persistent sessions documentation <topics/http/"
           "sessions/#browser-length-vs-persistent-sessions>` for more "
           "details.")],
-
     "omero.web.caches":
         ["CACHES",
          ('{"default": {"BACKEND":'

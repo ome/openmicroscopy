@@ -874,7 +874,8 @@ class ImporterComponent
             if (l.size() > FileImportComponent.MAX_THUMBNAILS) {
                 l = l.subList(0, FileImportComponent.MAX_THUMBNAILS);
             }
-            model.fireImportResultLoading(l, klass, component);
+            model.fireImportResultLoading(l, klass, component,
+                    component.getImportableFile().getUser());
         }
 	}
 

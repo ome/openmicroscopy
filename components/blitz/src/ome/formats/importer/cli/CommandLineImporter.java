@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import loci.formats.in.DefaultMetadataOptions;
 import loci.formats.in.MetadataLevel;
@@ -332,9 +334,9 @@ public class CommandLineImporter {
             + "  --logs\t\t\t\tUpload log file (if any) with report. Required --report\n"
             + "  --email EMAIL\t\t\t\tEmail for reported errors. Required --report\n"
             + "  --debug LEVEL\t\t\t\tTurn debug logging on (optional level)\n"
-            + "  --annotation_ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
-            + "  --annotation_text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
-            + "  --annotation_link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
+            + "  --annotation-ns ANNOTATION_NS\t\tNamespace to use for subsequent annotation\n"
+            + "  --annotation-text ANNOTATION_TEXT\tContent for a text annotation (requires namespace)\n"
+            + "  --annotation-link ANNOTATION_LINK\tComment annotation ID to link all images to\n"
             + "\n"
             + "Examples:\n"
             + "\n"
@@ -344,7 +346,7 @@ public class CommandLineImporter {
             + "  $ %s -s localhost -u username -w password -d 50 --debug ALL foo.tiff\n"
             + "\n"
             + "For additional information, see:\n"
-            + "http://www.openmicroscopy.org/site/support/omero5/users/command-line-import.html\n"
+            + "http://www.openmicroscopy.org/site/support/omero5.1/users/cli/import.html\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>",
             APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME, APP_NAME));
         System.exit(1);
@@ -399,19 +401,19 @@ public class CommandLineImporter {
             + "\n"
             + "  Import speed:\n"
             + "  -------------\n\n"
-            + "    --checksum_algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption,\n"
+            + "    --checksum-algorithm=ARG\tChoose a possibly faster algorithm for detecting file corruption,\n"
             + "                            \te.g. Adler-32 (fast), CRC-32 (fast), File-Size-64 (fast),\n"
             + "                            \t     MD5-128, Murmur3-32, Murmur3-128,\n"
             + "                            \t     SHA1-160 (slow, default)\n\n"
-            + "  e.g. $ bin/omero import -- --checksum_algorithm=CRC-32 foo.tiff\n"
-            + "       $ ./importer-cli --checksum_algorithm=Murmur3-128 bar.tiff\n\n"
+            + "  e.g. $ bin/omero import -- --checksum-algorithm=CRC-32 foo.tiff\n"
+            + "       $ ./importer-cli --checksum-algorithm=Murmur3-128 bar.tiff\n\n"
             + "    --no-stats-info\t\tDisable calculation of minima and maxima"
             + " when as part of the Bio-Formats reader metadata\n\n"
             + "  e.g. $ bin/omero import -- --no-stats-info foo.tiff\n"
             + "       $ ./importer-cli --no-stats-info bar.tiff\n\n"
-		    + "  --no_thumbnails\t\tDo not perform thumbnailing after import\n\n"
-            + "  e.g. $ bin/omero import -- --no_thumbnails foo.tiff\n"
-            + "       $ ./importer-cli --no_thumbnails bar.tiff\n\n"
+            + "  --no-thumbnails\t\tDo not perform thumbnailing after import\n\n"
+            + "  e.g. $ bin/omero import -- --no-thumbnails foo.tiff\n"
+            + "       $ ./importer-cli --no-thumbnails bar.tiff\n\n"
             + "    --no-upgrade-check\t\tDisable upgrade check for each import\n"
             + "  e.g. $ bin/omero import -- --no-upgrade-check foo.tiff\n"
             + "       $ ./importer-cli --no-upgrade-check bar.tiff\n\n"
@@ -419,8 +421,12 @@ public class CommandLineImporter {
             + "  Feedback:\n"
             + "  ---------\n\n"
             + "    --qa-baseurl=ARG\tSpecify the base URL for reporting feedback\n"
-            + "  e.g. $ bin/omero import -- --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
-            + "       $ ./importer-cli --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "  e.g. $ bin/omero import broken_image.tif"
+            + " -- --email EMAIL --report --upload --logs"
+            + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
+            + "       $ ./importer-cli broken_image.tif"
+            + " --email EMAIL --report --upload --logs"
+            + " --qa-baseurl=https://qa.staging.openmicroscopy.org/qa\n"
             + "\n"
             + "Report bugs to <ome-users@lists.openmicroscopy.org.uk>");
         System.exit(1);
@@ -497,16 +503,16 @@ public class CommandLineImporter {
         LongOpt description = new LongOpt(
                 "description", LongOpt.REQUIRED_ARGUMENT, null, 7);
         LongOpt noThumbnails = new LongOpt(
-                "no_thumbnails", LongOpt.NO_ARGUMENT, null, 8);
+                "no-thumbnails", LongOpt.NO_ARGUMENT, null, 8);
         LongOpt agent = new LongOpt(
                 "agent", LongOpt.REQUIRED_ARGUMENT, null, 9);
         LongOpt annotationNamespace =
-            new LongOpt("annotation_ns", LongOpt.REQUIRED_ARGUMENT, null, 10);
+            new LongOpt("annotation-ns", LongOpt.REQUIRED_ARGUMENT, null, 10);
         LongOpt annotationText =
-            new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT,
+            new LongOpt("annotation-text", LongOpt.REQUIRED_ARGUMENT,
                         null, 11);
         LongOpt annotationLink =
-            new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
+            new LongOpt("annotation-link", LongOpt.REQUIRED_ARGUMENT,
                         null, 12);
 
         // ADVANCED OPTIONS
@@ -515,7 +521,7 @@ public class CommandLineImporter {
         LongOpt transferOpt =
                 new LongOpt("transfer", LongOpt.REQUIRED_ARGUMENT, null, 14);
         LongOpt checksumAlgorithm =
-                new LongOpt("checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
+                new LongOpt("checksum-algorithm", LongOpt.REQUIRED_ARGUMENT, null, 15);
         LongOpt minutesWait =
                 new LongOpt("minutes_wait", LongOpt.REQUIRED_ARGUMENT, null, 16);
         LongOpt closeCompleted =
@@ -540,6 +546,16 @@ public class CommandLineImporter {
                 "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 90);
         LongOpt plateDescription = new LongOpt(
                 "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 91);
+        LongOpt noThumbnailsDeprecated = new LongOpt(
+                "no_thumbnails", LongOpt.NO_ARGUMENT, null, 92);
+        LongOpt checksumAlgorithmDeprecated = new LongOpt(
+                "checksum_algorithm", LongOpt.REQUIRED_ARGUMENT, null, 93);
+        LongOpt annotationNamespaceDeprecated =
+            new LongOpt("annotation_ns", LongOpt.REQUIRED_ARGUMENT, null, 94);
+        LongOpt annotationTextDeprecated =
+            new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT, null, 95);
+        LongOpt annotationLinkDeprecated =
+            new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT, null, 96);
 
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
@@ -549,8 +565,14 @@ public class CommandLineImporter {
                                 checksumAlgorithm, minutesWait,
                                 closeCompleted, waitCompleted, autoClose,
                                 exclude, noStatsInfo,
-                                noUpgradeCheck, qaBaseURL, plateName,
-                                plateDescription});
+                                noUpgradeCheck, qaBaseURL,
+                                plateName, plateDescription,
+                                noThumbnailsDeprecated,
+                                checksumAlgorithmDeprecated,
+                                annotationNamespaceDeprecated,
+                                annotationTextDeprecated,
+                                annotationLinkDeprecated
+                                });
         int a;
 
         boolean doCloseCompleted = false;
@@ -558,10 +580,11 @@ public class CommandLineImporter {
         boolean getUsedFiles = false;
         config.agent.set("importer-cli");
 
-        // Once one of the properties has been set, setting the other
-        // is likely a bug and so we'll through an exception.
-        boolean userSpecifiedNameAlreadySet = false;
-        boolean userSpecifiedDescriptionAlreadySet = false;
+        // Create a map for handling conflicting option strings
+        Map<String, Boolean> conflictingArguments = new HashMap<String, Boolean>();
+        conflictingArguments.put("userSpecifiedName", false);
+        conflictingArguments.put("userSpecifiedDescription", false);
+        conflictingArguments.put("checksumAlgorithm", false);
 
         List<String> annotationNamespaces = new ArrayList<String>();
         List<String> textAnnotations = new ArrayList<String>();
@@ -590,25 +613,19 @@ public class CommandLineImporter {
                 break;
             }
             case 6: {
-                if (userSpecifiedNameAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
-                userSpecifiedNameAlreadySet = true;
                 break;
             }
             case 7: {
-                if (userSpecifiedDescriptionAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
-                userSpecifiedDescriptionAlreadySet = true;
                 break;
             }
             case 8: {
-              log.info("Skipping thumbnails creation");
-              config.doThumbnails.set(false);
-              break;
+                log.info("Skipping thumbnails creation");
+                config.doThumbnails.set(false);
+                break;
             }
             case 9: {
                 config.agent.set(g.getOptarg());
@@ -639,6 +656,7 @@ public class CommandLineImporter {
                 break;
             }
             case 15: {
+                setArgument(conflictingArguments, "checksumAlgorithm");
                 String arg = g.getOptarg();
                 log.info("Setting checksum algorithm to {}", arg);
                 config.checksumAlgorithm.set(arg);
@@ -688,19 +706,37 @@ public class CommandLineImporter {
             // ADVANCED END ---------------------------------------------------
             // DEPRECATED OPTIONS
             case 90: {
-                if (userSpecifiedNameAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
-                userSpecifiedNameAlreadySet = true;
                 break;
             }
             case 91: {
-                if (userSpecifiedDescriptionAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
-                userSpecifiedDescriptionAlreadySet = true;
+                break;
+            }
+            case 92: {
+                log.info("Skipping thumbnails creation");
+                config.doThumbnails.set(false);
+                break;
+            }
+            case 93: {
+                setArgument(conflictingArguments, "checksumAlgorithm");
+                String arg = g.getOptarg();
+                log.info("Setting checksum algorithm to {}", arg);
+                config.checksumAlgorithm.set(arg);
+                break;
+            }
+            case 94: {
+                annotationNamespaces.add(g.getOptarg());
+                break;
+            }
+            case 95: {
+                textAnnotations.add(g.getOptarg());
+                break;
+            }
+            case 96: {
+                annotationIds.add(Long.parseLong(g.getOptarg()));
                 break;
             }
             // END OF DEPRECATED OPTIONS
@@ -745,19 +781,15 @@ public class CommandLineImporter {
                 break;
             }
             case 'n': {
-                if (userSpecifiedNameAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedName");
                 config.userSpecifiedName.set(g.getOptarg());
-                userSpecifiedNameAlreadySet = true;
-                break;            }
+                break;
+            }
             case 'x': {
-                if (userSpecifiedDescriptionAlreadySet) {
-                    usage();
-                }
+                setArgument(conflictingArguments, "userSpecifiedDescription");
                 config.userSpecifiedDescription.set(g.getOptarg());
-                userSpecifiedDescriptionAlreadySet = true;
-                break;            }
+                break;
+            }
             case 'f': {
                 getUsedFiles = true;
                 break;
@@ -833,6 +865,21 @@ public class CommandLineImporter {
             }
         }
         System.exit(rc);
+    }
+
+    /**
+     * Set a conflicting argument and return the usage if the key is already
+     * set
+     * @param map map of conflicting properties
+     * @param key configuration property to be set
+     */
+    public static void setArgument(Map <String, Boolean> map, String key) {
+        if (map.get(key)) {
+            // The property has already been set
+            log.error("Conflicting arguments setting {}.", key);
+            usage();
+        }
+        map.put(key, true);
     }
 
     /**

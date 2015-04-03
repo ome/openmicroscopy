@@ -842,7 +842,7 @@ public interface SqlAction {
                             rm, lastEventId, rows);
                 } else {
                     return _jdbc().query(
-                            _lookup("find_next_pixels_data__per_user_for_repo"), // $NON-NLS-1$
+                            _lookup("find_next_pixels_data_per_user_for_repo"), // $NON-NLS-1$
                             rm, lastEventId, repo, rows);
                 }
             } catch (EmptyResultDataAccessException erdae) {

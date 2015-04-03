@@ -48,7 +48,7 @@ module omero {
          *     proc.close(False)
          *
          * </pre>
-         * See <a href="http://www.openmicroscopy.org/site/support/omero5/developers/scripts/">OMERO.scripts</a> for more information.
+         * See <a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/scripts/">OMERO.scripts</a> for more information.
          **/
         ["ami","amd"] interface IScript extends ServiceInterface
             {
@@ -134,7 +134,7 @@ module omero {
                  * Modify the text for the given script object.
                  *
                  * @param script see above.
-                 * @throw  ApiUsageException
+                 * @throws ApiUsageException
                  * @throws SecurityViolation
                  **/
                 void editScript(omero::model::OriginalFile fileObject, string scriptText) throws ServerError;

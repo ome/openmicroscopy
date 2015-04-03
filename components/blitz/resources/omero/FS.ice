@@ -13,7 +13,7 @@
 module omero {
  module grid {
   module monitors {
-      
+
     /*
      *  ==========================
      *  MonitorClient Declarations

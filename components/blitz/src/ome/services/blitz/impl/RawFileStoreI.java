@@ -61,6 +61,11 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.sf = sf;
+        setHolder(sf.holder);
+    }
+
+    public ServiceFactoryI getServiceFactory() throws ServerError {
+        return this.sf;
     }
 
     public void setTie(TieBase tie) throws ServerError {
@@ -182,6 +187,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         final RawFileStorePrx rfsPrx = repoPrx.fileById(fileId, adjustedCtx);
         OpsDelegate ops = new OpsDelegate(be, rfsTie, this, rfsPrx);
         ops.setApplicationContext(ctx);
+        ops.setHolder(holder);
         tie.ice_delegate(ops);
         return true;
     }

@@ -161,11 +161,6 @@ module omero {
 
             // Central OMERO.blitz stateful services.
 
-            /**
-             * The gateway service provided here is deprecated in OMERO 4.3
-             * see <a href="http://trac.openmicroscopy.org.uk/ome/wiki/Api/DeprecatedServices">Deprecated Services</a>
-             * for more information and alternative usage.
-             **/
             Exporter*        createExporter() throws ServerError;
             JobHandle*       createJobHandle() throws ServerError;
             RawFileStore*    createRawFileStore() throws ServerError;
@@ -180,8 +175,8 @@ module omero {
              * Returns a reference to a back-end manager. The [omero::grid::SharedResources]
              * service provides look ups for various facilities offered by OMERO:
              * <ul>
-             *   <li><a href="http://www.openmicroscopy.org/site/support/omero5/developers/scripts/">OMERO.scripts</a>
-             *   <li><a href="http://www.openmicroscopy.org/site/support/omero5/developers/Tables.html">OMERO.tables</a>
+             *   <li><a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/scripts/">OMERO.scripts</a>
+             *   <li><a href="http://www.openmicroscopy.org/site/support/omero5.1/developers/Tables.html">OMERO.tables</a>
              * </ul>
              * These facilities may or may not be available on first request.
              *

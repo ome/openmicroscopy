@@ -41,10 +41,12 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import loci.common.Constants;
 import loci.common.RandomAccessInputStream;
 import loci.common.RandomAccessOutputStream;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
+import ome.services.blitz.util.CurrentPlatform;
 import ome.specification.OmeValidator;
 import ome.specification.SchemaResolver;
 import ome.specification.XMLMockObjects;
@@ -99,10 +101,10 @@ public class ExporterTest extends AbstractServerTest {
     private static final int INC = 262144;
 
     /** The catalog file to find. */
-    private static final String CATALOG = "/transforms/ome-transforms.xml";
+    private static final String CATALOG = "ome-transforms.xml";
 
-    /** The conversion file to find. */
-    private static final String UNITS_CONVERSION = "/transforms/units-conversion.xsl";
+    /** The conversion file to find.*/
+    private static final String UNITS_CONVERSION = "units-conversion.xsl";
 
     /** The <i>name</i> attribute. */
     private static final String CURRENT = "current";
@@ -149,6 +151,9 @@ public class ExporterTest extends AbstractServerTest {
     /** The current schema.*/
     private String currentSchema;
 
+    /** Flag indicating if the platform is Windows or not.*/
+    private boolean windowsOS;
+
     /**
      * Validates the specified input.
      *
@@ -182,33 +187,37 @@ public class ExporterTest extends AbstractServerTest {
         File output;
         InputStream in = null;
         OutputStream out = null;
-        try {
-            while (i.hasNext()) {
-                stream = i.next();
+        Resolver resolver = null;
+        while (i.hasNext()) {
+            stream = i.next();
+            try {
                 factory = TransformerFactory.newInstance();
-                Resolver resolver = new Resolver();
+                resolver = new Resolver();
                 factory.setURIResolver(resolver);
-                output = File.createTempFile(RandomStringUtils.random(10), "."
-                        + OME_XML);
+                output = File.createTempFile(
+                        RandomStringUtils.random(100, false, true),
+                        "."+ OME_XML);
                 output.deleteOnExit();
                 Source src = new StreamSource(stream);
                 Templates template = factory.newTemplates(src);
                 transformer = template.newTransformer();
-                transformer.setParameter(OutputKeys.ENCODING, "UTF-8");
+                transformer.setParameter(OutputKeys.ENCODING, Constants.ENCODING);
                 out = new FileOutputStream(output);
                 in = new FileInputStream(inputXML);
                 transformer.transform(new StreamSource(in),
                         new StreamResult(out));
                 inputXML = output;
-                stream.close();
-                out.close();
-                in.close();
-                resolver.close();
+            } catch (Exception e) {
+                throw new Exception("Cannot apply transform", e);
+            } finally {
+                if (stream != null) stream.close();
+                if (out != null) out.close();
+                if (in != null) in.close();
+                if (resolver != null) resolver.close();
             }
-        } catch (Exception e) {
-            throw new Exception("Cannot apply transform", e);
         }
-        File f = File.createTempFile(RandomStringUtils.random(10), "."+ OME_XML);
+        File f = File.createTempFile(
+                RandomStringUtils.random(100, false, true), "."+ OME_XML);
         FileUtils.copyFile(inputXML, f);
         return f;
     }
@@ -255,8 +264,8 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Image createImageWithROIToExport() throws Exception {
       //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "."+ OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithROI(), true);
@@ -281,8 +290,8 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Image createImageWithAnnotatedDataToExport() throws Exception {
         //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "."+ OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAnnotatedAcquisitionData(), true);
@@ -307,8 +316,8 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Image createImageToExport() throws Exception {
         //create an import and image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "." + OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
@@ -335,6 +344,7 @@ public class ExporterTest extends AbstractServerTest {
         super.setUp();
         upgrades = new HashMap<String, List<String>>();
         downgrades = currentSchema();
+        windowsOS = CurrentPlatform.isWindows();
     }
 
     /**
@@ -477,8 +487,8 @@ public class ExporterTest extends AbstractServerTest {
             throws Exception
     {
         // First create an image
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-                + OME_XML);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "." + OME_XML);
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         if (index == IMAGE_ROI) {
@@ -514,8 +524,8 @@ public class ExporterTest extends AbstractServerTest {
         } else {
             image = createImageToExport();
         }
-        File f = File.createTempFile(RandomStringUtils.random(10), "."
-               + extension);
+        File f = File.createTempFile(RandomStringUtils.random(100, false, true),
+                "."+ extension);
         FileOutputStream stream = new FileOutputStream(f);
         ExporterPrx store = null;
         try {
@@ -657,7 +667,7 @@ public class ExporterTest extends AbstractServerTest {
      */
     private Map<String, List<String>> currentSchema() throws Exception
     {
-        InputStream stream = this.getClass().getResourceAsStream(CATALOG);
+        InputStream stream = getStream(CATALOG);
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -695,8 +705,7 @@ public class ExporterTest extends AbstractServerTest {
             List<InputStream> streams = new ArrayList<InputStream>();
             j = l.iterator();
             while (j.hasNext()) {
-                streams.add(this.getClass().getResourceAsStream(
-                        "/transforms/"+j.next()));
+                streams.add(getStream(j.next()));
             }
             targets.add(new Target(streams, e.getKey()));
         }
@@ -728,6 +737,21 @@ public class ExporterTest extends AbstractServerTest {
     }
 
     /**
+     * Retrieve the input stream.
+     *
+     * @param name The name of the stream.
+     * @return See above.
+     */
+    private InputStream getStream(String name)
+    {
+        if (windowsOS) {
+            return this.getClass().getClassLoader().getResourceAsStream(
+                    "transforms/"+name);
+        }
+        return this.getClass().getResourceAsStream("/transforms/"+name);
+    }
+
+    /**
      * Returns the list of transformations to generate the file to upgrade.
      *
      * @param target The schema to start from for the upgrade.
@@ -740,8 +764,7 @@ public class ExporterTest extends AbstractServerTest {
         List<InputStream> streams = new ArrayList<InputStream>();
         Iterator<String> j = list.iterator();
         while (j.hasNext()) {
-            streams.add(this.getClass().getResourceAsStream(
-                    "/transforms/"+j.next()));
+            streams.add(getStream(j.next()));
         }
         return streams;
     }
@@ -958,37 +981,33 @@ public class ExporterTest extends AbstractServerTest {
         File f = null;
         File transformed = null;
         File inputXML = null;
-        File transformedXML = null;
-        File result = null;
         RandomAccessInputStream in = null;
         RandomAccessOutputStream out = null;
+        RandomAccessOutputStream tiffOutput = null;
+        File tiffXML = null;
         try {
             f = export(OME_TIFF, IMAGE);
             //extract XML and copy to tmp file
-            TiffParser parser = new TiffParser(f.getAbsolutePath());
-            inputXML = File.createTempFile(RandomStringUtils.random(10),
-                    "." + OME_XML);
-            FileUtils.writeStringToFile(inputXML, parser.getComment());
+            String path = f.getAbsolutePath();
+            TiffParser parser = new TiffParser(path);
+            inputXML = File.createTempFile(RandomStringUtils.random(100, false,
+                    true),"." + OME_XML);
+            FileUtils.writeStringToFile(inputXML, parser.getComment(),
+                    Constants.ENCODING);
             //transform XML
             transformed = applyTransforms(inputXML, target.getTransforms());
-            //Generate OME-TIFF
-            result = File.createTempFile(RandomStringUtils.random(10), "."
-                    + OME_TIFF);
-            FileUtils.copyFile(f, result);
-            String path = result.getAbsolutePath();
-            TiffSaver saver = new TiffSaver(path);
+            validate(transformed);
+            String comment = FileUtils.readFileToString(transformed,
+                    Constants.ENCODING);
+
+            tiffOutput = new RandomAccessOutputStream(path);
+            TiffSaver saver = new TiffSaver(tiffOutput, path);
             saver.setBigTiff(parser.isBigTiff());
             in = new RandomAccessInputStream(path);
-            saver.overwriteComment(in, FileUtils.readFileToString(transformed));
-            
-            //validate the OME-TIFF
-            parser = new TiffParser(result.getAbsolutePath());
-            transformedXML = File.createTempFile(RandomStringUtils.random(10),
-                    "." + OME_XML);
-            FileUtils.writeStringToFile(transformedXML, parser.getComment());
-            validate(transformedXML);
+            saver.overwriteComment(in, comment);
+            tiffOutput.close();
             //import the file
-            importFile(result, OME_XML);
+            importFile(f, OME_TIFF);
         } catch (Throwable e) {
             throw new Exception("Cannot downgrade image: "+target.getSource(),
                     e);
@@ -996,9 +1015,8 @@ public class ExporterTest extends AbstractServerTest {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
             if (inputXML != null) inputXML.delete();
-            if (result != null) result.delete();
-            if (transformedXML != null) transformedXML.delete();
             if (in != null) in.close();
+            if (tiffXML != null) tiffXML.delete();
         }
     }
 
@@ -1066,7 +1084,6 @@ public class ExporterTest extends AbstractServerTest {
      * Test the upgrade of an image with annotated acquisition.
      * @throws Exception Thrown if an error occurred.
      */
-
     @Test(dataProvider = "createUpgrade")
     public void testUpgradeImageWithAnnotatedAcquisition(Target target) throws Exception {
         File f = null;
@@ -1086,6 +1103,100 @@ public class ExporterTest extends AbstractServerTest {
         } catch (Throwable e) {
             throw new Exception("Cannot upgrade image: "+target.getSource(),
                     e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
+        }
+    }
+
+    // Path not in ome-transforms but stylesheets are available
+    /**
+     * Test the upgrade of an image from 2003-FC to 2008-09.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testUpgradeImage2003FCto200809() throws Exception
+    {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = createImageFile(IMAGE); //2015 image
+            List<InputStream> transforms = retrieveDowngrade("2003-FC");
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file to 2008-09
+            List<InputStream> upgrades = new ArrayList<InputStream>();
+            upgrades.add(getStream("2003-FC-to-2008-09.xsl"));
+            upgraded = applyTransforms(transformed, upgrades);
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot transform image to 2008-09", e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
+        }
+    }
+
+    /**
+     * Test the upgrade of an image from 2007-06 to 2008-02.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testUpgradeImage200706to200802() throws Exception
+    {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = createImageFile(IMAGE); //2015 image
+            List<InputStream> transforms = retrieveDowngrade("2007-06");
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file to 2008-02
+            List<InputStream> upgrades = new ArrayList<InputStream>();
+            upgrades.add(getStream("2007-06-to-2008-02.xsl"));
+            upgraded = applyTransforms(transformed, upgrades);
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot transform image to 2008-02", e);
+        } finally {
+            if (f != null) f.delete();
+            if (transformed != null) transformed.delete();
+            if (upgraded != null) upgraded.delete();
+        }
+    }
+
+    /**
+     * Test the upgrade of an image from 2007-06 to 2008-09.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testUpgradeImage200706to200809() throws Exception
+    {
+        File f = null;
+        File transformed = null;
+        File upgraded = null;
+        try {
+            f = createImageFile(IMAGE); //2015 image
+            List<InputStream> transforms = retrieveDowngrade("2007-06");
+            //Create file to upgrade
+            transformed = applyTransforms(f, transforms);
+            //now upgrade the file to 2008-09
+            List<InputStream> upgrades = new ArrayList<InputStream>();
+            upgrades.add(getStream("2007-06-to-2008-09.xsl"));
+            upgraded = applyTransforms(transformed, upgrades);
+            //validate the file
+            validate(upgraded);
+            //import the file
+            importFile(upgraded, OME_XML);
+        } catch (Throwable e) {
+            throw new Exception("Cannot transform image to 2008-09", e);
         } finally {
             if (f != null) f.delete();
             if (transformed != null) transformed.delete();
@@ -1144,7 +1255,7 @@ public class ExporterTest extends AbstractServerTest {
         @Override
         public Source resolve(String href, String base)
                 throws TransformerException {
-            stream = this.getClass().getResourceAsStream(UNITS_CONVERSION);
+            stream = getStream(UNITS_CONVERSION);
             return new StreamSource(stream);
         }
     }

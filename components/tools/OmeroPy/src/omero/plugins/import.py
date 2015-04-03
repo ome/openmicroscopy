@@ -60,8 +60,7 @@ Examples:
   $ bin/omero import -- --debug=ERROR foo.tiff
 
 For additional information, see:
-http://www.openmicroscopy.org/site/support/omero5/users/\
-command-line-import.html
+http://www.openmicroscopy.org/site/support/omero5.1/users/cli/import.html
 Report bugs to <ome-users@lists.openmicroscopy.org.uk>
 """
 TESTHELP = """Run the Importer TestEngine suite (devs-only)"""
@@ -104,6 +103,13 @@ class ImportControl(BaseControl):
             "-x", "--description", dest="java_description",
             help="Image or plate description to use (**)",
             metavar="DESCRIPTION")
+        # Deprecated naming arguments
+        name_group.add_argument(
+            "--plate_name", dest="java_plate_name",
+            help=SUPPRESS)
+        name_group.add_argument(
+            "--plate_description", dest="java_plate_description",
+            help=SUPPRESS)
 
         # Feedback options
         feedback_group = parser.add_argument_group(
@@ -129,13 +135,29 @@ class ImportControl(BaseControl):
             "--qa-baseurl", dest="java_qa_baseurl",
             help=SUPPRESS)
 
-        # DEPRECATED OPTIONS
-        deprecated_name_group = parser.add_argument_group()
-        deprecated_name_group.add_argument(
-            "--plate_name", dest="java_plate_name",
+        # Annotation options
+        annotation_group = parser.add_argument_group(
+            'Annotation arguments',
+            'Optional arguments passed strictly to Java allowing to annotate'
+            ' imports.')
+        annotation_group.add_argument(
+            "--annotation-ns", dest="java_ns", metavar="ANNOTATION_NS",
+            help="Namespace to use for subsequent annotation (**)")
+        annotation_group.add_argument(
+            "--annotation-text", dest="java_text", metavar="ANNOTATION_TEXT",
+            help="Content for a text annotation (requires namespace) (**)")
+        annotation_group.add_argument(
+            "--annotation-link", dest="java_link",
+            metavar="ANNOTATION_LINK",
+            help="Comment annotation ID to link all images to (**)")
+        annotation_group.add_argument(
+            "--annotation_ns", dest="java_ns", metavar="ANNOTATION_NS",
             help=SUPPRESS)
-        deprecated_name_group.add_argument(
-            "--plate_description", dest="java_plate_description",
+        annotation_group.add_argument(
+            "--annotation_text", dest="java_text", metavar="ANNOTATION_TEXT",
+            help=SUPPRESS)
+        annotation_group.add_argument(
+            "--annotation_link", dest="java_link", metavar="ANNOTATION_LINK",
             help=SUPPRESS)
 
         java_group = parser.add_argument_group(
@@ -162,18 +184,6 @@ class ImportControl(BaseControl):
             "--debug", choices=DEBUG_CHOICES, dest="java_debug",
             help="Turn debug logging on (**)",
             metavar="LEVEL")
-        java_group.add_argument(
-            "--annotation-ns", "--annotation_ns", dest="java_ns",
-            metavar="ANNOTATION_NS",
-            help="Namespace to use for subsequent annotation (**)")
-        java_group.add_argument(
-            "--annotation-text", "--annotation_text", dest="java_text",
-            metavar="ANNOTATION_TEXT",
-            help="Content for a text annotation (requires namespace) (**)")
-        java_group.add_argument(
-            "--annotation-link", "--annotation_link", dest="java_link",
-            metavar="ANNOTATION_LINK",
-            help="Comment annotation ID to link all images to (**)")
 
         parser.add_argument(
             "--depth", default=4, type=int,
@@ -206,9 +216,9 @@ class ImportControl(BaseControl):
             return
 
         if ('all' in args.skip or 'checksum' in args.skip):
-            self.command_args.append("--checksum_algorithm=File-Size-64")
+            self.command_args.append("--checksum-algorithm=File-Size-64")
         if ('all' in args.skip or 'thumbnails' in args.skip):
-            self.command_args.append("--no_thumbnails")
+            self.command_args.append("--no-thumbnails")
         if ('all' in args.skip or 'minmax' in args.skip):
             self.command_args.append("--no-stats-info")
         if ('all' in args.skip or 'upgrade' in args.skip):
@@ -235,9 +245,9 @@ class ImportControl(BaseControl):
             "java_email": ("--email"),
             "java_debug": ("--debug",),
             "java_qa_baseurl": ("--qa-baseurl",),
-            "java_ns": "--annotation_ns",
-            "java_text": "--annotation_text",
-            "java_link": "--annotation_link",
+            "java_ns": "--annotation-ns",
+            "java_text": "--annotation-text",
+            "java_link": "--annotation-link",
             "java_advanced_help": "--advanced-help",
             }
 

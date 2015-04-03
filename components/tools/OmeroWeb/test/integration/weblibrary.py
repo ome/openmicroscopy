@@ -77,7 +77,7 @@ class IWebTest(lib.ITest):
 # Helpers
 def _post_response(django_client, request_url, data, status_code=403):
     response = django_client.post(request_url, data=data)
-    assert response.status_code == status_code
+    assert response.status_code == status_code, response
     return response
 
 
@@ -90,7 +90,7 @@ def _csrf_post_response(django_client, request_url, data, status_code=200):
 def _get_response(django_client, request_url, query_string, status_code=405):
     query_string = urlencode(query_string.items())
     response = django_client.get('%s?%s' % (request_url, query_string))
-    assert response.status_code == status_code
+    assert response.status_code == status_code, response
     return response
 
 

@@ -69,7 +69,7 @@
   Developing OMERO.insight
   ------------------------
 
-  See http://www.openmicroscopy.org/site/support/omero5/developers/index.html#insight
+  See http://www.openmicroscopy.org/site/support/omero5.1/developers/index.html#insight
 
 
 
