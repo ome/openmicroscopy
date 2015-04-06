@@ -1129,7 +1129,7 @@ public class AdminServiceTest extends AbstractServerTest {
      * Test the group removal prohibitions of
      * {@link ome.api.IAdmin#removeGroups(ome.model.meta.Experimenter, ome.model.meta.ExperimenterGroup...)}.
      * Specifically, test this claim from the Javadoc:
-     * <q>An experimenter may not remove themself from the user or system group.</q>
+     * <q>An experimenter may not remove himself/herself from the user or system group.</q>
      * @throws Exception unexpected
      */
     @Test
