@@ -8,6 +8,7 @@ package integration;
 
 import static omero.rtypes.rbool;
 import static omero.rtypes.rstring;
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
@@ -82,17 +83,17 @@ public class AdminServiceTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         ExperimenterGroup group = svc.lookupGroup(USER_GROUP);
         assertNotNull(group);
-        assertTrue(group.getName().getValue().equals(USER_GROUP));
+        assertEquals(group.getName().getValue(), USER_GROUP);
         GroupData data = new GroupData(group);
-        assertTrue(data.getId() == group.getId().getValue());
-        assertTrue(data.getName() == group.getName().getValue());
+        assertEquals(data.getId(), group.getId().getValue());
+        assertEquals(data.getName(), group.getName().getValue());
         group = svc.lookupGroup(SYSTEM_GROUP);
         assertNotNull(group);
-        assertTrue(group.getName().getValue().equals(SYSTEM_GROUP));
+        assertEquals(group.getName().getValue(), SYSTEM_GROUP);
         // Test the conversion into the corresponding POJO
         data = new GroupData(group);
-        assertTrue(data.getId() == group.getId().getValue());
-        assertTrue(data.getName() == group.getName().getValue());
+        assertEquals(data.getId(), group.getId().getValue());
+        assertEquals(data.getName(), group.getName().getValue());
     }
 
     /**
@@ -110,8 +111,8 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // Test the conversion into the corresponding POJO
         ExperimenterData data = new ExperimenterData(exp);
-        assertTrue(data.getId() == exp.getId().getValue());
-        assertTrue(data.getUserName() == exp.getOmeName().getValue());
+        assertEquals(data.getId(), exp.getId().getValue());
+        assertEquals(data.getUserName(), exp.getOmeName().getValue());
     }
 
     /**
@@ -152,7 +153,7 @@ public class AdminServiceTest extends AbstractServerTest {
                 "select distinct g from ExperimenterGroup g where g.id = :id",
                 p);
         assertNotNull(eg);
-        assertTrue(eg.getName().getValue().equals(uuid));
+        assertEquals(eg.getName().getValue(), uuid);
         // test permissions
         Permissions perms = eg.getDetails().getPermissions();
         assertTrue(perms.isUserRead());
@@ -186,7 +187,7 @@ public class AdminServiceTest extends AbstractServerTest {
                 "select distinct g from ExperimenterGroup g where g.id = :id",
                 p);
         assertNotNull(eg);
-        assertTrue(eg.getName().getValue().equals(uuid));
+        assertEquals(eg.getName().getValue(), uuid);
         // test permissions
         Permissions perms = eg.getDetails().getPermissions();
         assertTrue(perms.isUserRead());
@@ -220,7 +221,7 @@ public class AdminServiceTest extends AbstractServerTest {
                 "select distinct g from ExperimenterGroup g where g.id = :id",
                 p);
         assertNotNull(eg);
-        assertTrue(eg.getName().getValue().equals(uuid));
+        assertEquals(eg.getName().getValue(), uuid);
         // test permissions
         Permissions perms = eg.getDetails().getPermissions();
         assertTrue(perms.isUserRead());
@@ -272,7 +273,7 @@ public class AdminServiceTest extends AbstractServerTest {
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
         assertNotNull(e);
-        assertTrue(e.getOmeName().getValue().equals(uuid));
+        assertEquals(e.getOmeName().getValue(), uuid);
         // now check if the user is in correct groups.
         List<Long> ids = new ArrayList<Long>();
         ids.add(groupId);
@@ -293,7 +294,7 @@ public class AdminServiceTest extends AbstractServerTest {
             if (geMap.getChild().getId().getValue() == id)
                 count++;
         }
-        assertTrue(count == 2);
+        assertEquals(count, 2);
     }
 
     /**
@@ -338,7 +339,7 @@ public class AdminServiceTest extends AbstractServerTest {
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
         assertNotNull(e);
-        assertTrue(e.getOmeName().getValue().equals(uuid));
+        assertEquals(e.getOmeName().getValue(), uuid);
         // now check if the user is in correct groups.
         List<Long> ids = new ArrayList<Long>();
         ids.add(groupId);
@@ -359,7 +360,7 @@ public class AdminServiceTest extends AbstractServerTest {
             if (geMap.getChild().getId().getValue() == id)
                 count++;
         }
-        assertTrue(count == 2);
+        assertEquals(count, 2);
     }
 
     /**
@@ -413,7 +414,7 @@ public class AdminServiceTest extends AbstractServerTest {
             if (geMap.getChild().getId().getValue() == id)
                 count++;
         }
-        assertTrue(count == 2);
+        assertEquals(count, 2);
     }
 
     /**
@@ -477,9 +478,9 @@ public class AdminServiceTest extends AbstractServerTest {
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
         assertNotNull(e);
-        assertTrue(e.getOmeName().getValue().equals(uuid));
-        assertTrue(e.getFirstName().getValue().equals(name));
-        assertTrue(e.getLastName().getValue().equals(name));
+        assertEquals(e.getOmeName().getValue(), uuid);
+        assertEquals(e.getFirstName().getValue(), name);
+        assertEquals(e.getLastName().getValue(), name);
     }
 
     /**
@@ -529,9 +530,9 @@ public class AdminServiceTest extends AbstractServerTest {
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
         assertNotNull(e);
-        assertTrue(e.getOmeName().getValue().equals(uuid));
-        assertTrue(e.getFirstName().getValue().equals(name));
-        assertTrue(e.getLastName().getValue().equals(name));
+        assertEquals(e.getOmeName().getValue(), uuid);
+        assertEquals(e.getFirstName().getValue(), name);
+        assertEquals(e.getLastName().getValue(), name);
     }
 
     /**
@@ -582,9 +583,9 @@ public class AdminServiceTest extends AbstractServerTest {
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
         assertNotNull(e);
-        assertTrue(e.getOmeName().getValue().equals(uuid));
-        assertTrue(e.getFirstName().getValue().equals(name));
-        assertTrue(e.getLastName().getValue().equals(name));
+        assertEquals(e.getOmeName().getValue(), uuid);
+        assertEquals(e.getFirstName().getValue(), name);
+        assertEquals(e.getLastName().getValue(), name);
     }
 
     /**
@@ -667,7 +668,7 @@ public class AdminServiceTest extends AbstractServerTest {
         long id = svc.createExperimenter(e, eg1, groups);
         e = svc.lookupExperimenter(uuid1);
         List<GroupExperimenterMap> links = e.copyGroupExperimenterMap();
-        assertTrue(groups.get(0).getId().getValue() == eg1.getId().getValue());
+        assertEquals(groups.get(0).getId().getValue(), eg1.getId().getValue());
         svc.setDefaultGroup(e, eg2);
 
         e = svc.lookupExperimenter(uuid1);
@@ -676,7 +677,7 @@ public class AdminServiceTest extends AbstractServerTest {
         for (GroupExperimenterMap link : links) {
             groups.add(link.getParent());
         }
-        assertTrue(groups.get(0).getId().getValue() == eg2.getId().getValue());
+        assertEquals(groups.get(0).getId().getValue(), eg2.getId().getValue());
     }
 
     /**
@@ -1708,7 +1709,7 @@ public class AdminServiceTest extends AbstractServerTest {
             if (geMap.getChild().getId().getValue() == id)
                 count++;
         }
-        assertTrue(count == 3);
+        assertEquals(count, 3);
     }
 
     /**
