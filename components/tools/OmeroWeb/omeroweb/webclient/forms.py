@@ -56,7 +56,7 @@ help_wiki_c = '<span id="markup_c" data-content="Markups - <small>If you\'d like
 
 help_enable = '<span id="enable" data-content="Enable/Disable - <small>This option allows the owner to keep the access control of the share.</small>"><img src="%s" /></span>' % help_button
 
-help_expire = '<span id="expire" data-content="Expire date - <small>This date defines when share will stop being available. Date format: YY-MM-DD.</small>"><img src="%s" /></span>' % help_button
+help_expire = '<span id="expire" data-content="Expire date - <small>This date defines when share will stop being available. Date format: YYYY-MM-DD.</small>"><img src="%s" /></span>' % help_button
 
 #################################################################
 # Non-model Form
