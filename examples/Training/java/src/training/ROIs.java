@@ -203,6 +203,19 @@ public class ROIs
 			list = roi.copyShapes();
 			System.err.println(list.size());
 		}
+        //Load rois on a plane z=1, t=0
+        r = connector.getRoiService().findByPlane(
+                image.getId(), 1, 0, new RoiOptions());
+        if (r == null)
+            throw new Exception("No rois linked to image:"+image.getId());
+        j = rois.iterator();
+        while (j.hasNext()) {
+            roi = j.next();
+            list = roi.copyShapes();
+            System.err.println(list.size());
+        }
+        //load a given rois
+        r = connector.getRoiService().findByRoi(roi.getId().getValue(), null);
 	}
 	
 	/**
