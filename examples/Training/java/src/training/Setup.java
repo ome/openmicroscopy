@@ -97,9 +97,14 @@ public class Setup {
 	 */
 	Setup()
 	{
-		//homeDir = "";
-		//Read the configuration file.
-		Properties p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
+	    String ice_config = System.getenv().get("ICE_CONFIG");
+	    Properties p;
+	    if (ice_config == null || ice_config.isEmpty()) {
+	        //fall back to training.config
+	        p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
+	    } else {
+	        p = loadConfig(new File(ice_config).getAbsolutePath());
+	    }
 		ConfigurationInfo info = null;
 		try {
 			info = new ConfigurationInfo();
