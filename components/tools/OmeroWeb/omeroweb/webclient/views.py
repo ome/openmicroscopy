@@ -2947,6 +2947,12 @@ def getObjectUrl(conn, obj):
 
 ######################
 # Activities window & Progressbar
+def update_callback(request, cbString, **kwargs):
+    """Update a callback handle with  key/value pairs"""
+    for key, value in kwargs.iteritems():
+        request.session['callback'][cbString][key] = value
+
+
 @login_required()
 @render_response()
 def activities(request, conn=None, **kwargs):
@@ -2991,17 +2997,20 @@ def activities(request, conn=None, **kwargs):
                             close_handle = True
                             new_results.append(cbString)
                             if isinstance(rsp, omero.cmd.ERR):
-                                callbackDict['status'] = "failed"
                                 rsp_params = ", ".join(
                                     ["%s: %s" % (k, v) for k, v in
                                      rsp.parameters.items()])
                                 logger.error("chgrp failed with: %s"
                                              % rsp_params)
-                                callbackDict['report'] = (
-                                    "%s %s" % (rsp.name, rsp_params))
-                                callbackDict['error'] = 1
+                                update_callback(
+                                    request, cbString,
+                                    status="failed",
+                                    report="%s %s" % (rsp.name, rsp_params),
+                                    error=1)
                             elif isinstance(rsp, omero.cmd.OK):
-                                callbackDict['status'] = "finished"
+                                update_callback(
+                                    request, cbString,
+                                    status="finished")
                         else:
                             in_progress += 1
                     finally:
@@ -3027,32 +3036,37 @@ def activities(request, conn=None, **kwargs):
                             new_results.append(cbString)
 
                             if isinstance(rsp, omero.cmd.ERR):
-                                callbackDict['status'] = "failed"
                                 rsp_params = ", ".join(
                                     ["%s: %s" % (k, v)
                                      for k, v in rsp.parameters.items()])
                                 logger.error("send_email failed with: %s"
                                              % rsp_params)
-                                callbackDict['report'] = {'error': rsp_params}
-                                callbackDict['error'] = 1
+                                update_callback(
+                                    request, cbString,
+                                    status="failed",
+                                    report={'error': rsp_params},
+                                    error=1)
                             else:
-                                callbackDict['status'] = "finished"
-                                callbackDict['rsp'] = {
-                                    'success': rsp.success,
-                                    'total': (
-                                        rsp.success + len(rsp.invalidusers) +
-                                        len(rsp.invalidemails))}
+                                total = (rsp.success + len(rsp.invalidusers) +
+                                         len(rsp.invalidemails))
+                                update_callback(
+                                    request, cbString,
+                                    status="failed",
+                                    rsp={'success': rsp.success,
+                                         'total': total})
                                 if (len(rsp.invalidusers) > 0 or
                                         len(rsp.invalidemails) > 0):
-                                    callbackDict['report'] = dict()
                                     invalidusers = [
                                         e.getFullName() for e in list(
                                             conn.getObjects(
                                                 "Experimenter",
                                                 rsp.invalidusers))]
-                                    callbackDict['report'] = {
-                                        'invalidusers': invalidusers,
-                                        'invalidemails': rsp.invalidemails}
+                                    update_callback(
+                                        request, cbString,
+                                        report={
+                                            'invalidusers': invalidusers,
+                                            'invalidemails': rsp.invalidemails
+                                        })
                         else:
                             in_progress += 1
                     finally:
@@ -3072,9 +3086,11 @@ def activities(request, conn=None, **kwargs):
                     close_handle = False
                     try:
                         if not cb.block(0):  # Response not available
-                            callbackDict['error'] = 0
-                            callbackDict['status'] = "in progress"
-                            callbackDict['dreport'] = _formatReport(handle)
+                            update_callback(
+                                request, cbString,
+                                error=0,
+                                status="in progress",
+                                dreport=_formatReport(handle))
                             in_progress += 1
                         else:  # Response available
                             close_handle = True
@@ -3082,28 +3098,34 @@ def activities(request, conn=None, **kwargs):
                             rsp = cb.getResponse()
                             err = isinstance(rsp, omero.cmd.ERR)
                             if err:
-                                callbackDict['error'] = 1
-                                callbackDict['status'] = "failed"
+                                update_callback(
+                                    request, cbString,
+                                    error=1,
+                                    status="failed",
+                                    dreport=_formatReport(handle))
                                 failure += 1
-                                callbackDict['dreport'] = _formatReport(
-                                    handle)
                             else:
-                                callbackDict['error'] = 0
-                                callbackDict['status'] = "finished"
-                                callbackDict['dreport'] = _formatReport(
-                                    handle)
+                                update_callback(
+                                    request, cbString,
+                                    error=0,
+                                    status="finished",
+                                    dreport=_formatReport(handle))
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException:
-                    callbackDict['error'] = 0
-                    callbackDict['status'] = "finished"
-                    callbackDict['dreport'] = None
+                    update_callback(
+                        request, cbString,
+                        error=0,
+                        status="finished",
+                        dreport=None)
                 except Exception, x:
                     logger.error(traceback.format_exc())
                     logger.error("Status job '%s'error:" % cbString)
-                    callbackDict['error'] = 1
-                    callbackDict['status'] = "failed"
-                    callbackDict['dreport'] = str(x)
+                    update_callback(
+                        request, cbString,
+                        error=1,
+                        status="failed",
+                        dreport=str(x))
                     failure += 1
 
         # update scripts
@@ -3122,7 +3144,7 @@ def activities(request, conn=None, **kwargs):
                     try:
                         # we can only retrieve this ONCE - must save results
                         results = proc.getResults(0, conn.SERVICE_OPTS)
-                        callbackDict['status'] = "finished"
+                        update_callback(request, cbString, status="finished")
                         new_results.append(cbString)
                     except Exception, x:
                         logger.error(traceback.format_exc())
@@ -3135,7 +3157,7 @@ def activities(request, conn=None, **kwargs):
                             if key in ('stderr', 'stdout'):
                                 # just save the id of original file
                                 v = v.id.val
-                            callbackDict[key] = v
+                            update_callback(request, cbString, key=v)
                         else:
                             if hasattr(v, "id"):
                                 # do we have an object (ImageI,
@@ -3166,7 +3188,7 @@ def activities(request, conn=None, **kwargs):
                                 rMap[key] = obj_data
                             else:
                                 rMap[key] = v
-                    callbackDict['results'] = rMap
+                    update_callback(request, cbString, results=rMap)
                 else:
                     in_progress += 1
 
