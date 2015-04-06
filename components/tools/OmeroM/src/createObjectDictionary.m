@@ -32,11 +32,11 @@ ip.addRequired('classnames', @(x) iscellstr(x) && numel(x) == nObjects);
 ip.parse(names, classnames);
 
 % Initialize structure array
-d(1 : nObjects) = struct('name', '', 'class', '', 'Iobject', '', 'delete', '', 'targetObject', '');
+d(1 : nObjects) = struct('name', '', 'class', '', 'Iobject', '', 'delete', '', 'delete2', '');
 for  i = 1 : nObjects
     d(i).name = names{i};
     d(i).class = ['omero.model.' classnames{i}];
     d(i).Iobject = str2func([d(i).class 'I']);
     d(i).delete = ['/' classnames{i}];%@deprecated
-    d(i).targetObject = java.util.Hashtable;
+    d(i).delete2 = classnames{i};
 end
