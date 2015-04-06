@@ -834,10 +834,8 @@ class TestDeletePerformance(AbstractRepoTest):
         fs = req.activity.getParent()
         cb = CmdCallbackI(client, handle)
         self.assertError(cb, loops=200)
-
-        delete = omero.cmd.Delete()
-        delete.type = "/Fileset"
-        delete.id = fs.id.val
+        delete = omero.cmd.Delete2()
+        delete.targetObjects = {'Fileset': [fs.id.val]}
         s2 = time.time()
         print s2 - s1,
         t1 = time.time()
