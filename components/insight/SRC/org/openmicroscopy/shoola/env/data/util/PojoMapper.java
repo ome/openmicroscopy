@@ -450,6 +450,8 @@ public class PojoMapper
         // other
         if (dataType.equals(ImageData.class))
             return Image.class.getSimpleName();
+        if (dataType.equals(ROIData.class))
+            return Roi.class.getSimpleName();
 
         throw new IllegalArgumentException("type not supported");
     }
