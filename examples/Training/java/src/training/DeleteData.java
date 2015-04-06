@@ -24,14 +24,10 @@
 package training;
 
 
-
-//Java imports
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-//OMERO dependencies
 import omero.cmd.Delete2;
 import omero.cmd.Request;
 import omero.cmd.Response;
@@ -48,79 +44,79 @@ import omero.model.ImageI;
 public class DeleteData
 {
 
-	//The value used if the configuration file is not used.*/
-	/** The server address.*/
-	private String hostName = "serverName";
+    //The value used if the configuration file is not used.*/
+    /** The server address.*/
+    private String hostName = "serverName";
 
-	/** The username.*/
-	private String userName = "userName";
-	
-	/** The password.*/
-	private String password = "password";
-	//end edit
-	
-	/** Reference to the connector.*/
-	private Connector connector;
-	
-	/** 
-	 * Delete Image.
-	 * 
-	 * In the following example, we create an image and delete it.
-	 */
-	private void deleteImage()
-		throws Exception
-	{
-		//First create an image.
-		Image img = new ImageI();
-		img.setName(omero.rtypes.rstring("image1"));
-		img.setDescription(omero.rtypes.rstring("descriptionImage1"));
-		img = (Image) connector.getUpdateService().saveAndReturnObject(img);
-		
-		Delete2 deleteCmd = new Delete2();
-		List<Long> ids = Collections.singletonList(img.getId().getValue());
-		deleteCmd.targetObjects = new HashMap<String, List<Long>>();
-		deleteCmd.targetObjects.put("Image", ids);
-		List<Request> requests = Collections.<Request>singletonList(deleteCmd);
-		Response rsp = connector.submit(requests);
-		System.err.println(rsp);
-	}
-	/**
-	 * Connects and invokes the various methods.
-	 * 
-	 * @param info The configuration information.
-	 */
-	DeleteData(ConfigurationInfo info)
-	{
-		if (info == null) {
-			info = new ConfigurationInfo();
-			info.setHostName(hostName);
-			info.setPassword(password);
-			info.setUserName(userName);
-		}
-		connector = new Connector(info);
-		try {
-			connector.connect();
-			deleteImage();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				connector.disconnect(); // Be sure to disconnect
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    /** The username.*/
+    private String userName = "userName";
 
-	/**
-	 * Runs the script without configuration options.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		new DeleteData(null);
-		System.exit(0);
-	}
+    /** The password.*/
+    private String password = "password";
+    //end edit
+
+    /** Reference to the connector.*/
+    private Connector connector;
+
+    /** 
+     * Delete Image.
+     * 
+     * In the following example, we create an image and delete it.
+     */
+    private void deleteImage()
+            throws Exception
+    {
+        //First create an image.
+        Image img = new ImageI();
+        img.setName(omero.rtypes.rstring("image1"));
+        img.setDescription(omero.rtypes.rstring("descriptionImage1"));
+        img = (Image) connector.getUpdateService().saveAndReturnObject(img);
+
+        Delete2 deleteCmd = new Delete2();
+        List<Long> ids = Collections.singletonList(img.getId().getValue());
+        deleteCmd.targetObjects = new HashMap<String, List<Long>>();
+        deleteCmd.targetObjects.put(Image.class.getSimpleName(), ids);
+        List<Request> requests = Collections.<Request>singletonList(deleteCmd);
+        Response rsp = connector.submit(requests);
+        System.err.println(rsp);
+    }
+    /**
+     * Connects and invokes the various methods.
+     * 
+     * @param info The configuration information.
+     */
+    DeleteData(ConfigurationInfo info)
+    {
+        if (info == null) {
+            info = new ConfigurationInfo();
+            info.setHostName(hostName);
+            info.setPassword(password);
+            info.setUserName(userName);
+        }
+        connector = new Connector(info);
+        try {
+            connector.connect();
+            deleteImage();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                connector.disconnect(); // Be sure to disconnect
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Runs the script without configuration options.
+     * 
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        new DeleteData(null);
+        System.exit(0);
+    }
 
 }
