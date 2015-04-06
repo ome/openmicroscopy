@@ -1009,6 +1009,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     data is handled by the template.
     """
 
+    context = dict()
+
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
@@ -1069,27 +1071,22 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
                 conn, index=index, **{str(c_type): long(c_id)})
         except AttributeError, x:
             return handlerInternalError(request, x)
-        if share_id is None:
+        if share_id is not None:
+            template = "webclient/annotations/annotations_share.html"
+            context['share'] = BaseShare(conn, share_id)
+        else:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
-        else:
-            share_owned = BaseShare(conn, share_id).share.isOwned()
-            template = "webclient/annotations/annotations_share.html"
+    context['manager'] = manager
 
     if c_type in ("tag", "tagset"):
-        context = {
-            'manager': manager,
-            'insight_ns': omero.rtypes.rstring(
-                omero.constants.metadata.NSINSIGHTTAGSET).val}
+        context['insight_ns'] = omero.rtypes.rstring(
+            omero.constants.metadata.NSINSIGHTTAGSET).val
     else:
-        context = {
-            'manager': manager,
-            'form_comment': form_comment,
-            'index': index,
-            'share_id': share_id,
-            'share_owned': share_owned}
+        context['form_comment'] = form_comment
+        context['index'] = index
 
     context['figScripts'] = figScripts
     context['template'] = template

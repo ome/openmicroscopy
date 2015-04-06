@@ -174,79 +174,49 @@
 
     <!-- This is used by AJAX loading the right panel, to check it matches current selection -->
     <div id='object-id' style="display:none">{{manager.obj_type}}-{{ manager.obj_id }}</div>
-        
-        {% if not manager.tag %}
+
         <!-- ANNOTATIONS "General" -->
         <div class="right_tab_inner">
-            
-            {% if manager.image %}            
-            <h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>
-            
-            <h2 class="data_heading_id">Image ID: <strong>{{ manager.image.id }}</strong></h2>    
-            <!-- open-image link -->
-			
-			<button class="btn silver btn_text" href="#"
-                {% if share_owned %}
-                    onclick="return OME.openPopup('{% url 'web_image_viewer' manager.image.id %}')"
-                {% else %}
-                    onclick="return OME.openPopup('{% url 'web_image_viewer' share_id manager.image.id %}')"
-                {% endif %}
-                alt="View" title="Open full viewer">
-				<span>
-                {% trans "Launch full viewer" %} 
-				</span>
-			</button>
-			
-			<hr/>
-                    
-            <div class="description">
-                <span id='image_desc'>{{ manager.image.description|default:"no description"|linebreaks }}</span>
+
+            {% if manager.image %}
+
+            {% with image=manager.image canDownload=manager.image.canDownload %}
+                {% include "webclient/annotations/includes/toolbar.html" %}
+            {% endwith %}
+
+
+            <!-- panel for extra info shown by toolbar buttons if needed - Duplicated under well below -->
+            <div id="toolbar_info_panel" style="display:none; background: #fff; border: solid 1px #ddd; margin:5px 0">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
+                <div class="panel_title" style="margin: 4px">
+                    <!-- text loaded here -->
+                </div>
+                <div class="panel_div"></div>
+                <div style="clear:both"></div>
             </div>
-            <table>                    
-                {% if not manager.image.isOwned %}
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>                    
-                </tr>
-                {% endif %}
-                <tr>
-                    <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
-                </tr>
-                <tr>
-                    <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
-                </tr>
-                <tr>
-                    <th>Dimensions (XY):</th>
-                    <td id='dims_xy'>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Type:</th>
-                    <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Size (XYZ) (&#181m):</th>
-                    <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.image.getPixelSizeX|lengthformat|floatformat:2 }} x {{ manager.image.getPixelSizeY|lengthformat|floatformat:2 }} 
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|lengthformat|floatformat:2 }} {% endif %}
-                        </div>
-                        <span style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %} (&#181m)
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
-                </tr>
-                <tr>
-                    <th>Channels:</th>
-                    <td id='channel_names'>
-                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
-                    </td>
-                </tr>
-            </table>
+
+            <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+                <input type="text" size="30">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+            </div>
+
+            <!-- Image Name, ID, owner -->
+            {% with obj=manager.image nameText=manager.image.name %}
+                {% include "webclient/annotations/includes/name.html" %}
+            {% endwith %}
+
+            <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
+
+            <!-- Image Description -->
+            {% with obj=manager.image %}
+                {% include "webclient/annotations/includes/description.html" %}
+            {% endwith %}
+
+            <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
+            {% with image=manager.image %}
+                {% include "webclient/annotations/includes/core_metadata.html" %}
+            {% endwith %}
+
             {% endif %}
 
             {% if manager.share %}
@@ -256,7 +226,7 @@
                             <img src="{% static 'webclient/image/color_line16.png' %}" alt="e" title="Edit Share"/>
                         </a>
                     {% endif %}</h2>
-                
+
 				<hr/>
 				
                 <div class="description">
@@ -264,7 +234,7 @@
 						<p><span>{{ manager.share.message|default:""|escape|linebreaks }}</span></p>
 					</div>
                 </div>
-                
+
                 <table>
                     <tr>
                         <th>Owner:</th>
@@ -340,7 +310,6 @@
             <div class="clear"></div>          
 
         </div>
-        {% endif %}
 
 
 {% endblock %}

@@ -275,17 +275,6 @@
                     var url = $(this).attr('href');
                     OME.deleteItem(event, "file_ann_wrapper", url, $.trim($("#object-id").text()));
                 });
-                
-                $(".dropdown_menu .menu_launch").click(function(e){
-                    $(this).parent().find('ul').css('visibility', 'visible');
-                    $(this).parent().find('.dropdown_menu_options').show();
-                    return false;
-                });
-                // on hover-out of the menu itself, hide drop-down menus
-                $(".dropdown_menu_options").hover(function(){}, function(){
-                    $(this).css('visibility', 'hidden');
-                }).hide();
-
 
                 // Choose to add tags...
                 if ($("#add_tags_form").length === 0) {
@@ -386,10 +375,6 @@
                     return false;
                 });
 
-
-                // We do this here and in batch_annotate panel
-                OME.initToolbarDropdowns();
-                
                 // Handle Download actions
                 $("#create-ometiff").click(function(e){
                     
@@ -1054,7 +1039,7 @@
                             {% endwith %}
                         {% endfor %}
                     </div>
-           
+            </div>
             <div class="clear"></div>          
             
         </div>
