@@ -23,7 +23,7 @@
 import library as lib
 
 from omero.callbacks import CmdCallbackI
-from omero.cmd import Delete
+from omero.cmd import Delete2
 from omero.grid import ImportSettings
 from omero.model import ChecksumAlgorithmI
 from omero.model import FilesetI
@@ -97,8 +97,8 @@ class TestReimportArchivedFiles(lib.ITest):
             link.child = new_pix
             self.update.saveObject(link)
 
-    def delete(self, type, obj):
-        delete = Delete(type, obj.id.val)
+    def delete(self, obj_type, obj):
+        delete = Delete2(targetObjects={obj_type: [obj.id.val]})
         return self.submit(delete)
 
     def submit(self, req):
@@ -136,7 +136,7 @@ class TestReimportArchivedFiles(lib.ITest):
             self.copyFiles(orig_img, new_img, new_pix)
             return new_img
         finally:
-            self.delete("/Fileset", orig_fs)
+            self.delete("Fileset", orig_fs)
 
     def archivedFiles(self, img_obj):
         return \
@@ -242,7 +242,7 @@ class TestReimportArchivedFiles(lib.ITest):
                 used[idx].originalFile.unload()
             self.client.sf.getUpdateService().saveObject(fs)
             for file in files:
-                self.delete("/OriginalFile", file)
+                self.delete("OriginalFile", file)
             binaries = self.imageBinaries(new_img.id.val)
             self.assertManageImageBinaries(binaries, lenArchived=0)
         finally:
