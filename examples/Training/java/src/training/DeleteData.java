@@ -32,12 +32,17 @@ import omero.cmd.Delete2;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.model.Annotation;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ChecksumAlgorithmI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 
 /** 
  * Sample code showing how to delete data.
@@ -63,6 +68,25 @@ public class DeleteData
     /** Reference to the connector.*/
     private Connector connector;
 
+    /**
+     * Creates an original file.
+     *
+     * @return See above.
+     * @throws Exception
+     */
+    private OriginalFile createOriginalFile() throws Exception {
+        OriginalFileI oFile = new OriginalFileI();
+        oFile.setName(omero.rtypes.rstring("of1"));
+        oFile.setPath(omero.rtypes.rstring("/omero"));
+        oFile.setSize(omero.rtypes.rlong(0));
+        final ChecksumAlgorithm checksumAlgorithm = new ChecksumAlgorithmI();
+        checksumAlgorithm.setValue(
+                omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
+        oFile.setHasher(checksumAlgorithm);
+        oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
+        return oFile;
+    }
+    
     /** 
      * Delete Image.
      *
@@ -98,6 +122,7 @@ public class DeleteData
         Dataset d = new DatasetI();
         d.setName(omero.rtypes.rstring("FileAnnotationDelete"));
         FileAnnotation fa = new FileAnnotationI();
+        fa.setFile(createOriginalFile());
         d.linkAnnotation(fa);
         d = (Dataset) connector.getUpdateService().saveAndReturnObject(d);
         fa = (FileAnnotation) d.linkedAnnotationList().get(0);
