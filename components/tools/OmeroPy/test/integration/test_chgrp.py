@@ -28,6 +28,8 @@ import omero
 import omero.gateway
 import library as lib
 import pytest
+from omero.cmd import Chgrp2
+from omero.cmd.graphs import ChildOption
 from omero.model import DatasetI, DatasetImageLinkI, ExperimenterGroupI, ImageI
 from omero.model import FileAnnotationI, ImageAnnotationLinkI, TagAnnotationI
 from omero.model import ProjectDatasetLinkI, ProjectI, PlateI, ScreenI
@@ -58,9 +60,8 @@ class TestChgrp(lib.ITest):
             name="testChgrpImportedImage", client=client)
 
         # Chgrp
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=image.id.val, options=None, grp=gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(targetObjects={'Image': [image.id.val]}, groupId=gid)
+        self.doSubmit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -98,8 +99,8 @@ class TestChgrp(lib.ITest):
         img = update.saveAndReturnObject(img)
 
         # Move image to new group
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=img.id.val, options=None, grp=first_gid)
+        chgrp = Chgrp2(
+            targetObjects={'Image': [img.id.val]}, groupId=first_gid)
 
         # Link to Save
         link = DatasetImageLinkI()
@@ -159,9 +160,9 @@ class TestChgrp(lib.ITest):
         update.saveAndReturnArray(links)
 
         # Move Project to new group
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=project.id.val, options=None, grp=gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={'Project': [project.id.val]}, groupId=gid)
+        self.doSubmit(chgrp, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -204,8 +205,9 @@ class TestChgrp(lib.ITest):
         render(member_g)
 
         # Now chgrp and try to delete
-        chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], owner)
+        chgrp = Chgrp2(
+            targetObjects={'Image': [image.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, owner)
 
         # Shouldn't be necessary to change group, but we're gonna
         owner_g.SERVICE_OPTS.setOmeroGroup("-1")
@@ -227,9 +229,9 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
 
         # Now chgrp
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client, test_should_pass=False)
+        chgrp = Chgrp2(
+            targetObjects={'Image': [images[0].id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client, test_should_pass=False)
 
     def testChgrpAllImagesFilesetOK(self):
         """
@@ -245,11 +247,9 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
 
         # chgrp should succeed
-        chgrp1 = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=target_gid)
-        chgrp2 = omero.cmd.Chgrp(
-            type="/Image", id=images[1].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp1, chgrp2], client)
+        ids = [images[0].id.val, images[1].id.val]
+        chgrp = Chgrp2(targetObjects={'Image': ids}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check both Images moved
         queryService = client.sf.getQueryService()
@@ -283,9 +283,10 @@ class TestChgrp(lib.ITest):
             link = update.saveAndReturnObject(link)
 
         # chgrp should succeed with the first Dataset only
-        chgrp = omero.cmd.Chgrp(
-            type="/Dataset", id=datasets[0].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [datasets[0].id.val]},
+            groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         queryService = client.sf.getQueryService()
 
@@ -329,11 +330,9 @@ class TestChgrp(lib.ITest):
             link = update.saveAndReturnObject(link)
 
         # Now chgrp, should succeed
-        chgrp1 = omero.cmd.Chgrp(
-            type="/Dataset", id=datasets[0].id.val, grp=target_gid)
-        chgrp2 = omero.cmd.Chgrp(
-            type="/Dataset", id=datasets[1].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp1, chgrp2], client)
+        ids = [datasets[0].id.val, datasets[1].id.val]
+        chgrp = Chgrp2(targetObjects={"Dataset": ids}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check both Datasets and Images moved
         queryService = client.sf.getQueryService()
@@ -369,8 +368,9 @@ class TestChgrp(lib.ITest):
             link = update.saveAndReturnObject(link)
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check Dataset and both Images moved
         queryService = client.sf.getQueryService()
@@ -398,11 +398,9 @@ class TestChgrp(lib.ITest):
         imagesFsTwo = self.importMIF(2, client=client)
 
         # chgrp should fail...
-        chgrp1 = omero.cmd.Chgrp(
-            type="/Image", id=imagesFsOne[0].id.val, grp=target_gid)
-        chgrp2 = omero.cmd.Chgrp(
-            type="/Image", id=imagesFsTwo[0].id.val, grp=target_gid)
-        self.doAllSubmit([chgrp1, chgrp2], client, test_should_pass=False)
+        ids = [imagesFsOne[0].id.val, imagesFsTwo[0].id.val]
+        chgrp = Chgrp2(targetObjects={"Image": ids}, groupId=target_gid)
+        self.doSubmit(chgrp, client, test_should_pass=False)
 
     def testChgrpDatasetTwoFilesetsErr(self):
         """
@@ -429,8 +427,9 @@ class TestChgrp(lib.ITest):
             link = update.saveAndReturnObject(link)
 
         # chgrp should succeed with the Dataset only
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         queryService = client.sf.getQueryService()
 
@@ -471,8 +470,9 @@ class TestChgrp(lib.ITest):
             link = update.saveAndReturnObject(link)
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check the group of the fileset is in sync with image.
         ctx = {'omero.group': '-1'}
@@ -500,8 +500,8 @@ class TestChgrp(lib.ITest):
         fsId = query.get("Image", images[0].id.val).fileset.id.val
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(type="/Fileset", id=fsId, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(targetObjects={"Fileset": [fsId]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check Fileset and both Images moved and
         # thus the Fileset is in sync with Images.
@@ -573,9 +573,9 @@ class TestChgrp(lib.ITest):
         link = update.saveAndReturnObject(link)
 
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(
-            type="/Plate", id=link.child.id.val, grp=target_gid)
-        self.doAllSubmit([chgrp], client)
+        chgrp = Chgrp2(
+            targetObjects={"Plate": [link.child.id.val]}, groupId=target_gid)
+        self.doSubmit(chgrp, client)
 
         # Check that the links have been destroyed
         query = client.sf.getQueryService()
@@ -699,9 +699,10 @@ class TestChgrp(lib.ITest):
         self.link(d1, i, client)
         self.link(d2, i, client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Dataset", id=d1.id.val, grp=target_gid,
-            options={"/Image": "HARD"})
+        hard = ChildOption(includeType=["Image"])
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [d1.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -773,9 +774,10 @@ class TestChgrp(lib.ITest):
         self.link(d2, i, client)
         self.link(p, d1, client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=p.id.val, grp=target_gid,
-            options={"/Image": "HARD"})
+        hard = ChildOption(includeType=["Image"])
+        chgrp = Chgrp2(
+            targetObjects={"Project": [p.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -887,9 +889,10 @@ class TestChgrp(lib.ITest):
         self.link(p2, d, client)
         self.link(d, i, client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=p1.id.val, grp=target_gid,
-            options={"/Dataset": "HARD"})
+        hard = ChildOption(includeType=["Dataset"])
+        chgrp = Chgrp2(
+            targetObjects={"Project": [p1.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -953,9 +956,10 @@ class TestChgrp(lib.ITest):
         self.link(p1, d, client)
         self.link(p2, d, client)
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Project", id=p1.id.val, grp=target_gid,
-            options={"/Dataset": "HARD"})
+        hard = ChildOption(includeType=["Dataset"])
+        chgrp = Chgrp2(
+            targetObjects={"Project": [p1.id.val]}, childOptions=[hard],
+            groupId=target_gid)
         self.doSubmit(chgrp, client)
 
         ctx = {'omero.group': '-1'}
@@ -1102,18 +1106,19 @@ class TestChgrpTarget(lib.ITest):
         ds = self.createDSInGroup(target_gid, client=client)
 
         # each chgrp includes a 'save' link to target dataset
-        requests = []
         saves = []
+        ids = []
         for i in images:
-            chgrp = omero.cmd.Chgrp(type="/Image", id=i.id.val, grp=target_gid)
-            requests.append(chgrp)
+            ids.append(i.id.val)
             link = DatasetImageLinkI()
             link.child = ImageI(i.id.val, False)
             link.parent = DatasetI(ds.id.val, False)
             save = Save()
             save.obj = link
             saves.append(save)
-
+        chgrp = Chgrp2(
+            targetObjects={"Image": ids}, groupId=target_gid)
+        requests = [chgrp]
         requests.extend(saves)
         self.doAllSubmit(requests, client, omero_group=target_gid)
 
@@ -1150,9 +1155,9 @@ class TestChgrpTarget(lib.ITest):
         """
         ds, images, client, user, old_gid, new_gid =\
             self.chgrpImagesToTargetDataset(1)
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=old_gid)
-        self.doAllSubmit([chgrp], client, omero_group=old_gid)
+        chgrp = Chgrp2(
+            targetObjects={"Image": [images[0].id.val]}, groupId=old_gid)
+        self.doSubmit(chgrp, client, omero_group=old_gid)
 
     def testChgrpImageToTargetDatasetAndBackDS(self):
         """
@@ -1168,8 +1173,8 @@ class TestChgrpTarget(lib.ITest):
         link.parent = old_ds.proxy()
         link.child = images[0].proxy()
 
-        chgrp = omero.cmd.Chgrp(
-            type="/Image", id=images[0].id.val, grp=old_gid)
+        chgrp = Chgrp2(
+            targetObjects={"Image": [images[0].id.val]}, groupId=old_gid)
         save = Save(link)
         self.doAllSubmit([chgrp, save], client, omero_group=old_gid)
 
@@ -1207,7 +1212,8 @@ class TestChgrpTarget(lib.ITest):
 
         requests = []
         saves = []
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        chgrp = Chgrp2(
+            targetObjects={"Dataset": [ds.id.val]}, groupId=target_gid)
         requests.append(chgrp)
         link = ProjectDatasetLinkI()
         link.details.owner = ExperimenterI(userId, False)
