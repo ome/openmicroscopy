@@ -31,6 +31,11 @@ import java.util.List;
 import omero.cmd.Delete2;
 import omero.cmd.Request;
 import omero.cmd.Response;
+import omero.model.Annotation;
+import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Image;
 import omero.model.ImageI;
 
@@ -60,7 +65,7 @@ public class DeleteData
 
     /** 
      * Delete Image.
-     * 
+     *
      * In the following example, we create an image and delete it.
      */
     private void deleteImage()
@@ -80,6 +85,33 @@ public class DeleteData
         Response rsp = connector.submit(requests);
         System.err.println(rsp);
     }
+
+    /** 
+     * Delete File annotation.
+     *
+     * In the following example, we create a file annotation, link it to a
+     * dataset and delete the annotation.
+     */
+    private void deleteFileAnnotation()
+            throws Exception
+    {
+        Dataset d = new DatasetI();
+        d.setName(omero.rtypes.rstring("FileAnnotationDelete"));
+        FileAnnotation fa = new FileAnnotationI();
+        d.linkAnnotation(fa);
+        d = (Dataset) connector.getUpdateService().saveAndReturnObject(d);
+        fa = (FileAnnotation) d.linkedAnnotationList().get(0);
+
+
+        Delete2 deleteCmd = new Delete2();
+        List<Long> ids = Collections.singletonList(fa.getId().getValue());
+        deleteCmd.targetObjects = new HashMap<String, List<Long>>();
+        deleteCmd.targetObjects.put(Annotation.class.getSimpleName(), ids);
+        List<Request> requests = Collections.<Request>singletonList(deleteCmd);
+        Response rsp = connector.submit(requests);
+        System.err.println(rsp);
+    }
+
     /**
      * Connects and invokes the various methods.
      * 
@@ -97,6 +129,7 @@ public class DeleteData
         try {
             connector.connect();
             deleteImage();
+            deleteFileAnnotation();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
