@@ -1329,7 +1329,6 @@ public class AdminServiceTest extends AbstractServerTest {
         Chmod mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
-        // prx.changePermissions(g, permissions);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
@@ -1371,7 +1370,6 @@ public class AdminServiceTest extends AbstractServerTest {
         Chmod mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
-        // prx.changePermissions(g, permissions);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
@@ -1413,7 +1411,6 @@ public class AdminServiceTest extends AbstractServerTest {
         Chmod mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
-        // prx.changePermissions(g, permissions);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
@@ -1453,7 +1450,6 @@ public class AdminServiceTest extends AbstractServerTest {
         Chmod mod = createChmodCommand(REF_GROUP, g.getId().getValue(),
                 representation);
         doChange(root, root.getSession(), mod, true);
-        // prx.changePermissions(g, permissions);
         g = prx.getGroup(id);
         permissions = g.getDetails().getPermissions();
         assertTrue(permissions.isGroupRead());
