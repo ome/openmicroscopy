@@ -141,27 +141,6 @@ try
             fprintf(1, '  Polygon: %s\n', char(points));
         end
     end
-    
-    % Retrieve the roi linked to an image.
-    fprintf(1, 'Reading ROIs attached to image %g\n', imageId);
-    roiResult =  session.getRoiService().findByImage(imageId, []);
-    rois = roiResult.rois;
-    nRois = rois.size;
-    fprintf(1, 'Found %g ROI(s)\n', nRois);
-    for i = 1 : nRois
-        roi = rois.get(i-1);
-        fprintf(1, '  ROI %g\n', roi.getId().getValue());
-        shapes = roi.copyShapes();
-        
-        % Remove the first shape
-        if (shapes.size > 0)
-            fprintf(1, '  Removing %g shapes\n', shapes.size);
-            for j = 1 : shapes.size
-                roi.removeShape(shapes.get(j-1));
-            end
-            roi = session.getUpdateService().saveAndReturnObject(roi);
-        end
-    end
 
     % Create a mask covering half of the image
     pixels = image.getPrimaryPixels();
