@@ -61,246 +61,299 @@ import omero.grid.SharedResourcesPrx;
  * @since Beta4.3.2
  */
 public class Connector {
-	
-	//The value used if the configuration file is not used. To edit*/
-	/** The server address.*/
-	private String hostName = "serverName";
 
-	/** The username.*/
-	private String userName = "userName";
-	
-	/** The password.*/
-	private String password = "password";
-	//end edit
-	
-	/** Reference to the clients.*/
-	protected client client, unsecureClient;
-	
-	/** The service factory.*/
-	protected ServiceFactoryPrx entryUnencrypted;
-	
-	/** The configuration information.*/
-	private ConfigurationInfo info;
-	
-	/** Connects to the server.*/
-	protected void connect()
-		throws Exception
-	{
-		client = new client(info.getHostName(), info.getPort());
-		client.createSession(info.getUserName(), info.getPassword());
-		// if you want to have the data transfer encrypted then you can 
-		// use the entry variable otherwise use the following 
-		unsecureClient = client.createClient(false);
-		entryUnencrypted = unsecureClient.getSession();
-	}
+    //The value used if the configuration file is not used. To edit*/
+    /** The server address.*/
+    private String hostName = "serverName";
 
-	/** Disconnects.*/
-	protected void disconnect()
-		throws Exception
-	{
-		if (client != null) client.__del__(); // No exception
-		if (unsecureClient != null) unsecureClient.__del__(); // No exception
-	}
+    /** The username.*/
+    private String userName = "userName";
 
-	/**
-	 * Shows how to connect to omero.
-	 * 
-	 * @param info Configuration info or <code>null</code>.
-	 */
-	Connector(ConfigurationInfo info)
-	{
-		if (info == null) { //run from main
-			info = new ConfigurationInfo();
-			info.setHostName(hostName);
-			info.setPassword(password);
-			info.setUserName(userName);
-		}
-		this.info = info;
-		try {
-			connect();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				disconnect(); // Be sure to disconnect
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
+    /** The password.*/
+    private String password = "password";
+    //end edit
 
-	/**
-	 * Returns the pixels service.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	IPixelsPrx getPixelsService()
-		throws ServerError
-	{
-		return entryUnencrypted.getPixelsService();
-	}
-	
-	/**
-	 * Returns the update service.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	IUpdatePrx getUpdateService()
-		throws ServerError
-	{
-		return entryUnencrypted.getUpdateService();
-	}
-	
-	/**
-	 * Returns the raw pixels store.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	RawPixelsStorePrx getRawPixelsStore()
-		throws ServerError
-	{
-		return entryUnencrypted.createRawPixelsStore();
-	}
+    /** Reference to the clients.*/
+    protected client client, unsecureClient;
 
-	/**
-	 * Returns the container service.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	IContainerPrx getContainerService()
-		throws ServerError
-	{
-		return entryUnencrypted.getContainerService();
-	}
-	
-	/**
-	 * Returns the shared resources.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	SharedResourcesPrx getSharedResources()
-		throws ServerError
-	{
-		return entryUnencrypted.sharedResources();
-	}
-	
-	/**
-	 * Returns the thumbnail store.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	ThumbnailStorePrx getThumbnailStore()
-		throws ServerError
-	{
-		return entryUnencrypted.createThumbnailStore();
-	}
-	
-	/**
-	 * Returns the rendering engine.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	RenderingEnginePrx getRenderingEngine()
-		throws ServerError
-	{
-		return entryUnencrypted.createRenderingEngine();
-	}
-	
-	/**
-	 * Returns the admin service.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	IAdminPrx getAdminService()
-		throws ServerError
-	{
-		return entryUnencrypted.getAdminService();
-	}
-	
-	/**
-	 * Returns the query service.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	IQueryPrx getQueryService()
-		throws ServerError
-	{
-		return entryUnencrypted.getQueryService();
-	}
+    /** The service factory.*/
+    protected ServiceFactoryPrx entryUnencrypted;
 
-	/**
-	 * Returns the ROI service.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	IRoiPrx getRoiService()
-		throws ServerError
-	{
-		return entryUnencrypted.getRoiService();
-	}
-	
-	/**
-	 * Returns the Raw File store.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	RawFileStorePrx getRawFileStore()
-		throws ServerError
-	{
-		return entryUnencrypted.createRawFileStore();
-	}
-	
-	/**
-	 * Returns the Metadata service.
-	 * 
-	 * @return See above.
-	 * @throws ServerError
-	 */
-	IMetadataPrx getMetadataService()
-		throws ServerError
-	{
-		return entryUnencrypted.getMetadataService();
-	}
+    /** The configuration information.*/
+    private ConfigurationInfo info;
 
-	/**
-	 * Submits the specified commands
-	 * 
-	 * @param commands The commands to submit.
-	 * @return See above.
-	 * @throws ServerError
-	 * @throws InterruptedException
-	 */
-	Response submit(List<Request> commands)
-		throws ServerError, InterruptedException
-	{
-		DoAll all = new DoAll();
-		all.requests = commands;
-		final Map<String, String> callContext = new HashMap<String, String>();
-		final HandlePrx prx = entryUnencrypted.submit(all, callContext);
-		CmdCallbackI cb = new CmdCallbackI(unsecureClient, prx);
-		cb.loop(20, 500);
-		return cb.getResponse();
-	}
-	/**
-	 * Runs the script without configuration options.
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		new Connector(null);
-		System.exit(0);
-	}
+    /** Connects to the server.*/
+    protected void connect()
+            throws Exception
+    {
+        client = new client(info.getHostName(), info.getPort());
+        client.createSession(info.getUserName(), info.getPassword());
+        // if you want to have the data transfer encrypted then you can 
+        // use the entry variable otherwise use the following 
+        unsecureClient = client.createClient(false);
+        entryUnencrypted = unsecureClient.getSession();
+    }
+
+    /** Disconnects.*/
+    protected void disconnect()
+            throws Exception
+    {
+        if (client != null) client.__del__(); // No exception
+        if (unsecureClient != null) unsecureClient.__del__(); // No exception
+    }
+
+    /**
+     * Shows how to connect to omero.
+     * 
+     * @param info Configuration info or <code>null</code>.
+     */
+    Connector(ConfigurationInfo info)
+    {
+        if (info == null) { //run from main
+            info = new ConfigurationInfo();
+            info.setHostName(hostName);
+            info.setPassword(password);
+            info.setUserName(userName);
+        }
+        this.info = info;
+        try {
+            connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                disconnect(); // Be sure to disconnect
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Returns the pixels service.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    IPixelsPrx getPixelsService()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.getPixelsService();
+        } catch (Exception e) {
+            throw new Exception("Cannot start pixels service", e);
+        }
+    }
+
+    /**
+     * Returns the update service.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    IUpdatePrx getUpdateService()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.getUpdateService();
+        } catch (Exception e) {
+            throw new Exception("Cannot start update service", e);
+        }
+    }
+
+    /**
+     * Returns the raw pixels store.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    RawPixelsStorePrx getRawPixelsStore()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.createRawPixelsStore();
+        } catch (Exception e) {
+            throw new Exception("Cannot start raw pixels store", e);
+        }
+    }
+
+    /**
+     * Returns the container service.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    IContainerPrx getContainerService()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.getContainerService();
+        } catch (Exception e) {
+            throw new Exception("Cannot start container service", e);
+        }
+    }
+
+    /**
+     * Returns the shared resources.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    SharedResourcesPrx getSharedResources()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.sharedResources();
+        } catch (Exception e) {
+            throw new Exception("Cannot start shared resources", e);
+        }
+    }
+
+    /**
+     * Returns the thumbnail store.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    ThumbnailStorePrx getThumbnailStore()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.createThumbnailStore();
+        } catch (Exception e) {
+            throw new Exception("Cannot start thumbnail store", e);
+        }
+    }
+
+    /**
+     * Returns the rendering engine.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    RenderingEnginePrx getRenderingEngine()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.createRenderingEngine();
+        } catch (Exception e) {
+            throw new Exception("Cannot start rendering engine", e);
+        }
+    }
+
+    /**
+     * Returns the admin service.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    IAdminPrx getAdminService()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.getAdminService();
+        } catch (Exception e) {
+            throw new Exception("Cannot start admin service", e);
+        }
+    }
+
+    /**
+     * Returns the query service.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    IQueryPrx getQueryService()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.getQueryService();
+        } catch (Exception e) {
+            throw new Exception("Cannot start query service", e);
+        }
+    }
+
+    /**
+     * Returns the ROI service.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    IRoiPrx getRoiService()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.getRoiService();
+        } catch (Exception e) {
+            throw new Exception("Cannot start ROI service", e);
+        }
+    }
+
+    /**
+     * Returns the Raw File store.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    RawFileStorePrx getRawFileStore()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.createRawFileStore();
+        } catch (Exception e) {
+            throw new Exception("Cannot start raw file store", e);
+        }
+    }
+
+    /**
+     * Returns the Metadata service.
+     * 
+     * @return See above.
+     * @throws ServerError
+     */
+    IMetadataPrx getMetadataService()
+            throws Exception
+    {
+        try {
+            return entryUnencrypted.getMetadataService();
+        } catch (Exception e) {
+            throw new Exception("Cannot start metadata service", e);
+        }
+    }
+
+    /**
+     * Submits the specified commands
+     * 
+     * @param commands The commands to submit.
+     * @return See above.
+     * @throws ServerError
+     * @throws InterruptedException
+     */
+    Response submit(List<Request> commands)
+            throws Exception
+    {
+        try {
+            DoAll all = new DoAll();
+            all.requests = commands;
+            final Map<String, String> callContext = new HashMap<String, String>();
+            final HandlePrx prx = entryUnencrypted.submit(all, callContext);
+            CmdCallbackI cb = new CmdCallbackI(unsecureClient, prx);
+            cb.loop(20, 500);
+            return cb.getResponse();
+        } catch (Exception e) {
+            throw new Exception("Cannot start submit request", e);
+        }
+
+    }
+    /**
+     * Runs the script without configuration options.
+     * 
+     * @param args
+     */
+    public static void main(String[] args)
+    {
+        new Connector(null);
+        System.exit(0);
+    }
 
 }
