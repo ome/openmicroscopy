@@ -1415,21 +1415,18 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
                         form_lasers.append(form_laser)
 
     # TODO: remove this 'if' since we should only have c_type = 'image'?
-    if c_type in ("share", "discussion", "tag"):
-        context = {'manager': manager}
-    else:
-        context = {
-            'manager': manager,
-            'form_channels': form_channels,
-            'form_environment': form_environment,
-            'form_objective': form_objective,
-            'form_microscope': form_microscope,
-            'form_instrument_objectives': form_instrument_objectives,
-            'form_filters': form_filters,
-            'form_dichroics': form_dichroics,
-            'form_detectors': form_detectors,
-            'form_lasers': form_lasers,
-            'form_stageLabel': form_stageLabel}
+    context = {'manager': manager, "share_id": share_id}
+    if c_type not in ("share", "discussion", "tag"):
+        context['form_channels'] = form_channels
+        context['form_environment'] = form_environment
+        context['form_objective'] = form_objective
+        context['form_microscope'] = form_microscope
+        context['form_instrument_objectives'] = form_instrument_objectives
+        context['form_filters'] = form_filters
+        context['form_dichroics'] = form_dichroics
+        context['form_detectors'] = form_detectors
+        context['form_lasers'] = form_lasers
+        context['form_stageLabel'] = form_stageLabel
     context['template'] = template
     return context
 
