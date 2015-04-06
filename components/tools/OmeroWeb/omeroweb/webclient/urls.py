@@ -232,7 +232,8 @@ urlpatterns = patterns(
     url(r'^annotation/(?P<annId>[0-9]+)/$',
         views.download_annotation,
         name="download_annotation"),
-    url(r'^load_original_metadata/(?P<imageId>[0-9]+)/$',
+    url(r'^load_original_metadata/(?P<imageId>[0-9]+)/'
+        r'(?:(?P<share_id>[0-9]+)/)?$',
         views.load_original_metadata,
         name="load_original_metadata"),
     url(r'^download_orig_metadata/(?P<imageId>[0-9]+)/$',

@@ -1433,7 +1433,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
 
 @login_required()
 @render_response()
-def load_original_metadata(request, imageId, conn=None, **kwargs):
+def load_original_metadata(request, imageId, conn=None, share_id=None, **kwargs):
 
     image = conn.getObject("Image", imageId)
     if image is None:
