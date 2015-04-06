@@ -33,6 +33,8 @@ import Ice
 import sys
 import os
 from time import time
+from omero.cmd import Delete2
+from omero.cmd.graphs import ChildOption
 from omero.rtypes import rstring, rtime, rlist, rlong
 
 
@@ -47,7 +49,7 @@ class TestDelete(lib.ITest):
 
         img = self.update.saveAndReturnObject(img)
 
-        command = omero.cmd.Delete("/Image", img.id.val, None)
+        command = Delete2(targetObjects={"Image": [img.id.val]})
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
 
@@ -62,13 +64,10 @@ class TestDelete(lib.ITest):
 
             images.append(self.update.saveAndReturnObject(img))
 
-        commands = list()
-        for img in images:
-            commands.append(omero.cmd.Delete("/Image", img.id.val, None))
-        doall = omero.cmd.DoAll()
-        doall.requests = commands
+        ids = [image.id.val for image in images]
+        command = Delete2(targetObjects={"Image": ids})
 
-        handle = self.client.sf.submit(doall)
+        handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
 
     def testDeleteProjectWithoutContent(self):
@@ -97,14 +96,11 @@ class TestDelete(lib.ITest):
             self.link(omero.model.DatasetI(dataset.id.val, False),
                       omero.model.ImageI(iid, False))
 
-        op = dict()
-        op["/TagAnnotation"] = "KEEP"
-        op["/TermAnnotation"] = "KEEP"
-        op["/FileAnnotation"] = "KEEP"
-        op["/Dataset"] = "KEEP"
-        op["/Image"] = "KEEP"
-
-        dc = omero.cmd.Delete('/Project', long(project.id.val), op)
+        keep = ChildOption(excludeType=[
+            "TagAnnotation", "TermAnnotation", "FileAnnotation",
+            "Dataset", "Image"])
+        dc = Delete2(
+            targetObjects={'Project': [project.id.val]}, childOptions=[keep])
         handle = self.client.sf.submit(dc)
         self.waitOnCmd(self.client, handle)
 
@@ -141,7 +137,7 @@ class TestDelete(lib.ITest):
 
         iid = self.update.saveAndReturnObject(img).id.val
 
-        cmd = omero.cmd.Delete("/Image", iid, None)
+        cmd = Delete2(targetObjects={"Image": [iid]})
         handle = self.client.sf.submit(cmd)
         callback = self.waitOnCmd(self.client, handle)
         cbString = str(handle)
@@ -193,13 +189,10 @@ class TestDelete(lib.ITest):
             self.link(omero.model.DatasetI(dataset.id.val, False),
                       omero.model.ImageI(img.id.val, False))
 
-        commands = list()
-        for img in images:
-            commands.append(omero.cmd.Delete("/Image", img.id.val, None))
-        doall = omero.cmd.DoAll()
-        doall.requests = commands
+        ids = [image.id.val for image in images]
+        command = Delete2(targetObjects={"Image": ids})
 
-        handle = self.client.sf.submit(doall)
+        handle = self.client.sf.submit(command)
         callback = self.waitOnCmd(self.client, handle, ms=1000, loops=50)
 
         callback.close(True)
@@ -259,13 +252,9 @@ class TestDelete(lib.ITest):
 
             images.append(iid)
 
-        commands = list()
-        for iid in images:
-            commands.append(omero.cmd.Delete("/Image", iid, None))
-        doall = omero.cmd.DoAll()
-        doall.requests = commands
+        command = Delete2(targetObjects={"Image": images})
 
-        handle = self.client.sf.submit(doall)
+        handle = self.client.sf.submit(command)
         callback = self.waitOnCmd(self.client, handle)
         callback.close(True)
 
@@ -378,7 +367,7 @@ class TestDelete(lib.ITest):
 
         tag = tagset.linkedAnnotationList()[0]
 
-        command = omero.cmd.Delete("/Annotation", tagset.id.val, None)
+        command = Delete2(targetObjects={"Annotation": [tagset.id.val]})
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
 
@@ -395,7 +384,7 @@ class TestDelete(lib.ITest):
         fa.file = o.proxy()
         fa = self.update.saveAndReturnObject(fa)
 
-        command = omero.cmd.Delete("/OriginalFile", o.id.val, None)
+        command = Delete2(targetObjects={"OriginalFile": [o.id.val]})
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
 
@@ -414,8 +403,8 @@ class TestDelete(lib.ITest):
             self.link(datasets[i].proxy(), images[i].proxy(), self.client)
 
         # Now delete one dataset
-        delete = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
-        self.doAllSubmit([delete], self.client)
+        delete = Delete2(targetObjects={"Dataset": [datasets[0].id.val]})
+        self.doSubmit(delete, self.client)
 
         # The dataset should be deleted, but not any images.
         assert not self.query.find("Dataset", datasets[0].id.val)
@@ -433,8 +422,8 @@ class TestDelete(lib.ITest):
         images = self.importMIF(2)
 
         # Now delete one image
-        delete = omero.cmd.Delete("/Image", images[0].id.val, None)
-        self.doAllSubmit([delete], self.client, test_should_pass=False)
+        delete = Delete2(targetObjects={"Image": [images[0].id.val]})
+        self.doSubmit(delete, self.client, test_should_pass=False)
 
         # Neither image should be deleted.
         assert images[0].id.val == self.query.find(
@@ -456,8 +445,8 @@ class TestDelete(lib.ITest):
             self.link(ds.proxy(), images[i].proxy())
 
         # Now delete the dataset, should succeed
-        delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
-        self.doAllSubmit([delete], self.client)
+        delete = Delete2(targetObjects={"Dataset": [ds.id.val]})
+        self.doSubmit(delete, self.client)
 
         # The dataset, fileset and both images should be deleted.
         assert not self.query.find("Dataset", ds.id.val)
@@ -479,9 +468,9 @@ class TestDelete(lib.ITest):
             self.link(datasets[i].proxy(), images[i].proxy())
 
         # Now delete all datasets, should succeed
-        delete1 = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
-        delete2 = omero.cmd.Delete("/Dataset", datasets[1].id.val, None)
-        self.doAllSubmit([delete1, delete2], self.client)
+        dids = [datasets[0].id.val, datasets[1].id.val]
+        delete = Delete2(targetObjects={"Dataset": dids})
+        self.doSubmit(delete, self.client)
 
         # Both datasets, the fileset and both images should be deleted.
         assert not self.query.find("Dataset", datasets[0].id.val)
@@ -500,9 +489,9 @@ class TestDelete(lib.ITest):
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         # Now delete all images, should succeed
-        delete1 = omero.cmd.Delete("/Image", images[0].id.val, None)
-        delete2 = omero.cmd.Delete("/Image", images[1].id.val, None)
-        self.doAllSubmit([delete1, delete2], self.client)
+        iids = [images[0].id.val, images[1].id.val]
+        delete = Delete2(targetObjects={"Image": iids})
+        self.doSubmit(delete, self.client)
 
         # The fileset and both images should be deleted.
         assert not self.query.find("Fileset", fsId)
@@ -519,8 +508,8 @@ class TestDelete(lib.ITest):
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         # Now delete the fileset, should succeed
-        delete = omero.cmd.Delete("/Fileset", fsId, None)
-        self.doAllSubmit([delete], self.client)
+        delete = Delete2(targetObjects={"Fileset": [fsId]})
+        self.doSubmit(delete, self.client)
 
         # The dataset, fileset and both images should be deleted.
         assert not self.query.find("Fileset", fsId)
@@ -537,10 +526,9 @@ class TestDelete(lib.ITest):
         imagesFsTwo = self.importMIF(2)
 
         # delete should fail...
-        delete1 = omero.cmd.Delete("/Image", imagesFsOne[0].id.val, None)
-        delete2 = omero.cmd.Delete("/Image", imagesFsTwo[0].id.val, None)
-        self.doAllSubmit([delete1, delete2], self.client,
-                         test_should_pass=False)
+        iids = [imagesFsOne[0].id.val, imagesFsTwo[0].id.val]
+        delete = Delete2(targetObjects={"Image": iids})
+        self.doSubmit(delete, self.client, test_should_pass=False)
 
     def testDeleteDatasetTwoFilesetsErr(self):
         """
@@ -557,8 +545,8 @@ class TestDelete(lib.ITest):
             self.link(ds.proxy(), i[0].proxy())
 
         # delete should remove only the Dataset
-        delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
-        self.doAllSubmit([delete], self.client)
+        delete = Delete2(targetObjects={"Dataset": [ds.id.val]})
+        self.doSubmit(delete, self.client)
 
         # The dataset should be deleted.
         assert not self.query.find("Dataset", ds.id.val)
@@ -615,8 +603,9 @@ class TestDelete(lib.ITest):
         self.link(p1, d)
         self.link(p2, d)
 
-        delete = omero.cmd.Delete(
-            type="/Project", id=p1.id.val, options={"/Dataset": "HARD"})
+        hard = ChildOption(includeType=["Dataset"])
+        delete = Delete2(
+            targetObjects={"Project": [p1.id.val]}, childOptions=[hard])
         self.doSubmit(delete, self.client)
 
         assert self.query.find("Project", p2.id.val)
@@ -705,8 +694,9 @@ class TestDelete(lib.ITest):
         self.link(d1, i)
         self.link(d2, i)
 
-        delete = omero.cmd.Delete(
-            type="/Dataset", id=d1.id.val, options={"/Image": "HARD"})
+        hard = ChildOption(includeType=["Image"])
+        delete = Delete2(
+            targetObjects={"Dataset": [d1.id.val]}, childOptions=[hard])
         self.doSubmit(delete, self.client)
 
         assert not self.query.find("Dataset", d1.id.val)
@@ -720,7 +710,7 @@ class TestDelete(lib.ITest):
 
         img = self.update.saveAndReturnObject(img)
 
-        command = omero.cmd.Delete("/Image", img.id.val, None)
+        command = Delete2(targetObjects={"Image": [img.id.val]})
         handle = self.client.sf.submit(command)
 
         end_by = time() + 5
