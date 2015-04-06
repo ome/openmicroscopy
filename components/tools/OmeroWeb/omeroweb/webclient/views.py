@@ -133,8 +133,8 @@ def login(request):
                 useragent, username, password, userip=get_client_ip(request))
             if conn is not None:
                 # Check if user is in "user" group
-                userGroupId = \
-                    conn.getAdminService().getSecurityRoles().userGroupId
+                roles = conn.getAdminService().getSecurityRoles()
+                userGroupId = roles.userGroupId
                 if userGroupId in conn.getEventContext().memberOfGroups:
                     request.session['connector'] = connector
                     # UpgradeCheck URL should be loaded from the server or
