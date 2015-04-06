@@ -71,7 +71,10 @@ public class ConfigurationInfo
 	
 	/** The id of a project.*/
 	private long projectId;
-	
+
+	/** The id of a project.*/
+    private long screenId;
+
 	/** Creates a new instance.*/
 	public ConfigurationInfo()
 	{
@@ -206,5 +209,19 @@ public class ConfigurationInfo
 	 * @param projectId The value to set.
 	 */
 	public void setProjectId(long projectId) { this.projectId = projectId; }
+
+	   /**
+     * Returns the screen's identifier.
+     * 
+     * @return See above.
+     */
+    public long getScreenId() { return screenId; }
+    
+    /**
+     * Sets the screen's identifier.
+     * 
+     * @param screenId The value to set.
+     */
+    public void setScreenId(long screenId) { this.screenId = screenId; }
 
 }

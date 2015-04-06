@@ -106,12 +106,14 @@ public class Setup {
 			info.setHostName(p.getProperty("omero.host"));
 			info.setPassword(p.getProperty("omero.pass"));
 			info.setUserName(p.getProperty("omero.user"));
-			info.setImageId(Long.parseLong(p.getProperty("omero.imageId")));
-			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetId")));
-			info.setProjectId(Long.parseLong(p.getProperty("omero.projectId")));
-			info.setPlateId(Long.parseLong(p.getProperty("omero.plateId")));
+			info.setPort(Integer.parseInt(p.getProperty("omero.port")));
+			info.setImageId(Long.parseLong(p.getProperty("omero.imageid")));
+			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetid")));
+			info.setProjectId(Long.parseLong(p.getProperty("omero.projectid")));
+			info.setScreenId(Long.parseLong(p.getProperty("omero.screenid")));
+			info.setPlateId(Long.parseLong(p.getProperty("omero.plateid")));
 			info.setPlateAcquisitionId(Long.parseLong(
-					p.getProperty("omero.plateAcquisitionId")));
+					p.getProperty("omero.plateAcquisitionid")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			//wrong configuration
