@@ -24,15 +24,10 @@
 package training;
 
 
-//Java imports
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-import omero.ServerError;
-//Application-internal dependencies
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
@@ -84,14 +79,18 @@ public class Connector {
 
     /** Connects to the server.*/
     protected void connect()
-            throws Exception
+      throws Exception
     {
-        client = new client(info.getHostName(), info.getPort());
-        client.createSession(info.getUserName(), info.getPassword());
-        // if you want to have the data transfer encrypted then you can 
-        // use the entry variable otherwise use the following 
-        unsecureClient = client.createClient(false);
-        entryUnencrypted = unsecureClient.getSession();
+        try {
+            client = new client(info.getHostName(), info.getPort());
+            client.createSession(info.getUserName(), info.getPassword());
+            // if you want to have the data transfer encrypted then you can 
+            //use the entry variable otherwise use the following 
+            unsecureClient = client.createClient(false);
+            entryUnencrypted = unsecureClient.getSession();
+        } catch (Exception e) {
+           throw new Exception("Cannot create a session");
+        }
     }
 
     /** Disconnects.*/
@@ -103,11 +102,12 @@ public class Connector {
     }
 
     /**
-     * Shows how to connect to omero.
-     * 
-     * @param info Configuration info or <code>null</code>.
+     * Sets the connection information and connect if <code>true</code>.
+     *
+     * @param info
+     * @param connect
      */
-    Connector(ConfigurationInfo info)
+    Connector(ConfigurationInfo info, boolean connect)
     {
         if (info == null) { //run from main
             info = new ConfigurationInfo();
@@ -116,17 +116,29 @@ public class Connector {
             info.setUserName(userName);
         }
         this.info = info;
-        try {
-            connect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+        if (connect) {
             try {
-                disconnect(); // Be sure to disconnect
+                connect();
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    disconnect(); // Be sure to disconnect
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
+    }
+
+    /**
+     * Shows how to connect to omero.
+     * 
+     * @param info Configuration info or <code>null</code>.
+     */
+    Connector(ConfigurationInfo info)
+    {
+        this(info, false);
     }
 
     /**
@@ -352,7 +364,7 @@ public class Connector {
      */
     public static void main(String[] args)
     {
-        new Connector(null);
+        new Connector(null, true);
         System.exit(0);
     }
 
