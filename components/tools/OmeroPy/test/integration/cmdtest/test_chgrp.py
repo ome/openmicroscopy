@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-   Test of the omero.cmd.Chgrp Request type.
+   Test of the omero.cmd.Chgrp2 Request type.
 """
 
 import omero
@@ -38,7 +38,7 @@ class TestChgrp(lib.ITest):
         img = self.update.saveAndReturnObject(img)
 
         # New method
-        chgrp = omero.cmd.Chgrp(type="/Image", id=img.id.val, options=None)
+        chgrp = omero.cmd.Chgrp2(targetObjects={'Image': [img.id.val]})
         handle = self.sf.submit(chgrp)
         cb = CmdCallbackI(self.client, handle)
         cb.loop(20, 750)
