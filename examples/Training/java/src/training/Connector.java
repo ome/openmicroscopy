@@ -82,14 +82,18 @@ public class Connector {
       throws Exception
     {
         try {
-            client = new client(info.getHostName(), info.getPort());
+            if (info.getPort() > 0) {
+                client = new client(info.getHostName(), info.getPort());
+            } else {
+                client = new client(info.getHostName());
+            }
             client.createSession(info.getUserName(), info.getPassword());
             // if you want to have the data transfer encrypted then you can 
             //use the entry variable otherwise use the following 
             unsecureClient = client.createClient(false);
             entryUnencrypted = unsecureClient.getSession();
         } catch (Exception e) {
-           throw new Exception("Cannot create a session");
+            throw new Exception("Cannot create a session");
         }
     }
 
