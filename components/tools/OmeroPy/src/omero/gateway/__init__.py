@@ -16,6 +16,7 @@ import os
 THISPATH = os.path.dirname(os.path.abspath(__file__))
 
 import warnings
+from collections import defaultdict
 from types import IntType, LongType, UnicodeType, ListType
 from types import BooleanType, TupleType, StringType, StringTypes
 from datetime import datetime
@@ -865,24 +866,20 @@ class BlitzObjectWrapper (object):
 
     def unlinkAnnotations(self, ns):
         """
-        Uses updateService to unlink annotations, with specified ns
+        Submits request to unlink annotations, with specified ns
 
         :param ns:      Namespace
         :type ns:       String
         """
-        dcs = []
+        links = defaultdict(list)
         for al in self._getAnnotationLinks(ns=ns):
-            dcs.append(omero.cmd.Delete(
-                # This could be refactored
-                "/%s" % al.ice_id().split("::")[-1],
-                al.id.val, None))
+            links[al.ice_id().split("::")[-1]].append(al.id.val)
 
-        # Using omero.cmd.Delete rather than deleteObjects since we need
+        # Using omero.cmd.Delete2 rather than deleteObjects since we need
         # spec/id pairs rather than spec+id_list as arguments
-        if len(dcs):
-            doall = omero.cmd.DoAll()
-            doall.requests = dcs
-            handle = self._conn.c.sf.submit(doall, self._conn.SERVICE_OPTS)
+        if len(links):
+            delete = omero.cmd.Delete2(targetObjects=links)
+            handle = self._conn.c.sf.submit(delete, self._conn.SERVICE_OPTS)
             try:
                 self._conn._waitOnCmd(handle)
             finally:

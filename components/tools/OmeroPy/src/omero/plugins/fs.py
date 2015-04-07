@@ -73,8 +73,7 @@ def prep_directory(client, mrepo):
     then deleting the created fileset.
     """
 
-    from omero.cmd import Delete
-    from omero.cmd import DoAll
+    from omero.cmd import Delete2, DoAll
     from omero.grid import ImportSettings
 
     from omero.model import ChecksumAlgorithmI
@@ -115,12 +114,8 @@ def prep_directory(client, mrepo):
         oid = dir.items()[0][1].get("id")
         ofile = client.sf.getQueryService().get("OriginalFile", oid)
 
-        delete1 = Delete()
-        delete1.type = "/Fileset"
-        delete1.id = fs.id.val
-        delete2 = Delete()
-        delete2.type = "/OriginalFile"
-        delete2.id = ofile.id.val
+        delete1 = Delete2(targetObjects={'Fileset': [fs.id.val]})
+        delete2 = Delete2(targetObjects={'OriginalFile': [ofile.id.val]})
         doall = DoAll()
         doall.requests = [delete1, delete2]
         cb = client.submit(doall)
