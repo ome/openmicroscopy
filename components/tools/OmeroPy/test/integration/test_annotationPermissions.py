@@ -70,12 +70,12 @@ class AnnotationPermissions(lib.ITest):
         for user in self.users:
             self.clients[user].closeSession()
 
-    def chmodGroupAs(self, user, perms):
+    def chmodGroupAs(self, user, perms, succeed=True):
         client = self.clients[user]
-        # Using the deprecated method since
-        # it was using a specific group context.
-        client.sf.getAdminService().changePermissions(
-            self.group, omero.model.PermissionsI(perms))
+        chmod = omero.cmd.Chmod(
+            type="/ExperimenterGroup", id=self.group.id.val,
+            permissions=perms)
+        self.doSubmit(chmod, client, test_should_pass=succeed)
 
     def createProjectAs(self, user):
         """ Adds a Project. """
@@ -372,8 +372,8 @@ class TestMovePrivatePermissions(AnnotationPermissions):
         project = self.createProjectAs("member1")
         tag = self.createTagAs("member2")
         self.linkTagAs("member1", project, tag)
-        with pytest.raises(omero.SecurityViolation):
-            self.chmodGroupAs(admin_type, "rw----")
+        # This chmod should not succeed
+        self.chmodGroupAs(admin_type, "rw----", succeed=False)
 
         for x in ("member1", "member2"):
             # Check reading
