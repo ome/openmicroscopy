@@ -2824,7 +2824,6 @@ class _BlitzGateway (object):
                 'from FilesetEntry as fse where fse.id in ('\
                 '   select distinct(i_fse.id) from FilesetEntry as i_fse '\
                 '   join i_fse.fileset as i_fileset'\
-                '   join i_fse.originalFile '\
                 '   join i_fileset.images as i_image '\
                 '   where i_image.id in (:ids)'\
                 ')'
