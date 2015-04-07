@@ -15,6 +15,7 @@
 
 import re
 import json
+from datetime import datetime
 import omero
 import omero.clients
 
@@ -1328,7 +1329,11 @@ def wellData_json(request, conn=None, _internal=False, **kwargs):
 def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     """
     """
+    t0 = datetime.now()
     plate = conn.getObject('plate', long(pid))
+    t1 = datetime.now()
+    logger.debug('time to get plate: %s' % (t1 - t0))
+    t0 = t1
     try:
         field = long(field or 0)
     except ValueError:
@@ -1345,23 +1350,47 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
     server_id = kwargs['server_id']
 
+    t1 = datetime.now()
+    logger.debug('time to get thumbnail URL prefix: %s' % (t1 - t0))
+    t0 = t1
+
     rv = webgateway_cache.getJson(request, server_id, plate,
                                   'plategrid-%d-%d' % (field, thumbsize))
     if rv is None:
+        t1 = datetime.now()
+        logger.debug('time to check cache miss: %s' % (t1 - t0))
+        t0 = t1
+
         plate.setGridSizeConstraints(8, 12)
-        for row in plate.getWellGrid(field):
+        t1 = datetime.now()
+        logger.debug('time to set grid constraints: %s' % (t1 - t0))
+        t0 = t1
+        t0 = t1
+        wellGrid = plate.getWellGrid(field)
+        t1 = datetime.now()
+        logger.debug('time to get well grid: %s' % (t1 - t0))
+        for row in wellGrid:
             tr = []
             for e in row:
                 if e:
                     i = e.getImage()
+                    t2 = datetime.now()
+                    logger.warn('time to get image: %s' % (t2 - t1))
+                    t1 = t2
                     if i:
                         t = i.simpleMarshal(xtra=xtra)
                         t['wellId'] = e.getId()
                         t['field'] = field
                         tr.append(t)
+                        t2 = datetime.now()
+                        logger.debug('time to marshal image: %s' % (t2 - t1))
+                        t1 = t2
                         continue
                 tr.append(None)
             grid.append(tr)
+        t1 = datetime.now()
+        logger.debug('time to get wells in grid: %s' % (t1 - t0))
+        t0 = t1
         rv = {'grid': grid,
               'collabels': plate.getColumnLabels(),
               'rowlabels': plate.getRowLabels()}
