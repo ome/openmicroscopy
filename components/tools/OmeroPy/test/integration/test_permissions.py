@@ -309,7 +309,7 @@ class TestPermissions(lib.ITest):
         p1.setWorldRead(False)
         p1.setWorldAnnotate(False)
         p1.setWorldWrite(False)
-        admin.changePermissions(gr1, p1)
+        self.change_permissions(g1_id, str(p1), self.root)
         gr2 = admin.getGroup(g1_id)
         assert 'rwr---' == str(gr2.details.permissions)
 
@@ -324,7 +324,7 @@ class TestPermissions(lib.ITest):
         p2.setWorldRead(False)
         p2.setWorldAnnotate(False)
         p2.setWorldWrite(False)
-        admin.changePermissions(gr2, p2)
+        self.change_permissions(g1_id, str(p2), self.root)
         gr3 = admin.getGroup(g1_id)
         assert 'rwra--' == str(gr3.details.permissions)
 
@@ -338,7 +338,7 @@ class TestPermissions(lib.ITest):
         p3.setWorldRead(False)
         p3.setWorldAnnotate(False)
         p3.setWorldWrite(False)
-        admin.changePermissions(gr3, p3)
+        self.change_permissions(g1_id, str(p3), self.root)
         gr4 = admin.getGroup(g1_id)
         assert 'rwrw--' == str(gr4.details.permissions)
 
