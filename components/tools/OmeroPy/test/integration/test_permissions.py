@@ -299,7 +299,6 @@ class TestPermissions(lib.ITest):
         g1_id = admin.createGroup(new_gr1)
 
         # increase permissions of group1 to rwr---
-        gr1 = admin.getGroup(g1_id)
         p1 = PermissionsI()
         p1.setUserRead(True)
         p1.setUserWrite(True)
