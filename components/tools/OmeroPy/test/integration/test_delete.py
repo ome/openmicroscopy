@@ -211,17 +211,6 @@ class TestDelete(lib.ITest):
     def testOddMessage(self):
         store = self.client.sf.createRawFileStore()
 
-        def _formatReport(delete_handle):
-            """
-            Added as workaround to the changes made in #3006.
-            """
-            delete_report = delete_handle.getResponse()
-            if isinstance(delete_report, omero.cmd.ERR):
-                return str(delete_report)
-            elif delete_report.warning:
-                return delete_report.warning
-            return ""
-
         images = list()
         for i in range(0, 10):
             img = self.new_image()
