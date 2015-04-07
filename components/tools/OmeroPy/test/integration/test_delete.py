@@ -274,14 +274,14 @@ class TestDelete(lib.ITest):
         query_o = client_o.sf.getQueryService()
 
         handlers = list()
-        op = dict()
-        op["/Image"] = "KEEP"
-        dc = omero.cmd.Delete('/Dataset', long(dataset.id.val), op)
+        keep = ChildOption(excludeType=["Image"])
+        dc = Delete2(
+            targetObjects={'Dataset': [dataset.id.val]}, childOptions=[keep])
         handlers.append(str(client_o.sf.submit(dc)))
 
         imageToDelete = images[2]
         images.remove(imageToDelete)
-        dc2 = omero.cmd.Delete('/Image', long(imageToDelete), {})
+        dc2 = Delete2(targetObjects={'Image': [imageToDelete]})
         handlers.append(str(client_o.sf.submit(dc2)))
 
         def _formatReport(delete_handle):
@@ -292,9 +292,6 @@ class TestDelete(lib.ITest):
             rv = []
             if isinstance(delete_report, omero.cmd.ERR):
                 rv.append(str(delete_report))
-            else:
-                if delete_report.warning:
-                    rv.append(delete_report.warning)
             if len(rv) > 0:
                 return "; ".join(rv)
             return None
