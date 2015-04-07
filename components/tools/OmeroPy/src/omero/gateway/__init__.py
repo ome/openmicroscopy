@@ -2829,7 +2829,9 @@ class _BlitzGateway (object):
                 '   where i_image.id in (:ids)'\
                 ')'
         queryService = self.getQueryService()
-        count, size = queryService.projection(query, params, self.SERVICE_OPTS)[0]
+        count, size = queryService.projection(
+            query, params, self.SERVICE_OPTS
+        )[0]
         if size is None:
             size = 0
 
@@ -2876,7 +2878,9 @@ class _BlitzGateway (object):
                 '    where i_link.child.image.id in (:ids)'\
                 ')'
         queryService = self.getQueryService()
-        count, size = queryService.projection(query, params, self.SERVICE_OPTS)[0]
+        count, size = queryService.projection(
+            query, params, self.SERVICE_OPTS
+        )[0]
         if size is None:
             size = 0
         return {'fileset': False, 'count': unwrap(count), 'size': unwrap(size)}
@@ -8804,7 +8808,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         for original_file in original_files:
             yield OriginalFileWrapper(self._conn, original_file)
 
-    def getImportedImageFilePaths (self):
+    def getImportedImageFilePaths(self):
         """
         Returns a generator of path strings corresponding to the Imported
         image files that created this image, if available.

@@ -179,11 +179,6 @@ class TestFileset(object):
         for image in fileset_with_images.copyImages():
             assert image.getFileset() is not None
 
-    def testGetImportedImageFiles(self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
-            files = list(image.getImportedImageFiles())
-            assert len(files) == 4
-
     def testGetImportedImageFilePaths(
             self, gatewaywrapper, fileset_with_images):
         for image in fileset_with_images.copyImages():
@@ -202,6 +197,7 @@ class TestFileset(object):
                 '/client/path/filename_1.ext',
                 '/client/path/filename_1.ext'
             ]
+
 
 class TestArchivedOriginalFiles(object):
 
@@ -269,12 +265,6 @@ class TestArchivedOriginalFiles(object):
     def testGetFileset(self, gatewaywrapper, images_with_original_files):
         for image in images_with_original_files:
             assert image.getFileset() is None
-
-    def testGetImportedImageFiles(
-            self, gatewaywrapper, images_with_original_files):
-        for image in images_with_original_files:
-            files = list(image.getImportedImageFiles())
-            assert len(files) == 2
 
     def testGetImportedImageFilePaths(
             self, gatewaywrapper, images_with_original_files):
