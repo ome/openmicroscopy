@@ -35,7 +35,7 @@ import Ice
 import Glacier2
 import omero
 import omero.gateway
-from omero.cmd import DoAll, State, ERR, OK, Chgrp2, Delete2
+from omero.cmd import DoAll, State, ERR, OK, Chmod, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
 from omero.model import Annotation, FileAnnotationI, OriginalFileI
@@ -937,6 +937,24 @@ class ITest(object):
 
         ids = [i.id.val for i in obj]
         command = Chgrp2(targetObjects={t: ids}, groupId=target)
+
+        self.doSubmit(command, client)
+
+    def change_permissions(self, gid, perms, client=None):
+        """
+        Changes the permissions of an ExperimenterGroup object.
+        Accepts a client instance to guarantee calls in correct user contexts.
+        Creates Chmod commands and calls :func:`~test.ITest.doSubmit`.
+
+        :param gid: id of an ExperimenterGroup
+        :param perms: permissions string
+        :param client: user context
+        """
+        if client is None:
+            client = self.client
+
+        command = Chmod(
+            type="/ExperimenterGroup", id=gid, permissions=perms)
 
         self.doSubmit(command, client)
 
