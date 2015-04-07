@@ -108,8 +108,8 @@
             if (typeof OME === "undefined") {OME = {}}
 
             // init viewport
-            {% if share_id %}
-            OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share_id }}", {'mediaroot': '{{ STATIC_URL }}' } );
+            {% if share and not share.share.isOwned %}
+            OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}{{ share.share.id }}", {'mediaroot': '{{ STATIC_URL }}' } );
             {% else %}
             OME.preview_viewport = $.WeblitzViewport($("#viewport"), "{% url 'webindex' %}", {'mediaroot': '{{ STATIC_URL }}' } );
             {% endif %}
@@ -125,10 +125,11 @@
             });
 
             // Load image
-            {% if share_id %}
+            {% if share and not share.share.isOwned %}
             OME.preview_viewport.load({{ manager.image.id }}, null, location.search);
             {% else %}
             OME.preview_viewport.load({{ manager.image.id }});
+            {% endif %}
 
             // copy and paste refs is in browser via query string,
             // but we also save to session in case of page reload etc
@@ -318,11 +319,10 @@
             }
             {% endif %}
 
-            {% endif %}
 
             $("#preview_open_viewer").click(function(){
 
-              var url = "{% if share_id %}{% url 'web_image_viewer' share_id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
+              var url = "{% if share and not share.share.isOwned %}{% url 'web_image_viewer' share.share.id manager.image.id %}{% else %}{% url 'web_image_viewer' manager.image.id %}{% endif %}";
 
               var vpQuery = OME.preview_viewport.getQuery();
               // remove &zm=50
@@ -353,8 +353,6 @@
       <div class="miniview" id="viewport">
       </div>
 
-
-    {% if not share_id %}
     <div style="clear:both; height:20px"></div>
 
     <div style="text-align: left">
@@ -375,7 +373,7 @@
             Save
         </button>
 
-        <button id="rdef-save-all" class="button"
+        <button id="rdef-save-all" class="button{%if share and not share.share.isOwned %} button-disabled{% endif %}"
             title="Cannot apply settings to other images">
           <img src="{% static 'webclient/image/icon_save.png' %}" style="position:relative; top:2px" /><br>
             Save to All
@@ -439,7 +437,9 @@
         {% for rdef in rdefs %}
           <button class='rdef {% if rdef.current %}clicked{% endif %}'
             data-ownerid="{{ rdef.owner.id }}" data-rdid="{{ rdef.id }}">
-            <img class='rdef' src="{% url 'render_thumbnail' manager.image.id %}?rdefId={{ rdef.id }}"/><br>
+            <img class='rdef' src="
+{% if share.share.id and not share.share.isOwned %}{% url 'render_thumbnail'  manager.image.id share.share.id%}
+{% else %}{% url 'render_thumbnail' manager.image.id %}{% endif %}?rdefId={{ rdef.id }}"/><br>
             <span {% ifequal manager.image.getDetails.owner.id.val rdef.owner.id %}class="owner"{% endifequal %}>
               {{ rdef.owner.firstName }} {{ rdef.owner.lastName }}
             </span>
@@ -447,6 +447,6 @@
         {% endfor %}
       </li>
     </ul>
-    {% endif %}
+
 
 </div>

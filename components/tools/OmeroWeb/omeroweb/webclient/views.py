@@ -1104,11 +1104,14 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     Currently this doesn't do much except launch the view-port plugin using
     the image Id (and share Id if necessary)
     """
+    context = {}
 
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    if share_id:
+        context['share'] = BaseShare(conn, share_id)
 
     if c_type == "well":
         manager.image = manager.well.getImage(index)
@@ -1142,7 +1145,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })
 
-    context = {'manager': manager, 'share_id': share_id}
+    context['manager'] = manager
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
     context['template'] = "webclient/annotations/metadata_preview.html"
