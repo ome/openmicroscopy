@@ -4,7 +4,7 @@
 """
    gateway tests - Delete methods
 
-   Copyright 2012-2013 Glencoe Software, Inc. All rights reserved.
+   Copyright 2012-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
    pytest fixtures used as defined in conftest.py:
