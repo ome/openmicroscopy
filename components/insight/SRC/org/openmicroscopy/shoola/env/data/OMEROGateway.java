@@ -73,12 +73,20 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
+
 import pojos.util.PojoMapper;
+
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.Connector;
+import omero.gateway.DSOutOfServiceException;
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -4271,7 +4279,7 @@ class OMEROGateway
                     Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
                     List<Request> l = new ArrayList<Request>();
                     l.add(chmod);
-                    return getConnector(ctx, true, false).submit(l, null);
+                    return new RequestCallback(getConnector(ctx, true, false).submit(l, null));
                 } catch (Throwable e) {
                     handleException(e, "Cannot update the group's permissions. ");
                 }
@@ -8396,7 +8404,7 @@ class OMEROGateway
 			commands.add(Requests.chgrp(objects, target.getGroupID()));
 			commands.addAll(saves);
 			
-			return c.submit(commands, target);
+			return new RequestCallback(c.submit(commands, target));
 		} catch (Throwable e) {
 			handleException(e, "Cannot transfer the data.");
 		}
@@ -8620,7 +8628,7 @@ class OMEROGateway
 		try {
 			Connector c = getConnector(ctx, true, true);
 			if (c == null) return null;
-			return c.submit(commands, null);
+			return new RequestCallback(c.submit(commands, null));
 		} catch (Throwable e) {
 			handleException(e, "Cannot execute the command.");
 			// Never reached

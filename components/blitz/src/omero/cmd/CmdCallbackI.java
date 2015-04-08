@@ -107,6 +107,10 @@ public class CmdCallbackI extends _CmdCallbackDisp {
         this(client.getAdapter(), client.getCategory(), handle);
     }
 
+    public CmdCallbackI(CmdCallbackI ccb) throws ServerError {
+        this(ccb.adapter, ccb.id.category, ccb.handle);
+    }
+    
     public CmdCallbackI(Ice.ObjectAdapter adapter, String category,
             HandlePrx handle)
         throws ServerError {

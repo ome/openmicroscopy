@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.env.data;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.events.HeartbeatEvent;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 
 
 /** 

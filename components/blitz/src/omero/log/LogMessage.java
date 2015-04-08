@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.log;
+package omero.log;
 
 //Java imports
 import java.io.PrintWriter;
@@ -41,7 +41,7 @@ import java.io.StringWriter;
  * {@link #print(Throwable) print} method to write a stack trace into the log
  * message.
  * 
- * @see	org.openmicroscopy.shoola.env.log.Logger
+ * @see	omero.log.shoola.env.log.Logger
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;

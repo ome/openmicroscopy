@@ -22,7 +22,7 @@
  */
 
 
-package org.openmicroscopy.shoola.env.log;
+package omero.log;
 
 //Java imports
 
