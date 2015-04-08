@@ -30,7 +30,7 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 /** 
  * Interface that every finder should implement

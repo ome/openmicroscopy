@@ -26,7 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.util.List;
 
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 //Third-party libraries
 

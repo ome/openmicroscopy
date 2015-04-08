@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+
 //Application-internal dependencies
 import omero.cmd.Request;
 import omero.cmd.graphs.ChildOption;
@@ -73,12 +74,15 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
+
 import pojos.util.PojoMapper;
+
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 
+import omero.gateway.DSOutOfServiceException;
+import omero.gateway.SecurityContext;
+import omero.log.LogMessage;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;

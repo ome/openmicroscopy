@@ -34,8 +34,8 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.env.log.Logger;
+import omero.log.LogMessage;
+import omero.log.Logger;
 
 /** 
  * Provides the caching service.

@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.log;
 //Java imports
 
 //Third-party libraries
+import omero.log.LogMessage;
+import omero.log.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;

@@ -36,7 +36,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 

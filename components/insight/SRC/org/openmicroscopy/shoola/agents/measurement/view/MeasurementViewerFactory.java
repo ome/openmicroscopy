@@ -42,7 +42,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.ActivationAction;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.ChannelData;
 import pojos.PixelsData;
