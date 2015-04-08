@@ -22,6 +22,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 
 //Java imports
+import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.EllipseRoi;
 import ij.gui.Line;
@@ -196,14 +197,23 @@ public class ROIReader {
         if (roi.getFillColor() != null) {
             settings.setFill(roi.getFillColor());
         }
-        if((Integer) roi.getCPosition() != null); {
-            int c = roi.getCPosition();shape.setC(c-1);
+        if((Integer) roi.getCPosition() != null) {
+            int c = roi.getCPosition();
+            if(c!=0){
+                shape.setC(c-1);
+            }
         }
-        if ((Integer) roi.getZPosition() != null);{
-            int z = roi.getZPosition();shape.setZ(z-1);
+        if ((Integer) roi.getZPosition() != null) {
+            int z = roi.getZPosition();
+            if(z!=0){
+                shape.setZ(z-1);
+            }
         }
-        if ((Integer) roi.getTPosition() != null);{
-            int t = roi.getTPosition();shape.setT(t-1);
+        if ((Integer) roi.getTPosition() != null) {
+            int t = roi.getTPosition();
+            if(t!=0){
+                shape.setT(t-1);
+            }
         }
     }
 
