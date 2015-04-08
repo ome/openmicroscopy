@@ -3157,7 +3157,8 @@ def activities(request, conn=None, **kwargs):
                             if key in ('stderr', 'stdout'):
                                 # just save the id of original file
                                 v = v.id.val
-                            update_callback(request, cbString, key=v)
+                            update_kwargs = {key: v}
+                            update_callback(request, cbString, **update_kwargs)
                         else:
                             if hasattr(v, "id"):
                                 # do we have an object (ImageI,
