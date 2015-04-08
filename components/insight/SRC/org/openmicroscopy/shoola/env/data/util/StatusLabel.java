@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.FileObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.util.PojoMapper;
 import pojos.DataObject;
 import pojos.FilesetData;
 import pojos.PixelsData;
