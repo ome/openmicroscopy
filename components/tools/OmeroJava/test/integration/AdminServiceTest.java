@@ -391,7 +391,7 @@ public class AdminServiceTest extends AbstractServerTest {
         e = (Experimenter) query.findByQuery(
                 "select distinct e from Experimenter e where e.id = :id", p);
         assertNotNull(e);
-        assertTrue(e.getOmeName().getValue().equals(uuid));
+        assertEquals(e.getOmeName().getValue(), uuid);
         // check if we are in the correct group i.e. user and uuid
         // now check if the user is in correct groups.
         ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
