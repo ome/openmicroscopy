@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import pojos.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
