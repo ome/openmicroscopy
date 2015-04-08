@@ -53,6 +53,16 @@ INSERT INTO dbpatch (currentVersion, currentPatch,   previousVersion,     previo
 -- check PostgreSQL server version and database encoding
 --
 
+CREATE OR REPLACE FUNCTION db_pretty_version(version INTEGER) RETURNS text AS $$
+DECLARE
+    textver TEXT;
+
+BEGIN
+    textver = (version/10000)::text || '.' || ((version/100)%100)::text || '.' || (version%100)::text;
+    RETURN textver;
+
+END;$$ LANGUAGE plpgsql;
+
 CREATE FUNCTION assert_db_server_prerequisites(version_prereq INTEGER) RETURNS void AS $$
 
 DECLARE
@@ -64,7 +74,7 @@ BEGIN
     SELECT pg_encoding_to_char(encoding) INTO STRICT char_encoding FROM pg_database WHERE datname = current_database();
 
     IF version_num < version_prereq THEN
-        RAISE EXCEPTION 'database server version % is less than OMERO prerequisite %', version_num, version_prereq;
+        RAISE EXCEPTION 'PostgreSQL database server version % is less than OMERO prerequisite %', db_pretty_version(version_num), db_pretty_version(version_prereq);
     END IF;
 
     IF char_encoding != 'UTF8' THEN
@@ -75,6 +85,7 @@ END;$$ LANGUAGE plpgsql;
 
 SELECT assert_db_server_prerequisites(90200);
 DROP FUNCTION assert_db_server_prerequisites(INTEGER);
+DROP FUNCTION db_pretty_version(version INTEGER);
 
 -- Temporary workaround for the width of map types
 alter table annotation_mapvalue alter column name type text;
