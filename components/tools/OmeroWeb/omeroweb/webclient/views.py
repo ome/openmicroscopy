@@ -3051,7 +3051,7 @@ def activities(request, conn=None, **kwargs):
                                          len(rsp.invalidemails))
                                 update_callback(
                                     request, cbString,
-                                    status="failed",
+                                    status="finished",
                                     rsp={'success': rsp.success,
                                          'total': total})
                                 if (len(rsp.invalidusers) > 0 or
