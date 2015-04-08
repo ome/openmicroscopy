@@ -85,8 +85,6 @@ public class ReadData
 	/** The id of a plate.*/
 	private long plateId = 1;
 	
-	/** The id of the plate acquisition corresponding to the plate.*/
-	private long plateAcquisitionId = 1;
 	//end edit
 
 	/** Reference to the connector.*/
@@ -281,10 +279,6 @@ public class ReadData
 		sb.append("left outer join fetch img.pixels as pix ");
         sb.append("left outer join fetch pix.pixelsType as pt ");
         sb.append("where well.plate.id = :plateID");
-        if (info.getPlateAcquisitionId() > 0) {
-        	 sb.append(" and pa.id = :acquisitionID");
-        	 param.addLong("acquisitionID", info.getPlateAcquisitionId());
-        }
         List<IObject> results = proxy.findAllByQuery(sb.toString(), param);
         Iterator<IObject> i = results.iterator();
         WellData well;
@@ -315,10 +309,6 @@ public class ReadData
 		sb.append("left outer join fetch img.pixels as pix ");
 		sb.append("left outer join fetch pix.pixelsType as pt ");
         sb.append("where plate.id = :plateID");
-        if (info.getPlateAcquisitionId() > 0) {
-        	 sb.append(" and pa.id = :acquisitionID");
-        	 param.addLong("acquisitionID", info.getPlateAcquisitionId());
-        }
         List<IObject> results = proxy.findAllByQuery(sb.toString(), param);
         Iterator<IObject> i = results.iterator();
         PlateData plate;
@@ -341,7 +331,6 @@ public class ReadData
 			info.setUserName(userName);
 			info.setImageId(imageId);
 			info.setDatasetId(datasetId);
-			info.setPlateAcquisitionId(plateAcquisitionId);
 			info.setPlateId(plateId);
 		}
 		connector = new Connector(info);

@@ -117,8 +117,6 @@ public class Setup {
 			info.setProjectId(Long.parseLong(p.getProperty("omero.projectid")));
 			info.setScreenId(Long.parseLong(p.getProperty("omero.screenid")));
 			info.setPlateId(Long.parseLong(p.getProperty("omero.plateid")));
-			info.setPlateAcquisitionId(Long.parseLong(
-					p.getProperty("omero.plateAcquisitionid")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			//wrong configuration
