@@ -73,7 +73,7 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
-import org.openmicroscopy.shoola.env.data.util.PojoMapper;
+import pojos.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;

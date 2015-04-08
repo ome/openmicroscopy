@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.env.data.util;
+package pojos.util;
 
 //Java imports
 import java.lang.reflect.InvocationTargetException;
