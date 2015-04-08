@@ -25,13 +25,14 @@ try:
     import Image
 except ImportError:
     from PIL import Image
+
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+
 # Script definition
 
-conn = BlitzGateway(
-    "teacher", "ome", host="gretzky.openmicroscopy.org.uk", port=4064)
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
 imageId = 27565
-
 
 # First Task: Get the Average pixel value for a specified region:
 image = conn.getObject("Image", imageId)
