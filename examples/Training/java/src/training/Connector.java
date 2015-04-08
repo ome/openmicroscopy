@@ -47,6 +47,7 @@ import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.grid.SharedResourcesPrx;
+import omero.model.ExperimenterGroupI;
 
 /** 
  * Sample code showing how to connect to an OMERO server.
@@ -88,6 +89,11 @@ public class Connector {
                 client = new client(info.getHostName());
             }
             client.createSession(info.getUserName(), info.getPassword());
+            if (info.getGroupId() > 0) {
+                client.getSession().setSecurityContext(
+                        new ExperimenterGroupI(info.getGroupId(), false));
+            }
+            
             // if you want to have the data transfer encrypted then you can 
             //use the entry variable otherwise use the following 
             unsecureClient = client.createClient(false);

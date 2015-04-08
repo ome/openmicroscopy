@@ -75,12 +75,33 @@ public class ConfigurationInfo
 	/** The id of a project.*/
     private long screenId;
 
+    /** The groupId to use when logging in.*/
+    private long groupId;
+
 	/** Creates a new instance.*/
 	public ConfigurationInfo()
 	{
 		setPort(DEFAULT_PORT);
+		groupId = -1;
 	}
-	
+
+	/**
+	 * Returns the group's identifier.
+	 *
+	 * @return See above.
+	 */
+	public long getGroupId() { return groupId; }
+
+	/**
+	 * Sets the group's identifier.
+	 *
+	 * @param groupId The value to set.
+	 */
+	public void setGroupId(long groupId)
+	{
+	    this.groupId = groupId;
+	}
+
 	/**
 	 * Returns the hostname.
 	 * 
