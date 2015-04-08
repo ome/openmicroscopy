@@ -30,11 +30,11 @@ package org.openmicroscopy.shoola.env.data.t;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesTestCase;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 
 /** 

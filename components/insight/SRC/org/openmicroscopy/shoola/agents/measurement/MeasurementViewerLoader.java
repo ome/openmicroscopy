@@ -32,9 +32,9 @@ package org.openmicroscopy.shoola.agents.measurement;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import omero.log.LogMessage;
 
 /** 
  * Parent of all classes that load data asynchronously for a 

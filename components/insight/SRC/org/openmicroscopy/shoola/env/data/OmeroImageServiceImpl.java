@@ -92,12 +92,20 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
+
 import pojos.util.PojoMapper;
+
 import org.openmicroscopy.shoola.env.data.util.Resolver;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import omero.gateway.Connector;
+import omero.gateway.DSOutOfServiceException;
+import omero.gateway.SecurityContext;
+
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import omero.log.LogMessage;
+
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;

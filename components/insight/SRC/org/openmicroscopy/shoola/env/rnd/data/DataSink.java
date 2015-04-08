@@ -34,7 +34,7 @@ import omero.api.RawPixelsStorePrx;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 import pojos.PixelsData;

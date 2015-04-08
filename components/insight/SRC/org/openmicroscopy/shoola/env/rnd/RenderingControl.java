@@ -35,7 +35,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 
 import pojos.ChannelData;

@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
 import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import omero.gateway.SecurityContext;
 
 import pojos.DataObject;
 import pojos.DatasetData;

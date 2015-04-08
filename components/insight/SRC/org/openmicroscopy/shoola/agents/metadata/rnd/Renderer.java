@@ -33,7 +33,7 @@ import javax.swing.JComponent;
 
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
