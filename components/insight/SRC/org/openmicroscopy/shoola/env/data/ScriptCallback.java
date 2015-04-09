@@ -74,6 +74,14 @@ public class ScriptCallback
 	/** The results of the script. */
 	private Map<String, Object> results;
 	
+	public ScriptCallback(long scriptID, ProcessCallbackI pcb)
+        throws ServerError
+    {
+	    super(pcb);
+        this.scriptID = scriptID;
+        results = null;
+    }
+	
 	/**
 	 * Creates a new instance.
 	 * 

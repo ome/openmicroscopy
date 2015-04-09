@@ -108,7 +108,7 @@ import omero.util.CommonsLangUtils;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class Connector
+class Connector
 {
 
     /**
@@ -183,8 +183,7 @@ public class Connector
         logger.debug(this, msg);
     }
 
-
-    public Connector(SecurityContext context, client client,
+    Connector(SecurityContext context, client client,
             ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
                     throws Exception
     {
@@ -227,7 +226,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public SharedResourcesPrx getSharedResources()
+    SharedResourcesPrx getSharedResources()
             throws DSOutOfServiceException
     {
         return SharedResourcesPrxHelper.uncheckedCast(
@@ -240,7 +239,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IRenderingSettingsPrx getRenderingSettingsService()
+    IRenderingSettingsPrx getRenderingSettingsService()
             throws DSOutOfServiceException
     {
         return IRenderingSettingsPrxHelper.uncheckedCast(
@@ -254,7 +253,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IRepositoryInfoPrx getRepositoryService()
+    IRepositoryInfoPrx getRepositoryService()
             throws DSOutOfServiceException
     {
         return IRepositoryInfoPrxHelper.uncheckedCast(
@@ -268,7 +267,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IScriptPrx getScriptService()
+    IScriptPrx getScriptService()
             throws DSOutOfServiceException
     {
         return IScriptPrxHelper.uncheckedCast(
@@ -282,7 +281,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IContainerPrx getPojosService()
+    IContainerPrx getPojosService()
             throws DSOutOfServiceException
     {
         return IContainerPrxHelper.uncheckedCast(
@@ -296,7 +295,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IQueryPrx getQueryService()
+    IQueryPrx getQueryService()
             throws DSOutOfServiceException
     {
         return IQueryPrxHelper.uncheckedCast(
@@ -310,7 +309,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IUpdatePrx getUpdateService()
+    IUpdatePrx getUpdateService()
             throws DSOutOfServiceException
     {
         return IUpdatePrxHelper.uncheckedCast(
@@ -324,7 +323,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IMetadataPrx getMetadataService()
+    IMetadataPrx getMetadataService()
             throws DSOutOfServiceException
     {
         return IMetadataPrxHelper.uncheckedCast(
@@ -338,7 +337,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IRoiPrx getROIService()
+     IRoiPrx getROIService()
             throws DSOutOfServiceException
     {
         return IRoiPrxHelper.uncheckedCast(
@@ -351,7 +350,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IConfigPrx getConfigService()
+     IConfigPrx getConfigService()
             throws DSOutOfServiceException
     {
         return IConfigPrxHelper.uncheckedCast(
@@ -365,7 +364,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public ThumbnailStorePrx getThumbnailService()
+     ThumbnailStorePrx getThumbnailService()
             throws DSOutOfServiceException
     {
         return ThumbnailStorePrxHelper.uncheckedCast(
@@ -379,7 +378,7 @@ public class Connector
      * @return See above.
      * @throws @throws Throwable Thrown if the service cannot be initialized.
      */
-    public ExporterPrx getExporterService()
+     ExporterPrx getExporterService()
             throws DSOutOfServiceException
     {
         return ExporterPrxHelper.uncheckedCast(
@@ -393,7 +392,7 @@ public class Connector
      * @return See above.
      * @throws @throws Throwable Thrown if the service cannot be initialized.
      */
-    public RawFileStorePrx getRawFileService()
+     RawFileStorePrx getRawFileService()
             throws DSOutOfServiceException
     {
         return RawFileStorePrxHelper.uncheckedCast(
@@ -407,7 +406,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public RawPixelsStorePrx getPixelsStore()
+     RawPixelsStorePrx getPixelsStore()
             throws DSOutOfServiceException
     {
         return RawPixelsStorePrxHelper.uncheckedCast(
@@ -421,7 +420,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IPixelsPrx getPixelsService()
+     IPixelsPrx getPixelsService()
             throws DSOutOfServiceException
     {
         return IPixelsPrxHelper.uncheckedCast(
@@ -435,7 +434,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public SearchPrx getSearchService()
+     SearchPrx getSearchService()
             throws DSOutOfServiceException
     {
         return SearchPrxHelper.uncheckedCast(
@@ -448,7 +447,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IProjectionPrx getProjectionService()
+     IProjectionPrx getProjectionService()
             throws DSOutOfServiceException
     {
         return IProjectionPrxHelper.uncheckedCast(
@@ -462,7 +461,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IAdminPrx getAdminService()
+     IAdminPrx getAdminService()
             throws DSOutOfServiceException
     {
         return getAdminService(unsecureClient == null);
@@ -477,7 +476,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public IAdminPrx getAdminService(boolean secure)
+     IAdminPrx getAdminService(boolean secure)
             throws DSOutOfServiceException
     {
         return IAdminPrxHelper.uncheckedCast(
@@ -494,7 +493,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public OMEROMetadataStoreClient getImportStore()
+     OMEROMetadataStoreClient getImportStore()
             throws DSOutOfServiceException
     {
         OMEROMetadataStoreClient importStore = new OMEROMetadataStoreClient();
@@ -518,7 +517,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public RenderingEnginePrx getRenderingService(long pixelsID, CompressionQuality compression)
+     RenderingEnginePrx getRenderingService(long pixelsID, CompressionQuality compression)
             throws DSOutOfServiceException, ServerError
     {
         RenderingEnginePrx prx = null;
@@ -544,7 +543,7 @@ public class Connector
      * 
      * @throws Throwable Thrown if an error occurred while rejoining the session.
      */
-    public void joinSession()
+     void joinSession()
             throws Throwable
     {
         String uuid = secureClient.getSessionId();
@@ -570,7 +569,7 @@ public class Connector
      * 
      * @return See above.
      */
-    public long getGroupID() { return context.getGroupID(); }
+     long getGroupID() { return context.getGroupID(); }
 
     //
     // Cleanup
@@ -582,7 +581,7 @@ public class Connector
      * @param networkup Pass <code>true</code> if the network is up,
      * <code>false</code> otherwise.
      */
-    public void close(boolean networkup)
+     void close(boolean networkup)
             throws Throwable
     {
         secureClient.setFastShutdown(!networkup);
@@ -601,7 +600,7 @@ public class Connector
      * TODO: along with the TODO on derived, this will need to be reviewed
      * for race conditions.
      **/
-    public void closeImport()
+     void closeImport()
     {
         shutdownImports();
         try {
@@ -617,7 +616,7 @@ public class Connector
      * @param networkup Pass <code>true</code> if the network is up,
      * <code>false</code> otherwise.
      */
-    public void closeDerived(boolean networkup)
+     void closeDerived(boolean networkup)
             throws Throwable
     {
         for (final Connector c : derived.asMap().values()) {
@@ -637,7 +636,7 @@ public class Connector
      * @param rendering Pass <code>true</code> to shut down the rendering 
      * 					services, <code>false</code> otherwise.
      */
-    public void shutDownServices(boolean rendering)
+     void shutDownServices(boolean rendering)
     {
         shutdownStateful();
         shutdownImports();
@@ -653,7 +652,7 @@ public class Connector
      * 
      * @return See above.
      */
-    public String getErrorMessage(Exception e)
+     String getErrorMessage(Exception e)
     {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -667,7 +666,7 @@ public class Connector
      * 
      * @return See above.
      */
-    public boolean keepSessionAlive()
+     boolean keepSessionAlive()
     {
         boolean success = true;
         try {
@@ -695,7 +694,7 @@ public class Connector
      * 
      * @param proxy The proxy to close.
      */
-    public void close(StatefulServiceInterfacePrx proxy)
+     void close(StatefulServiceInterfacePrx proxy)
     {
         if (proxy == null) {
             return;
@@ -729,7 +728,7 @@ public class Connector
      * 
      * @param pixelsId The id of the pixels set.
      */
-    public void shutDownRenderingEngine(long pixelsId)
+     void shutDownRenderingEngine(long pixelsId)
     {
         Collection<RenderingEnginePrx> proxies = reServices.removeAll(pixelsId);
         for (RenderingEnginePrx prx : proxies) {
@@ -738,7 +737,7 @@ public class Connector
     }
 
     /** Shuts down the import services.*/
-    public void shutdownImports() {
+     void shutdownImports() {
         Collection<OMEROMetadataStoreClient> imports = null;
         synchronized (importStores) {
             imports = importStores.keySet();
@@ -755,7 +754,7 @@ public class Connector
     }
 
     /** Shuts down the stateful services.*/
-    public void shutdownStateful() {
+     void shutdownStateful() {
         Collection<StatefulServiceInterfacePrx> proxies = null;
         synchronized (statefulServices) {
             proxies = statefulServices.values();
@@ -772,7 +771,7 @@ public class Connector
      * 
      * @return See above.
      */
-    public client getClient()
+     client getClient()
     {
         if (unsecureClient != null) return unsecureClient;
         return secureClient;
@@ -785,7 +784,7 @@ public class Connector
      * @param target The target context is any.
      * @return See above.
      */
-    public CmdCallbackI submit(List<Request> commands, SecurityContext target)
+     CmdCallbackI submit(List<Request> commands, SecurityContext target)
             throws Throwable
     {
         if (CollectionUtils.isEmpty(commands)) return null;
@@ -808,7 +807,7 @@ public class Connector
      * 
      * @return See above.
      */
-    public Map<SecurityContext, Set<Long>> getRenderingEngines()
+     Map<SecurityContext, Set<Long>> getRenderingEngines()
     {
         Map<SecurityContext, Set<Long>>
         map = new HashMap<SecurityContext, Set<Long>>();
@@ -829,8 +828,10 @@ public class Connector
      *            The name of the user. To be replaced by user's id.
      * @return See above.
      */
-    public Connector getConnector(final String userName) throws Throwable {
-        if (CommonsLangUtils.isBlank(userName))
+     Connector getConnector(final String userName)
+            throws Throwable
+    {
+        if (CommonsLangUtils.isBlank(userName)) 
             return this;
         return derived.get(userName, new Callable<Connector>() {
             @Override
@@ -871,7 +872,7 @@ public class Connector
      * 
      * @return See above.
      */
-    public boolean needsKeepAlive()
+     boolean needsKeepAlive()
     {
         long last = lastKeepAlive.get();
         long elapsed = System.currentTimeMillis() - last;
