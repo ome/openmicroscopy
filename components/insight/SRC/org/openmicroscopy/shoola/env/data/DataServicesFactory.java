@@ -56,15 +56,17 @@ import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
+import omero.gateway.CompressionQuality;
 import omero.gateway.DSOutOfServiceException;
+import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
 import omero.log.LogMessage;
-
 import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -147,9 +149,6 @@ public class DataServicesFactory
  
 	/** The Administration service adapter. */
 	private AdminService				admin;
-	
-    /** Keeps the client's session alive. */
-	private ScheduledThreadPoolExecutor	executor;
 
     /** Flag indicating that we try to re-establish the connection.*/
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
@@ -334,7 +333,7 @@ public class DataServicesFactory
     {
         if (connectionDialog instanceof ShutDownDialog) {
             ShutDownDialog d = (ShutDownDialog) connectionDialog;
-            d.setChecker(omeroGateway.getChecker());
+            d.setGateway(omeroGateway.getGateway());
             d.setCheckupTime(5);
         }
         connectionDialog.setModal(false);
@@ -353,7 +352,6 @@ public class DataServicesFactory
                 {
                     connectionDialog = null;
                     reconnecting.set(false);
-                    omeroGateway.resetNetwork();
                     int index = (Integer) evt.getNewValue();
                     if (index == ConnectionExceptionHandler.LOST_CONNECTION)
                         reconnect();
@@ -553,14 +551,21 @@ public class DataServicesFactory
             throw new NullPointerException("No user credentials.");
 		String name = (String) 
 		 container.getRegistry().lookup(LookupNames.MASTER);
-		if (name == null) name = LookupNames.MASTER_INSIGHT;
-		client client = omeroGateway.createSession(uc.getUserName(),
-				uc.getPassword(), uc.getHostName(), uc.isEncrypted(), name,
-				uc.getPort());
-		if (client == null || singleton == null) {
-			omeroGateway.logout();
-        	return;
-		}
+		if (name == null) 
+		    name = LookupNames.MASTER_INSIGHT;
+		
+		LoginCredentials cred = new LoginCredentials();
+        cred.getUser().setUsername(uc.getUserName());
+        cred.getUser().setPassword(uc.getPassword());
+        cred.getServer().setHostname( uc.getHostName());
+        cred.getServer().setPort(uc.getPort());
+        cred.setApplicationName(name);
+        cred.setCheckNetwork(true);
+        cred.setCompression(CompressionQuality.HIGH);
+        cred.setEncrypyion(uc.isEncrypted());
+        
+		ExperimenterData exp = omeroGateway.connect(cred);
+		
 		//check client server version
 		compatible = true;
         //Register into log file.
@@ -568,7 +573,7 @@ public class DataServicesFactory
     	String clientVersion = "";
     	if (v != null && v instanceof String)
     		clientVersion = (String) v;
-    	if (uc.getUserName().equals(client.getSessionId())) {
+    	if (uc.getUserName().equals(omeroGateway.getSessionId(exp))) {
     	    container.getRegistry().bind(LookupNames.SESSION_KEY, Boolean.TRUE);
     	}
     	;
@@ -587,9 +592,6 @@ public class DataServicesFactory
         	return;
         }
 
-        ExperimenterData exp = omeroGateway.login(client,
-                uc.getHostName(), determineCompression(uc.getSpeedLevel()),
-                uc.getGroup(), uc.getPort());
         //Post an event to indicate that the user is connected.
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(new ConnectedEvent());
@@ -607,10 +609,6 @@ public class DataServicesFactory
             msg.println(entry.getKey()+": "+entry.getValue());
         }
         registry.getLogger().info(this, msg);
-        
-        KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
-        executor = new ScheduledThreadPoolExecutor(1);
-        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
 
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         registry.bind(LookupNames.CONNECTION_SPEED, 
@@ -745,10 +743,7 @@ public class DataServicesFactory
 		if (omeroGateway != null) omeroGateway.logout();
 		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
-		 
-        if (executor != null) executor.shutdown();
         singleton = null;
-        executor = null;
         omeroGateway = null;
     }
 	
