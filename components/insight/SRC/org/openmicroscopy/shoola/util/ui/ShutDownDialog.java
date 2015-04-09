@@ -28,14 +28,14 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
-//Third-party libraries
+import omero.gateway.Gateway;
 
-//Application-internal dependencies
-import org.openmicroscopy.shoola.util.NetworkChecker;
+//Third-party libraries
 
 /**
  *  Window uses to let the user know the time before the application will shut
@@ -65,7 +65,7 @@ public class ShutDownDialog
     private int remainingTime;
 
     /** Use to check if the network is up.*/
-    private NetworkChecker checker;
+    private Gateway gateway;
 
     /** The type of shutdown windows.*/
     private int index;
@@ -104,7 +104,6 @@ public class ShutDownDialog
         okButton.setToolTipText("Shut down the application.");
         int speed = 1000;
         int pause = 1000;
-        //checker = new NetworkChecker();
         timer = new Timer(speed, this);
         timer.setInitialDelay(pause);
         timer.start();
@@ -216,10 +215,9 @@ public class ShutDownDialog
      *
      * @param checker The value to set.
      */
-    public void setChecker(NetworkChecker checker)
+    public void setGateway(Gateway gateway)
     {
-        if (checker == null) checker = new NetworkChecker();
-        this.checker = checker;
+       this.gateway = gateway;
     }
 
     /**
@@ -264,9 +262,7 @@ public class ShutDownDialog
         if (index == -1) formatText(remainingTime);
         if (remainingTime %checkupTime == 0) {
             try {
-                checker.isNetworkup(false);
-                //adapter is now ready. Check if we can actually connect.
-                if (checker.isAvailable()) {
+                if(gateway.isNetworkUp(false)) {
                     cancel();
                     return;
                 }
