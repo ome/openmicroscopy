@@ -70,6 +70,12 @@ public class LogMessage
 		super(new StringWriter());
 	}
 	
+	public LogMessage(String msg, Throwable t) {
+	    this();
+	    print(msg);
+        print(t);
+	}
+	
 	/**
 	 * Writes a stack trace into this log message.
 	 * The information from the exception context is extracted and formatted

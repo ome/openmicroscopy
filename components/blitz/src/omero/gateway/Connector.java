@@ -175,9 +175,6 @@ public class Connector
     /** Reference to the logger.*/
     private final Logger logger;
 
-    /** The time between network check.*/
-    private int elapseTime;
-
     /**
      * Logs the error.
      */
@@ -186,40 +183,26 @@ public class Connector
         logger.debug(this, msg);
     }
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param context The context hosting information about the user.
-     * @param secureClient The entry point to server.
-     * @param entryEncrypted The entry point to access the various services.
-     * @param encrypted The entry point to access the various services.
-     * @param logger Reference to the logger.
-     * @param elapseTime The time between network check.
-     * @throws Exception Thrown if entry points cannot be initialized.
-     */
-    public Connector(SecurityContext context, client secureClient,
-            ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger,
-            Integer elapseTime)
+
+    public Connector(SecurityContext context, client client,
+            ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
                     throws Exception
     {
         if (context == null)
             throw new IllegalArgumentException("No Security context.");
-        if (secureClient == null)
+        if (client == null)
             throw new IllegalArgumentException("No Server entry point.");
         if (entryEncrypted == null)
             throw new IllegalArgumentException("No Services entry point.");
-        if (elapseTime == null || elapseTime.intValue() <= 0)
-            elapseTime = ELAPSED_TIME;
-        this.elapseTime = elapseTime;
         if (!encrypted) {
-            unsecureClient = secureClient.createClient(false);
+            unsecureClient = client.createClient(false);
             entryUnencrypted = unsecureClient.getSession();
         } else {
             unsecureClient = null;
             entryUnencrypted = null;
         }
         this.logger = logger;
-        this.secureClient = secureClient;
+        this.secureClient = client;
         this.entryEncrypted = entryEncrypted;
         this.context = context;
         final MapMaker mapMaker = new MapMaker();
@@ -535,7 +518,7 @@ public class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-    public RenderingEnginePrx getRenderingService(long pixelsID)
+    public RenderingEnginePrx getRenderingService(long pixelsID, CompressionQuality compression)
             throws DSOutOfServiceException, ServerError
     {
         RenderingEnginePrx prx = null;
@@ -549,7 +532,9 @@ public class Connector
             throw new DSOutOfServiceException("Could not get rendering engine", e);
         }
 
-        prx.setCompressionLevel(context.getCompression());
+        // TODO: get compression value!
+        float c = 1;
+        prx.setCompressionLevel(c);
         reServices.put(pixelsID, prx);
         return prx;
     }
@@ -601,7 +586,8 @@ public class Connector
             throws Throwable
     {
         secureClient.setFastShutdown(!networkup);
-        if (unsecureClient != null) unsecureClient.setFastShutdown(!networkup);
+        if (unsecureClient != null) 
+            unsecureClient.setFastShutdown(!networkup);
         if (networkup) {
             shutDownServices(true);
         }
@@ -836,16 +822,16 @@ public class Connector
     }
 
     /**
-     * Returns the connector associated to the specified user.
-     * If none exists, creates a connector.
+     * Returns the connector associated to the specified user. If none exists,
+     * creates a connector.
      * 
-     * @param userName The name of the user. To be replaced by user's id.
+     * @param userName
+     *            The name of the user. To be replaced by user's id.
      * @return See above.
      */
-    public Connector getConnector(final String userName)
-            throws Throwable
-    {
-        if (CommonsLangUtils.isBlank(userName)) return this;
+    public Connector getConnector(final String userName) throws Throwable {
+        if (CommonsLangUtils.isBlank(userName))
+            return this;
         return derived.get(userName, new Callable<Connector>() {
             @Override
             public Connector call() throws Exception {
@@ -854,24 +840,27 @@ public class Connector
                             context.getGroupID());
                     groupName = g.getName().getValue();
                 }
-                //Create a connector.
+                // Create a connector.
                 Principal p = new Principal();
                 p.group = groupName;
                 p.name = userName;
                 p.eventType = "Sessions";
                 ISessionPrx prx = entryEncrypted.getSessionService();
                 Session session = prx.createSessionWithTimeout(p, 0L);
-                //Create the userSession
-                omero.client client = new omero.client(context.getHostName(),
-                        context.getPort());
-                ServiceFactoryPrx userSession = client.createSession(
-                        session.getUuid().getValue(), session.getUuid().getValue());
-                final Connector c = new Connector(context.copy(), client, userSession,
-                        unsecureClient == null, logger, elapseTime);
+                // Create the userSession
+                omero.client client = new omero.client(context
+                        .getServerInformation().getHostname(), context
+                        .getServerInformation().getPort());
+                ServiceFactoryPrx userSession = client.createSession(session
+                        .getUuid().getValue(), session.getUuid().getValue());
+                final Connector c = new Connector(context.copy(), client,
+                        userSession, unsecureClient == null, logger);
                 log("Created derived connector: " + userName);
                 return c;
-            }});
+            }
+        });
     }
+    
     //
     // HELPERS
     //
@@ -886,7 +875,7 @@ public class Connector
     {
         long last = lastKeepAlive.get();
         long elapsed = System.currentTimeMillis() - last;
-        return elapsed > elapseTime;
+        return elapsed > ELAPSED_TIME;
     }
 
     /**

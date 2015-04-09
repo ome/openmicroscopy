@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -47,18 +46,13 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -81,16 +75,14 @@ import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 
 import omero.gateway.Connector;
 import omero.gateway.DSOutOfServiceException;
+import omero.gateway.Gateway;
+import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-
-import omero.log.LogMessage;
-
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import omero.ResourceError;
@@ -127,7 +119,6 @@ import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
-import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
@@ -145,7 +136,6 @@ import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api.Save;
 import omero.api.SearchPrx;
-import omero.api.ServiceFactoryPrx;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chmod;
@@ -169,7 +159,6 @@ import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.grid.WellColumn;
 import omero.model.Annotation;
-import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
@@ -274,6 +263,7 @@ import pojos.XMLAnnotationData;
  * </small>
  * @since OME2.2
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 class OMEROGateway
 {
 
@@ -395,20 +385,6 @@ class OMEROGateway
 				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}
 
-	/** The collection of connectors.*/
-	private ListMultimap<Long, Connector> groupConnectorMap =
-	        Multimaps.<Long, Connector>synchronizedListMultimap(
-	                LinkedListMultimap.<Long, Connector>create());
-
-	/** Tells whether we're currently connected and logged into <i>OMERO</i>.*/
-	private boolean connected;
-
-	/**
-	 * Flag used during reconnecting process if a connection failure
-	 * occurred.
-	 */
-	private final AtomicBoolean reconnecting = new AtomicBoolean(false);
-
 	/**
 	 * Used whenever a broken link is detected to get the Login Service and
 	 * try re-establishing a valid link to <i>OMERO</i>.
@@ -420,24 +396,8 @@ class OMEROGateway
 
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView> fsViews;
-
-	/** Flag indicating if the connection is encrypted or not.*/
-	private boolean encrypted; // TODO: remove?
-
-	/** The version of the server the user is currently logged to.*/
-	private String serverVersion; // TODO: remove?
-
-	/** Tells whether or not the network is up.*/
-	private final AtomicBoolean networkup = new AtomicBoolean(true);
-
-	/** Checks if the network is up or not.*/
-	private NetworkChecker networkChecker;
-
-	/**
-	 * Reference to the config service (set during session creation, see
-	 * {@link #createSession(String, String, String, boolean, String, int)}
-	 */
-	private IConfigPrx configService;
+	
+	private Gateway gw;
 	
 	/**
 	 * Creates the query to load the file set corresponding to a given image.
@@ -456,24 +416,6 @@ class OMEROGateway
 		return buffer.toString();
 	}
 
-	// Only code which should synchronize on groupConnectorMap or call
-	// values().
-	private List<Connector> getAllConnectors() {
-        synchronized(groupConnectorMap) {
-            // This should be the only location which calls values().
-            return new ArrayList<Connector>(groupConnectorMap.values());
-        }
-    }
-
-    private List<Connector> removeAllConnectors() {
-        synchronized(groupConnectorMap) {
-            // This should be the only location which calls values().
-            List<Connector> rv = new ArrayList<Connector>(groupConnectorMap.values());
-            groupConnectorMap.clear();
-            return rv;
-        }
-    }
-
     /**
      * Logs the information.
      */
@@ -482,21 +424,6 @@ class OMEROGateway
     	dsFactory.getLogger().debug(this, msg);
     }
 
-	/**
-     * Checks if the network is up.
-     * @throws Exception Throw
-     */
-    private void isNetworkUp(boolean useCachedValue)
-        throws Exception
-    {
-        try {
-            if (networkChecker != null)
-                networkup.set(networkChecker.isNetworkup(useCachedValue));
-        } catch (Throwable t) {
-            log("Error on isNetworkUp check:" + t);
-            networkup.set(false);
-        }
-    }
 
 	/**
 	 * Returns <code>true</code> if the server is running.
@@ -506,9 +433,10 @@ class OMEROGateway
 	 */
 	boolean isServerRunning(SecurityContext ctx)
 	{
-		if (!connected) return false;
+		if (!gw.isConnected()) 
+		    return false;
 		try {
-            return null != getConnector(ctx, true, true);
+            return null != gw.getConnector(ctx, true, true);
         } catch (Throwable t) {
             return false;
         }
@@ -579,7 +507,7 @@ class OMEROGateway
 		ScriptCallback cb = null;
 		try {
 	         IScriptPrx svc = getScriptService(ctx);
-	         Connector c = getConnector(ctx, true, false);
+	         Connector c = gw.getConnector(ctx, true, false);
 	         //scriptID, parameters, timeout (5s if null)
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, c.getClient(), prx);
@@ -845,7 +773,7 @@ class OMEROGateway
 	{
 		boolean b = handleConnectionException(t);
 		if (!b) return;
-		if (!connected) return;
+		if (!gw.isConnected()) return;
 		Throwable cause = t.getCause();
 		if (cause instanceof SecurityViolation) {
 			String s = "For security reasons, cannot access data. \n";
@@ -874,23 +802,12 @@ class OMEROGateway
 	 */
 	boolean handleConnectionException(Throwable e)
 	{
-		if (reconnecting.get()) {
-			reconnecting.set(false);
-			return false;
-		}
-		//if (networkup) return true;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
 		dsFactory.sessionExpiredExit(index, e);
 		return false;
 	}
-
-	/**
-	 * Resets the network value to <code>true</code> when the user decides to
-	 * cancel the dialog indicating that the network when down.
-	 */
-	void resetNetwork() { networkup.set(true); }
 
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
@@ -908,7 +825,7 @@ class OMEROGateway
 	{
 		boolean b = handleConnectionException(t);
 		if (!b) return;
-		if (!connected) return;
+		if (!gw.isConnected()) return;
 		Throwable cause = t.getCause();
 		String s = "\nImage not ready. Please try again later.";
 		if (cause instanceof ConcurrencyException) {
@@ -953,7 +870,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ServerError If an error occurs while reading the results.
 	 */
-	private Object handleSearchResult(String type, Collection r, SearchPrx svc)
+    private Object handleSearchResult(String type, Collection r, SearchPrx svc)
 		throws ServerError
 	{
 		//First get object of a given type.
@@ -1202,7 +1119,7 @@ class OMEROGateway
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			if (table == null) return new ArrayList();
@@ -1249,7 +1166,7 @@ class OMEROGateway
 		Connector c = null;
 		SharedResourcesPrx prx = null;
 		try {
-			c = getConnector(ctx, true, false);
+			c = gw.getConnector(ctx, true, false);
 			prx = c.getSharedResources();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Shared Resources.");
@@ -1275,7 +1192,7 @@ class OMEROGateway
 	{
 		Connector c = null;
 		try {
-			c = getConnector(ctx, true, false);
+			c = gw.getConnector(ctx, true, false);
 			IRenderingSettingsPrx prx = c.getRenderingSettingsService();
 			return prx;
 		} catch (Throwable e) {
@@ -1300,7 +1217,7 @@ class OMEROGateway
 		Connector c = null;
 		OMEROMetadataStoreClient prx = null;
 		try {
-			c = getConnector(ctx, true, false);
+			c = gw.getConnector(ctx, true, false);
 			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
@@ -1311,28 +1228,6 @@ class OMEROGateway
 			throw new DSOutOfServiceException(
 					"Cannot access the Import service.");
 		return prx;
-	}
-
-	/**
-	 * Returns the {@link IRepositoryInfoPrx} service.
-	 *
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 */
-	private IRepositoryInfoPrx getRepositoryService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		try {
-			c = getConnector(ctx, true, false);
-			return c.getRepositoryService();
-		} catch (Throwable e) {
-			handleException(e, "Cannot access the RepositoryInfo service.");
-		}
-		return null;
 	}
 
 	/**
@@ -1350,7 +1245,7 @@ class OMEROGateway
 		Connector c = null;
 		IScriptPrx prx = null;
 		try {
-			c = getConnector(ctx, true, false);
+			c = gw.getConnector(ctx, true, false);
 			prx = c.getScriptService();
 		} catch (Throwable e) {
 			//method throws exception
@@ -1362,106 +1257,6 @@ class OMEROGateway
 		return prx;
 	}
 
-	/**
-	 * Returns the connector corresponding to the passed context.
-	 *
-	 * @param ctx The security context.
-	 * @param recreate whether or not to allow the recreation of the
-	 *     {@link Connector}. A {@link DSOutOfServiceException} is thrown
-	 *     if this is set to false and no {@link Connector} is available.
-	 * @param permitNull whether or not to throw a
-	 *     {@link DSOutOfServiceException} if no {@link Connector} is available
-	 *     by the end of the execution.
-	 * @return
-	 */
-	Connector getConnector(SecurityContext ctx, boolean recreate,
-	        boolean permitNull)
-		throws DSOutOfServiceException
-	{
-	    try {
-            isNetworkUp(true); // Need safe version?
-        } catch (Exception e1) {
-            if (permitNull) {
-                log("Failed to check network. Returning null connector");
-                return null;
-            }
-            dsFactory.sessionExpiredExit(ConnectionExceptionHandler.NETWORK,
-                    null);
-        }
-
-	    if (!networkup.get()) {
-            if (permitNull) {
-                log("Network down. Returning null connector");
-                return null;
-            }
-            dsFactory.sessionExpiredExit(ConnectionExceptionHandler.NETWORK,
-                    null);
-        }
-
-        if (ctx == null) {
-            if (permitNull) {
-                log("Null SecurityContext. Returning null connector");
-                return null;
-            }
-            throw new DSOutOfServiceException("Null SecurityContext");
-		}
-
-		Connector c = null;
-		List<Connector> clist = groupConnectorMap.get(ctx.getGroupID());
-		if (clist.size() > 0) {
-		    c = clist.get(0);
-	        if (c.needsKeepAlive()) {
-	            //Check if network is up before keeping service otherwise
-	            //we block until timeout.
-	            try {
-	                isNetworkUp(false);
-                } catch (Exception e) {
-                    dsFactory.sessionExpiredExit(
-                            ConnectionExceptionHandler.NETWORK, null);
-                }
-	            if (!c.keepSessionAlive()) {
-	                dsFactory.sessionExpiredExit(
-                            ConnectionExceptionHandler.LOST_CONNECTION, null);
-	            }
-	        }
-	        return c;
-		}
-
-		//We are going to create a connector and activate a session.
-		if (!recreate) {
-		    if (permitNull) {
-		        log("Cannot re-create. Returning null connector");
-		        return null;
-		    }
-		    throw new DSOutOfServiceException("Not allowed to recreate");
-		}
-		return createConnector(ctx, permitNull);
-	}
-
-	private Connector createConnector(SecurityContext ctx, boolean permitNull)
-	        throws DSOutOfServiceException
-	{
-	    Connector c = null;
-	    try {
-            UserCredentials uc = dsFactory.getCredentials();
-            ctx.setServerInformation(uc.getHostName(), uc.getPort());
-            // client will be cleaned up by connector
-            client client = new client(uc.getHostName(), uc.getPort());
-            ServiceFactoryPrx prx = client.createSession(uc.getUserName(),
-                    uc.getPassword());
-            prx.setSecurityContext(
-                    new ExperimenterGroupI(ctx.getGroupID(), false));
-            c = new Connector(ctx, client, prx, encrypted,
-                    dsFactory.getLogger(), dsFactory.getElapseTime());
-            groupConnectorMap.put(ctx.getGroupID(), c);
-        } catch (Throwable e) {
-            // TODO: This previously was via handleException??
-            if (!permitNull) {
-                throw new DSOutOfServiceException("Failed to create connector", e);
-            }
-        }
-	    return c;
-	}
 	
 	/**
 	 * Checks if some default rendering settings have to be created
@@ -1628,10 +1423,14 @@ class OMEROGateway
 			throw new IllegalArgumentException("No Data service factory.");
 		this.dsFactory = dsFactory;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
+		
+		this.gw = new Gateway(dsFactory.getLogger());
 	}
 
-	NetworkChecker getChecker() { return networkChecker; }
-
+	public Gateway getGateway() {
+	    return this.gw;
+	}
+	
 	/**
 	 * Converts the specified POJO into the corresponding model.
 	 *
@@ -1755,7 +1554,7 @@ class OMEROGateway
 	 *
 	 * @return  <code>true</code> if connected, <code>false</code> otherwise.
 	 */
-	boolean isConnected() { return connected; }
+	boolean isConnected() { return gw.isConnected(); }
 
 	/**
 	 * Retrieves the details on the current user and maps the result calling
@@ -1774,7 +1573,7 @@ class OMEROGateway
 			boolean connectionError)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx service = c.getAdminService();
 			return (ExperimenterData)
@@ -1802,169 +1601,110 @@ class OMEROGateway
 	    return check.isUpgradeNeeded();
 	}
 
-	/**
-	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
-	 * credentials.
-	 *
-	 * @param userName The user name to be used for login.
-	 * @param password The password to be used for login.
-	 * @param hostName The name of the server.
-	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
-     *                  <code>false</code> otherwise.
-     * @param agentName The name to register with the server.
-     * @param port The port to use.
-	 * @return The user's details.
-	 * @throws DSOutOfServiceException If the connection can't be established
-	 *                                  or the credentials are invalid.
-	 * @see #getUserDetails(String)
-	 * TODO: could be refactored to return a Connector for later use in login()
-	 */
-	client createSession(String userName, String password, String hostName,
-		boolean encrypted, String agentName, int port)
-	throws DSOutOfServiceException
-	{
-		this.encrypted = encrypted;
-		client secureClient = null;
-		
-		try {
-		    // client must be cleaned up by caller.
-		    if (port > 0) secureClient = new client(hostName, port);
-		    else secureClient = new client(hostName);
-		    secureClient.setAgent(agentName);
-		    ServiceFactoryPrx entryEncrypted;
-		    boolean session = true;
-		    try {
-		        //Check if it is a session first
-		        ServiceFactoryPrx guestSession = secureClient.createSession("guest", "guest");
-		        guestSession.getSessionService().getSession(userName);
-		    } catch (Exception e) {
-		        //thrown if it is not a session or session has experied.
-		        session = false;
-		    } finally {
-		        secureClient.closeSession();
-		    }
-		    if (session) {
-		        entryEncrypted = secureClient.joinSession(userName);
-		    } else {
-		        entryEncrypted = secureClient.createSession(userName, password);
-		    }
-		    configService = entryEncrypted.getConfigService();
-			serverVersion = entryEncrypted.getConfigService().getVersion();
-
-			String ip = null;
-	        try {
-				ip = InetAddress.getByName(hostName).getHostAddress();
-			} catch (Exception e) {
-				log("Failed to get inet address: " + hostName);
-			}
-
-	        boolean b = dsFactory.runAsPlugin() == LookupNames.IMAGE_J;
-			networkChecker = new NetworkChecker(ip, b);
-		} catch (Throwable e) {
-		    if (secureClient != null) {
-		        secureClient.__del__();
-		    }
-			connected = false;
-			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
-			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e);
-		}
-		return secureClient;
+	public ExperimenterData connect(LoginCredentials c) throws DSOutOfServiceException {
+	    return gw.connect(c);
 	}
 	
-	/**
-	 * Get the omero client properties from the server
-	 * @return See above.
-	 */
-	Map<String, String> getOmeroClientProperties() throws DSOutOfServiceException,
-			DSAccessException {
-		if (configService == null)
-			return null;
-
-		try {
-			return configService.getClientConfigValues();
-		} catch (Exception e) {
-			handleException(e, "Cannot access config service. ");
-			return null;
-		}
+	public String getSessionId(ExperimenterData user) {
+	    return gw.getSessionId(user);
 	}
+	
+    /**
+     * Get the omero client properties from the server
+     * 
+     * @return See above.
+     * @throws DSAccessException
+     * @throws DSOutOfServiceException
+     */
+    Map<String, String> getOmeroClientProperties()
+            throws DSOutOfServiceException, DSAccessException {
+        if (isConnected()) {
+            try {
+                Connector c = gw.getConnector(new SecurityContext(-1));
+                return c.getConfigService().getClientConfigValues();
+            } catch (Exception e) {
+                handleException(e, "Cannot access config service. ");
+            }
+        }
+        return null;
+    }
 
-	/**
-	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
-	 * credentials. The <code>createSession</code> method must be invoked before.
-	 *
-	 * @param secureClient Reference to the client
-	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and
-	 * 					  thumbnails depending on the connection speed.
-	 * @param groupID The id of the group or <code>-1</code>.
-	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
-     * 					<code>false</code> otherwise.
-     * @param agentName The name to register with the server.
-     * @param port The port to use
-	 * @return The user's details.
-	 * @throws DSOutOfServiceException If the connection can't be established
-	 *                                  or the credentials are invalid.
-	 * @see #createSession(String, String, String, long, boolean, String)
-	 */
-	ExperimenterData login(client secureClient, String hostName,
-		float compression, long groupID, int port)
-		throws DSOutOfServiceException
-	{
-		Connector connector = null;
-		SecurityContext ctx = null;
-		try {
-			connected = true;
-			ServiceFactoryPrx entryEncrypted = secureClient.getSession();
-			IAdminPrx prx = entryEncrypted.getAdminService();
-			String userName = prx.getEventContext().userName;
-			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
-					prx.lookupExperimenter(userName));
-			if (groupID >= 0) {
-				long defaultID = -1;
-				try {
-					defaultID = exp.getDefaultGroup().getId();
-				} catch (Exception e) {}
-				ctx = new SecurityContext(defaultID);
-				ctx.setServerInformation(hostName, port);
-				ctx.setCompression(compression);
-				connector = new Connector(ctx, secureClient, entryEncrypted,
-						encrypted, dsFactory.getLogger(),
-						dsFactory.getElapseTime());
-				groupConnectorMap.put(ctx.getGroupID(), connector);
-				if (defaultID == groupID) return exp;
-				try {
-					changeCurrentGroup(ctx, exp, groupID);
-					ctx = new SecurityContext(groupID);
-					ctx.setServerInformation(hostName, port);
-					ctx.setCompression(compression);
-					connector = new Connector(ctx, secureClient, entryEncrypted,
-							encrypted, dsFactory.getLogger(),
-							dsFactory.getElapseTime());
-					exp = getUserDetails(ctx, userName, true);
-					groupConnectorMap.put(ctx.getGroupID(), connector);
-				} catch (Exception e) {
-				    LogMessage msg = new LogMessage();
-				    msg.print("Error while changing group.");
-				    msg.print(e);
-				    dsFactory.getLogger().debug(this, msg);
-				}
-			}
-			// Connector now controls the secureClient for closing.
-			ctx = new SecurityContext(exp.getDefaultGroup().getId());
-			ctx.setServerInformation(hostName, port);
-			ctx.setCompression(compression);
-			connector = new Connector(ctx, secureClient, entryEncrypted,
-					encrypted, dsFactory.getLogger(), dsFactory.getElapseTime());
-			groupConnectorMap.put(ctx.getGroupID(), connector);
-			return exp;
-		} catch (Throwable e) {
-			connected = false;
-			String s = "Cannot log in. User credentials not valid.\n\n";
-			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e);
-		}
-	}
+//	/**
+//	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
+//	 * credentials. The <code>createSession</code> method must be invoked before.
+//	 *
+//	 * @param secureClient Reference to the client
+//	 * @param hostName The name of the server.
+//	 * @param compression The compression level used for images and
+//	 * 					  thumbnails depending on the connection speed.
+//	 * @param groupID The id of the group or <code>-1</code>.
+//	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
+//     * 					<code>false</code> otherwise.
+//     * @param agentName The name to register with the server.
+//     * @param port The port to use
+//	 * @return The user's details.
+//	 * @throws DSOutOfServiceException If the connection can't be established
+//	 *                                  or the credentials are invalid.
+//	 * @see #createSession(String, String, String, long, boolean, String)
+//	 */
+//	ExperimenterData login(client secureClient, String hostName,
+//		float compression, long groupID, int port)
+//		throws DSOutOfServiceException
+//	{
+//		Connector connector = null;
+//		SecurityContext ctx = null;
+//		try {
+//			connected = true;
+//			ServiceFactoryPrx entryEncrypted = secureClient.getSession();
+//			IAdminPrx prx = entryEncrypted.getAdminService();
+//			String userName = prx.getEventContext().userName;
+//			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
+//					prx.lookupExperimenter(userName));
+//			if (groupID >= 0) {
+//				long defaultID = -1;
+//				try {
+//					defaultID = exp.getDefaultGroup().getId();
+//				} catch (Exception e) {}
+//				ctx = new SecurityContext(defaultID);
+//				ctx.setServerInformation(hostName, port);
+//				ctx.setCompression(compression);
+//				connector = new Connector(ctx, secureClient, entryEncrypted,
+//						encrypted, dsFactory.getLogger(),
+//						dsFactory.getElapseTime());
+//				groupConnectorMap.put(ctx.getGroupID(), connector);
+//				if (defaultID == groupID) return exp;
+//				try {
+//					changeCurrentGroup(ctx, exp, groupID);
+//					ctx = new SecurityContext(groupID);
+//					ctx.setServerInformation(hostName, port);
+//					ctx.setCompression(compression);
+//					connector = new Connector(ctx, secureClient, entryEncrypted,
+//							encrypted, dsFactory.getLogger(),
+//							dsFactory.getElapseTime());
+//					exp = getUserDetails(ctx, userName, true);
+//					groupConnectorMap.put(ctx.getGroupID(), connector);
+//				} catch (Exception e) {
+//				    LogMessage msg = new LogMessage();
+//				    msg.print("Error while changing group.");
+//				    msg.print(e);
+//				    dsFactory.getLogger().debug(this, msg);
+//				}
+//			}
+//			// Connector now controls the secureClient for closing.
+//			ctx = new SecurityContext(exp.getDefaultGroup().getId());
+//			ctx.setServerInformation(hostName, port);
+//			ctx.setCompression(compression);
+//			connector = new Connector(ctx, secureClient, entryEncrypted,
+//					encrypted, dsFactory.getLogger(), dsFactory.getElapseTime());
+//			groupConnectorMap.put(ctx.getGroupID(), connector);
+//			return exp;
+//		} catch (Throwable e) {
+//			connected = false;
+//			String s = "Cannot log in. User credentials not valid.\n\n";
+//			s += printErrorText(e);
+//			throw new DSOutOfServiceException(s, e);
+//		}
+//	}
 
 	/**
 	 * Retrieves the system view hosting the repositories.
@@ -2035,7 +1775,7 @@ class OMEROGateway
 			}
 		}
 		if (in) {
-		    Connector c = getConnector(ctx, true, false);
+		    Connector c = gw.getConnector(ctx, true, false);
 		    try {
 		        IAdminPrx svc = c.getAdminService();
 		        svc.setDefaultGroup(exp.asExperimenter(),
@@ -2061,7 +1801,7 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
-			return serverVersion;
+			return gw.getServerVersion();
 		} catch (Exception e) {
 			handleConnectionException(e);
 			String s = "Can't retrieve the server version.\n\n";
@@ -2082,7 +1822,7 @@ class OMEROGateway
 	String lookupLdapAuthExperimenter(SecurityContext ctx, long userID)
 		throws DSOutOfServiceException
 	{
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			return svc.lookupLdapAuthExperimenter(userID);
@@ -2121,92 +1861,94 @@ class OMEROGateway
 	 */
 	Map<SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		Map<SecurityContext, Set<Long>> l =
-			new HashMap<SecurityContext, Set<Long>>();
-		Iterator<Connector> i = getAllConnectors().iterator();
-		while (i.hasNext()) {
-			l.putAll(i.next().getRenderingEngines());
-		}
-		return l;
+		return gw.getRenderingEngines();
 	}
 
-	/**
-	 * Tries to rejoin the session.
-	 *
-	 * @return See above.
-	 */
-    boolean joinSession()
-    {
-        log("joinSession ");
-        try {
-            isNetworkUp(false); // Force re-check to prevent hang
-        } catch (Exception e) {
-            // no need to handle the exception.
-        }
-        boolean networkup = this.networkup.get(); // our copy
-        connected = false;
-        if (!networkup) {
-            log("Network is down");
-            return false;
-        }
-        List<Connector> connectors = removeAllConnectors();
-        Iterator<Connector> i = connectors.iterator();
-        Connector c;
-        int index = 0;
-        while (i.hasNext()) {
-            c = i.next();
-            try {
-                log("joining the session ");
-                c.joinSession();
-                groupConnectorMap.put(c.getGroupID(), c);
-            } catch (Throwable t) {
-                log("Failed to join the session "+printErrorText(t));
-                //failed to join so we create a new one, first we shut down
-                try {
-                    c.shutDownServices(true);
-                    c.close(networkup);
-                } catch (Throwable e) {
-                    log("Failed to close the session "+printErrorText(e));
-                }
-                if (!groupConnectorMap.containsKey(c.getGroupID())) {
-                    try {
-                        createConnector(new SecurityContext(c.getGroupID()),
-                                false);
-                    } catch (Exception e) {
-                        log("Failed to create connector "+printErrorText(e));
-                        index++;
-                    }
-                }
-            }
-        }
-        connected = index == 0;
-        reconnecting.set(true);
-        return connected;
-    }
-
-	/** Logs out. */
-	void logout()
-	{
-		try {
-			isNetworkUp(false); // Force re-check to prevent hang.
-		} catch (Exception e) {
-			//ignore already registered.
-		}
-		connected = false;
-		List<Connector> connectors = getAllConnectors();
-		Iterator<Connector> i = connectors.iterator();
-        while (i.hasNext())
-            i.next().shutDownServices(true);
-        i = connectors.iterator();
-        while (i.hasNext()) {
-            try {
-                i.next().close(networkup.get());
-            } catch (Throwable e) {
-                log("Cannot close connector: "+printErrorText(e));
-            }
-        }
-        groupConnectorMap.clear();
+	boolean joinSession() {
+	    return gw.joinSession();
 	}
+	
+//	/**
+//	 * Tries to rejoin the session.
+//	 *
+//	 * @return See above.
+//	 */
+//    boolean joinSession()
+//    {
+//        log("joinSession ");
+//        try {
+//            isNetworkUp(false); // Force re-check to prevent hang
+//        } catch (Exception e) {
+//            // no need to handle the exception.
+//        }
+//        boolean networkup = this.networkup.get(); // our copy
+//        connected = false;
+//        if (!networkup) {
+//            log("Network is down");
+//            return false;
+//        }
+//        List<Connector> connectors = removeAllConnectors();
+//        Iterator<Connector> i = connectors.iterator();
+//        Connector c;
+//        int index = 0;
+//        while (i.hasNext()) {
+//            c = i.next();
+//            try {
+//                log("joining the session ");
+//                c.joinSession();
+//                groupConnectorMap.put(c.getGroupID(), c);
+//            } catch (Throwable t) {
+//                log("Failed to join the session "+printErrorText(t));
+//                //failed to join so we create a new one, first we shut down
+//                try {
+//                    c.shutDownServices(true);
+//                    c.close(networkup);
+//                } catch (Throwable e) {
+//                    log("Failed to close the session "+printErrorText(e));
+//                }
+//                if (!groupConnectorMap.containsKey(c.getGroupID())) {
+//                    try {
+//                        createConnector(new SecurityContext(c.getGroupID()),
+//                                false);
+//                    } catch (Exception e) {
+//                        log("Failed to create connector "+printErrorText(e));
+//                        index++;
+//                    }
+//                }
+//            }
+//        }
+//        connected = index == 0;
+//        reconnecting.set(true);
+//        return connected;
+//    }
+
+	void logout() {
+	    gw.disconnect();
+	}
+	
+//	/** Logs out. */
+//	void logout()
+//	{
+//		try {
+//			isNetworkUp(false); // Force re-check to prevent hang.
+//		} catch (Exception e) {
+//			//ignore already registered.
+//		}
+//		connected = false;
+//		List<Connector> connectors = getAllConnectors();
+//		Iterator<Connector> i = connectors.iterator();
+//        while (i.hasNext())
+//            i.next().shutDownServices(true);
+//        i = connectors.iterator();
+//        while (i.hasNext()) {
+//            try {
+//                i.next().close(networkup.get());
+//            } catch (Throwable e) {
+//                log("Cannot close connector: "+printErrorText(e));
+//            }
+//        }
+//        groupConnectorMap.clear();
+//	}
 
 	/**
 	 * Retrieves hierarchy trees rooted by a given node.
@@ -2235,7 +1977,7 @@ class OMEROGateway
 			List rootIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    ExperimenterData exp = ctx.getExperimenterData();
 		    if (exp != null && ctx.isSudo()) {
@@ -2277,7 +2019,7 @@ class OMEROGateway
 			List leavesIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IContainerPrx service = c.getPojosService();
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
@@ -2335,7 +2077,7 @@ class OMEROGateway
 					types.add(k);
 			}
 		}
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
@@ -2364,7 +2106,7 @@ class OMEROGateway
 		if (annotationIds == null || annotationIds.size() == 0)
 			return new HashSet<DataObject>();
 
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
@@ -2389,7 +2131,7 @@ class OMEROGateway
 	Collection findAllAnnotations(SecurityContext ctx, Class type, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			String table = getTableForAnnotationLink(type.getName());
@@ -2428,7 +2170,7 @@ class OMEROGateway
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IContainerPrx service = c.getPojosService();
 			return PojoMapper.asDataObjects(service.getImages(
@@ -2456,7 +2198,7 @@ class OMEROGateway
 	Set getUserImages(SecurityContext ctx, long userID, boolean orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IContainerPrx service = c.getPojosService();
 		    IQueryPrx svc = c.getQueryService();
@@ -2510,7 +2252,7 @@ class OMEROGateway
 			String property, List ids, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
 		try {
 		      IMetadataPrx service = c.getMetadataService();
 		        IContainerPrx svc = c.getPojosService();
@@ -2665,7 +2407,7 @@ class OMEROGateway
             }
             /* now delete the objects */
             final Request request = Requests.delete(objectIds);
-            final client client = getConnector(ctx, true, false).getClient();
+            final client client = gw.getConnector(ctx, true, false).getClient();
             final HandlePrx handle = client.getSession().submit(request);
             new RequestCallback(client, handle).loop(50, 250);
         } catch (Throwable t) {
@@ -2689,7 +2431,7 @@ class OMEROGateway
 			Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IUpdatePrx service = c.getUpdateService();
 			if (options == null) return service.saveAndReturnObject(object);
@@ -2717,7 +2459,7 @@ class OMEROGateway
 			Map options, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    // Must be inside try because of Throwable
             c = c.getConnector(userName); // Replace
@@ -2747,7 +2489,7 @@ class OMEROGateway
 			List<IObject> objects, Map options, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
             // Must be inside try because of Throwable
             c = c.getConnector(userName); // Replace
@@ -2775,7 +2517,7 @@ class OMEROGateway
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IContainerPrx service = c.getPojosService();
 			IObject r = service.updateDataObject(object, options);
@@ -2803,7 +2545,7 @@ class OMEROGateway
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IContainerPrx service = c.getPojosService();
 			List<IObject> l = service.updateDataObjects(objects, options);
@@ -2835,7 +2577,7 @@ class OMEROGateway
 	Pixels getPixels(SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IPixelsPrx service = c.getPixelsService();
 			return service.retrievePixDescription(pixelsID);
@@ -2882,7 +2624,7 @@ class OMEROGateway
 			long pixelsID, int sizeX, int sizeY, long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 	    ThumbnailStorePrx service = null;
 		try {
 		    service = c.getThumbnailService();
@@ -2942,7 +2684,7 @@ class OMEROGateway
 			SecurityContext ctx, long pixelsID, int maxLength)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
 		ThumbnailStorePrx service = null;
 		try {
 		    service = c.getThumbnailService();
@@ -3000,7 +2742,7 @@ class OMEROGateway
 			List<Long> pixelsID, int maxLength, boolean reset)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
 		ThumbnailStorePrx service = null;
 		try {
 		    service = c.getThumbnailService();
@@ -3053,10 +2795,10 @@ class OMEROGateway
 			SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 	    RenderingEnginePrx service = null;
 		try {
-		    service = c.getRenderingService(pixelsID);
+		    service = c.getRenderingService(pixelsID, ctx.getCompression());
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();
@@ -3088,7 +2830,7 @@ class OMEROGateway
 			long childID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			String table = getTableForAnnotationLink(type.getName());
@@ -3135,7 +2877,7 @@ class OMEROGateway
 			long parentID, List<Long> children)
 		throws DSOutOfServiceException, DSAccessException
 	{
-       Connector c = getConnector(ctx, true, false);
+       Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			String table = getTableForAnnotationLink(parentType);
@@ -3181,7 +2923,7 @@ class OMEROGateway
 	IObject findLink(SecurityContext ctx, IObject parent, IObject child)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			String table = getTableForLink(parent.getClass());
@@ -3216,7 +2958,7 @@ class OMEROGateway
 	List findLinks(SecurityContext ctx, IObject parent, List children)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			String table = getTableForLink(parent.getClass());
@@ -3256,7 +2998,7 @@ class OMEROGateway
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			String table = getTableForLink(parentClass);
@@ -3289,7 +3031,7 @@ class OMEROGateway
 	 */
         List findDatasetLinks(SecurityContext ctx, List children, long userID) throws DSOutOfServiceException,
                 DSAccessException {
-            Connector c = getConnector(ctx, true, false);
+            Connector c = gw.getConnector(ctx, true, false);
             try {
                 IQueryPrx service = c.getQueryService();
                 // have to fetch the Dataset, too; otherwise Dataset.name won't be initialized
@@ -3327,7 +3069,7 @@ class OMEROGateway
 			List children, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			String table = getAnnotationTableLink(node);
@@ -3377,7 +3119,7 @@ class OMEROGateway
             List<Long> children, long userID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
         Multimap<Long, IObject> map = ArrayListMultimap.create();
         try {
             IQueryPrx service = c.getQueryService();
@@ -3475,7 +3217,7 @@ class OMEROGateway
 		sb.append("left outer join fetch ws.image as img ");
         sb.append("where img.id = :imageID");
 
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
         try {
             IQueryPrx service = c.getQueryService();
             List results = service.findAllByQuery(sb.toString(), param);
@@ -3524,7 +3266,7 @@ class OMEROGateway
         sb.append("select plate from Plate as plate where plate.id = (select acq.plate "
                 + "from PlateAcquisition acq where acq.id = :acqId)");
 
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
         try {
             IQueryPrx service = c.getQueryService();
             List results = service.findAllByQuery(sb.toString(), param);
@@ -3560,7 +3302,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (o == null) return null;
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			return service.find(o.getClass().getName(), o.getId().getValue());
@@ -3586,7 +3328,7 @@ class OMEROGateway
 			String name, long ownerID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			ParametersI param = new ParametersI();
@@ -3633,7 +3375,7 @@ class OMEROGateway
 	IObject findIObjectByQuery(SecurityContext ctx, String query, boolean allGroups)
                 throws DSOutOfServiceException, DSAccessException
         {
-            Connector c = getConnector(ctx, true, false);
+            Connector c = gw.getConnector(ctx, true, false);
                 try {
                     Map<String, String> m = new HashMap<String, String>();
                     if(allGroups) {
@@ -3666,7 +3408,7 @@ class OMEROGateway
         IObject findIObject(SecurityContext ctx, String klassName, long id, boolean allGroups)
                 throws DSOutOfServiceException, DSAccessException
         {
-            Connector c = getConnector(ctx, true, false);
+            Connector c = gw.getConnector(ctx, true, false);
                 try {
                     Map<String, String> m = new HashMap<String, String>();
                     if(allGroups) {
@@ -3699,7 +3441,7 @@ class OMEROGateway
 			ExperimenterData user)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		Set<GroupData> pojos = new HashSet<GroupData>();
 		try {
 		    IQueryPrx service = c.getQueryService();
@@ -3763,7 +3505,7 @@ class OMEROGateway
 			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		List<?> files = null;
 		String query;
 		try {
@@ -3918,7 +3660,7 @@ class OMEROGateway
 
 		final String path = file.getAbsolutePath();
 
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		RawFileStorePrx store = null;
 		try {
 		    store = c.getRawFileService();
@@ -3969,7 +3711,7 @@ class OMEROGateway
 			StatefulServiceInterfacePrx svc)
 	{
 		try {
-			Connector c = getConnector(ctx, false, true);
+			Connector c = gw.getConnector(ctx, false, true);
 			if (c != null) {
 			    c.close(svc);
 			} else {
@@ -3994,7 +3736,7 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		OriginalFile of = null;
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx svc = c.getQueryService();
 			ParametersI param = new ParametersI();
@@ -4023,7 +3765,7 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		List files = null;
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx svc = c.getQueryService();
 			ParametersI param = new ParametersI();
@@ -4086,7 +3828,7 @@ class OMEROGateway
         OriginalFile save = null;
         Long fileId = null;
 
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IUpdatePrx update = c.getUpdateService();
 			OriginalFile oFile;
@@ -4210,7 +3952,7 @@ class OMEROGateway
 			String oldPassword)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx service = c.getAdminService(true);
 			service.changePasswordWithOldPassword(
@@ -4236,7 +3978,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (exp == null) return;
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			if (exp.getId().getValue() == currentUserID)
@@ -4279,7 +4021,7 @@ class OMEROGateway
                     Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
                     List<Request> l = new ArrayList<Request>();
                     l.add(chmod);
-                    return new RequestCallback(getConnector(ctx, true, false).submit(l, null));
+                    return new RequestCallback(gw.getConnector(ctx, true, false).submit(l, null));
                 } catch (Throwable e) {
                     handleException(e, "Cannot update the group's permissions. ");
                 }
@@ -4301,7 +4043,7 @@ class OMEROGateway
 	void updateGroup(SecurityContext ctx, GroupData group)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			ExperimenterGroup g = group.asGroup();
@@ -4327,7 +4069,7 @@ class OMEROGateway
 			List<ExperimenterData> experimenters, String systemGroup)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			if (toAdd) {
@@ -4400,7 +4142,7 @@ class OMEROGateway
 			ExperimenterGroup group, List<Experimenter> experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			if (toAdd) svc.addGroupOwners(group, experimenters);
@@ -4450,7 +4192,7 @@ class OMEROGateway
 			long pixelsID, int z, int t, int c)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
-	    Connector conn = getConnector(ctx, true, false);
+	    Connector conn = gw.getConnector(ctx, true, false);
 		RawPixelsStorePrx service = null;
 		try {
 		    service = conn.getPixelsStore();
@@ -4485,7 +4227,7 @@ class OMEROGateway
 	long getFreeSpace(SecurityContext ctx, Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IRepositoryInfoPrx service = c.getRepositoryService();
 			return service.getFreeSpaceInKilobytes();
@@ -4512,7 +4254,7 @@ class OMEROGateway
 	long getUsedSpace(SecurityContext ctx, Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IRepositoryInfoPrx svc = c.getRepositoryService();
 	        IQueryPrx service = c.getQueryService();
@@ -4560,7 +4302,7 @@ class OMEROGateway
 			boolean asDataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IContainerPrx service = c.getPojosService();
 			List result = service.getImagesByOptions(map);
@@ -4765,7 +4507,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    Multimap<DataObject, RndProxyDef> tmp = ArrayListMultimap.create();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IPixelsPrx service = c.getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
@@ -4774,7 +4516,6 @@ class OMEROGateway
 			RenderingDef rndDef;
 			Experimenter exp;
 			Map<Long, DataObject> users = new HashMap<Long, DataObject>();
-			Set<RndProxyDef> list;
 			DataObject user;
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
@@ -4813,7 +4554,7 @@ class OMEROGateway
 			long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IPixelsPrx service = c.getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
@@ -4847,7 +4588,7 @@ class OMEROGateway
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IPixelsPrx service = c.getPixelsService();
 			return service.retrieveRndSettingsFor(pixelsID, userID);
@@ -4875,7 +4616,7 @@ class OMEROGateway
 			List<String> toInclude, List<String> toExclude, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
@@ -4906,7 +4647,7 @@ class OMEROGateway
 			List<String> toInclude, List<String> toExclude, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			RLong value = service.countSpecifiedAnnotations(
@@ -4937,7 +4678,7 @@ class OMEROGateway
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		long count = 0;
 		try {
 		    IMetadataPrx service = c.getMetadataService();
@@ -4969,7 +4710,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Set result = new HashSet();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			List<IObject> set = service.loadAnnotationsUsedNotOwned(
@@ -5003,7 +4744,7 @@ class OMEROGateway
 	Set searchByTime(SecurityContext ctx, SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		ParametersI param = new ParametersI();
 		param.map = new HashMap<String, RType>();
 		StringBuffer buf = new StringBuffer();
@@ -5100,7 +4841,7 @@ class OMEROGateway
 	        return result;
 	    }
 	    
-            Connector c = getConnector(ctx, true, false);
+            Connector c = gw.getConnector(ctx, true, false);
             SearchPrx service = null;
             service = c.getSearchService();
             
@@ -5170,14 +4911,10 @@ class OMEROGateway
                             List<IObject> l = service.results(m);
                             Iterator<IObject> k = l.iterator();
                             IObject object;
-                            long id;
                             while (k.hasNext()) {
                                 object = k.next();
                                 if (searchForClass.equals(object.getClass()
                                         .getName())) {
-                                    id = object.getId().getValue();
-//                                    AdvancedSearchResult sr = new AdvancedSearchResult(
-//                                            -1, type, id, object.getDetails().getGroup().getId().getValue());
                                     AdvancedSearchResult sr = new AdvancedSearchResult();
                                     sr.setObject(PojoMapper.asDataObject(object));
                                     if (!result.contains(sr))
@@ -5284,7 +5021,7 @@ class OMEROGateway
 		List<Integer> scopes = context.getScope();
 		if (CollectionUtils.isEmpty(types)) return new HashMap();
 
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		SearchPrx service = null;
 		try {
 		    service = c.getSearchService();
@@ -5370,7 +5107,6 @@ class OMEROGateway
 			while (i.hasNext())
 				results.put((Integer) i.next(), new ArrayList());
 
-			Iterator<Details> owner;
 			i = scopes.iterator();
 			List<String> fSome = null, fMust = null, fNone = null;
 			List<String> fSomeSec = null, fMustSec = null, fNoneSec = null;
@@ -5415,11 +5151,6 @@ class OMEROGateway
 					fMust = formatText(must, "");
 					fNone = formatText(none, "");
 				}
-				owner = owners.iterator();
-				//if (fSome != null) {
-				//while (owner.hasNext()) {
-					//d = owner.next();
-					//service.onlyOwnedBy(d);
 					service.bySomeMustNone(fSome, fMust, fNone);
 					size = handleSearchResult(
 					        PojoMapper.convertTypeForSearch(Image.class), rType,
@@ -5471,7 +5202,7 @@ class OMEROGateway
 				Timestamp start, Timestamp end, ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 	    SearchPrx service = null;
 		try {
 		    service = c.getSearchService();
@@ -5517,7 +5248,7 @@ class OMEROGateway
 	Set fetchContainers(SecurityContext ctx, Class type, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			Parameters p = new ParametersI();
@@ -5548,7 +5279,7 @@ class OMEROGateway
 			Set<Long> annotationIds, Set<Long> ownerIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			ParametersI param = new ParametersI();
@@ -5589,7 +5320,7 @@ class OMEROGateway
 	Map getDataObjectsTaggedCount(SecurityContext ctx, List rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			ParametersI param;
@@ -5658,31 +5389,6 @@ class OMEROGateway
 		return new HashMap();
 	}
 
-	/** Keeps the services alive. */
-	void keepSessionAlive()
-	{
-        //Check if network is up before keeping service otherwise
-        //we block until timeout.
-        try {
-            isNetworkUp(false);
-        } catch (Exception e) {
-            dsFactory.sessionExpiredExit(
-                    ConnectionExceptionHandler.NETWORK, null);
-        }
-	    Iterator<Connector> i = getAllConnectors().iterator();
-	    Connector c;
-	    while (i.hasNext()) {
-	        c = i.next();
-	        if (c.needsKeepAlive()) {
-	            if (!c.keepSessionAlive()) {
-	                dsFactory.sessionExpiredExit(
-                            ConnectionExceptionHandler.LOST_CONNECTION, null);
-	                break;
-	            }
-	        }
-	    }
-	}
-
 	/**
 	 * Projects the specified set of pixels according to the projection's
 	 * parameters. Adds the created image to the passed dataset.
@@ -5712,7 +5418,7 @@ class OMEROGateway
 			String pixType)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IProjectionPrx service = c.getProjectionService();
 			PixelsType type = null;
@@ -5786,7 +5492,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//TODO: add method to server so that we don't have to make 2 calls.
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IPixelsPrx svc = c.getPixelsService();
 			Pixels pixels = svc.retrievePixDescription(pixelsID);
@@ -5813,11 +5519,10 @@ class OMEROGateway
 	PlateData getImportedPlate(SecurityContext ctx, long imageID) // should be removed
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			List results = null;
-			Iterator i;
 			StringBuilder sb = new StringBuilder();
 			ParametersI param = new ParametersI();
 			param.addLong("imageID", imageID);
@@ -5842,7 +5547,7 @@ class OMEROGateway
 	Set loadPlateWells(SecurityContext ctx, long plateID, long acquisitionID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			List results = null;
@@ -5894,7 +5599,7 @@ class OMEROGateway
 	Set<WellData> loadPlateWells(SecurityContext ctx, List<Long> plateIDs)
 			throws DSOutOfServiceException, DSAccessException
 		{
-	        Connector c = getConnector(ctx, true, false);
+	        Connector c = gw.getConnector(ctx, true, false);
 			try {
 			    IQueryPrx service = c.getQueryService();
 				List<RType> ids = new ArrayList<RType>(plateIDs.size());
@@ -5951,7 +5656,7 @@ class OMEROGateway
 		List<Long> ids = new ArrayList<Long>(1);
 		ids.add(imageID);
 
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
         try {
             IContainerPrx service = c.getPojosService();
         	List images = service.getImages(Image.class.getName(), ids, po);
@@ -5977,7 +5682,7 @@ class OMEROGateway
 	Object loadChannelAcquisitionData(SecurityContext ctx, long channelID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 	        IQueryPrx query = c.getQueryService();
@@ -6032,7 +5737,7 @@ class OMEROGateway
 	IObject getEnumeration(SecurityContext ctx, Class klass, String value)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			return service.findByString(klass.getName(), "value", value);
@@ -6058,7 +5763,7 @@ class OMEROGateway
 			String klassName)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		List<EnumerationObject> r;
 		try {
 		    IPixelsPrx service = c.getPixelsService();
@@ -6094,7 +5799,7 @@ class OMEROGateway
 	Collection loadTags(SecurityContext ctx, Long id, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			List<Long> ids = new ArrayList<Long>(1);
@@ -6123,7 +5828,7 @@ class OMEROGateway
 	Collection loadTagSets(SecurityContext ctx, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(service.loadTagSets(options));
@@ -6152,7 +5857,7 @@ class OMEROGateway
 			int t, int channel)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		StringBuilder sb;
 		ParametersI param;
 		sb = new StringBuilder();
@@ -6345,7 +6050,6 @@ class OMEROGateway
 
 			if (CollectionUtils.isEmpty(storedScripts))
 				return scripts;
-			Entry en;
 			Iterator<OriginalFile> j = storedScripts.iterator();
 			ScriptObject script;
 			OriginalFile of;
@@ -6402,7 +6106,6 @@ class OMEROGateway
 
 			if (CollectionUtils.isEmpty(storedScripts))
 				return scripts;
-			Entry en;
 			Iterator<OriginalFile> j = storedScripts.iterator();
 			ScriptObject script;
 			OriginalFile of;
@@ -6806,10 +6509,7 @@ class OMEROGateway
 	 */
 	void removeREService(SecurityContext ctx, long pixelsID)
 	{
-		List<Connector> clist = groupConnectorMap.get(ctx.getGroupID());
-		for (Connector c : clist) {
-			c.shutDownRenderingEngine(pixelsID);
-		}
+		gw.shutdownRenderingEngine(ctx, pixelsID);
 	}
 
 	/**
@@ -6848,7 +6548,7 @@ class OMEROGateway
 	Object loadInstrument(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			Instrument instrument = service.loadInstrument(id);
@@ -6944,7 +6644,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ROIResult> results = new ArrayList<ROIResult>();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IRoiPrx svc = c.getROIService();
 			RoiOptions options = new RoiOptions();
@@ -6998,7 +6698,7 @@ class OMEROGateway
 			List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IUpdatePrx updateService = c.getUpdateService();
 		    IRoiPrx svc = c.getROIService();
@@ -7046,12 +6746,9 @@ class OMEROGateway
 			Map<ROICoordinate, ShapeData> clientCoordMap;
 			Roi serverRoi;
 			Iterator<List<ShapeData>> shapeIterator;
-			Iterator<ROICoordinate> serverIterator;
 			Map<ROICoordinate, Shape>serverCoordMap;
 			Shape s;
 			ROICoordinate coord;
-			long id;
-			RoiResult tempResults;
 			int shapeIndex;
 
 			List<Long> deleted = new ArrayList<Long>();
@@ -7108,7 +6805,6 @@ class OMEROGateway
 				Iterator si = serverCoordMap.entrySet().iterator();
 				Entry entry;
 				List<ROICoordinate> removed = new ArrayList<ROICoordinate>();
-				List<IObject> toDelete = new ArrayList<IObject>();
 				while (si.hasNext()) {
 					entry = (Entry) si.next();
 					coord = (ROICoordinate) entry.getKey();
@@ -7252,7 +6948,7 @@ class OMEROGateway
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IRoiPrx svc = c.getROIService();
 			RoiOptions options = new RoiOptions();
@@ -7303,13 +6999,13 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	File exportImageAsOMEObject(SecurityContext ctx, int index, File f,
+	void exportImageAsOMEObject(SecurityContext ctx, int index, File f,
 			long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		FileOutputStream stream = null;
 		DSAccessException exception = null;
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    ExporterPrx store = c.getExporterService();
 			stream = new FileOutputStream(f);
@@ -7339,8 +7035,8 @@ class OMEROGateway
 				}
 			} finally {
 			    c.close(store);
-				if (exception != null) throw exception;
-				return f;
+				if (exception != null)
+				    throw exception;
 			}
 		} catch (Throwable t) {
 			if (f != null) f.delete();
@@ -7467,7 +7163,7 @@ class OMEROGateway
 			AdminObject object, Roles roles)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		List<ExperimenterData> results = new ArrayList<ExperimenterData>();
 		try {
 		    IAdminPrx svc = c.getAdminService();
@@ -7546,7 +7242,7 @@ class OMEROGateway
 	GroupData createGroup(SecurityContext ctx, AdminObject object, Roles roles)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			Map<ExperimenterData, UserCredentials>
@@ -7638,7 +7334,7 @@ class OMEROGateway
 	Map<Long, Long> countExperimenters(SecurityContext ctx, List<Long> groupIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		Map<Long, Long> r = new HashMap<Long, Long>();
 		try {
 		    IQueryPrx svc = c.getQueryService();
@@ -7690,7 +7386,7 @@ class OMEROGateway
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
 		if (experimenterID < 0) return pojos;
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx svc = c.getQueryService();
 			List<ExperimenterGroup> groups = null;
@@ -7732,7 +7428,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 	        IQueryPrx svc = c.getQueryService();
 			List<ExperimenterGroup> groups = null;
@@ -7774,7 +7470,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx svc = c.getQueryService();
 			List<ExperimenterGroup> groups = null;
@@ -7809,7 +7505,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> pojos = new ArrayList<ExperimenterData>();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx service = c.getAdminService();
 			List<Experimenter> l = service.lookupExperimenters();
@@ -7837,7 +7533,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		IAdminPrx svc;
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
@@ -7871,7 +7567,7 @@ class OMEROGateway
 			GroupData group, Collection experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		IAdminPrx svc;
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		Iterator<ExperimenterData> i = experimenters.iterator();
@@ -7909,7 +7605,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		IAdminPrx svc;
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
@@ -7944,7 +7640,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> r = new ArrayList<GroupData>();
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		IAdminPrx svc = null;
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
@@ -7977,7 +7673,7 @@ class OMEROGateway
 			String password)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService(true);
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
@@ -8003,7 +7699,7 @@ class OMEROGateway
 			ExperimenterData experimenter)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx service = c.getAdminService();
 			//First check that no user with the name already exists
@@ -8054,7 +7750,7 @@ class OMEROGateway
 	ExperimenterGroup lookupGroup(SecurityContext ctx, String name)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			return svc.lookupGroup(name);
@@ -8081,7 +7777,7 @@ class OMEROGateway
 	Experimenter lookupExperimenter(SecurityContext ctx, String name)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IAdminPrx svc = c.getAdminService();
 			return svc.lookupExperimenter(name);
@@ -8106,7 +7802,7 @@ class OMEROGateway
 	List<WorkflowData> retrieveWorkflows(SecurityContext ctx, long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx svc = c.getQueryService();
 			ParametersI param = new ParametersI();
@@ -8133,7 +7829,7 @@ class OMEROGateway
 			long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 	    IUpdatePrx updateService = c.getUpdateService();
 		for (WorkflowData workflow : workflows)
 			if (workflow.isDirty())
@@ -8181,7 +7877,7 @@ class OMEROGateway
 			long fileID, long size)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		RawFileStorePrx store = null;
 		try {
 		    store = c.getRawFileService();
@@ -8211,7 +7907,7 @@ class OMEROGateway
 			long experimenterID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		IAdminPrx svc = c.getAdminService();
 		FileInputStream stream = null;
 		try {
@@ -8255,7 +7951,7 @@ class OMEROGateway
 	Boolean isLargeImage(SecurityContext ctx, long pixelsId)
 		throws DSOutOfServiceException, DSAccessException
 	{
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
         RawPixelsStorePrx store = null;
 	    try {
 	        store = c.getPixelsStore();
@@ -8278,7 +7974,7 @@ class OMEROGateway
 	void closeImport(SecurityContext ctx, String userName)
 	{
 		try {
-			Connector c = getConnector(ctx, false, true);
+			Connector c = gw.getConnector(ctx, false, true);
 			c = c.getConnector(userName);
 			if (c != null) c.closeImport();
 		} catch (Throwable e) {
@@ -8301,7 +7997,7 @@ class OMEROGateway
 			List<ExperimenterData> experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		try {
 		    IAdminPrx svc = c.getAdminService();
@@ -8365,18 +8061,16 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    // map ~ Map<'Object to move', 'Destinations to move the object to'>
-		Connector c = getConnector(ctx, true, true);
+		Connector c = gw.getConnector(ctx, true, true);
 		if (c == null) 
 		    return null; 
 		
 		try {
-		    IAdminPrx svc = c.getAdminService();
 			Entry<DataObject, List<IObject>> entry;
 			Iterator<Entry<DataObject, List<IObject>>>
 			i = map.entrySet().iterator();
 			DataObject data;
 			List<IObject> l;
-			Iterator<IObject> j;
 			List<Request> commands = new ArrayList<Request>();
 			List<Save> saves = new ArrayList<Save>();
 			Save save;
@@ -8437,9 +8131,8 @@ class OMEROGateway
 	List<IObject> getPixels(SecurityContext ctx, List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
-		    IPixelsPrx service = c.getPixelsService();
 	        IContainerPrx container = c.getPojosService();
 	        IQueryPrx query = c.getQueryService();
 			DataObject ho = objects.get(0);
@@ -8500,27 +8193,10 @@ class OMEROGateway
 		return null;
 	}
 
-	/**
-	 * Removes the security context.
-	 *
-	 * @param ctx The security context.
-	 * @throws Exception Thrown if the connector cannot be closed.
-	 */
-	void removeGroup(SecurityContext ctx)
-	throws Exception
-	{
-		if (ctx == null) return;
-		List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
-		if (CollectionUtils.isEmpty(clist)) return;
-		isNetworkUp(true);
-		for (Connector c:  clist) {
-		    try {
-		        c.close(networkup.get());
-		    } catch (Throwable e) {
-		        // FIXME: should this be thrown?
-		        new Exception("Cannot close the connector", e);
-		    }
-		}
+	void removeGroup(SecurityContext ctx) {
+	    if (ctx == null)
+	        return;
+	    gw.closeConnector(ctx);
 	}
 
 	/**
@@ -8536,7 +8212,7 @@ class OMEROGateway
 	Set<DataObject> getFileSet(SecurityContext ctx, Collection<Long> imageIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
-	    Connector c = getConnector(ctx, true, false);
+	    Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IQueryPrx service = c.getQueryService();
 			List<RType> l = new ArrayList<RType>(imageIds.size());
@@ -8563,13 +8239,7 @@ class OMEROGateway
 	void shutDownDerivedConnector(SecurityContext ctx)
 		throws Exception
 	{
-		Connector c = getConnector(ctx, true, true);
-		if (c == null) return;
-		try {
-			c.closeDerived(networkup.get());
-		} catch (Throwable e) {
-			new Exception("Cannot close the derived connectors", e);
-		}
+		gw.shutDownDerivedConnector(ctx);
 	}
 
 	/**
@@ -8597,7 +8267,7 @@ class OMEROGateway
 	throws DSOutOfServiceException, DSAccessException
 	{
 		String type = convertAnnotation(annotationType);
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IMetadataPrx service = c.getMetadataService();
 			return PojoMapper.asDataObjects(
@@ -8626,7 +8296,7 @@ class OMEROGateway
 		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		try {
-			Connector c = getConnector(ctx, true, true);
+			Connector c = gw.getConnector(ctx, true, true);
 			if (c == null) return null;
 			return new RequestCallback(c.submit(commands, null));
 		} catch (Throwable e) {
@@ -8658,7 +8328,7 @@ class OMEROGateway
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Connector c = getConnector(ctx, true, false);
+		Connector c = gw.getConnector(ctx, true, false);
 		try {
 		    IContainerPrx service = c.getPojosService();
 			Map<String, List<Long>> m = new HashMap<String, List<Long>>();
@@ -8682,7 +8352,7 @@ class OMEROGateway
     Roles getSystemRoles(SecurityContext ctx)
             throws DSOutOfServiceException, DSAccessException
     {
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
         IAdminPrx svc = c.getAdminService();
         try {
             return svc.getSecurityRoles();
@@ -8707,7 +8377,7 @@ class OMEROGateway
             Class<?> rootType, List<Long> rootIDs)
             throws DSOutOfServiceException, DSAccessException
     {
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
         try {
             IMetadataPrx service = c.getMetadataService();
             return service.loadLogFiles(
@@ -8732,7 +8402,7 @@ class OMEROGateway
     RenderingDef getRenderingDef(SecurityContext ctx, long rndID)
         throws DSOutOfServiceException, DSAccessException
     {
-        Connector c = getConnector(ctx, true, false);
+        Connector c = gw.getConnector(ctx, true, false);
         try {
             IPixelsPrx service = c.getPixelsService();
             return service.loadRndSettings(rndID);
