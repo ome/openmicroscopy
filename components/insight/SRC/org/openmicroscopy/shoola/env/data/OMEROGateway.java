@@ -325,9 +325,6 @@ class OMEROGateway
 	/** Maximum size of pixels read at once. */
 	private static final int				INC = 262144;//256000;
 
-	/** The maximum number read at once. */
-	private static final int				MAX_BYTES = 1024;
-
 	/**
 	 * The maximum number of thumbnails retrieved before restarting the
 	 * thumbnails service.
@@ -5149,26 +5146,16 @@ class OMEROGateway
                         m.put("omero.group", ""+ctx.getGroupID());
                     }
                     
-                    if (isVersion53()) {
-                        // the lucene query can be build server side
-                        DateFormat df = new SimpleDateFormat("yyyyMMdd");
-                        String fields = resolveScopeIdsAsString(context.getScope());
-                        String dFrom = from != null ? df.format(from) : null;
-                        String dTo = to != null ? df.format(to) : null;
-                        try {
-                            service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
-                                    context.getQuery(), m);
-                        } catch (ApiUsageException e) {
-                            result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
-                            return result;
-                        }
-                    } else {
-                        // have to build lucene query client side for versions pre 5.0.3
-                        String query = LuceneQueryBuilder.buildLuceneQuery(
-                                resolveScopeIds(context.getScope()), from, to,
-                                dateType, context.getQuery());
-                        dsFactory.getLogger().info(this, "Performing lucene search for type " + type.getSimpleName() + ": " + query);
-                        service.byFullText(query, m);
+                    DateFormat df = new SimpleDateFormat("yyyyMMdd");
+                    String fields = resolveScopeIdsAsString(context.getScope());
+                    String dFrom = from != null ? df.format(from) : null;
+                    String dTo = to != null ? df.format(to) : null;
+                    try {
+                        service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
+                                context.getQuery(), m);
+                    } catch (ApiUsageException e) {
+                        result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
+                        return result;
                     }
                     
                     try {
@@ -5269,21 +5256,6 @@ class OMEROGateway
             }
     
             return result;
-        }
-        
-        /**
-         * Just checks if the server is version >= 5.0.3
-         * 
-         * @return
-         * @throws DSOutOfServiceException
-         */
-        private boolean isVersion53() throws DSOutOfServiceException {
-            String tmp[] = getServerVersion().split("\\.");
-            int v1 = Integer.parseInt(tmp[0]);
-            int v2 = Integer.parseInt(tmp[1]);
-            int v3 = Integer.parseInt(tmp[2]);
-    
-            return v1 >= 5 && (v2 >= 1 || v3 >= 3);
         }
         
 	/**

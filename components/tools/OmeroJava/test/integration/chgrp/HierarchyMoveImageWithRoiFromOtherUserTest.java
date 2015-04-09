@@ -28,10 +28,12 @@ import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import omero.ServerError;
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
+import omero.model.Dataset;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -44,6 +46,9 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -106,10 +111,12 @@ public class HierarchyMoveImageWithRoiFromOtherUserTest extends
         loginUser(imageOwnerContext);
 
         // Perform the move operation as original user
-        Chgrp command = new Chgrp(DeleteServiceTest.REF_IMAGE, originalImageId,
-                null, targetGroup.getId().getValue());
-
-        doChange(command);
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(originalImageId));
+        dc.groupId = targetGroup.getId().getValue();
+        callback(true, client, dc);
 
         // check the roi has been moved to target group
         Roi originalRoi = getRoiWithId(originalRoiId);

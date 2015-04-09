@@ -4,7 +4,7 @@
 """
    Integration test focused on the Repository API
 
-   Copyright 2009-2014 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2015 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
@@ -834,10 +834,8 @@ class TestDeletePerformance(AbstractRepoTest):
         fs = req.activity.getParent()
         cb = CmdCallbackI(client, handle)
         self.assertError(cb, loops=200)
-
-        delete = omero.cmd.Delete()
-        delete.type = "/Fileset"
-        delete.id = fs.id.val
+        delete = omero.cmd.Delete2()
+        delete.targetObjects = {'Fileset': [fs.id.val]}
         s2 = time.time()
         print s2 - s1,
         t1 = time.time()

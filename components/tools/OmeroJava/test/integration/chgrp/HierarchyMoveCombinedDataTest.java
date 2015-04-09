@@ -27,12 +27,12 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import omero.cmd.Chgrp;
-import omero.cmd.DoAll;
-import omero.cmd.Request;
+import omero.cmd.Chgrp2;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -44,6 +44,9 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -132,15 +135,12 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
                 logRootIntoGroup(ctx.groupId);
         }
         // Create commands to move and create the link in target
-        List<Request> list = new ArrayList<Request>();
-        list.add(new Chgrp(DeleteServiceTest.REF_DATASET, d.getId().getValue(),
-                null, g.getId().getValue()));
-
-        DoAll all = new DoAll();
-        all.requests = list;
-
-        // Move the data
-        doChange(all, g.getId().getValue());
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(d.getId().getValue()));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         // Check if the dataset has been removed.
         ParametersI param = new ParametersI();

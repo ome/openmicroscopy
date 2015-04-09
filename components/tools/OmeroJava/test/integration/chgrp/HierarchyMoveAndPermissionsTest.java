@@ -10,9 +10,10 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -22,6 +23,9 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -59,9 +63,13 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         // Create a new group and make owner of first group an owner.
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -101,8 +109,13 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
+
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -140,8 +153,13 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
+
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -180,8 +198,13 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
+
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -223,8 +246,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
                 false);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -264,8 +291,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser("rwr---", ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -305,8 +336,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser("rw----", ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -346,8 +381,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, false);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -387,8 +426,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         ExperimenterGroup g = newGroupAddUser(perms, ctx.userId, true);
         iAdmin.getEventContext(); // Refresh
 
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -427,8 +470,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
         // admin logs into first group
         disconnect();
         logRootIntoGroup(ctx);
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
 
         ParametersI param = new ParametersI();
         param.addId(id);
@@ -479,8 +526,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
         StringBuilder sb = new StringBuilder();
@@ -546,8 +597,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
         StringBuilder sb = new StringBuilder();
@@ -616,8 +671,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
         StringBuilder sb = new StringBuilder();
@@ -692,8 +751,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // loginUser(ctx);
         // Now try to move the dataset.
-        doChange(new Chgrp(DeleteServiceTest.REF_DATASET, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         ParametersI param = new ParametersI();
         param.addId(id);
         StringBuilder sb = new StringBuilder();
@@ -757,8 +820,12 @@ public class HierarchyMoveAndPermissionsTest extends AbstractServerTest {
 
         // user2 tries to move it.
         ctx2 = init(ctx2);
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        dc.groupId = g.getId().getValue();
+        callback(true, client, dc);
         // Now check that the image is no longer in group
         ParametersI param = new ParametersI();
         param.addId(id);

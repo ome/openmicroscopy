@@ -10,11 +10,12 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -22,6 +23,9 @@ import omero.model.Pixels;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -100,8 +104,12 @@ public class RenderingSettingsMoveTest extends AbstractServerTest {
         //move the image(s)
         long id = img.getId().getValue();
         // Move the image
-        doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id, null, g.getId()
-                .getValue()));
+        final Chgrp2 mv = new Chgrp2();
+        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        mv.groupId = g.getId().getValue();
+        callback(true, client, mv);
 
         //Check if the settings have been deleted.
         svc = factory.getPixelsService();

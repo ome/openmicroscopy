@@ -23,15 +23,19 @@ import integration.DeleteServiceTest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
+import com.google.common.collect.ImmutableMap;
+
+import static org.testng.AssertJUnit.*;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 import ome.xml.model.OME;
@@ -39,10 +43,11 @@ import omero.RString;
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IUpdatePrx;
-import omero.cmd.Chgrp;
-import omero.cmd.Delete;
-import omero.cmd.GraphConstraintERR;
+import omero.cmd.Chgrp2;
+import omero.cmd.Delete2;
+import omero.cmd.DoAll;
 import omero.cmd.OK;
+import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.model.Arc;
 import omero.model.Channel;
@@ -169,26 +174,23 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         long fs1 = f.images.get(1).getFileset().getId().getValue();
         assertEquals(fs0, fs1);
 
-        Chgrp command = new Chgrp(DeleteServiceTest.REF_IMAGE, img0,
-                null, secondGroup.getId().getValue());
+        final Chgrp2 mv = new Chgrp2();
+        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img0));
+        mv.groupId = secondGroup.getId().getValue();
 
-        Response rsp = doChange(client, factory, command, false); // Don't pass
-        // See ticket:10846 This is no longer true, since the exception
-        // is being thrown elsewhere.
-        /*
-        GraphConstraintERR err = (GraphConstraintERR) rsp;
-        Map<String, long[]> constraints = err.constraints;
-        long[] filesetIds = constraints.get("Fileset");
-        assertEquals(1, filesetIds.length);
-        assertEquals(fs0, filesetIds[0]);
-        */
-
+        Response rsp = doChange(client, factory, mv, false); // Don't pass
         // However, it should still be possible to delete the 2 images
         // and have the fileset cleaned up.
-        delete(true, client, new Delete(DeleteServiceTest.REF_IMAGE, img0, null),
-                new Delete("/Image", img1, null));
-
-        // FIXME: This needs to be worked on. The fileset still exists.
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(img0);
+        ids.add(img1);
+        List<Request> commands = new ArrayList<Request>();
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(), ids);
+        callback(true, client, dc);
         assertDoesNotExist(new FilesetI(fs0, false));
     }
 
@@ -201,10 +203,13 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	List<Image> images = importMIF(imageCount);
         long fs0 = images.get(0).getFileset().getId().getValue();
 
-        Chgrp command = new Chgrp(DeleteServiceTest.REF_FILESET, fs0,
-                null, secondGroup.getId().getValue());
+        final Chgrp2 mv = new Chgrp2();
+        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Fileset.class.getSimpleName(),
+                Collections.singletonList(fs0));
+        mv.groupId = secondGroup.getId().getValue();
 
-        Response rsp = doChange(client, factory, command, true);
+        Response rsp = doChange(client, factory, mv, true);
         OK err = (OK) rsp;
         assertNotNull(err);
     }
@@ -216,21 +221,20 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     @Test(groups = {"fs", "integration"})
     public void testMoveMIFWithAcquisitionData() throws Throwable {
     	int imageCount = 1;
-    	List<File> files = new ArrayList<File>();
     	Fileset set = new FilesetI();
     	set.setTemplatePrefix(omero.rtypes.rstring("fake"));
     	List<Long> ids = new ArrayList<Long>();
     	for (int i = 0; i < imageCount; i++) {
-    		File f = File.createTempFile("testMoveMIFWithAcquisitioData "+i,
-    				"."+OME_FORMAT);
-    		files.add(f);
+    		File f = File.createTempFile(
+    		        RandomStringUtils.random(100, false, true),".ome.xml");
+    		f.deleteOnExit();
     		XMLMockObjects xml = new XMLMockObjects();
     		XMLWriter writer = new XMLWriter();
     		OME ome = xml.createImageWithAcquisitionData();
     		writer.writeFile(f, ome, true);
     		List<Pixels> pixels = null;
     		try {
-    			pixels = importFile(f, OME_FORMAT);
+    			pixels = importFile(f, "ome.xml");
     		} catch (Throwable e) {
     			throw new Exception("cannot import image", e);
     		}
@@ -246,11 +250,12 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     		set.addImage(j.next());
 		}
     	set = (Fileset) iUpdate.saveAndReturnObject(set);
-    	Chgrp command = new Chgrp(DeleteServiceTest.REF_FILESET,
-    			set.getId().getValue(),
-    			null, secondGroup.getId().getValue());
-
-    	Response rsp = doChange(client, factory, command, true);
+    	final Chgrp2 mv = new Chgrp2();
+        mv.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Fileset.class.getSimpleName(),
+                Collections.singletonList(set.getId().getValue()));
+        mv.groupId = secondGroup.getId().getValue();
+    	Response rsp = doChange(client, factory, mv, true);
     	OK err = (OK) rsp;
     	assertNotNull(err);
     	disconnect();
@@ -384,7 +389,6 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
 				objective = (Objective) j1.next();
 				assertEquals(objective.getDetails().getGroup().getId().getValue(), gid2);
 				assertNotNull(objective.getCorrection());
-				System.out.println( objective.getImmersion().isLoaded() );
 				assertNotNull(objective.getImmersion());
 //				assertEquals(objective.getImmersion().getDetails().getGroup().getId().getValue(), gid2);
 			}
@@ -405,7 +409,6 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     			light = (LightSource) j1.next();
 				if (light instanceof Laser) {
 					laser = (Laser) light;
-					System.out.println(laser);
 					assertNotNull(laser.getType());
 					assertNotNull(laser.getLaserMedium());
 //					assertNotNull(laser.getPulse());
@@ -414,7 +417,6 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	
     	
     	}
-       files.clear();
     }
     
     /**
@@ -437,11 +439,13 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
 		}
         long filesetID = images.get(0).getFileset().getId().getValue();
         iUpdate.saveAndReturnArray(links);
-        Chgrp command = new Chgrp(DeleteServiceTest.REF_DATASET,
-        		dataset.getId().getValue(),
-    			null, secondGroup.getId().getValue());
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(dataset.getId().getValue()));
+        dc.groupId = secondGroup.getId().getValue();
 
-    	doAllChanges(client, factory, true, command);
+    	doAllChanges(client, factory, true, dc);
     	disconnect();
     	loginUser(new ExperimenterGroupI(secondGroup.getId().getValue(),
     			false));

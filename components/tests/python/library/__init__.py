@@ -35,7 +35,7 @@ import Ice
 import Glacier2
 import omero
 import omero.gateway
-from omero.cmd import DoAll, State, ERR, OK, Chgrp, Delete
+from omero.cmd import DoAll, State, ERR, OK, Chmod, Chgrp2, Delete2
 from omero.callbacks import CmdCallbackI
 from omero.model import DatasetI, DatasetImageLinkI, ImageI, ProjectI
 from omero.model import Annotation, FileAnnotationI, OriginalFileI
@@ -907,32 +907,31 @@ class ITest(object):
     def delete(self, obj):
         """
         Deletes a list of model entities (ProjectI, DatasetI or ImageI)
-        by creating Delete commands and calling
-        :func:`~test.ITest.doAllSubmit`.
+        by creating Delete2 commands and calling
+        :func:`~test.ITest.doSubmit`.
 
         :param obj: a list of objects to be deleted
         """
         if isinstance(obj[0], ProjectI):
-            t = "/Project"
+            t = "Project"
         elif isinstance(obj[0], DatasetI):
-            t = "/Dataset"
+            t = "Dataset"
         elif isinstance(obj[0], ImageI):
-            t = "/Image"
+            t = "Image"
         else:
             assert False, "Object type not supported."
 
-        commands = list()
-        for i in obj:
-            commands.append(Delete(t, i.id.val, None))
+        ids = [i.id.val for i in obj]
+        command = Delete2(targetObjects={t: ids})
 
-        self.doAllSubmit(commands, self.client)
+        self.doSubmit(command, self.client)
 
     def change_group(self, obj, target, client=None):
         """
         Moves a list of model entities (ProjectI, DatasetI or ImageI)
         to the target group. Accepts a client instance to guarantee calls
-        in correct user contexts. Creates Chgrp commands and calls
-        :func:`~test.ITest.doAllSubmit`.
+        in correct user contexts. Creates Chgrp2 commands and calls
+        :func:`~test.ITest.doSubmit`.
 
         :param obj: a list of objects to be moved
         :param target: the ID of the target group
@@ -941,19 +940,36 @@ class ITest(object):
         if client is None:
             client = self.client
         if isinstance(obj[0], ProjectI):
-            t = "/Project"
+            t = "Project"
         elif isinstance(obj[0], DatasetI):
-            t = "/Dataset"
+            t = "Dataset"
         elif isinstance(obj[0], ImageI):
-            t = "/Image"
+            t = "Image"
         else:
             assert False, "Object type not supported."
 
-        commands = list()
-        for i in obj:
-            commands.append(Chgrp(t, id=i.id.val, grp=target))
+        ids = [i.id.val for i in obj]
+        command = Chgrp2(targetObjects={t: ids}, groupId=target)
 
-        self.doAllSubmit(commands, client)
+        self.doSubmit(command, client)
+
+    def change_permissions(self, gid, perms, client=None):
+        """
+        Changes the permissions of an ExperimenterGroup object.
+        Accepts a client instance to guarantee calls in correct user contexts.
+        Creates Chmod commands and calls :func:`~test.ITest.doSubmit`.
+
+        :param gid: id of an ExperimenterGroup
+        :param perms: permissions string
+        :param client: user context
+        """
+        if client is None:
+            client = self.client
+
+        command = Chmod(
+            type="/ExperimenterGroup", id=gid, permissions=perms)
+
+        self.doSubmit(command, client)
 
 
 class ProjectionFixture(object):

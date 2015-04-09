@@ -109,9 +109,9 @@ public class PojosServiceTest extends AbstractServerTest {
      */
     private void checkPixels(PixelsData pixels) throws Exception {
         assertNotNull(pixels);
-        assertNotNull(pixels.getPixelSizeX());
-        assertNotNull(pixels.getPixelSizeY());
-        assertNotNull(pixels.getPixelSizeZ());
+        assertNotNull(pixels.getPixelSizeX(null));
+        assertNotNull(pixels.getPixelSizeY(null));
+        assertNotNull(pixels.getPixelSizeZ(null));
         assertNotNull(pixels.getPixelType());
         assertNotNull(pixels.getImage());
         assertNotNull(pixels.getOwner());

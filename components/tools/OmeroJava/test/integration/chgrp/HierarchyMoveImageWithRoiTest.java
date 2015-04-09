@@ -27,10 +27,11 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import omero.ServerError;
-import omero.cmd.Chgrp;
+import omero.cmd.Chgrp2;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -43,6 +44,9 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
+
 import static org.testng.AssertJUnit.*;
 
 /**
@@ -95,9 +99,12 @@ public class HierarchyMoveImageWithRoiTest extends AbstractServerTest {
         loginUser(sourceGroup);
 
         // Perform the move operation.
-        Chgrp command = new Chgrp(DeleteServiceTest.REF_IMAGE, originalImageId,
-                null, rwGroupId);
-        doChange(command);
+        final Chgrp2 dc = new Chgrp2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(originalImageId));
+        dc.groupId = rwGroupId;
+        callback(true, client, dc);
 
         // check if the objects have been moved.
         Roi originalRoi = getRoiWithId(originalRoiId);

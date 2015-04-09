@@ -59,9 +59,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Tests call to {@link IDeletePrx}, especially important for testing the
- * {@link IDeletePrx#queueDelete(omero.api.delete.DeleteCommand[]) since it is
- * not available from {@link ome.api.IDelete}.
+ * Tests deletion of various elements of the graph.
  * These tests are resurrected from the previous DeleteITest class, now deleted.
  */
 @Test(groups = { "integration", "delete" })

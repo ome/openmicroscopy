@@ -45,8 +45,8 @@ import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
-import omero.cmd.Delete;
-import omero.cmd.DeleteRsp;
+import omero.cmd.Delete2;
+import omero.cmd.Delete2Response;
 import omero.cmd.DoAll;
 import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
@@ -1086,7 +1086,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected String delete(omero.client c, Delete... dc)
+    protected String delete(omero.client c, Delete2... dc)
             throws ApiUsageException, ServerError, InterruptedException {
         return delete(true, c, dc);
     }
@@ -1106,7 +1106,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected String delete(boolean passes, omero.client c, Delete... dc)
+    protected String delete(boolean passes, omero.client c, Delete2... dc)
             throws ApiUsageException, ServerError, InterruptedException {
 
         callback(passes, c, dc);
@@ -1136,7 +1136,7 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected DeleteRsp singleDeleteWithReport(omero.client c, Delete dc)
+    protected Delete2Response singleDeleteWithReport(omero.client c, Delete2 dc)
             throws ApiUsageException, ServerError, InterruptedException {
         return deleteWithReports(c, dc)[0];
     }
@@ -1150,14 +1150,14 @@ public class AbstractServerTest extends AbstractTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    private DeleteRsp[] deleteWithReports(omero.client c, Delete... dc)
+    private Delete2Response[] deleteWithReports(omero.client c, Delete2... dc)
             throws ApiUsageException, ServerError, InterruptedException {
         CmdCallbackI cb = callback(true, c, dc);
         // If the above passes, then we know it's not an ERR
         DoAllRsp all = (DoAllRsp) cb.getResponse();
-        DeleteRsp[] reports = new DeleteRsp[all.responses.size()];
+        Delete2Response[] reports = new Delete2Response[all.responses.size()];
         for (int i = 0; i < reports.length; i++) {
-            reports[i] = (DeleteRsp) all.responses.get(i);
+            reports[i] = (Delete2Response) all.responses.get(i);
         }
         return reports;
     }
