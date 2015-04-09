@@ -115,7 +115,7 @@ class TestChgrp(lib.ITest):
         self.set_context(client, first_gid)
 
         # We have to be in destination group for link Save to work
-        self.doAllSubmit(requests, client)
+        self.doSubmit(requests, client)
 
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
@@ -1120,7 +1120,7 @@ class TestChgrpTarget(lib.ITest):
             targetObjects={"Image": ids}, groupId=target_gid)
         requests = [chgrp]
         requests.extend(saves)
-        self.doAllSubmit(requests, client, omero_group=target_gid)
+        self.doSubmit(requests, client, omero_group=target_gid)
 
         # Check Images moved to correct group
         queryService = client.sf.getQueryService()
@@ -1176,7 +1176,7 @@ class TestChgrpTarget(lib.ITest):
         chgrp = Chgrp2(
             targetObjects={"Image": [images[0].id.val]}, groupId=old_gid)
         save = Save(link)
-        self.doAllSubmit([chgrp, save], client, omero_group=old_gid)
+        self.doSubmit([chgrp, save], client, omero_group=old_gid)
 
         dils = client.sf.getQueryService().findAllByQuery(
             "select dil from DatasetImageLink dil where dil.child.id = :id",
@@ -1228,7 +1228,7 @@ class TestChgrpTarget(lib.ITest):
             c = client
         else:
             c = self.root
-        self.doAllSubmit(requests, c, omero_group=target_gid)
+        self.doSubmit(requests, c, omero_group=target_gid)
 
         queryService = client.sf.getQueryService()
         ctx = {'omero.group': '-1'}  # query across groups

@@ -741,9 +741,14 @@ class ITest(object):
     def doSubmit(self, request, client, test_should_pass=True,
                  omero_group=None):
         """
-        Performs the request waits on completion and checks that the
-        result is not an error.
+        Performs the request(s), waits on completion and checks that the
+        result is not an error. The request can either be a single command
+        or a list of commands. If the latter then the request list will be
+        wrapped in a DoAll.
         """
+        if isinstance(request, list):
+            request = DoAll(request)
+
         sf = client.sf
         if omero_group is not None:
             prx = sf.submit(request, {'omero.group': str(omero_group)})
@@ -771,14 +776,6 @@ class ITest(object):
                     "Found OK when test_should_pass==false: %s" % rsp)
             assert State.FAILURE in prx.getStatus().flags
 
-        return rsp
-
-    def doAllSubmit(self, requests, client, test_should_pass=True,
-                    omero_group=None):
-        da = DoAll()
-        da.requests = requests
-        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass,
-                            omero_group=omero_group)
         return rsp
 
     @classmethod
