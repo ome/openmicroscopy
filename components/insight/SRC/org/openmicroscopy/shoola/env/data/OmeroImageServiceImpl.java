@@ -97,7 +97,6 @@ import pojos.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.Resolver;
 
-import omero.gateway.Connector;
 import omero.gateway.DSOutOfServiceException;
 import omero.gateway.SecurityContext;
 

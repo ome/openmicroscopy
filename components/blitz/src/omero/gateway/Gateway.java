@@ -30,14 +30,40 @@ import java.util.Set;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import ome.formats.OMEROMetadataStoreClient;
+import omero.RType;
+import omero.ServerError;
 import omero.client;
+import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
+import omero.api.IConfigPrx;
+import omero.api.IContainerPrx;
+import omero.api.IMetadataPrx;
+import omero.api.IPixelsPrx;
+import omero.api.IProjectionPrx;
+import omero.api.IQueryPrx;
+import omero.api.IRenderingSettingsPrx;
+import omero.api.IRepositoryInfoPrx;
+import omero.api.IRoiPrx;
+import omero.api.IScriptPrx;
+import omero.api.IUpdatePrx;
+import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
+import omero.api.RenderingEnginePrx;
+import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.HandlePrx;
+import omero.cmd.Request;
+import omero.grid.ProcessCallbackI;
+import omero.grid.ScriptProcessPrx;
+import omero.grid.SharedResourcesPrx;
 import omero.log.LogMessage;
 import omero.log.Logger;
 import omero.model.ExperimenterGroupI;
+import omero.util.CommonsLangUtils;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.util.PojoMapper;
@@ -71,6 +97,8 @@ public class Gateway {
     public Gateway(Logger log) {
         this.log = log;
     }
+
+    // Public connection handling methods
 
     public ExperimenterData connect(LoginCredentials c)
             throws DSOutOfServiceException {
@@ -153,12 +181,480 @@ public class Gateway {
         return connected;
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
+    public String getSessionId(ExperimenterData user) {
+        try {
+            Connector c = getConnector(new SecurityContext(user.getGroupId()),
+                    false, false);
+            if (c != null) {
+                return c.getClient().getSessionId();
+            }
+        } catch (DSOutOfServiceException e) {
+        }
+        return null;
+    }
+
     public String getServerVersion() throws DSOutOfServiceException {
         if (serverVersion == null) {
             throw new DSOutOfServiceException("Not logged in.");
         }
         return serverVersion;
     }
+
+    // General public methods
+    
+    /**
+     * Executes the commands.
+     * 
+     * @param commands The commands to execute.
+     * @param target The target context is any.
+     * @return See above.
+     */
+     public CmdCallbackI submit(SecurityContext ctx, List<Request> commands, SecurityContext target)
+            throws Throwable
+    {
+         Connector c = getConnector(ctx, true, false);
+         if (c != null)
+             return c.submit(commands, target);
+         return null;
+    }
+     
+     public CmdCallbackI submit(SecurityContext ctx, Request cmd)
+             throws Throwable
+     {
+          Connector c = getConnector(ctx, true, false);
+          if (c != null) {
+              client client = getConnector(ctx, true, false).getClient();
+              HandlePrx handle = client.getSession().submit(cmd);
+              return new CmdCallbackI(client, handle);
+          }
+          return null;
+     }
+     
+     public void closeImport(SecurityContext ctx, String userName) {
+         try {
+             Connector c = getConnector(ctx, false, true);
+             if(CommonsLangUtils.isNotEmpty(userName))
+                 c = c.getConnector(userName);
+             if (c != null) c.closeImport();
+         } catch (Throwable e) {
+             log.warn(this, "Failed to close import: " + e);
+         }
+     }
+     
+    public ProcessCallbackI runScript(SecurityContext ctx, long scriptID,
+            Map<String, RType> parameters) throws DSOutOfServiceException,
+            ServerError {
+        Connector c = getConnector(ctx);
+        if (c == null)
+            return null;
+        IScriptPrx svc = c.getScriptService();
+        ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
+        return new ProcessCallbackI(c.getClient(), prx);
+    }
+     
+    // Public service access methods
+
+    /**
+     * Returns the {@link SharedResourcesPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public SharedResourcesPrx getSharedResources(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getSharedResources();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IRenderingSettingsPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IRenderingSettingsPrx getRenderingSettingsService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getRenderingSettingsService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IRepositoryInfoPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IRepositoryInfoPrx getRepositoryService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getRepositoryService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IScriptPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IScriptPrx getScriptService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getScriptService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IContainerPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IContainerPrx getPojosService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getPojosService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IQueryPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IQueryPrx getQueryService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getQueryService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IUpdatePrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IUpdatePrx getUpdateService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        return getUpdateService(ctx, null);
+    }
+    
+    /**
+     * Returns the {@link IUpdatePrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IUpdatePrx getUpdateService(SecurityContext ctx, String userName)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (CommonsLangUtils.isNotEmpty(userName)) {
+            try {
+                c = c.getConnector(userName);
+            } catch (Throwable e) {
+                throw new DSOutOfServiceException(
+                        "Can't get derived connector.", e);
+            }
+        }
+        if (c != null)
+            return c.getUpdateService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IMetadataPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IMetadataPrx getMetadataService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getMetadataService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IRoiPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IRoiPrx getROIService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getROIService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IConfigPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IConfigPrx getConfigService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getConfigService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link ThumbnailStorePrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public ThumbnailStorePrx getThumbnailService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getThumbnailService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link ExporterPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws @throws Throwable Thrown if the service cannot be initialized.
+     */
+    public ExporterPrx getExporterService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getExporterService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link RawFileStorePrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws @throws Throwable Thrown if the service cannot be initialized.
+     */
+    public RawFileStorePrx getRawFileService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getRawFileService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link RawPixelsStorePrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public RawPixelsStorePrx getPixelsStore(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getPixelsStore();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IPixelsPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IPixelsPrx getPixelsService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getPixelsService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link SearchPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public SearchPrx getSearchService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getSearchService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IProjectionPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IProjectionPrx getProjectionService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getProjectionService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IAdminPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IAdminPrx getAdminService(SecurityContext ctx)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getAdminService();
+        return null;
+    }
+
+    /**
+     * Returns the {@link IAdminPrx} service.
+     * 
+     * @param ctx
+     *            The {@link SecurityContext}
+     * @param secure
+     *            Pass <code>true</code> to have a secure admin service,
+     *            <code>false</code> otherwise.
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public IAdminPrx getAdminService(SecurityContext ctx, boolean secure)
+            throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getAdminService();
+        return null;
+    }
+
+    /**
+     * Creates or recycles the import store.
+     * 
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public OMEROMetadataStoreClient getImportStore(SecurityContext ctx) throws DSOutOfServiceException {
+        return getImportStore(ctx, null);
+    }
+    
+    /**
+     * Creates or recycles the import store.
+     * 
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public OMEROMetadataStoreClient getImportStore(SecurityContext ctx,
+            String userName) throws DSOutOfServiceException {
+        Connector c = getConnector(ctx, true, false);
+        if (CommonsLangUtils.isNotEmpty(userName)) {
+            try {
+                c = c.getConnector(userName);
+            } catch (Throwable e) {
+                throw new DSOutOfServiceException(
+                        "Can't get derived connector.", e);
+            }
+        }
+        if (c != null)
+            return c.getImportStore();
+        return null;
+    }
+
+    /**
+     * Returns the {@link RenderingEnginePrx Rendering service}.
+     * 
+     * @return See above.
+     * @throws Throwable
+     *             Thrown if the service cannot be initialized.
+     */
+    public RenderingEnginePrx getRenderingService(SecurityContext ctx,
+            long pixelsID, CompressionQuality compression)
+            throws DSOutOfServiceException, ServerError {
+        Connector c = getConnector(ctx, true, false);
+        if (c != null)
+            return c.getRenderingService(pixelsID, compression);
+        return null;
+    }
+
+    // Internal helper methods
 
     private List<Connector> removeAllConnectors() {
         synchronized (groupConnectorMap) {
@@ -241,22 +737,6 @@ public class Gateway {
                     "Can't connect to OMERO. OMERO info not valid", e);
         }
         return secureClient;
-    }
-
-    public boolean isConnected() {
-        return connected;
-    }
-
-    public String getSessionId(ExperimenterData user) {
-        try {
-            Connector c = getConnector(new SecurityContext(user.getGroupId()),
-                    false, false);
-            if (c != null) {
-                return c.getClient().getSessionId();
-            }
-        } catch (DSOutOfServiceException e) {
-        }
-        return null;
     }
 
     private ExperimenterData login(client client, LoginCredentials cred)
@@ -423,6 +903,20 @@ public class Gateway {
             }
         }
     }
+    
+    public void closeService(SecurityContext ctx,
+            StatefulServiceInterfacePrx svc) {
+        try {
+            Connector c = getConnector(ctx, false, true);
+            if (c != null) {
+                c.close(svc);
+            } else {
+                svc.close(); // Last ditch effort to close.
+            }
+        } catch (Exception e) {
+            log.warn(this, String.format("Failed to close %s: %s", svc, e));
+        }
+    }
 
     public RawPixelsStorePrx createPixelsStore(SecurityContext ctx)
             throws DSOutOfServiceException {
@@ -518,11 +1012,10 @@ public class Gateway {
                     throw new DSOutOfServiceException("Network down.");
                 }
             }
-            return c;
         }
 
         // We are going to create a connector and activate a session.
-        if (!recreate) {
+        if (c == null && !recreate) {
             if (permitNull) {
                 log.warn(this, "Cannot re-create. Returning null connector");
                 return null;
@@ -530,7 +1023,19 @@ public class Gateway {
             throw new DSOutOfServiceException("Not allowed to recreate");
         }
 
-        return createConnector(ctx, permitNull);
+        c = createConnector(ctx, permitNull);
+
+        ExperimenterData exp = ctx.getExperimenterData();
+        if (exp != null && ctx.isSudo()) {
+            try {
+                c = c.getConnector(exp.getUserName());
+            } catch (Throwable e) {
+                throw new DSOutOfServiceException("Could not derive connector",
+                        e);
+            }
+        }
+
+        return c;
     }
 
     /**
