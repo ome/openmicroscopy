@@ -409,7 +409,7 @@ class SessionsControl(BaseControl):
         if exists:
             conflicts = store.conflicts(server, name, uuid, props)
             if conflicts:
-                self.ctx.dbg("Skipping %s due to conflicts: %s"
+                self.ctx.err("Skipping %s due to conflicts: %s"
                              % (uuid, conflicts))
                 return None
 
