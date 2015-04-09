@@ -214,6 +214,12 @@ class ITest(object):
         img.acquisitionDate = rtime(0)
         return img
 
+    def new_dataset(self, name="", description=None):
+        ds = DatasetI()
+        ds.setName(rstring(name))
+        ds.setDescription(rstring(description))
+        return ds
+
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
         if filename is None:
@@ -887,9 +893,16 @@ class ITest(object):
         else:
             assert False, "Object type not supported."
 
-        link.setParent(obj1.proxy())
-        link.setChild(obj2.proxy())
-        client.sf.getUpdateService().saveAndReturnObject(link)
+        """check if object exist or not"""
+        if obj1.id is None:
+            link.setParent(obj1)
+        else:
+            link.setParent(obj1.proxy())
+        if obj2.id is None:
+            link.setChild(obj2)
+        else:
+            link.setChild(obj2.proxy())
+        return client.sf.getUpdateService().saveAndReturnObject(link)
 
     def delete(self, obj):
         """
