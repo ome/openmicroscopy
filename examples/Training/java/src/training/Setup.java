@@ -111,7 +111,7 @@ public class Setup {
 			info.setHostName(p.getProperty("omero.host"));
 			info.setPassword(p.getProperty("omero.pass"));
 			info.setUserName(p.getProperty("omero.user"));
-			info.setGroupId(Long.parseLong(p.getProperty("omero.group")));
+			info.setGroup(p.getProperty("omero.group"));
 			info.setPort(Integer.parseInt(p.getProperty("omero.port")));
 			info.setImageId(Long.parseLong(p.getProperty("omero.imageid")));
 			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetid")));

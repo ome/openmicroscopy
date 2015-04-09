@@ -75,31 +75,31 @@ public class ConfigurationInfo
 	/** The id of a project.*/
     private long screenId;
 
-    /** The groupId to use when logging in.*/
-    private long groupId;
+    /** The group to use when logging in.*/
+    private String group;
 
 	/** Creates a new instance.*/
 	public ConfigurationInfo()
 	{
 		setPort(DEFAULT_PORT);
-		groupId = -1;
+		group = null;
 	}
 
 	/**
-	 * Returns the group's identifier.
+	 * Returns the group.
 	 *
 	 * @return See above.
 	 */
-	public long getGroupId() { return groupId; }
+	public String getGroup() { return group; }
 
 	/**
-	 * Sets the group's identifier.
+	 * Sets the group.
 	 *
 	 * @param groupId The value to set.
 	 */
-	public void setGroupId(long groupId)
+	public void setGroup(String group)
 	{
-	    this.groupId = groupId;
+	    this.group = group;
 	}
 
 	/**
