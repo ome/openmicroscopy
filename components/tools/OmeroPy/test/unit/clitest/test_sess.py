@@ -278,7 +278,8 @@ class TestSessions(object):
     CONNECTION_TYPES = ["string", "prefixed_string", "options"]
 
     def get_conn_args(self, conn_type, host="testhost", name="testuser",
-                      port=None):
+                      port=None, group=None):
+        """Generated various forms of connection arguments"""
 
         if name:
             if conn_type == "string":
@@ -302,6 +303,10 @@ class TestSessions(object):
                 args += " -p %s" % port
             else:
                 args += ":%s" % port
+
+        # Add group login argument
+        if group:
+            args += " -g %s" % group
 
         return args.split()
 
@@ -356,8 +361,8 @@ class TestSessions(object):
         cli.requests_pass()
         cli.assertReqSize(self, 1)
         cli.creates_client(group="mygroup2")
-        conn_args = self.get_conn_args(connection)
-        cli.invoke(["s", "login", "-g", "mygroup2"] + conn_args)
+        conn_args = self.get_conn_args(connection, group="mygroup2")
+        cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
@@ -367,8 +372,8 @@ class TestSessions(object):
                       {"omero.group": "mygroup"})
         cli.assertReqSize(self, 0)
         cli.creates_client(group="mygroup", new=False)
-        conn_args = self.get_conn_args(connection)
-        cli.invoke(["s", "login", "-g", "mygroup"] + conn_args)
+        conn_args = self.get_conn_args(connection, group ="mygroup")
+        cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
@@ -467,7 +472,8 @@ class TestSessions(object):
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', [None, 4064, 14064])
-    def testSessionReattachWorks(self, connection, port):
+    @pytest.mark.parametrize('group', [None, "mygroup"])
+    def testSessionReattachWorks(self, connection, port, group):
         """
         Test session re-attachment
         """
@@ -475,8 +481,9 @@ class TestSessions(object):
         MOCKKEY = "%s" % uuid.uuid4()
 
         # Connect using the session key (create a local session file)
-        cli.creates_client(sess=MOCKKEY, port=port)
-        key_conn_args = self.get_conn_args(connection, name=None, port=port)
+        cli.creates_client(sess=MOCKKEY, port=port, group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
 
         # Force new CLI instance using the same connection arguments
