@@ -465,6 +465,25 @@ class TestSessions(object):
 
         del cli
 
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', [None, 4064, 14064])
+    def testSessionReattachWorks(self, connection, port):
+        """
+        Test session re-attachment
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port)
+        key_conn_args = self.get_conn_args(connection, name=None, port=port)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
     @pytest.mark.parametrize('port', [None, 4064])
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     def testCopiedSessionWorks(self, connection, port):
