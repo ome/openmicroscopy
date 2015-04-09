@@ -519,7 +519,7 @@ class TestSessions(object):
     @pytest.mark.parametrize('port', [
         (None, 14064), (14064, None), (4064, None), (4064, 14064)])
     @pytest.mark.parametrize('group', [None, "mygroup"])
-    def testSessionReattachFailsPort(self, connection, port, group):
+    def testSessionReattachFailsPort(self, connection, port, group, capsys):
         """
         Test session re-attachment with a wrong port fails
         """
@@ -539,12 +539,15 @@ class TestSessions(object):
             connection, name=None, port=port[1], group=group)
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        out, err = capsys.readouterr()
+        msg = 'Skipping %s due to conflicts: omero.port:%s!=%s;'
+        assert err.splitlines()[-2] == msg % (MOCKKEY, port[0], port[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', [None, 4064, 14064])
     @pytest.mark.parametrize('group', [
         (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")])
-    def testSessionReattachFailsGroup(self, connection, port, group):
+    def testSessionReattachFailsGroup(self, connection, port, group, capsys):
         """
         Test session re-attachment with a wrong group fails
         """
@@ -564,6 +567,9 @@ class TestSessions(object):
             connection, name=None, port=port, group=group[1])
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        out, err = capsys.readouterr()
+        msg = 'Skipping %s due to conflicts: omero.group:%s!=%s;'
+        assert err.splitlines()[-2] == msg % (MOCKKEY, group[0], group[1])
 
     @pytest.mark.parametrize('port', [None, 4064])
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
