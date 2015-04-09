@@ -372,7 +372,7 @@ class TestSessions(object):
                       {"omero.group": "mygroup"})
         cli.assertReqSize(self, 0)
         cli.creates_client(group="mygroup", new=False)
-        conn_args = self.get_conn_args(connection, group ="mygroup")
+        conn_args = self.get_conn_args(connection, group="mygroup")
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
@@ -490,6 +490,80 @@ class TestSessions(object):
         cli.set_client(None)
         cli.creates_client(sess=MOCKKEY, new=False)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', [None, 4064, 14064])
+    @pytest.mark.parametrize('group', [None, "mygroup"])
+    def testSessionReattachFailsServer(self, connection, port, group):
+        """
+        Test session re-attachment with a wrong hostname fails
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port, group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, host="wrongserver", name=None, port=port, group=group)
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', [
+        (None, 14064), (14064, None), (4064, None), (4064, 14064)])
+    @pytest.mark.parametrize('group', [None, "mygroup"])
+    def testSessionReattachFailsPort(self, connection, port, group):
+        """
+        Test session re-attachment with a wrong port fails
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port[0], group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[0], group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[1], group=group)
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', [None, 4064, 14064])
+    @pytest.mark.parametrize('group', [
+        (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")])
+    def testSessionReattachFailsGroup(self, connection, port, group):
+        """
+        Test session re-attachment with a wrong group fails
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port, group=group[0])
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group[0])
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port, group=group[1])
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
 
     @pytest.mark.parametrize('port', [None, 4064])
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
