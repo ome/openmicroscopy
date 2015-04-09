@@ -6,6 +6,7 @@
  */
 package integration;
 
+import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
@@ -14,6 +15,7 @@ import static org.testng.AssertJUnit.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
@@ -27,8 +29,8 @@ import omero.ResourceError;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ThumbnailStorePrx;
-import omero.cmd.Delete;
-import omero.cmd.DeleteRsp;
+import omero.cmd.Delete2;
+import omero.cmd.Delete2Response;
 import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
@@ -47,11 +49,14 @@ import omero.model.Well;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableMap;
 
 import pojos.FileAnnotationData;
 
@@ -177,7 +182,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @param report
      *            The report from the delete operation
      */
-    private void assertNoUndeletedBinaries(DeleteRsp report) {
+    private void assertNoUndeletedBinaries(Delete2Response report) {
         assertNoUndeletedThumbnails(report);
         assertNoUndeletedFiles(report);
         assertNoUndeletedPixels(report);
@@ -189,9 +194,9 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @param report
      *            The report from the delete operation
      */
-    private void assertNoUndeletedThumbnails(DeleteRsp report) {
-        long[] tbIds = report.undeletedFiles.get(REF_THUMBNAIL);
-        assertTrue(Arrays.toString(tbIds), tbIds == null || tbIds.length == 0);
+    private void assertNoUndeletedThumbnails(Delete2Response report) {
+        List<Long> tbIds = report.deletedObjects.get(REF_THUMBNAIL);
+        assertTrue(CollectionUtils.isEmpty(tbIds));
     }
 
     /**
@@ -200,10 +205,9 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @param report
      *            The report from the delete operation
      */
-    private void assertNoUndeletedFiles(DeleteRsp report) {
-        long[] fileIds = report.undeletedFiles.get(REF_ORIGINAL_FILE);
-        assertTrue(Arrays.toString(fileIds), fileIds == null
-                || fileIds.length == 0);
+    private void assertNoUndeletedFiles(Delete2Response report) {
+        List<Long> fileIds = report.deletedObjects.get(REF_ORIGINAL_FILE);
+        assertTrue(CollectionUtils.isEmpty(fileIds));
     }
 
     /**
@@ -212,10 +216,9 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @param report
      *            The report from the delete operation
      */
-    private void assertNoUndeletedPixels(DeleteRsp report) {
-        long[] pixIds = report.undeletedFiles.get(REF_PIXELS);
-        assertTrue(Arrays.toString(pixIds), pixIds == null
-                || pixIds.length == 0);
+    private void assertNoUndeletedPixels(Delete2Response report) {
+        List<Long> pixIds = report.deletedObjects.get(REF_PIXELS);
+        assertTrue(CollectionUtils.isEmpty(pixIds));
     }
 
     /**
@@ -261,7 +264,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
      * @throws ServerError
      * @throws InterruptedException
      */
-    private DeleteRsp deleteWithReport(Delete dc) throws ApiUsageException,
+    private Delete2Response deleteWithReport(Delete2 dc) throws ApiUsageException,
             ServerError, InterruptedException {
         return singleDeleteWithReport(client, dc);
     }
@@ -467,10 +470,13 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         // Now check that the files have been created and then deleted.
         assertFileExists(pix.getId().getValue(), REF_PIXELS);
 
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
         assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
-        assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
     }
 
     /**
@@ -487,12 +493,14 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         // Now check that the files have been created and then deleted.
         assertOtherPixelsFileExists(pix.getId().getValue(),
                 PyramidFileType.PYRAMID);
-
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID);
-        assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
     }
 
     /**
@@ -511,13 +519,15 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         assertFileExists(pix.getId().getValue(), REF_PIXELS);
         assertOtherPixelsFileExists(pix.getId().getValue(),
                 PyramidFileType.PYRAMID);
-
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
         assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID);
-        assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
     }
 
     /**
@@ -539,16 +549,18 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
                 PyramidFileType.PYRAMID_LOCK);
         assertOtherPixelsFileExists(pix.getId().getValue(),
                 PyramidFileType.PYRAMID_TMP);
-
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID_LOCK);
         assertOtherPixelsFileDoesNotExist(pix.getId().getValue(),
                 PyramidFileType.PYRAMID_TMP);
-        assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+        assertEquals(report.deletedObjects.get(REF_PIXELS).size(), 1);
     }
 
     /**
@@ -585,8 +597,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         // Now check that the files have been created and then deleted.
         assertFileExists(ofId, REF_ORIGINAL_FILE);
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
         assertFileDoesNotExist(ofId, REF_ORIGINAL_FILE);
         assertNoUndeletedBinaries(report);
     }
@@ -619,8 +634,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         // Now check that the files have NOT been created and then deleted.
         assertFileDoesNotExist(pixId, REF_PIXELS);
         assertFileDoesNotExist(ofId, REF_ORIGINAL_FILE);
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
         assertNoUndeletedBinaries(report);
     }
 
@@ -675,8 +693,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         }
 
         // delete the image.
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, imageID, null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(imageID));
+        Delete2Response report = deleteWithReport(dc);
 
         assertNoUndeletedBinaries(report);
         assertFileDoesNotExist(id, "Pixels");
@@ -756,8 +777,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         loginUser(ownerCtx);
         // Now try to delete the image.
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, imageID, null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(imageID));
+        Delete2Response report = deleteWithReport(dc);
         Iterator<Long> j = thumbIds.iterator();
         while (j.hasNext()) {
             assertFileDoesNotExist(j.next(), REF_THUMBNAIL);
@@ -791,8 +815,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         ds2.linkImage(img);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new Delete(DeleteServiceTest.REF_DATASET, ds2.getId()
-                .getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(ds2.getId().getValue()));
+        delete(client, dc);
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
@@ -829,8 +856,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         assertFileExists(pix1.getId().getValue(), REF_PIXELS);
         assertFileExists(pix2.getId().getValue(), REF_PIXELS);
 
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_DATASET, ds.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(ds.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
 
         assertNoUndeletedBinaries(report);
         assertNoneExist(ds, img1, img2, pix1, pix2);
@@ -879,8 +909,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         assertFileExists(of1.getId().getValue(), REF_ORIGINAL_FILE);
         assertFileExists(of2.getId().getValue(), REF_ORIGINAL_FILE);
 
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
 
         assertNoneExist(img, of1, of2);
         assertFileDoesNotExist(of1.getId().getValue(), REF_ORIGINAL_FILE);
@@ -914,8 +947,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         // Now check that the file has been created.
         assertFileExists(pix.getId().getValue(), REF_PIXELS);
 
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_DATASET, ds.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(ds.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
 
         // The dataset should be gone but nothing else.
         assertNoneExist(ds);
@@ -944,8 +980,11 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
 
         // create another user and try to delete the image
         newUserInGroup();
-        DeleteRsp report = deleteWithReport(new Delete(
-                DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(img.getId().getValue()));
+        Delete2Response report = deleteWithReport(dc);
 
         // check the image exists as the owner
         assertExists(img);

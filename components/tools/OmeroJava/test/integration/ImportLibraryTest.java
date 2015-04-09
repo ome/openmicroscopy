@@ -54,9 +54,6 @@ import org.testng.annotations.Test;
 @Test(groups = { "import", "integration", "fs" })
 public class ImportLibraryTest extends AbstractServerTest {
 
-    /** The collection of files that have to be deleted. */
-    private List<File> files;
-
     /**
      * Tests the <code>ImportImage</code> method using an import container
      * returned by the import candidates method.
@@ -77,7 +74,7 @@ public class ImportLibraryTest extends AbstractServerTest {
         File f = File.createTempFile(name + ModelMockFactory.FORMATS[0], "."
                 + ModelMockFactory.FORMATS[0]);
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-        files.add(f);
+        f.deleteOnExit();
         ImportConfig config = new ImportConfig();
         ImportLibrary library = new ImportLibrary(importer, new OMEROWrapper(
                 config));
@@ -106,7 +103,7 @@ public class ImportLibraryTest extends AbstractServerTest {
         File f = File.createTempFile(name + ModelMockFactory.FORMATS[0], "."
                 + ModelMockFactory.FORMATS[0]);
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-        files.add(f);
+        f.deleteOnExit();
         ImportCandidates candidates = getCandidates(f);
         assertNotNull(candidates);
         assertNotNull(candidates.getContainers().get(0));
@@ -131,7 +128,7 @@ public class ImportLibraryTest extends AbstractServerTest {
         File f = File.createTempFile(name + ModelMockFactory.FORMATS[0], "."
                 + ModelMockFactory.FORMATS[0]);
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-        files.add(f);
+        f.deleteOnExit();
         ImportConfig config = new ImportConfig();
         ImportLibrary library = new ImportLibrary(importer, new OMEROWrapper(
                 config));
@@ -167,7 +164,7 @@ public class ImportLibraryTest extends AbstractServerTest {
         File f = File.createTempFile(name + ModelMockFactory.FORMATS[0], "."
                 + ModelMockFactory.FORMATS[0]);
         mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
-        files.add(f);
+        f.deleteOnExit();
         ImportConfig config = new ImportConfig();
         ImportLibrary library = new ImportLibrary(importer, new OMEROWrapper(
                 config));
@@ -187,7 +184,6 @@ public class ImportLibraryTest extends AbstractServerTest {
     @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        files = new ArrayList<File>();
     }
 
     /**
@@ -198,11 +194,6 @@ public class ImportLibraryTest extends AbstractServerTest {
     @Override
     @AfterClass
     public void tearDown() throws Exception {
-        Iterator<File> i = files.iterator();
-        while (i.hasNext()) {
-            i.next().delete();
-        }
-        files.clear();
     }
 
     /**

@@ -12,21 +12,26 @@ import integration.DeleteServiceTest;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ome.xml.model.OME;
-import omero.cmd.Delete;
+import omero.cmd.Delete2;
+import omero.cmd.graphs.ChildOption;
 import omero.model.Experiment;
+import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Screen;
 import omero.model.WellSample;
 
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
+import com.google.common.collect.ImmutableMap;
+
+import static org.testng.AssertJUnit.*;
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;
 
@@ -73,8 +78,11 @@ public class SpwDeleteTest extends AbstractServerTest {
         // see XMLMockObjects.createScreen()
         scalingFactor *= 1*2*2*2*2;
 
-        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, screen.getId()
-                .getValue(), null));
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Screen.class.getSimpleName(),
+                Collections.singletonList(screen.getId().getValue()));
+        callback(true, client, dc);
 
         assertDoesNotExist(screen);
         assertNoneExist(plates.toArray(new Plate[0]));
@@ -101,37 +109,13 @@ public class SpwDeleteTest extends AbstractServerTest {
         Screen screen = plate.copyScreenLinks().get(0).getParent();
         long sid = screen.getId().getValue();
 
-        Map<String, String> op = new HashMap<String, String>();
-        op.put("/Plate", "KEEP");
-
-        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, sid, op));
-
-        assertDoesNotExist(screen);
-        assertExists(plate);
-
-    }
-
-    /**
-     * This tests using the /Plate+Only specifier as opposed to the class name.
-     * Currently not implemented.
-     */
-    @Test(groups = { "broken", "ticket:3195", "UNSUPPORTED" })
-    public void testScreenKeepPlateOnly() throws Exception {
-
-        newUserAndGroup("rw----");
-
-        List<Pixels> pixels = createScreen();
-
-        Pixels p = pixels.get(0);
-        WellSample ws = getWellSample(p);
-        Plate plate = ws.getWell().getPlate();
-        Screen screen = plate.copyScreenLinks().get(0).getParent();
-        long sid = screen.getId().getValue();
-
-        Map<String, String> op = new HashMap<String, String>();
-        op.put("/Plate+Only", "KEEP");
-
-        delete(client, new Delete(DeleteServiceTest.REF_SCREEN, sid, op));
+        final Delete2 dc = new Delete2();
+        final ChildOption option = new ChildOption();
+        option.excludeType = Collections.singletonList(Plate.class.getSimpleName());
+        dc.childOptions = Collections.singletonList(option);
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Screen.class.getSimpleName(), Collections.singletonList(sid));
+        callback(true, client, dc);
 
         assertDoesNotExist(screen);
         assertExists(plate);
@@ -165,15 +149,15 @@ public class SpwDeleteTest extends AbstractServerTest {
 
     private List<Pixels> create(Creator creator) throws Exception {
 
-        File f = File.createTempFile("testImportPlate", "." + OME_FORMAT);
-
+        File f = File.createTempFile("testImportPlate", ".ome.xml");
+        f.deleteOnExit();
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
         OME ome = creator.create(xml);
         writer.writeFile(f, ome, true);
         List<Pixels> pixels = null;
         try {
-            pixels = importFile(f, OME_FORMAT);
+            pixels = importFile(f, "ome.xml");
         } catch (Throwable e) {
             throw new Exception("cannot import the plate", e);
         }
