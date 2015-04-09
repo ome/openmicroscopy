@@ -57,13 +57,20 @@ class WebControl(BaseControl):
         sub = parser.sub()
 
         parser.add(sub, self.help, "Extended help")
-        parser.add(sub, self.start, "Primary start for the OMERO.web server")
+        start = parser.add(
+            sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
-        parser.add(sub, self.restart, "Restart the OMERO.web server")
+        restart = parser.add(
+            sub, self.restart, "Restart the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
 
         iis = parser.add(sub, self.iis, "IIS (un-)install of OMERO.web ")
         iis.add_argument("--remove", action="store_true", default=False)
+
+        for x in (start, restart, iis):
+            x.add_argument(
+                "--skip-clear-sessions", action="store_true",
+                help="Skip clean-up of expired sessions at startup")
 
         #
         # Advanced
@@ -306,7 +313,7 @@ class WebControl(BaseControl):
 
     def clearsessions(self, args):
         """Clean out expired sessions."""
-        self.ctx.out("Clearing expired sessions. This may take time... ")
+        self.ctx.out("Clearing expired sessions. This may take some time... ")
         location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "clearsessions"]
         rv = self.ctx.call(args, cwd=location)
@@ -315,7 +322,8 @@ class WebControl(BaseControl):
 
     def start(self, args):
         self.collectstatic()
-        self.clearsessions(args)
+        if not args.skip_clear_sessions:
+            self.clearsessions(args)
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -472,7 +480,8 @@ using bin\omero web start on Windows with FastCGI.
             self.ctx.die(2, "'iis' command is for Windows only")
 
         self.collectstatic()
-        self.clearsessions(args)
+        if not args.skip_clear_sessions:
+            self.clearsessions(args)
 
         web_iis = self._get_python_dir() / "omero_web_iis.py"
         cmd = [sys.executable, str(web_iis)]
