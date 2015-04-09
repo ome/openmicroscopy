@@ -306,6 +306,7 @@ class WebControl(BaseControl):
 
     def clearsessions(self, args):
         """Clean out expired sessions."""
+        self.ctx.out("Clearing expired sessions. This may take time... ")
         location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "clearsessions"]
         rv = self.ctx.call(args, cwd=location)
