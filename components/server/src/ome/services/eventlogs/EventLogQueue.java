@@ -320,8 +320,8 @@ public class EventLogQueue extends PersistentEventLogLoader {
                 throw new NoSuchElementException();
             }
             entries(entry.objType).entries.remove(entry.objId);
-            log.debug("Returning {}. Remaining: priority={}, regular={}",
-                    entry, priorityCount.getCount(), regularCount.getCount());
+//            log.debug("Returning {}. Remaining: priority={}, regular={}",
+//                    entry, priorityCount.getCount(), regularCount.getCount());
             return entry;
         }
 
