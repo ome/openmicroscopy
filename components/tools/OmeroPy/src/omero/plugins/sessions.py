@@ -339,7 +339,7 @@ class SessionsControl(BaseControl):
                 # ticket:5975 : If this is the case, then this session key
                 # did not come from a CLI login, and so we're not going to
                 # modify the value returned by store.get_current()
-                self.ctx.dbg("No name found for %s." % args.key)
+                self.ctx.dbg("No local session file found for %s." % args.key)
                 rv = self.attach(store, server, args.key, args.key, props,
                                  False, set_current=False)
             else:
@@ -409,8 +409,9 @@ class SessionsControl(BaseControl):
         if exists:
             conflicts = store.conflicts(server, name, uuid, props)
             if conflicts:
-                self.ctx.err("Skipping %s due to conflicts: %s"
-                             % (uuid, conflicts))
+                self.ctx.err(
+                    "Failed to join session %s due to property conflicts: %s"
+                    % (uuid, conflicts))
                 return None
 
         return self.attach(store, server, name, uuid, props, exists)
