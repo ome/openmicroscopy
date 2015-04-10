@@ -177,19 +177,20 @@ public class ImportException
             return COMPRESSION;
         } else if (cause instanceof FormatException) {
             String message = cause.getMessage();
-            if (message.contains(MISSING_LIBRARY_TEXT.toLowerCase()))
+            if (message != null &&
+                    message.contains(MISSING_LIBRARY_TEXT.toLowerCase()))
                 return MISSING_LIBRARY;
         } else if (cause instanceof IOException) {
             String message = cause.getMessage();
-            if (message.contains(NETWORK_NAME_TEXT))
+            if (message != null && message.contains(NETWORK_NAME_TEXT))
                 return FILE_ON_TAPE;
         } else if (cause.getCause() instanceof IOException) {
             String message = cause.getCause().getMessage();
-            if (message.contains(NETWORK_NAME_TEXT))
+            if (message != null && message.contains(NETWORK_NAME_TEXT))
                 return FILE_ON_TAPE;
         } else if (cause instanceof ResourceError) {
             String message = cause.getMessage();
-            if (message.contains(SPACE_TEXT))
+            if (message != null && message.contains(SPACE_TEXT))
                 return NO_SPACE;
         } else if (cause instanceof ChecksumValidationException) {
             return CHECKSUM_MISMATCH;
