@@ -19,9 +19,7 @@ import ome.model.IObject;
 // Application-internal dependencies
 
 /**
- * Provides methods for storing, quering, and retrieving analysis results. See
- * http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=BostonApiSuggestions
- * for more information.
+ * Provides methods for storing, quering, and retrieving analysis results.
  * 
  * Note: Primitive operations will most likely be moved out to a separate
  * PrimitiveResults interface.
