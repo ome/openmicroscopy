@@ -566,7 +566,7 @@ class MetadataChannelForm(forms.Form):
                         'onchange': save_metadata(logicalCh.id, 'name')}),
                     label="ND filter (%)",
                     required=False)
-            set_widget_attrs(self.fields['ndFilter'], False)
+            set_widget_attrs(self.fields['ndFilter'], set_class=False)
         except:
             self.fields['ndFilter'] = forms.CharField(
                 max_length=10,
@@ -574,7 +574,7 @@ class MetadataChannelForm(forms.Form):
                 initial="N/A",
                 label="ND filter (%)",
                 required=False)
-            set_widget_attrs(self.fields['ndFilter'], False)
+            set_widget_attrs(self.fields['ndFilter'], set_class=False)
 
         # pinHoleSize
         try:
@@ -596,7 +596,7 @@ class MetadataChannelForm(forms.Form):
                         'onchange': save_metadata(logicalCh.id, 'name')}),
                     label="Pin hole size",
                     required=False)
-            set_widget_attrs(self.fields['pinHoleSize'], False)
+            set_widget_attrs(self.fields['pinHoleSize'], set_class=False)
         except:
             self.fields['pinHoleSize'] = forms.CharField(
                 max_length=10,
@@ -604,7 +604,7 @@ class MetadataChannelForm(forms.Form):
                 initial="N/A",
                 label="Pin hole size",
                 required=False)
-            set_widget_attrs(self.fields['pinHoleSize'], False)
+            set_widget_attrs(self.fields['pinHoleSize'], set_class=False)
 
         # fluor
         try:
@@ -623,14 +623,14 @@ class MetadataChannelForm(forms.Form):
                         'size': 25,
                         'onchange': save_metadata(logicalCh.id, 'name')}),
                     required=False)
-            set_widget_attrs(self.fields['fluor'], False)
+            set_widget_attrs(self.fields['fluor'], set_class=False)
         except:
             self.fields['fluor'] = forms.CharField(
                 max_length=10,
                 widget=forms.TextInput(attrs={'size': 25}),
                 initial="N/A",
                 required=False)
-            set_widget_attrs(self.fields['fluor'], False)
+            set_widget_attrs(self.fields['fluor'], set_class=False)
 
         # Illumination
         try:
@@ -651,14 +651,14 @@ class MetadataChannelForm(forms.Form):
                         'onchange': save_metadata(
                             logicalCh.id, 'illumination', options=True)}),
                     required=False)
-            set_widget_attrs(self.fields['illumination'], False)
+            set_widget_attrs(self.fields['illumination'], set_class=False)
         except:
             self.fields['illumination'] = forms.CharField(
                 max_length=10,
                 widget=forms.TextInput(attrs={'size': 25}),
                 initial="N/A",
                 required=False)
-            set_widget_attrs(self.fields['illumination'], False)
+            set_widget_attrs(self.fields['illumination'], set_class=False)
 
         # contrastMethods
         try:
@@ -2096,8 +2096,7 @@ class MetadataDetectorForm(forms.Form):
                 widget=forms.TextInput(attrs={'size': 25}),
                 initial="N/A",
                 required=False)
-            self.fields['voltage'].widget.attrs['disabled'] = True
-            self.fields['voltage'].widget.attrs['class'] = 'disabled-metadata'
+            set_widget_attrs(self.fields['voltage'])
 
         # Offset
         try:
