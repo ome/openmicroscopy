@@ -473,9 +473,9 @@ class TestSessions(object):
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', [None, 4064, 14064])
     @pytest.mark.parametrize('group', [None, "mygroup"])
-    def testSessionReattachWorks(self, connection, port, group):
+    def testSessionReattachSameArguments(self, connection, port, group):
         """
-        Test session re-attachment
+        Test session re-attachment works with the same login arguments
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
@@ -492,11 +492,34 @@ class TestSessions(object):
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', [(None, 4064)])
+    @pytest.mark.parametrize('group', [None, "mygroup"])
+    def testSessionReattachDefaultPort(self, connection, port, group):
+        """
+        Test session re-attachment works with the default port
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port[0], group=group)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[0], group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[1], group=group)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', [None, 4064, 14064])
     @pytest.mark.parametrize('group', [None, "mygroup"])
-    def testSessionReattachFailsServer(self, connection, port, group):
+    def testSessionReattachServerMismatch(self, connection, port, group):
         """
-        Test session re-attachment with a wrong hostname fails
+        Test session re-attachment fails if the wrong host is specified
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
@@ -511,7 +534,7 @@ class TestSessions(object):
         cli.set_client(None)
         cli.creates_client(sess=MOCKKEY, new=False)
         key_conn_args = self.get_conn_args(
-            connection, host="wrongserver", name=None, port=port, group=group)
+            connection, host="wrongserver",  name=None, port=port, group=group)
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
 
@@ -521,7 +544,7 @@ class TestSessions(object):
     @pytest.mark.parametrize('group', [None, "mygroup"])
     def testSessionReattachFailsPort(self, connection, port, group, capsys):
         """
-        Test session re-attachment with a wrong port fails
+        Test session re-attachment fails if the wrong port is specified
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
@@ -549,7 +572,7 @@ class TestSessions(object):
         (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")])
     def testSessionReattachFailsGroup(self, connection, port, group, capsys):
         """
-        Test session re-attachment with a wrong group fails
+        Test session re-attachment fails if the wrong group is specified
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
