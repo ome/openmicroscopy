@@ -262,15 +262,28 @@ class TestStore(object):
             "omero.sess": "c"}
         assert expect == rv
 
-    def testConflicts(self):
+    @pytest.mark.parametrize("ignore_nulls", [True, False])
+    def testGroupConflicts(self, ignore_nulls):
         s = self.store()
         s.add("a", "b", "c", {"omero.group": "1"})
-        conflicts = s.conflicts("a", "b", "c", {})
-        assert conflicts == 'omero.group:1!=None;'
-        conflicts = s.conflicts("a", "b", "c", {}, ignore_nulls=True)
-        assert conflicts == ''
-        conflicts = s.conflicts("a", "b", "c", {"omero.group": "2"})
-        assert conflicts == 'omero.group:1!=2;'
+        conflicts = s.conflicts("a", "b", "c", {}, ignore_nulls=ignore_nulls)
+        if ignore_nulls:
+            assert conflicts == ''
+        else:
+            assert conflicts == 'omero.group: 1!=None'
+
+        conflicts = s.conflicts(
+            "a", "b", "c", {"omero.group": "2"}, ignore_nulls=ignore_nulls)
+        assert conflicts == 'omero.group: 1!=2'
+
+    @pytest.mark.parametrize("ignore_nulls", [True, False])
+    def testMultiConflicts(self, ignore_nulls):
+        s = self.store()
+        s.add("a", "b", "c", {"omero.group": "1"})
+        conflicts = s.conflicts("a", "b", "c", {
+            "omero.group": "2", "omero.port": "14064"},
+            ignore_nulls=ignore_nulls)
+        assert conflicts == 'omero.group: 1!=2; omero.port: None!=14064'
 
 
 class TestSessions(object):
@@ -563,7 +576,7 @@ class TestSessions(object):
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
         out, err = capsys.readouterr()
-        msg = 'Skipping %s due to conflicts: omero.port:%s!=%s;'
+        msg = 'Skipping %s due to conflicts: omero.port: %s!=%s'
         assert err.splitlines()[-2] == msg % (MOCKKEY, port[0], port[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
@@ -591,8 +604,40 @@ class TestSessions(object):
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
         out, err = capsys.readouterr()
-        msg = 'Skipping %s due to conflicts: omero.group:%s!=%s;'
+        msg = 'Skipping %s due to conflicts: omero.group: %s!=%s'
         assert err.splitlines()[-2] == msg % (MOCKKEY, group[0], group[1])
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('port', [
+        (None, 14064), (14064, None), (4064, None), (4064, 14064)])
+    @pytest.mark.parametrize('group', [
+        (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")])
+    def testSessionReattachFailsPortGroup(self, connection, port, group,
+                                          capsys):
+        """
+        Test session re-attachment fails with multiple conflicts
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY, port=port[0], group=group[0])
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[0], group=group[0])
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(
+            connection, name=None, port=port[1], group=group[1])
+        with pytest.raises(NonZeroReturnCode):
+            cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        out, err = capsys.readouterr()
+        msg = ('Skipping %s due to conflicts: '
+               'omero.group: %s!=%s; omero.port: %s!=%s')
+        assert err.splitlines()[-2] == msg % (
+            MOCKKEY, group[0], group[1], port[0], port[1])
 
     @pytest.mark.parametrize('port', [None, 4064])
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
