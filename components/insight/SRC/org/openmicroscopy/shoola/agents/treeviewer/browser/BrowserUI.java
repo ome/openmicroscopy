@@ -2251,8 +2251,8 @@ class BrowserUI
 	 */
 	void setFoundNode(TreeImageDisplay[] newSelection)
 	{
-		//treeDisplay.removeTreeSelectionListener(selectionListener);
 		if (newSelection == null) {
+		    model.setSelectedDisplay(null, true);
 		    treeDisplay.clearSelection();
 		    controller.getAction(BrowserControl.DELETE).setEnabled(false);
 		} else {
