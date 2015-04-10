@@ -27,7 +27,6 @@
 import library as lib
 import omero
 import omero.scripts
-from omero.rtypes import rstring
 from omero.gateway import BlitzGateway
 import omero_ext.uuid as uuid  # see ticket:3774
 from omero import ApiUsageException
@@ -48,56 +47,37 @@ class TestFigureExportScripts(lib.ITest):
         # root session is root.sf
         session = self.root.sf
         client = self.root
-        services = {}
-
-        services["containerService"] = session.getContainerService()
-        services["renderingEngine"] = session.createRenderingEngine()
-        services["queryService"] = session.getQueryService()
-        services["pixelsService"] = session.getPixelsService()
-        services["rawPixelStore"] = session.createRawPixelsStore()
-        services["updateService"] = session.getUpdateService()
 
         # upload script
         scriptService = session.getScriptService()
         scriptId = uploadScript(scriptService, thumbnailFigurePath)
 
         # create several test images in a dataset
-        # create dataset
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring("thumbnailFigure-test")
-        dataset = services["updateService"].saveAndReturnObject(dataset)
-        # create project
-        project = omero.model.ProjectI()
-        project.name = rstring("thumbnailFigure-test")
-        project = services["updateService"].saveAndReturnObject(project)
-        # put dataset in project
-        link = omero.model.ProjectDatasetLinkI()
-        link.parent = omero.model.ProjectI(project.id.val, False)
-        link.child = omero.model.DatasetI(dataset.id.val, False)
-        services["updateService"].saveAndReturnObject(link)
+        dataset = self.make_dataset("thumbnailFigure-test", client=self.root)
+        project = self.make_project("thumbnailFigure-test", client=self.root)
+        self.link(project, dataset, client=self.root)
+
         # make some tags
         tagIds = []
         for t in range(5):
             tag = omero.model.TagAnnotationI()
             tag.setTextValue(omero.rtypes.rstring("TestTag_%s" % t))
-            tag = services["updateService"].saveAndReturnObject(tag)
+            tag = self.root.sf.getUpdateService().saveAndReturnObject(tag)
             tagIds.append(tag.id)
+
         # put some images in dataset
         imageIds = []
         for i in range(50):
-            imageId = self.createTestImage(
-                100, 100, 1, 1, 1).getId().getValue()  # x,y,z,c,t
-            imageIds.append(omero.rtypes.rlong(imageId))
-            dlink = omero.model.DatasetImageLinkI()
-            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
-            dlink.child = omero.model.ImageI(imageId, False)
-            services["updateService"].saveAndReturnObject(dlink)
+            image = self.createTestImage(100, 100, 1, 1, 1)    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
+            self.link(dataset, image, client=self.root)
+
             # add tag
             tIndex = i % 5
             tlink = omero.model.ImageAnnotationLinkI()
             tlink.child = omero.model.TagAnnotationI(tagIds[tIndex].val, False)
-            tlink.parent = omero.model.ImageI(imageId, False)
-            services["updateService"].saveObject(tlink)
+            tlink.parent = omero.model.ImageI(image.id.val, False)
+            self.root.sf.getUpdateService().saveObject(tlink)
 
         # run the script twice. First with all args...
         datasetIds = [omero.rtypes.rlong(dataset.id.val), ]
@@ -142,47 +122,22 @@ class TestFigureExportScripts(lib.ITest):
         # root session is root.sf
         session = self.root.sf
         client = self.root
-        services = {}
-        renderingEngine = session.createRenderingEngine()
-        queryService = session.getQueryService()
-        pixelsService = session.getPixelsService()
-        rawPixelStore = session.createRawPixelsStore()
-        updateService = session.getUpdateService()
-
-        services["containerService"] = session.getContainerService()
-        services["renderingEngine"] = renderingEngine
-        services["queryService"] = queryService
-        services["pixelsService"] = pixelsService
-        services["rawPixelStore"] = rawPixelStore
 
         # upload script
         scriptService = session.getScriptService()
         scriptId = uploadScript(scriptService, splitViewFigurePath)
 
         # create several test images in a dataset
-        # create dataset
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring("splitViewFig-test")
-        dataset = updateService.saveAndReturnObject(dataset)
-        # create project
-        project = omero.model.ProjectI()
-        project.name = rstring("splitViewFig-test")
-        project = updateService.saveAndReturnObject(project)
-        # put dataset in project
-        link = omero.model.ProjectDatasetLinkI()
-        link.parent = omero.model.ProjectI(project.id.val, False)
-        link.child = omero.model.DatasetI(dataset.id.val, False)
-        updateService.saveAndReturnObject(link)
+        dataset = self.make_dataset("thumbnailFigure-test", client=self.root)
+        project = self.make_project("thumbnailFigure-test", client=self.root)
+        self.link(project, dataset, client=self.root)
+
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = self.createTestImage(
-                256, 200, 5, 4, 1).getId().getValue()    # x,y,z,c,t
-            imageIds.append(omero.rtypes.rlong(imageId))
-            dlink = omero.model.DatasetImageLinkI()
-            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
-            dlink.child = omero.model.ImageI(imageId, False)
-            updateService.saveAndReturnObject(dlink)
+            image = self.createTestImage(256, 200, 5, 4, 1)    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
+            self.link(dataset, image, client=self.root)
 
         # run the script twice. First with all args...
         cNamesMap = omero.rtypes.rmap({'0': omero.rtypes.rstring("DAPI"),
@@ -242,50 +197,26 @@ class TestFigureExportScripts(lib.ITest):
         # root session is root.sf
         session = self.root.sf
         client = self.root
-        services = {}
-        renderingEngine = session.createRenderingEngine()
-        queryService = session.getQueryService()
-        pixelsService = session.getPixelsService()
-        rawPixelStore = session.createRawPixelsStore()
-        updateService = session.getUpdateService()
-
-        services["containerService"] = session.getContainerService()
-        services["renderingEngine"] = renderingEngine
-        services["queryService"] = queryService
-        services["pixelsService"] = pixelsService
-        services["rawPixelStore"] = rawPixelStore
 
         # upload script
         scriptService = session.getScriptService()
         scriptId = uploadScript(scriptService, roiFigurePath)
 
         # create several test images in a dataset
-        # create dataset
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring("roiFig-test")
-        dataset = updateService.saveAndReturnObject(dataset)
-        # create project
-        project = omero.model.ProjectI()
-        project.name = rstring("roiFig-test")
-        project = updateService.saveAndReturnObject(project)
-        # put dataset in project
-        link = omero.model.ProjectDatasetLinkI()
-        link.parent = omero.model.ProjectI(project.id.val, False)
-        link.child = omero.model.DatasetI(dataset.id.val, False)
-        updateService.saveAndReturnObject(link)
+        dataset = self.make_dataset("roiFig-test", client=self.root)
+        project = self.make_project("roiFig-test", client=self.root)
+        self.link(project, dataset, client=self.root)
+
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = self.createTestImage(
-                256, 256, 10, 3, 1).getId().getValue()    # x,y,z,c,t
-            imageIds.append(omero.rtypes.rlong(imageId))
-            dlink = omero.model.DatasetImageLinkI()
-            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
-            dlink.child = omero.model.ImageI(imageId, False)
-            updateService.saveAndReturnObject(dlink)
-            # add roi - x, y, width, height
-            addRectangleRoi(updateService, 50 + (i * 10), 100 - (i * 10),
-                            50 + (i * 5), 100 - (i * 5), imageId)
+            image = self.createTestImage(256, 200, 5, 4, 1)    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
+            self.link(dataset, image, client=self.root)
+            addRectangleRoi(self.root.sf.getUpdateService(),
+                            50 + (i * 10), 100 - (i * 10),
+                            50 + (i * 5), 100 - (i * 5),
+                            image.getId().getValue())
 
         # run the script twice. First with all args...
         cNamesMap = omero.rtypes.rmap({'0': omero.rtypes.rstring("DAPI"),
@@ -343,50 +274,27 @@ class TestFigureExportScripts(lib.ITest):
         # root session is root.sf
         session = self.root.sf
         client = self.root
-        services = {}
-        renderingEngine = session.createRenderingEngine()
-        queryService = session.getQueryService()
-        pixelsService = session.getPixelsService()
-        rawPixelStore = session.createRawPixelsStore()
-        updateService = session.getUpdateService()
-
-        services["containerService"] = session.getContainerService()
-        services["renderingEngine"] = renderingEngine
-        services["queryService"] = queryService
-        services["pixelsService"] = pixelsService
-        services["rawPixelStore"] = rawPixelStore
 
         # upload script
         scriptService = session.getScriptService()
         scriptId = uploadScript(scriptService, movieROIFigurePath)
 
         # create several test images in a dataset
-        # create dataset
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring("roiFig-test")
-        dataset = updateService.saveAndReturnObject(dataset)
-        # create project
-        project = omero.model.ProjectI()
-        project.name = rstring("roiFig-test")
-        project = updateService.saveAndReturnObject(project)
-        # put dataset in project
-        link = omero.model.ProjectDatasetLinkI()
-        link.parent = omero.model.ProjectI(project.id.val, False)
-        link.child = omero.model.DatasetI(dataset.id.val, False)
-        updateService.saveAndReturnObject(link)
+        dataset = self.make_dataset("movieRoiFig-test", client=self.root)
+        project = self.make_project("movieRoiFig-test", client=self.root)
+        self.link(project, dataset, client=self.root)
+
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = self.createTestImage(
-                256, 256, 10, 3, 1).getId().getValue()    # x,y,z,c,t
-            imageIds.append(omero.rtypes.rlong(imageId))
-            dlink = omero.model.DatasetImageLinkI()
-            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
-            dlink.child = omero.model.ImageI(imageId, False)
-            updateService.saveAndReturnObject(dlink)
+            image = self.createTestImage(256, 256, 10, 3, 1)    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
+            self.link(dataset, image, client=self.root)
+
             # add roi -   x, y, width, height
-            addRectangleRoi(updateService, 50 + (i * 10), 100 - (i * 10),
-                            50 + (i * 5), 100 - (i * 5), imageId)
+            addRectangleRoi(self.root.sf.getUpdateService(),
+                            50 + (i * 10), 100 - (i * 10),
+                            50 + (i * 5), 100 - (i * 5), image.id.val)
 
         # run the script twice. First with all args...
         argMap = {
@@ -433,47 +341,22 @@ class TestFigureExportScripts(lib.ITest):
         # root session is root.sf
         session = self.root.sf
         client = self.root
-        services = {}
-        renderingEngine = session.createRenderingEngine()
-        queryService = session.getQueryService()
-        pixelsService = session.getPixelsService()
-        rawPixelStore = session.createRawPixelsStore()
-        updateService = session.getUpdateService()
-
-        services["containerService"] = session.getContainerService()
-        services["renderingEngine"] = renderingEngine
-        services["queryService"] = queryService
-        services["pixelsService"] = pixelsService
-        services["rawPixelStore"] = rawPixelStore
 
         # upload script
         scriptService = session.getScriptService()
         scriptId = uploadScript(scriptService, movieFigurePath)
 
         # create several test images in a dataset
-        # create dataset
-        dataset = omero.model.DatasetI()
-        dataset.name = rstring("movieFig-test")
-        dataset = updateService.saveAndReturnObject(dataset)
-        # create project
-        project = omero.model.ProjectI()
-        project.name = rstring("movieFig-test")
-        project = updateService.saveAndReturnObject(project)
-        # put dataset in project
-        link = omero.model.ProjectDatasetLinkI()
-        link.parent = omero.model.ProjectI(project.id.val, False)
-        link.child = omero.model.DatasetI(dataset.id.val, False)
-        updateService.saveAndReturnObject(link)
+        dataset = self.make_dataset("movieFig-test", client=self.root)
+        project = self.make_project("movieFig-test", client=self.root)
+        self.link(project, dataset, client=self.root)
+
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = self.createTestImage(
-                256, 256, 5, 3, 20).getId().getValue()    # x,y,z,c,t
-            imageIds.append(omero.rtypes.rlong(imageId))
-            dlink = omero.model.DatasetImageLinkI()
-            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
-            dlink.child = omero.model.ImageI(imageId, False)
-            updateService.saveAndReturnObject(dlink)
+            image = self.createTestImage(256, 256, 5, 3, 20)    # x,y,z,c,t
+            imageIds.append(omero.rtypes.rlong(image.getId().getValue()))
+            self.link(dataset, image, client=self.root)
 
         # run the script twice. First with all args...
         red = omero.rtypes.rint(16711680)
