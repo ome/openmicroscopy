@@ -29,7 +29,7 @@ package training.util;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
+
 import pojos.PixelsData;
 
 /** 

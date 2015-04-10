@@ -97,21 +97,27 @@ public class Setup {
 	 */
 	Setup()
 	{
-		//homeDir = "";
-		//Read the configuration file.
-		Properties p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
+	    String ice_config = System.getenv().get("ICE_CONFIG");
+	    Properties p;
+	    if (ice_config == null || ice_config.isEmpty()) {
+	        //fall back to training.config
+	        p = loadConfig(resolveFilePath(CONFIG_FILE, CONFIG_DIR));
+	    } else {
+	        p = loadConfig(new File(ice_config).getAbsolutePath());
+	    }
 		ConfigurationInfo info = null;
 		try {
 			info = new ConfigurationInfo();
 			info.setHostName(p.getProperty("omero.host"));
 			info.setPassword(p.getProperty("omero.pass"));
 			info.setUserName(p.getProperty("omero.user"));
-			info.setImageId(Long.parseLong(p.getProperty("omero.imageId")));
-			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetId")));
-			info.setProjectId(Long.parseLong(p.getProperty("omero.projectId")));
-			info.setPlateId(Long.parseLong(p.getProperty("omero.plateId")));
-			info.setPlateAcquisitionId(Long.parseLong(
-					p.getProperty("omero.plateAcquisitionId")));
+			info.setGroup(p.getProperty("omero.group"));
+			info.setPort(Integer.parseInt(p.getProperty("omero.port")));
+			info.setImageId(Long.parseLong(p.getProperty("omero.imageid")));
+			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetid")));
+			info.setProjectId(Long.parseLong(p.getProperty("omero.projectid")));
+			info.setScreenId(Long.parseLong(p.getProperty("omero.screenid")));
+			info.setPlateId(Long.parseLong(p.getProperty("omero.plateid")));
 		} catch (Exception e) {
 			e.printStackTrace();
 			//wrong configuration

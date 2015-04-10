@@ -36,6 +36,7 @@ import java.util.List;
 
 //Third-party libraries
 
+
 import omero.api.IContainerPrx;
 //Application-internal dependencies
 import omero.api.IMetadataPrx;
@@ -43,6 +44,8 @@ import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.model.Annotation;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ChecksumAlgorithmI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.FileAnnotation;
@@ -60,6 +63,7 @@ import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.ParametersI;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -99,8 +103,6 @@ public class WriteData
 	
 	/** The image.*/
 	private ImageData image;
-
-	private String generatedSha1 = "pending";
 	
 	private String fileMimeType = "application/octet-stream";
 	
@@ -206,7 +208,9 @@ public class WriteData
 		originalFile.setName(omero.rtypes.rstring(name));
 		originalFile.setPath(omero.rtypes.rstring(path));
 		originalFile.setSize(omero.rtypes.rlong(file.length()));
-		originalFile.setSha1(omero.rtypes.rstring(generatedSha1));
+		final ChecksumAlgorithm checksumAlgorithm = new ChecksumAlgorithmI();
+        checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
+		originalFile.setHasher(checksumAlgorithm);
 		originalFile.setMimetype(omero.rtypes.rstring(fileMimeType)); // or "application/octet-stream"
 		// now we save the originalFile object
 		originalFile = (OriginalFile) iUpdate.saveAndReturnObject(originalFile);
