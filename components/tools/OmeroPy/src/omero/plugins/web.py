@@ -311,19 +311,23 @@ class WebControl(BaseControl):
         if rv != 0:
             self.ctx.die(607, "Failed to collect static content.\n")
 
-    def clearsessions(self, args):
+    def clearsessions(self, args, wait=True):
         """Clean out expired sessions."""
         self.ctx.out("Clearing expired sessions. This may take some time... ")
         location = self._get_python_dir() / "omeroweb"
         args = [sys.executable, "manage.py", "clearsessions"]
-        rv = self.ctx.call(args, cwd=location)
-        if rv != 0:
-            self.ctx.die(607, "Failed to clear sessions.\n")
+        if wait:
+            rv = self.ctx.call(args, cwd=location)
+            if rv != 0:
+                self.ctx.die(607, "Failed to clear sessions.\n")
+            self.ctx.out("[OK]")
+        else:
+            self.ctx.popen(args, cwd=location)
 
     def start(self, args):
         self.collectstatic()
         if not args.skip_clear_sessions:
-            self.clearsessions(args)
+            self.clearsessions(args, wait=False)
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -481,7 +485,7 @@ using bin\omero web start on Windows with FastCGI.
 
         self.collectstatic()
         if not args.skip_clear_sessions:
-            self.clearsessions(args)
+            self.clearsessions(args, wait=False)
 
         web_iis = self._get_python_dir() / "omero_web_iis.py"
         cmd = [sys.executable, str(web_iis)]
