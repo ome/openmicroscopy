@@ -289,6 +289,19 @@ class TestStore(object):
 class TestSessions(object):
 
     CONNECTION_TYPES = ["string", "prefixed_string", "options"]
+    # The following attributes define list of tuples for testing session
+    # re-attachment.
+    # The first element of each tuple correspond to the value stored in the
+    # session file (where None means the property is not stored). The second
+    # element corresponds to the value passed via the connection arguments.
+    NONCONFLICTING_PORTS = [(None, 4064)]
+    CONFLICTING_PORTS = [
+        (None, 14064), (14064, None), (4064, None), (4064, 14064)]
+    CONFLICTING_GROUPS = [
+        (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")]
+
+    def get_conflict_message(self):
+        return "Failed to join session %s due to property conflicts: "
 
     def get_conn_args(self, conn_type, host="testhost", name="testuser",
                       port=None, group=None):
@@ -505,7 +518,7 @@ class TestSessions(object):
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    @pytest.mark.parametrize('port', [(None, 4064)])
+    @pytest.mark.parametrize('port', NONCONFLICTING_PORTS)
     @pytest.mark.parametrize('group', [None, "mygroup"])
     def testSessionReattachDefaultPort(self, connection, port, group):
         """
@@ -552,8 +565,7 @@ class TestSessions(object):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    @pytest.mark.parametrize('port', [
-        (None, 14064), (14064, None), (4064, None), (4064, 14064)])
+    @pytest.mark.parametrize('port', CONFLICTING_PORTS)
     @pytest.mark.parametrize('group', [None, "mygroup"])
     def testSessionReattachFailsPort(self, connection, port, group, capsys):
         """
@@ -576,13 +588,12 @@ class TestSessions(object):
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
         out, err = capsys.readouterr()
-        msg = 'Skipping %s due to conflicts: omero.port: %s!=%s'
+        msg = self.get_conflict_message() + 'omero.port: %s!=%s'
         assert err.splitlines()[-2] == msg % (MOCKKEY, port[0], port[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', [None, 4064, 14064])
-    @pytest.mark.parametrize('group', [
-        (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")])
+    @pytest.mark.parametrize('group', CONFLICTING_GROUPS)
     def testSessionReattachFailsGroup(self, connection, port, group, capsys):
         """
         Test session re-attachment fails if the wrong group is specified
@@ -604,14 +615,12 @@ class TestSessions(object):
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
         out, err = capsys.readouterr()
-        msg = 'Skipping %s due to conflicts: omero.group: %s!=%s'
+        msg = self.get_conflict_message() + 'omero.group: %s!=%s'
         assert err.splitlines()[-2] == msg % (MOCKKEY, group[0], group[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    @pytest.mark.parametrize('port', [
-        (None, 14064), (14064, None), (4064, None), (4064, 14064)])
-    @pytest.mark.parametrize('group', [
-        (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")])
+    @pytest.mark.parametrize('port', CONFLICTING_PORTS)
+    @pytest.mark.parametrize('group', CONFLICTING_GROUPS)
     def testSessionReattachFailsPortGroup(self, connection, port, group,
                                           capsys):
         """
@@ -634,7 +643,7 @@ class TestSessions(object):
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
         out, err = capsys.readouterr()
-        msg = ('Skipping %s due to conflicts: '
+        msg = (self.get_conflict_message() +
                'omero.group: %s!=%s; omero.port: %s!=%s')
         assert err.splitlines()[-2] == msg % (
             MOCKKEY, group[0], group[1], port[0], port[1])
