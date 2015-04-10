@@ -129,7 +129,7 @@ class SessionsStore(object):
             elif old != new:
                 if conflicts != "":
                     conflicts += "; "
-                conflicts += (key + (": %s!=%s" % (old, new)))
+                conflicts += "%s: %s!=%s" % (key, old, new)
         return conflicts
 
     def remove(self, host, name, uuid):
