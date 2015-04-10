@@ -34,14 +34,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-
-import omero.client;
 
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
@@ -56,7 +52,6 @@ import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
-import omero.gateway.CompressionQuality;
 import omero.gateway.DSOutOfServiceException;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
@@ -188,48 +183,48 @@ public class DataServicesFactory
 	}
 	
 	/**
-	 * Determines the quality of the compression depending on the
-	 * connection speed.
-	 * 
-	 * @param connectionSpeed The connection speed.
-	 * @return See above.
-	 */
-	private float determineCompression(int connectionSpeed)
-	{
-		Float value;
-		switch (connectionSpeed) {
-			case UserCredentials.MEDIUM:
-			case UserCredentials.HIGH:
-				value = (Float) registry.lookup(
-						LookupNames.COMPRESSIOM_MEDIUM_QUALITY);
-				return value.floatValue();
-			case UserCredentials.LOW:
-			default:
-				value = (Float) registry.lookup(
-						LookupNames.COMPRESSIOM_LOW_QUALITY);
-				return value.floatValue();
-		}
-	}
-	
-	/**
-	 * Returns <code>true</code> if the connection is fast,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param connectionSpeed The connection speed.
-	 * @return See above.
-	 */
-	private int isFastConnection(int connectionSpeed)
-	{
-		switch (connectionSpeed) {
-			case UserCredentials.HIGH:
-				return RenderingControl.UNCOMPRESSED;
-			case UserCredentials.MEDIUM:
-				return RenderingControl.MEDIUM;
-			case UserCredentials.LOW:
-			default:
-				return RenderingControl.LOW;
-		}
-	}
+     * Determines the quality of the compression depending on the
+     * connection speed.
+     * 
+     * @param connectionSpeed The connection speed.
+     * @return See above.
+     */
+    private float determineCompression(int connectionSpeed)
+    {
+        Float value;
+        switch (connectionSpeed) {
+            case UserCredentials.MEDIUM:
+            case UserCredentials.HIGH:
+                value = (Float) registry.lookup(
+                        LookupNames.COMPRESSIOM_MEDIUM_QUALITY);
+                return value.floatValue();
+            case UserCredentials.LOW:
+            default:
+                value = (Float) registry.lookup(
+                        LookupNames.COMPRESSIOM_LOW_QUALITY);
+                return value.floatValue();
+        }
+    }
+    
+    /**
+     * Returns <code>true</code> if the connection is fast,
+     * <code>false</code> otherwise.
+     * 
+     * @param connectionSpeed The connection speed.
+     * @return See above.
+     */
+    private int isFastConnection(int connectionSpeed)
+    {
+        switch (connectionSpeed) {
+            case UserCredentials.HIGH:
+                return RenderingControl.UNCOMPRESSED;
+            case UserCredentials.MEDIUM:
+                return RenderingControl.MEDIUM;
+            case UserCredentials.LOW:
+            default:
+                return RenderingControl.LOW;
+        }
+    }
 	
     /**
      * Returns <code>true</code> if the server and the client are compatible,
@@ -561,7 +556,7 @@ public class DataServicesFactory
         cred.getServer().setPort(uc.getPort());
         cred.setApplicationName(name);
         cred.setCheckNetwork(true);
-        cred.setCompression(CompressionQuality.HIGH);
+        cred.setCompression(determineCompression(uc.getSpeedLevel()));
         cred.setEncrypyion(uc.isEncrypted());
         
 		ExperimenterData exp = omeroGateway.connect(cred);

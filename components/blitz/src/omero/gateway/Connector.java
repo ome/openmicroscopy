@@ -26,6 +26,7 @@ package omero.gateway;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +41,8 @@ import org.apache.commons.collections.CollectionUtils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.MapMaker;
@@ -94,6 +97,7 @@ import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
+import omero.log.LogMessage;
 import omero.log.Logger;
 import omero.model.ExperimenterGroup;
 import omero.model.Session;
@@ -110,7 +114,12 @@ import omero.util.CommonsLangUtils;
  */
 class Connector
 {
-
+    private static AtomicInteger nConnector = new AtomicInteger(0);
+    private static AtomicInteger nStateful = new AtomicInteger(0);
+    private static AtomicInteger nStateless = new AtomicInteger(0);
+    private static AtomicInteger nRenderingEngine = new AtomicInteger(0);
+    private static AtomicInteger nImportStore = new AtomicInteger(0);
+    
     /**
      * The elapsed time before checking if the services need to be
      * kept alive.
@@ -213,7 +222,9 @@ class Connector
         reServices = Multimaps.<Long, RenderingEnginePrx>
         synchronizedMultimap(
                 HashMultimap.<Long, RenderingEnginePrx>create());
+        
         derived = CacheBuilder.newBuilder().build();
+        log("Created Connector nConnector="+nConnector.incrementAndGet());
     }
 
     //
@@ -504,6 +515,7 @@ class Connector
             } else {
                 importStore.initialize(entryEncrypted);
             }
+            log("Create import store "+importStore.getClass().getSimpleName()+" nImportStore="+nImportStore.incrementAndGet());
             importStores.put(importStore, "");
             return importStore;
         } catch (Exception e) {
@@ -517,23 +529,23 @@ class Connector
      * @return See above.
      * @throws Throwable Thrown if the service cannot be initialized.
      */
-     RenderingEnginePrx getRenderingService(long pixelsID, CompressionQuality compression)
+     RenderingEnginePrx getRenderingService(long pixelsID, float compression)
             throws DSOutOfServiceException, ServerError
     {
         RenderingEnginePrx prx = null;
+        
         try {
             if (entryUnencrypted != null) {
                 prx = entryUnencrypted.createRenderingEngine();
             } else {
                 prx = entryEncrypted.createRenderingEngine();
             }
+            log("Create rendering engine "+pixelsID+" nRenderingEngine="+nRenderingEngine.incrementAndGet());
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not get rendering engine", e);
         }
 
-        // TODO: get compression value!
-        float c = 1;
-        prx.setCompressionLevel(c);
+        prx.setCompressionLevel(compression);
         reServices.put(pixelsID, prx);
         return prx;
     }
@@ -593,6 +605,7 @@ class Connector
         secureClient.__del__(); // Won't throw.
         if (unsecureClient != null) unsecureClient.__del__();
         closeDerived(networkup);
+        log("Closed Connector nConnector="+nConnector.decrementAndGet());
     }
 
     /**
@@ -703,17 +716,21 @@ class Connector
         try {
             proxy.close();
         } catch (Ice.ObjectNotExistException e) {
-            // ignore
+            logger.warn(this, new LogMessage("StatefulServiceInterfacePrx "
+                    + proxy.getClass().getSimpleName()
+                    + " has already been closed", e));
         } catch (Exception e) {
-            log("Failed to close " + proxy + "(" + getErrorMessage(e) + ")");
+            logger.warn(this, "Failed to close " + proxy + "(" + getErrorMessage(e) + ")");
         } finally {
             if (proxy instanceof RenderingEnginePrx) {
+                log("Close rendering engine "+proxy.getClass().getSimpleName()+" nRenderingEngine="+nRenderingEngine.decrementAndGet());
                 Set<Long> keys = reServices.keySet();
                 keys = Sets.newHashSet(keys);
                 for (Long key : keys) {
                     reServices.remove(key, proxy);
                 }
             } else {
+                log("Close stateful service "+proxy.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
                 Set<String> keys = statefulServices.keySet();
                 keys = Sets.newHashSet(keys);
                 for (String key : keys) {
@@ -738,15 +755,16 @@ class Connector
 
     /** Shuts down the import services.*/
      void shutdownImports() {
-        Collection<OMEROMetadataStoreClient> imports = null;
+        List<OMEROMetadataStoreClient> imports = new ArrayList<OMEROMetadataStoreClient>();
         synchronized (importStores) {
-            imports = importStores.keySet();
+            imports.addAll(importStores.keySet());
             importStores.clear();
         }
 
         for (OMEROMetadataStoreClient store : imports) {
             try {
                 store.closeServices();
+                log("Close import store "+store.getClass().getSimpleName()+" nImportStore="+nImportStore.decrementAndGet());
             } catch (Exception e) {
                 log("Failed to close import store:" + getErrorMessage(e));
             }
@@ -762,6 +780,7 @@ class Connector
         }
         for (StatefulServiceInterfacePrx prx : proxies) {
             close(prx);
+            log("Close stateful service "+prx.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
         }
     }
 
@@ -892,7 +911,7 @@ class Connector
             throws DSOutOfServiceException {
         try {
             ServiceInterfacePrx prx = statelessServices.get(name);
-            if (!secure && prx != null) { // Reload if secure is true.
+            if (!secure && prx != null) { // Reload if secure is true. //TODO: Why?
                 return prx;
             }
             if (!secure && entryUnencrypted != null) {
@@ -901,6 +920,7 @@ class Connector
                 prx = entryEncrypted.getByName(name);
             }
             statelessServices.put(name, prx);
+            log("Create stateless service "+name+" nStateless="+nStateless.incrementAndGet());
             return prx;
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not load " + name, e);
@@ -926,6 +946,7 @@ class Connector
                 prx = entryEncrypted.createByName(name);
             }
             statefulServices.put(name, prx);
+            log("Create stateful service "+name+" nStateful="+nStateful.incrementAndGet());
             return prx;
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not create " + name, e);
