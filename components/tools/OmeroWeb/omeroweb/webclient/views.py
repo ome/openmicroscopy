@@ -1058,7 +1058,6 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
 
     form_comment = None
     figScripts = None
-    share_owned = False
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -1436,7 +1435,8 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
 
 @login_required()
 @render_response()
-def load_original_metadata(request, imageId, conn=None, share_id=None, **kwargs):
+def load_original_metadata(request, imageId, conn=None, share_id=None,
+                           **kwargs):
 
     image = conn.getObject("Image", imageId)
     if image is None:
