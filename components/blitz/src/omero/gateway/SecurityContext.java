@@ -51,7 +51,7 @@ public class SecurityContext {
 
     private ServerInformation serverInformation;
 
-    private CompressionQuality compression;
+    private float compression;
     
     /**
      * Creates a new instance.
@@ -127,11 +127,11 @@ public class SecurityContext {
         this.serverInformation = serverInformation;
     }
 
-    public CompressionQuality getCompression() {
+    public float getCompression() {
         return compression;
     }
 
-    public void setCompression(CompressionQuality compression) {
+    public void setCompression(float compression) {
         this.compression = compression;
     }
 

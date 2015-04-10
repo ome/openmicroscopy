@@ -41,7 +41,7 @@ public class LoginCredentials {
 
     private boolean checkNetwork = true;
 
-    private CompressionQuality compression = CompressionQuality.HIGH;
+    private float compression = 0.85f;
 
     private long groupID = -1;
     
@@ -66,11 +66,11 @@ public class LoginCredentials {
         this.checkNetwork = checkNetwork;
     }
 
-    public CompressionQuality getCompression() {
+    public float getCompression() {
         return compression;
     }
 
-    public void setCompression(CompressionQuality compression) {
+    public void setCompression(float compression) {
         this.compression = compression;
     }
 

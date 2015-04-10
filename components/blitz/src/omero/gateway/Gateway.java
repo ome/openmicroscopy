@@ -237,9 +237,11 @@ public class Gateway {
      public void closeImport(SecurityContext ctx, String userName) {
          try {
              Connector c = getConnector(ctx, false, true);
-             if(CommonsLangUtils.isNotEmpty(userName))
-                 c = c.getConnector(userName);
-             if (c != null) c.closeImport();
+             if (c != null) {
+                 if(CommonsLangUtils.isNotEmpty(userName))
+                     c = c.getConnector(userName);
+                  c.closeImport();
+             }
          } catch (Throwable e) {
              log.warn(this, "Failed to close import: " + e);
          }
@@ -646,7 +648,7 @@ public class Gateway {
      *             Thrown if the service cannot be initialized.
      */
     public RenderingEnginePrx getRenderingService(SecurityContext ctx,
-            long pixelsID, CompressionQuality compression)
+            long pixelsID, float compression)
             throws DSOutOfServiceException, ServerError {
         Connector c = getConnector(ctx, true, false);
         if (c != null)
@@ -1004,7 +1006,7 @@ public class Gateway {
                 // Check if network is up before keeping service otherwise
                 // we block until timeout.
                 try {
-                    isNetworkUp(false);
+                    isNetworkUp(true);
                 } catch (Exception e) {
                     throw new DSOutOfServiceException("Network down.", e);
                 }
@@ -1015,16 +1017,18 @@ public class Gateway {
         }
 
         // We are going to create a connector and activate a session.
-        if (c == null && !recreate) {
-            if (permitNull) {
-                log.warn(this, "Cannot re-create. Returning null connector");
-                return null;
+        if (c == null) {
+            if (recreate)
+                c = createConnector(ctx, permitNull);
+            else {
+                if (permitNull) {
+                    log.warn(this, "Cannot re-create. Returning null connector");
+                    return null;
+                }
+                throw new DSOutOfServiceException("Not allowed to recreate");
             }
-            throw new DSOutOfServiceException("Not allowed to recreate");
         }
-
-        c = createConnector(ctx, permitNull);
-
+        
         ExperimenterData exp = ctx.getExperimenterData();
         if (exp != null && ctx.isSudo()) {
             try {
