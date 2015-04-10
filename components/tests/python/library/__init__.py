@@ -106,6 +106,12 @@ class ITest(object):
         cls.query = cls.sf.getQueryService()
 
     @classmethod
+    def teardown_class(cls):
+        cls.root.killSession()
+        cls.root = None
+        cls.__clients.__del__()
+
+    @classmethod
     def omeropydir(self):
         count = 10
         searched = []
@@ -162,6 +168,7 @@ class ITest(object):
     def tmpfile(self):
         return str(create_path())
 
+    # Administrative methods
     @classmethod
     def new_group(self, experimenters=None, perms=None,
                   config=None, gname=None):
@@ -208,18 +215,7 @@ class ITest(object):
             prx.close()
         client.sf.setSecurityContext(ExperimenterGroupI(gid, False))
 
-    def new_image(self, name=""):
-        img = ImageI()
-        img.name = rstring(name)
-        img.acquisitionDate = rtime(0)
-        return img
-
-    def new_dataset(self, name="", description=None):
-        ds = DatasetI()
-        ds.setName(rstring(name))
-        ds.setDescription(rstring(description))
-        return ds
-
+    # Import methods
     def import_image(self, filename=None, client=None, extra_args=None,
                      skip="all", **kwargs):
         if filename is None:
@@ -325,25 +321,6 @@ class ITest(object):
             pixels = query.get("Pixels", long(pixIdStr))
             images.append(pixels.getImage())
         return images
-
-    """
-    Creates a list of the given number of Dataset instances with
-    names of the form "name [1]", "name [2]", etc. and
-    returns them in a list.
-    """
-
-    def createDatasets(self, count, baseName, client=None):
-        if client is None:
-            client = self.client
-
-        update = client.sf.getUpdateService()
-        dsets = []
-        for i in range(count):
-            ds = DatasetI()
-            suffix = " [" + str(i + 1) + "]"
-            ds.name = rstring(baseName + suffix)
-            dsets.append(ds)
-        return update.saveAndReturnArray(dsets)
 
     def createTestImage(self, sizeX=16, sizeY=16, sizeZ=1, sizeC=1, sizeT=1,
                         session=None):
@@ -784,45 +761,95 @@ class ITest(object):
 
         return rsp
 
-    @classmethod
-    def teardown_class(cls):
-        cls.root.killSession()
-        cls.root = None
-        cls.__clients.__del__()
+    # Object methods
+    def new_object(self, classname, name=None, description=None):
+        obj = classname()
+        if not name:
+            name = self.uuid()
+        obj.setName(rstring(name))
+        obj.setDescription(rstring(description))
+        return obj
 
-    def make_project(self, name=None, client=None):
+    def new_image(self, name=None, description=None):
         """
-        Creates a new ProjectI instance and returns the persisted object.
+        Creates a new image object.
         If no name has been provided, a UUID string shall be used.
+        :param name: The image name. If None, a UUID string will be used
+        """
+        img = self.new_object(ImageI, name=name, description=description)
+        img.acquisitionDate = rtime(0)
+        return img
 
-        :param name: the name of the project
-        :param client: user context
+    def new_project(self, name=None, description=None):
+        """
+        Creates a new project object.
+        :param name: The project name. If None, a UUID string will be used
+        :param description: The project description
+        """
+        return self.new_object(ProjectI, name=name, description=description)
+
+    def new_dataset(self, name=None, description=None):
+        """
+        Creates a new dataset object.
+        :param name: The dataset name. If None, a UUID string will be used
+        :param description: The dataset description
+        """
+        return self.new_object(DatasetI, name=name, description=description)
+
+    def make_image(self, name=None, description=None, client=None):
+        """
+        Creates a new image instance and returns the persisted object.
+        :param name: The project name. If None, a UUID string will be used
+        :param description: The image description
+        :param client: The client to use to create the object
         """
         if client is None:
             client = self.client
-        project = ProjectI()
-        if name:
-            project.name = rstring(name)
-        else:
-            project.name = rstring(self.uuid())
+        image = self.new_image(name=name, description=description)
+        return client.sf.getUpdateService().saveAndReturnObject(image)
+
+    def make_project(self, name=None, description=None, client=None):
+        """
+        Creates a new project instance and returns the persisted object.
+        :param name: The project name. If None, a UUID string will be used
+        :param description: The project description
+        :param client: The client to use to create the object
+        """
+        if client is None:
+            client = self.client
+        project = self.new_project(name=name, description=description)
         return client.sf.getUpdateService().saveAndReturnObject(project)
 
-    def make_dataset(self, name=None, client=None):
+    def make_dataset(self, name=None, description=None, client=None):
         """
-        Creates a new DatasetI instance and returns the persisted object.
-        If no name has been provided, a UUID string shall be used.
-
-        :param name: the name of the project
-        :param client: user context
+        Creates a new dataset instance and returns the persisted object.
+        :param name: The dataset name. If None, a UUID string will be used
+        :param description: The project description
+        :param client: The client to use to create the object
         """
         if client is None:
             client = self.client
-        dataset = DatasetI()
-        if name:
-            dataset.name = rstring(name)
-        else:
-            dataset.name = rstring(self.uuid())
+        dataset = self.new_dataset(name=name, description=description)
         return client.sf.getUpdateService().saveAndReturnObject(dataset)
+
+    def createDatasets(self, count, baseName, client=None):
+        """
+        Creates a list of the given number of Dataset instances with names of
+        the form "name [1]", "name [2]" etc and returns them in a list.
+        :param count: The number of datasets to create
+        :param description: The base name of the dataset
+        :param client: The client to use to create the object
+        """
+
+        if client is None:
+            client = self.client
+
+        update = client.sf.getUpdateService()
+        dsets = []
+        for i in range(count):
+            name = baseName + " [" + str(i + 1) + "]"
+            dsets.append(self.new_dataset(name=name))
+        return update.saveAndReturnArray(dsets)
 
     def make_file_annotation(self, name=None, binary=None, format=None,
                              client=None):
