@@ -24,8 +24,6 @@
 package omero.gateway;
 
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -184,14 +182,6 @@ class Connector
     /** Reference to the logger.*/
     private final Logger logger;
 
-    /**
-     * Logs the error.
-     */
-    private void log(String msg)
-    {
-        logger.debug(this, msg);
-    }
-
     Connector(SecurityContext context, client client,
             ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
                     throws Exception
@@ -222,9 +212,9 @@ class Connector
         reServices = Multimaps.<Long, RenderingEnginePrx>
         synchronizedMultimap(
                 HashMultimap.<Long, RenderingEnginePrx>create());
-        
+
         derived = CacheBuilder.newBuilder().build();
-        log("Created Connector nConnector="+nConnector.incrementAndGet());
+        logger.debug(this, "Created Connector nConnector="+nConnector.incrementAndGet());
     }
 
     //
@@ -515,7 +505,7 @@ class Connector
             } else {
                 importStore.initialize(entryEncrypted);
             }
-            log("Create import store "+importStore.getClass().getSimpleName()+" nImportStore="+nImportStore.incrementAndGet());
+            logger.debug(this, "Create import store "+importStore.getClass().getSimpleName()+" nImportStore="+nImportStore.incrementAndGet());
             importStores.put(importStore, "");
             return importStore;
         } catch (Exception e) {
@@ -540,7 +530,7 @@ class Connector
             } else {
                 prx = entryEncrypted.createRenderingEngine();
             }
-            log("Create rendering engine "+pixelsID+" nRenderingEngine="+nRenderingEngine.incrementAndGet());
+            logger.debug(this, "Create rendering engine "+pixelsID+" nRenderingEngine="+nRenderingEngine.incrementAndGet());
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not get rendering engine", e);
         }
@@ -605,7 +595,7 @@ class Connector
         secureClient.__del__(); // Won't throw.
         if (unsecureClient != null) unsecureClient.__del__();
         closeDerived(networkup);
-        log("Closed Connector nConnector="+nConnector.decrementAndGet());
+        logger.debug(this, "Closed Connector nConnector="+nConnector.decrementAndGet());
     }
 
     /**
@@ -619,7 +609,7 @@ class Connector
         try {
             closeDerived(false);
         } catch (Throwable e) {
-            log("Exception on closeDerived: " + e);
+            logger.warn(this, new LogMessage("Exception on closeDerived: ", e));
         }
     }
 
@@ -636,7 +626,7 @@ class Connector
             try {
                 c.close(networkup);
             } catch (Throwable e) {
-                log(String.format("Failed to close(%s) service: %s",
+                logger.warn(this, String.format("Failed to close(%s) service: %s",
                         networkup, c));
             }
         }
@@ -659,19 +649,6 @@ class Connector
             shutDownRenderingEngine(pixelsId);
         }
     }
-
-    /**
-     * Prints the stack trace and returns it as a string.
-     * 
-     * @return See above.
-     */
-     String getErrorMessage(Exception e)
-    {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        return sw.toString();
-    }
     
     /**
      * Keeps the services alive.
@@ -686,14 +663,14 @@ class Connector
             entryEncrypted.keepAllAlive(null);
         } catch (Exception e) {
             success = false;
-            log("Failed encrypted keep alive: " + getErrorMessage(e));
+            logger.warn(this, new LogMessage("Failed encrypted keep alive: " ,e));
         }
         try {
             if (entryUnencrypted != null && success)
                 entryUnencrypted.keepAllAlive(null);
         } catch (Exception e) {
             success = false;
-            log("failed unencrypted keep alive: " + getErrorMessage(e));
+            logger.warn(this, new LogMessage("failed unencrypted keep alive: ", e));
         }
 
         if (success) {
@@ -716,21 +693,19 @@ class Connector
         try {
             proxy.close();
         } catch (Ice.ObjectNotExistException e) {
-            logger.warn(this, new LogMessage("StatefulServiceInterfacePrx "
-                    + proxy.getClass().getSimpleName()
-                    + " has already been closed", e));
+            // ignore
         } catch (Exception e) {
-            logger.warn(this, "Failed to close " + proxy + "(" + getErrorMessage(e) + ")");
+            logger.warn(this, new LogMessage("Failed to close " + proxy, e));
         } finally {
             if (proxy instanceof RenderingEnginePrx) {
-                log("Close rendering engine "+proxy.getClass().getSimpleName()+" nRenderingEngine="+nRenderingEngine.decrementAndGet());
+                logger.debug(this, "Close rendering engine "+proxy.getClass().getSimpleName()+" nRenderingEngine="+nRenderingEngine.decrementAndGet());
                 Set<Long> keys = reServices.keySet();
                 keys = Sets.newHashSet(keys);
                 for (Long key : keys) {
                     reServices.remove(key, proxy);
                 }
             } else {
-                log("Close stateful service "+proxy.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
+                logger.debug(this, "Close stateful service "+proxy.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
                 Set<String> keys = statefulServices.keySet();
                 keys = Sets.newHashSet(keys);
                 for (String key : keys) {
@@ -764,9 +739,9 @@ class Connector
         for (OMEROMetadataStoreClient store : imports) {
             try {
                 store.closeServices();
-                log("Close import store "+store.getClass().getSimpleName()+" nImportStore="+nImportStore.decrementAndGet());
+                logger.debug(this, "Close import store "+store.getClass().getSimpleName()+" nImportStore="+nImportStore.decrementAndGet());
             } catch (Exception e) {
-                log("Failed to close import store:" + getErrorMessage(e));
+                logger.warn(this, new LogMessage("Failed to close import store:", e));
             }
         }
     }
@@ -780,7 +755,7 @@ class Connector
         }
         for (StatefulServiceInterfacePrx prx : proxies) {
             close(prx);
-            log("Close stateful service "+prx.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
+            logger.debug(this, "Close stateful service "+prx.getClass().getSimpleName()+" nStateful="+nStateful.decrementAndGet());
         }
     }
 
@@ -852,6 +827,7 @@ class Connector
     {
         if (CommonsLangUtils.isBlank(userName)) 
             return this;
+
         return derived.get(userName, new Callable<Connector>() {
             @Override
             public Connector call() throws Exception {
@@ -875,7 +851,7 @@ class Connector
                         .getUuid().getValue(), session.getUuid().getValue());
                 final Connector c = new Connector(context.copy(), client,
                         userSession, unsecureClient == null, logger);
-                log("Created derived connector: " + userName);
+                logger.debug(this, "Created derived connector: " + userName);
                 return c;
             }
         });
@@ -920,7 +896,7 @@ class Connector
                 prx = entryEncrypted.getByName(name);
             }
             statelessServices.put(name, prx);
-            log("Create stateless service "+name+" nStateless="+nStateless.incrementAndGet());
+            logger.debug(this, "Create stateless service "+name+" nStateless="+nStateless.incrementAndGet());
             return prx;
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not load " + name, e);
@@ -946,7 +922,7 @@ class Connector
                 prx = entryEncrypted.createByName(name);
             }
             statefulServices.put(name, prx);
-            log("Create stateful service "+name+" nStateful="+nStateful.incrementAndGet());
+            logger.debug(this, "Create stateful service "+name+" nStateful="+nStateful.incrementAndGet());
             return prx;
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not create " + name, e);
