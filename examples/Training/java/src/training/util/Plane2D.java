@@ -28,7 +28,6 @@ package training.util;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Holds structure used to mapped the raw pixels data.
