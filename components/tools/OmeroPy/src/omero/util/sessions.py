@@ -127,7 +127,9 @@ class SessionsStore(object):
                     new == str(omero.constants.GLACIER2PORT)):
                 continue
             elif old != new:
-                conflicts += (key + (":%s!=%s;" % (old, new)))
+                if conflicts != "":
+                    conflicts += "; "
+                conflicts += (key + (": %s!=%s" % (old, new)))
         return conflicts
 
     def remove(self, host, name, uuid):
