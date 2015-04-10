@@ -29,6 +29,7 @@ from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
+from omeroweb.webgateway.plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
 
@@ -1329,71 +1330,28 @@ def wellData_json(request, conn=None, _internal=False, **kwargs):
 def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
     """
     """
-    t0 = datetime.now()
-    plate = conn.getObject('plate', long(pid))
-    t1 = datetime.now()
-    logger.debug('time to get plate: %s' % (t1 - t0))
-    t0 = t1
     try:
         field = long(field or 0)
     except ValueError:
         field = 0
-    if plate is None:
-        return HttpJavascriptResponseServerError('""')
-    grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     thumbsize = int(request.REQUEST.get('size', 64))
     logger.debug(thumbsize)
+    server_id = kwargs['server_id']
 
     def urlprefix(iid):
         return reverse(prefix, args=(iid, thumbsize))
     xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-    server_id = kwargs['server_id']
 
-    t1 = datetime.now()
-    logger.debug('time to get thumbnail URL prefix: %s' % (t1 - t0))
-    t0 = t1
+    plateGrid = PlateGrid(conn, pid, field, xtra)
+    plate = plateGrid.plate
+    if plate is None:
+        return Http404
 
     rv = webgateway_cache.getJson(request, server_id, plate,
                                   'plategrid-%d-%d' % (field, thumbsize))
     if rv is None:
-        t1 = datetime.now()
-        logger.debug('time to check cache miss: %s' % (t1 - t0))
-        t0 = t1
-
-        plate.setGridSizeConstraints(8, 12)
-        t1 = datetime.now()
-        logger.debug('time to set grid constraints: %s' % (t1 - t0))
-        t0 = t1
-        t0 = t1
-        wellGrid = plate.getWellGrid(field)
-        t1 = datetime.now()
-        logger.debug('time to get well grid: %s' % (t1 - t0))
-        for row in wellGrid:
-            tr = []
-            for e in row:
-                if e:
-                    i = e.getImage()
-                    t2 = datetime.now()
-                    logger.warn('time to get image: %s' % (t2 - t1))
-                    t1 = t2
-                    if i:
-                        t = i.simpleMarshal(xtra=xtra)
-                        t['wellId'] = e.getId()
-                        t['field'] = field
-                        tr.append(t)
-                        t2 = datetime.now()
-                        logger.debug('time to marshal image: %s' % (t2 - t1))
-                        t1 = t2
-                        continue
-                tr.append(None)
-            grid.append(tr)
-        t1 = datetime.now()
-        logger.debug('time to get wells in grid: %s' % (t1 - t0))
-        t0 = t1
-        rv = {'grid': grid,
-              'collabels': plate.getColumnLabels(),
-              'rowlabels': plate.getRowLabels()}
+        rv = plateGrid.metadata
         webgateway_cache.setJson(request, server_id, plate, json.dumps(rv),
                                  'plategrid-%d-%d' % (field, thumbsize))
     else:
