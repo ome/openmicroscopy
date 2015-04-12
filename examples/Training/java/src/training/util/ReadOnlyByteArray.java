@@ -1,6 +1,5 @@
 /*
- * org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray
- *
+ * training.util.ReadOnlyByteArray
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
  *

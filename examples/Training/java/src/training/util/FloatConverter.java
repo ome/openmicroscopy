@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.FloatConverter 
+ * training.util.FloatConverter 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.

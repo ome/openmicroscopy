@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.rnd.data.Plane2D 
+ * training.util.Plane2D 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
