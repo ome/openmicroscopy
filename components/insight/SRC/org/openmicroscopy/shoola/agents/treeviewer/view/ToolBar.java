@@ -399,8 +399,8 @@ class ToolBar
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
                     item = new DataMenuItem(exp, true);
-                    item.setSelected(users.contains(exp.getId()));
-                    if (item.isSelected()) count++;
+                    item.setChecked(users.contains(exp.getId()));
+                    if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
                     items.add(item);
                     list.add(item);
@@ -422,8 +422,8 @@ class ToolBar
                 exp = (ExperimenterData) i.next();
                 if (view || exp.getId() == loggedUserID) {
                     item = new DataMenuItem(exp, true);
-                    item.setSelected(users.contains(exp.getId()));
-                    if (item.isSelected()) count++;
+                    item.setChecked(users.contains(exp.getId()));
+                    if (item.isChecked()) count++;
                     item.addPropertyChangeListener(groupItem);
                     items.add(item);
                     list.add(item);
@@ -435,7 +435,7 @@ class ToolBar
                     p.add(dmi);
             }
         }
-        allUser.setSelected(total != 0 && total == count);
+        allUser.setChecked(total != 0 && total == count);
         allUser.addPropertyChangeListener(groupItem);
         JScrollPane pane = new JScrollPane(p);
         Dimension d = p.getPreferredSize();
@@ -511,7 +511,7 @@ class ToolBar
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
                 if (SelectableMenuItem.SELECTION_PROPERTY.equals(name)) {
-                    handleSelectionDisplay(data.isSelected());
+                    handleSelectionDisplay(data.isChecked());
                 }
             }
         });

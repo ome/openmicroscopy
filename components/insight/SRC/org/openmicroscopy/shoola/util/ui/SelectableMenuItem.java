@@ -21,7 +21,6 @@
 package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -46,26 +45,23 @@ public class SelectableMenuItem extends JMenuItem {
 
     /** The default deselected icon. */
     private static final Icon DEFAULT_DESELECTED;
-
-    public static Color BG_COLOR;
     
     static {
         IconManager icons = IconManager.getInstance();
         DEFAULT_DESELECTED = icons.getIcon(IconManager.NOT_SELECTED);
         DEFAULT_SELECTED = icons.getIcon(IconManager.SELECTED);
         SELECTION_PROPERTY = "SelectableMenuItem.SELECTION_PROPERTY";
-        BG_COLOR = (new JMenuItem()).getBackground();
     }
 
     /** The icon used when the menuitem is selected. */
-    private Icon selectedIcon;
+    private Icon checkedIcon;
 
     /** The icon used when the menuitem is not selected. */
-    private Icon deselectedIcon;
+    private Icon uncheckedIcon;
 
     /** Flag indicating if the menuitem is selectable or not. */
-    private boolean selectable;
-
+    private boolean checkable;
+    
     private boolean fireProperty = true;
     
     /**
@@ -116,9 +112,9 @@ public class SelectableMenuItem extends JMenuItem {
      *            Pass <code>true</code> to allow user selection,
      *            <code>false</code> otherwise.
      */
-    public SelectableMenuItem(Icon selectedIcon, Icon deselectedIcon,
-            boolean selected, boolean selectable) {
-        this(selectedIcon, deselectedIcon, selected, "", selectable);
+    public SelectableMenuItem(Icon checkedIcon, Icon uncheckedIcon,
+            boolean checked, boolean checkable) {
+        this(checkedIcon, uncheckedIcon, checked, "", checkable);
     }
 
     /**
@@ -142,13 +138,13 @@ public class SelectableMenuItem extends JMenuItem {
         // All MouseEvents have to be caught, because the JMenuItem's
         // MouseListeners shall not be triggered (i. e. makes sure the popup
         // menu stays open)!
-        if (e.getButton() == MouseEvent.BUTTON1 && selectable) {
-            setSelected(!isSelected());
+        if (e.getButton() == MouseEvent.BUTTON1 && checkable) {
+            setChecked(!isChecked());
             repaint();
             
             // but the ActionListeners have to triggered
             for(ActionListener l : getActionListeners()) {
-                l.actionPerformed(new ActionEvent(this, 0, ""));
+                l.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, ""));
             }
         }
     }
@@ -169,43 +165,30 @@ public class SelectableMenuItem extends JMenuItem {
      *            Pass <code>true</code> to allow user selection,
      *            <code>false</code> otherwise.
      */
-    public SelectableMenuItem(Icon selectedIcon, Icon deselectedIcon,
-            boolean selected, String text, boolean selectable) {
+    public SelectableMenuItem(Icon checkedIcon, Icon uncheckedIcon,
+            boolean checked, String text, boolean checkable) {
         super(text);
-        this.selectedIcon = selectedIcon;
-        this.deselectedIcon = deselectedIcon;
+        this.checkedIcon = checkedIcon;
+        this.uncheckedIcon = uncheckedIcon;
         fireProperty = false;
-        setSelected(selected);
+        setChecked(checked);
         fireProperty = true;
-        this.selectable = selectable;
-        setBackground(BG_COLOR);
+        this.checkable = checkable;
     }
     
-    @Override
-    public boolean isSelected() {
-        return getIcon() == selectedIcon;
+    public boolean isChecked() {
+        return getIcon() == checkedIcon;
     }
 
-    
-    @Override
-    public void setSelected(boolean b) {
+    public void setChecked(boolean b) {
         if (b)
-            setIcon(selectedIcon);
+            setIcon(checkedIcon);
         else
-            setIcon(deselectedIcon);
+            setIcon(uncheckedIcon);
+        
         if (fireProperty) {
             firePropertyChange(SELECTION_PROPERTY, !b, b);
         }
-    }
-
-    /**
-     * Returns <code>true</code> if the item can be selected, <code>false</code>
-     * otherwise.
-     *
-     * @return See above.
-     */
-    public boolean isSelectable() {
-        return selectable;
     }
 
 }
