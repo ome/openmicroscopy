@@ -579,12 +579,6 @@ CUSTOM_SETTINGS_MAPPINGS = {
           " 'webtest/webclient_plugins/center_plugin.overlay.js.html',"
           " 'channel_overlay_panel']``. "
           "The javascript loads data into ``$('#div_id')``.")],
-    "omero.web.viewer.initial_zoom_level":
-        ["VIEWER_INITIAL_ZOOM_LEVEL",
-         None,
-         leave_none_unset_int,
-         ("Configuration options for the viewer. -1: zoom in fully,"
-          " 0: zoom out fully, unset: zoom to fit window")],
 }
 
 DEPRECATED_SETTINGS_MAPPINGS = {
@@ -635,6 +629,11 @@ DEPRECATED_SETTINGS_MAPPINGS = {
          "false",
          parse_boolean,
          ("Use omero.policy.binary_access instead to restrict download.")],
+    "omero.web.viewer.initial_zoom_level":
+        ["VIEWER_INITIAL_ZOOM_LEVEL",
+         None,
+         leave_none_unset_int,
+         ("Use omero.client.viewer.initial_zoom_level instead.")],
 }
 
 del CUSTOM_HOST
