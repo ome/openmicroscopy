@@ -217,10 +217,15 @@ public class ReadData
 
 		//Get Pixel Size for the above Image
 		Length sizeX = pixels.getPixelSizeX(null);
-		System.err.println("Pixel Size X:" + sizeX.getValue() + sizeX.getSymbol());
+		if (sizeX != null) {
+		    System.err.println("Pixel Size X:" + sizeX.getValue() + sizeX.getSymbol());
+		}
+		
 		//To get the size the size with different units, E.g. Angstroms
 		Length sizeXang = pixels.getPixelSizeX(UnitsLength.ANGSTROM);
-		System.err.println("Pixel Size X:" + sizeXang.getValue() + sizeXang.getSymbol());
+		if (sizeXang != null) {
+		    System.err.println("Pixel Size X:" + sizeXang.getValue() + sizeXang.getSymbol());
+		}
 	}
 	
 	/** 
