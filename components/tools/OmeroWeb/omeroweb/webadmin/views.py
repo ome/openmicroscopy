@@ -526,8 +526,11 @@ def manage_experimenter(request, action, eid=None, conn=None, **kwargs):
                 institution = form.cleaned_data['institution']
                 admin = form.cleaned_data['administrator']
                 active = form.cleaned_data['active']
-                if experimenter.getId() == conn.getUserId():
-                    active = True   # don't allow user to disable themselves!
+                rootId = conn.getAdminService().getSecurityRoles().rootId
+                # User can't disable themselves or 'root'
+                if experimenter.getId() in [conn.getUserId(), rootId]:
+                    # disabled checkbox not in POST: do it manually
+                    active = True
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
 
