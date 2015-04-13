@@ -660,18 +660,15 @@ class TestSessions(object):
         MOCKKEY = "MOCKKEY%s" % uuid.uuid4()
 
         # Try with session when it's still available
-        cli.creates_client(sess=MOCKKEY, new=True)
+        cli.creates_client(sess=MOCKKEY, new=True, port=port)
 
-        conn_args = self.get_conn_args(connection, name=None, port=None)
+        conn_args = self.get_conn_args(connection, name=None, port=port)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
         cli.set_client(None)  # Forcing new instance
         cli.creates_client(sess=MOCKKEY, new=False)
         conn_args = self.get_conn_args(connection, port=port)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
 
-    def assert5975(self, key, cli):
-        host, name, uuid, port = cli.STORE.get_current()
-        assert key != name
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     def test5975(self, connection):
@@ -684,10 +681,12 @@ class TestSessions(object):
         cli.creates_client(sess=key, new=True)
         conn_args = self.get_conn_args(connection, name=None)
         cli.invoke(["s", "login", "-k", "%s" % key] + conn_args)
-        self.assert5975(key, cli)
+        host, name, uuid, port = cli.STORE.get_current()
+        assert key != name
 
         cli.invoke("s logout")
-        self.assert5975(key, cli)
+        host, name, uuid, port = cli.STORE.get_current()
+        assert key != name
 
 
 class TestParseConn(object):
