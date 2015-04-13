@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -2251,9 +2251,10 @@ class BrowserUI
 	 */
 	void setFoundNode(TreeImageDisplay[] newSelection)
 	{
-		//treeDisplay.removeTreeSelectionListener(selectionListener);
 		if (newSelection == null) {
+		    model.setSelectedDisplay(null, true);
 		    treeDisplay.clearSelection();
+		    controller.getAction(BrowserControl.DELETE).setEnabled(false);
 		} else {
 			TreePath[] paths = new TreePath[newSelection.length];
 			for (int i = 0; i < newSelection.length; i++) {
