@@ -347,7 +347,11 @@ class SessionsControl(BaseControl):
                                            args.key, props)
             action = "Joined"
             if not rv:
-                self.ctx.die(523, "Bad session key")
+                if port:
+                    msg = "Cannot join %s on %s:%s." % (args.key, server, port)
+                else:
+                    msg = "Cannot join %s on %s." % (args.key, server)
+                self.ctx.die(523, "Bad session key. %s" % msg)
         elif not create:
             available = store.available(server, name)
             for uuid in available:
