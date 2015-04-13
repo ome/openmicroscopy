@@ -1910,14 +1910,14 @@ class MetadataDetectorForm(forms.Form):
                         'onchange': save_metadata(
                             detector.id, 'manufacturer')}),
                     required=False)
-            set_widget_attrs(self.fields['transmittance'])
+            set_widget_attrs(self.fields['manufacturer'])
         except:
             self.fields['manufacturer'] = forms.CharField(
                 max_length=10,
                 widget=forms.TextInput(attrs={'size': 25}),
                 initial="N/A",
                 required=False)
-            set_widget_attrs(self.fields['transmittance'])
+            set_widget_attrs(self.fields['manufacturer'])
 
         # Model
         try:
