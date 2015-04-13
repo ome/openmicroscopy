@@ -163,8 +163,8 @@ public:
         grp = strToNum<long>(grpstr);
         wait = strToNum<long>(waitstr);
 
-        LongList objectIds;
-        StringLongListMap objects;
+        omero::api::LongList objectIds;
+        omero::api::StringLongListMap objects;
         ChildOptions options;
         req = new Chgrp2();
         objectIds.push_back(id);
