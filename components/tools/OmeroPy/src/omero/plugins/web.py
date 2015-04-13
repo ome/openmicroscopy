@@ -68,9 +68,13 @@ class WebControl(BaseControl):
         iis.add_argument("--remove", action="store_true", default=False)
 
         for x in (start, restart, iis):
-            x.add_argument(
-                "--skip-clear-sessions", action="store_true",
+            group = x.add_mutually_exclusive_group()
+            group.add_argument(
+                "--keep-sessions", action="store_true",
                 help="Skip clean-up of expired sessions at startup")
+            group.add_argument(
+                "--no-wait", action="store_true",
+                help="Do not wait on expired sessions clean-up")
 
         #
         # Advanced
@@ -326,8 +330,8 @@ class WebControl(BaseControl):
 
     def start(self, args):
         self.collectstatic()
-        if not args.skip_clear_sessions:
-            self.clearsessions(args, wait=False)
+        if not args.keep_sessions:
+            self.clearsessions(args, wait=args.no_wait)
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -484,8 +488,8 @@ using bin\omero web start on Windows with FastCGI.
             self.ctx.die(2, "'iis' command is for Windows only")
 
         self.collectstatic()
-        if not args.skip_clear_sessions:
-            self.clearsessions(args, wait=False)
+        if not args.keep_sessions:
+            self.clearsessions(args, wait=args.no_wait)
 
         web_iis = self._get_python_dir() / "omero_web_iis.py"
         cmd = [sys.executable, str(web_iis)]
