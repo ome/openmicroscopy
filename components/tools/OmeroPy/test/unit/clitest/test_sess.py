@@ -289,6 +289,7 @@ class TestStore(object):
 class TestSessions(object):
 
     CONNECTION_TYPES = ["string", "prefixed_string", "options"]
+    ALL_PORTS = [None, 4064, 14064]
     # The following attributes define list of tuples for testing session
     # re-attachment.
     # The first element of each tuple correspond to the value stored in the
@@ -497,7 +498,7 @@ class TestSessions(object):
         del cli
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    @pytest.mark.parametrize('port', [None, 4064, 14064])
+    @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('group', [None, "mygroup"])
     def testSessionReattachSameArguments(self, connection, port, group):
         """
@@ -541,7 +542,7 @@ class TestSessions(object):
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    @pytest.mark.parametrize('port', [None, 4064, 14064])
+    @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('group', [None, "mygroup"])
     def testSessionReattachServerMismatch(self, connection, port, group):
         """
@@ -592,7 +593,7 @@ class TestSessions(object):
         assert err.splitlines()[-2] == msg % (MOCKKEY, port[0], port[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    @pytest.mark.parametrize('port', [None, 4064, 14064])
+    @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('group', CONFLICTING_GROUPS)
     def testSessionReattachFailsGroup(self, connection, port, group, capsys):
         """
@@ -648,7 +649,7 @@ class TestSessions(object):
         assert err.splitlines()[-2] == msg % (
             MOCKKEY, group[0], group[1], port[0], port[1])
 
-    @pytest.mark.parametrize('port', [None, 4064])
+    @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     def testCopiedSessionWorks(self, connection, port):
         """
