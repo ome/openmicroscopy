@@ -2401,7 +2401,7 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if self._conn.SERVICE_OPTS.get('omero.share'):
             if self.getDetails().getOwner().id != self._conn.getUserId():
                 return False
-        return super(omero.gateway.ImageWrapper, self).canEdit()
+        return self.getDetails().getPermissions().canEdit()
 
     def canAnnotate(self):
         """
@@ -2416,7 +2416,7 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if self._conn.SERVICE_OPTS.get('omero.share'):
             if self.getDetails().getOwner().id != self._conn.getUserId():
                 return False
-        return super(omero.gateway.ImageWrapper, self).canAnnotate()
+        return self.getDetails().getPermissions().canAnnotate()
 
     """
     This override standard omero.gateway.ImageWrapper.getChannels
