@@ -197,14 +197,14 @@ class TestStore(object):
         assert "4064" == s.last_port()
 
     @pytest.mark.parametrize('name', [None, 'usr'])
-    @pytest.mark.parametrize('uuid', [None, 'uuid'])
+    @pytest.mark.parametrize('key', [None, 'uuid'])
     @pytest.mark.parametrize('port', [None, '4064', '14064'])
-    def testSetCurrent(self, name, uuid, port, tmpdir):
+    def testSetCurrent(self, name, key, port, tmpdir):
         s = self.store(tmpdir)
         props = {}
         if port:
             props["omero.port"] = port
-        s.set_current("srv", name=name, uuid=uuid, props=props)
+        s.set_current("srv", name=name, uuid=key, props=props)
         session_dir = tmpdir / "omero" / "sessions"
 
         # Using last_* methods
@@ -217,18 +217,18 @@ class TestStore(object):
         assert "srv" == s.host_file().text().strip()
         if name:
             assert name == s.user_file("srv").text().strip()
-        if uuid and name:
-            assert uuid == s.sess_file("srv", "usr").text().strip()
+        if key and name:
+            assert key == s.sess_file("srv", "usr").text().strip()
 
         # Using get_current
-        lasthost, lastname, lastuuid, lastport = s.get_current()
+        lasthost, lastname, lastkey, lastport = s.get_current()
         assert lasthost == "srv"
         assert lastport == (port or '4064')
         assert lastname == name
         if name:
-            assert lastuuid == uuid
+            assert lastkey == key
         else:
-            assert lastuuid is None
+            assert lastkey is None
 
     def testContents(self):
         s = self.store()
@@ -669,7 +669,6 @@ class TestSessions(object):
         conn_args = self.get_conn_args(connection, port=port)
         cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + conn_args)
 
-
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     def test5975(self, connection):
         """
@@ -677,16 +676,16 @@ class TestSessions(object):
         to be a session uuid (which should never happen)
         """
         cli = MyCLI()
-        key = str(uuid.uuid4())
+        key = "%s" % uuid.uuid4()
         cli.creates_client(sess=key, new=True)
         conn_args = self.get_conn_args(connection, name=None)
         cli.invoke(["s", "login", "-k", "%s" % key] + conn_args)
-        host, name, uuid, port = cli.STORE.get_current()
-        assert key != name
+        current = cli.STORE.get_current()
+        assert key != current[1]
 
         cli.invoke("s logout")
-        host, name, uuid, port = cli.STORE.get_current()
-        assert key != name
+        current = cli.STORE.get_current()
+        assert key != current[1]
 
 
 class TestParseConn(object):
