@@ -26,7 +26,6 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-from django.conf import settings
 from omero.rtypes import unwrap
 
 # OMERO.insight point list regular expression
