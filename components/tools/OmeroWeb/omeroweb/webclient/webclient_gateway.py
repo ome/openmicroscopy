@@ -176,6 +176,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
             logger.error(traceback.format_exc())
             return False
 
+    def getInitialZoomLevel(self):
+        return (self.getConfigService().getConfigValue(
+                "omero.client.viewer.initial_zoom_level") or 0)
+
     def getOrphanedContainerSettings(self):
         name = (self.getConfigService().getConfigValue(
                 "omero.client.ui.tree.orphans.name") or "Orphaned image")
