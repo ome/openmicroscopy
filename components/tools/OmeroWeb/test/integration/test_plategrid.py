@@ -152,18 +152,16 @@ class TestPlateGrid(object):
         """
         Check that the helper object can be created
         """
-        xtra = {'key': 'value'}
-        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, xtra)
+        plateGrid = PlateGrid(conn, plate_wells.id.val, 0)
         assert plateGrid
         assert plateGrid.plate.id == plate_wells.id.val
         assert plateGrid.field == 0
-        assert plateGrid.xtra == xtra
 
     def test_metadata_grid_size(self, plate_wells, conn):
         """
         Check that the grid represented in the metadata is the correct size
         """
-        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, {})
+        plateGrid = PlateGrid(conn, plate_wells.id.val, 0)
         assert len(plateGrid.metadata['grid']) == 8
         assert len(plateGrid.metadata['grid'][0]) == 12
 
@@ -172,8 +170,7 @@ class TestPlateGrid(object):
         Check that extra elements of the thumbnail URL passed in the `xtra`
         dictionary are properly prepended
         """
-        xtra = {'thumbUrlPrefix': 'foo/bar/'}
-        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, xtra)
+        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, 'foo/bar/')
         metadata = plateGrid.metadata
         for well in plate_wells.copyWells():
             well_metadata = metadata['grid'][well.row.val][well.column.val]

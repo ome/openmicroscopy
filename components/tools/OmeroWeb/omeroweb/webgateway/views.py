@@ -1341,9 +1341,8 @@ def plateGrid_json(request, pid, field=0, conn=None, **kwargs):
 
     def urlprefix(iid):
         return reverse(prefix, args=(iid, thumbsize))
-    xtra = {'thumbUrlPrefix': kwargs.get('urlprefix', urlprefix)}
-
-    plateGrid = PlateGrid(conn, pid, field, xtra)
+    plateGrid = PlateGrid(conn, pid, field,
+                          kwargs.get('urlprefix', urlprefix))
     plate = plateGrid.plate
     if plate is None:
         return Http404
