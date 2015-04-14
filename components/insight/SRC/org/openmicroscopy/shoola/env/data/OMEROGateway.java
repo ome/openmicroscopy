@@ -77,6 +77,7 @@ import omero.gateway.DSOutOfServiceException;
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
+import omero.gateway.util.Requests;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
