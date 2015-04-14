@@ -86,6 +86,12 @@ public class ThumbnailBean extends AbstractLevel2Service
      */
     private static final long serialVersionUID = 3047482880497900069L;
 
+    /**
+     * Version integer which will be used when a thumbnail is saved that is
+     * currently having its pyramid generated, i.e. isInProgress.
+     */
+    private static final Integer PROGRESS_VERSION = -1;
+
     /** The logger for this class. */
     private transient static Logger log = LoggerFactory.getLogger(ThumbnailBean.class);
 
@@ -811,15 +817,16 @@ public class ThumbnailBean extends AbstractLevel2Service
             Long ownerId = thumbnailMetadata.getDetails().getOwner().getId();
             Long rndOwnerId = settings.getDetails().getOwner().getId();
             if (rndOwnerId.equals(ownerId)) {
-                thumbnailMetadata.setVersion(thumbnailMetadata.getVersion() + 1);
                 Pixels unloadedPixels = new Pixels(pixels.getId(), false);
                 thumbnailMetadata.setPixels(unloadedPixels);
+                _setMetadataVersion(thumbnailMetadata, inProgress);
                 dirtyMetadata = true;
             } else {
                 //new one for owner of the settings.
                 Dimension d = new Dimension(thumbnailMetadata.getSizeX(),
                         thumbnailMetadata.getSizeY());
                 thumbnailMetadata = ctx.createThumbnailMetadata(pixels, d);
+                _setMetadataVersion(thumbnailMetadata, inProgress);
                 thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
                 dirtyMetadata = false;
             }
@@ -837,6 +844,16 @@ public class ThumbnailBean extends AbstractLevel2Service
             log.error("Thumbnail could not be compressed.", e);
             throw new ResourceError(e.getMessage());
         }
+    }
+
+    private static void _setMetadataVersion(Thumbnail tb, boolean inProgress) {
+        Integer version = tb.getVersion();
+        if (version == null) {
+            version = inProgress ? PROGRESS_VERSION : 0;
+        } else {
+            version++;
+        }
+        tb.setVersion(version);
     }
 
     /*
@@ -949,8 +966,9 @@ public class ThumbnailBean extends AbstractLevel2Service
                     }
                     catch (ConcurrencyException e)
                     {
-                        log.info("ConcurrencyException on " +
-                                 "retrieveThumbnailSet.ctx.hasSettings");
+                        log.debug("ConcurrencyException on " +
+                                 "retrieveThumbnailSet.ctx.hasSettings: " +
+                                 "pyramid in progress");
                         inProgress = true;
                     }
                 }
@@ -958,6 +976,10 @@ public class ThumbnailBean extends AbstractLevel2Service
                 pixelsId = pixels.getId();
                 settings = ctx.getSettings(pixelsId);
                 thumbnailMetadata = ctx.getMetadata(pixelsId);
+                if (!PROGRESS_VERSION.equals(thumbnailMetadata.getVersion())) {
+                    thumbnailMetadata.setVersion(PROGRESS_VERSION);
+                    dirtyMetadata = true;
+                }
                 try
                 {
                     byte[] thumbnail = retrieveThumbnail();
@@ -1027,6 +1049,10 @@ public class ThumbnailBean extends AbstractLevel2Service
     private byte[] retrieveThumbnailAndUpdateMetadata()
     {
         byte[] thumbnail = retrieveThumbnail();
+        if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata)) {
+            thumbnailMetadata.setVersion(PROGRESS_VERSION);
+            dirtyMetadata = true;
+        }
         if (dirtyMetadata)
         {
             try
