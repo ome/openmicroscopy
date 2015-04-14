@@ -93,6 +93,7 @@ import omero.api.ThumbnailStorePrxHelper;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.SharedResourcesPrxHelper;
 import omero.log.LogMessage;

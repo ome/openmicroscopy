@@ -38,6 +38,7 @@ import javax.swing.filechooser.FileFilter;
 
 
 
+
 //Application-internal dependencies
 import omero.api.RawPixelsStorePrx;
 import omero.api.ThumbnailStorePrx;
@@ -53,8 +54,8 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
 
-import omero.gateway.DSOutOfServiceException;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
 
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;

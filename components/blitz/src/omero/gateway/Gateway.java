@@ -57,6 +57,8 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
+import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.util.NetworkChecker;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
