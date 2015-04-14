@@ -225,9 +225,9 @@
     {% if image %}
     <button class="btn silver btn_text" href="#" style="position: absolute; left: 0; height: 20px"
             {% if share and not share.share.isOwned %}
-                onclick="return OME.openPopup('{% url 'web_image_viewer' share.share.id manager.image.id %}')"
+                onclick="return OME.openPopup('{% url 'web_image_viewer' share.share.id image.id %}')"
             {% else %}
-                onclick="return OME.openPopup('{% url 'web_image_viewer' manager.image.id %}')"
+                onclick="return OME.openPopup('{% url 'web_image_viewer' image.id %}')"
             {% endif %}
             title="Open full image viewer in new window">
         <span>
