@@ -27,10 +27,7 @@ class PlateGrid(object):
     """
 
     def __init__(self, conn, pid, fid, thumbprefix=''):
-        t0 = dt.now()
         self.plate = conn.getObject('plate', long(pid))
-        t1 = dt.now()
-        logger.debug('time to get plate: %s' % (t1 - t0))
         self._conn = conn
         self.field = fid
         self._thumbprefix = thumbprefix
@@ -39,12 +36,7 @@ class PlateGrid(object):
     @property
     def metadata(self):
         if self._metadata is None:
-            t0 = dt.now()
             self.plate.setGridSizeConstraints(8, 12)
-            t1 = dt.now()
-            logger.debug('time to set grid constraints: %s' % (t1 - t0))
-            t0 = t1
-
             size = self.plate.getGridSize()
             grid = [[None] * size['columns']] * size['rows']
 
@@ -68,11 +60,6 @@ class PlateGrid(object):
                 ])
 
             wellGrid = q.projection(query, params, self._conn.SERVICE_OPTS)
-            t1 = dt.now()
-            logger.debug('time to get well grid: %s' % (t1 - t0))
-            t0 = t1
-            maxplanesize = self._conn.getMaxPlaneSize()
-            tiledsize = maxplanesize[0] * maxplanesize[1]
             for w in wellGrid:
                 gridRow = w[0].val
                 gridCol = w[1].val
@@ -91,8 +78,7 @@ class PlateGrid(object):
                     wellmeta['thumb_url'] = self._thumbprefix + str(w[2].val)
 
                 grid[gridRow][gridCol] = wellmeta
-            t1 = dt.now()
-            logger.debug('time to get wells in grid: %s' % (t1 - t0))
+
             self._metadata = {'grid': grid,
                               'collabels': self.plate.getColumnLabels(),
                               'rowlabels': self.plate.getRowLabels()}
