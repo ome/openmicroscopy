@@ -295,9 +295,9 @@ class TestSessions(object):
     # The first element of each tuple correspond to the value stored in the
     # session file (where None means the property is not stored). The second
     # element corresponds to the value passed via the connection arguments.
-    NONCONFLICTING_PORTS = [(None, 4064)]
+    NONCONFLICTING_PORTS = [(None, 4064), (4064, None)]
     CONFLICTING_PORTS = [
-        (None, 14064), (14064, None), (4064, None), (4064, 14064)]
+        (None, 14064), (14064, None), (4064, 14064)]
     CONFLICTING_GROUPS = [
         (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")]
 

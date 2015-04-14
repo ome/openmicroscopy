@@ -118,13 +118,15 @@ class SessionsStore(object):
         """
         conflicts = ""
         old_props = self.get(host, name, id)
+        default_port = str(omero.constants.GLACIER2PORT)
+
         for key in ("omero.group", "omero.port"):
             old = old_props.get(key, None)
             new = new_props.get(key, None)
             if ignore_nulls and new is None:
                 continue
-            elif (key == "omero.port" and old is None and
-                    new == str(omero.constants.GLACIER2PORT)):
+            elif (key == "omero.port" and
+                  set((old, new)) == set((None, default_port))):
                 continue
             elif old != new:
                 if conflicts != "":
