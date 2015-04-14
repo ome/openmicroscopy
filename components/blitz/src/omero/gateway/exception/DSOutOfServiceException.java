@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package omero.gateway;
+package omero.gateway.exception;
 
 //Java imports
 
