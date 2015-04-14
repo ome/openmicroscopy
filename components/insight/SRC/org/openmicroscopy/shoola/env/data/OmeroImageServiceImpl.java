@@ -1033,6 +1033,17 @@ class OmeroImageServiceImpl
 		List<ImportContainer> icContainers;
 		if (file.isFile()) {
 			ic = gateway.getImportCandidates(ctx, object, file, status);
+			if (CollectionUtils.isEmpty(ic.getContainers())) {
+			    Object o = status.getImportResult();
+                if (o instanceof ImportException) {
+                    return o;
+                }
+                ImportException e = new ImportException(
+                        ImportException.FILE_NOT_VALID_TEXT);
+                status.setCallback(e);
+                status.setText(ImportException.FILE_NOT_VALID_TEXT);
+                return e;
+			}
 			hcsFile = isHCS(ic.getContainers());
 			//Create the container if required.
 			if (hcsFile) {
@@ -1123,8 +1134,11 @@ class OmeroImageServiceImpl
                     if (o instanceof ImportException) {
                         return o;
                     }
-                    return new ImportException(
+                    ImportException e = new ImportException(
                             ImportException.FILE_NOT_VALID_TEXT);
+                    status.setCallback(e);
+                    status.setText(ImportException.FILE_NOT_VALID_TEXT);
+                    return e;
 				}
 				else if (size == 1) {
 					String value = candidates.get(0);
