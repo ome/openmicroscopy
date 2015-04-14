@@ -207,9 +207,9 @@ Test Owners Rdef
     
     # Test 'Paste and Save' with right-click on different Image in tree
     # (check thumb refresh by change of src)
-    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId_2} img").attr('src')
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("#image_icon-${imageId_2} img").attr('src'))
     Right Click Rendering Settings          image-${imageId_2}            Paste and Save
-    Wait For Condition                      return ($("#image_icon-${imageId_2} img").attr('src') != '${thumbSrc}')
+    Wait For Condition                      return ($.trim($("#image_icon-${imageId_2} img").attr('src')) != '${thumbSrc}')
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId_2}
     Wait For Preview Load
@@ -217,9 +217,9 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           200
 
     # Test Set Owner's in same way on first Image
-    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("#image_icon-${imageId} img").attr('src'))
     Right Click Rendering Settings          image-${imageId}            Set Owner's and Save
-    Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
+    Wait For Condition                      return ($.trim($("#image_icon-${imageId} img").attr('src')) != '${thumbSrc}')
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
     Wait For Preview Load
@@ -227,9 +227,9 @@ Test Owners Rdef
     Textfield Value Should Be               wblitz-ch0-cw-end           100
 
     # Test "Set Imported" on first Image
-    ${thumbSrc}=                            Execute Javascript  return $("#image_icon-${imageId} img").attr('src')
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("#image_icon-${imageId} img").attr('src'))
     Right Click Rendering Settings          image-${imageId}            Set Imported and Save
-    Wait For Condition                      return ($("#image_icon-${imageId} img").attr('src') != '${thumbSrc}')
+    Wait For Condition                      return ($.trim($("#image_icon-${imageId} img").attr('src')) != '${thumbSrc}')
     # Check applied by refresh right panel
     Click Element                           id=image_icon-${imageId}
     Wait For Preview Load
