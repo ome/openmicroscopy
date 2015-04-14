@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package org.openmicroscopy.shoola.env.data;
+package omero.gateway.util;
 
 import java.util.Collections;
 import java.util.HashMap;
