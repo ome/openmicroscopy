@@ -15,6 +15,7 @@ import test.integration.library as lib
 from omero.model import PlateI, WellI, WellSampleI
 from omero.rtypes import rint, rstring
 from omero.gateway import BlitzGateway
+from omeroweb.webgateway.plategrid import PlateGrid
 
 from django.test import Client
 from django.core.urlresolvers import reverse
@@ -146,3 +147,35 @@ class TestPlateGrid(object):
                 if len(well_samples) > field:
                     assert well_metadata['name'] ==\
                         well_samples[field].getImage().name.val
+
+    def test_instantiation(self, plate_wells, conn):
+        """
+        Check that the helper object can be created
+        """
+        xtra = {'key': 'value'}
+        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, xtra)
+        assert plateGrid
+        assert plateGrid.plate.id == plate_wells.id.val
+        assert plateGrid.field == 0
+        assert plateGrid.xtra == xtra
+
+    def test_metadata_grid_size(self, plate_wells, conn):
+        """
+        Check that the grid represented in the metadata is the correct size
+        """
+        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, {})
+        assert len(plateGrid.metadata['grid']) == 8
+        assert len(plateGrid.metadata['grid'][0]) == 12
+
+    def test_metadata_thumbnail_url(self, plate_wells, conn):
+        """
+        Check that extra elements of the thumbnail URL passed in the `xtra`
+        dictionary are properly prepended
+        """
+        xtra = {'thumbUrlPrefix': 'foo/bar/'}
+        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, xtra)
+        metadata = plateGrid.metadata
+        for well in plate_wells.copyWells():
+            well_metadata = metadata['grid'][well.row.val][well.column.val]
+            if well_metadata:
+                assert well_metadata['thumb_url'].startswith('foo/bar/')
