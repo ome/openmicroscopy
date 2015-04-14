@@ -11,7 +11,11 @@
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime as dt
+import time
+
+import omero.sys
+from omero.rtypes import rint, rlong
 
 logger = logging.getLogger(__name__)
 
@@ -22,50 +26,72 @@ class PlateGrid(object):
     methods useful for displaying the contents of the plate as a grid.
     """
 
-    def __init__(self, conn, pid, fid, xtra):
-        t0 = datetime.now()
+    def __init__(self, conn, pid, fid, thumbprefix=''):
+        t0 = dt.now()
         self.plate = conn.getObject('plate', long(pid))
-        t1 = datetime.now()
+        t1 = dt.now()
         logger.debug('time to get plate: %s' % (t1 - t0))
+        self._conn = conn
         self.field = fid
-        self.xtra = xtra
+        self._thumbprefix = thumbprefix
         self._metadata = None
 
     @property
     def metadata(self):
         if self._metadata is None:
-            t0 = datetime.now()
+            t0 = dt.now()
             self.plate.setGridSizeConstraints(8, 12)
-            t1 = datetime.now()
+            t1 = dt.now()
             logger.debug('time to set grid constraints: %s' % (t1 - t0))
             t0 = t1
 
-            grid = []
-            wellGrid = self.plate.getWellGrid(self.field)
-            t1 = datetime.now()
+            size = self.plate.getGridSize()
+            grid = [[None] * size['columns']] * size['rows']
+
+            q = self._conn.getQueryService()
+            params = omero.sys.Parameters()
+            params.map = {'pid': rlong(self.plate.id),
+                          'wsidx': rint(self.field)}
+            query = ' '.join([
+                    "select well.row, well.column,",  # Grid index
+                    "img.id,",                        # 'id'
+                    "img.name,",                      # 'name'
+                    "img.details.owner.firstName||' '",
+                    "||img.details.owner.lastName,",  # 'author'
+                    "well.id,",                       # 'wellId'
+                    "img.acquisitionDate",            # 'date'
+                    "from Well well",
+                    "join well.wellSamples ws",
+                    "join ws.image img",
+                    "where well.plate.id = :pid",     # plate ID
+                    "and index(ws) = :wsidx"          # field
+                ])
+
+            wellGrid = q.projection(query, params, self._conn.SERVICE_OPTS)
+            t1 = dt.now()
             logger.debug('time to get well grid: %s' % (t1 - t0))
             t0 = t1
-            for row in wellGrid:
-                tr = []
-                for e in row:
-                    if e:
-                        i = e.getImage()
-                        t2 = datetime.now()
-                        logger.warn('time to get image: %s' % (t2 - t1))
-                        t1 = t2
-                        if i:
-                            t = i.simpleMarshal(xtra=self.xtra)
-                            t['wellId'] = e.getId()
-                            t['field'] = self.field
-                            tr.append(t)
-                            t2 = datetime.now()
-                            logger.debug(
-                                'time to marshal image: %s' % (t2 - t1))
-                            t1 = t2
-                            continue
-                    tr.append(None)
-                grid.append(tr)
-            t1 = datetime.now()
+            maxplanesize = self._conn.getMaxPlaneSize()
+            tiledsize = maxplanesize[0] * maxplanesize[1]
+            for w in wellGrid:
+                gridRow = w[0].val
+                gridCol = w[1].val
+                wellmeta = {'type': 'Image',
+                            'id': w[2].val,
+                            'name': w[3].val,
+                            'author': w[4].val,
+                            'wellId': w[5].val,
+                            'field': self.field}
+
+                date = dt.fromtimestamp(w[6].val / 1000)
+                wellmeta['date'] = time.mktime(date.timetuple())
+                if callable(self._thumbprefix):
+                    wellmeta['thumb_url'] = self._thumbprefix(str(w[2].val))
+                else:
+                    wellmeta['thumb_url'] = self._thumbprefix + str(w[2].val)
+
+                grid[gridRow][gridCol] = wellmeta
+            t1 = dt.now()
             logger.debug('time to get wells in grid: %s' % (t1 - t0))
             self._metadata = {'grid': grid,
                               'collabels': self.plate.getColumnLabels(),
