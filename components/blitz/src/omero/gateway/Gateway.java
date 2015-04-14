@@ -788,7 +788,6 @@ public class Gateway {
             connector = new Connector(ctx, client, entryEncrypted,
                     cred.isEncryption(), log);
             groupConnectorMap.put(ctx.getGroupID(), connector);
-            System.out.println(client.getSessionId());
             return exp;
         } catch (Throwable e) {
             throw new DSOutOfServiceException(
