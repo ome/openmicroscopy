@@ -53,7 +53,7 @@ def channelMarshal(channel):
             'active': channel.isActive()}
 
 
-def imageMarshal(request, image, key=None):
+def imageMarshal(image, key=None, request=None):
     """
     return a dict with pretty much everything we know and care about an image,
     all wrapped in a pretty structure.
@@ -154,7 +154,7 @@ def imageMarshal(request, image, key=None):
         if init_zoom < 0:
             init_zoom = levels + init_zoom
     except:
-        init_zoom = None
+        init_zoom = 0
 
     try:
         rv.update({
