@@ -31,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,6 +52,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -1062,19 +1064,25 @@ public class PropertiesUI
 			
 			Timestamp crDate = dob.getCreated();
 			if (crDate != null) {
-				JLabel createDateLabel = new JLabel();
-				Font font = createDateLabel.getFont();
-                int size = font.getSize()-2;
-				createDateLabel.setFont((new JLabel()).getFont().deriveFont(
-						Font.BOLD, size));
-				createDateLabel.setText(CREATIONDATE_TEXT
-						+ UIUtilities.formatDefaultDate(crDate));
+                JLabel createDateLabel = new JLabel();
+                Font font = createDateLabel.getFont();
+                int size = font.getSize() - 2;
+                createDateLabel.setFont((new JLabel()).getFont().deriveFont(
+                        Font.BOLD, size));
+                createDateLabel.setText(CREATIONDATE_TEXT);
 
-				JPanel p = UIUtilities.buildComponentPanel(createDateLabel, 0,
-						0);
-				p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-				p.setBackground(UIUtilities.BACKGROUND_COLOR);
-				add(p);
+                JLabel createDateValue = new JLabel();
+                createDateValue.setFont((new JLabel()).getFont().deriveFont(
+                        Font.PLAIN, size));
+                createDateValue.setText(UIUtilities.formatDefaultDate(crDate));
+
+                JPanel p = new JPanel();
+                p.setLayout(new GridLayout(1, 2));
+                p.add(createDateLabel);
+                p.add(createDateValue);
+                p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+                p.setBackground(UIUtilities.BACKGROUND_COLOR);
+                add(p);
 			}
 		}
     }
