@@ -7761,10 +7761,13 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     Dict
         """
 
+        rv = []
+        pixelsId = self.getPixelsId()
+        if pixelsId is None:
+            return rv
         pixelsService = self._conn.getPixelsService()
         rdefs = pixelsService.retrieveAllRndSettings(
-            self.getPixelsId(), eid, self._conn.SERVICE_OPTS)
-        rv = []
+            pixelsId, eid, self._conn.SERVICE_OPTS)
         for rdef in rdefs:
             d = {}
             owner = rdef.getDetails().owner
