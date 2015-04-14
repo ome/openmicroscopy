@@ -94,10 +94,10 @@ Test Rdef Copy Paste Save
     Element Should Be Enabled               id=rdef-setdef-btn
 
     # Save (with Yellow channel) & wait for thumbnail to update
-    ${thumbSrc}=                            Execute Javascript  return $("button.clicked img.rdef").attr('src')
+    ${thumbSrc}=                            Execute Javascript  return $.trim($("button.clicked img.rdef").attr('src'))
     Click Element                           id=rdef-setdef-btn
     Wait For BlockUI
-    Wait For Condition                      return ($("button.clicked img.rdef").attr('src') != '${thumbSrc}')
+    Wait For Condition                      return ($.trim($("button.clicked img.rdef").attr('src')) != '${thumbSrc}')
     # Redo (to Blue channel)
     Click Element                           id=rdef-redo-btn
     Wait For Channel Color                  rgb(0, 0, 255)
