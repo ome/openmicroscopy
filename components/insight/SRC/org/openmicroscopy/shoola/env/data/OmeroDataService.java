@@ -37,6 +37,7 @@ import java.util.Set;
 
 
 
+
 //Application-internal dependencies
 import omero.api.StatefulServiceInterfacePrx;
 
@@ -45,8 +46,8 @@ import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 
-import omero.gateway.DSOutOfServiceException;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;

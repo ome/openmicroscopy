@@ -43,13 +43,17 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import omero.gateway.DSOutOfServiceException;
+
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
 import omero.log.Logger;
+
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 

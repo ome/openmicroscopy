@@ -33,6 +33,7 @@ import java.util.Map;
 //Third-party libraries
 
 
+
 //Application-internal dependencies
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
@@ -58,8 +59,8 @@ import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 
-import omero.gateway.DSOutOfServiceException;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 

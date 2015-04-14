@@ -52,8 +52,8 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 
 import pojos.util.PojoMapper;
-import omero.gateway.DSOutOfServiceException;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSOutOfServiceException;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
