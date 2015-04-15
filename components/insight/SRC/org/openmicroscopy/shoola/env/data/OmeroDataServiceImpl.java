@@ -749,7 +749,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			Class parentClass = gateway.convertPojos(type);
+			Class parentClass = PojoMapper.getModelType(type);
 			if (DatasetData.class.equals(type))
 				parentClass = Project.class;
 			else if (ImageData.class.equals(type))
