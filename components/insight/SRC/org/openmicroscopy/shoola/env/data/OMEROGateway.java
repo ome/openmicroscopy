@@ -1393,74 +1393,6 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Converts the specified POJO into the corresponding model.
-	 *
-	 * @param nodeType The POJO class.
-	 * @return The corresponding class.
-	 */
-	Class convertPojos(DataObject node)
-	{
-		if (node instanceof FileData || node instanceof MultiImageData)
-			return OriginalFile.class;
-		return convertPojos(node.getClass());
-	}
-
-	/**
-	 * Converts the specified POJO into the corresponding model.
-	 *
-	 * @param nodeType The POJO class.
-	 * @return The corresponding class.
-	 */
-	Class convertPojos(Class nodeType)
-	{
-		if (ProjectData.class.equals(nodeType))
-			return Project.class;
-		else if (DatasetData.class.equals(nodeType))
-			return Dataset.class;
-		else if (ImageData.class.equals(nodeType))
-			return Image.class;
-		else if (BooleanAnnotationData.class.equals(nodeType))
-			return BooleanAnnotation.class;
-		else if (RatingAnnotationData.class.equals(nodeType) ||
-				LongAnnotationData.class.equals(nodeType))
-			return LongAnnotation.class;
-		else if (TagAnnotationData.class.equals(nodeType))
-			return TagAnnotation.class;
-		else if (TextualAnnotationData.class.equals(nodeType))
-			return CommentAnnotation.class;
-		else if (FileAnnotationData.class.equals(nodeType))
-			return FileAnnotation.class;
-		else if (TermAnnotationData.class.equals(nodeType))
-			return TermAnnotation.class;
-		else if (ScreenData.class.equals(nodeType))
-			return Screen.class;
-		else if (PlateData.class.equals(nodeType))
-			return Plate.class;
-		else if (WellData.class.equals(nodeType))
-			return Well.class;
-		else if (WellSampleData.class.equals(nodeType))
-			return WellSample.class;
-		else if (PlateAcquisitionData.class.equals(nodeType))
-			return PlateAcquisition.class;
-		else if (FileData.class.equals(nodeType) ||
-				MultiImageData.class.equals(nodeType))
-			return OriginalFile.class;
-		else if (GroupData.class.equals(nodeType))
-			return ExperimenterGroup.class;
-		else if (ExperimenterData.class.equals(nodeType))
-			return Experimenter.class;
-		else if (DoubleAnnotationData.class.equals(nodeType))
-			return DoubleAnnotation.class;
-		else if (XMLAnnotationData.class.equals(nodeType))
-			return XmlAnnotation.class;
-		else if (FilesetData.class.equals(nodeType))
-			return Fileset.class;
-		else if (MapAnnotationData.class.equals(nodeType))
-			return MapAnnotation.class;
-		throw new IllegalArgumentException("NodeType not supported");
-	}
-
-	/**
 	 * Creates the string corresponding to the object to delete.
 	 *
 	 * @param data The object to handle.
@@ -1763,7 +1695,7 @@ class OMEROGateway
             IContainerPrx service = gw.getPojosService(ctx);
             return PojoMapper.asDataObjects(
                     service.loadContainerHierarchy(
-                            convertPojos(rootType).getName(), rootIDs, options));
+                            PojoMapper.getModelType(rootType).getName(), rootIDs, options));
         } catch (Throwable t) {
             handleException(t, "Cannot load hierarchy for " + rootType+".");
         }
@@ -1799,7 +1731,7 @@ class OMEROGateway
 		try {
 		    IContainerPrx service = gw.getPojosService(ctx);
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
-					convertPojos(rootNodeType).getName(), leavesIDs, options));
+					PojoMapper.getModelType(rootNodeType).getName(), leavesIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find hierarchy for "+rootNodeType+".");
 		}
@@ -1856,7 +1788,7 @@ class OMEROGateway
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
 			return PojoMapper.asDataObjects(
-					service.loadAnnotations(convertPojos(nodeType).getName(),
+					service.loadAnnotations(PojoMapper.getModelType(nodeType).getName(),
 							nodeIDs, types, annotatorIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find annotations for "+nodeType+".");
@@ -1946,7 +1878,7 @@ class OMEROGateway
 		try {
 		    IContainerPrx service = gw.getPojosService(ctx);
 			return PojoMapper.asDataObjects(service.getImages(
-					convertPojos(nodeType).getName(), nodeIDs, options));
+					PojoMapper.getModelType(nodeType).getName(), nodeIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find images for "+nodeType+".");
 		}
@@ -2032,7 +1964,7 @@ class OMEROGateway
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
 			return PojoMapper.asDataObjects(svc.getCollectionCount(
-					convertPojos(rootNodeType).getName(), p, ids, options));
+					PojoMapper.getModelType(rootNodeType).getName(), p, ids, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot count the collection.");
 		}
@@ -4054,7 +3986,7 @@ class OMEROGateway
 		List<Long> failure = new ArrayList<Long>();
 		try {
 		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
-			String klass = convertPojos(rootNodeType).getName();
+			String klass = PojoMapper.getModelType(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
@@ -4097,7 +4029,7 @@ class OMEROGateway
 
 		try {
 		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
-			String klass = convertPojos(rootNodeType).getName();
+			String klass = PojoMapper.getModelType(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			success = service.resetMinMaxInSet(klass, nodes);
 		} catch (Exception e) {
@@ -4141,7 +4073,7 @@ class OMEROGateway
 		List<Long> failure = new ArrayList<Long>();
 		try {
 		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
-			String klass = convertPojos(rootNodeType).getName();
+			String klass = PojoMapper.getModelType(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			success = service.resetDefaultsByOwnerInSet(klass, nodes);
 		} catch (Exception e) {
@@ -4188,7 +4120,7 @@ class OMEROGateway
 		try {
 		    IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 			Map m  = service.applySettingsToSet(pixelsID,
-					convertPojos(rootNodeType).getName(),
+					PojoMapper.getModelType(rootNodeType).getName(),
 					nodes);
 			success = (List) m.get(Boolean.valueOf(true));
 			failure = (List) m.get(Boolean.valueOf(false));
@@ -4334,7 +4266,7 @@ class OMEROGateway
 		    IMetadataPrx service = gw.getMetadataService(ctx);
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
-							convertPojos(type).getName(), toInclude,
+							PojoMapper.getModelType(type).getName(), toInclude,
 							toExclude, options));
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the annotations");
@@ -4364,7 +4296,7 @@ class OMEROGateway
 		try {
 		    IMetadataPrx service = gw.getMetadataService(ctx);
 			RLong value = service.countSpecifiedAnnotations(
-					convertPojos(type).getName(), toInclude,
+					PojoMapper.getModelType(type).getName(), toInclude,
 					toExclude, options);
 			if (value == null) return -1;
 			return value.getValue();
@@ -4810,7 +4742,7 @@ class OMEROGateway
 			List<String> supportedTypes = new ArrayList<String>();
 			i = types.iterator();
 			while (i.hasNext())
-				supportedTypes.add(convertPojos((Class) i.next()).getName());
+				supportedTypes.add(PojoMapper.getModelType((Class) i.next()).getName());
 
 			List rType;
 
@@ -4929,7 +4861,7 @@ class OMEROGateway
 			}
 
 			List<String> t = prepareTextSearch(terms, service);
-			service.onlyType(convertPojos(annotationType).getName());
+			service.onlyType(PojoMapper.getModelType(annotationType).getName());
 			List rType = new ArrayList();
 			//service.bySomeMustNone(fSome, fMust, fNone);
 			service.bySomeMustNone(t, null, null);
@@ -7847,7 +7779,7 @@ class OMEROGateway
 			if (ho instanceof DatasetData) {
 				Iterator<Image> j;
 				List<Image> images = container.getImages(
-						convertPojos(ho).getName(), ids, new Parameters());
+						PojoMapper.getModelType(ho.getClass()).getName(), ids, new Parameters());
 				j = images.iterator();
 				ids.clear();
 				while (j.hasNext()) {
@@ -7975,7 +7907,7 @@ class OMEROGateway
 		    IMetadataPrx service = gw.getMetadataService(ctx);
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
-							nsExclude, convertPojos(rootType).getName(),
+							nsExclude, PojoMapper.getModelType(rootType).getName(),
 							rootIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find annotation of "+annotationType+" " +
@@ -8033,7 +7965,7 @@ class OMEROGateway
 		try {
 		    IContainerPrx service = gw.getPojosService(ctx);
 			Map<String, List<Long>> m = new HashMap<String, List<Long>>();
-			m.put(convertPojos(rootType).getName(),rootIDs);
+			m.put(PojoMapper.getModelType(rootType).getName(),rootIDs);
 			return service.getImagesBySplitFilesets(m, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot find split images.");
@@ -8082,7 +8014,7 @@ class OMEROGateway
         try {
             IMetadataPrx service = gw.getMetadataService(ctx);
             return service.loadLogFiles(
-                            convertPojos(rootType).getName(), rootIDs);
+                            PojoMapper.getModelType(rootType).getName(), rootIDs);
         } catch (Throwable t) {
             handleException(t, "Cannot load log files for " + rootType+".");
         }
