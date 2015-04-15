@@ -373,70 +373,75 @@ class TestSessions(object):
         assert 0 == cli.rv
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseWorks(self, connection):
+    @pytest.mark.parametrize('port', ALL_PORTS)
+    @pytest.mark.parametrize('group', ALL_GROUPS)
+    def testReuseWorks(self, connection, port, group):
         """
-        Test session reattachment without key
+        Test session reuse with the same port/group works
         """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid", {})
-        cli.creates_client(new=False)
-        conn_args = self.get_conn_args(connection)
+        props = {}
+        if port:
+            props["omero.port"] = port
+        if group:
+            props["omero.group"] = group
+
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
+        cli.creates_client(port=str(port), group=group, new=False)
+        conn_args = self.get_conn_args(connection, port=port, group=group)
         cli.invoke(["s", "login"] + conn_args)
         assert cli.get_client() is not None
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromDifferentGroupDoesntWork(self, connection):
+    @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
+    def testReuseFromDifferentGroupDoesntWork(self, connection, group):
         """
-        Test session reattachment without key with different group
+        Test session reuse with different groups fails
         """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid", {})
+        props = {}
+        if group[0]:
+            props["omero.group"] = group[0]
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
         cli.requests_pass()
         cli.assertReqSize(self, 1)
-        cli.creates_client(group="mygroup2")
-        conn_args = self.get_conn_args(connection, group="mygroup2")
+        cli.creates_client(group=group[1])
+        conn_args = self.get_conn_args(connection, group=group[1])
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromSameGroupDoesWork(self, connection):
+    @pytest.mark.parametrize('port', MATCHING_PORTS)
+    def testReuseMatchingPorts(self, connection, port):
         """
-        Test session reattachment without key with same group
+        Test session reuse with matching ports works
         """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid",
-                      {"omero.group": "mygroup"})
+        props = {}
+        if port[0]:
+            props["omero.port"] = port[0]
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
         cli.assertReqSize(self, 0)
-        cli.creates_client(group="mygroup", new=False)
-        conn_args = self.get_conn_args(connection, group="mygroup")
+        cli.creates_client(port=str(port[1]), new=False)
+        conn_args = self.get_conn_args(connection, port=port[1])
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromDifferentPortDoesntWork(self, connection):
+    @pytest.mark.parametrize('port', CONFLICTING_PORTS)
+    def testReuseFromDifferentPortDoesntWork(self, connection, port):
         """
-        Test session reattachment without key with mismatching port
+        Test session reuse with mismatching ports fails
         """
         cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid", {})
+        props = {}
+        if port[0]:
+            props["omero.port"] = port[0]
+        cli.STORE.add("testhost", "testuser", "testsessid", props)
         cli.requests_pass()
         cli.assertReqSize(self, 1)
-        cli.creates_client(port="4444")
-        conn_args = self.get_conn_args(connection, port="4444")
-        cli.invoke(["s", "login"] + conn_args)
-        cli.assertReqSize(self, 0)
-
-    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
-    def testReuseFromSamePortDoesWork(self, connection):
-        """
-        Test session reattachment with matching ports
-        """
-        cli = MyCLI()
-        cli.STORE.add("testhost", "testuser", "testsessid",
-                      {"omero.port": "4444"})
-        cli.assertReqSize(self, 0)
-        cli.creates_client(port="4444", new=False)
-        conn_args = self.get_conn_args(connection, port="4444")
+        cli.creates_client(port=str(port[1]))
+        conn_args = self.get_conn_args(connection, port=port[1])
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
 
@@ -517,7 +522,7 @@ class TestSessions(object):
     @pytest.mark.parametrize('group', ALL_GROUPS)
     def testSessionReattachSameArguments(self, connection, port, group):
         """
-        Test session re-attachment works with the same login arguments
+        Test session re-attachment by key with the same group/port works
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
@@ -561,7 +566,7 @@ class TestSessions(object):
     @pytest.mark.parametrize('group', ALL_GROUPS)
     def testSessionReattachServerMismatch(self, connection, port, group):
         """
-        Test session re-attachment by key with mismatching hostnames
+        Test session re-attachment by key with mismatching hostnames fails
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
@@ -586,7 +591,7 @@ class TestSessions(object):
     def testSessionReattachConflictingPort(
             self, connection, port, group, capsys):
         """
-        Test session re-attachment fails with mismatching ports
+        Test session re-attachment fails with mismatching ports fails
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
@@ -613,7 +618,7 @@ class TestSessions(object):
     @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
     def testSessionReattachDifferentGroup(self, connection, port, group):
         """
-        Test session re-attachment by key with different groups
+        Test session re-attachment by key with different groups works
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
@@ -638,7 +643,7 @@ class TestSessions(object):
                                           capsys):
         """
         Test session re-attachment by key with mismatching ports and different
-        groups
+        groups fails
         """
         cli = MyCLI()
         MOCKKEY = "%s" % uuid.uuid4()
