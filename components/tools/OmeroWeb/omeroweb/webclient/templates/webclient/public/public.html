@@ -246,8 +246,21 @@
                     }
                 })
                 .delegate("a", "dblclick", function(e) {
-                    if ($(this).parent().attr('rel')=='image') {
-                        OME.openPopup("{% url 'web_image_viewer' 0 %}".replace('/0/', "/"+$(this).attr('id').split("-")[1]+"/" ));
+                    var $this = $(this),
+                        obj_rel = $this.parent().attr('rel'),
+                        ob_id = $this.parent().attr('id'),
+                        share_id = $this.parent().attr('data-share'),
+                        popup_url = "{% url 'webindex' %}",
+                        iid;
+                    if ((obj_rel=='image') || (obj_rel=='image-locked')) {
+                        iid = ob_id.split("-")[1];
+                        // Share-id will only be there if share is not owned.
+                        if (share_id) {
+                            popup_url += share_id + "/img_detail/" + iid;
+                        } else {
+                            popup_url += "img_detail/" + iid;
+                        }
+                        OME.openPopup(popup_url);
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
