@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.ImageCanvasListener 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Arrays;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -129,9 +130,12 @@ class ImageCanvasListener
     void installListeners(boolean add)
     {
     	if (add) {
-    		canvas.addMouseListener(this);
-    		canvas.addMouseMotionListener(this);
-    		canvas.addMouseWheelListener(this);
+            // prevent adding the listeners multiple times
+            if (!Arrays.asList(canvas.getMouseListeners()).contains(this)) {
+                canvas.addMouseListener(this);
+                canvas.addMouseMotionListener(this);
+                canvas.addMouseWheelListener(this);
+            }
     	} else {
     		canvas.removeMouseListener(this);
     		canvas.removeMouseMotionListener(this);
