@@ -38,10 +38,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import omero.gateway.SecurityContext;
 
+import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResult;
+import omero.gateway.model.SearchResultCollection;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -73,7 +73,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
     private List<SearchResultTable> tables = new ArrayList<SearchResultTable>();
 
     /** Reference to the search results */
-    private AdvancedSearchResultCollection results;
+    private SearchResultCollection results;
     
     /**
      * Creates a new instance.
@@ -81,7 +81,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      * @param results
      *            The results to display.
      */
-    public AdvancedResultSearchModel(AdvancedSearchResultCollection results) {
+    public AdvancedResultSearchModel(SearchResultCollection results) {
 
         super(null);
         if (results == null)
@@ -259,7 +259,7 @@ public class AdvancedResultSearchModel extends DataBrowserModel {
      * @return
      */
     public boolean isIdMatch(Class<? extends DataObject> type, long id) {
-        for (AdvancedSearchResult r : results) {
+        for (SearchResult r : results) {
             if (r.isIdMatch() && r.getObjectId() == id
                     && r.getType().equals(type))
                 return true;

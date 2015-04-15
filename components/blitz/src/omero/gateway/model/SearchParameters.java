@@ -20,14 +20,14 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.util;
+package omero.gateway.model;
 
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 
-import org.openmicroscopy.shoola.util.CommonsLangUtils;
-
+import omero.util.CommonsLangUtils;
 import pojos.DataObject;
 
 
@@ -42,32 +42,32 @@ public class SearchParameters
     /** Indicates that the date has to be interpreted as acquisition date*/
     public static final int DATE_ACQUISITION = 1;
 
-	/** Identifying the <code>Annotation</code> context. */
-	public static final int			TEXT_ANNOTATION = 0;
-	
-	/** Identifying the <code>Tag</code> context. */
-	public static final int			TAGS = 1;
-	
-	/** Identifying the <code>Name</code> context. */
-	public static final int			NAME = 2;
-	
-	/** Identifying the <code>File annotation</code> context. */
-	public static final int			FILE_ANNOTATION = 3;
-	
-	/** Identifying the <code>URL annotation</code> context. */
-	public static final int			URL_ANNOTATION = 4;
-	
-	/** Identifying the <code>Description</code> context. */
-	public static final int			DESCRIPTION = 5;
-	
-	/** Identifying the <code>Time</code> context. */
-	public static final int			TIME = 6;
-	
-	/** Identifying the <code>Name</code> context. */
-	public static final int			CUSTOMIZED = 7;
-	
-	/** Identifying the <code>Annotation</code> context. */
-        public static final int                 ANNOTATION = 8;
+//	/** Identifying the <code>Annotation</code> context. */
+//	public static final int			TEXT_ANNOTATION = 0;
+//	
+//	/** Identifying the <code>Tag</code> context. */
+//	public static final int			TAGS = 1;
+//	
+//	/** Identifying the <code>Name</code> context. */
+//	public static final int			NAME = 2;
+//	
+//	/** Identifying the <code>File annotation</code> context. */
+//	public static final int			FILE_ANNOTATION = 3;
+//	
+//	/** Identifying the <code>URL annotation</code> context. */
+//	public static final int			URL_ANNOTATION = 4;
+//	
+//	/** Identifying the <code>Description</code> context. */
+//	public static final int			DESCRIPTION = 5;
+//	
+//	/** Identifying the <code>Time</code> context. */
+//	public static final int			TIME = 6;
+//	
+//	/** Identifying the <code>Name</code> context. */
+//	public static final int			CUSTOMIZED = 7;
+//	
+//	/** Identifying the <code>Annotation</code> context. */
+//        public static final int                 ANNOTATION = 8;
 	
 	/** The lower bound of the time interval. */
 	private Timestamp 				start;
@@ -78,7 +78,7 @@ public class SearchParameters
 	private int dateType = -1;
 	
 	/** The scope of the search. Mustn't not be <code>null</code>. */
-	private List<Integer>			scope;
+	private Set<SearchScope>			scope;
 	
 	/** The types to search on. */
 	private List<Class<? extends DataObject>>	types;
@@ -103,7 +103,7 @@ public class SearchParameters
 	 * @param none	None of these terms may be present in the document. 
 	 * 				May be <code>null</code>.
 	 */
-	public SearchParameters(List<Integer> scope, List<Class<? extends DataObject>> types, String query)
+	public SearchParameters(Set<SearchScope> scope, List<Class<? extends DataObject>> types, String query)
 	{
 		this.query = query;
 		this.scope = scope;
@@ -142,7 +142,7 @@ public class SearchParameters
 	 * 
 	 * @return See above.
 	 */
-	public List<Integer> getScope() { return scope; }
+	public Set<SearchScope> getScope() { return scope; }
 	
 	/** 
 	 * Returns the types to search on.

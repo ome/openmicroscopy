@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package org.openmicroscopy.shoola.env.data.util;
+package omero.gateway.model;
 
 import pojos.DataObject;
 
@@ -26,14 +26,14 @@ import pojos.DataObject;
  * (name, description, etc.) it was found with.
  * 
  * Multiple search results are supposed to be held in an
- * {@link AdvancedSearchResultCollection}
+ * {@link SearchResultCollection}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * 
  * @since 5.0
  */
-public class AdvancedSearchResult {
+public class SearchResult {
 
     /** The scope (name, description, ...), see {@link SearchDataContext} */
     private int scopeId;
@@ -56,7 +56,7 @@ public class AdvancedSearchResult {
     /**
      * Create a new instance
      */
-    public AdvancedSearchResult() {
+    public SearchResult() {
     }
 
     /**
@@ -69,7 +69,7 @@ public class AdvancedSearchResult {
      * @param objectId
      *            Id of the found object
      */
-    public AdvancedSearchResult(int scopeId, Class<? extends DataObject> type,
+    public SearchResult(int scopeId, Class<? extends DataObject> type,
             long objectId, long groupId) {
         this.scopeId = scopeId;
         this.type = type;

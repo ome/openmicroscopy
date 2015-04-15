@@ -38,12 +38,16 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
+
 import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -116,7 +120,7 @@ public class DataBrowserFactory
          * @param result The value to set.
          * @return See above.
          */
-        public static final DataBrowser getSearchBrowser(AdvancedSearchResultCollection results)
+        public static final DataBrowser getSearchBrowser(SearchResultCollection results)
         {
                 return singleton.createSearchDataBrowser(results);
         }
@@ -678,7 +682,7 @@ public class DataBrowserFactory
          * @param result The result of the search.
          * @return See above.
          */
-        private DataBrowser createSearchDataBrowser(AdvancedSearchResultCollection result)
+        private DataBrowser createSearchDataBrowser(SearchResultCollection result)
         {
                 DataBrowserModel model = new AdvancedResultSearchModel(result);
                 DataBrowserComponent comp = new DataBrowserComponent(model);

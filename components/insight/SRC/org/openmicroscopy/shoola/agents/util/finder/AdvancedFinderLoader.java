@@ -25,12 +25,16 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Java imports
 import java.util.Collections;
 
+
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
+
 import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+import omero.gateway.model.SearchParameters;
+
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -115,7 +119,7 @@ public class AdvancedFinderLoader
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
-        viewer.setResult((AdvancedSearchResultCollection) result);
+        viewer.setResult((SearchResultCollection) result);
     }
 
 
