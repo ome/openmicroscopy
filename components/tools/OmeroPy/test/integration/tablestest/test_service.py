@@ -103,6 +103,7 @@ class TestTables(lib.ITest):
         next = data.columns[0].values[0]
         assert prev != next
         assert next == 100
+        table.delete()
 
     def testTicket2175(self):
         assert self.client.sf.sharedResources().areTablesEnabled()
@@ -120,6 +121,7 @@ class TestTables(lib.ITest):
         data = table.readCoordinates([0, 1])
 
         self.checkMaskCol(data.columns[0])
+        table.delete()
 
     @pytest.mark.broken(ticket="11534")
     def test2098(self):
@@ -211,6 +213,7 @@ class TestTables(lib.ITest):
                 table.setMetadata("z", rint(None))
 
         finally:
+            table.delete()
             table.close()
 
     def test2910(self):
@@ -246,7 +249,6 @@ class TestTables(lib.ITest):
         with pytest.raises(omero.SecurityViolation):
             table.setAllMetadata({})
 
-    @pytest.mark.broken(ticket="11610")
     def testDelete(self):
         group = self.new_group(perms="rwr---")
         user1 = self.new_client(group)
@@ -273,6 +275,7 @@ class TestTables(lib.ITest):
         table.addData([lc])
         assert [0] == table.getWhereList(
             '(lc==var)', {"var": rlong(1)}, 0, 0, 0)
+        table.delete()
 
     def test4000TableRead(self):
         """
@@ -287,6 +290,7 @@ class TestTables(lib.ITest):
         table.initialize([lc])
         table.addData([lc])
         assert [123] == table.read([0], 0, 0).columns[0].values
+        table.delete()
 
     def testCallContext(self):
         """
@@ -334,6 +338,7 @@ class TestTables(lib.ITest):
         assert (h[1].name, h[1].description) == ('scalar', 'scalar desc')
         assert (h[2].name, h[2].description, h[2].size) == (
             'array', 'array desc', 3)
+        table.delete()
 
     def test10049openTableUnreadable(self):
         """
@@ -377,6 +382,7 @@ class TestTables(lib.ITest):
         scol.values = ['abcd']
         with pytest.raises(omero.ValidationException):
             table.addData([scol])
+        table.delete()
 
     def testArrayColumn(self):
         """
@@ -397,6 +403,7 @@ class TestTables(lib.ITest):
         testl = data.columns[0].values
         assert [-2, -1] == testl[0]
         assert [1, 2] == testl[1]
+        table.delete()
 
     def testArrayColumnSize1(self):
         """
@@ -417,6 +424,7 @@ class TestTables(lib.ITest):
         testl = data.columns[0].values
         assert [0.5] == testl[0]
         assert [0.25] == testl[1]
+        table.delete()
 
     def testAllColumnsSameTable(self):
         """
@@ -571,6 +579,7 @@ class TestTables(lib.ITest):
 
         table = grid.openTable(omero.model.OriginalFileI(tid))
         assert table
+        table.delete()
         table.close()
 
     @pytest.mark.parametrize('data', (
