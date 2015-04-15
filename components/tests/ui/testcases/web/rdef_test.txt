@@ -161,6 +161,7 @@ Test Owners Rdef
 
     # Log in as Root - go to user's Image
     User "${ROOT USERNAME}" logs in with password "${ROOT PASSWORD}"
+    Maximize Browser Window
     Go To                                   ${WELCOME URL}?show=image-${imageId}
     Wait For Image Panel
     Click Link                              Preview
