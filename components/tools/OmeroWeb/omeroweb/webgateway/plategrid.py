@@ -38,7 +38,7 @@ class PlateGrid(object):
         if self._metadata is None:
             self.plate.setGridSizeConstraints(8, 12)
             size = self.plate.getGridSize()
-            grid = [[None] * size['columns']] * size['rows']
+            grid = [[None] * size['columns'] for _ in range(size['rows'])]
 
             q = self._conn.getQueryService()
             params = omero.sys.Parameters()
