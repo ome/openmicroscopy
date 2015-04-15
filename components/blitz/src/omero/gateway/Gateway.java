@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +59,7 @@ import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.Facility;
 import omero.gateway.util.NetworkChecker;
 import omero.grid.ProcessCallbackI;
 import omero.grid.ScriptProcessPrx;
@@ -206,6 +208,11 @@ public class Gateway {
         return serverVersion;
     }
 
+    public <T extends Facility> T getFacility(Class<T> type)
+            throws ExecutionException {
+        return Facility.getFacility(type, this);
+    }
+    
     // General public methods
     
     /**
@@ -260,6 +267,10 @@ public class Gateway {
         return new ProcessCallbackI(c.getClient(), prx);
     }
      
+    public Logger getLogger() {
+        return log;
+    }
+    
     // Public service access methods
 
     /**

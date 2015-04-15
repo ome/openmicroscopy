@@ -419,7 +419,7 @@ public class PojoMapper
      */
     @SuppressWarnings("rawtypes")
     public static Class<? extends IObject> getModelType(Class pojo) {
-        if (!DataObject.class.isAssignableFrom(pojo.getClass()))
+        if (!DataObject.class.isAssignableFrom(pojo))
             throw new IllegalArgumentException(pojo.getSimpleName()+" is not a DataObject");
 
         if (FileData.class.equals(pojo) || MultiImageData.class.equals(pojo))
