@@ -4471,13 +4471,25 @@ class EditorModel
     }
     
     /**
-     * Returns <code>true</code> if the file is an inplace import <code>false</code> otherwise.
+     * Returns the {@link ImportType}
      * @return See above.
      */
-    boolean isInplaceImport() {
-    	StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return false;
-    	return CollectionUtils.isNotEmpty(data.getTransferLinks());
+    ImportType getImportType() {
+        StructuredDataResults data = parent.getStructuredData();
+        if (data != null) {
+            Collection<AnnotationData> tfl = data.getTransferLinks();
+            if (tfl != null) {
+                for (AnnotationData an : tfl) {
+                    if (AnnotationData.FILE_TRANSFER_NS.equals(an
+                            .getNameSpace())) {
+                        String content = an.getContent().toString();
+                        return ImportType.getImportType(content);
+                    }
+                }
+            }
+        }
+        // if nothing's specified it's the default UPLOAD import type
+        return ImportType.UPLOAD;
     }
 
     /**
