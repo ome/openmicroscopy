@@ -40,6 +40,9 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 
+
+
+
 //Application-internal dependencies
 import omero.RString;
 import omero.model.Annotation;
@@ -62,6 +65,7 @@ import omero.model.LongAnnotation;
 import omero.model.MapAnnotation;
 import omero.model.MapAnnotationI;
 import omero.model.Namespace;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
@@ -89,11 +93,13 @@ import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FileData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
+import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -405,6 +411,68 @@ public class PojoMapper
     }
     
     /**
+     * Converts the specified POJO into the corresponding model.
+     *
+     * @param pojo
+     *            The POJO class.
+     * @return The corresponding class.
+     */
+    @SuppressWarnings("rawtypes")
+    public static Class<? extends IObject> getModelType(Class pojo) {
+        if (!DataObject.class.isAssignableFrom(pojo.getClass()))
+            throw new IllegalArgumentException(pojo.getSimpleName()+" is not a DataObject");
+
+        if (FileData.class.equals(pojo) || MultiImageData.class.equals(pojo))
+            return OriginalFile.class;
+        else if (ProjectData.class.equals(pojo))
+            return Project.class;
+        else if (DatasetData.class.equals(pojo))
+            return Dataset.class;
+        else if (ImageData.class.equals(pojo))
+            return Image.class;
+        else if (BooleanAnnotationData.class.equals(pojo))
+            return BooleanAnnotation.class;
+        else if (RatingAnnotationData.class.equals(pojo)
+                || LongAnnotationData.class.equals(pojo))
+            return LongAnnotation.class;
+        else if (TagAnnotationData.class.equals(pojo))
+            return TagAnnotation.class;
+        else if (TextualAnnotationData.class.equals(pojo))
+            return CommentAnnotation.class;
+        else if (FileAnnotationData.class.equals(pojo))
+            return FileAnnotation.class;
+        else if (TermAnnotationData.class.equals(pojo))
+            return TermAnnotation.class;
+        else if (ScreenData.class.equals(pojo))
+            return Screen.class;
+        else if (PlateData.class.equals(pojo))
+            return Plate.class;
+        else if (WellData.class.equals(pojo))
+            return Well.class;
+        else if (WellSampleData.class.equals(pojo))
+            return WellSample.class;
+        else if (PlateAcquisitionData.class.equals(pojo))
+            return PlateAcquisition.class;
+        else if (FileData.class.equals(pojo)
+                || MultiImageData.class.equals(pojo))
+            return OriginalFile.class;
+        else if (GroupData.class.equals(pojo))
+            return ExperimenterGroup.class;
+        else if (ExperimenterData.class.equals(pojo))
+            return Experimenter.class;
+        else if (DoubleAnnotationData.class.equals(pojo))
+            return DoubleAnnotation.class;
+        else if (XMLAnnotationData.class.equals(pojo))
+            return XmlAnnotation.class;
+        else if (FilesetData.class.equals(pojo))
+            return Fileset.class;
+        else if (MapAnnotationData.class.equals(pojo))
+            return MapAnnotation.class;
+        
+        throw new IllegalArgumentException("NodeType not supported");
+    }
+    
+    /**
      * Returns the name of the data type which has to used for Graph actions,
      * see {@link Requests}
      * 
@@ -483,7 +551,7 @@ public class PojoMapper
                     return CommentAnnotationI.class.getName();
             else if (nodeType.equals(MapAnnotation.class) ||
                     nodeType.equals(MapAnnotationData.class))
-            return MapAnnotationI.class.getName();
+                    return MapAnnotationI.class.getName();
             else if (nodeType.equals(TimestampAnnotation.class) ||
                             nodeType.equals(TimeAnnotationData.class))
                     return TimestampAnnotationI.class.getName();

@@ -598,7 +598,7 @@ class OmeroMetadataServiceImpl
 			AnnotationData annotation)
 		throws DSOutOfServiceException, DSAccessException
 	{			
-		String ioType = gateway.convertPojos(data).getName();
+		String ioType = PojoMapper.getModelType(data.getClass()).getName();
 		IObject ho = gateway.findIObject(ctx, ioType, data.getId());
 		if (ho == null) return;
 		ModelMapper.unloadCollections(ho);
@@ -692,7 +692,7 @@ class OmeroMetadataServiceImpl
 		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(TagAnnotationData.class).getName();
 			TagAnnotation ho = (TagAnnotation) gateway.findIObject(ctx, ioType,
 					id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
@@ -702,7 +702,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof TermAnnotationData && ann.isDirty()) {
 			TermAnnotationData tag = (TermAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(TermAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(TermAnnotationData.class).getName();
 			TermAnnotation ho = (TermAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setTermValue(omero.rtypes.rstring(tag.getTerm()));
@@ -712,7 +712,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof XMLAnnotationData && ann.isDirty()) {
 			XMLAnnotationData tag = (XMLAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(XMLAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(XMLAnnotationData.class).getName();
 			XmlAnnotation ho = (XmlAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getText()));
@@ -722,7 +722,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof LongAnnotationData && ann.isDirty()) {
 			LongAnnotationData tag = (LongAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(LongAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(LongAnnotationData.class).getName();
 			LongAnnotation ho = (LongAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setLongValue(omero.rtypes.rlong(tag.getDataValue()));
@@ -731,7 +731,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof DoubleAnnotationData && ann.isDirty()) {
 			DoubleAnnotationData tag = (DoubleAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(DoubleAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(DoubleAnnotationData.class).getName();
 			DoubleAnnotation ho = (DoubleAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setDoubleValue(omero.rtypes.rdouble(tag.getDataValue()));
@@ -740,7 +740,7 @@ class OmeroMetadataServiceImpl
 		} else if (ann instanceof BooleanAnnotationData && ann.isDirty()) {
 			BooleanAnnotationData tag = (BooleanAnnotationData) ann;
 			id = tag.getId();
-			ioType = gateway.convertPojos(BooleanAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(BooleanAnnotationData.class).getName();
 			BooleanAnnotation ho = (BooleanAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			ho.setBoolValue(omero.rtypes.rbool(tag.getValue()));
@@ -750,7 +750,7 @@ class OmeroMetadataServiceImpl
 		else if (ann instanceof MapAnnotationData && ann.isDirty()) {
 			MapAnnotationData map = (MapAnnotationData) ann;
 			id = map.getId();
-			ioType = gateway.convertPojos(MapAnnotationData.class).getName();
+			ioType = PojoMapper.getModelType(MapAnnotationData.class).getName();
 			MapAnnotation m = (MapAnnotation) gateway.findIObject(ctx,
 					ioType, id);
 			m.setMapValue((List<NamedValue>) map.getContent());
@@ -1176,7 +1176,7 @@ class OmeroMetadataServiceImpl
 	{
 		if (annotation == null)
 			throw new IllegalArgumentException("DataObject cannot be null");
-		String ioType = gateway.convertPojos(type).getName();
+		String ioType = PojoMapper.getModelType(type).getName();
 		IObject ho = gateway.findIObject(ctx, ioType, id);
 		ModelMapper.unloadCollections(ho);
 		IObject link = null;
@@ -1279,7 +1279,7 @@ class OmeroMetadataServiceImpl
 			} 
 		}
 		List l = null;
-		String klass = gateway.convertPojos(type).getName();
+		String klass = PojoMapper.getModelType(type).getName();
 		if (ids.size() != 0)
 			l = gateway.findAnnotationLinks(ctx, klass, id, ids);
 		if (l != null) {
