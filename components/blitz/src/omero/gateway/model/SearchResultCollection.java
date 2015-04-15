@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package org.openmicroscopy.shoola.env.data.util;
+package omero.gateway.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.util.Map;
 import pojos.DataObject;
 
 /**
- * Holds the results of a search; a collection of {@link AdvancedSearchResult}s
+ * Holds the results of a search; a collection of {@link SearchResult}s
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
@@ -36,8 +36,8 @@ import pojos.DataObject;
  * @since 5.0
  * 
  */
-public class AdvancedSearchResultCollection extends
-        ArrayList<AdvancedSearchResult> {
+public class SearchResultCollection extends
+        ArrayList<SearchResult> {
 
     /** No error */
     public static final int NO_ERROR = 0;
@@ -83,12 +83,12 @@ public class AdvancedSearchResultCollection extends
 
     @Override
     public boolean contains(Object o) {
-        if (!(o instanceof AdvancedSearchResult))
+        if (!(o instanceof SearchResult))
             return false;
 
-        AdvancedSearchResult a = (AdvancedSearchResult) o;
+        SearchResult a = (SearchResult) o;
 
-        for (AdvancedSearchResult b : this) {
+        for (SearchResult b : this) {
             if (b.getType().equals(a.getType())
                     && b.getObjectId() == a.getObjectId())
                 return true;
@@ -112,10 +112,10 @@ public class AdvancedSearchResultCollection extends
      *            The type to filter for, see {@link DataObject}
      * @return
      */
-    public List<AdvancedSearchResult> getResults(int scopeId,
+    public List<SearchResult> getResults(int scopeId,
             Class<? extends DataObject> type) {
-        List<AdvancedSearchResult> result = new ArrayList<AdvancedSearchResult>();
-        for (AdvancedSearchResult r : this) {
+        List<SearchResult> result = new ArrayList<SearchResult>();
+        for (SearchResult r : this) {
             if (scopeId < 0 && r.getScopeId() != scopeId) {
                 continue;
             }
@@ -137,7 +137,7 @@ public class AdvancedSearchResultCollection extends
     public List<DataObject> getDataObjects(int scopeId,
             Class<? extends DataObject> type) {
         List<DataObject> result = new ArrayList<DataObject>();
-        for (AdvancedSearchResult r : this) {
+        for (SearchResult r : this) {
             if (scopeId >= 0 && r.getScopeId() != scopeId) {
                 continue;
             }
@@ -154,7 +154,7 @@ public class AdvancedSearchResultCollection extends
      * 
      * @return
      */
-    public Map<Long, List<AdvancedSearchResult>> getByGroup() {
+    public Map<Long, List<SearchResult>> getByGroup() {
         return getByGroup(null);
     }
 
@@ -164,13 +164,13 @@ public class AdvancedSearchResultCollection extends
      * @param type
      * @return
      */
-    public Map<Long, List<AdvancedSearchResult>> getByGroup(
+    public Map<Long, List<SearchResult>> getByGroup(
             Class<? extends DataObject> type) {
-        Map<Long, List<AdvancedSearchResult>> result = new HashMap<Long, List<AdvancedSearchResult>>();
-        for (AdvancedSearchResult r : this) {
-            List<AdvancedSearchResult> list = result.get(r.getGroupId());
+        Map<Long, List<SearchResult>> result = new HashMap<Long, List<SearchResult>>();
+        for (SearchResult r : this) {
+            List<SearchResult> list = result.get(r.getGroupId());
             if (list == null) {
-                list = new ArrayList<AdvancedSearchResult>();
+                list = new ArrayList<SearchResult>();
                 result.put(r.getGroupId(), list);
             }
             if (type == null || (r.getType().equals(type)))
@@ -183,9 +183,9 @@ public class AdvancedSearchResultCollection extends
      * Removes results which DataObjects are not set
      */
     public void consolidate() {
-        Iterator<AdvancedSearchResult> it = this.iterator();
+        Iterator<SearchResult> it = this.iterator();
         while (it.hasNext()) {
-            AdvancedSearchResult r = it.next();
+            SearchResult r = it.next();
             if (r.getObject() == null)
                 it.remove();
         }
@@ -194,7 +194,7 @@ public class AdvancedSearchResultCollection extends
     @Override
     public String toString() {
         String s = "AdvancedSearchResultCollection [error=" + error + "]:\n";
-        for (AdvancedSearchResult r : this) {
+        for (SearchResult r : this) {
             s += r.toString() + "\n";
         }
         return s;

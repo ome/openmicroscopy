@@ -28,9 +28,10 @@ import java.util.Collection;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
 
 /** 
  * Interface that every finder should implement
@@ -88,7 +89,7 @@ public interface Finder
 	 * @param ctx The security context.
 	 * @param result The value to set.
 	 */
-	public void setResult(AdvancedSearchResultCollection result);
+	public void setResult(SearchResultCollection result);
 
 	/** 
 	 * Sets the collection of tags. 

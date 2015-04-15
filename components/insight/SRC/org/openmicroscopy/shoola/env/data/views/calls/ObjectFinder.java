@@ -31,8 +31,10 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
+
 import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchParameters;
+
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
