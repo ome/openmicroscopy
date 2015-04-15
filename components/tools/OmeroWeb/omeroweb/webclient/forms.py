@@ -54,13 +54,13 @@ help_button = "%swebgateway/img/help16.png" % settings.STATIC_URL
 help_wiki = (
     '<span id="markup" data-content="Markups - <small>If you\'d like to'
     ' include URL please type:'
-    '<br/><b>http://www.openmicroscopy.org.uk/</b></small>">'
+    '<br/><b>http://www.openmicroscopy.org/</b></small>">'
     '<img src="%s" /></span>') % help_button
 
 help_wiki_c = (
     '<span id="markup_c" data-content="Markups - <small>If you\'d like to'
     ' include URL please type:'
-    '<br/><b>http://www.openmicroscopy.org.uk/</b></small>">'
+    '<br/><b>http://www.openmicroscopy.org/</b></small>">'
     '<img src="%s" /></span>') % help_button
 
 help_enable = (
