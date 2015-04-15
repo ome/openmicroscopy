@@ -46,6 +46,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
@@ -77,6 +78,7 @@ import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.facility.BrowseFacility;
 import omero.gateway.util.Requests;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -1692,13 +1694,12 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 	    try {
-            IContainerPrx service = gw.getPojosService(ctx);
-            return PojoMapper.asDataObjects(
-                    service.loadContainerHierarchy(
-                            PojoMapper.getModelType(rootType).getName(), rootIDs, options));
-        } catch (Throwable t) {
-            handleException(t, "Cannot load hierarchy for " + rootType+".");
+            BrowseFacility f = gw.getFacility(BrowseFacility.class);
+            return f.loadHierarchy(ctx, rootType, rootIDs, options);
+        } catch (ExecutionException e) {
+            log("Can't get a BrowseFacility");
         }
+
         return new HashSet();
 	}
 
