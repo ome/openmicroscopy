@@ -344,7 +344,7 @@ class SessionsControl(BaseControl):
                                  False, set_current=False)
             else:
                 rv = self.check_and_attach(store, server, stored_name,
-                                           args.key, props)
+                                           args.key, props, check_group=False)
             action = "Joined"
             if not rv:
                 if port:
@@ -355,7 +355,8 @@ class SessionsControl(BaseControl):
         elif not create:
             available = store.available(server, name)
             for uuid in available:
-                rv = self.check_and_attach(store, server, name, uuid, props)
+                rv = self.check_and_attach(store, server, name, uuid, props,
+                                           check_group=True)
                 action = "Reconnected to"
 
         if not rv:
@@ -401,7 +402,8 @@ class SessionsControl(BaseControl):
 
         return self.handle(rv, action)
 
-    def check_and_attach(self, store, server, name, uuid, props):
+    def check_and_attach(self, store, server, name, uuid, props,
+                         check_group=False):
         """
         Checks for conflicts in the settings for this session,
         and if there are none, then attempts an "attach()". If
@@ -411,7 +413,8 @@ class SessionsControl(BaseControl):
         exists = store.exists(server, name, uuid)
 
         if exists:
-            conflicts = store.conflicts(server, name, uuid, props)
+            conflicts = store.conflicts(server, name, uuid, props,
+                                        check_group=check_group)
             if conflicts:
                 self.ctx.err(
                     "Failed to join session %s due to property conflicts: %s"
