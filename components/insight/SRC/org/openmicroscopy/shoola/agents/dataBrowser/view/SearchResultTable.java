@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import omero.gateway.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -62,7 +61,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /**
- * A table for displaying a {@link AdvancedSearchResultCollection}
+ * A table for displaying a {@link SearchResultCollection}
  * 
  * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>

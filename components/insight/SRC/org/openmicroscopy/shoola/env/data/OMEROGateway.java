@@ -29,20 +29,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -65,20 +61,20 @@ import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResult;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
 import pojos.util.PojoMapper;
 
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchParameters;
 
 import omero.gateway.Gateway;
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.facility.BrowseFacility;
+import omero.gateway.facility.SearchFacility;
+import omero.gateway.model.SearchResultCollection;
+import omero.gateway.model.SearchParameters;
 import omero.gateway.util.Requests;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
@@ -102,7 +98,6 @@ import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
-import ome.util.search.LuceneQueryBuilder;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.ChecksumValidationException;
@@ -117,7 +112,6 @@ import omero.SecurityViolation;
 import omero.ServerError;
 import omero.SessionException;
 import omero.ValidationException;
-import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
@@ -156,21 +150,17 @@ import omero.grid.ProcessCallbackI;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RoiColumn;
-import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.grid.WellColumn;
 import omero.model.Annotation;
-import omero.model.BooleanAnnotation;
 import omero.model.ChecksumAlgorithm;
 import omero.model.ChecksumAlgorithmI;
-import omero.model.CommentAnnotation;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
-import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -185,8 +175,6 @@ import omero.model.Instrument;
 import omero.model.Laser;
 import omero.model.Line;
 import omero.model.LogicalChannel;
-import omero.model.LongAnnotation;
-import omero.model.MapAnnotation;
 import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -209,11 +197,9 @@ import omero.model.ScreenI;
 import omero.model.Shape;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.model.TermAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
-import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.Roles;
@@ -222,7 +208,6 @@ import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -234,7 +219,6 @@ import pojos.InstrumentData;
 import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.MapAnnotationData;
-import pojos.MultiImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
@@ -251,7 +235,6 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
-import pojos.XMLAnnotationData;
 
 /**
  * Unified access point to the various <i>OMERO</i> services.
@@ -2966,29 +2949,27 @@ class OMEROGateway
         return data;
     }
     
-	/**
-	 * Retrieves an updated version of the specified object.
-	 *
-	 * @param ctx The security context.
-	 * @param o The object to retrieve.
-	 * @return The last version of the object.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to
-	 * retrieve data from OMERO service.
-	 */
-	IObject findIObject(SecurityContext ctx, IObject o)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (o == null) return null;
-		try {
-		    IQueryPrx service = gw.getQueryService(ctx);
-			return service.find(o.getClass().getName(), o.getId().getValue());
-		} catch (Throwable t) {
-			handleException(t, "Cannot retrieve the requested object with "+
-					"object ID: "+o.getId());
-		}
-		return null;
-	}
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx The security context.
+     * @param o The object to retrieve.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    IObject findIObject(SecurityContext ctx, IObject o)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        try {
+            BrowseFacility browse = gw.getFacility(BrowseFacility.class);
+            return browse.findIObject(ctx,o);
+        } catch (ExecutionException e) {
+            log("Can't get a BrowseFacility");
+        }
+        return null;
+    }
 
 	/**
 	 * Retrieves an updated version of the specified object.
@@ -3084,19 +3065,10 @@ class OMEROGateway
                 throws DSOutOfServiceException, DSAccessException
         {
                 try {
-                    Map<String, String> m = new HashMap<String, String>();
-                    if(allGroups) {
-                        m.put("omero.group", "-1");
-                    }
-                    else {
-                        m.put("omero.group", ""+ctx.getGroupID());
-                    }
-                    
-                    IQueryPrx service = gw.getQueryService(ctx);
-                        return service.find(klassName, id, m);
-                } catch (Throwable t) {
-                        handleException(t, "Cannot retrieve the requested object with "+
-                                        "object ID: "+id);
+                    BrowseFacility browse = gw.getFacility(BrowseFacility.class);
+                    return browse.findIObject(ctx, klassName, id, allGroups);
+                } catch (ExecutionException e) {
+                    log("Can't get a BrowseFacility");
                 }
                 return null;
         }
@@ -4464,189 +4436,32 @@ class OMEROGateway
 		return new HashSet();
 	}
 
-	
-	/**
-         * Searches for data.
-         *
-         * @param ctx The security context.
-         * @param context The context of search 
-         *         (if context.groupId == -1 the scope of the search will be all groups, otherwise
-         *          the scope of the search will be the group set in the security context)
-         * @return The found objects.
-         * @throws DSOutOfServiceException  If the connection is broken, or logged
-         *                                  in.
-         * @throws DSAccessException        If an error occurred while trying to
-         *                                  retrieve data from OMEDS service.
-         */
-	AdvancedSearchResultCollection search(SecurityContext ctx, SearchParameters context)
-                throws DSOutOfServiceException, DSAccessException {
-    
-	    AdvancedSearchResultCollection result = new AdvancedSearchResultCollection();
-    
-	    if(context.getTypes().isEmpty()) {
-	        return result;
-	    }
-	    
-           
-            SearchPrx service = null;
-            service = gw.getSearchService(ctx);
-            
-            int batchSize = context.getTypes().size()==1 ? 1000 : context.getTypes().size()*500;
-            
-            // if search for Plates automatically include Plate Runs
-            if(context.getTypes().contains(PlateData.class))
-                context.getTypes().add(PlateAcquisitionData.class);
-            
-            for (Class<? extends DataObject> type : context.getTypes()) {
-                try {
-                    // set general parameters
-                    service.clearQueries();
-                    service.setAllowLeadingWildcard(true);
-                    service.setCaseSentivice(false);
-                    String searchForClass = PojoMapper.convertTypeForSearch(type);
-                    service.onlyType(searchForClass);
-                    service.setBatchSize(batchSize);
-    
-                    // set the owner/group restriction
-                    if(context.getUserId()>=0) {
-                        Details ownerRestriction = new DetailsI();
-                        Experimenter exp = (Experimenter) findIObject(ctx, Experimenter.class.getName(), context.getUserId());
-                        ownerRestriction.setOwner(exp);
-//                        ExperimenterGroup group = (ExperimenterGroup) findIObject(ctx, ExperimenterGroup.class.getName(), ctx.getGroupID());
-//                        ownerRestriction.setGroup(group);
-                        service.onlyOwnedBy(ownerRestriction);
-                    }
-                    
-                    // set time
-                    Date from = null;
-                    Date to = null;
-                    String dateType = null;
-                    if(context.getDateType()!=-1) {
-                           Timestamp start = context.getStart();
-                           Timestamp end = context.getEnd();
-                           from = start!=null ? new Date(start.getTime()) : null;
-                           to = end!=null ? new Date(end.getTime()) : null;
-                           if(context.getDateType()==SearchParameters.DATE_ACQUISITION)
-                               dateType = LuceneQueryBuilder.DATE_ACQUISITION;
-                           else 
-                               dateType = LuceneQueryBuilder.DATE_IMPORT;
-                    }
-                    
-                    Map<String, String> m = new HashMap<String, String>();
-                    if(context.getGroupId()==SearchParameters.ALL_GROUPS_ID) {
-                        m.put("omero.group", "-1");
-                    }
-                    else {
-                        m.put("omero.group", ""+ctx.getGroupID());
-                    }
-                    
-                    DateFormat df = new SimpleDateFormat("yyyyMMdd");
-                    String fields = resolveScopeIdsAsString(context.getScope());
-                    String dFrom = from != null ? df.format(from) : null;
-                    String dTo = to != null ? df.format(to) : null;
-                    try {
-                        service.byLuceneQueryBuilder(fields, dFrom, dTo, dateType,
-                                context.getQuery(), m);
-                    } catch (ApiUsageException e) {
-                        result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
-                        return result;
-                    }
-                    
-                    try {
-                        if (service.hasNext(m)) {
-                            List<IObject> l = service.results(m);
-                            Iterator<IObject> k = l.iterator();
-                            IObject object;
-                            while (k.hasNext()) {
-                                object = k.next();
-                                if (searchForClass.equals(object.getClass()
-                                        .getName())) {
-                                    AdvancedSearchResult sr = new AdvancedSearchResult();
-                                    sr.setObject(PojoMapper.asDataObject(object));
-                                    if (!result.contains(sr))
-                                        result.add(sr);
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        if (e instanceof InternalException) {
-                            if(e.toString().contains("TooManyClauses")) 
-                                result.setError(AdvancedSearchResultCollection.TOO_MANY_CLAUSES);
-                            else
-                                result.setError(AdvancedSearchResultCollection.GENERAL_ERROR);
-                        }
-                        else {
-                            result.setError(AdvancedSearchResultCollection.TOO_MANY_RESULTS_ERROR);
-                        }
-                        
-                        gw.closeService(ctx, service);
-    
-                        return result;
-                    }
-    
-                    service.clearQueries();
-
-                } catch (Throwable e) {
-                    handleException(e, "Cannot perform the search.");
-                } 
-            }
-    
-            if (service != null)
-                gw.closeService(ctx, service);
-            
-            return result;
+    /**
+     * Searches for data.
+     *
+     * @param ctx
+     *            The security context.
+     * @param context
+     *            The context of search (if context.groupId == -1 the scope of
+     *            the search will be all groups, otherwise the scope of the
+     *            search will be the group set in the security context)
+     * @return The found objects.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in.
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMEDS
+     *             service.
+     */
+    SearchResultCollection search(SecurityContext ctx, SearchParameters context)
+            throws DSOutOfServiceException, DSAccessException {
+        try {
+            SearchFacility search = gw.getFacility(SearchFacility.class);
+            return search.search(ctx, context);
+        } catch (ExecutionException e) {
+            log("Can't get a SearchFacility");
         }
-
-	/**
-         * Translates the scopeIds into field names
-         * @param scopeIds
-         * @return
-         */
-        private List<String> resolveScopeIds(List<Integer> scopeIds) {
-            List<String> result = new ArrayList<String>();
-            
-            for(Integer scopeId : scopeIds) {
-                if (scopeId == SearchParameters.NAME) {
-                    result.add("name");
-                }
-                if (scopeId == SearchParameters.DESCRIPTION) {
-                    result.add("description");
-                }
-                if (scopeId == SearchParameters.ANNOTATION) {
-                    result.add("annotation");
-                }
-            }
-            
-            return result;
-        }
-        
-        /**
-         * Translates the scopeIds into field names as comma separated String
-         * 
-         * @param scopeIds
-         * @return
-         */
-        private String resolveScopeIdsAsString(List<Integer> scopeIds) {
-            String result = "";
-    
-            for (Integer scopeId : scopeIds) {
-                if (result.length() > 0)
-                    result += ",";
-                if (scopeId == SearchParameters.NAME) {
-                    result += "name";
-                }
-                if (scopeId == SearchParameters.DESCRIPTION) {
-                    result += "description";
-                }
-                if (scopeId == SearchParameters.ANNOTATION) {
-                    // TODO: adding file.xyz is a workaround for these things not 
-                    // being part of the annotation index, can be removed again for > 5.0
-                    result += "annotation, file.name, file.path, file.contents, file.format";
-                }
-            }
-    
-            return result;
-        }
+        return new SearchResultCollection();
+    }
         
 	/**
 	 * Searches for data.

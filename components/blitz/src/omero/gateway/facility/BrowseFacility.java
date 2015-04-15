@@ -21,15 +21,18 @@
 package omero.gateway.facility;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import omero.api.IContainerPrx;
+import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.model.IObject;
 import omero.sys.Parameters;
-import omero.sys.ParametersI;
 import pojos.DataObject;
 import pojos.util.PojoMapper;
 
@@ -37,8 +40,8 @@ import pojos.util.PojoMapper;
 
 /**
  *
- * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
+ * @author Dominik Lindner &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:d.lindner@dundee.ac.uk">d.lindner@dundee.ac.uk</a>
  * @since 5.1
  */
 
@@ -49,19 +52,103 @@ public class BrowseFacility extends Facility {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Set<DataObject> loadHierarchy(SecurityContext ctx,
-            Class rootType, List<Long> rootIDs, Parameters options)
+    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
+            List<Long> rootIDs, Parameters options)
             throws DSOutOfServiceException {
 
         try {
             IContainerPrx service = gateway.getPojosService(ctx);
             return PojoMapper.asDataObjects(service.loadContainerHierarchy(
-                    PojoMapper.getModelType(rootType).getName(),
-                    rootIDs, options));
+                    PojoMapper.getModelType(rootType).getName(), rootIDs,
+                    options));
         } catch (Throwable t) {
             logError(this, "Could not load hierarchy", t);
         }
 
         return Collections.emptySet();
+    }
+
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param klassName
+     *            The type of object to retrieve.
+     * @param id
+     *            The object's id.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public IObject findIObject(SecurityContext ctx, String klassName, long id)
+            throws DSOutOfServiceException {
+        return findIObject(ctx, klassName, id, false);
+    }
+
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param klassName
+     *            The type of object to retrieve.
+     * @param id
+     *            The object's id.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public IObject findIObject(SecurityContext ctx, String klassName, long id,
+            boolean allGroups) throws DSOutOfServiceException {
+        try {
+            Map<String, String> m = new HashMap<String, String>();
+            if (allGroups) {
+                m.put("omero.group", "-1");
+            } else {
+                m.put("omero.group", "" + ctx.getGroupID());
+            }
+
+            IQueryPrx service = gateway.getQueryService(ctx);
+            return service.find(klassName, id, m);
+        } catch (Throwable t) {
+            logError(this, "Cannot retrieve the requested object with "
+                    + "object ID: " + id, t);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves an updated version of the specified object.
+     *
+     * @param ctx
+     *            The security context.
+     * @param o
+     *            The object to retrieve.
+     * @return The last version of the object.
+     * @throws DSOutOfServiceException
+     *             If the connection is broken, or logged in
+     * @throws DSAccessException
+     *             If an error occurred while trying to retrieve data from OMERO
+     *             service.
+     */
+    public IObject findIObject(SecurityContext ctx, IObject o)
+            throws DSOutOfServiceException {
+        if (o == null)
+            return null;
+        try {
+            IQueryPrx service = gateway.getQueryService(ctx);
+            return service.find(o.getClass().getName(), o.getId().getValue());
+        } catch (Throwable t) {
+            logError(this, "Cannot retrieve the requested object with "
+                    + "object ID: " + o.getId(), t);
+        }
+        return null;
     }
 }

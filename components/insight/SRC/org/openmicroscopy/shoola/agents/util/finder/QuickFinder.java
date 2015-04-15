@@ -33,10 +33,13 @@ import java.util.List;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.QuickSearch;
-import org.openmicroscopy.shoola.env.data.util.AdvancedSearchResultCollection;
+
 import omero.gateway.SecurityContext;
+import omero.gateway.model.SearchResultCollection;
+
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 
@@ -164,7 +167,7 @@ public class QuickFinder
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#setResult(SecurityContext, Object)
 	 */
-	public void setResult(AdvancedSearchResultCollection result) {}
+	public void setResult(SearchResultCollection result) {}
 
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
