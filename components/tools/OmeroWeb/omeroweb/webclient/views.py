@@ -1009,6 +1009,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
     data is handled by the template.
     """
 
+    context = dict()
+
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
@@ -1056,7 +1058,6 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
 
     form_comment = None
     figScripts = None
-    share_owned = False
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -1069,27 +1070,22 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None,
                 conn, index=index, **{str(c_type): long(c_id)})
         except AttributeError, x:
             return handlerInternalError(request, x)
-        if share_id is None:
+        if share_id is not None:
+            template = "webclient/annotations/annotations_share.html"
+            context['share'] = BaseShare(conn, share_id)
+        else:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
             figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
-        else:
-            share_owned = BaseShare(conn, share_id).share.isOwned()
-            template = "webclient/annotations/annotations_share.html"
+    context['manager'] = manager
 
     if c_type in ("tag", "tagset"):
-        context = {
-            'manager': manager,
-            'insight_ns': omero.rtypes.rstring(
-                omero.constants.metadata.NSINSIGHTTAGSET).val}
+        context['insight_ns'] = omero.rtypes.rstring(
+            omero.constants.metadata.NSINSIGHTTAGSET).val
     else:
-        context = {
-            'manager': manager,
-            'form_comment': form_comment,
-            'index': index,
-            'share_id': share_id,
-            'share_owned': share_owned}
+        context['form_comment'] = form_comment
+        context['index'] = index
 
     context['figScripts'] = figScripts
     context['template'] = template
@@ -1107,11 +1103,14 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
     Currently this doesn't do much except launch the view-port plugin using
     the image Id (and share Id if necessary)
     """
+    context = {}
 
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+    if share_id:
+        context['share'] = BaseShare(conn, share_id)
 
     if c_type == "well":
         manager.image = manager.well.getImage(index)
@@ -1145,7 +1144,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None,
             'm': r['model'] == 'greyscale' and 'g' or 'c'
             })
 
-    context = {'manager': manager, 'share_id': share_id}
+    context['manager'] = manager
     context['rdefsJson'] = json.dumps(rdefQueries)
     context['rdefs'] = rdefs
     context['template'] = "webclient/annotations/metadata_preview.html"
@@ -1418,28 +1417,26 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None,
                         form_lasers.append(form_laser)
 
     # TODO: remove this 'if' since we should only have c_type = 'image'?
-    if c_type in ("share", "discussion", "tag"):
-        context = {'manager': manager}
-    else:
-        context = {
-            'manager': manager,
-            'form_channels': form_channels,
-            'form_environment': form_environment,
-            'form_objective': form_objective,
-            'form_microscope': form_microscope,
-            'form_instrument_objectives': form_instrument_objectives,
-            'form_filters': form_filters,
-            'form_dichroics': form_dichroics,
-            'form_detectors': form_detectors,
-            'form_lasers': form_lasers,
-            'form_stageLabel': form_stageLabel}
+    context = {'manager': manager, "share_id": share_id}
+    if c_type not in ("share", "discussion", "tag"):
+        context['form_channels'] = form_channels
+        context['form_environment'] = form_environment
+        context['form_objective'] = form_objective
+        context['form_microscope'] = form_microscope
+        context['form_instrument_objectives'] = form_instrument_objectives
+        context['form_filters'] = form_filters
+        context['form_dichroics'] = form_dichroics
+        context['form_detectors'] = form_detectors
+        context['form_lasers'] = form_lasers
+        context['form_stageLabel'] = form_stageLabel
     context['template'] = template
     return context
 
 
 @login_required()
 @render_response()
-def load_original_metadata(request, imageId, conn=None, **kwargs):
+def load_original_metadata(request, imageId, conn=None, share_id=None,
+                           **kwargs):
 
     image = conn.getObject("Image", imageId)
     if image is None:

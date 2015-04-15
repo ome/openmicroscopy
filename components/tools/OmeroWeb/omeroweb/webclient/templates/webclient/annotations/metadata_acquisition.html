@@ -129,6 +129,7 @@
                 </div>
             {% endif %}
             
+            {% if not share_id %}
             <!-- Original Metadata is loaded when tab expanded -->
             <h1 class="can-collapse defclose load_original_metadata">{% trans "Original Metadata" %}</h1>
             <div id="orig_metadata">
@@ -141,7 +142,8 @@
                         href="{% url 'load_original_metadata' manager.image.id %}"
                     {% endif %}
                 >Load Original Metadata</a>
-                        
+            {% endif %}
+
             <!-- Microscope -->
             {% if form_objective or form_filters or form_detectors %}
             <h1 class="can-collapse defclose">{% trans "Microscope" %}</h1>
