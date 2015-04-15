@@ -33,13 +33,17 @@
         $(document).ready(function() 
         {
 
-            // Disable the groups/users dropdown menu.
+            // Disable the groups/users dropdown menu and scripts menu.
             $("#groupsUsersButton")
                 .css('background-image', 'url()')
                 .attr('title', 'Use "Scope" in form below to search within specific Groups / Users');
+            $("#scriptButton")
+                .css('opacity', 0.5)
+                .attr('title', 'Scripts are disabled for data in shares');
             setTimeout(function(){
                 // make sure we remove click handler AFTER it's been added
                 $("#groupsUsersButton").off('click');
+                $("#scriptButton").off('click');
             },500);
         });
 
