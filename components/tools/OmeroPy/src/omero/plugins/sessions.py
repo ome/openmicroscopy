@@ -418,9 +418,12 @@ class SessionsControl(BaseControl):
             conflicts = store.conflicts(server, name, uuid, props,
                                         check_group=check_group)
             if conflicts:
-                self.ctx.err(
-                    "Failed to join session %s due to property conflicts: %s"
-                    % (uuid, conflicts))
+                if "omero.port" in conflicts:
+                    self.ctx.dbg("Skipping session %s due to mismatching"
+                                 " ports: %s " % (uuid, conflicts))
+                elif not self.ctx.isquiet:
+                    self.ctx.err("Skipped session %s due to property"
+                                 " conflicts: %s" % (uuid, conflicts))
                 return None
 
         return self.attach(store, server, name, uuid, props, exists)

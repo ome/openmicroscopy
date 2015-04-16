@@ -302,7 +302,7 @@ class TestSessions(object):
         (None, "mygroup"), ("mygroup", None), ("mygroup", "mygroup2")]
 
     def get_conflict_message(self):
-        return "Failed to join session %s due to property conflicts: "
+        return "Skipped session %s due to property conflicts: "
 
     def get_conn_args(self, conn_type, host="testhost", name="testuser",
                       port=None, group=None):
@@ -394,7 +394,7 @@ class TestSessions(object):
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
-    def testReuseFromDifferentGroupDoesntWork(self, connection, group):
+    def testReuseFromDifferentGroupDoesntWork(self, connection, group, capsys):
         """
         Test session reuse with different groups fails
         """
@@ -409,6 +409,9 @@ class TestSessions(object):
         conn_args = self.get_conn_args(connection, group=group[1])
         cli.invoke(["s", "login"] + conn_args)
         cli.assertReqSize(self, 0)
+        out, err = capsys.readouterr()
+        msg = (self.get_conflict_message() + 'omero.group: %s!=%s')
+        assert err.splitlines()[-2] == msg % ('testsessid', group[0], group[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', MATCHING_PORTS)
@@ -622,8 +625,7 @@ class TestSessions(object):
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', CONFLICTING_PORTS)
     @pytest.mark.parametrize('group', ALL_GROUPS)
-    def testSessionReattachConflictingPort(
-            self, connection, port, group, capsys):
+    def testSessionReattachConflictingPort(self, connection, port, group):
         """
         Test session re-attachment fails with mismatching ports fails
         """
@@ -643,9 +645,6 @@ class TestSessions(object):
             connection, name=None, port=port[1], group=group)
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
-        out, err = capsys.readouterr()
-        msg = self.get_conflict_message() + 'omero.port: %s!=%s'
-        assert err.splitlines()[-2] == msg % (MOCKKEY, port[0], port[1])
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', ALL_PORTS)
@@ -673,8 +672,7 @@ class TestSessions(object):
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', CONFLICTING_PORTS)
     @pytest.mark.parametrize('group', DIFFERENT_GROUPS)
-    def testSessionReattachFailsPortGroup(self, connection, port, group,
-                                          capsys):
+    def testSessionReattachFailsPortGroup(self, connection, port, group):
         """
         Test session re-attachment by key with mismatching ports and different
         groups fails
@@ -695,9 +693,6 @@ class TestSessions(object):
             connection, name=None, port=port[1], group=group[1])
         with pytest.raises(NonZeroReturnCode):
             cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
-        out, err = capsys.readouterr()
-        msg = (self.get_conflict_message() + 'omero.port: %s!=%s')
-        assert err.splitlines()[-2] == msg % (MOCKKEY, port[0], port[1])
 
     @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
