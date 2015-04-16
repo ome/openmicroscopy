@@ -16,7 +16,7 @@ arguments, sys.argv, and finally from standard-in using the
 cmd.Cmd.cmdloop method.
 
 Josh Moore, josh at glencoesoftware.com
-Copyright (c) 2007-2014, Glencoe Software, Inc.
+Copyright (c) 2007-2015, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
