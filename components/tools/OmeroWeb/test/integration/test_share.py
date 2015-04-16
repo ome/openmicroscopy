@@ -28,6 +28,8 @@ working correctly.
 from weblibrary import IWebTest
 from weblibrary import _get_response
 
+from omero.gateway import BlitzGateway
+
 from django.core.urlresolvers import reverse
 
 
@@ -97,3 +99,36 @@ class TestShare(IWebTest):
             "view": "icon"
         }
         _get_response(self.django_client, request_url, data, status_code=200)
+
+    def test_canEdit(self):
+        """
+        Test if canEdit returns appropriate flag
+        """
+
+        client, user = self.new_client_and_user()
+
+        image = self.sf.getUpdateService() \
+                       .saveAndReturnObject(self.new_image(name=self.uuid()))
+        share_id = self.create_share(objects=[image],
+                                     description="description",
+                                     experimenters=[user])
+
+        assert len(self.client.sf.getShareService()
+                                 .getContents(share_id)) == 1
+
+        # test canEdit by member
+        user_conn = BlitzGateway(client_obj=client)
+        # user cannot see image if not in share
+        assert None == user_conn.getObject("Image", image.id.val)
+        # activate share
+        user_conn.SERVICE_OPTS.setOmeroShare(share_id)
+        assert False == user_conn.getObject("Image", image.id.val).canEdit()
+
+        #test canEdit by owner
+        owner_conn = BlitzGateway(client_obj=self.client)
+        #owner can edit object when not in share
+        assert True == owner_conn.getObject("Image", image.id.val).canEdit()
+        # activate share
+        owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
+        #owner CANNOT edit object when not in share
+        assert False == owner_conn.getObject("Image", image.id.val).canEdit()
