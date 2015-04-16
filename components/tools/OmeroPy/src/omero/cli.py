@@ -1456,15 +1456,19 @@ class GraphArg(object):
         self.cmd_type = cmd_type
 
     def __call__(self, arg):
+        targetObjects = dict()
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
-            type = parts[0]
-            id = long(parts[1])
-
-            return self.cmd_type(type=type,
-                                 id=id,
-                                 options={})
+            parts[0] = parts[0].lstrip("/")
+            graph = parts[0].split("/")
+            # Here we have something other than a simple object name
+            # graph probably needs to be used to form a SkipHead ?
+            if len(graph) > 1:
+                raise Exception
+            ids = [long(id) for id in parts[1].split(",")]
+            targetObjects[parts[0]] = ids
+            return self.cmd_type(targetObjects=targetObjects)
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1623,7 +1627,7 @@ class GraphControl(CmdControl):
         self._pre_objects(parser)
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
-            help="""Objects to be processedd in the form "<Class>:<Id>""")
+            help="Objects to be processed in the form <Class>:<Id>")
 
     def _pre_objects(self, parser):
         """

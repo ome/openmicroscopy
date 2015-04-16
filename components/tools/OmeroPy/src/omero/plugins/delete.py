@@ -32,7 +32,7 @@ class DeleteControl(GraphControl):
     def cmd_type(self):
         import omero
         import omero.all
-        return omero.cmd.Delete
+        return omero.cmd.Delete2
 
     def print_detailed_report(self, req, rsp, status):
         import omero

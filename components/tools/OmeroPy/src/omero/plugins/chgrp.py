@@ -49,7 +49,7 @@ class ChgrpControl(GraphControl):
     def cmd_type(self):
         import omero
         import omero.all
-        return omero.cmd.Chgrp
+        return omero.cmd.Chgrp2
 
     def _pre_objects(self, parser):
         parser.add_argument(
@@ -78,7 +78,7 @@ class ChgrpControl(GraphControl):
 
         # Set requests group
         for request in req.requests:
-            request.grp = gid
+            request.groupId = gid
 
         super(ChgrpControl, self)._process_request(req, args, client)
 
