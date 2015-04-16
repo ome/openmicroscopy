@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.tdialog.TinyWindow
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,10 +28,11 @@ package org.openmicroscopy.shoola.util.ui.tdialog;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Point;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
 import java.util.List;
+
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 
@@ -122,16 +123,26 @@ public class TinyDialog
         setUndecorated(true);
         setRestoreSize(new Dimension(getWidth(), getHeight()));
         zoomFactor = MINIMUM_ZOOM;
-        addFocusListener(new FocusListener() {
+        addWindowFocusListener(new WindowFocusListener() {
 
-            /** Closes the dialog when losing the focus.*/
-            public void focusLost(FocusEvent e) { setClosed(true); }
-
-            /** 
-             * Required by the I/F but no operation in that case.
-             * @see FocusListner#focusGained(FocusEvent)
+            /**
+             * Closes the dialog when the window loses focus.
+             * 
+             * @see WindowFocusListener#windowLostFocus(WindowEvent)
              */
-            public void focusGained(FocusEvent e) {}
+            public void windowLostFocus(WindowEvent evt) {
+                TinyDialog d = (TinyDialog) evt.getSource();
+                d.setClosed(true);
+                d.closeWindow();
+            }
+
+            /**
+             * Required by the I/F but no-operation in our case.
+             * 
+             * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+             */
+            public void windowGainedFocus(WindowEvent evt) {
+            }
         });
     }
 
