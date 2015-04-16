@@ -1530,6 +1530,13 @@ class _BlitzGateway (object):
                 int(c.getConfigValue('omero.pixeldata.max_plane_height')))
         return self._maxPlaneSize
 
+    def getInitialZoomLevel(self):
+        """
+        Returns default initial zoom level set on the server.
+        """
+        return (self.getConfigService().getConfigValue(
+                "omero.client.viewer.initial_zoom_level") or 0)
+
     def isAnonymous(self):
         """
         Returns the anonymous flag

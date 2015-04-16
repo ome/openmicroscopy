@@ -1293,7 +1293,7 @@ def imageData_json(request, conn=None, _internal=False, **kwargs):
         return HttpJavascriptResponseServerError('""')
     if request.REQUEST.get('getDefaults') == 'true':
         image.resetDefaults(save=False)
-    rv = imageMarshal(image, key)
+    rv = imageMarshal(image, key=key, request=request)
     return rv
 
 
@@ -1887,7 +1887,7 @@ def get_image_rdef_json(request, conn=None, **kwargs):
             # We only have an Image to copy rdefs from
             image = conn.getObject("Image", fromid)
         if image is not None:
-            rv = imageMarshal(image, None)
+            rv = imageMarshal(image, request=request)
             # return rv
             chs = []
             for i, ch in enumerate(rv['channels']):
