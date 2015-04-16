@@ -1627,6 +1627,10 @@ class GraphControl(CmdControl):
         parser.add_argument(
             "--report", action="store_true",
             help="Print more detailed report of each action")
+        parser.add_argument(
+            "--dry-run", action="store_true",
+            help=("Do a dry run of the command, providing a "
+                  "report of what would have been done"))
         self._pre_objects(parser)
         parser.add_argument(
             "obj", nargs="*", type=GraphArg(self.cmd_type()),
@@ -1687,6 +1691,7 @@ class GraphControl(CmdControl):
 
         for req in doall.requests:
             req.childOptions = list()
+            req.dryRun = args.dry_run
             if args.include:
                 inc = args.include.split(",")
                 opt = omero.cmd.graphs.ChildOption(includeType=inc)
@@ -1697,6 +1702,7 @@ class GraphControl(CmdControl):
                 req.childOptions.append(opt)
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.childOptions = req.childOptions
+                req.request.dryRun = req.dryRun
 
         self._process_request(doall, args, client)
 
