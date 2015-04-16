@@ -101,7 +101,7 @@ class TestShare(IWebTest):
         _get_response(self.django_client, request_url, data, status_code=200)
 
     @pytest.mark.parametrize('func', ['canEdit', 'canAnnotate', 'canDelete',
-                                        'canLink'])
+                                      'canLink'])
     def test_canDoAction(self, func):
         """
         Test if canEdit returns appropriate flag
@@ -118,19 +118,22 @@ class TestShare(IWebTest):
         assert len(self.client.sf.getShareService()
                                  .getContents(share_id)) == 1
 
-        # test canEdit by member
+        # test action by member
         user_conn = BlitzGateway(client_obj=client)
         # user CANNOT see image if not in share
         assert None == user_conn.getObject("Image", image.id.val)
         # activate share
         user_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        assert False == getattr(user_conn.getObject("Image", image.id.val), func)()
+        assert False == getattr(user_conn.getObject("Image",
+                                                    image.id.val), func)()
 
-        #test canEdit by owner
+        # test action by owner
         owner_conn = BlitzGateway(client_obj=self.client)
-        #owner CAN edit object when not in share
-        assert True == getattr(owner_conn.getObject("Image", image.id.val), func)()
+        # owner CAN do action on the object when not in share
+        assert True == getattr(owner_conn.getObject("Image",
+                                                    image.id.val), func)()
         # activate share
         owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        #owner CANNOT edit object when in share
-        assert False == getattr(owner_conn.getObject("Image", image.id.val), func)()
+        # owner CANNOT do action on the object when in share
+        assert False == getattr(owner_conn.getObject("Image",
+                                                     image.id.val), func)()
