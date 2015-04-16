@@ -24,7 +24,7 @@
 Simple integration tests to ensure that the CSRF middleware is enabled and
 working correctly.
 """
-
+import pytest
 from weblibrary import IWebTest
 from weblibrary import _get_response
 
@@ -100,7 +100,9 @@ class TestShare(IWebTest):
         }
         _get_response(self.django_client, request_url, data, status_code=200)
 
-    def test_canEdit(self):
+    @pytest.mark.parametrize('func', ['canEdit', 'canAnnotate', 'canDelete',
+                                        'canLink'])
+    def test_canDoAction(self, func):
         """
         Test if canEdit returns appropriate flag
         """
@@ -118,17 +120,17 @@ class TestShare(IWebTest):
 
         # test canEdit by member
         user_conn = BlitzGateway(client_obj=client)
-        # user cannot see image if not in share
+        # user CANNOT see image if not in share
         assert None == user_conn.getObject("Image", image.id.val)
         # activate share
         user_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        assert False == user_conn.getObject("Image", image.id.val).canEdit()
+        assert False == getattr(user_conn.getObject("Image", image.id.val), func)()
 
         #test canEdit by owner
         owner_conn = BlitzGateway(client_obj=self.client)
-        #owner can edit object when not in share
-        assert True == owner_conn.getObject("Image", image.id.val).canEdit()
+        #owner CAN edit object when not in share
+        assert True == getattr(owner_conn.getObject("Image", image.id.val), func)()
         # activate share
         owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        #owner CANNOT edit object when not in share
-        assert False == owner_conn.getObject("Image", image.id.val).canEdit()
+        #owner CANNOT edit object when in share
+        assert False == getattr(owner_conn.getObject("Image", image.id.val), func)()
