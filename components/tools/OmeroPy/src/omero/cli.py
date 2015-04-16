@@ -1641,40 +1641,40 @@ class GraphControl(CmdControl):
 
     def main_method(self, args):
 
-        import omero
         client = self.ctx.conn(args)
-        cb = None
-        req = omero.cmd.GraphSpecList()
-        try:
+        if args.list_details or args.list:
+            cb = None
+            req = omero.cmd.GraphSpecList()
             try:
-                speclist, status, cb = self.response(client, req)
-            except omero.LockTimeout, lt:
-                self.ctx.die(446, "LockTimeout: %s" % lt.message)
-        finally:
-            if cb is not None:
-                cb.close(True)  # Close handle
+                try:
+                    speclist, status, cb = self.response(client, req)
+                except omero.LockTimeout, lt:
+                    self.ctx.die(446, "LockTimeout: %s" % lt.message)
+            finally:
+                if cb is not None:
+                    cb.close(True)  # Close handle
 
-        # Could be put in positive_response helper
-        err = self.get_error(speclist)
-        if err:
-            self.ctx.die(367, err)
+            # Could be put in positive_response helper
+            err = self.get_error(speclist)
+            if err:
+                self.ctx.die(367, err)
 
-        specs = speclist.list
-        specmap = dict()
-        for s in specs:
-            specmap[s.type] = s
-        keys = sorted(specmap)
+            specs = speclist.list
+            specmap = dict()
+            for s in specs:
+                specmap[s.type] = s
+            keys = sorted(specmap)
 
-        if args.list_details:
-            for key in keys:
-                spec = specmap[key]
-                self.ctx.out("=== %s ===" % key)
-                for k, v in spec.options.items():
-                    self.ctx.out("%s" % (k,))
-            return  # Early exit.
-        elif args.list:
-            self.ctx.out("\n".join(keys))
-            return  # Early exit.
+            if args.list_details:
+                for key in keys:
+                    spec = specmap[key]
+                    self.ctx.out("=== %s ===" % key)
+                    for k, v in spec.options.items():
+                        self.ctx.out("%s" % (k,))
+                return  # Early exit.
+            elif args.list:
+                self.ctx.out("\n".join(keys))
+                return  # Early exit.
 
         if len(args.obj) == 1 and isinstance(args.obj[0], omero.cmd.DoAll):
             doall = args.obj[0]
