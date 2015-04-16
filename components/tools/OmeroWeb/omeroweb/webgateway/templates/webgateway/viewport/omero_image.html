@@ -1322,7 +1322,17 @@
 
 
     // Check the Parent window for Previous / Next images...
-    if (window.opener && window.opener.$) {
+    parentWindow = false;
+    try {
+      // might get permission exception if window was opened from another website
+      if (window.opener && window.opener.$) {
+        parentWindow = true;
+      }
+    }
+    catch(err) {
+      console.log("window.opener not accessible");
+    }
+    if (parentWindow) {
       var $currentImg = window.opener && window.opener.$("#image_icon-{{ image.id }}"),
           prevImgId, nextImgId;
       if ($currentImg.length === 1) {
