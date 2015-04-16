@@ -518,6 +518,40 @@ class TestSessions(object):
         del cli
 
     @pytest.mark.parametrize('connection', CONNECTION_TYPES)
+    @pytest.mark.parametrize('name', [None, 'testuser'])
+    @pytest.mark.parametrize('password', [None, 'password'])
+    @pytest.mark.parametrize('group', [None, 'group'])
+    def testSessionReattachWarning(
+            self, connection, name, password, group, capsys):
+        """
+        Test session re-attachment by key throws warnings for extra arguments
+        """
+        cli = MyCLI()
+        MOCKKEY = "%s" % uuid.uuid4()
+
+        # Connect using the session key (create a local session file)
+        cli.creates_client(sess=MOCKKEY)
+        key_conn_args = self.get_conn_args(connection, name=None)
+        cli.invoke(["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+
+        # Force new CLI instance using the same connection arguments
+        cli.set_client(None)
+        cli.creates_client(sess=MOCKKEY, new=False)
+        key_conn_args = self.get_conn_args(connection, name=name, group=group)
+        if password:
+            key_conn_args += ["-w", password]
+        cli.invoke(
+            ["s", "login", "-k", "%s" % MOCKKEY] + key_conn_args)
+        out, err = capsys.readouterr()
+        err = err.splitlines()
+        if name:
+            assert "Overriding name since session key set" in err
+        if group:
+            assert "Ignoring group since session key set" in err
+        if password:
+            assert "Ignoring password since session key set" in err
+
+    @pytest.mark.parametrize('connection', CONNECTION_TYPES)
     @pytest.mark.parametrize('port', ALL_PORTS)
     @pytest.mark.parametrize('group', ALL_GROUPS)
     def testSessionReattachSameArguments(self, connection, port, group):

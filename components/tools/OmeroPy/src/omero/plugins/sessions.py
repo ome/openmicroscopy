@@ -260,10 +260,12 @@ class SessionsControl(BaseControl):
         pasw = args.password
         if args.key:
             if name and not self.ctx.isquiet:
-                self.ctx.err("Overriding name since session set")
+                self.ctx.err("Overriding name since session key set")
             name = args.key
+            if args.group and not self.ctx.isquiet:
+                self.ctx.err("Ignoring group since session key set")
             if args.password and not self.ctx.isquiet:
-                self.ctx.err("Ignoring password since key set")
+                self.ctx.err("Ignoring password since session key set")
             pasw = args.key
         #
         # If no key provided, then we check the last used connection
