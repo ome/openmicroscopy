@@ -9,6 +9,7 @@ HOSTNAME=${HOSTNAME:-localhost}
 PORT=${PORT:-4064}
 ROOT_PASSWORD=${ROOT_PASSWORD:-omero}
 GROUP_NAME=${GROUP_NAME:-robot_group}
+GROUP_PERMS=${GROUP_PERMS:-rwra--}
 GROUP_NAME_2=${GROUP_NAME_2:-robot_group_2}
 USER_NAME=${USER_NAME:-robot_user}
 USER_PASSWORD=${USER_PASSWORD:-ome}
@@ -16,7 +17,7 @@ CONFIG_FILENAME=${CONFIG_FILENAME:-robot_ice.config}
 
 # Create robot user and group
 bin/omero login root@$HOSTNAME:$PORT -w $ROOT_PASSWORD
-bin/omero group add $GROUP_NAME --ignore-existing
+bin/omero group add $GROUP_NAME --ignore-existing --perms $GROUP_PERMS
 bin/omero group add $GROUP_NAME_2 --ignore-existing
 bin/omero user add $USER_NAME $USER_NAME $USER_NAME $GROUP_NAME $GROUP_NAME_2 --ignore-existing -P $USER_PASSWORD
 bin/omero user joingroup --name $USER_NAME --group-name $GROUP_NAME --as-owner
