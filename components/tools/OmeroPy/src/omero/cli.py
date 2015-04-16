@@ -1697,7 +1697,11 @@ class GraphControl(CmdControl):
     def print_request_description(self, request):
         doall = self.as_doall(request)
         cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
-        objects = ['%s %s' % (req.type, req.id) for req in doall.requests]
+        objects = []
+        for req in doall.requests:
+            for type in req.targetObjects.keys():
+                ids = ",".join(map(str, req.targetObjects[type]))
+                objects.append('%s %s' % (type, ids))
         return "%s %s... " % (cmd_type, ', '.join(objects))
 
 
