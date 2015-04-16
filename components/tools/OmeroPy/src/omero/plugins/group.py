@@ -186,7 +186,9 @@ server-permissions.html
                          % (g.name.val, gid, perms))
         else:
             try:
-                a.changePermissions(Grp(gid, False), perms)
+                chmod = omero.cmd.Chmod(
+                    type="/ExperimenterGroup", id=gid, permissions=str(perms))
+                c.sf.submit(chmod)
                 self.ctx.out("Changed permissions for group %s (id=%s) to %s"
                              % (g.name.val, gid, perms))
             except omero.GroupSecurityViolation:
