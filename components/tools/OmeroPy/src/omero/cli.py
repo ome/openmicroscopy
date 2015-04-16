@@ -1608,12 +1608,11 @@ class GraphControl(CmdControl):
             help="Number of seconds to wait for the processing to complete "
             "(Indefinite < 0; No wait=0).", default=-1)
         parser.add_argument(
-            "--edit", action="store_true",
-            help="Configure options in a text editor")
+            "--include",
+            help="Modifies the given option by including a list of objects")
         parser.add_argument(
-            "--opt", action="append",
-            help="Modifies the given option (e.g. /Image:KEEP). Applied "
-            "*after* 'edit' ")
+            "--exclude",
+            help="Modifies the given option by excluding a list of objects")
         parser.add_argument(
             "--list", action="store_true",
             help="Print a list of all available graph specs")
@@ -1683,11 +1682,15 @@ class GraphControl(CmdControl):
             doall = omero.cmd.DoAll(args.obj)
 
         for req in doall.requests:
-            if args.edit:
-                req.options = self.edit_options(req, specmap)
-            if args.opt:
-                for opt in args.opt:
-                    self.line_to_opts(opt, req.options)
+            req.childOptions = list()
+            if args.include:
+                inc = args.include.split(",")
+                opt = omero.cmd.graphs.ChildOption(includeType=inc)
+                req.childOptions.append(opt)
+            if args.exclude:
+                exc = args.exclude.split(",")
+                opt = omero.cmd.graphs.ChildOption(excludeType=exc)
+                req.childOptions.append(opt)
 
         self._process_request(doall, args, client)
 
