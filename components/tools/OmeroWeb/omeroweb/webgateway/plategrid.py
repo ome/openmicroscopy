@@ -15,7 +15,7 @@ from datetime import datetime as dt
 import time
 
 import omero.sys
-from omero.rtypes import rint, rlong
+from omero.rtypes import rint
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +41,9 @@ class PlateGrid(object):
             grid = [[None] * size['columns'] for _ in range(size['rows'])]
 
             q = self._conn.getQueryService()
-            params = omero.sys.Parameters()
-            params.map = {'pid': rlong(self.plate.id),
-                          'wsidx': rint(self.field)}
+            params = omero.sys.ParametersI()
+            params.addId(self.plate.id)
+            params.add('wsidx', rint(self.field))
             query = "select well.row, well.column, img.id, img.name, "\
                     "author.firstName||' '||author.lastName, "\
                     "well.id, img.acquisitionDate "\
