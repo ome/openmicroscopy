@@ -1456,19 +1456,23 @@ class GraphArg(object):
         self.cmd_type = cmd_type
 
     def __call__(self, arg):
+        cmd = self.cmd_type()
         targetObjects = dict()
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
             parts[0] = parts[0].lstrip("/")
             graph = parts[0].split("/")
-            # Here we have something other than a simple object name
-            # graph probably needs to be used to form a SkipHead ?
-            if len(graph) > 1:
-                raise Exception
             ids = [long(id) for id in parts[1].split(",")]
-            targetObjects[parts[0]] = ids
-            return self.cmd_type(targetObjects=targetObjects)
+            targetObjects[graph[0]] = ids
+            cmd.targetObjects = targetObjects
+            if len(graph) > 1:
+                skiphead = omero.cmd.SkipHead()
+                skiphead.request = cmd
+                skiphead.targetObjects = targetObjects
+                skiphead.startFrom = [graph[-1]]
+                cmd = skiphead
+            return cmd
         except:
             raise ValueError("Bad object: %s", arg)
 
@@ -1691,6 +1695,8 @@ class GraphControl(CmdControl):
                 exc = args.exclude.split(",")
                 opt = omero.cmd.graphs.ChildOption(excludeType=exc)
                 req.childOptions.append(opt)
+            if isinstance(req, omero.cmd.SkipHead):
+                req.request.childOptions = req.childOptions
 
         self._process_request(doall, args, client)
 
