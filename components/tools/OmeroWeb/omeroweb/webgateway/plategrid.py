@@ -44,20 +44,15 @@ class PlateGrid(object):
             params = omero.sys.Parameters()
             params.map = {'pid': rlong(self.plate.id),
                           'wsidx': rint(self.field)}
-            query = ' '.join([
-                    "select well.row, well.column,",  # Grid index
-                    "img.id,",                        # 'id'
-                    "img.name,",                      # 'name'
-                    "img.details.owner.firstName||' '",
-                    "||img.details.owner.lastName,",  # 'author'
-                    "well.id,",                       # 'wellId'
-                    "img.acquisitionDate",            # 'date'
-                    "from Well well",
-                    "join well.wellSamples ws",
-                    "join ws.image img",
-                    "where well.plate.id = :pid",     # plate ID
-                    "and index(ws) = :wsidx"          # field
-                ])
+            query = "select well.row, well.column, img.id, img.name, "\
+                    "author.firstName||' '||author.lastName, "\
+                    "well.id, img.acquisitionDate "\
+                    "from Well well "\
+                    "join well.wellSamples ws "\
+                    "join ws.image img "\
+                    "join img.details.owner author "\
+                    "where well.plate.id = :id "\
+                    "and index(ws) = :wsidx"
 
             wellGrid = q.projection(query, params, self._conn.SERVICE_OPTS)
             for w in wellGrid:
