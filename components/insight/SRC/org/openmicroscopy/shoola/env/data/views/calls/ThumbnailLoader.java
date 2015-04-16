@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -266,12 +266,12 @@ public class ThumbnailLoader
     protected Object getPartialResult() { return currentThumbnail; }
     
     /**
-     * Returns <code>null</code> as there's no final result.
-     * In fact, thumbnails are progressively delivered with 
+     * Returns the last loaded thumbnail (important for the BirdsEyeLoader to
+     * work correctly). But in fact, thumbnails are progressively delivered with 
      * feedback events. 
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return null; }
+    protected Object getResult() { return currentThumbnail; }
     
     /**
      * Creates a new instance.
