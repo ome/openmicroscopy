@@ -172,7 +172,6 @@ server-permissions.html
     def perms(self, args):
 
         import omero
-        from omero_model_ExperimenterGroupI import ExperimenterGroupI as Grp
 
         perms = self.parse_perms(args)
         c = self.ctx.conn(args)
