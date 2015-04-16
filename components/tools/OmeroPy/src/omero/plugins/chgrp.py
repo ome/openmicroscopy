@@ -20,26 +20,21 @@ HELP = """Move data between groups
 
 Example Usage:
 
-  omero chgrp 101 /Image:1                     # Move all of Image 1 to \
+  omero chgrp 101 Image:1                     # Move all of Image 1 to \
 group 101
-  omero chgrp Group:101 /Image:1               # Move all of Image 1 to \
+  omero chgrp Group:101 Image:1               # Move all of Image 1 to \
 group 101
-  omero chgrp ExperimenterGroup:101 /Image:1   # Move all of Image 1 to \
+  omero chgrp ExperimenterGroup:101 Image:1   # Move all of Image 1 to \
 group 101
-  omero chgrp "My Lab" /Image:1                # Move all of Image 1 to \
-group "myLab"
+  omero chgrp "My Lab" Image:1,2,3            # Move all of Images 1, 2 and 3 \
+to group "myLab"
 
-  omero chgrp --edit 101 /Image:1              # Open an editor with all \
-the chgrp
-                                               # options filled out with \
-defaults.
-
-  omero chgrp --opt /Image:KEEP /Plate:1       # Calls chgrp on Plate, \
+  omero chgrp --exclude Image Plate:1         # Calls chgrp on Plate, \
 leaving all
-                                               # images in the previous group.
+                                              # images in the previous group.
 
   What data is moved is the same as that which would be deleted by a similar
-  call to "omero delete /Image:1"
+  call to "omero delete Image:1"
 
 """
 

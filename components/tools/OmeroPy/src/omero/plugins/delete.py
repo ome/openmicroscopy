@@ -20,9 +20,10 @@ Examples:
 
     bin/omero delete --list   # Print all of the graphs
 
-    bin/omero delete /Image:50
-    bin/omero delete /Plate:1
-    bin/omero delete /Image:51 /Image:52 /OriginalFile:101
+    bin/omero delete Image:50
+    bin/omero delete Plate:1
+    bin/omero delete Image:51,52 OriginalFile:101
+    bin/omero delete Project:101 --exclude Dataset,Image
 
 """
 
