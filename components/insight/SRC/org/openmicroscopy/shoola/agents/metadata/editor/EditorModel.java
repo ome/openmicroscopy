@@ -2718,7 +2718,7 @@ class EditorModel
                     }
                 } catch (Exception e) {
                     MetadataViewerAgent.getRegistry().getLogger()
-                            .warn(this, "Could not save renderign settings");
+                            .warn(this, "Could not save rendering settings");
                 }
                 renderer.discard();
                 renderer = null;
