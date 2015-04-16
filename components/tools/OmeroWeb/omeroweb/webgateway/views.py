@@ -29,7 +29,7 @@ from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
-from omeroweb.webgateway.plategrid import PlateGrid
+from plategrid import PlateGrid
 from omero_version import build_year
 from marshal import imageMarshal, shapeMarshal
 
