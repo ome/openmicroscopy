@@ -3,11 +3,13 @@
 from omero.gateway import BlitzGateway
 import omero
 from omero.rtypes import rstring, rdouble
-from Connect_To_OMERO import USERNAME, PASSWORD, PORT
-# create a connection
-conn = BlitzGateway(
-    USERNAME, PASSWORD, host="gretzky.openmicroscopy.org.uk", port=PORT)
+from Parse_OMERO_Properties import USERNAME, PASSWORD, HOST, PORT
+
+# Create a connection
+# =================================================================
+conn = BlitzGateway(USERNAME, PASSWORD, host=HOST, port=PORT)
 conn.connect()
+
 from random import random
 from numpy import array
 import math

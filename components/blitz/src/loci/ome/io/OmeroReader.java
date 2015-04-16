@@ -92,9 +92,6 @@ import Glacier2.PermissionDeniedException;
  * Implementation of {@link loci.formats.IFormatReader}
  * for use in export from an OMERO Beta 4.2.x database.
  *
- * <dl><dt><b>Source code:</b></dt>
- * <dd><a href="http://trac.openmicroscopy.org.uk/ome/browser/bioformats.git/components/ome-io/src/loci/ome/io/OmeroReader.java">Trac</a>,
- * <a href="http://git.openmicroscopy.org/?p=bioformats.git;a=blob;f=components/ome-io/src/loci/ome/io/OmeroReader.java;hb=HEAD">Gitweb</a></dd></dl>
  */
 public class OmeroReader extends FormatReader {
 
