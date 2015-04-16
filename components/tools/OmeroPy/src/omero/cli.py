@@ -1694,40 +1694,6 @@ class GraphControl(CmdControl):
 
         self._process_request(doall, args, client)
 
-    def edit_options(self, req, specmap):
-
-        from omero.util import edit_path
-        from omero.util.temp_files import create_path
-
-        start_text = """# Edit options for your operation below.\n"""
-        start_text += ("# === %s ===\n" % req.type)
-        if req.type not in specmap:
-            self.ctx.die(162, "Unknown type: %s" % req.type)
-        start_text += self.append_options(req.type, dict(specmap))
-
-        temp_file = create_path()
-        try:
-            edit_path(temp_file, start_text)
-            txt = temp_file.text()
-            print txt
-            rv = dict()
-            for line in txt.split("\n"):
-                self.line_to_opts(line, rv)
-            return rv
-        except RuntimeError, re:
-            self.ctx.die(954, "%s: Failed to edit %s"
-                         % (getattr(re, "pid", "Unknown"), temp_file))
-
-    def append_options(self, key, specmap, indent=0):
-        spec = specmap.pop(key)
-        start_text = ""
-        for optkey in sorted(spec.options):
-            optval = spec.options[optkey]
-            start_text += ("%s%s=%s\n" % ("  " * indent, optkey, optval))
-            if optkey in specmap:
-                start_text += self.append_options(optkey, specmap, indent+1)
-        return start_text
-
     def print_request_description(self, request):
         doall = self.as_doall(request)
         cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
