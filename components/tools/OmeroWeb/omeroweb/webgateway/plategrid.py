@@ -54,25 +54,22 @@ class PlateGrid(object):
                     "where well.plate.id = :id "\
                     "and index(ws) = :wsidx"
 
-            wellGrid = q.projection(query, params, self._conn.SERVICE_OPTS)
-            for w in wellGrid:
-                gridRow = w[0].val
-                gridCol = w[1].val
+            for res in q.projection(query, params, self._conn.SERVICE_OPTS):
+                row, col, img_id, img_name, author, well_id, time = res
                 wellmeta = {'type': 'Image',
-                            'id': w[2].val,
-                            'name': w[3].val,
-                            'author': w[4].val,
-                            'wellId': w[5].val,
+                            'id': img_id.val,
+                            'name': img_name.val,
+                            'author': author.val,
+                            'date': time.val / 1000,
+                            'wellId': well_id.val,
                             'field': self.field}
 
-                date = dt.fromtimestamp(w[6].val / 1000)
-                wellmeta['date'] = time.mktime(date.timetuple())
                 if callable(self._thumbprefix):
-                    wellmeta['thumb_url'] = self._thumbprefix(str(w[2].val))
+                    wellmeta['thumb_url'] = self._thumbprefix(str(img_id.val))
                 else:
-                    wellmeta['thumb_url'] = self._thumbprefix + str(w[2].val)
+                    wellmeta['thumb_url'] = self._thumbprefix + str(img_id.val)
 
-                grid[gridRow][gridCol] = wellmeta
+                grid[row.val][col.val] = wellmeta
 
             self._metadata = {'grid': grid,
                               'collabels': self.plate.getColumnLabels(),
