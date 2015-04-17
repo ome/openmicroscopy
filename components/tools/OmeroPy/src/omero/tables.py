@@ -852,7 +852,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         handle = self.factory.submit(dc)
         # Copied from clients.py since none is available
         try:
-            callback = omero.callbacks.CmdCallbackI(current.adapter, handle, "Fake")
+            callback = omero.callbacks.CmdCallbackI(
+                current.adapter, handle, "Fake")
         except:
             # Since the callback won't escape this method,
             # close the handle if requested.
@@ -862,7 +863,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         try:
             callback.loop(20, 500)
         except LockTimeout:
-            callback.close(closehandle)
+            callback.close(True)
             raise omero.InternalException(None, None, "delete timed-out")
 
         rsp = callback.getResponse()

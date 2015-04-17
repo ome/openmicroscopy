@@ -152,7 +152,7 @@ class TestTables(lib.ITest):
         p = path.path(self.tmpfile())
         self.client.download(file, str(p))
         assert p.size == file.size.val
-        ## BUG: assert self.client.sha1(p) == file.hash.val
+        # BUG: assert self.client.sha1(p) == file.hash.val
 
     def test2855MetadataMethods(self):
         """
