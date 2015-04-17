@@ -732,6 +732,46 @@ class TestSessions(object):
         current = cli.STORE.get_current()
         assert key != current[1]
 
+    def testList(self, capsys):
+        """
+        Test the output of sessions list
+        """
+        cli = MyCLI()
+        cli.STORE.add("srv", "usr", "uuid", {})
+
+        cli.invoke(["s", "list"])
+        o, e = capsys.readouterr()
+        o = o.splitlines()
+        assert o[-1] == "(1 row)"
+        assert "srv" in str(o[-2])
+        assert "usr" in str(o[-2])
+        assert "uuid" in str(o[-2])
+
+    @pytest.mark.parametrize("purge", [True, False])
+    def testListOptions(self, capsys, purge):
+        """
+        Test purge options of bin/omero sessions list
+        """
+        cli = MyCLI()
+        cli.STORE.add("srv", "usr", "uuid", {})
+        cli.STORE.add("srv", "usr2", "uuid2", {})
+        cli.creates_client(new=False)
+
+        if purge:
+            cmd = ["s", "list"]
+        else:
+            cmd = ["s", "list", "--no-purge"]
+
+        cli.invoke(cmd)
+        o, e = capsys.readouterr()
+        assert o.splitlines()[-1] == "(2 rows)"
+        cli.invoke(cmd)
+        o2, e2 = capsys.readouterr()
+        if purge:
+            assert o2.splitlines()[-1] == "(1 row)"
+        else:
+            assert o2.splitlines()[-1] == "(2 rows)"
+
 
 class TestParseConn(object):
 
