@@ -95,13 +95,13 @@ class TestISession(lib.ITest):
 
     def testCreateSessionForGuest(self):
         p = omero.sys.Principal()
-        p.name  = "guest"
+        p.name = "guest"
         p.group = "guest"
         p.eventType = "User"
-        sess  = self.root.sf.getSessionService().createSessionWithTimeout(
-            p, 10000) # 10 secs
+        sess = self.root.sf.getSessionService().createSessionWithTimeout(
+            p, 10000)  # 10 secs
         guest_client = omero.client()
-        guest_sess = guest_client.createSession("guest", "guest")
+        guest_client.joinSession(sess.uuid.val)
         guest_client.closeSession()
 
     def test1018CreationDestructionClosing(self):
