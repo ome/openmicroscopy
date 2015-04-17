@@ -30,6 +30,7 @@ import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.model.IObject;
 import omero.sys.Parameters;
@@ -85,7 +86,7 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id)
-            throws DSOutOfServiceException {
+            throws DSOutOfServiceException, DSAccessException {
         return findIObject(ctx, klassName, id, false);
     }
 
@@ -106,7 +107,7 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public IObject findIObject(SecurityContext ctx, String klassName, long id,
-            boolean allGroups) throws DSOutOfServiceException {
+            boolean allGroups) throws DSOutOfServiceException, DSAccessException {
         try {
             Map<String, String> m = new HashMap<String, String>();
             if (allGroups) {
@@ -118,8 +119,8 @@ public class BrowseFacility extends Facility {
             IQueryPrx service = gateway.getQueryService(ctx);
             return service.find(klassName, id, m);
         } catch (Throwable t) {
-            logError(this, "Cannot retrieve the requested object with "
-                    + "object ID: " + id, t);
+            handleException(this, t, "Cannot retrieve the requested object with "
+                    + "object ID: " + id);
         }
         return null;
     }
@@ -139,15 +140,15 @@ public class BrowseFacility extends Facility {
      *             service.
      */
     public IObject findIObject(SecurityContext ctx, IObject o)
-            throws DSOutOfServiceException {
+            throws DSOutOfServiceException, DSAccessException {
         if (o == null)
             return null;
         try {
             IQueryPrx service = gateway.getQueryService(ctx);
             return service.find(o.getClass().getName(), o.getId().getValue());
         } catch (Throwable t) {
-            logError(this, "Cannot retrieve the requested object with "
-                    + "object ID: " + o.getId(), t);
+            handleException(this, t, "Cannot retrieve the requested object with "
+                    + "object ID: " + o.getId());
         }
         return null;
     }

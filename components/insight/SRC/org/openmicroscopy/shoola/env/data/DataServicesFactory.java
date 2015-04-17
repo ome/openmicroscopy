@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 
 import omero.gateway.LoginCredentials;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;

@@ -43,6 +43,7 @@ import java.util.Set;
 
 
 
+
 //Application-internal dependencies
 import omero.cmd.Request;
 import omero.cmd.graphs.ChildOption;
@@ -83,6 +84,7 @@ import pojos.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.SearchResult;
 import omero.gateway.model.SearchResultCollection;
