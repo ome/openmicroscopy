@@ -521,7 +521,7 @@ class ParsingContext(object):
                     log.error('Missing row or column for image name population!')
                     raise
                 name = image.name.val
-                image_name_column.size = len(name)
+                image_name_column.size = max(image_name_column.size, len(name))
                 image_name_column.values.append(name)
             else:
                 log.info('Missing image name column, skipping.')
