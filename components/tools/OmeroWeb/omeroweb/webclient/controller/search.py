@@ -124,6 +124,6 @@ class BaseSearch(BaseController):
                     self.searchError = (
                         "There was an error parsing your query."
                         " Colons ':' are reserved for searches of"
-                        " Key Value annotations in the form: 'key:value'.")
+                        " key-value annotations in the form: 'key:value'.")
 
         self.c_size = resultCount
