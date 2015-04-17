@@ -189,8 +189,7 @@ class TestIShare(lib.ITest):
         for e in res:
             assert e.id.val == img.id.val
 
-    @pytest.mark.broken(ticket="12562")
-    def testCanAnntotate(self):
+    def testCanAnnotate(self):
 
         # Users in Private and Read-annotate groups
         private_g = self.new_group(perms="rw----")
@@ -202,7 +201,7 @@ class TestIShare(lib.ITest):
         # User2 is in read-ann group (default) AND private group
         user2 = self.new_user(group=readann_g)
         self.add_groups(user2, [private_g])
-        client2 = self.new_client(user=user2, password="ome")
+        client2 = self.new_client(user=user2)
 
         # User 1 creates image in Private group...
         update1 = client1.sf.getUpdateService()

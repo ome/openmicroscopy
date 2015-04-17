@@ -24,9 +24,11 @@
 Simple integration tests to ensure that the CSRF middleware is enabled and
 working correctly.
 """
-
+import pytest
 from weblibrary import IWebTest
 from weblibrary import _get_response
+
+from omero.gateway import BlitzGateway
 
 from django.core.urlresolvers import reverse
 
@@ -97,3 +99,41 @@ class TestShare(IWebTest):
             "view": "icon"
         }
         _get_response(self.django_client, request_url, data, status_code=200)
+
+    @pytest.mark.parametrize('func', ['canEdit', 'canAnnotate', 'canDelete',
+                                      'canLink'])
+    def test_canDoAction(self, func):
+        """
+        Test if canEdit returns appropriate flag
+        """
+
+        client, user = self.new_client_and_user()
+
+        image = self.sf.getUpdateService() \
+                       .saveAndReturnObject(self.new_image(name=self.uuid()))
+        share_id = self.create_share(objects=[image],
+                                     description="description",
+                                     experimenters=[user])
+
+        assert len(self.client.sf.getShareService()
+                                 .getContents(share_id)) == 1
+
+        # test action by member
+        user_conn = BlitzGateway(client_obj=client)
+        # user CANNOT see image if not in share
+        assert None == user_conn.getObject("Image", image.id.val)
+        # activate share
+        user_conn.SERVICE_OPTS.setOmeroShare(share_id)
+        assert False == getattr(user_conn.getObject("Image",
+                                                    image.id.val), func)()
+
+        # test action by owner
+        owner_conn = BlitzGateway(client_obj=self.client)
+        # owner CAN do action on the object when not in share
+        assert True == getattr(owner_conn.getObject("Image",
+                                                    image.id.val), func)()
+        # activate share
+        owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
+        # owner CANNOT do action on the object when in share
+        assert False == getattr(owner_conn.getObject("Image",
+                                                     image.id.val), func)()

@@ -13,15 +13,16 @@ import ome.api.IShare;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.TokenHolder;
 import ome.services.sharing.ShareStore;
 
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
 import org.springframework.util.Assert;
 
 /**
@@ -119,7 +120,13 @@ public class SharingACLVoter implements ACLVoter {
 
     @Override
     public void postProcess(IObject object) {
-        return;
+        if (object != null && object.isLoaded()) {
+            Details d = object.getDetails();
+            Permissions p = d.getPermissions();
+            Permissions copy = new Permissions(p);
+            copy.copyRestrictions(0, null);
+            d.setPermissions(copy);
+        }
     }
 
     // Helpers

@@ -2387,37 +2387,6 @@ class ImageWrapper (OmeroWebObjectWrapper,
         if 'link' in kwargs:
             self.link = 'link' in kwargs and kwargs['link'] or None
 
-    def canEdit(self):
-        """
-        Determines if the current user can Edit (E.g. name, description) link
-        (E.g. Project, Dataset, Image etc) or Delete this object. The
-        canEdit() property is set on the permissions of every object as it is
-        read from the server, based on the current user, event context and
-        group permissions.
-
-        :rtype:     Boolean
-        :return:    True if user can Edit this object Delete, link etc.
-        """
-        if self._conn.SERVICE_OPTS.get('omero.share'):
-            if self.getDetails().getOwner().id != self._conn.getUserId():
-                return False
-        return self.getDetails().getPermissions().canEdit()
-
-    def canAnnotate(self):
-        """
-        Determines if the current user can annotate this object: ie create
-        annotation links. The canAnnotate() property is set on the permissions
-        of every object as it is read from the server, based on the current
-        user, event context and group permissions.
-
-        :rtype:     Boolean
-        :return:    True if user can Annotate this object
-        """
-        if self._conn.SERVICE_OPTS.get('omero.share'):
-            if self.getDetails().getOwner().id != self._conn.getUserId():
-                return False
-        return self.getDetails().getPermissions().canAnnotate()
-
     """
     This override standard omero.gateway.ImageWrapper.getChannels
     and catch exceptions.
