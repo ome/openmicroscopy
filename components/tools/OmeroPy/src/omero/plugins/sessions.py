@@ -550,6 +550,7 @@ class SessionsControl(BaseControl):
                             self.ctx.dbg("Purging %s / %s / %s"
                                          % (server, name, uuid))
                             store.remove(server, name, uuid)
+                            continue
                         except IOError, ioe:
                             self.ctx.dbg("Aborting session purging. %s" % ioe)
                             break
