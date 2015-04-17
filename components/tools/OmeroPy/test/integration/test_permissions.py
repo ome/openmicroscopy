@@ -839,8 +839,7 @@ class TestPermissionProjections(lib.ITest):
     _cache = dict()
 
     def writer(self, fixture):
-        client = self._new_client(fixture.reader, fixture.perms)
-        return client.sf.getUpdateService()
+        return self._new_client(fixture.reader, fixture.perms)
 
     def reader(self, fixture):
         client = self._new_client(fixture.reader, fixture.perms)
