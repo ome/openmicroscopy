@@ -89,6 +89,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 
 import pojos.util.PojoMapper;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;

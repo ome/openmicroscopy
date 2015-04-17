@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 
 import pojos.util.PojoMapper;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import pojos.DataObject;
 import pojos.ExperimenterData;
