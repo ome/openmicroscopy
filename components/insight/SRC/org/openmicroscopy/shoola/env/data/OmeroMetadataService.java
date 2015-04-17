@@ -34,6 +34,7 @@ import java.util.Map;
 
 
 
+
 //Application-internal dependencies
 import omero.model.AcquisitionMode;
 import omero.model.ArcType;
@@ -60,6 +61,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;

@@ -36,6 +36,7 @@ import omero.InternalException;
 import omero.api.SearchPrx;
 import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
+import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
 import omero.gateway.model.SearchParameters;
 import omero.gateway.model.SearchResult;
@@ -85,7 +86,7 @@ public class SearchFacility extends Facility {
      *             service.
      */
     public SearchResultCollection search(SecurityContext ctx, SearchParameters context)
-            throws DSOutOfServiceException {
+            throws DSOutOfServiceException, DSAccessException {
 
         SearchResultCollection result = new SearchResultCollection();
 
@@ -189,7 +190,7 @@ public class SearchFacility extends Facility {
                 service.clearQueries();
 
             } catch (Throwable e) {
-                logError(this, "Could not load hierarchy", e);
+                handleException(this, e, "Could not load hierarchy");
             }
         }
 
