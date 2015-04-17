@@ -137,11 +137,7 @@ class SessionsControl(BaseControl):
             help="Id or name of the group to switch this session to")
 
         list = parser.add(sub, self.list, "List all locally stored sessions")
-        purge = list.add_mutually_exclusive_group()
-        purge.add_argument(
-            "--purge", action="store_true", default=True,
-            help="Remove inactive sessions")
-        purge.add_argument(
+        list.add_argument(
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
 
