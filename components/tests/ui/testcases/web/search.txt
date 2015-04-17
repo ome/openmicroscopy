@@ -48,9 +48,9 @@ ${FailureMessage}       Search should Not Contain an Alert Window.
 
 ${SEARCH URL}           ${WELCOME URL}search/
 
-@{SearchKeyWords}       *  \  *:  :
+@{SearchKeyWords}       *  \  *:  :  :abc
 
-@{SearchKeyWords1}      ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"  -  "
+@{SearchKeyWords1}      ?  *.dv  Â¡  â¬  Â¢  â  Â§  Ê  â¢  Âª  Ê  â  â   Â±  !  @  Â£  $  %  ^  &  (  )  +  __  â  Â´  Â®  â   Â¥  Â¨  ã  Ï  ^ã  â  â  ã  ã  â  Æ  Â©  Ë  â  Ë  Â¬  â¦  ã  Â«  `  Î©  â  ã  â  â«  ~  Âµ  â¤  â¥  ã  Â±  !  @  Â£  $  %  ^  &  (  )  _  +  Q  W  E  R  T  Y  U  I  O  P  {  }  A  S  D  F  G  H  J  K  L  |  ~  Z  X  C  V  B  N  M  <  >  ?  Â§  1  2  3  4  5  6  7  8  9  0  =  q  w  e  r  t  y  u  i  o  [  ]  a  s  d  f  g  h  j  k  l  ;  '  `  z  x  c  v  b  n  m  ,  .  /  (a)  (*)  (?)  *.svs  *.ome.tiff  *.*  a, b  a-b  a_b  a/b  */  ?/  *_  *-  *=  *{}  *[]  *^  **  *a*  *1*  *,*  *-*  ?.*  ?*  *?  a?  1?  123  a1n23;(-)*j.-t  GFP-ABC  GFP-abc  GFP_ABC.svs  "GFP ABC"  "GFP_ABC"  "GFP-ABC"  "GFP.ABC.ome.tiff"  GFP AND ABC  GFP and ABC  "#"  -  "  GFP:ABC
 
 *** Keywords ***
 
