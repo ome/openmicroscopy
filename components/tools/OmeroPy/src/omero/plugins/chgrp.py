@@ -77,6 +77,27 @@ class ChgrpControl(GraphControl):
 
         super(ChgrpControl, self)._process_request(req, args, client)
 
+    def print_detailed_report(self, req, rsp, status):
+        import omero
+        if isinstance(rsp, omero.cmd.DoAllRsp):
+            for response in rsp.responses:
+                if isinstance(response, omero.cmd.Chgrp2Response):
+                    self.print_chgrp_response(response)
+        elif isinstance(rsp, omero.cmd.Chgrp2Response):
+            self.print_chgrp_response(rsp)
+
+    def print_chgrp_response(self, rsp):
+        for k in rsp.includedObjects.keys():
+            if rsp.includedObjects[k]:
+                self.ctx.out("Included %s objects" % k)
+                for i in rsp.includedObjects[k]:
+                    self.ctx.out("%s:%s" % (k, i))
+        for k in rsp.deletedObjects.keys():
+            if rsp.deletedObjects[k]:
+                self.ctx.out("Deleted %s objects" % k)
+                for i in rsp.deletedObjects[k]:
+                    self.ctx.out("%s:%s" % (k, i))
+
 try:
     register("chgrp", ChgrpControl, HELP)
 except NameError:
