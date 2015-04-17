@@ -37,18 +37,19 @@ class DeleteControl(GraphControl):
 
     def print_detailed_report(self, req, rsp, status):
         import omero
-        if isinstance(rsp, omero.cmd.DeleteRsp):
-            for k, v in rsp.undeletedFiles.items():
-                if v:
-                    self.ctx.out("Undeleted %s objects" % k)
-                    for i in v:
-                        self.ctx.out("%s:%s" % (k, i))
+        if isinstance(rsp, omero.cmd.DoAllRsp):
+            for response in rsp.responses:
+                if isinstance(response, omero.cmd.Delete2Response):
+                    self.print_delete_response(response)
+        elif isinstance(rsp, omero.cmd.Delete2Response):
+            self.print_delete_response(rsp)
 
-            self.ctx.out("Scheduled deletes: %s" % rsp.scheduledDeletes)
-            self.ctx.out("Actual deletes: %s" % rsp.actualDeletes)
-            if rsp.warning:
-                self.ctx.out("Warning message: %s" % rsp.warning)
-            self.ctx.out(" ")
+    def print_delete_response(self, rsp):
+        for k in rsp.deletedObjects.keys():
+            if rsp.deletedObjects[k]:
+                self.ctx.out("Deleted %s objects" % k)
+                for i in rsp.deletedObjects[k]:
+                    self.ctx.out("%s:%s" % (k, i))
 
 try:
     register("delete", DeleteControl, HELP)
