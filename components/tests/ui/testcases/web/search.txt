@@ -131,11 +131,12 @@ For-Loop-In-Range-Search-Keywords-Error-Or-Alert-Expected
     \   ${status}   Run Keyword And Return Status  Click Element   ${AlertWindow}
     \   Run Keyword If    '${status}' == 'False'     Wait Until Keyword Succeeds     10     0.2    Page Should Not Contain Element   ${SearchInProgress} 
 
-    \   ${status1}  Run Keyword And Return Status   Element Should Be Visible   ${QueryError}
-    \   Run Keyword If    '${status1}' == 'True'    Sleep           ${ImplicitDelay}
-    \   Run Keyword If   '${status}' == 'False'       Should Be True     ${status1}
-    \   Run Keyword If   '${status1}' == 'False'       Should Be True     ${status}
-    \   Run Keyword If    '${status1}' == 'True'    Omero Default Search   
+    \   ${status1}  Run Keyword And Return Status       Element Should Be Visible   ${QueryError}
+    \   Run Keyword If    '${status1}' == 'True'        Sleep               ${ImplicitDelay}
+    \   Run Keyword If   '${status}' == 'False'         Should Be True      ${status1}
+    \   Run Keyword If   '${status}' == 'False'         Element Text Should Be   id=searchResultCount   0 results
+    \   Run Keyword If   '${status1}' == 'False'        Should Be True      ${status}
+    \   Run Keyword If    '${status1}' == 'True'        Omero Default Search
 
 
 For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
@@ -153,6 +154,7 @@ For-Loop-In-Range-Search-Keywords-No-Error-Or-Alert-Expected
     \   ${status3}   Run Keyword And Return status   Element Should Be Visible  ${NoResultsFound}   10
     \   Run Keyword If   '${status2}' == 'False'       Should Be True     ${status3}
     \   Run Keyword If   '${status3}' == 'False'       Should Be True     ${status2}
+    \   Run Keyword If   '${status3}' == 'True'        Element Text Should Be   id=searchResultCount   0 results
 
 
 Condition Check Imported Date
