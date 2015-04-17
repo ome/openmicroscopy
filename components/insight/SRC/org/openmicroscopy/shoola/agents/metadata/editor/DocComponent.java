@@ -54,7 +54,6 @@ import javax.swing.SwingUtilities;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
@@ -62,7 +61,11 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ToolTipGenerator;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.BMPFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -148,6 +151,9 @@ class DocComponent
 	/** Button to download the file linked to the annotation. */
 	private JMenuItem		downloadButton;
 	
+	/** Button to open the file linked to the annotation. */
+    private JMenuItem       openButton;
+    
 	/** Button to display information. */
 	private JMenuItem		infoButton;
 	
@@ -248,9 +254,42 @@ class DocComponent
 			downloadButton.setVisible(b);
 			if (b) count++;
 		}
+		if (openButton != null) {
+            b = true;
+            openButton.setEnabled(b);
+            openButton.setVisible(b);
+            if (b) count++;
+        }
 		return count > 0;
 	}
 
+    /** Opens the file. */
+    private void openFile() {
+        if (!(data instanceof FileAnnotationData))
+            return;
+
+        FileAnnotationData fa = (FileAnnotationData) data;
+        Registry reg = MetadataViewerAgent.getRegistry();
+        UserNotifier un = reg.getUserNotifier();
+        OriginalFile f = (OriginalFile) fa.getContent();
+        Environment env = (Environment) reg.lookup(LookupNames.ENV);
+        DownloadAndLaunchActivityParam activity;
+        final long dataId = fa.getId();
+        final File dir = new File(env.getOmeroFilesHome() + File.separatorChar
+                + "file annotation " + dataId);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        if (f != null && f.isLoaded()) {
+            activity = new DownloadAndLaunchActivityParam(f, dir, null);
+        } else {
+            activity = new DownloadAndLaunchActivityParam(dataId,
+                    DownloadAndLaunchActivityParam.FILE_ANNOTATION, dir, null);
+        }
+        un.notifyActivity(model.getSecurityContext(), activity);
+        return;
+    }
+    
 	/** 
 	 * Brings up the menu. 
 	 * 
@@ -264,6 +303,7 @@ class DocComponent
 			if (editButton != null) popMenu.add(editButton);
 			if (unlinkButton != null) popMenu.add(unlinkButton);
 			if (downloadButton != null) popMenu.add(downloadButton);
+			if (openButton != null) popMenu.add(openButton);
 			if (infoButton != null) popMenu.add(infoButton);
 		}
 		popMenu.show(invoker, p.x, p.y);
@@ -500,6 +540,12 @@ class DocComponent
 				downloadButton.addActionListener(this);
 				
 				String ns = fa.getNameSpace();
+				openButton = new JMenuItem(icons.getIcon(
+                        IconManager.VIEW_DOC_12));
+                openButton.setText("View");
+                openButton.setToolTipText("View the file.");
+                openButton.setActionCommand(""+OPEN);
+                openButton.addActionListener(this);
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
@@ -687,6 +733,7 @@ class DocComponent
 		if (unlinkButton != null) count++;
 		if (downloadButton != null) count++;
 		if (infoButton != null) count++;
+		if (openButton != null) count++;
 		if (count > 0 && data != null) {
 			menuButton.setEnabled(true);
 			if (model.isAcrossGroups()) menuButton.setEnabled(false);
@@ -863,6 +910,9 @@ class DocComponent
 				break;
 			case DOWNLOAD:
 				download();
+			case OPEN:
+                openFile();
+                break;
 		}
 	}
 
