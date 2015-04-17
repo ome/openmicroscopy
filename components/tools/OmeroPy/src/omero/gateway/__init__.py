@@ -1727,8 +1727,6 @@ class _BlitzGateway (object):
                 self, 'getConfigService')
             self._proxies['container'] = ProxyObjectWrapper(
                 self, 'getContainerService')
-            self._proxies['delete'] = ProxyObjectWrapper(
-                self, 'getDeleteService')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['metadata'] = ProxyObjectWrapper(
                 self, 'getMetadataService')
@@ -2434,14 +2432,6 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
         return self._proxies['update']
-
-    def getDeleteService(self):
-        """
-        Gets reference to the delete service from ProxyObjectWrapper.
-
-        :return:    omero.gateway.ProxyObjectWrapper
-        """
-        return self._proxies['delete']
 
     def getSessionService(self):
         """
@@ -3806,16 +3796,6 @@ class _BlitzGateway (object):
 
         u = self.getUpdateService()
         u.deleteObject(obj, self.SERVICE_OPTS)
-
-    def getAvailableDeleteCommands(self):
-        """
-        Retrieves the current set of delete commands with type (graph spec)
-        and options filled.
-
-        :return:    Exhaustive list of available delete commands.
-        :rtype:     :class:`omero.api.delete.DeleteCommand`
-        """
-        return self.getDeleteService().availableCommands()
 
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
                       deleteChildren=False):
