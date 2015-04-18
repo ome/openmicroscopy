@@ -62,6 +62,7 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             state.uploadStarted();
             checkLocation(location, rawFileStore);
             exec(file, location);
+            checkTarget(location, state);
             cp.putFile(file.getAbsolutePath());
             state.stop(length);
             state.uploadBytes(length);
@@ -192,6 +193,41 @@ public abstract class AbstractExecFileTransfer extends AbstractFileTransfer {
             String msg = sw.toString();
             log.error(msg);
             throw new RuntimeException(msg);
+        }
+    }
+
+    /**
+     * Check that the server can properly read the copied file.
+     *
+     * Like {@link #checkLocation(File, RawFileStorePrx)} but <em>after</em>
+     * the invocation of {@link #exec(File, File)}, there is some chance, likely
+     * due to file permissions, that the server will not be able to read the
+     * transfered file. If so, raise an exception and leave the user to cleanup
+     * and modifications.
+     */
+    protected void checkTarget(File location, TransferState state) throws ServerError {
+        try {
+            state.getUploader("r").size();
+        } catch (Throwable t) {
+            String message;
+            if (t instanceof ServerError) {
+                message = ((ServerError) t).message;
+            } else {
+                message = t.getMessage();
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append(t.getClass().getName());
+            sb.append(" : ");
+            sb.append(message);
+            sb.append("\nThe server could not check the size of the file:\n");
+            sb.append("-----------------------------------------------\n");
+            sb.append(location);
+            sb.append("\n-----------------------------------------------\n");
+            sb.append("Most likely the server process has no read access\n");
+            sb.append("and therefore in-place import cannot proceed. You\n");
+            sb.append("should delete this file manually if you are sure\n");
+            sb.append("that the original is safe.\n");
+            throw new RuntimeException(sb.toString());
         }
     }
 
