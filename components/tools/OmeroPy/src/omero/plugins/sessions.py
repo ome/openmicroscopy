@@ -136,7 +136,12 @@ class SessionsControl(BaseControl):
             "target",
             help="Id or name of the group to switch this session to")
 
-        list = parser.add(sub, self.list, "List all locally stored sessions")
+        list = parser.add(sub, self.list, (
+            "List all available sessions stored locally\n\n"
+            "By default, inactive sessions are purged from the local"
+            " sessions store and removed from the listing. To list all"
+            " sessions stored locally independently of their status, use the"
+            " --no-purge argument."))
         list.add_argument(
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
