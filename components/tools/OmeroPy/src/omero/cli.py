@@ -33,6 +33,7 @@ import glob
 import platform
 import time
 import shlex
+import errno
 from threading import Lock
 from path import path
 
@@ -459,6 +460,9 @@ class Context:
                 stream.write("\n")
             else:
                 stream.flush()
+        except IOError, e:
+            if e.errno != errno.EPIPE:
+                raise
         except:
             print >>sys.stderr, "Error printing text"
             print >>sys.stdout, text
