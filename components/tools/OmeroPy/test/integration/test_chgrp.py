@@ -260,6 +260,36 @@ class TestChgrp(lib.ITest):
             assert target_gid == img_gid,\
                 "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
+    @pytest.mark.xfail(reason="Two commands in a DoAll rather than one.")
+    def testChgrpAllImagesFilesetOKTwoCommands(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        A single fileset containing 2 images
+        can be moved to the same group together.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        images = self.importMIF(2, client=client)
+
+        # chgrp should succeed
+        chgrp1 = Chgrp2(
+            targetObjects={'Image': [images[0].id.val]}, groupId=target_gid)
+        chgrp2 = Chgrp2(
+            targetObjects={'Image': [images[1].id.val]}, groupId=target_gid)
+        self.doSubmit([chgrp1, chgrp2], client)
+
+        # Check both Images moved
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': '-1'}      # query across groups
+        for i in images:
+            image = queryService.get('Image', i.id.val, ctx)
+            img_gid = image.details.group.id.val
+            assert target_gid == img_gid,\
+                "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
+
     def testChgrpOneDatasetFilesetErr(self):
         """
         Simple example of the MIF chgrp bad case:
