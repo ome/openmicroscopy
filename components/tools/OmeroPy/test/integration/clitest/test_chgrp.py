@@ -163,8 +163,7 @@ class TestChgrp(CLITest):
         # try to move both the images to the new group
         target_group = self.target_groups['rw----']
         self.args += ['%s' % target_group.id.val,
-                      '/Image:%s' % images[0].id.val,
-                      '/Image:%s' % images[1].id.val]
+                      'Image:%s,%s' % (images[0].id.val, images[1].id.val)]
         self.cli.invoke(self.args, strict=True)
 
         # check the images have been moved
@@ -186,7 +185,7 @@ class TestChgrp(CLITest):
 
         # try to move the dataset to the new group
         target_group = self.target_groups['rw----']
-        self.args += ['%s' % target_group.id.val, '/Dataset:%s' % dataset_id]
+        self.args += ['%s' % target_group.id.val, 'Dataset:%s' % dataset_id]
         self.cli.invoke(self.args, strict=True)
 
         # query across groups

@@ -81,10 +81,10 @@ class TestDelete(CLITest):
 
         # Delete the fileset
         if arguments == 'fileset':
-            self.args += ['/Fileset:%s' % filesetId]
+            self.args += ['Fileset:%s' % filesetId]
         else:
-            for i in images:
-                self.args += ['/Image:%s' % i.id.val]
+            ids = [str(i.id.val) for i in images]
+            self.args += ['Image:' + ",".join(ids)]
         self.cli.invoke(self.args, strict=True)
 
         # Check the fileset and images have been deleted
