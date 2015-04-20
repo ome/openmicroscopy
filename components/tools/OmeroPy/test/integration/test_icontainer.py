@@ -37,10 +37,11 @@ from uuid import uuid4
 
 class TestIContainer(lib.ITest):
 
+    DEFAULT_PERMS = "rw----"
+
     def testFindAnnotations(self):
         ipojo = self.client.sf.getContainerService()
-        i = ImageI()
-        i.setName(rstring("name"))
+        i = self.new_image(name="name")
         i = ipojo.createDataObject(i, None)
 
     def testFindAndCountAnnotationsForSharedData(self):
@@ -161,13 +162,13 @@ class TestIContainer(lib.ITest):
 
 class TestSplitFilesets(lib.ITest):
 
-    def checkSplitFilesets(self, client, dtypeIdsMap, expected):
+    def checkSplitFilesets(self, dtypeIdsMap, expected):
         """
         To check we get the expected result from
         iContainer.getImagesBySplitFilesets() we do the query with dtype & ids
         and compare the returned data with the specified dict.
         """
-        container = client.sf.getContainerService()
+        container = self.client.sf.getContainerService()
         result = container.getImagesBySplitFilesets(dtypeIdsMap, None)
 
         def cmpLists(listOne, listTwo):
@@ -194,119 +195,88 @@ class TestSplitFilesets(lib.ITest):
         """
         Fileset of 2 Images, we test split using 1 Image ID
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        images = self.importMIF(2, client=client)
+        images = self.importMIF(2)
 
         # Lookup the fileset
         imgId = images[0].id.val
-        query = client.sf.getQueryService()
-        filesetId = query.get('Image', imgId).fileset.id.val
+        filesetId = self.query.get('Image', imgId).fileset.id.val
 
         # Define what we expect & query split fileset
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
-        self.checkSplitFilesets(client, {'Image': [imgId]}, expected)
+        self.checkSplitFilesets({'Image': [imgId]}, expected)
 
     def testFilesetNotSplitByImage(self):
         """
         Fileset of 2 Images with No split (query with both Image IDs)
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        images = self.importMIF(2, client=client)
+        images = self.importMIF(2)
 
         imgIds = [i.id.val for i in images]
 
         # Define what we expect & query split fileset
         expected = {}
-        self.checkSplitFilesets(client, {'Image': imgIds}, expected)
+        self.checkSplitFilesets({'Image': imgIds}, expected)
 
     def testFilesetSplitByDatasetAndProject(self):
         """
         Fileset of 2 Images, one in a Dataset. Test split using Dataset ID
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        update = client.sf.getUpdateService()
-        query = client.sf.getQueryService()
-
         # Dataset contains 1 image of a 2-image fileset
-        images = self.importMIF(2, client=client)
-        ds = omero.model.DatasetI()
-        ds.name = omero.rtypes.rstring("testFilesetSplitByDataset")
-        ds = update.saveAndReturnObject(ds)
-        link = omero.model.DatasetImageLinkI()
-        link.setParent(ds.proxy())
-        link.setChild(images[0].proxy())
-        link = update.saveAndReturnObject(link)
+        images = self.importMIF(2)
+        ds = self.make_dataset("testFilesetSplitByDataset")
+        self.link(ds, images[0])
 
         # Dataset in Project
-        pr = omero.model.ProjectI()
-        pr.name = omero.rtypes.rstring("testFilesetSplitByProject")
-        pr = update.saveAndReturnObject(pr)
-        link = omero.model.ProjectDatasetLinkI()
-        link.setParent(pr.proxy())
-        link.setChild(ds.proxy())
-        link = update.saveAndReturnObject(link)
+        pr = self.make_project("testFilesetSplitByProject")
+        self.link(pr, ds)
 
         # Lookup the fileset
         imgId = images[0].id.val
-        filesetId = query.get('Image', imgId).fileset.id.val
+        filesetId = self.query.get('Image', imgId).fileset.id.val
 
         # Define what we expect & query split fileset
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
-        self.checkSplitFilesets(client, {'Dataset': [ds.id.val]}, expected)
+        self.checkSplitFilesets({'Dataset': [ds.id.val]}, expected)
         # Expect same result if query via Project
-        self.checkSplitFilesets(client, {'Project': [pr.id.val]}, expected)
+        self.checkSplitFilesets({'Project': [pr.id.val]}, expected)
 
         # No split if we include the extra image ID
         expected = {}
         idsMap = {'Dataset': [ds.id.val], "Image": [images[1].id.val]}
-        self.checkSplitFilesets(client, idsMap, expected)
+        self.checkSplitFilesets(idsMap, expected)
         idsMap = {'Project': [pr.id.val], "Image": [images[1].id.val]}
-        self.checkSplitFilesets(client, idsMap, expected)
+        self.checkSplitFilesets(idsMap, expected)
 
     def testFilesetNotSplitByDatasets(self):
         """
         Fileset of 2 Images, both in different Datasets.
         Test Not split using Dataset IDs
         """
-        client, user = self.new_client_and_user(perms="rw----")
-        update = client.sf.getUpdateService()
-        query = client.sf.getQueryService()
-
         # Datasets each contain 1 image of a 2-image fileset
-        datasets = self.createDatasets(
-            2, "testFilesetNotSplitByDatasets", client=client)
-        images = self.importMIF(2, client=client)
+        datasets = self.createDatasets(2, "testFilesetNotSplitByDatasets")
+        images = self.importMIF(2)
         for i in range(2):
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(datasets[i].proxy())
-            link.setChild(images[i].proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(datasets[i], images[i])
 
         # Another Dataset contains both images
-        ds = omero.model.DatasetI()
-        ds.name = omero.rtypes.rstring("testFilesetNotSplitByDatasets")
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name="testFilesetNotSplitByDatasets")
         for i in images:
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(ds.proxy())
-            link.setChild(i.proxy())
-            link = update.saveAndReturnObject(link)
+            self.link(ds, i)
 
         # Lookup the fileset
         imgId = images[0].id.val
-        filesetId = query.get('Image', imgId).fileset.id.val
+        filesetId = self.query.get('Image', imgId).fileset.id.val
 
         # No split if we pass in both Dataset IDs...
         dsIds = [d.id.val for d in datasets]
         expected = {}
-        self.checkSplitFilesets(client, {'Dataset': dsIds}, expected)
+        self.checkSplitFilesets({'Dataset': dsIds}, expected)
         # ...or the Dataset that contains both images
-        self.checkSplitFilesets(client, {'Dataset': [ds.id.val]}, expected)
+        self.checkSplitFilesets({'Dataset': [ds.id.val]}, expected)
 
         # confirm split if we choose one Dataset
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
-        self.checkSplitFilesets(
-            client, {'Dataset': [datasets[0].id.val]}, expected)
+        self.checkSplitFilesets({'Dataset': [datasets[0].id.val]}, expected)
 
     def testGetImagesBySplitFilesetsManyCases(self):
         query = self.client.sf.getQueryService()
@@ -413,16 +383,12 @@ class TestSplitFilesets(lib.ITest):
 
         for project_index in set(all_inputs['Project']
                                  + parents(project_dataset_hierarchy)):
-            project = omero.model.ProjectI()
-            project.name = rstring('Project #%i' % project_index)
-            project.id = update.saveAndReturnObject(project).id
+            project = self.make_project(name='Project #%i' % project_index)
             projects.append(query.get('Project', project.id.val))
         for dataset_index in set(all_inputs['Dataset']
                                  + children(project_dataset_hierarchy)
                                  + parents(dataset_image_hierarchy)):
-            dataset = omero.model.DatasetI()
-            dataset.name = rstring('Dataset #%i' % dataset_index)
-            dataset.id = update.saveAndReturnObject(dataset).id
+            dataset = self.make_dataset(name='Dataset #%i' % dataset_index)
             datasets.append(query.get('Dataset', dataset.id.val))
         for screen_index in set(all_inputs['Screen']
                                 + parents(screen_plate_hierarchy)):
@@ -471,10 +437,7 @@ class TestSplitFilesets(lib.ITest):
 
         for dataset_index, image_indices in dataset_image_hierarchy:
             for image_index in image_indices:
-                dataset_image = omero.model.DatasetImageLinkI()
-                dataset_image.parent = datasets[dataset_index]
-                dataset_image.child = images[image_index]
-                update.saveAndReturnObject(dataset_image)
+                self.link(datasets[dataset_index], images[image_index])
 
         for screen_index, plate_indices in screen_plate_hierarchy:
             for plate_index in plate_indices:

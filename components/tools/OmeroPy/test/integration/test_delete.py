@@ -75,12 +75,10 @@ class TestDelete(lib.ITest):
 
         images = list()
         for i in range(0, 5):
-            img = omero.model.ImageI()
-            img.name = rstring("test-delete-image-%i" % i)
-            img.acquisitionDate = rtime(0)
+            img = self.new_image(name="test-delete-image-%i" % i)
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation(tag)
-            images.append(self.update.saveAndReturnObject(img).id.val)
+            images.append(self.update.saveAndReturnObject(img))
 
         # create dataset
         dataset = self.make_dataset('DS-test-2936-%s' % uuid)
@@ -92,9 +90,8 @@ class TestDelete(lib.ITest):
         self.link(project, dataset)
 
         # put image in dataset
-        for iid in images:
-            self.link(omero.model.DatasetI(dataset.id.val, False),
-                      omero.model.ImageI(iid, False))
+        for image in images:
+            self.link(dataset, image)
 
         keep = ChildOption(excludeType=[
             "TagAnnotation", "TermAnnotation", "FileAnnotation",
@@ -120,7 +117,7 @@ class TestDelete(lib.ITest):
         res = self.query.findAllByQuery(sql, p)
         assert 5 == len(res)
         for e in res:
-            if e.id.val not in images:
+            if e.id.val not in [i.id.val for i in images]:
                 self.assertRaises(
                     'Image %i is not in the [%s]'
                     % (e.id.val, ",".join(images)))
@@ -129,9 +126,7 @@ class TestDelete(lib.ITest):
         uuid = self.ctx.sessionUuid
         userName = self.ctx.userName
 
-        img = omero.model.ImageI()
-        img.name = rstring("to delete - test")
-        img.acquisitionDate = rtime(0)
+        img = self.new_image(name="to delete - test")
         tag = omero.model.TagAnnotationI()
         img.linkAnnotation(tag)
 
@@ -174,9 +169,7 @@ class TestDelete(lib.ITest):
         # dataset with many images
         images = list()
         for i in range(0, 50):
-            img = omero.model.ImageI()
-            img.name = rstring("test-delete-image-%i" % i)
-            img.acquisitionDate = rtime(0)
+            img = self.new_image(name="test-delete-image-%i" % i)
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation(tag)
             images.append(self.update.saveAndReturnObject(img))
@@ -186,8 +179,7 @@ class TestDelete(lib.ITest):
 
         # put image in dataset
         for img in images:
-            self.link(omero.model.DatasetI(dataset.id.val, False),
-                      omero.model.ImageI(img.id.val, False))
+            self.link(dataset, img)
 
         ids = [image.id.val for image in images]
         command = Delete2(targetObjects={"Image": ids})
@@ -213,8 +205,7 @@ class TestDelete(lib.ITest):
 
         images = list()
         for i in range(0, 10):
-            img = self.new_image()
-            img = self.update.saveAndReturnObject(img)
+            img = self.make_image()
             iid = img.getId().getValue()
 
             oFile = omero.model.OriginalFileI()
@@ -252,21 +243,18 @@ class TestDelete(lib.ITest):
 
         images = list()
         for i in range(0, 5):
-            img = self.new_image()
-            img = self.update.saveAndReturnObject(img)
-            images.append(img.id.val)
+            images.append(self.make_image())
 
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["oids"] = rlist([rlong(s) for s in images])
+        p.map["oids"] = rlist([rlong(s.id.val) for s in images])
 
         # create dataset
         dataset = self.make_dataset('DS-test-2936-%s' % uuid)
 
         # put image in dataset
-        for iid in images:
-            self.link(omero.model.DatasetI(dataset.id.val, False),
-                      omero.model.ImageI(iid, False))
+        for image in images:
+            self.link(dataset, image)
 
         # log in as group owner:
         client_o, owner = self.new_client_and_user(
@@ -279,8 +267,7 @@ class TestDelete(lib.ITest):
             targetObjects={'Dataset': [dataset.id.val]}, childOptions=[keep])
         handlers.append(str(client_o.sf.submit(dc)))
 
-        imageToDelete = images[2]
-        images.remove(imageToDelete)
+        imageToDelete = images[2].id.val
         dc2 = Delete2(targetObjects={'Image': [imageToDelete]})
         handlers.append(str(client_o.sf.submit(dc2)))
 
@@ -386,7 +373,7 @@ class TestDelete(lib.ITest):
         datasets = self.createDatasets(2, "testDeleteOneDatasetFilesetErr")
         images = self.importMIF(2)
         for i in range(2):
-            self.link(datasets[i].proxy(), images[i].proxy(), self.client)
+            self.link(datasets[i], images[i])
 
         # Now delete one dataset
         delete = Delete2(targetObjects={"Dataset": [datasets[0].id.val]})
@@ -428,7 +415,7 @@ class TestDelete(lib.ITest):
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         for i in range(2):
-            self.link(ds.proxy(), images[i].proxy())
+            self.link(ds, images[i])
 
         # Now delete the dataset, should succeed
         delete = Delete2(targetObjects={"Dataset": [ds.id.val]})
@@ -451,7 +438,7 @@ class TestDelete(lib.ITest):
         fsId = self.query.get("Image", images[0].id.val).fileset.id.val
 
         for i in range(2):
-            self.link(datasets[i].proxy(), images[i].proxy())
+            self.link(datasets[i], images[i])
 
         # Now delete all datasets, should succeed
         dids = [datasets[0].id.val, datasets[1].id.val]
@@ -528,7 +515,7 @@ class TestDelete(lib.ITest):
         ds = self.make_dataset("testDeleteDatasetTwoFilesetsErr")
         self.importMIF(2)
         for i in (imagesFsOne, imagesFsTwo):
-            self.link(ds.proxy(), i[0].proxy())
+            self.link(ds, i[0])
 
         # delete should remove only the Dataset
         delete = Delete2(targetObjects={"Dataset": [ds.id.val]})
@@ -609,8 +596,7 @@ class TestDelete(lib.ITest):
         p1 = self.make_project()
         p2 = self.make_project()
         d = self.make_dataset()
-        i = self.new_image()
-        i = self.update.saveAndReturnObject(i)
+        i = self.make_image()
         self.link(p1, d)
         self.link(p2, d)
         self.link(d, i)
@@ -632,8 +618,7 @@ class TestDelete(lib.ITest):
         p1 = self.make_project()
         p2 = self.make_project()
         d = self.make_dataset()
-        i = self.new_image()
-        i = self.update.saveAndReturnObject(i)
+        i = self.make_image()
         self.link(p1, d)
         self.link(p2, d)
         self.link(d, i)
@@ -654,8 +639,7 @@ class TestDelete(lib.ITest):
         """
         d1 = self.make_dataset()
         d2 = self.make_dataset()
-        i = self.new_image()
-        i = self.update.saveAndReturnObject(i)
+        i = self.make_image()
         self.link(d1, i)
         self.link(d2, i)
         self.delete([d1])
@@ -675,8 +659,7 @@ class TestDelete(lib.ITest):
 
         d1 = self.make_dataset()
         d2 = self.make_dataset()
-        i = self.new_image()
-        i = self.update.saveAndReturnObject(i)
+        i = self.make_image()
         self.link(d1, i)
         self.link(d2, i)
 
@@ -690,11 +673,7 @@ class TestDelete(lib.ITest):
         assert not self.query.find("Image", i.id.val)
 
     def testStepsDuringDelete(self):
-        img = omero.model.ImageI()
-        img.name = rstring("delete test")
-        img.acquisitionDate = rtime(0)
-
-        img = self.update.saveAndReturnObject(img)
+        img = self.make_image(name="delete test")
 
         command = Delete2(targetObjects={"Image": [img.id.val]})
         handle = self.client.sf.submit(command)

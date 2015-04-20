@@ -19,8 +19,6 @@ from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
-from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 
 
 class TestTickets2000(lib.ITest):
@@ -58,11 +56,7 @@ class TestTickets2000(lib.ITest):
 
     def test1069(self):
         unique = rstring(self.uuid())
-        project = ProjectI()
-        project.name = unique
-        project.description = rstring("NOTME")
-        project = self.client.sf.getUpdateService().saveAndReturnObject(
-            project)
+        project = self.make_project(name=unique, description="NOTME")
         self.index(project)
 
         search = self.client.sf.createSearchService()
@@ -78,42 +72,20 @@ class TestTickets2000(lib.ITest):
         assert search.hasNext()
 
     def test1071(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        pojos = self.root.sf.getContainerService()
-        update = self.root.sf.getUpdateService()
+        uuid = self.ctx.sessionUuid
+        pojos = self.sf.getContainerService()
 
         # projects
-        pr1 = ProjectI()
-        pr1.setName(rstring('test1071-pr1-%s' % (uuid)))
-        pr1 = update.saveAndReturnObject(pr1)
-        pr1.unload()
-
-        pr2 = ProjectI()
-        pr2.setName(rstring('test1071-pr2-%s' % (uuid)))
-        pr2 = update.saveAndReturnObject(pr2)
-        pr2.unload()
+        pr1 = self.make_project(name='test1071-pr1-%s' % (uuid))
+        pr2 = self.make_project(name='test1071-pr2-%s' % (uuid))
 
         # datasets
-        ds1 = DatasetI()
-        ds1.setName(rstring('test1071-ds1-%s' % (uuid)))
-        ds1 = update.saveAndReturnObject(ds1)
-        ds1.unload()
-
-        ds2 = DatasetI()
-        ds2.setName(rstring('test1071-ds2-%s' % (uuid)))
-        ds2 = update.saveAndReturnObject(ds2)
-        ds2.unload()
-
-        ds3 = DatasetI()
-        ds3.setName(rstring('test1071-ds3-%s' % (uuid)))
-        ds3 = update.saveAndReturnObject(ds3)
-        ds3.unload()
+        ds1 = self.new_dataset(name='test1071-ds1-%s' % (uuid))
+        ds2 = self.new_dataset(name='test1071-ds2-%s' % (uuid))
+        ds3 = self.make_dataset(name='test1071-ds3-%s' % (uuid))
 
         # images
-        im2 = ImageI()
-        im2.setName(rstring('test1071-im2-%s' % (uuid)))
-        im2 = update.saveAndReturnObject(im2)
-        im2.unload()
+        im2 = self.make_image(name='test1071-im2-%s' % (uuid))
 
         # links
         #
@@ -122,35 +94,12 @@ class TestTickets2000(lib.ITest):
         #    |       \
         #    \-> ds1 --> pr1
         #
-        pdl1 = ProjectDatasetLinkI()
-        pdl1.setParent(pr1)
-        pdl1.setChild(ds1)
-        update.saveObject(pdl1)
-
-        pdl2 = ProjectDatasetLinkI()
-        pdl2.setParent(pr1)
-        pdl2.setChild(ds2)
-        update.saveObject(pdl2)
-
-        pdl3 = ProjectDatasetLinkI()
-        pdl3.setParent(pr2)
-        pdl3.setChild(ds2)
-        update.saveObject(pdl3)
-
-        dil4 = DatasetImageLinkI()
-        dil4.setParent(ds1)
-        dil4.setChild(im2)
-        update.saveObject(dil4)
-
-        dil5 = DatasetImageLinkI()
-        dil5.setParent(ds2)
-        dil5.setChild(im2)
-        update.saveObject(dil5)
-
-        dil6 = DatasetImageLinkI()
-        dil6.setParent(ds3)
-        dil6.setChild(im2)
-        update.saveObject(dil6)
+        self.link(pr1, ds1)
+        self.link(pr1, ds2)
+        self.link(pr2, ds2)
+        self.link(ds1, im2)
+        self.link(ds2, im2)
+        self.link(ds3, im2)
 
         # test:
         hier = pojos.findContainerHierarchies(
@@ -176,39 +125,21 @@ class TestTickets2000(lib.ITest):
         c1 = self.new_client(common_group)
         c2 = self.new_client(common_group)
 
-        c1_update = c1.sf.getUpdateService()
         c1_uuid = c1.sf.getAdminService().getEventContext().sessionUuid
 
         c2_pojos = c2.sf.getContainerService()
-        c2_update = c2.sf.getUpdateService()
         c2_uuid = c2.sf.getAdminService().getEventContext().sessionUuid
 
         # projects
-        pr1 = ProjectI()
-        pr1.setName(rstring('test1071-pr1-%s' % (c1_uuid)))
-        pr1 = c1_update.saveAndReturnObject(pr1)
-        pr1.unload()
-
-        pr2 = ProjectI()
-        pr2.setName(rstring('test1071-pr2-%s' % (c2_uuid)))
-        pr2 = c2_update.saveAndReturnObject(pr2)
-        pr2.unload()
+        pr1 = self.make_project(name='test1071-pr1-%s' % (c1_uuid), client=c1)
+        pr2 = self.make_project(name='test1071-pr2-%s' % (c2_uuid), client=c2)
 
         # datasets
-        ds1 = DatasetI()
-        ds1.setName(rstring('test1071-ds1-%s' % (c1_uuid)))
-        ds1 = c1_update.saveAndReturnObject(ds1)
-        ds1.unload()
-
-        ds2 = DatasetI()
-        ds2.setName(rstring('test1071-ds2-%s' % (c2_uuid)))
-        ds2 = c2_update.saveAndReturnObject(ds2)
-        ds2.unload()
+        ds1 = self.make_dataset(name='test1071-ds1-%s' % (c1_uuid), client=c1)
+        ds2 = self.make_dataset(name='test1071-ds2-%s' % (c2_uuid), client=c2)
 
         # images
-        im2 = ImageI()
-        im2.setName(rstring('test1071-im2-%s' % (c2_uuid)))
-        im2 = c2_update.saveAndReturnObject(im2)
+        im2 = self.make_image(name='test1071-im2-%s' % (c2_uuid), client=c2)
         im2.unload()
 
         # links
@@ -218,25 +149,10 @@ class TestTickets2000(lib.ITest):
         #      |
         #      \-> ds1 --> pr1 (owned by u1)
         #
-        pdl1 = ProjectDatasetLinkI()
-        pdl1.setParent(pr1)
-        pdl1.setChild(ds1)
-        c1_update.saveObject(pdl1)
-
-        pdl2 = ProjectDatasetLinkI()
-        pdl2.setParent(pr2)
-        pdl2.setChild(ds2)
-        c2_update.saveObject(pdl2)
-
-        dil2 = DatasetImageLinkI()
-        dil2.setParent(ds2)
-        dil2.setChild(im2)
-        c2_update.saveObject(dil2)
-
-        dil1 = DatasetImageLinkI()
-        dil1.setParent(ds1)
-        dil1.setChild(im2)
-        c1_update.saveObject(dil1)
+        self.link(pr1, ds1, client=c1)
+        self.link(pr2, ds2, client=c2)
+        self.link(ds2, im2, client=c2)
+        self.link(ds1, im2, client=c1)
 
         # test:
         hier = c2_pojos.findContainerHierarchies(
@@ -266,23 +182,9 @@ class TestTickets2000(lib.ITest):
         c2, test_user2 = self.new_client_and_user(new_gr)
 
         # login as user1
-        update = c1.sf.getUpdateService()
-
-        pr1 = ProjectI()
-        pr1.setName(rstring('test1072-pr1-%s' % (uuid)))
-        pr1 = update.saveAndReturnObject(pr1)
-        pr1.unload()
-
-        # datasets
-        ds1 = DatasetI()
-        ds1.setName(rstring('test1072-ds1-%s' % (uuid)))
-        ds1 = update.saveAndReturnObject(ds1)
-        ds1.unload()
-
-        pdl1 = ProjectDatasetLinkI()
-        pdl1.setParent(pr1)
-        pdl1.setChild(ds1)
-        update.saveObject(pdl1)
+        pr1 = self.new_project(name='test1072-pr1-%s' % (uuid))
+        ds1 = self.new_dataset(name='test1072-ds1-%s' % (uuid))
+        self.link(pr1, ds1, client=c1)
 
         # login as user2
         pojos = c2.sf.getContainerService()
@@ -437,12 +339,10 @@ class TestTickets2000(lib.ITest):
         admin = client.sf.getAdminService()
         cont = client.sf.getContainerService()
 
-        ds = DatasetI()
-        ds.setName(rstring('test1184-ds-%s' % (uuid)))
+        ds = self.new_dataset(name='test1184-ds-%s' % (uuid))
 
         for i in range(1, 2001):
-            img = ImageI()
-            img.setName(rstring('img1184-%s' % (uuid)))
+            img = self.new_image(name='img1184-%s' % (uuid))
             # Saving in one go
             # dil = DatasetImageLinkI()
             # dil.setParent(ds)
@@ -482,26 +382,21 @@ class TestTickets2000(lib.ITest):
 
     def test1183(self):
         # Annotation added before
-        p = omero.model.ProjectI()
+        p = self.new_project(name="ticket1183")
         p.linkAnnotation(omero.model.CommentAnnotationI())
-        p.name = rstring("ticket1183")
         p = self.update.saveAndReturnObject(p)
         p.description = rstring("desc")
         p = self.update.saveAndReturnObject(p)
-        p = self.update.saveAndReturnObject(p)
 
         # Annotation added after
-        p = omero.model.ProjectI()
-        p.name = rstring("ticket1183")
-        p = self.update.saveAndReturnObject(p)
+        p = self.make_project(name="ticket1183")
         p.description = rstring("desc")
         p.linkAnnotation(omero.model.CommentAnnotationI())
         p = self.update.saveAndReturnObject(p)
         p = self.update.saveAndReturnObject(p)
 
         # Unloading annotation after save
-        p = omero.model.ProjectI()
-        p.name = rstring("ticket1183")
+        p = self.new_project(name="ticket1183")
         p.linkAnnotation(omero.model.CommentAnnotationI())
         p = self.update.saveAndReturnObject(p)
         for l in p.copyAnnotationLinks():
@@ -514,8 +409,7 @@ class TestTickets2000(lib.ITest):
         c = omero.model.CommentAnnotationI()
         c = self.update.saveAndReturnObject(c)
         c.unload()
-        p = omero.model.ProjectI()
-        p.name = rstring("ticket1183")
+        p = self.new_project(name="ticket1183")
         p.linkAnnotation(c)
         p = self.update.saveAndReturnObject(p)
         p.description = rstring("desc")
@@ -526,9 +420,7 @@ class TestTickets2000(lib.ITest):
         c = omero.model.CommentAnnotationI()
         c = self.update.saveAndReturnObject(c)
         c.unload()
-        p = omero.model.ProjectI()
-        p.name = rstring("ticket1183")
-        p = self.update.saveAndReturnObject(p)
+        p = self.make_project(name="ticket1183")
         p.description = rstring("desc")
         p.linkAnnotation(c)
         p = self.update.saveAndReturnObject(p)
