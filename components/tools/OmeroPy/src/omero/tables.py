@@ -847,8 +847,9 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     def delete(self, current=None):
         self.assert_write()
         self.close()
-        dc = omero.cmd.Delete(
-            "/OriginalFile", self.file_obj.id.val, None)
+        dc = omero.cmd.Delete2(
+            targetObjects={"OriginalFile": [self.file_obj.id.val]}
+        )
         handle = self.factory.submit(dc)
         # Copied from clients.py since none is available
         try:
