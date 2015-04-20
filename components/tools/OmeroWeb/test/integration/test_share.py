@@ -24,11 +24,8 @@
 Simple integration tests to ensure that the CSRF middleware is enabled and
 working correctly.
 """
-import pytest
 from weblibrary import IWebTest
 from weblibrary import _get_response
-
-from omero.gateway import BlitzGateway
 
 from django.core.urlresolvers import reverse
 
@@ -40,17 +37,6 @@ class TestShare(IWebTest):
     correctly.
     """
 
-    def create_share(self, objects=[], description=None, timeout=None,
-                     experimenters=[], guests=[], enabled=True, client=None):
-        """
-        Creates share
-        """
-        if client is None:
-            client = self.client
-        share = client.sf.getShareService()
-        return share.createShare(description, timeout, objects,
-                                 experimenters, guests, enabled)
-
     def test_load_share_content(self):
         """
         Test if share content is loaded to the view
@@ -58,14 +44,11 @@ class TestShare(IWebTest):
 
         client, user = self.new_client_and_user()
 
-        image = self.sf.getUpdateService() \
-                       .saveAndReturnObject(self.new_image(name=self.uuid()))
-        share_id = self.create_share(objects=[image],
-                                     description="description",
-                                     experimenters=[user])
-
-        assert len(self.client.sf.getShareService()
-                                 .getContents(share_id)) == 1
+        image = self.make_image()
+        share_id = self.create_share(
+            objects=[image], description="description", experimenters=[user])
+        share = self.client.sf.getShareService()
+        assert len(share.getContents(share_id)) == 1
 
         # load share content
         request_url = reverse('load_public', args=[share_id])
@@ -85,13 +68,11 @@ class TestShare(IWebTest):
         dataset = self.new_dataset(name=self.uuid())
         image = self.new_image(name=self.uuid())
         link = self.link(dataset, image)
-        share_id = self.create_share(objects=[link, link.getChild(),
-                                              link.getParent()],
-                                     description="description",
-                                     experimenters=[user])
-
-        assert len(self.client.sf.getShareService()
-                                 .getContents(share_id)) == 3
+        share_id = self.create_share(
+            objects=[link, link.getChild(), link.getParent()],
+            description="description", experimenters=[user])
+        share = self.client.sf.getShareService()
+        assert len(share.getContents(share_id)) == 3
 
         # load share content
         request_url = reverse('load_public', args=[share_id])
@@ -99,41 +80,3 @@ class TestShare(IWebTest):
             "view": "icon"
         }
         _get_response(self.django_client, request_url, data, status_code=200)
-
-    @pytest.mark.parametrize('func', ['canEdit', 'canAnnotate', 'canDelete',
-                                      'canLink'])
-    def test_canDoAction(self, func):
-        """
-        Test if canEdit returns appropriate flag
-        """
-
-        client, user = self.new_client_and_user()
-
-        image = self.sf.getUpdateService() \
-                       .saveAndReturnObject(self.new_image(name=self.uuid()))
-        share_id = self.create_share(objects=[image],
-                                     description="description",
-                                     experimenters=[user])
-
-        assert len(self.client.sf.getShareService()
-                                 .getContents(share_id)) == 1
-
-        # test action by member
-        user_conn = BlitzGateway(client_obj=client)
-        # user CANNOT see image if not in share
-        assert None == user_conn.getObject("Image", image.id.val)
-        # activate share
-        user_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        assert False == getattr(user_conn.getObject("Image",
-                                                    image.id.val), func)()
-
-        # test action by owner
-        owner_conn = BlitzGateway(client_obj=self.client)
-        # owner CAN do action on the object when not in share
-        assert True == getattr(owner_conn.getObject("Image",
-                                                    image.id.val), func)()
-        # activate share
-        owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
-        # owner CANNOT do action on the object when in share
-        assert False == getattr(owner_conn.getObject("Image",
-                                                     image.id.val), func)()
