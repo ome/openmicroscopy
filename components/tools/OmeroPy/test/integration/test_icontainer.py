@@ -28,7 +28,7 @@ import library as lib
 import omero
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
-from omero.rtypes import rstring, rtime
+from omero.rtypes import rstring
 from uuid import uuid4
 
 
@@ -352,20 +352,14 @@ class TestSplitFilesets(lib.ITest):
                                + children(dataset_image_hierarchy)
                                + children(well_image_hierarchy)
                                + children(fileset_image_hierarchy)):
-            image = omero.model.ImageI()
-            image.name = rstring('Image #%i' % image_index)
-            image.acquisitionDate = rtime(0L)
-            image.id = update.saveAndReturnObject(image).id
+            image = self.make_image('Image #%i' % image_index)
             images.append(query.get('Image', image.id.val))
 
         # associate test entities
 
         for project_index, dataset_indices in project_dataset_hierarchy:
             for dataset_index in dataset_indices:
-                project_dataset = omero.model.ProjectDatasetLinkI()
-                project_dataset.parent = projects[project_index]
-                project_dataset.child = datasets[dataset_index]
-                update.saveAndReturnObject(project_dataset)
+                self.link(projects[project_index], datasets[dataset_index])
 
         for dataset_index, image_indices in dataset_image_hierarchy:
             for image_index in image_indices:

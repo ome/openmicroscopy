@@ -338,11 +338,6 @@ class TestTickets2000(lib.ITest):
 
         for i in range(1, 2001):
             img = self.new_image(name='img1184-%s' % (uuid))
-            # Saving in one go
-            # dil = DatasetImageLinkI()
-            # dil.setParent(ds)
-            # dil.setChild(img)
-            # update.saveObject(dil)
             ds.linkImage(img)
         ds = update.saveAndReturnObject(ds)
 

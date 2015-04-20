@@ -35,15 +35,13 @@ import os
 from time import time
 from omero.cmd import Delete2
 from omero.cmd.graphs import ChildOption
-from omero.rtypes import rstring, rtime, rlist, rlong
+from omero.rtypes import rstring, rlist, rlong
 
 
 class TestDelete(lib.ITest):
 
     def testBasicUsage(self):
-        img = omero.model.ImageI()
-        img.name = rstring("delete test")
-        img.acquisitionDate = rtime(0)
+        img = self.new_image(name="delete test")
         tag = omero.model.TagAnnotationI()
         img.linkAnnotation(tag)
 
@@ -56,9 +54,7 @@ class TestDelete(lib.ITest):
     def testDeleteMany(self):
         images = list()
         for i in range(0, 5):
-            img = omero.model.ImageI()
-            img.name = rstring("delete test")
-            img.acquisitionDate = rtime(0)
+            img = self.new_image(name="delete test")
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation(tag)
 

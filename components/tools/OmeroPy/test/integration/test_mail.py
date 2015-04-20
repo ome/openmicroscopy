@@ -90,9 +90,7 @@ class TestMail(lib.ITest):
         update = user.sf.getUpdateService()
         admin = user.sf.getAdminService()
 
-        image = omero.model.ImageI()
-        image.name = omero.rtypes.rstring("testOwnComments")
-        image = update.saveAndReturnObject(image)
+        image = self.make_image(name="testOwnComments", client=user)
         ctx = admin.getEventContext()
 
         # Set own email
