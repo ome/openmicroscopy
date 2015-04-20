@@ -23,8 +23,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -190,27 +188,6 @@ public class FilesetInfoDialog extends TinyDialog {
      *            See above
      */
     public void open(Point location) {
-        addWindowFocusListener(new WindowFocusListener() {
-
-            /**
-             * Closes the dialog when the window loses focus.
-             * 
-             * @see WindowFocusListener#windowLostFocus(WindowEvent)
-             */
-            public void windowLostFocus(WindowEvent evt) {
-                TinyDialog d = (TinyDialog) evt.getSource();
-                d.setClosed(true);
-                d.closeWindow();
-            }
-
-            /**
-             * Required by the I/F but no-operation in our case.
-             * 
-             * @see WindowFocusListener#windowGainedFocus(WindowEvent)
-             */
-            public void windowGainedFocus(WindowEvent evt) {
-            }
-        });
         setResizable(true);
         getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
         pack();
