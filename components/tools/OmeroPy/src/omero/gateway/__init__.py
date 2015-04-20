@@ -3931,40 +3931,45 @@ class _BlitzGateway (object):
         :param graph_spec:      String to indicate the object type or graph
                                 specification. Examples include:
 
-                                * '/Image'
-                                * '/Project'   # will move contents too.
-                                * NB: Also supports 'Image' etc for convenience
+                                * 'Image'
+                                * 'Project'   # will move contents too.
+                                * NB: Also supports '/Image' etc for backwards
+                                  compatibility.
         :param obj_ids:         IDs for the objects to move.
         :param group_id:        The group to move the data to.
         """
 
-        if not graph_spec.startswith('/'):
-            graph_spec = '/%s' % graph_spec
-            logger.debug('chgrp Received object type, using "%s"' % graph_spec)
+        graph_spec = graph_spec.lstrip('/')
+        graph = graph_spec.split("/")
+
+        chgrp = Chgrp2(targetObjects={graph[0]: obj_ids}, groupId=group_id)
+
+        if len(graph) > 1:
+            skiphead = SkipHead()
+            skiphead.request = chgrp
+            skiphead.targetObjects = chgrp.targetObjects
+            skiphead.startFrom = [graph[-1]]
+            chgrp = skiphead
+
+        requests = [chgrp]
 
         # (link, child, parent)
         parentLinkClasses = {
-            "/Image": (omero.model.DatasetImageLinkI,
-                       omero.model.ImageI,
-                       omero.model.DatasetI),
-            "/Dataset": (omero.model.ProjectDatasetLinkI,
-                         omero.model.DatasetI,
-                         omero.model.ProjectI),
-            "/Plate": (omero.model.ScreenPlateLinkI,
-                       omero.model.PlateI,
-                       omero.model.ScreenI)}
+            "Image": (omero.model.DatasetImageLinkI,
+                      omero.model.ImageI,
+                      omero.model.DatasetI),
+            "Dataset": (omero.model.ProjectDatasetLinkI,
+                        omero.model.DatasetI,
+                        omero.model.ProjectI),
+            "Plate": (omero.model.ScreenPlateLinkI,
+                      omero.model.PlateI,
+                      omero.model.ScreenI)}
         da = DoAll()
-        requests = []
         saves = []
 
         ownerId = self.SERVICE_OPTS.getOmeroUser() or self.getUserId()
         for obj_id in obj_ids:
             obj_id = long(obj_id)
-            logger.debug('DoAll Chgrp: type: %s, id: %s, grp: %s' %
-                         (graph_spec, obj_id, group_id))
-            chgrp = omero.cmd.Chgrp(
-                type=graph_spec, id=obj_id, options=None, grp=group_id)
-            requests.append(chgrp)
             if container_id is not None and graph_spec in parentLinkClasses:
                 # get link class for graph_spec objects
                 link_klass = parentLinkClasses[graph_spec][0]
@@ -3979,6 +3984,10 @@ class _BlitzGateway (object):
 
         requests.extend(saves)
         da.requests = requests
+
+        logger.debug('DoAll Chgrp2: type: %s, ids: %s, grp: %s' %
+                     (graph_spec, obj_ids, group_id))
+
         ctx = self.SERVICE_OPTS.copy()
         # NB: For Save to work, we need to be in target group
         ctx.setOmeroGroup(group_id)
