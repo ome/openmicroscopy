@@ -9,8 +9,7 @@ package ome.services.blitz.fire;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
@@ -18,8 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.StringSetPrx;
@@ -29,7 +30,6 @@ import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.FindServiceFactoryMessage;
-import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;
@@ -38,6 +38,7 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import ome.util.messages.InternalMessage;
 import ome.util.messages.MessageException;
 
 import omero.ApiUsageException;
@@ -61,7 +62,7 @@ import omero.util.ServantHolder;
  * @since 3.0-Beta2
  */
 public final class SessionManagerI extends Glacier2._SessionManagerDisp
-        implements ApplicationContextAware, ApplicationListener {
+        implements ApplicationContextAware, ApplicationListener<InternalMessage> {
 
     /**
      * "ome.security.basic.BasicSecurityWiring" <em>may</em> be replaced by
@@ -98,8 +99,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
      * all servants.
      */
-    protected final ConcurrentHashMap<String, ServantHolder> sessionToHolder
-        = new ConcurrentHashMap<String, ServantHolder>();
+    protected final Cache<String, ServantHolder> sessionToHolder = CacheBuilder.newBuilder().build();
 
     public SessionManagerI(Ring ring, Ice.ObjectAdapter adapter,
             SecuritySystem secSys, SessionManager sessionManager,
@@ -180,15 +180,19 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             // Create the session for this ServiceFactory
             Principal p = new Principal(userId, group, event);
-            ome.model.meta.Session s = sessionManager.createWithAgent(p, agent, ip);
+            final ome.model.meta.Session s = sessionManager.createWithAgent(p, agent, ip);
             Principal sp = new Principal(s.getUuid(), group, event);
             // Event raised to add to Ring
 
-            ServantHolder holder = new ServantHolder(s.getUuid(), servantsPerSession);
-            ServantHolder previous = sessionToHolder.putIfAbsent(s.getUuid(), holder);
-            if (previous != null) {
-                holder = previous;
-            }
+            final boolean needsNewSession = sessionToHolder.getIfPresent(s.getUuid()) == null;
+
+            final ServantHolder holder =
+                    sessionToHolder.get(s.getUuid(), new Callable<ServantHolder>() {
+                        @Override
+                        public ServantHolder call() {
+                            return new ServantHolder(s.getUuid(), servantsPerSession);
+                        }
+                    });
 
             // Create the ServiceFactory
             ServiceFactoryI session = new ServiceFactoryI(local /* ticket:911 */,
@@ -211,7 +215,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             // Logging & sessionToClientIds addition
 
-            if (previous == null) {
+            if (needsNewSession) {
                 log.info(String.format("Created session %s for user %s (agent=%s)",
                         session, userId, agent));
             } else {
@@ -282,7 +286,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     // Listener
     // =========================================================================
 
-    public void onApplicationEvent(ApplicationEvent event) {
+    public void onApplicationEvent(InternalMessage event) {
         try {
             if (event instanceof UnregisterServantMessage) {
                 UnregisterServantMessage msg = (UnregisterServantMessage) event;
@@ -314,7 +318,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      */
     void checkStatefulServices(ChangeSecurityContextEvent csce) {
         String uuid = csce.getUuid();
-        ServantHolder holder = sessionToHolder.get(uuid);
+        final ServantHolder holder = sessionToHolder.getIfPresent(uuid);
         if (holder == null) {
             return; // Should never happen. Possibly during testing.
         }
@@ -348,9 +352,11 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * {@link ServiceFactoryI}
      */
     public void reapSession(String sessionId) {
-        ServantHolder holder = sessionToHolder.remove(sessionId);
+        final ServantHolder holder = sessionToHolder.getIfPresent(sessionId);
         if (holder == null) {
             return;
+        } else {
+            sessionToHolder.invalidate(sessionId);
         }
 
         Set<String> clientIds = holder.getClientIds();

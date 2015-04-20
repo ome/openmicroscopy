@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import net.sf.ehcache.Ehcache;
@@ -70,6 +69,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.MapMaker;
 
 /**
  * Is for ISession a cache and will be kept there in sync? OR Factors out the
@@ -717,7 +718,7 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
         Element elt = cache.get(env);
         Map<String, Object> map;
         if (elt == null) {
-            map = new ConcurrentHashMap<String, Object>();
+            map = new MapMaker().makeMap();
             elt = new Element(env, map);
             cache.put(elt);
         } else {

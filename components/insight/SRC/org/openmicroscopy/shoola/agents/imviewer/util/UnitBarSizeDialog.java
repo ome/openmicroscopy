@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -74,10 +74,10 @@ public class UnitBarSizeDialog
     private void handleSelection()
     {
         try {
-            double val = Double.parseDouble(label.getText());
+            final Double val = Double.valueOf(label.getText());
             if (val > 0) {
-                firePropertyChange(UNIT_BAR_VALUE_PROPERTY, new Double(0), 
-                                    new Double(val));
+                firePropertyChange(UNIT_BAR_VALUE_PROPERTY, Double.valueOf(0), 
+                                   val);
                 setVisible(false);
                 dispose();
             } else {

@@ -33,12 +33,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
@@ -162,7 +166,7 @@ class Connector
      * TODO: this should be reviewed, since if getConnector(String) is used
      * outside of the import process there could be a race condition.
      */
-    private final ConcurrentHashMap<String, Connector> derived;
+    private final Cache<String, Connector> derived;
 
     /** The name of the group. To be removed when we can use groupId.*/
     private String groupName;
@@ -190,12 +194,12 @@ class Connector
      * @param encrypted The entry point to access the various services.
      * @param logger Reference to the logger.
      * @param elapseTime The time between network check.
-     * @throws Throwable Thrown if entry points cannot be initialized.
+     * @throws Exception Thrown if entry points cannot be initialized.
      */
     Connector(SecurityContext context, client secureClient,
             ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger,
             Integer elapseTime)
-                    throws Throwable
+                    throws Exception
     {
         if (context == null)
             throw new IllegalArgumentException("No Security context.");
@@ -217,15 +221,16 @@ class Connector
         this.secureClient = secureClient;
         this.entryEncrypted = entryEncrypted;
         this.context = context;
-        statelessServices = new ConcurrentHashMap<String, ServiceInterfacePrx>();
-        importStores = new ConcurrentHashMap<OMEROMetadataStoreClient, String>();
+        final MapMaker mapMaker = new MapMaker();
+        statelessServices = mapMaker.makeMap();
+        importStores = mapMaker.makeMap();
         statefulServices = Multimaps.<String, StatefulServiceInterfacePrx>
         synchronizedMultimap(
                 HashMultimap.<String, StatefulServiceInterfacePrx>create());
         reServices = Multimaps.<Long, RenderingEnginePrx>
         synchronizedMultimap(
                 HashMultimap.<Long, RenderingEnginePrx>create());
-        derived = new ConcurrentHashMap<String, Connector>();
+        derived = CacheBuilder.newBuilder().build();
     }
 
     //
@@ -628,19 +633,15 @@ class Connector
     void closeDerived(boolean networkup)
             throws Throwable
     {
-        Collection<Connector> list = derived.values();
-        Iterator<Connector> i = list.iterator();
-        while (i.hasNext()) {
-            Connector c = null;
+        for (final Connector c : derived.asMap().values()) {
             try {
-                c = i.next();
                 c.close(networkup);
             } catch (Throwable e) {
                 log(String.format("Failed to close(%s) service: %s",
                         networkup, c));
             }
         }
-        derived.clear();
+        derived.invalidateAll();
     }
 
     /** 
@@ -840,43 +841,35 @@ class Connector
      * @param userName The name of the user. To be replaced by user's id.
      * @return See above.
      */
-    Connector getConnector(String userName)
+    Connector getConnector(final String userName)
             throws Throwable
     {
         if (CommonsLangUtils.isBlank(userName)) return this;
-        Connector c = derived.get(userName);
-        if (c != null) return c;
-        if (groupName == null) {
-            ExperimenterGroup g = getAdminService().getGroup(
-                    context.getGroupID());
-            groupName = g.getName().getValue();
-        }
-        //Create a connector.
-        Principal p = new Principal();
-        p.group = groupName;
-        p.name = userName;
-        p.eventType = "Sessions";
-        ISessionPrx prx = entryEncrypted.getSessionService();
-        Session session = prx.createSessionWithTimeout(p, 0L);
-        //Create the userSession
-        omero.client client = new omero.client(context.getHostName(),
-                context.getPort());
-        ServiceFactoryPrx userSession = client.createSession(
-                session.getUuid().getValue(), session.getUuid().getValue());
-        c = new Connector(context.copy(), client, userSession,
-                unsecureClient == null, logger, elapseTime);
-        log("Created derived connector: " + userName);
-
-        Connector otherThread = derived.putIfAbsent(userName, c);
-        if (null != otherThread) {
-            // This means that in the mean time someone else has created
-            // another derived connector for this userName. We need to clean
-            // up our instance and return the one from the other thread.
-            c.close(true); // Assuming network up, otherwise create fails
-            c = otherThread;
-            log("Return derived connector from other thread: " + userName);
-        }
-        return c;
+        return derived.get(userName, new Callable<Connector>() {
+            @Override
+            public Connector call() throws Exception {
+                if (groupName == null) {
+                    ExperimenterGroup g = getAdminService().getGroup(
+                            context.getGroupID());
+                    groupName = g.getName().getValue();
+                }
+                //Create a connector.
+                Principal p = new Principal();
+                p.group = groupName;
+                p.name = userName;
+                p.eventType = "Sessions";
+                ISessionPrx prx = entryEncrypted.getSessionService();
+                Session session = prx.createSessionWithTimeout(p, 0L);
+                //Create the userSession
+                omero.client client = new omero.client(context.getHostName(),
+                        context.getPort());
+                ServiceFactoryPrx userSession = client.createSession(
+                        session.getUuid().getValue(), session.getUuid().getValue());
+                final Connector c = new Connector(context.copy(), client, userSession,
+                        unsecureClient == null, logger, elapseTime);
+                log("Created derived connector: " + userName);
+                return c;
+            }});
     }
     //
     // HELPERS

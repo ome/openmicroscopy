@@ -284,7 +284,7 @@ implements java.io.Serializable, IObject
 #if(!${type.immutable} && !${type.superclass})
     public final static String VERSION = "${type.id}_version";
 
-    protected Integer version = new Integer(0);
+    protected Integer version = 0;
 
    /**
     * This version number is controlled by the database for optimisitic

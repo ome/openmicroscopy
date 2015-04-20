@@ -21,10 +21,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.MapMaker;
 
 import omero.grid.ImportProcessPrx;
 import omero.model.Fileset;
@@ -52,8 +57,9 @@ public class ProcessContainer {
 
     private final static class Data {
 
-        private final Map<Process, Object> processes =
-                new ConcurrentHashMap<Process, Object>();
+        private static final MapMaker mapMaker = new MapMaker();
+
+        private final Map<Process, Object> processes = mapMaker.makeMap();
 
         void add(Process process) {
             processes.put(process, process);
@@ -71,16 +77,21 @@ public class ProcessContainer {
 
     }
 
-    private final ConcurrentHashMap<Long, Data> perGroup
-        = new ConcurrentHashMap<Long, Data>();
+    private final LoadingCache<Long, Data> perGroup = CacheBuilder.newBuilder().build(
+            new CacheLoader<Long, Data>() {
+                @Override
+                public Data load(Long group) {
+                    return new Data();
+                }
+            });
 
     private Data getOrCreate(Long group) {
-        Data data = new Data();
-        Data old = perGroup.putIfAbsent(group, data);
-        if (old != null) {
-            data = old;
+        try {
+            return perGroup.get(group);
+        } catch (ExecutionException e) {
+            /* cannot occur unless loading thread is interrupted */
+            return null;
         }
-        return data;
     }
 
     /**
@@ -93,7 +104,7 @@ public class ProcessContainer {
     }
 
     public void removeProcess(Process process) {
-        Data data = perGroup.get(process.getGroup());
+        final Data data = getOrCreate(process.getGroup());
         if (data != null) {
             data.remove(process);
         }
@@ -101,14 +112,14 @@ public class ProcessContainer {
 
     public List<Process> listProcesses(Collection<Long> groups) {
         if (groups == null) {
-            groups = perGroup.keySet();
+            groups = perGroup.asMap().keySet();
         }
 
         final List<Process> rv
             = new ArrayList<Process>();
 
         for (Long group : groups) {
-            Data d = perGroup.get(group);
+            final Data d = getOrCreate(group);
             if (d != null) {
                 d.fill(rv);
             }
