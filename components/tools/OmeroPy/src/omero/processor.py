@@ -9,6 +9,7 @@
 import os
 import time
 import signal
+import uuid
 from omero_ext import killableprocess as subprocess
 
 from path import path
@@ -19,8 +20,6 @@ import omero.clients
 import omero.scripts
 import omero.util
 import omero.util.concurrency
-
-import omero_ext.uuid as uuid  # see ticket:3774
 
 from omero.util import load_dotted_class
 from omero.util.temp_files import create_path, remove_path

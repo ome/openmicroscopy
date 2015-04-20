@@ -12,7 +12,7 @@
 import pytest
 from path import path
 import omero.clients
-import omero_ext.uuid as uuid
+import uuid
 from omero.cli import CLI, NonZeroReturnCode
 # Workaround for a poorly named module
 plugin = __import__('omero.plugins.import', globals(), locals(),

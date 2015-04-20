@@ -33,7 +33,7 @@ import omero
 import omero.clients
 import omero.model
 import omero.api
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from omero.util.temp_files import create_path, remove_path
 from omero.rtypes import rlong, rstring, rmap
@@ -44,7 +44,7 @@ PINGFILE = """
 
 import os
 import omero, omero.scripts as s
-import omero_ext.uuid as uuid # see ticket:3774
+import uuid
 
 #
 # Unique name so that IScript does not reject us
