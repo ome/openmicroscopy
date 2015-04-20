@@ -176,7 +176,7 @@ class TempFileManager(object):
                     locktest.close()
                     locktest = None
                     choice = target
-                    self.logger.debug("Chose gloabl tmpdir: %s", choice)
+                    self.logger.debug("Chose global tmpdir: %s", choice)
                 finally:
                     if locktest is not None:
                         try:
