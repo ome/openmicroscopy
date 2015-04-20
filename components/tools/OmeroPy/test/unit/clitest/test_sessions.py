@@ -54,13 +54,13 @@ class TestSessions(object):
         args = Namespace()
         args.session_dir = tmpdir / 'session_dir'
         store = self.cli.controls['sessions'].store(args)
-        assert store.dir == path(args.session_dir) / 'omero' / 'sessions'
+        assert store.dir == path(args.session_dir)
 
         # OMERO_SESSION_DIR with no args.session_dir sets the sessions dir
         monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'envvar')
         store = self.cli.controls['sessions'].store(None)
-        assert store.dir == path(tmpdir) / 'envvar' / 'omero' / 'sessions'
+        assert store.dir == path(tmpdir) / 'envvar'
 
         # args.session_dir overrides OMERO_SESSION_DIR
         store = self.cli.controls['sessions'].store(args)
-        assert store.dir == path(args.session_dir) / 'omero' / 'sessions'
+        assert store.dir == path(args.session_dir)

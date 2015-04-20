@@ -62,8 +62,9 @@ class SessionsStore(object):
         """
         self.logger = logging.getLogger(make_logname(self))
         if dir is None:
-            dir = get_user_dir()
-        self.dir = path(dir) / "omero" / "sessions"
+            self.dir = path(get_user_dir()) / "omero" / "sessions"
+        else:
+            self.dir = path(dir)
         if not self.dir.exists():
             self.dir.makedirs()
         try:
