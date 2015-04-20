@@ -94,6 +94,28 @@ def plate_wells(request, itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def full_plate_wells(request, itest, update_service):
+    """
+    Returns a full OMERO Plate, linked Wells, linked WellSamples, and linked
+    Images populated by an L{test.integration.library.ITest} instance.
+    """
+    lett = map(chr, range(ord('A'), ord('Z')+1))
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    for row in range(8):
+        for column in range(12):
+            well = WellI()
+            well.row = rint(row)
+            well.column = rint(column)
+            ws = WellSampleI()
+            image = itest.new_image(name=lett[row]+str(column))
+            ws.image = image
+            well.addWellSample(ws)
+            plate.addWell(well)
+    return update_service.saveAndReturnObject(plate)
+
+
+@pytest.fixture(scope='function')
 def django_client(request, client):
     """Returns a logged in Django test client."""
     django_client = Client()
@@ -152,27 +174,40 @@ class TestPlateGrid(object):
         """
         Check that the helper object can be created
         """
-        plateGrid = PlateGrid(conn, plate_wells.id.val, 0)
-        assert plateGrid
-        assert plateGrid.plate.id == plate_wells.id.val
-        assert plateGrid.field == 0
+        plate_grid = PlateGrid(conn, plate_wells.id.val, 0)
+        assert plate_grid
+        assert plate_grid.plate.id == plate_wells.id.val
+        assert plate_grid.field == 0
 
     def test_metadata_grid_size(self, plate_wells, conn):
         """
         Check that the grid represented in the metadata is the correct size
         """
-        plateGrid = PlateGrid(conn, plate_wells.id.val, 0)
-        assert len(plateGrid.metadata['grid']) == 8
-        assert len(plateGrid.metadata['grid'][0]) == 12
+        plate_grid = PlateGrid(conn, plate_wells.id.val, 0)
+        assert len(plate_grid.metadata['grid']) == 8
+        assert len(plate_grid.metadata['grid'][0]) == 12
 
     def test_metadata_thumbnail_url(self, plate_wells, conn):
         """
         Check that extra elements of the thumbnail URL passed in the `xtra`
         dictionary are properly prepended
         """
-        plateGrid = PlateGrid(conn, plate_wells.id.val, 0, 'foo/bar/')
-        metadata = plateGrid.metadata
+        plate_grid = PlateGrid(conn, plate_wells.id.val, 0, 'foo/bar/')
+        metadata = plate_grid.metadata
         for well in plate_wells.copyWells():
             well_metadata = metadata['grid'][well.row.val][well.column.val]
             if well_metadata:
                 assert well_metadata['thumb_url'].startswith('foo/bar/')
+
+    def test_full_grid(self, full_plate_wells, conn):
+        """
+        Check that all wells are assigned correctly even if the entire plate of
+        wells is full
+        """
+        lett = map(chr, range(ord('A'), ord('Z')+1))
+        plate_grid = PlateGrid(conn, full_plate_wells.id.val, 0)
+        metadata = plate_grid.metadata
+        for row in range(8):
+            for column in range(12):
+                assert metadata['grid'][row][column]['name'] ==\
+                    lett[row]+str(column)
