@@ -26,12 +26,9 @@
 
 import library as lib
 import omero
-from omero_model_ImageI import ImageI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
-from omero.rtypes import rbool, rstring, rtime
+from omero.rtypes import rstring, rtime
 from uuid import uuid4
 
 
@@ -45,116 +42,51 @@ class TestIContainer(lib.ITest):
         i = ipojo.createDataObject(i, None)
 
     def testFindAndCountAnnotationsForSharedData(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
 
-        # create new users
-        # group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        new_gr1.ldap = rbool(False)
-        gid = admin.createGroup(new_gr1)
-
-        # new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.ldap = rbool(False)
-
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-
-        eid = admin.createExperimenterWithPassword(
-            new_exp, rstring("ome"), defaultGroup, listOfGroups)
-
-        # new user2
-        new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
-        new_exp2.firstName = rstring("New2")
-        new_exp2.lastName = rstring("Test2")
-        new_exp2.ldap = rbool(False)
-
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-
-        eid2 = admin.createExperimenterWithPassword(
-            new_exp2, rstring("ome"), defaultGroup, listOfGroups)
-
-        # get users
-        user1 = admin.getExperimenter(eid)
-        user2 = admin.getExperimenter(eid2)
-
-        # login as user1
-        cl1 = self.new_client(user=user1, password="ome")
-        update1 = cl1.sf.getUpdateService()
-        ipojo1 = cl1.sf.getContainerService()
+        # create users
+        group = self.new_group(perms="rwra--")
+        client1, user1 = self.new_client_and_user(group=group)
 
         # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-
-        # default permission 'rw----':
-        img = update1.saveAndReturnObject(img)
+        img = self.make_image(name='test1154-img-%s' % self.uuid(),
+                              client=client1)
         img.unload()
 
+        update1 = client1.sf.getUpdateService()
         ann1 = CommentAnnotationI()
-        ann1.textValue = rstring("user comment - %s" % uuid)
+        ann1.textValue = rstring("user comment - %s" % self.uuid())
         l_ann1 = ImageAnnotationLinkI()
         l_ann1.setParent(img)
         l_ann1.setChild(ann1)
         update1.saveObject(l_ann1)
 
         # user retrives the annotations for image
+        ipojo1 = client1.sf.getContainerService()
         coll_count = ipojo1.getCollectionCount(
             "Image", "ome.model.containers.Image_annotationLinks",
             [img.id.val], None)
         assert 1 == coll_count.get(img.id.val, [])
-        # assert 1 ==  len(ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
 
         # login as user2
-        cl2 = self.new_client(user=user2, password="ome")
-        update2 = cl1.sf.getUpdateService()
+        client2, user2 = self.new_client_and_user(group=group)
+        update2 = client2.sf.getUpdateService()
 
         ann = CommentAnnotationI()
-        ann.textValue = rstring("user2 comment - %s" % uuid)
+        ann.textValue = rstring("user2 comment - %s" % self.uuid())
         l_ann = ImageAnnotationLinkI()
         l_ann.setParent(img)
         l_ann.setChild(ann)
         update2.saveObject(l_ann)
 
         # do they see the same vals?
-        # print ipojo1.getCollectionCount(
-        #     "Image", "ome.model.containers.Image_annotationLinks",
-        #     [img.id.val], None)
-        # print ipojo.getCollectionCount(
-        #     "Image", "ome.model.containers.Image_annotationLinks",
-        #     [img.id.val], None)
-        # print len(ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
-        # print len(ipojo.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
         coll_count = ipojo1.getCollectionCount(
             "Image", "ome.model.containers.Image_annotationLinks",
             [img.id.val], None)
         assert 2 == coll_count.get(img.id.val, [])
-        # anns = ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, [])
-        # assert 2 ==  len(anns)
-
-        # assert anns[0].details.permissions == 'rw----'
-        # assert anns[1].details.permissions == 'rw----'
-
-        cl1.sf.closeOnDestroy()
-        cl2.sf.closeOnDestroy()
 
     def testCreateAfterBlitzPort(self):
         ipojo = self.client.sf.getContainerService()
-        i = ImageI()
-        i.setName(rstring("name"))
+        i = self.new_image(name="name")
         i = ipojo.createDataObject(i, None)
         o = i.getDetails().owner
         assert -1 == o.sizeOfGroupExperimenterMap()
