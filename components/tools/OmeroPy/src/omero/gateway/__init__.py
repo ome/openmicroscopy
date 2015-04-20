@@ -26,7 +26,8 @@ import ConfigParser
 import omero
 import omero.clients
 from omero.util.decorators import timeit
-from omero.cmd import DoAll
+from omero.cmd import Chgrp2, Delete2, DoAll, SkipHead
+from omero.cmd.graphs import ChildOption
 from omero.api import Save
 from omero.gateway.utils import ServiceOptsDict, GatewayConfig
 import omero.scripts as scripts
@@ -3838,9 +3839,9 @@ class _BlitzGateway (object):
                                 * 'Plate'
                                 * 'Well'
                                 * 'Annotation'
-                                * '/OriginalFile'
-                                * '/Image+Only'
-                                * '/Image/Pixels/Channel'
+                                * 'OriginalFile'
+                                * 'Image+Only'
+                                * 'Image/Pixels/Channel'
 
                                 As of OMERO 4.4.0 the correct case is now
                                 explicitly required, the use of 'project'
@@ -3857,41 +3858,47 @@ class _BlitzGateway (object):
         if not isinstance(obj_ids, list) and len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
-        if not graph_spec.startswith('/'):
-            graph_spec = '/%s' % graph_spec
-            logger.debug('Received object type, using "%s"' % graph_spec)
+        graph_spec = graph_spec.lstrip('/')
+        graph = graph_spec.split("/")
 
-        op = dict()
-        if not deleteAnns and graph_spec not in ["/Annotation",
-                                                 "/TagAnnotation"]:
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
+        delete = Delete2(targetObjects={graph[0]: obj_ids})
 
-        childTypes = {'/Project': ['/Dataset', '/Image'],
-                      '/Dataset': ['/Image'],
-                      '/Image': [],
-                      '/Screen': ['/Plate'],
-                      '/Plate': ['/Image'],
-                      '/Well': [],
-                      '/Annotation': []}
+        exc = list()
+        if not deleteAnns and graph[0] not in ["Annotation",
+                                               "TagAnnotation"]:
+            exc.extend(
+                ["TagAnnotation", "TermAnnotation", "FileAnnotation"])
+
+        childTypes = {'Project': ['Dataset', 'Image'],
+                      'Dataset': ['Image'],
+                      'Image': [],
+                      'Screen': ['Plate'],
+                      'Plate': ['Image'],
+                      'Well': [],
+                      'Annotation': []}
 
         if not deleteChildren:
             try:
-                for c in childTypes[graph_spec]:
-                    op[c] = "KEEP"
+                for c in childTypes[graph[0]]:
+                    exc.append(c)
             except KeyError:
                 pass
 
-        dcs = list()
+        if len(exc) > 1:
+            delete.childOptions = [ChildOption(excludeType=exc)]
+
+        if len(graph) > 1:
+            skiphead = SkipHead()
+            skiphead.request = delete
+            skiphead.targetObjects = delete.targetObjects
+            skiphead.childOptions = delete.childOptions
+            skiphead.startFrom = [graph[-1]]
+            delete = skiphead
+
         logger.debug('Deleting %s [%s]. Options: %s' %
-                     (graph_spec, str(obj_ids), op))
-        for oid in obj_ids:
-            dcs.append(omero.cmd.Delete(
-                graph_spec, long(oid), op))
-        doall = omero.cmd.DoAll()
-        doall.requests = dcs
-        handle = self.c.sf.submit(doall, self.SERVICE_OPTS)
+                     (graph_spec, str(obj_ids), exc))
+
+        handle = self.c.sf.submit(delete, self.SERVICE_OPTS)
         return handle
 
     def _waitOnCmd(self, handle, loops=10, ms=500,
