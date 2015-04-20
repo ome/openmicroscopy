@@ -8634,8 +8634,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         return True
 
     def _deleteSettings(self):
-        handle = self._conn.deleteObjects(
-            "/Image/Pixels/RenderingDef", [self.getId()])
+        handle = self._conn.deleteObjects("Image/RenderingDef", [self.getId()])
         try:
             self._conn._waitOnCmd(handle)
         finally:
