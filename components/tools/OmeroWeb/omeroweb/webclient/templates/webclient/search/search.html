@@ -177,9 +177,10 @@
                     success: function(html) {
                         $("div#content_details").html(html);
                         $("#filtersearch").show();
-                        var resultCount = parseInt($("#dataTable").attr('data-result-count')),
-                            result = (resultCount > 1) ? "results":"result",
-                            resultMessage = resultCount + " " + result;
+                        var rTable = $("#dataTable"),
+                            rCount = rTable.length > 0 ? parseInt(rTable.attr('data-result-count')): 0,
+                            result = (rCount === 0 || rCount > 1) ? "results":"result",
+                            resultMessage = rCount + " " + result;
                         if ($("#dataTable").attr('data-more-results')) {
                             resultMessage = "More than " + resultMessage;
                         }
