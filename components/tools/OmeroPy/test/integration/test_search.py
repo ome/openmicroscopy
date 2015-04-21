@@ -278,11 +278,9 @@ class TestSearch(lib.ITest):
         ofile.path = _(os.path.dirname(path))
         ofile.name = _(os.path.basename(path))
         ofile = client.upload(path, ofile=ofile)
-        link = omero.model.ImageAnnotationLinkI()
-        link.parent = image
-        link.child = omero.model.FileAnnotationI()
-        link.child.file = ofile.proxy()
-        link = client.sf.getUpdateService().saveObject(link)
+        fa = omero.model.FileAnnotationI()
+        fa.file = ofile.proxy()
+        self.link(image, fa, client=client)
         self.root.sf.getUpdateService().indexObject(image)
         return image
 

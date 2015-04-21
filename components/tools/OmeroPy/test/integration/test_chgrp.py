@@ -31,7 +31,7 @@ import pytest
 from omero.cmd import Chgrp2
 from omero.cmd.graphs import ChildOption
 from omero.model import DatasetI, DatasetImageLinkI, ExperimenterGroupI, ImageI
-from omero.model import FileAnnotationI, ImageAnnotationLinkI, TagAnnotationI
+from omero.model import TagAnnotationI
 from omero.model import ProjectDatasetLinkI, ProjectI, PlateI, ScreenI
 from omero.model import ExperimenterI
 from omero.rtypes import rstring, unwrap
@@ -484,7 +484,6 @@ class TestChgrp(lib.ITest):
         """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
-        update = client.sf.getUpdateService()
         ds = self.make_dataset(name="testChgrp11000", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
@@ -501,12 +500,9 @@ class TestChgrp(lib.ITest):
         entry1 = fs.getFilesetEntry(0)
         ofile = entry1.getOriginalFile()
         for i in range(2):
-            link = ImageAnnotationLinkI()
-            ann = FileAnnotationI()
+            ann = omero.model.FileAnnotationI()
             ann.file = ofile.proxy()
-            link.setParent(images[i].proxy())
-            link.setChild(ann)
-            link = update.saveAndReturnObject(link)
+            self.link(images[i], ann, client=client)
 
     def testChgrp11109(self):
         """
@@ -973,22 +969,17 @@ class TestChgrp(lib.ITest):
 
         # switch user to tag-owner
         # tag both image-owner's images with the same new tag
-        tag = TagAnnotationI()
-        tag.textValue = rstring("tag from user %s" %
-                                tag_owner.getOmeName().val)
+        tag = self.new_object(
+            TagAnnotationI, name="tag from user %s" % tag_owner.omeName.val)
         tag = to_client.sf.getUpdateService().saveAndReturnObject(tag)
         assert tag_owner.id.val == tag.details.owner.id.val
         links = []
         for image in images:
-            link = ImageAnnotationLinkI()
-            link.setParent(image)
-            link.setChild(tag)
-            links.append(to_client.sf.getUpdateService()
-                         .saveAndReturnObject(link))
+            links.append(self.link(image, tag, client=to_client))
 
         # (shell) as root
         # run bin/omero hql --all 'select parent.details.group.id,
-        # child.details.group.id from ImageAnnotationLink'
+        # child.details.group.id from ImageIink'
         # and observe that for each row
         # the group ID in Col1 matches that in Col2
         for link in links:

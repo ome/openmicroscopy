@@ -26,7 +26,6 @@
 
 import library as lib
 import omero
-from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
 from omero.rtypes import rstring
 from uuid import uuid4
@@ -47,18 +46,12 @@ class TestIContainer(lib.ITest):
         group = self.new_group(perms="rwra--")
         client1, user1 = self.new_client_and_user(group=group)
 
-        # create image
+        # create image with comment annotation
         img = self.make_image(name='test1154-img-%s' % self.uuid(),
                               client=client1)
-        img.unload()
-
-        update1 = client1.sf.getUpdateService()
-        ann1 = CommentAnnotationI()
-        ann1.textValue = rstring("user comment - %s" % self.uuid())
-        l_ann1 = ImageAnnotationLinkI()
-        l_ann1.setParent(img)
-        l_ann1.setChild(ann1)
-        update1.saveObject(l_ann1)
+        ann1 = self.new_object(
+            CommentAnnotationI, name="user comment - %s" % self.uuid())
+        self.link(img, ann1, client=client1)
 
         # user retrives the annotations for image
         ipojo1 = client1.sf.getContainerService()
@@ -69,14 +62,9 @@ class TestIContainer(lib.ITest):
 
         # login as user2
         client2, user2 = self.new_client_and_user(group=group)
-        update2 = client2.sf.getUpdateService()
-
-        ann = CommentAnnotationI()
-        ann.textValue = rstring("user2 comment - %s" % self.uuid())
-        l_ann = ImageAnnotationLinkI()
-        l_ann.setParent(img)
-        l_ann.setChild(ann)
-        update2.saveObject(l_ann)
+        ann2 = self.new_object(
+            CommentAnnotationI, name="user2 comment - %s" % self.uuid())
+        self.link(img, ann2, client=client2)
 
         # do they see the same vals?
         coll_count = ipojo1.getCollectionCount(

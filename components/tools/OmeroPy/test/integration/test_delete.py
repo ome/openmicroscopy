@@ -221,11 +221,8 @@ class TestDelete(lib.ITest):
             fa = omero.model.FileAnnotationI()
             fa.setNs(rstring(omero.constants.namespaces.NSCOMPANIONFILE))
             fa.setFile(of)
-            l_ia = omero.model.ImageAnnotationLinkI()
-            l_ia.setParent(img)
-            l_ia.setChild(fa)
-            l_ia = self.update.saveAndReturnObject(l_ia)
 
+            self.link(img, fa)
             images.append(iid)
 
         command = Delete2(targetObjects={"Image": images})
