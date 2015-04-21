@@ -1685,12 +1685,7 @@ class GraphControl(CmdControl):
                 self.ctx.out("\n".join(keys))
                 return  # Early exit.
 
-        if len(args.obj) == 1 and isinstance(args.obj[0], omero.cmd.DoAll):
-            doall = args.obj[0]
-        else:
-            doall = omero.cmd.DoAll(args.obj)
-
-        for req in doall.requests:
+        for req in args.obj:
             req.childOptions = list()
             req.dryRun = args.dry_run
             if args.include:
@@ -1705,7 +1700,12 @@ class GraphControl(CmdControl):
                 req.request.childOptions = req.childOptions
                 req.request.dryRun = req.dryRun
 
-        self._process_request(doall, args, client)
+        if len(args.obj) == 1:
+            cmd = args.obj[0]
+        else:
+            cmd = omero.cmd.DoAll(args.obj)
+
+        self._process_request(cmd, args, client)
 
     def print_request_description(self, request):
         doall = self.as_doall(request)
