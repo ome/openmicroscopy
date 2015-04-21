@@ -861,7 +861,7 @@ class ITest(object):
         If no name has been provided, a UUID string shall be used.
 
         :param name: the name of the project
-        :param client: user context
+        :param client: The client to use to create the object
         """
 
         if client is None:
@@ -896,15 +896,17 @@ class ITest(object):
 
     def link(self, obj1, obj2, client=None):
         """
-        Links two linkable model entities together by creating an instance
-        of the correct link entity (e.g. ProjectDatasetLinkI) and persisting
-        it in the DB. Accepts client instance to allow calls to happen
-        in correct user contexts. Limited to ProjectI-DatasetI
-        and DatasetI-ImageI links.
+        Links two linkable model entities together by creating an instance of
+        the correct link entity (e.g. ProjectDatasetLinkI) and persisting it
+        in the DB. Accepts client instance to allow calls to happen in correct
+        user contexts. Currently support links are:
+          * project/dataset
+          * dataset/image
+          * image/annotation
 
         :param obj1: parent object
         :param obj2: child object
-        :param client: user context
+        :param client: The client to use to create the link
         """
         if client is None:
             client = self.client
