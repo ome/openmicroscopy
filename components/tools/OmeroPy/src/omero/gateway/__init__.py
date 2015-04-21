@@ -7442,33 +7442,33 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             return max(tvs)
         return None
 
-    @assert_re(ignoreExceptions=(omero.ConcurrencyException))
-    def getChannels(self):
+    def getChannels(self, noRE=False):
         """
-        Returns a list of Channels, each initialised with rendering engine
+        Returns a list of Channels, each initialised with rendering engine.
+        If noRE is True, Channels will not have rendering engine enabled.
+        In this case, calling channel.getColor() or getWindowStart() etc
+        will return None.
 
         :return:    Channels
         :rtype:     List of :class:`ChannelWrapper`
         """
-        if self._re is not None:
-            return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
-                    for n, c in enumerate(
-                        self._re.getPixels(
-                            self._conn.SERVICE_OPTS).iterateChannels())]
-        # E.g. ConcurrencyException (no rendering engine): load channels by
-        # hand, use pixels to order channels
-        else:
-            return self.getChannelsNoRE()
+        if not noRE:
+            try:
+                self._prepareRenderingEngine()
+            except omero.ConcurrencyException:
+                logger.debug('Ignoring exception thrown during '
+                             '_prepareRenderingEngine '
+                             'for getChannels()', exc_info=True)
 
-    def getChannelsNoRE(self):
-        """
-        Returns a list of Channels without loading the rendering engine.
-        Calling channel.getColor() or getWindowStart() etc will return None.
+            if self._re is not None:
+                return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
+                        for n, c in enumerate(
+                            self._re.getPixels(
+                                self._conn.SERVICE_OPTS).iterateChannels())]
 
-        :return:    Channels
-        :rtype:     List of :class:`ChannelWrapper`
-        """
-
+        # If we have silently failed to load rendering engine
+        # E.g. ConcurrencyException OR noRE is True,
+        # load channels by hand, use pixels to order channels
         pid = self.getPixelsId()
         params = omero.sys.Parameters()
         params.map = {"pid": rlong(pid)}
