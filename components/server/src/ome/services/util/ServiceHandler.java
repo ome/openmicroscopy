@@ -423,7 +423,9 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             return sb.toString();
         } else {
             String s = o.toString();
-            if (s.length() > MAX_STRING_LEN) {
+            if (s == null) {
+                return null;
+            } else if (s.length() > MAX_STRING_LEN) {
                 s = s.substring(0, MAX_STRING_LEN);
             }
             return s;
