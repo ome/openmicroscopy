@@ -50,10 +50,10 @@ class TestSessions(object):
         assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
 
     @pytest.mark.parametrize('OMERO_SESSION_DIR', [True, False])
-    @pytest.mark.parametrize('OMERO_SESSDIR', [True, False])
+    @pytest.mark.parametrize('OMERO_SESSIONDIR', [True, False])
     @pytest.mark.parametrize('session_dir', [True, False])
     def testCustomSessionsDir(
-            self, tmpdir, monkeypatch, OMERO_SESSION_DIR, OMERO_SESSDIR,
+            self, tmpdir, monkeypatch, OMERO_SESSION_DIR, OMERO_SESSIONDIR,
             session_dir):
         from argparse import Namespace
         from omero.util import get_user_dir
@@ -62,8 +62,8 @@ class TestSessions(object):
         if OMERO_SESSION_DIR:
             monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'basedir')
 
-        if OMERO_SESSDIR:
-            monkeypatch.setenv("OMERO_SESSDIR", tmpdir / 'sessionsdir')
+        if OMERO_SESSIONDIR:
+            monkeypatch.setenv("OMERO_SESSIONDIR", tmpdir / 'sessiondir')
 
         # args.session_dir sets the sessions dir
         args = Namespace()
@@ -74,8 +74,8 @@ class TestSessions(object):
         # IN order of precedence
         if session_dir:
             assert store.dir == path(args.session_dir)
-        elif OMERO_SESSDIR:
-            assert store.dir == path(tmpdir) / 'sessionsdir'
+        elif OMERO_SESSIONDIR:
+            assert store.dir == path(tmpdir) / 'sessiondir'
         elif OMERO_SESSION_DIR:
             assert store.dir == path(tmpdir) / 'basedir' / 'omero' / 'sessions'
         else:

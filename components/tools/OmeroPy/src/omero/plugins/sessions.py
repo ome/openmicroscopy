@@ -112,16 +112,16 @@ class SessionsControl(BaseControl):
 
     def store(self, args):
         try:
-            # Read sessions directory from OMERO_SESS_DIR envvar
-            sessions_dir = os.environ.get('OMERO_SESSDIR', None)
+            # Read sessions directory from OMERO_SESSIONDIR envvar
+            sessions_dir = os.environ.get('OMERO_SESSIONDIR', None)
             if not sessions_dir:
                 # Read base directory from deprecated OMERO_SESSION_DIR envvar
                 base_dir = os.environ.get('OMERO_SESSION_DIR', None)
                 if base_dir:
                     import warnings
                     warnings.warn(
-                        "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSDIR "
-                        "instead.", DeprecationWarning)
+                        "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSIONDIR"
+                        " instead.", DeprecationWarning)
                     from path import path
                     sessions_dir = path(base_dir) / "omero" / "sessions"
 
