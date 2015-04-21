@@ -41,8 +41,7 @@ class TestSessions(object):
         self.args += [subcommand, "-h"]
         self.cli.invoke(self.args, strict=True)
 
-    def testStoreSessionDir(self, tmpdir, monkeypatch):
-        from argparse import Namespace
+    def testDefaultSessionsDir(self):
         from omero.util import get_user_dir
         from path import path
 
@@ -50,22 +49,34 @@ class TestSessions(object):
         store = self.cli.controls['sessions'].store(None)
         assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
 
+    @pytest.mark.parametrize('OMERO_SESSION_DIR', [True, False])
+    @pytest.mark.parametrize('OMERO_SESSDIR', [True, False])
+    @pytest.mark.parametrize('session_dir', [True, False])
+    def testCustomSessionsDir(
+            self, tmpdir, monkeypatch, OMERO_SESSION_DIR, OMERO_SESSDIR,
+            session_dir):
+        from argparse import Namespace
+        from omero.util import get_user_dir
+        from path import path
+
+        if OMERO_SESSION_DIR:
+            monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'basedir')
+
+        if OMERO_SESSDIR:
+            monkeypatch.setenv("OMERO_SESSDIR", tmpdir / 'sessionsdir')
+
         # args.session_dir sets the sessions dir
         args = Namespace()
-        args.session_dir = tmpdir / 'session_dir'
+        if session_dir:
+            args.session_dir = tmpdir / 'session_dir'
+
         store = self.cli.controls['sessions'].store(args)
-        assert store.dir == path(args.session_dir)
-
-        # OMERO_SESSION_DIR with no args.session_dir sets the sessions dir
-        monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'basedir')
-        store = self.cli.controls['sessions'].store(None)
-        assert store.dir == path(tmpdir) / 'basedir' / 'omero' / 'sessions'
-
-        # OMERO_SESSDIR takes precedence over OMERO_SESSION_DIR
-        monkeypatch.setenv("OMERO_SESSDIR", tmpdir / 'sessionsdir')
-        store = self.cli.controls['sessions'].store(None)
-        assert store.dir == path(tmpdir) / 'sessionsdir'
-
-        # args.session_dir overrides OMERO_SESSION_DIR
-        store = self.cli.controls['sessions'].store(args)
-        assert store.dir == path(args.session_dir)
+        # IN order of precedence
+        if session_dir:
+            assert store.dir == path(args.session_dir)
+        elif OMERO_SESSDIR:
+            assert store.dir == path(tmpdir) / 'sessionsdir'
+        elif OMERO_SESSION_DIR:
+            assert store.dir == path(tmpdir) / 'basedir' / 'omero' / 'sessions'
+        else:
+            assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
