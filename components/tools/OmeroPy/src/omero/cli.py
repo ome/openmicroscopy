@@ -1685,17 +1685,21 @@ class GraphControl(CmdControl):
                 self.ctx.out("\n".join(keys))
                 return  # Early exit.
 
-        for req in args.obj:
-            req.childOptions = list()
-            req.dryRun = args.dry_run
-            if args.include:
-                inc = args.include.split(",")
-                opt = omero.cmd.graphs.ChildOption(includeType=inc)
-                req.childOptions.append(opt)
-            if args.exclude:
-                exc = args.exclude.split(",")
+        opt = None
+        if args.include:
+            inc = args.include.split(",")
+            opt = omero.cmd.graphs.ChildOption(includeType=inc)
+        if args.exclude:
+            exc = args.exclude.split(",")
+            if opt is None:
                 opt = omero.cmd.graphs.ChildOption(excludeType=exc)
-                req.childOptions.append(opt)
+            else:
+                opt.excludeType = exc
+
+        for req in args.obj:
+            req.dryRun = args.dry_run
+            if args.include or args.exclude:
+                req.childOptions = [opt]
             if isinstance(req, omero.cmd.SkipHead):
                 req.request.childOptions = req.childOptions
                 req.request.dryRun = req.dryRun
