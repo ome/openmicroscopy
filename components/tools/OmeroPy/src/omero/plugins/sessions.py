@@ -105,6 +105,12 @@ Other commands:
     $ bin/omero sessions clear
 """
 
+LISTHELP = """
+By default, inactive sessions are purged from the local sessions store and
+removed from the listing. To list all sessions stored locally independently of
+their status, use the --no-purge argument.
+"""
+
 
 class SessionsControl(BaseControl):
 
@@ -136,12 +142,9 @@ class SessionsControl(BaseControl):
             "target",
             help="Id or name of the group to switch this session to")
 
-        list = parser.add(sub, self.list, "List all locally stored sessions")
-        purge = list.add_mutually_exclusive_group()
-        purge.add_argument(
-            "--purge", action="store_true", default=True,
-            help="Remove inactive sessions")
-        purge.add_argument(
+        list = parser.add(sub, self.list, (
+            "List all available sessions stored locally\n\n" + LISTHELP))
+        list.add_argument(
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
 
@@ -550,6 +553,7 @@ class SessionsControl(BaseControl):
                             self.ctx.dbg("Purging %s / %s / %s"
                                          % (server, name, uuid))
                             store.remove(server, name, uuid)
+                            continue
                         except IOError, ioe:
                             self.ctx.dbg("Aborting session purging. %s" % ioe)
                             break
