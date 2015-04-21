@@ -370,7 +370,7 @@ Available debugging choices:
     'trace'     Run the command with tracing enabled
     'profile'   Run the command with profiling enabled
 
-Note "trace" and "profile" can not be used simultaneously
+Note "trace" and "profile" cannot be used simultaneously
 
 Examples:
 
@@ -382,7 +382,7 @@ Examples:
     bin/omero -d3 admin start
     # Enable profiling
     bin/omero -dp admin start
-    # Fails - can not print tracing and profiling together
+    # Fails - cannot print tracing and profiling together
     bin/omero -dt,p admin start
     # Disable debugging
     bin/omero -d0 admin start
