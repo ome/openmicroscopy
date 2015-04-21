@@ -342,13 +342,8 @@ class BaseContainer(BaseController):
         if img is None:
             img = self.well.getWellSample().image()
 
-        try:
-            if noRE:
-                self.channel_metadata = img.getChannelsNoRE()
-            else:
-                self.channel_metadata = img.getChannels()
-        except:
-            pass
+        # Exceptions handled by webclient_gateway ImageWrapper.getChannels()
+        self.channel_metadata = img.getChannels(noRE=noRE)
 
         if self.channel_metadata is None:
             self.channel_metadata = list()
