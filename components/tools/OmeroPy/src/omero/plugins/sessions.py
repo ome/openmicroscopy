@@ -100,7 +100,7 @@ Options for logging in:
 Other commands:
 
     $ bin/omero sessions list
-    $ OMERO_SESSDIR=/tmp bin/omero sessions list
+    $ OMERO_SESSIONDIR=/tmp bin/omero sessions list
     $ bin/omero sessions logout
     $ bin/omero sessions clear
 """
@@ -188,7 +188,7 @@ class SessionsControl(BaseControl):
 
     def _configure_dir(self, parser):
         parser.add_argument("--session-dir", help=SUPPRESS,
-                            default=os.environ.get('OMERO_SESSDIR', None))
+                            default=os.environ.get('OMERO_SESSIONDIR', None))
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})
