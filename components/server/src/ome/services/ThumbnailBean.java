@@ -982,7 +982,13 @@ public class ThumbnailBean extends AbstractLevel2Service
                 }
                 try
                 {
+                    // At this point, we're sure that we have a thumbnail obj
+                    // that we want to use, but retrieveThumbnail likes to
+                    // re-generate. For the moment, we're saving and restoring
+                    // that value to prevent creating a new one.
+                    Thumbnail copy = thumbnailMetadata;
                     byte[] thumbnail = retrieveThumbnail();
+                    thumbnailMetadata = copy;
                     toReturn.put(pixelsId, thumbnail);
                     if (dirtyMetadata)
                     {
