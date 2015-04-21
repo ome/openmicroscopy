@@ -13,7 +13,7 @@ import pytest
 import Ice
 import omero
 import omero.tables
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 import logging
 import library as lib
 

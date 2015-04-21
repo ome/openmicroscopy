@@ -24,7 +24,7 @@ import threading
 import logging
 import IceImport
 import Ice
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 IceImport.load("Glacier2_Router_ice")
 import Glacier2

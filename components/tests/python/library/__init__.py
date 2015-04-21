@@ -30,6 +30,7 @@ import weakref
 import logging
 import subprocess
 import pytest
+import uuid
 
 import Ice
 import Glacier2
@@ -143,8 +144,7 @@ class ITest(object):
 
     @classmethod
     def uuid(self):
-        import omero_ext.uuid as _uuid  # see ticket:3774
-        return str(_uuid.uuid4())
+        return str(uuid.uuid4())
 
     @classmethod
     def login_args(self, client=None):

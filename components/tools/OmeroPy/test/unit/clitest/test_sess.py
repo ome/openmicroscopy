@@ -12,7 +12,7 @@
 import os
 import pytest
 import Glacier2
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from path import path
 from omero.cli import CLI, NonZeroReturnCode

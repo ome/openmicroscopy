@@ -28,7 +28,7 @@ import library as lib
 import omero
 import omero.scripts
 from omero.gateway import BlitzGateway
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 from omero import ApiUsageException
 
 thumbnailFigurePath = "scripts/omero/figure_scripts/Thumbnail_Figure.py"

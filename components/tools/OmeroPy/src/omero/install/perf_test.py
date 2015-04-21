@@ -17,7 +17,7 @@ import logging
 import omero.cli
 import omero.util
 import omero.util.temp_files
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 command_pattern = "^\s*(\w+)(\((.*)\))?(:(.*))?$"
 command_pattern_compiled = re.compile(command_pattern)
