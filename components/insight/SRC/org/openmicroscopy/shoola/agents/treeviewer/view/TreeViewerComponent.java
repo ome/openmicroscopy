@@ -4515,9 +4515,16 @@ class TreeViewerComponent
 	    if (ot instanceof ExperimenterData) {
 	        Object po = p.getUserObject();
 	        if (po instanceof GroupData) group = (GroupData) po;
-	    } else {
-	        group = new GroupData();
-	        group.setId(otData.getGroupId());
+	    } else if (ot instanceof GroupData) {
+	        group = (GroupData)ot;
+	    }
+	    else { 
+            for (Object gd : TreeViewerAgent.getAvailableUserGroups()) {
+                if (((GroupData) gd).getId() == otData.getGroupId()) {
+                    group = (GroupData) gd;
+                    break;
+                }
+            }
 	    }
 	    //to review
 	    if (browser.getBrowserType() == Browser.ADMIN_EXPLORER)
