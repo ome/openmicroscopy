@@ -73,10 +73,12 @@ class TestThumbs(lib.ITest):
         finally:
             tb.close()
 
-    @pytest.mark.parametrize("meth", ("one", "set"))
+    @pytest.mark.parametrize("meth", ("one", "set",))
     def testThumbnailVersion(self, meth):
+
         assert meth in ("one", "set")
         i64 = rint(64)
+
         pix = self.missing_pyramid()
         q = ("select tb from Thumbnail tb "
              "where tb.pixels.id = %s "
@@ -92,10 +94,11 @@ class TestThumbs(lib.ITest):
         # At this stage, there should still be no
         # thumbnail
         tb = self.client.sf.createThumbnailStore()
-        tb.setPixelsId(long(pix))
-        tb.resetDefaults()
-        assert not tb.thumbnailExists(i64, i64)
-        assert tb.isInProgress()
+        if meth == "one":
+            tb.setPixelsId(long(pix))
+            tb.resetDefaults()
+            assert not tb.thumbnailExists(i64, i64)
+            assert tb.isInProgress()
 
         # As soon as it's requested, it should have a -1
         # version to mark pyramid creation as ongoing.
@@ -125,11 +128,12 @@ class TestThumbs(lib.ITest):
 
         # Re-load the thumbnail store now that
         # the pyramid is generated.
-        tb.close()
-        tb = self.client.sf.createThumbnailStore()
-        if not tb.setPixelsId(long(pix)):
-            tb.resetDefaults()
-            assert tb.setPixelsId(long(pix))
+        if meth == "one":
+            tb.close()
+            tb = self.client.sf.createThumbnailStore()
+            if not tb.setPixelsId(long(pix)):
+                tb.resetDefaults()
+                assert tb.setPixelsId(long(pix))
 
         if meth == "one":
             after = tb.getThumbnail(i64, i64)
