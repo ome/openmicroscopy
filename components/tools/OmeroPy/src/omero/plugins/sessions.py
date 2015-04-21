@@ -100,7 +100,7 @@ Options for logging in:
 Other commands:
 
     $ bin/omero sessions list
-    $ OMERO_SESSION_DIR=/tmp bin/omero sessions list
+    $ OMERO_SESSDIR=/tmp bin/omero sessions list
     $ bin/omero sessions logout
     $ bin/omero sessions clear
 """
@@ -112,8 +112,20 @@ class SessionsControl(BaseControl):
 
     def store(self, args):
         try:
-            dirpath = getattr(args, "session_dir",
-                              os.environ.get('OMERO_SESSION_DIR', None))
+            # Read sessions directory from OMERO_SESS_DIR envvar
+            sessions_dir = os.environ.get('OMERO_SESSDIR', None)
+            if not sessions_dir:
+                # Read base directory from deprecated OMERO_SESSION_DIR envvar
+                base_dir = os.environ.get('OMERO_SESSION_DIR', None)
+                if base_dir:
+                    import warnings
+                    warnings.warn(
+                        "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSDIR "
+                        "instead.", DeprecationWarning)
+                    from path import path
+                    sessions_dir = path(base_dir) / "omero" / "sessions"
+
+            dirpath = getattr(args, "session_dir", sessions_dir)
             return self.FACTORY(dirpath)
         except OSError, ose:
             filename = getattr(ose, "filename", dirpath)
@@ -176,7 +188,7 @@ class SessionsControl(BaseControl):
 
     def _configure_dir(self, parser):
         parser.add_argument("--session-dir", help=SUPPRESS,
-                            default=os.environ.get('OMERO_SESSION_DIR', None))
+                            default=os.environ.get('OMERO_SESSDIR', None))
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})

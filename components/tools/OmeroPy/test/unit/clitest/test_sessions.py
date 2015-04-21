@@ -57,9 +57,14 @@ class TestSessions(object):
         assert store.dir == path(args.session_dir)
 
         # OMERO_SESSION_DIR with no args.session_dir sets the sessions dir
-        monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'envvar')
+        monkeypatch.setenv("OMERO_SESSION_DIR", tmpdir / 'basedir')
         store = self.cli.controls['sessions'].store(None)
-        assert store.dir == path(tmpdir) / 'envvar'
+        assert store.dir == path(tmpdir) / 'basedir' / 'omero' / 'sessions'
+
+        # OMERO_SESSDIR takes precedence over OMERO_SESSION_DIR
+        monkeypatch.setenv("OMERO_SESSDIR", tmpdir / 'sessionsdir')
+        store = self.cli.controls['sessions'].store(None)
+        assert store.dir == path(tmpdir) / 'sessionsdir'
 
         # args.session_dir overrides OMERO_SESSION_DIR
         store = self.cli.controls['sessions'].store(args)
