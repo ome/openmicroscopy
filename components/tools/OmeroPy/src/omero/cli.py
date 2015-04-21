@@ -360,26 +360,31 @@ class ExceptionHandler(object):
 DEBUG_HELP = """
 Set debug options for developers
 
-The value to the debug argument is a comma-separated list of commands:
+The value to the debug argument is a comma-separated list of commands.
 
- * 'debug' prints at the "debug" level. Similar to setting DEBUG=1 in
-   the environment.
- * 'trace' runs the command with tracing enabled.
- * 'profile' runs the command with profiling enabled.
+Available debugging choices:
 
-Only one of "trace" and "profile" can be chosen.
+    '0'         Disable debugging
+    'debug'     Enable debugging at the first debug level
+    '1'-'9'     Enable debugging at the specified debug level
+    'trace'     Run the command with tracing enabled
+    'profile'   Run the command with profiling enabled
 
-Example:
+Note "trace" and "profile" can not be used simultaneously
 
-    # Debugs at level 1 and prints tracing
+Examples:
+
+    # Enabled debugging at level 1 and prints tracing
     bin/omero --debug=debug,trace admin start
-    # Debugs at level 1
+    # Enabled debugging at level 1
     bin/omero -d1 admin start
-    # Prints profiling
+    # Enabled debugging at level 3
+    bin/omero -d3 admin start
+    # Enable profiling
     bin/omero -dp admin start
-    # Fails!; can't print tracing and profiling together
+    # Fails - can not print tracing and profiling together
     bin/omero -dt,p admin start
-    # Disables debugging
+    # Disable debugging
     bin/omero -d0 admin start
 """
 
