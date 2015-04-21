@@ -1461,6 +1461,7 @@ class GraphArg(object):
         try:
             parts = arg.split(":", 1)
             assert len(parts) == 2
+            assert '+' not in parts[0]
             parts[0] = parts[0].lstrip("/")
             graph = parts[0].split("/")
             ids = [long(id) for id in parts[1].split(",")]
