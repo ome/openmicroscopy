@@ -7461,7 +7461,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                              'for getChannels()', exc_info=True)
 
             if self._re is not None:
-                return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self)
+                return [ChannelWrapper(self._conn, c, idx=n,
+                                       re=self._re, img=self)
                         for n, c in enumerate(
                             self._re.getPixels(
                                 self._conn.SERVICE_OPTS).iterateChannels())]
