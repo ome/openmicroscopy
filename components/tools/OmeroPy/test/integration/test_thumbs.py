@@ -75,6 +75,7 @@ class TestThumbs(lib.ITest):
 
     @pytest.mark.parametrize("meth", ("one", "set"))
     def testThumbnailVersion(self, meth):
+        assert meth in ("one", "set")
         i64 = rint(64)
         pix = self.missing_pyramid()
         q = ("select tb from Thumbnail tb "
@@ -98,10 +99,14 @@ class TestThumbs(lib.ITest):
 
         # As soon as it's requested, it should have a -1
         # version to mark pyramid creation as ongoing.
-        before = tb.getThumbnail(i64, i64)
+        if meth == "one":
+            before = tb.getThumbnail(i64, i64)
+            assert not tb.thumbnailExists(i64, i64)
+            assert tb.isInProgress()
+        elif meth == "set":
+            before = tb.getThumbnailSet(i64, i64, [long(pix)])
+            before = before[long(pix)]
         assert get().version.val == -1
-        assert not tb.thumbnailExists(i64, i64)
-        assert tb.isInProgress()
 
         # Now we wait until the pyramid has been created
         # and test that a proper version has been set.
@@ -126,7 +131,6 @@ class TestThumbs(lib.ITest):
             tb.resetDefaults()
             assert tb.setPixelsId(long(pix))
 
-        assert meth in ("one", "set")
         if meth == "one":
             after = tb.getThumbnail(i64, i64)
             assert before != after
