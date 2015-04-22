@@ -50,8 +50,9 @@ def hash(value, key):
 
 
 @register.filter
-def random_if_none(value):
-    if value is None:
+def random_if_minus_one(value):
+    """ Used for thumbnail versions """
+    if value == -1:
         value = str(random.random())[2:]
     return value
 
