@@ -54,6 +54,12 @@ class TestPyramid (object):
         for c in channels:
             print c.getLabel()
 
+    def testGetRdefId(self):
+        """ getRenderingDefId() silently returns None with Missing Pyramid """
+        self.image._conn.createRenderingEngine = lambda: MockRenderingEngine()
+
+        assert self.image.getRenderingDefId() is None
+
 
 class MockRenderingEngine(object):
     """ Should throw on re.load() """
