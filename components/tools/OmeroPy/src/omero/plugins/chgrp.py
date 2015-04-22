@@ -72,8 +72,17 @@ class ChgrpControl(GraphControl):
                          group.id.val)
 
         # Set requests group
-        for request in req.requests:
-            request.groupId = gid
+        if isinstance(req, omero.cmd.DoAll):
+            for request in req.requests:
+                if isinstance(request, omero.cmd.SkipHead):
+                    request.request.groupId = gid
+                else:
+                    request.groupId = gid
+        else:
+            if isinstance(req, omero.cmd.SkipHead):
+                req.request.groupId = gid
+            else:
+                req.groupId = gid
 
         super(ChgrpControl, self)._process_request(req, args, client)
 
