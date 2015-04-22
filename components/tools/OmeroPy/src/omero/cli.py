@@ -1769,6 +1769,8 @@ class GraphControl(CmdControl):
         for req in doall.requests:
             for type in req.targetObjects.keys():
                 ids = ",".join(map(str, req.targetObjects[type]))
+                if isinstance(req, omero.cmd.SkipHead):
+                    type += ("/" + req.startFrom[0])
                 objects.append('%s %s' % (type, ids))
         return "%s %s... " % (cmd_type, ', '.join(objects))
 
