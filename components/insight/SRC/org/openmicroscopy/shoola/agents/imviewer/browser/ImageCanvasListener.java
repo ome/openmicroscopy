@@ -166,50 +166,15 @@ class ImageCanvasListener
     }
 
     /**
-	 * Zooms in and out the image if the <code>Shift</code> key is down,
-	 * pans if the <code>Alt</code> key is down.
-	 * Selects a new z-section and time-point otherwise.
-	 * @see MouseMotionListener#mouseDragged(MouseEvent)
-	 */
-	public void mouseDragged(MouseEvent e)
-	{
-		Point p = e.getPoint();
-		if (handleKeyDown) {
-			if (e.isShiftDown()) {
-				if (model.isBigImage()) {
-					pan(p, false);
-					return;
-				}
-				if (p.y < pressedPoint.y) model.zoom(true);
-				else if (p.y > pressedPoint.y) model.zoom(false);
-				pressedPoint = p;
-				return;
-			} else if (e.isAltDown()) {
-				pan(p, false);
-				return;
-			}
-		}
-		if (model.isBigImage()) { //panning
-			dragged = true;
-			pan(p, false);
-			return;
-		}
-		int maxZ = model.getMaxZ();
-		int maxT = model.getMaxT();
-		if (maxZ <= 0 && maxT <= 0) return;
-		int pressedZ = -1;
-		int pressedT = -1;
-		pressedZ = (p.y*maxZ)/area.height;
-		if (pressedZ < 0) return;
-		pressedZ = maxZ-pressedZ;
-		if (pressedZ > maxZ) pressedZ = -1;
-		pressedT = (p.x*maxT)/area.width;
-		if (pressedT < 0) return;
-		if (pressedT > maxT)  return;
-		model.setSelectedXYPlane(pressedZ, pressedT);
-		if (canvas instanceof BrowserBICanvas)
-			((BrowserBICanvas) canvas).setPaintedString(pressedZ, pressedT);
-	}
+     * Pans the image
+     * 
+     * @see MouseMotionListener#mouseDragged(MouseEvent)
+     */
+    public void mouseDragged(MouseEvent e) {
+        Point p = e.getPoint();
+        dragged = true;
+        pan(p, false);
+    }
 
 	/**
 	 * Displays on the image the currently selected z-section and time-point.
