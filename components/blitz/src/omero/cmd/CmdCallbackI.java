@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2015 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,7 +122,13 @@ public class CmdCallbackI extends _CmdCallbackDisp {
         // Now check just in case the process exited VERY quickly
         new Thread() {
             public void run() {
-                poll();
+                try {
+                    poll();
+                } catch (Exception e) {
+                    // don't throw any exceptions, e. g. if the handle
+                    // has already been closed
+                    onFinished(null, null, null);
+                }
             }
         }.start();
     }
