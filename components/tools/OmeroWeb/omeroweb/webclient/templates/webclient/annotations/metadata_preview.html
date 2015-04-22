@@ -284,7 +284,17 @@
 
 
             {% if manager.image.canAnnotate %}
-            var pid = OME.getParentId();    // E.g. dataset-123 OR plate-456
+
+            {% if manager.well %}
+            // If we're looking at a well we know parent is plate
+              var pid = "plate-{{ manager.well.plate.id.val }}";
+            {% else %}
+              // For images in Datasets, we get parent from jsTree, using selected image
+              // E.g. dataset-123
+              var pid = OME.getParentId();
+            {% endif %}
+
+
             if (pid) {
               $("#rdef-save-all")
                 .attr('title', "Apply and Save settings to all images in " + pid)
