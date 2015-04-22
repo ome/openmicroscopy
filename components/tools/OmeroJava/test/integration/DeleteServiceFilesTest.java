@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,9 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.PixelsService;
 import omero.ApiUsageException;
+import omero.RLong;
+import omero.RString;
+import omero.RType;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -47,10 +51,12 @@ import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Well;
 import omero.sys.EventContext;
+import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -1037,4 +1043,73 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         }
     }
 
+    /**
+     * Check that a set of original files may be deleted by a single {@link Delete2} request
+     * regardless of how they are ordered with regard to containing one another in a directory hierarchy,
+     * as enforced by {@code _fs_dir_delete trigger} and by the underlying filesystem.
+     * @throws Throwable unexpected
+     */
+    @Test
+    public void testRecursiveDelete() throws Throwable {
+        /* for HQL queries */
+        String query;
+        Parameters params;
+        List<List<RType>> results;
+
+        /* keep count of how many files are expected to be deleted */
+        int fileCount = 0;
+
+        /* import a small image to discover a suitable location in the repository for further testing */
+        final File imageFile = ResourceUtils.getFile("classpath:red.png");
+        final long filesetId = importFile(imageFile, "png").get(0).getImage().getFileset().getId().getValue();
+        fileCount += 2;  /* for PNG file and import log */
+
+        /* find the managed repository directory for the imported image file */
+        query = "SELECT originalFile.path FROM FilesetEntry WHERE fileset.id = :id";
+        params = new Parameters();
+        params.map = ImmutableMap.<String, RType>of("id", omero.rtypes.rlong(filesetId));
+        results = iQuery.projection(query, params);
+        String pathName = ((RString) results.get(0).get(0)).getValue();
+
+        /* create a deeply nested directory hierarchy with files at every level */
+        final int count = 32;
+        final RepositoryPrx mrepo = getManagedRepository();
+        final String directoryName = "bar";
+        final String fileName = "baz";
+        final List<Long> fileIds = new ArrayList<Long>();
+        final byte[] toWrite = "dummy file".getBytes();
+        query = "SELECT id FROM OriginalFile WHERE mimetype = 'Directory' AND path = :path AND name = :name";
+        /* recurse into deeper directories */
+        for (int i = 0; i < count; i++) {
+            /* create another directory and note its ID */
+            mrepo.makeDir(pathName + directoryName, false);
+            params = new Parameters();
+            params.map = ImmutableMap.<String, RType>of("path", omero.rtypes.rstring(pathName),
+                                                        "name", omero.rtypes.rstring(directoryName));
+            results = iQuery.projection(query, params);
+            fileIds.add(((RLong) results.get(0).get(0)).getValue());
+            fileCount++;
+
+            /* create another file and note its ID */
+            final RawFileStorePrx rfs = mrepo.file(pathName + fileName, "rw");
+            rfs.write(toWrite, 0, toWrite.length);
+            fileIds.add(rfs.save().getId().getValue());
+            rfs.close();
+            fileCount++;
+
+            pathName += directoryName + '/';
+        }
+        /* shuffle the file ID list randomly */
+        Collections.shuffle(fileIds);
+
+        /* prepare to delete all the files and directories that were created */
+        final Delete2 request = new Delete2();
+        request.targetObjects = new HashMap<String, List<Long>>();
+        request.targetObjects.put("Fileset", Collections.singletonList(filesetId));
+        request.targetObjects.put("OriginalFile", fileIds);
+
+        /* perform the deletion and confirm that it successfully deletes all the files */
+        final Delete2Response deletions = (Delete2Response) doChange(root, root.getSession(), request, true);
+        assertEquals(fileCount, deletions.deletedObjects.get(ome.model.core.OriginalFile.class.getName()).size());
+    }
 }
