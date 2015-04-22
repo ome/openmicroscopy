@@ -31,7 +31,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -78,7 +77,6 @@ import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.bag.TransformedBag;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
