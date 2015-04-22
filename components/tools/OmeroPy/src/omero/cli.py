@@ -358,6 +358,37 @@ class ExceptionHandler(object):
         else:
             return "Unknown Ice.RequestFailedException"
 
+DEBUG_HELP = """
+Set debug options for developers
+
+The value to the debug argument is a comma-separated list of commands.
+
+Available debugging choices:
+
+    '0'         Disable debugging
+    'debug'     Enable debugging at the first debug level
+    '1'-'9'     Enable debugging at the specified debug level
+    'trace'     Run the command with tracing enabled
+    'profile'   Run the command with profiling enabled
+
+Note "trace" and "profile" cannot be used simultaneously
+
+Examples:
+
+    # Enabled debugging at level 1 and prints tracing
+    bin/omero --debug=debug,trace admin start
+    # Enabled debugging at level 1
+    bin/omero -d1 admin start
+    # Enabled debugging at level 3
+    bin/omero -d3 admin start
+    # Enable profiling
+    bin/omero -dp admin start
+    # Fails - cannot print tracing and profiling together
+    bin/omero -dt,p admin start
+    # Disable debugging
+    bin/omero -d0 admin start
+"""
+
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -383,32 +414,7 @@ class Context:
         self.isquiet = False
         # This usage will go away and default will be False
         self.isdebug = DEBUG
-        self.topics = {"debug": """
-
-        debug options for developers:
-
-        The value to the debug argument is a comma-separated list of commands:
-
-         * 'debug' prints at the "debug" level. Similar to setting DEBUG=1 in
-           the environment.
-         * 'trace' runs the command with tracing enabled.
-         * 'profile' runs the command with profiling enabled.
-
-        Only one of "trace" and "profile" can be chosen.
-
-        Example:
-
-            # Debugs at level 1 and prints tracing
-            bin/omero --debug=debug,trace admin start
-            # Debugs at level 1
-            bin/omero -d1 admin start
-            # Prints profiling
-            bin/omero -dp admin start
-            # Fails!; can't print tracing and profiling together
-            bin/omero -dt,p admin start
-            # Disables debugging
-            bin/omero -d0 admin start
-        """}
+        self.topics = {"debug": DEBUG_HELP}
         self.parser = Parser(prog=prog, description=OMERODOC)
         self.subparsers = self.parser_init(self.parser)
 
