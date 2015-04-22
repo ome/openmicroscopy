@@ -1619,6 +1619,10 @@ class GraphControl(CmdControl):
             "--exclude",
             help="Modifies the given option by excluding a list of objects")
         parser.add_argument(
+            "--ordered", action="store_true",
+            help=("Pass multiple objects to commands strictly in the order "
+                  "given, otherwise group into as few commands as possible."))
+        parser.add_argument(
             "--list", action="store_true",
             help="Print a list of all available graph specs")
         parser.add_argument(
@@ -1696,7 +1700,8 @@ class GraphControl(CmdControl):
             else:
                 opt.excludeType = exc
 
-        for req in args.obj:
+        commands = args.obj
+        for req in commands:
             req.dryRun = args.dry_run
             if args.include or args.exclude:
                 req.childOptions = [opt]
@@ -1704,12 +1709,58 @@ class GraphControl(CmdControl):
                 req.request.childOptions = req.childOptions
                 req.request.dryRun = req.dryRun
 
-        if len(args.obj) == 1:
+        if not args.ordered and len(commands) > 1:
+            commands = self.combine_commands(commands)
+
+        if len(commands) == 1:
             cmd = args.obj[0]
         else:
-            cmd = omero.cmd.DoAll(args.obj)
+            cmd = omero.cmd.DoAll(commands)
 
         self._process_request(cmd, args, client)
+
+    def combine_commands(self, commands):
+        """
+        Combine several commands into as few as possible.
+        For simple commands a single combined command is possible,
+        for a skiphead it is more complicated. Here skipheads are
+        combined using their startFrom object type.
+        """
+        from omero.cmd import SkipHead
+        skipheads = [req for req in commands if isinstance(req, SkipHead)]
+        others = [req for req in commands if not isinstance(req, SkipHead)]
+
+        rv = []
+        # Combine all simple commands
+        if len(others) == 1:
+            rv.extend(others)
+        elif len(others) > 1:
+            for req in others[1:]:
+                type, ids = req.targetObjects.items()[0]
+                if type in others[0].targetObjects:
+                    others[0].targetObjects[type].extend(ids)
+                else:
+                    others[0].targetObjects[type] = ids
+            rv.append(others[0])
+
+        # Group skipheads by their startFrom attribute.
+        if len(skipheads) == 1:
+            rv.extend(skipheads)
+        elif len(skipheads) > 1:
+            shmap = {skipheads[0].startFrom[0]: skipheads[0]}
+            for req in skipheads[1:]:
+                if req.startFrom[0] in shmap:
+                    type, ids = req.targetObjects.items()[0]
+                    if type in shmap[req.startFrom[0]].targetObjects:
+                        shmap[req.startFrom[0]].targetObjects[type].extend(ids)
+                    else:
+                        shmap[req.startFrom[0]].targetObjects[type] = ids
+                else:
+                    shmap[req.startFrom[0]] = req
+            for req in shmap.values():
+                rv.append(req)
+
+        return rv
 
     def print_request_description(self, request):
         doall = self.as_doall(request)
