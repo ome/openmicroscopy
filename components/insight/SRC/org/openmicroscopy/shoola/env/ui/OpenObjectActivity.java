@@ -28,8 +28,15 @@ import java.io.File;
 
 //Third-party libraries
 
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -102,8 +109,25 @@ public class OpenObjectActivity
 	protected void notifyActivityEnd()
 	{
 		File f = (File) result;
-		viewer.openApplication(parameters.getApplication(), 
-				f.getAbsolutePath());
+		String path = f.getAbsolutePath();
+		//Special handling for fiji or imagej
+		ApplicationData data = parameters.getApplication();
+		if (data != null) {
+		    String name = data.getApplicationName();
+		    if (name != null) {
+		        name = name.toLowerCase();
+		        //Always use BF to open the file if Fiji or ImageJ
+		        if (name.contains("fiji") || name.contains("imagej")) {
+		            path = null;
+		            List<String> args = new ArrayList<String>();
+		            args.add("-eval");
+		            args.add("run('Bio-Formats Importer',"
+		                    + "'open=["+f.getAbsolutePath()+"]')");
+		            data.setCommandLineArguments(args);
+		        }
+		    }
+		}
+		viewer.openApplication(parameters.getApplication(), path);
 		type.setText(DESCRIPTION_CREATED);
 	}
 	
