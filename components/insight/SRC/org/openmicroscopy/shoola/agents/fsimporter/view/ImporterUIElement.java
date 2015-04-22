@@ -444,7 +444,7 @@ class ImporterUIElement
 				}
 			} else {
 				if (importable.isFolderAsContainer()) {
-					String name = f.getTrueFile().getParentFile().getName();
+					String name = f.getParentName();
 					//first check if the name is already there.
 					Entry<JLabel, Object> entry;
 					Iterator<Entry<JLabel, Object>>
@@ -457,6 +457,9 @@ class ImporterUIElement
 							exist = true;
 							break;
 						}
+					}
+					if (name == null) {
+					    name = f.getName();
 					}
 					if (!exist) {
 						foldersName.put(new JLabel(name), c);
