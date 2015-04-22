@@ -6969,7 +6969,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     rv['tiled'] = ((rv['size']['height'] * rv['size']['width'])
                                    > (maxplanesize[0] * maxplanesize[1]))
                 else:
-                    rv['tiles'] = False
+                    rv['tiled'] = False
 
         return rv
 
