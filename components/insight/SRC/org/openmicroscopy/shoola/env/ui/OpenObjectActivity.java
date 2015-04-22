@@ -101,8 +101,6 @@ public class OpenObjectActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		//viewButton.setVisible(false);
-		//downloadButton.setVisible(false);
 		File f = (File) result;
 		viewer.openApplication(parameters.getApplication(), 
 				f.getAbsolutePath());
