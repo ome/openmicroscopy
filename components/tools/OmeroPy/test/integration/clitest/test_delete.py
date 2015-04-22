@@ -261,8 +261,8 @@ class TestDelete(CLITest):
             assert self.query.find('Dataset', d.id.val)
         for i in imgs:
             assert not self.query.find('Image', i.id.val)
-        for d in dsets:
-            assert self.query.find('Dataset', d.id.val)
+        for d in ds:
+            assert not self.query.find('Dataset', d.id.val)
 
     @pytest.mark.parametrize('number', [1, 2, 3])
     @pytest.mark.parametrize("ordered", ordered)
