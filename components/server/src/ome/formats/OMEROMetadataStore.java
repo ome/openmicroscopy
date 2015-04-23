@@ -85,7 +85,7 @@ import org.perf4j.StopWatch;
 public class OMEROMetadataStore
 {
     /** List of graphics domains we are checking.*/
-    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif", "tiff"};
+    private static String[] DOMAINS = {"jpeg", "png", "bmp", "gif", "tiff", "avi"};
 
     /** Logger for this class. */
     private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
