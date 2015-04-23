@@ -1652,7 +1652,12 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
             if isinstance(e, omero.model.ImageI):
-                obj = omero.gateway.ImageWrapper(self, e)
+                try:
+                    obj = omero.gateway.ImageWrapper(self, e)
+                except omero.ValidationException:
+                    # If Object deleted, simply return placeholder
+                    # ID used to generate placeholder thumbnail
+                    obj = {'id': e.id.val}
                 yield obj
 
     def getComments(self, share_id):
