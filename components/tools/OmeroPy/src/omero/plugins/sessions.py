@@ -97,12 +97,26 @@ Options for logging in:
     $ bin/omero sessions login --sudo=root example@localhost
     Password for root:
 
-Other commands:
+Other sessions commands:
 
-    $ bin/omero sessions list
-    $ OMERO_SESSIONDIR=/tmp bin/omero sessions list
+    # Logging out of the currently active sessions
     $ bin/omero sessions logout
-    $ bin/omero sessions clear
+
+    # List all locally available sessions (purging the expired ones)
+    $ bin/omero sessions list
+
+    # List all local sessions
+    $ bin/omero sessions list --no-purge
+
+
+Custom sessions directory:
+
+    # Specify a custom session directory using OMERO_SESSIONDIR
+    $ export OMERO_SESSIONDIR=/tmp/my_sessions
+    # Create a new session stored under OMERO_SESSIONDIR
+    $ bin/omero sessions login
+    $ bin/omero sessions file
+    $ bin/omero sessions list
 """
 
 
