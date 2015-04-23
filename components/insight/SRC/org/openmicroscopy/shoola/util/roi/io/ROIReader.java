@@ -200,13 +200,13 @@ public class ROIReader {
         int c = roi.getCPosition();
         int z = roi.getZPosition();
         int t = roi.getTPosition();
-        if(c!=0){
+        if (c != 0) {
             shape.setC(c-1);
         }
-        if(z!=0){
+        if (z != 0) {
             shape.setZ(z-1);
         }
-        if(t!=0){
+        if (t != 0) {
             shape.setT(t-1);
         }
 
