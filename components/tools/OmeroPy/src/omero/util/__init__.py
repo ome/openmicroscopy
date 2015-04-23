@@ -20,7 +20,7 @@ import Glacier2
 import threading
 import logging.handlers
 import omero.util.concurrency
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 import omero.ObjectFactoryRegistrar as ofr
 
 from omero.util.decorators import locked

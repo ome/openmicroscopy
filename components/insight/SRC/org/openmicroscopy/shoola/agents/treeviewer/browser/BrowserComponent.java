@@ -1834,7 +1834,12 @@ class BrowserComponent
 					model.addFoundNode(i.next());
 				view.setFoundNode(model.getSelectedDisplays());
 			}
-		}
+        } else if (selected instanceof String) {
+            // this is the case if the 'orphaned images' folder
+            // is selected
+            model.setSelectedDisplay(null, true);
+            view.setFoundNode(null);
+        }
 	}
 	
 	/**

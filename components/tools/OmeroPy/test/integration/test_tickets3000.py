@@ -19,13 +19,8 @@ from omero.rtypes import rint, rlong, rstring
 class TestTickets3000(lib.ITest):
 
     def test2396(self):
-        uuid = self.uuid()
-
         # create image
-        img = self.new_image()
-        img.setName(rstring('test2396-img-%s' % (uuid)))
-        img = self.update.saveAndReturnObject(img)
-        img.unload()
+        img = self.make_image(name='test2396-img-%s' % self.uuid())
 
         format = "txt"
         binary = "12345678910"
@@ -46,10 +41,8 @@ class TestTickets3000(lib.ITest):
 
         fa = omero.model.FileAnnotationI()
         fa.setFile(of)
-        l_ia = omero.model.ImageAnnotationLinkI()
-        l_ia.setParent(img)
-        l_ia.setChild(fa)
-        self.update.saveObject(l_ia)
+
+        self.link(img, fa)
 
         # Alternatively, unload the file
         of = self.update.saveAndReturnObject(oFile)
@@ -63,10 +56,8 @@ class TestTickets3000(lib.ITest):
 
         fa = omero.model.FileAnnotationI()
         fa.setFile(of)
-        l_ia = omero.model.ImageAnnotationLinkI()
-        l_ia.setParent(img)
-        l_ia.setChild(fa)
-        self.update.saveObject(l_ia)
+
+        self.link(img, fa)
 
     def test2547(self):
         admin = self.root.sf.getAdminService()

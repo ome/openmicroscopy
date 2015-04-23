@@ -11,7 +11,7 @@
 """
 
 import omero.grid.monitors as monitors
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from path import path
 from omero.util.temp_files import create_path

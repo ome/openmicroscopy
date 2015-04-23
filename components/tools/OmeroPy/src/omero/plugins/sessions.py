@@ -105,6 +105,12 @@ Other commands:
     $ bin/omero sessions clear
 """
 
+LISTHELP = """
+By default, inactive sessions are purged from the local sessions store and
+removed from the listing. To list all sessions stored locally independently of
+their status, use the --no-purge argument.
+"""
+
 
 class SessionsControl(BaseControl):
 
@@ -136,12 +142,9 @@ class SessionsControl(BaseControl):
             "target",
             help="Id or name of the group to switch this session to")
 
-        list = parser.add(sub, self.list, "List all locally stored sessions")
-        purge = list.add_mutually_exclusive_group()
-        purge.add_argument(
-            "--purge", action="store_true", default=True,
-            help="Remove inactive sessions")
-        purge.add_argument(
+        list = parser.add(sub, self.list, (
+            "List all available sessions stored locally\n\n" + LISTHELP))
+        list.add_argument(
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
 
@@ -260,10 +263,12 @@ class SessionsControl(BaseControl):
         pasw = args.password
         if args.key:
             if name and not self.ctx.isquiet:
-                self.ctx.err("Overriding name since session set")
+                self.ctx.err("Overriding name since session key set")
             name = args.key
+            if args.group and not self.ctx.isquiet:
+                self.ctx.err("Ignoring group since session key set")
             if args.password and not self.ctx.isquiet:
-                self.ctx.err("Ignoring password since key set")
+                self.ctx.err("Ignoring password since session key set")
             pasw = args.key
         #
         # If no key provided, then we check the last used connection
@@ -344,7 +349,7 @@ class SessionsControl(BaseControl):
                                  False, set_current=False)
             else:
                 rv = self.check_and_attach(store, server, stored_name,
-                                           args.key, props)
+                                           args.key, props, check_group=False)
             action = "Joined"
             if not rv:
                 if port:
@@ -355,7 +360,8 @@ class SessionsControl(BaseControl):
         elif not create:
             available = store.available(server, name)
             for uuid in available:
-                rv = self.check_and_attach(store, server, name, uuid, props)
+                rv = self.check_and_attach(store, server, name, uuid, props,
+                                           check_group=True)
                 action = "Reconnected to"
 
         if not rv:
@@ -401,7 +407,8 @@ class SessionsControl(BaseControl):
 
         return self.handle(rv, action)
 
-    def check_and_attach(self, store, server, name, uuid, props):
+    def check_and_attach(self, store, server, name, uuid, props,
+                         check_group=False):
         """
         Checks for conflicts in the settings for this session,
         and if there are none, then attempts an "attach()". If
@@ -411,11 +418,15 @@ class SessionsControl(BaseControl):
         exists = store.exists(server, name, uuid)
 
         if exists:
-            conflicts = store.conflicts(server, name, uuid, props)
+            conflicts = store.conflicts(server, name, uuid, props,
+                                        check_group=check_group)
             if conflicts:
-                self.ctx.err(
-                    "Failed to join session %s due to property conflicts: %s"
-                    % (uuid, conflicts))
+                if "omero.port" in conflicts:
+                    self.ctx.dbg("Skipping session %s due to mismatching"
+                                 " ports: %s " % (uuid, conflicts))
+                elif not self.ctx.isquiet:
+                    self.ctx.err("Skipped session %s due to property"
+                                 " conflicts: %s" % (uuid, conflicts))
                 return None
 
         return self.attach(store, server, name, uuid, props, exists)
@@ -542,6 +553,7 @@ class SessionsControl(BaseControl):
                             self.ctx.dbg("Purging %s / %s / %s"
                                          % (server, name, uuid))
                             store.remove(server, name, uuid)
+                            continue
                         except IOError, ioe:
                             self.ctx.dbg("Aborting session purging. %s" % ioe)
                             break

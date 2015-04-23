@@ -28,12 +28,9 @@ import pytest
 import library as lib
 import omero
 from omero_model_PermissionsI import PermissionsI
-from omero_model_DatasetI import DatasetI
-from omero_model_ProjectI import ProjectI
 from omero_model_TagAnnotationI import TagAnnotationI
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import rbool, rstring, unwrap
 
@@ -139,20 +136,10 @@ class TestPermissions(lib.ITest):
         uuid = self.uuid()
         group = self.new_group(perms="rw----")
         client, user = self.new_client_and_user(group=group, owner=True)
-        update = client.sf.getUpdateService()
 
-        project = ProjectI()
-        project.setName(rstring("project1_%s" % uuid))
-        project = update.saveAndReturnObject(project)
-        dataset = DatasetI()
-        dataset.setName(rstring("dataset1_%s" % uuid))
-        dataset = update.saveAndReturnObject(dataset)
-        links = []
-        l = ProjectDatasetLinkI()
-        l.setChild(dataset)
-        l.setParent(project)
-        links.append(l)
-        update.saveAndReturnArray(links)
+        project = self.make_project(name="project1_%s" % uuid)
+        dataset = self.make_dataset(name="dataset1_%s" % uuid)
+        self.link(project, dataset, client=self.client)
 
     def testCreatAndUpdatePrivateGroup(self):
         # this is the test of creating private group and updating it
@@ -852,8 +839,7 @@ class TestPermissionProjections(lib.ITest):
     _cache = dict()
 
     def writer(self, fixture):
-        client = self._new_client(fixture.reader, fixture.perms)
-        return client.sf.getUpdateService()
+        return self._new_client(fixture.reader, fixture.perms)
 
     def reader(self, fixture):
         client = self._new_client(fixture.reader, fixture.perms)
@@ -891,8 +877,8 @@ class TestPermissionProjections(lib.ITest):
     def testProjectionPermissions(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
-        project = ProjectI()
-        project.name = rstring("testProjectPermissions")
+        project = self.make_project(name="testProjectPermissions",
+                                    client=writer)
         project = writer.saveAndReturnObject(project)
         try:
             perms = unwrap(reader.projection(
@@ -910,9 +896,8 @@ class TestPermissionProjections(lib.ITest):
     def testProjectionPermissionsWorkaround(self, fixture):
         writer = self.writer(fixture)
         reader = self.reader(fixture)
-        project = ProjectI()
-        project.name = rstring("testProjectPermissions")
-        project = writer.saveAndReturnObject(project)
+        project = self.make_project(name="testProjectPermissions",
+                                    client=writer)
 
         group = project.details.group.id.val
         owner = project.details.owner.id.val

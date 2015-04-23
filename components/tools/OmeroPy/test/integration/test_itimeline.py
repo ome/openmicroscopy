@@ -29,14 +29,7 @@ class TestITimeline(lib.ITest):
         for i in range(0, 10):
             # create image
             acquired = long(time.time() * 1000)
-            img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % (uuid)))
-            img.setAcquisitionDate(rtime(acquired))
-
-            # default permission 'rw----':
-            img = self.update.saveAndReturnObject(img)
-            img.unload()
-
+            img = self.make_image(name='test-img-%s' % uuid, date=acquired)
             im_ids[i] = [img.id.val, acquired]
 
         # Here we assume that this test is not run within the last 1 second
@@ -103,14 +96,8 @@ class TestITimeline(lib.ITest):
         for i in range(0, 10):
             # create image
             acquired = long(time.time() * 1000)
-            img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % client2.sf))
-            img.setAcquisitionDate(rtime(acquired))
-
-            # default permission 'rw----':
-            img = client2.sf.getUpdateService().saveAndReturnObject(img)
-            img.unload()
-
+            img = self.make_image(name='test-img-%s' % client2.sf,
+                                  date=acquired, client=client2)
             im_ids[i] = [img.id.val, acquired]
 
         # Here we assume that this test is not run within the last 1 second
@@ -146,13 +133,10 @@ class TestITimeline(lib.ITest):
 
     def test1173(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        update = self.root.sf.getUpdateService()
         timeline = self.root.sf.getTimelineService()
 
         # create image
-        ds = omero.model.DatasetI()
-        ds.setName(rstring('test1173-ds-%s' % uuid))
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name='test1173-ds-%s' % uuid, client=self.root)
         ds.unload()
 
         # Here we assume that this test is not run within the last 1 second
@@ -182,9 +166,8 @@ class TestITimeline(lib.ITest):
         timeline = self.root.sf.getTimelineService()
 
         # create dataset
-        ds = omero.model.DatasetI()
-        ds.setName(rstring('test1154-ds-%s' % (uuid)))
-        ds = update.saveAndReturnObject(ds)
+        ds = self.make_dataset(name='test1154-ds-%s' % (uuid),
+                               client=self.root)
         ds.unload()
 
         # create tag
@@ -226,9 +209,7 @@ class TestITimeline(lib.ITest):
         # create dataset
         to_save = list()
         for i in range(0, 10):
-            ds = omero.model.DatasetI()
-            ds.setName(rstring("ds-%i-%s" % (i, uuid)))
-            to_save.append(ds)
+            to_save.append(self.new_dataset(name="ds-%i-%s" % (i, uuid)))
 
         dss = update.saveAndReturnArray(to_save)
 

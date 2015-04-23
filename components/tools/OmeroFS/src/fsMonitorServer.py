@@ -9,7 +9,7 @@
 """
 import logging
 
-import omero_ext.uuid as uuid  # see ticket:3774
+import uuid
 
 from fsMonitor import MonitorFactory
 

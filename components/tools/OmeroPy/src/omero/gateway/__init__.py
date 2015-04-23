@@ -1734,8 +1734,6 @@ class _BlitzGateway (object):
                 self, 'getConfigService')
             self._proxies['container'] = ProxyObjectWrapper(
                 self, 'getContainerService')
-            self._proxies['delete'] = ProxyObjectWrapper(
-                self, 'getDeleteService')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['metadata'] = ProxyObjectWrapper(
                 self, 'getMetadataService')
@@ -2441,14 +2439,6 @@ class _BlitzGateway (object):
         :return:    omero.gateway.ProxyObjectWrapper
         """
         return self._proxies['update']
-
-    def getDeleteService(self):
-        """
-        Gets reference to the delete service from ProxyObjectWrapper.
-
-        :return:    omero.gateway.ProxyObjectWrapper
-        """
-        return self._proxies['delete']
 
     def getSessionService(self):
         """
@@ -3813,16 +3803,6 @@ class _BlitzGateway (object):
 
         u = self.getUpdateService()
         u.deleteObject(obj, self.SERVICE_OPTS)
-
-    def getAvailableDeleteCommands(self):
-        """
-        Retrieves the current set of delete commands with type (graph spec)
-        and options filled.
-
-        :return:    Exhaustive list of available delete commands.
-        :rtype:     :class:`omero.api.delete.DeleteCommand`
-        """
-        return self.getDeleteService().availableCommands()
 
     def deleteObjects(self, graph_spec, obj_ids, deleteAnns=False,
                       deleteChildren=False):
@@ -6993,7 +6973,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
                     rv['tiled'] = ((rv['size']['height'] * rv['size']['width'])
                                    > (maxplanesize[0] * maxplanesize[1]))
                 else:
-                    rv['tiles'] = False
+                    rv['tiled'] = False
 
         return rv
 
@@ -7764,16 +7744,19 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
-    @assert_re()
+    @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):
         """
         Returns the ID of the current rendering def on the image.
-        Loads and initialises the rendering engine if needed
+        Loads and initialises the rendering engine if needed.
+        If rendering engine fails (E.g. MissingPyramidException)
+        then returns None.
 
         :return:    current rendering def ID
         :rtype:     Long
         """
-        return self._re.getRenderingDefId()
+        if self._re is not None:
+            return self._re.getRenderingDefId()
 
     def getAllRenderingDefs(self, eid=-1):
         """

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.config.RegistryImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.config;
 
 //Java imports
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 //Third-party libraries
 
@@ -42,6 +41,8 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
+import com.google.common.collect.MapMaker;
 
 /** 
  * Implements the <code>Registry</code> interface. 
@@ -69,7 +70,7 @@ class RegistryImpl
 {
     
     /** The name-value map. */
-    private Map<String, Object>	entriesMap;
+    private final Map<String, Object> entriesMap = new MapMaker().makeMap();
     
     /** Reference to container's service. */
     private EventBus                eb;
@@ -98,11 +99,8 @@ class RegistryImpl
     /** Reference to the Cache service. */
     private CacheService			cache;
     
-    /** Creates an empty map. */
-    RegistryImpl()
-    {
-        entriesMap = new ConcurrentHashMap<String, Object>();
-    }
+    /* may be constructed only by classes in this package */
+    RegistryImpl() { }
     
 	/** 
      * Implemented as specified by {@link Registry}. 

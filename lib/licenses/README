@@ -625,13 +625,6 @@
   License File: apache-v2.0.txt
 
 
-  Artifacts:    components/tools/OmeroPy/src/omero_ext/xmlrunner
-  Project:      unittest-xml-reporting - PyUnit-based TestRunner
-  Web Site:     http://github.com/danielfm/unittest-xml-reporting
-  License:      Lesser General Public License (LGPL) v2.1
-  License File: lgpl-v2.1.txt
-
-
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/static/3rdparty/jquery-ui-1.8.17/*
   Project:      jQuery UI - open source library of interface components.
   Web Site:     http://jqueryui.com/

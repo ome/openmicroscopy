@@ -164,7 +164,7 @@ public class GroupItem
         while (i.hasNext()) {
             item = i.next();
             ho = item.getDataObject();
-            if (item.isSelected() && ho instanceof ExperimenterData)
+            if (item.isChecked() && ho instanceof ExperimenterData)
                 users.add((ExperimenterData) ho);
         }
         return users;
@@ -186,13 +186,13 @@ public class GroupItem
             item = i.next();
             item.setEnabled(enabled);
             if (!enabled) {
-                item.setSelected(true);
+                item.setChecked(true);
             } else {
                 ho = item.getDataObject();
                 if (ho instanceof ExperimenterData) {
                     exp = (ExperimenterData) ho;
-                    item.setSelected(exp.getId() == userID);
-                } else item.setSelected(false);
+                    item.setChecked(exp.getId() == userID);
+                } else item.setChecked(false);
             }
         }
     }
@@ -216,16 +216,16 @@ public class GroupItem
                 data = i.next();
                 ho = data.getDataObject();
                 if (ho instanceof ExperimenterData && data.isEnabled()) {
-                    data.setSelected(select);
+                    data.setChecked(select);
                     long id = ((ExperimenterData) ho).getId();
                     //always keep the user currently logged in even if 
                     //select is false
                     if (id == userID) {
-                        data.setSelected(true);
+                        data.setChecked(true);
                     }
                 } else if (ho instanceof String) {
                     data.removePropertyChangeListener(this);
-                    data.setSelected(select);
+                    data.setChecked(select);
                     data.addPropertyChangeListener(this);
                 }
             }
@@ -241,7 +241,7 @@ public class GroupItem
                     if (ho instanceof ExperimenterData && data.isEnabled()) {
                         long id = ((ExperimenterData) ho).getId();
                         if (id == userID) {
-                            data.setSelected(true);
+                            data.setChecked(true);
                             break;
                         }
                     }
@@ -265,18 +265,18 @@ public class GroupItem
             if (ho instanceof String) {
                 String v = (String) ho;
                 if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
-                    selectUsers(true, item.isSelected());
+                    selectUsers(true, item.isChecked());
                     i = usersItem.iterator();
-                    boolean b = item.isSelected();
+                    boolean b = item.isChecked();
                     while (i.hasNext()) {
                         item = i.next();
                         ho = item.getDataObject();
                         if (ho instanceof ExperimenterData && item.isEnabled()) {
                             exp = (ExperimenterData) ho;
-                            if (b) item.setSelected(b);
+                            if (b) item.setChecked(b);
                             else {
                                 if (exp.getId() != userID)
-                                    item.setSelected(b);
+                                    item.setChecked(b);
                             }
                         }
                     }
@@ -293,7 +293,7 @@ public class GroupItem
                         String v = (String) ho;
                         if (DataMenuItem.ALL_USERS_TEXT.equals(v)) {
                             item.removePropertyChangeListener(this);
-                            item.setSelected(all);
+                            item.setChecked(all);
                             item.addPropertyChangeListener(this);
                         }
                     }
@@ -306,7 +306,7 @@ public class GroupItem
                 firePropertyChange(USER_SELECTION_PROPERTY, null, this);
             } else {
                 //no longer select the group.
-                boolean selected = item.isSelected();
+                boolean selected = item.isChecked();
                 if (!selected && isMenuSelected()) {
                     setMenuSelected(false, false);
                 } else if (selected && !isMenuSelected()) {

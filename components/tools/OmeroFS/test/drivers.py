@@ -13,10 +13,10 @@
 import logging
 import threading
 import time
+import uuid
 
 import omero.all
 import omero.grid.monitors as monitors
-import omero_ext.uuid as uuid  # see ticket:3774
 
 from path import path
 from omero.util import ServerContext

@@ -10,7 +10,6 @@ import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,7 +25,6 @@ import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.system.OmeroContext;
 
 import org.slf4j.Logger;
@@ -37,13 +35,15 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.google.common.collect.MapMaker;
+
 /**
  * Synchronized and lockable state for the {@link SessionManager}. Maps from
  * {@link Session} uuid to {@link SessionContext} in memory, with each mapping
  * also having an additional cache which may spill over to disk,
  * {@link StaleCacheListener listeners}.
  *
- * Uses {@link ConcurrentHashMap} and various implementations from
+ * Uses {@link MapMaker} and various implementations from
  * java.util.concurrent.atomic to provide a lock-free implementation.
  *
  * 
@@ -73,9 +73,9 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * Container which can be put in a single {@link AtomicReference} instance.
      * Contains all the data for a single session immutably. Therefore any
-     * thread that manages to get access to this instance (from the
-     * {@link ConcurrentHashMap} "data") can work with this data even if another
-     * thread is currently in the process of removing this from the map.
+     * thread that manages to get access to this instance can work with this
+     * data even if another thread is currently in the process of removing this
+     * from the map.
      */
     private static class Data {
 
@@ -216,7 +216,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      *
      */
-    private final Map<String, Data> sessions = new ConcurrentHashMap<String, Data>();
+    private final Map<String, Data> sessions;
 
     /**
      *
@@ -238,8 +238,7 @@ public class SessionCache implements ApplicationContextAware {
     /**
      * 
      */
-    private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
-            64);
+    private final Map<String, Set<SessionCallback>> sessionCallbackMap;
 
     private final AtomicReference<StaleCacheListener> staleCacheListener = new AtomicReference<StaleCacheListener>();
 
@@ -253,6 +252,12 @@ public class SessionCache implements ApplicationContextAware {
      * {@link DestroySessionMessage} on {@link #removeSession(String)}
      */
     private OmeroContext context;
+
+    public SessionCache() {
+        final MapMaker mapMaker = new MapMaker();
+        sessions = mapMaker.makeMap();
+        sessionCallbackMap = mapMaker.makeMap();
+    }
 
     /**
      * Injection method, also performs the creation of {@link #sessions}
