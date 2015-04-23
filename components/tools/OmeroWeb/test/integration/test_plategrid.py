@@ -13,13 +13,14 @@ import pytest
 import test.integration.library as lib
 
 from omero.model import PlateI, WellI, WellSampleI
-from omero.rtypes import rint, rstring
+from omero.rtypes import rint, rstring, rtime
 from omero.gateway import BlitzGateway
 from omeroweb.webgateway.plategrid import PlateGrid
 
 from django.test import Client
 from django.core.urlresolvers import reverse
 import json
+import time
 
 
 @pytest.fixture(scope='function')
@@ -132,6 +133,44 @@ def full_plate_wells(itest, update_service):
 
 
 @pytest.fixture(scope='function')
+def plate_wells_with_acq_date(itest, well_grid_factory, update_service):
+    """
+    Creates a plate with a single well containing an image with both an
+    acquisition date set as well as a creation event with a date. Returns the
+    plate and the acquisition date in a map.
+    """
+    acq_date = (time.time() - 60 * 60 * 24) * 1000
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    # Simple grid: one well with one image
+    [well] = well_grid_factory({(0, 0): 1})
+    well.copyWellSamples()[0].image.acquisitionDate = rtime(int(acq_date))
+    plate.addWell(well)
+    plate = update_service.saveAndReturnObject(plate)
+    return {'plate': plate,
+            'acq_date': int(acq_date / 1000)}
+
+
+@pytest.fixture(scope='function')
+def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
+                                 conn):
+    """
+    Creates a plate with a single well containing an image with no acquisition
+    date set. Returns the plate and the time from the creation event in a map.
+    """
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    # Simple grid: one well with one image
+    [well] = well_grid_factory({(0, 0): 1})
+    plate.addWell(well)
+    well = update_service.saveAndReturnObject(well)
+    creation_date = well.copyWellSamples()[0].image.details.creationEvent.time
+    plate = update_service.saveAndReturnObject(plate)
+    return {'plate': plate,
+            'creation_date': creation_date.val / 1000}
+
+
+@pytest.fixture(scope='function')
 def django_client(request, client):
     """Returns a logged in Django test client."""
     django_client = Client()
@@ -227,3 +266,25 @@ class TestPlateGrid(object):
             for column in range(12):
                 assert metadata['grid'][row][column]['name'] ==\
                     lett[row]+str(column)
+
+    def test_acquisition_date(self, plate_wells_with_acq_date, conn):
+        """
+        Check that acquisition date is used for an image in the plate if it is
+        specified
+        """
+        plate = plate_wells_with_acq_date['plate']
+        acq_date = plate_wells_with_acq_date['acq_date']
+        plate_grid = PlateGrid(conn, plate.id.val, 0)
+        metadata = plate_grid.metadata
+        assert metadata['grid'][0][0]['date'] == acq_date
+
+    def test_creation_date(self, plate_wells_with_no_acq_date, conn):
+        """
+        Check that plate grid metadata falls back to using creation event time
+        if an image has no (or an invalid) acquistion date
+        """
+        plate = plate_wells_with_no_acq_date['plate']
+        creation_date = plate_wells_with_no_acq_date['creation_date']
+        plate_grid = PlateGrid(conn, plate.id.val, 0)
+        metadata = plate_grid.metadata
+        assert metadata['grid'][0][0]['date'] == creation_date

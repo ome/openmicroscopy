@@ -11,7 +11,6 @@
 """
 
 import logging
-from datetime import datetime as dt
 import time
 
 import omero.sys
@@ -46,7 +45,8 @@ class PlateGrid(object):
             params.add('wsidx', rint(self.field))
             query = "select well.row, well.column, img.id, img.name, "\
                     "author.firstName||' '||author.lastName, "\
-                    "well.id, img.acquisitionDate "\
+                    "well.id, img.acquisitionDate, "\
+                    "img.details.creationEvent.time "\
                     "from Well well "\
                     "join well.wellSamples ws "\
                     "join ws.image img "\
@@ -55,12 +55,19 @@ class PlateGrid(object):
                     "and index(ws) = :wsidx"
 
             for res in q.projection(query, params, self._conn.SERVICE_OPTS):
-                row, col, img_id, img_name, author, well_id, time = res
+                row, col, img_id, img_name, author, well_id, acq_date, \
+                    create_date = res
+
+                if acq_date.val is not None and acq_date.val > 0:
+                    date = acq_date.val / 1000
+                else:
+                    date = create_date.val / 1000
+
                 wellmeta = {'type': 'Image',
                             'id': img_id.val,
                             'name': img_name.val,
                             'author': author.val,
-                            'date': time.val / 1000,
+                            'date': date,
                             'wellId': well_id.val,
                             'field': self.field}
 
