@@ -770,14 +770,16 @@ class ITest(object):
         obj.setDescription(rstring(description))
         return obj
 
-    def new_image(self, name=None, description=None):
+    def new_image(self, name=None, description=None, date=0):
         """
         Creates a new image object.
         If no name has been provided, a UUID string shall be used.
         :param name: The image name. If None, a UUID string will be used
+        :param description: The image description
+        :param date: The image acquisition date
         """
         img = self.new_object(ImageI, name=name, description=description)
-        img.acquisitionDate = rtime(0)
+        img.acquisitionDate = rtime(date)
         return img
 
     def new_project(self, name=None, description=None):
@@ -796,16 +798,17 @@ class ITest(object):
         """
         return self.new_object(DatasetI, name=name, description=description)
 
-    def make_image(self, name=None, description=None, client=None):
+    def make_image(self, name=None, description=None, date=0, client=None):
         """
         Creates a new image instance and returns the persisted object.
-        :param name: The project name. If None, a UUID string will be used
+        :param name: The image name. If None, a UUID string will be used
         :param description: The image description
+        :param date: The image acquisition date
         :param client: The client to use to create the object
         """
         if client is None:
             client = self.client
-        image = self.new_image(name=name, description=description)
+        image = self.new_image(name=name, description=description, date=date)
         return client.sf.getUpdateService().saveAndReturnObject(image)
 
     def make_project(self, name=None, description=None, client=None):
@@ -824,7 +827,7 @@ class ITest(object):
         """
         Creates a new dataset instance and returns the persisted object.
         :param name: The dataset name. If None, a UUID string will be used
-        :param description: The project description
+        :param description: The dataset description
         :param client: The client to use to create the object
         """
         if client is None:
@@ -858,7 +861,7 @@ class ITest(object):
         If no name has been provided, a UUID string shall be used.
 
         :param name: the name of the project
-        :param client: user context
+        :param client: The client to use to create the object
         """
 
         if client is None:
@@ -893,15 +896,17 @@ class ITest(object):
 
     def link(self, obj1, obj2, client=None):
         """
-        Links two linkable model entities together by creating an instance
-        of the correct link entity (e.g. ProjectDatasetLinkI) and persisting
-        it in the DB. Accepts client instance to allow calls to happen
-        in correct user contexts. Limited to ProjectI-DatasetI
-        and DatasetI-ImageI links.
+        Links two linkable model entities together by creating an instance of
+        the correct link entity (e.g. ProjectDatasetLinkI) and persisting it
+        in the DB. Accepts client instance to allow calls to happen in correct
+        user contexts. Currently support links are:
+          * project/dataset
+          * dataset/image
+          * image/annotation
 
         :param obj1: parent object
         :param obj2: child object
-        :param client: user context
+        :param client: The client to use to create the link
         """
         if client is None:
             client = self.client
@@ -994,6 +999,24 @@ class ITest(object):
             type="/ExperimenterGroup", id=gid, permissions=perms)
 
         self.doSubmit(command, client)
+
+    def create_share(self, description="", timeout=None,
+                     objects=[], experimenters=[], guests=[],
+                     enabled=True, client=None):
+        """
+        Create share object
+
+        :param objects: a list of objects to include in the share
+        :param description: a string containing the description of the share
+        :param timeout: the timeout of the share
+        :param experimenters: a list of users associated with the share
+        :param client: The client to use to create the share
+        """
+        if client is None:
+            client = self.client
+        share = client.sf.getShareService()
+        return share.createShare(description, timeout, objects,
+                                 experimenters, guests, enabled)
 
 
 class ProjectionFixture(object):

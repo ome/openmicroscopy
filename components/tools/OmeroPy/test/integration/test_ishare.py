@@ -13,9 +13,8 @@ import time
 import library as lib
 import pytest
 import omero
-from omero_model_ImageI import ImageI
-from omero_model_DatasetImageLinkI import DatasetImageLinkI
-from omero.rtypes import rtime, rlong, rstring, rlist
+from omero.rtypes import rtime, rlong, rlist
+from omero.gateway import BlitzGateway
 
 from test.integration.helpers import createTestImage
 
@@ -23,52 +22,33 @@ from test.integration.helpers import createTestImage
 class TestIShare(lib.ITest):
 
     def test_that_permissions_are_default_private(self):
-        i = omero.model.ImageI()
-        i.name = rstring("name")
-        i.acquisitionDate = rtime(0)
-        i = self.client.sf.getUpdateService().saveAndReturnObject(i)
+        i = self.make_image()
         assert not i.details.permissions.isGroupRead()
         assert not i.details.permissions.isGroupWrite()
         assert not i.details.permissions.isWorldRead()
 
     def test_basic_usage(self):
-        share = self.client.sf.getShareService()
-        update = self.client.sf.getUpdateService()
 
         test_user = self.new_user()
         # create share
-        description = "my description"
-        timeout = None
-        objects = []
-        experimenters = [test_user]
-        guests = ["ident@emaildomain.com"]
-        enabled = True
-        share_id = share.createShare(description, timeout, objects,
-                                     experimenters, guests, enabled)
+        share = self.client.sf.getShareService()
+        share_id = self.create_share(
+            description="my description", experimenters=[test_user],
+            guests=["ident@emaildomain.com"])
 
         assert 0 == len(share.getContents(share_id))
 
-        d = omero.model.DatasetI()
-        d.setName(rstring("d"))
-        d = update.saveAndReturnObject(d)
+        d = self.make_dataset()
         share.addObjects(share_id, [d])
-
         assert len(share.getContents(share_id)) == 1
 
-        ds = []
-        for i in range(0, 4):
-            ds.append(omero.model.DatasetI())
-            ds[i].setName(rstring("ds%i" % i))
-        ds = update.saveAndReturnArray(ds)
+        ds = self.createDatasets(4, "Dataset")
         share.addObjects(share_id, ds)
-
         assert share.getContentSize(share_id) == 5
-
         assert len(share.getAllUsers(share_id)) == 2
 
         # check access by a member to see the content
-        client_guest_read_only = self.new_client(
-            user=test_user, password=test_user.omeName.val)
+        client_guest_read_only = self.new_client(user=test_user)
         try:
 
             # get dataset - not allowed
@@ -86,8 +66,7 @@ class TestIShare(lib.ITest):
             client_guest_read_only.__del__()
 
         # check access by a member to add comments
-        client_guest = self.new_client(
-            user=test_user, password=test_user.omeName.val)
+        client_guest = self.new_client(user=test_user)
         try:
             share_guest = client_guest.sf.getShareService()
             share_guest.addComment(share_id, "comment for share %i" % share_id)
@@ -105,19 +84,50 @@ class TestIShare(lib.ITest):
         finally:
             client_share.__del__()
 
+    @pytest.mark.parametrize('func', ['canEdit', 'canAnnotate', 'canDelete',
+                                      'canLink'])
+    def test_canDoAction(self, func):
+        """
+        Test if canEdit returns appropriate flag
+        """
+
+        client, user = self.new_client_and_user()
+
+        image = self.make_image()
+        share_id = self.create_share(
+            objects=[image], description="description", experimenters=[user])
+        share = self.sf.getShareService()
+        assert len(share.getContents(share_id)) == 1
+
+        # test action by member
+        user_conn = BlitzGateway(client_obj=client)
+        # user CANNOT see image if not in share
+        assert None == user_conn.getObject("Image", image.id.val)
+        # activate share
+        user_conn.SERVICE_OPTS.setOmeroShare(share_id)
+        assert False == getattr(user_conn.getObject("Image",
+                                                    image.id.val), func)()
+
+        # test action by owner
+        owner_conn = BlitzGateway(client_obj=self.client)
+        # owner CAN do action on the object when not in share
+        assert True == getattr(owner_conn.getObject("Image",
+                                                    image.id.val), func)()
+        # activate share
+        owner_conn.SERVICE_OPTS.setOmeroShare(share_id)
+        # owner CANNOT do action on the object when in share
+        assert False == getattr(owner_conn.getObject("Image",
+                                                     image.id.val), func)()
+
     def test8118(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share_serv = self.root.sf.getShareService()
-        update_serv = self.root.sf.getUpdateService()
 
         # create user
         user1 = self.new_user()
 
         # create image
-        img = ImageI()
-        img.setName(rstring('test8118-img-%s' % uuid))
-        img = update_serv.saveAndReturnObject(img)
-        img.unload()
+        img = self.make_image(name='test8118-img-%s' % uuid)
 
         # create share
         description = "my description"
@@ -151,13 +161,9 @@ class TestIShare(lib.ITest):
 
         # login as user1
         share1 = client_share1.sf.getShareService()
-        update1 = client_share1.sf.getUpdateService()
 
         # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % uuid))
-        img = update1.saveAndReturnObject(img)
-        img.unload()
+        img = self.make_image(name='test1154-img-%s' % uuid)
 
         # create share
         description = "my description"
@@ -204,14 +210,9 @@ class TestIShare(lib.ITest):
         client2 = self.new_client(user=user2)
 
         # User 1 creates image in Private group...
-        update1 = client1.sf.getUpdateService()
-        share1 = client1.sf.getShareService()
-        img = ImageI()
-        img.setName(rstring('ishare_testCanAnntotate'))
-        img = update1.saveAndReturnObject(img)
+        img = self.make_image(name='ishare_testCanAnnotate', client=client1)
         assert not img.details.permissions.isGroupRead()
         assert not img.details.permissions.isGroupAnnotate()
-        img.unload()
 
         # ...Adds it to share
         description = "my description"
@@ -220,6 +221,7 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
+        share1 = client1.sf.getShareService()
         sid = share1.createShare(description, timeout, objects,
                                  experimenters, guests, enabled)
 
@@ -247,23 +249,15 @@ class TestIShare(lib.ITest):
 
         # login as user1
         share1 = client_share1.sf.getShareService()
-        update1 = client_share1.sf.getUpdateService()
 
         # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % uuid))
-        img = update1.saveAndReturnObject(img)
+        img = self.make_image(name='test1154-img-%s' % uuid)
         img.unload()
 
         # create share
-        description = "my description"
-        timeout = None
-        objects = [img]
-        experimenters = [user2]
-        guests = []
-        enabled = True
-        sid = share1.createShare(description, timeout, objects,
-                                 experimenters, guests, enabled)
+        sid = self.create_share(
+            description="my description", objects=[img],
+            experimenters=[user2], client=client_share1)
         assert len(share1.getContents(sid)) == 1
         # add comment by the owner
         share.addComment(sid, 'test comment by the owner %s' % uuid)
@@ -286,42 +280,32 @@ class TestIShare(lib.ITest):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         share = self.root.sf.getShareService()
         query = self.root.sf.getQueryService()
-        update = self.root.sf.getUpdateService()
 
         # create user
         client_share1, user1 = self.new_client_and_user()
 
         # create dataset with image
-        ds = omero.model.DatasetI()
-        ds.setName(rstring("dataset-%s" % uuid))
-        ds = update.saveAndReturnObject(ds)
-        ds.unload()
-
-        # create image
-        img = ImageI()
-        img.setName(rstring('test-img in dataset-%s' % uuid))
-        img = update.saveAndReturnObject(img)
-        img.unload()
-
-        dil = DatasetImageLinkI()
-        dil.setParent(ds)
-        dil.setChild(img)
-        dil = update.saveAndReturnObject(dil)
-        dil.unload()
+        ds = self.make_dataset(name="dataset-%s" % uuid, client=self.root)
+        img = self.new_image(name='test-img in dataset-%s' % uuid)
+        self.link(ds, img, client=self.root)
 
         items = list()
         p = omero.sys.Parameters()
         p.map = {"oid": ds.id}
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
-              "where ds.id=:oid"
+        sql = (
+            "select ds from Dataset ds "
+            "join fetch ds.details.owner "
+            "join fetch ds.details.group "
+            "left outer join fetch ds.imageLinks dil "
+            "left outer join fetch dil.child i "
+            "where ds.id=:oid")
         items.extend(query.findAllByQuery(sql, p))
         assert 1 == len(items)
 
         # members
         p.map["eid"] = rlong(user1.id.val)
-        sql = "select e from Experimenter e " \
-              "where e.id =:eid order by e.omeName"
+        sql = ("select e from Experimenter e "
+               "where e.id =:eid order by e.omeName")
         ms = query.findAllByQuery(sql, p)
         sid = share.createShare(("test-share-%s" % uuid),
                                 rtime(long(time.time() * 1000 + 86400)),
@@ -342,9 +326,13 @@ class TestIShare(lib.ITest):
         # retrieve dataset
         p = omero.sys.Parameters()
         p.map = {"ids": rlist([ds.id])}
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-              "left outer join fetch ds.imageLinks dil left outer join fetch dil.child i " \
-              "where ds.id in (:ids) order by ds.name"
+        sql = (
+            "select ds from Dataset ds "
+            "join fetch ds.details.owner "
+            "join fetch ds.details.group "
+            "left outer join fetch ds.imageLinks dil "
+            "left outer join fetch dil.child i "
+            "where ds.id in (:ids) order by ds.name")
         try:
             res1 = query1.findAllByQuery(sql, p)
             assert False, "This should throw an exception"
@@ -525,15 +513,8 @@ class TestIShare(lib.ITest):
         client_share1, user1 = self.new_client_and_user()
         client_share2, user2 = self.new_client_and_user()
 
-        # login as user1
-        share1 = client_share1.sf.getShareService()
-        update1 = client_share1.sf.getUpdateService()
-
         # create image
-        img = ImageI()
-        img.setName(rstring('test2327'))
-        img = update1.saveAndReturnObject(img)
-        img.unload()
+        img = self.make_image(name='test2327', client=client_share1)
 
         # create share
         description = "my description"
@@ -542,6 +523,7 @@ class TestIShare(lib.ITest):
         experimenters = [user2]
         guests = []
         enabled = True
+        share1 = client_share1.sf.getShareService()
         sid = share1.createShare(description, timeout, objects,
                                  experimenters, guests, enabled)
         assert len(share1.getContents(sid)) == 1
@@ -615,11 +597,9 @@ class TestIShare(lib.ITest):
 
         # login as user1
         share1 = owner.sf.getShareService()
-        update1 = owner.sf.getUpdateService()
 
         # create image
-        img = self.new_image("test2733Access")
-        img = update1.saveAndReturnObject(img)
+        img = self.make_image("test2733Access")
         img.unload()
 
         # create share
@@ -658,11 +638,9 @@ class TestIShare(lib.ITest):
 
         # login as user1
         share1 = owner.sf.getShareService()
-        update1 = owner.sf.getUpdateService()
 
         # create image
-        img = self.new_image("test2733Access")
-        img = update1.saveAndReturnObject(img)
+        img = self.make_image(name="test2733Access", client=owner)
         img.unload()
 
         # create share
@@ -706,8 +684,7 @@ class TestIShare(lib.ITest):
         query = new_client.sf.getQueryService()
         update = new_client.sf.getUpdateService()
 
-        image = self.new_image()
-        image = update.saveAndReturnObject(image)
+        image = self.make_image(client=new_client)
         objects = [image]
 
         share_id = share.createShare("", None, objects, [], [], True)
@@ -733,8 +710,7 @@ class TestIShare(lib.ITest):
         query = new_client.sf.getQueryService()
         update = new_client.sf.getUpdateService()
 
-        image = self.new_image()
-        image = update.saveAndReturnObject(image)
+        image = self.make_image(client=new_client)
         objects = [image]
 
         share_id = share.createShare("", None, objects, [], [], True)
@@ -790,27 +766,18 @@ class TestIShare(lib.ITest):
             shares.createShare("my description", None, [omero.model.ScreenI()],
                                [], [], True)
 
-    def create_share(self, share, description="desc", timeout=None,
-                     objects=None, experimenters=None, guests=None,
-                     enabled=True):
-        return share.createShare(description, timeout, objects,
-                                 experimenters, guests, enabled)
-
     def test_OS_regular_user(self):
         # test regular user can activate a share
         # Owner of share
         owner, owner_obj = self.new_client_and_user(perms="rw----")
         # Different group!
         member, member_obj = self.new_client_and_user(perms="rw----")
-        share1 = owner.sf.getShareService()
-        update1 = owner.sf.getUpdateService()
 
         # create image and share
-        img = self.new_image("testOSRegularUser")
-        img = update1.saveAndReturnObject(img)
+        img = self.make_image("testOSRegularUser", client=owner)
         img.unload()
-        sid = self.create_share(share1, objects=[img],
-                                experimenters=[owner_obj, member_obj])
+        sid = self.create_share(
+            objects=[img], experimenters=[owner_obj, member_obj], client=owner)
 
         self.assert_access(owner, sid)
         self.assert_access(member, sid)
@@ -880,17 +847,11 @@ class TestIShare(lib.ITest):
         # just in case
         assert owner_obj.id.val != member_obj.id.val
 
-        owner_update = owner.sf.getUpdateService()
-        image = self.new_image()
-        image = owner_update.saveAndReturnObject(image)
+        image = self.make_image(client=owner)
+        image2 = self.make_image(client=member)
 
-        member_update = member.sf.getUpdateService()
-        image2 = self.new_image()
-        image2 = member_update.saveAndReturnObject(image2)
-
-        share = owner.sf.getShareService()
-        sid = self.create_share(share, objects=[image],
-                                experimenters=[member_obj])
+        sid = self.create_share(
+            objects=[image], experimenters=[member_obj], client=owner)
 
         self.assert_access(owner, sid)
         self.assert_access(member, sid)
@@ -972,13 +933,10 @@ class TestIShare(lib.ITest):
         rdefs = owner.sf.getQueryService().findAll("RenderingDef", None)
 
         # create image by member
-        member_update = member.sf.getUpdateService()
-        image2 = self.new_image()
-        image2 = member_update.saveAndReturnObject(image2)
+        image2 = self.make_image(client=member)
 
-        share = owner.sf.getShareService()
-        sid = self.create_share(share, objects=[image],
-                                experimenters=[member_obj])
+        sid = self.create_share(
+            objects=[image], experimenters=[member_obj], client=owner)
 
         self.assert_access(owner, sid)
         self.assert_access(member, sid)

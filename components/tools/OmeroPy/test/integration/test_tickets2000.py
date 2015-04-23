@@ -14,7 +14,6 @@ import library as lib
 import pytest
 import omero
 from omero.rtypes import rbool, rstring, rtime, rlong, rint
-from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
 from omero_model_ProjectI import ProjectI
 from omero_model_ExperimenterI import ExperimenterI
@@ -140,7 +139,6 @@ class TestTickets2000(lib.ITest):
 
         # images
         im2 = self.make_image(name='test1071-im2-%s' % (c2_uuid), client=c2)
-        im2.unload()
 
         # links
         # im2 owned by u2
@@ -311,14 +309,11 @@ class TestTickets2000(lib.ITest):
         uuid = self.uuid()
         new_gr1 = self.new_group(perms="rw----")
         client_share1, new_exp_obj = self.new_client_and_user(new_gr1)
-        update1 = client_share1.sf.getUpdateService()
         search1 = client_share1.sf.createSearchService()
 
         # create image and index
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-        img = update1.saveAndReturnObject(img)
-        img.unload()
+        img = self.make_image(name='test1154-img-%s' % uuid,
+                              client=client_share1)
         self.index(img)
 
         # search
@@ -343,11 +338,6 @@ class TestTickets2000(lib.ITest):
 
         for i in range(1, 2001):
             img = self.new_image(name='img1184-%s' % (uuid))
-            # Saving in one go
-            # dil = DatasetImageLinkI()
-            # dil.setParent(ds)
-            # dil.setChild(img)
-            # update.saveObject(dil)
             ds.linkImage(img)
         ds = update.saveAndReturnObject(ds)
 

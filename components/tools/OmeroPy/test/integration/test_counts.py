@@ -25,21 +25,15 @@
 """
 
 import library as lib
-from omero_model_ImageI import ImageI
 from omero_model_TagAnnotationI import TagAnnotationI
-from omero.rtypes import rstring, rtime
 
 
 class TestCounts(lib.ITest):
 
     def testBasicUsage(self):
 
-        img = ImageI()
-        img.name = rstring("name")
-        img.acquisitionDate = rtime(0)
-        tag = TagAnnotationI()
-        img.linkAnnotation(tag)
-
+        img = self.new_image(name="name")
+        img.linkAnnotation(TagAnnotationI())
         img = self.update.saveAndReturnObject(img)
 
         img = self.query.findByQuery(

@@ -74,10 +74,8 @@ class TestFigureExportScripts(lib.ITest):
 
             # add tag
             tIndex = i % 5
-            tlink = omero.model.ImageAnnotationLinkI()
-            tlink.child = omero.model.TagAnnotationI(tagIds[tIndex].val, False)
-            tlink.parent = omero.model.ImageI(image.id.val, False)
-            self.root.sf.getUpdateService().saveObject(tlink)
+            tag = omero.model.TagAnnotationI(tagIds[tIndex].val, False)
+            self.link(image, tag, client=self.root)
 
         # run the script twice. First with all args...
         datasetIds = [omero.rtypes.rlong(dataset.id.val), ]

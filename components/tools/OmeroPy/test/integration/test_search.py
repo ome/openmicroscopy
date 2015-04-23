@@ -117,9 +117,7 @@ class TestSearch(lib.ITest):
 
         images = list()
         for i in range(0, 5):
-            img = omero.model.ImageI()
-            img.name = omero.rtypes.rstring("search_test_%i.tif" % i)
-            img.acquisitionDate = omero.rtypes.rtime(0)
+            img = self.new_image(name="search_test_%i.tif" % i)
             tag = omero.model.TagAnnotationI()
             tag.textValue = omero.rtypes.rstring("tag %i" % i)
             img.linkAnnotation(tag)
@@ -280,11 +278,9 @@ class TestSearch(lib.ITest):
         ofile.path = _(os.path.dirname(path))
         ofile.name = _(os.path.basename(path))
         ofile = client.upload(path, ofile=ofile)
-        link = omero.model.ImageAnnotationLinkI()
-        link.parent = image
-        link.child = omero.model.FileAnnotationI()
-        link.child.file = ofile.proxy()
-        link = client.sf.getUpdateService().saveObject(link)
+        fa = omero.model.FileAnnotationI()
+        fa.file = ofile.proxy()
+        self.link(image, fa, client=client)
         self.root.sf.getUpdateService().indexObject(image)
         return image
 
@@ -373,9 +369,7 @@ class TestSearch(lib.ITest):
     ))
     def test_hyphen_underscore(self, name, test):
         client = self.new_client()
-        proj = omero.model.ProjectI()
-        proj.name = omero.rtypes.rstring(name)
-        proj = client.sf.getUpdateService().saveAndReturnObject(proj)
+        proj = self.make_project(name, client=client)
         self.root.sf.getUpdateService().indexObject(proj)
 
         search = client.sf.createSearchService()
@@ -398,8 +392,7 @@ class TestSearch(lib.ITest):
         ann.setMapValue([
             omero.model.NamedValue(key, val)
         ])
-        proj = omero.model.ProjectI()
-        proj.name = omero.rtypes.rstring("test_map_annotations")
+        proj = self.new_project(name="test_map_annotations")
         proj.linkAnnotation(ann)
         proj = client.sf.getUpdateService().saveAndReturnObject(proj)
         self.root.sf.getUpdateService().indexObject(proj)

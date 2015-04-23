@@ -26,12 +26,8 @@
 
 import library as lib
 import omero
-from omero_model_ImageI import ImageI
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_ImageAnnotationLinkI import ImageAnnotationLinkI
 from omero_model_CommentAnnotationI import CommentAnnotationI
-from omero.rtypes import rbool, rstring, rtime
+from omero.rtypes import rstring
 from uuid import uuid4
 
 
@@ -45,116 +41,40 @@ class TestIContainer(lib.ITest):
         i = ipojo.createDataObject(i, None)
 
     def testFindAndCountAnnotationsForSharedData(self):
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
 
-        # create new users
-        # group1
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring("group1_%s" % uuid)
-        new_gr1.ldap = rbool(False)
-        gid = admin.createGroup(new_gr1)
+        # create users
+        group = self.new_group(perms="rwra--")
+        client1, user1 = self.new_client_and_user(group=group)
 
-        # new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring("user1_%s" % uuid)
-        new_exp.firstName = rstring("New")
-        new_exp.lastName = rstring("Test")
-        new_exp.ldap = rbool(False)
-
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-
-        eid = admin.createExperimenterWithPassword(
-            new_exp, rstring("ome"), defaultGroup, listOfGroups)
-
-        # new user2
-        new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring("user2_%s" % uuid)
-        new_exp2.firstName = rstring("New2")
-        new_exp2.lastName = rstring("Test2")
-        new_exp2.ldap = rbool(False)
-
-        defaultGroup = admin.getGroup(gid)
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))
-
-        eid2 = admin.createExperimenterWithPassword(
-            new_exp2, rstring("ome"), defaultGroup, listOfGroups)
-
-        # get users
-        user1 = admin.getExperimenter(eid)
-        user2 = admin.getExperimenter(eid2)
-
-        # login as user1
-        cl1 = self.new_client(user=user1, password="ome")
-        update1 = cl1.sf.getUpdateService()
-        ipojo1 = cl1.sf.getContainerService()
-
-        # create image
-        img = ImageI()
-        img.setName(rstring('test1154-img-%s' % (uuid)))
-
-        # default permission 'rw----':
-        img = update1.saveAndReturnObject(img)
-        img.unload()
-
-        ann1 = CommentAnnotationI()
-        ann1.textValue = rstring("user comment - %s" % uuid)
-        l_ann1 = ImageAnnotationLinkI()
-        l_ann1.setParent(img)
-        l_ann1.setChild(ann1)
-        update1.saveObject(l_ann1)
+        # create image with comment annotation
+        img = self.make_image(name='test1154-img-%s' % self.uuid(),
+                              client=client1)
+        ann1 = self.new_object(
+            CommentAnnotationI, name="user comment - %s" % self.uuid())
+        self.link(img, ann1, client=client1)
 
         # user retrives the annotations for image
+        ipojo1 = client1.sf.getContainerService()
         coll_count = ipojo1.getCollectionCount(
             "Image", "ome.model.containers.Image_annotationLinks",
             [img.id.val], None)
         assert 1 == coll_count.get(img.id.val, [])
-        # assert 1 ==  len(ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
 
         # login as user2
-        cl2 = self.new_client(user=user2, password="ome")
-        update2 = cl1.sf.getUpdateService()
-
-        ann = CommentAnnotationI()
-        ann.textValue = rstring("user2 comment - %s" % uuid)
-        l_ann = ImageAnnotationLinkI()
-        l_ann.setParent(img)
-        l_ann.setChild(ann)
-        update2.saveObject(l_ann)
+        client2, user2 = self.new_client_and_user(group=group)
+        ann2 = self.new_object(
+            CommentAnnotationI, name="user2 comment - %s" % self.uuid())
+        self.link(img, ann2, client=client2)
 
         # do they see the same vals?
-        # print ipojo1.getCollectionCount(
-        #     "Image", "ome.model.containers.Image_annotationLinks",
-        #     [img.id.val], None)
-        # print ipojo.getCollectionCount(
-        #     "Image", "ome.model.containers.Image_annotationLinks",
-        #     [img.id.val], None)
-        # print len(ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
-        # print len(ipojo.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, []))
         coll_count = ipojo1.getCollectionCount(
             "Image", "ome.model.containers.Image_annotationLinks",
             [img.id.val], None)
         assert 2 == coll_count.get(img.id.val, [])
-        # anns = ipojo1.findAnnotations(
-        #     "Image", [img.id.val], None, None).get(img.id.val, [])
-        # assert 2 ==  len(anns)
-
-        # assert anns[0].details.permissions == 'rw----'
-        # assert anns[1].details.permissions == 'rw----'
-
-        cl1.sf.closeOnDestroy()
-        cl2.sf.closeOnDestroy()
 
     def testCreateAfterBlitzPort(self):
         ipojo = self.client.sf.getContainerService()
-        i = ImageI()
-        i.setName(rstring("name"))
+        i = self.new_image(name="name")
         i = ipojo.createDataObject(i, None)
         o = i.getDetails().owner
         assert -1 == o.sizeOfGroupExperimenterMap()
@@ -420,20 +340,14 @@ class TestSplitFilesets(lib.ITest):
                                + children(dataset_image_hierarchy)
                                + children(well_image_hierarchy)
                                + children(fileset_image_hierarchy)):
-            image = omero.model.ImageI()
-            image.name = rstring('Image #%i' % image_index)
-            image.acquisitionDate = rtime(0L)
-            image.id = update.saveAndReturnObject(image).id
+            image = self.make_image('Image #%i' % image_index)
             images.append(query.get('Image', image.id.val))
 
         # associate test entities
 
         for project_index, dataset_indices in project_dataset_hierarchy:
             for dataset_index in dataset_indices:
-                project_dataset = omero.model.ProjectDatasetLinkI()
-                project_dataset.parent = projects[project_index]
-                project_dataset.child = datasets[dataset_index]
-                update.saveAndReturnObject(project_dataset)
+                self.link(projects[project_index], datasets[dataset_index])
 
         for dataset_index, image_indices in dataset_image_hierarchy:
             for image_index in image_indices:

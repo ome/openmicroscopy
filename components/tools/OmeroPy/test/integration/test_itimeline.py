@@ -29,14 +29,7 @@ class TestITimeline(lib.ITest):
         for i in range(0, 10):
             # create image
             acquired = long(time.time() * 1000)
-            img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % (uuid)))
-            img.setAcquisitionDate(rtime(acquired))
-
-            # default permission 'rw----':
-            img = self.update.saveAndReturnObject(img)
-            img.unload()
-
+            img = self.make_image(name='test-img-%s' % uuid, date=acquired)
             im_ids[i] = [img.id.val, acquired]
 
         # Here we assume that this test is not run within the last 1 second
@@ -103,14 +96,8 @@ class TestITimeline(lib.ITest):
         for i in range(0, 10):
             # create image
             acquired = long(time.time() * 1000)
-            img = omero.model.ImageI()
-            img.setName(rstring('test-img-%s' % client2.sf))
-            img.setAcquisitionDate(rtime(acquired))
-
-            # default permission 'rw----':
-            img = client2.sf.getUpdateService().saveAndReturnObject(img)
-            img.unload()
-
+            img = self.make_image(name='test-img-%s' % client2.sf,
+                                  date=acquired, client=client2)
             im_ids[i] = [img.id.val, acquired]
 
         # Here we assume that this test is not run within the last 1 second
