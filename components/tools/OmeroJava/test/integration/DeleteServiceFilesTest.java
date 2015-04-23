@@ -1060,9 +1060,9 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         int fileCount = 0;
 
         /* import a small image to discover a suitable location in the repository for further testing */
-        final File imageFile = ResourceUtils.getFile("classpath:red.png");
-        final long filesetId = importFile(imageFile, "png").get(0).getImage().getFileset().getId().getValue();
-        fileCount += 2;  /* for PNG file and import log */
+        final File imageFile = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+        final long filesetId = importFile(imageFile, "dv").get(0).getImage().getFileset().getId().getValue();
+        fileCount += 2;  /* for image file and import log */
 
         /* find the managed repository directory for the imported image file */
         query = "SELECT originalFile.path FROM FilesetEntry WHERE fileset.id = :id";
