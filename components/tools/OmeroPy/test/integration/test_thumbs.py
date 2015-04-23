@@ -126,16 +126,16 @@ class TestThumbs(lib.ITest):
         if event:
             assert "Pyramid was not generated %ss" % secs
 
-        # Re-load the thumbnail store now that
-        # the pyramid is generated.
         if meth == "one":
+            # Re-load the thumbnail store now that
+            # the pyramid is generated.
             tb.close()
             tb = self.client.sf.createThumbnailStore()
             if not tb.setPixelsId(long(pix)):
                 tb.resetDefaults()
+                tb.close()
+                tb = self.client.sf.createThumbnailStore()
                 assert tb.setPixelsId(long(pix))
-
-        if meth == "one":
             after = tb.getThumbnail(i64, i64)
             assert before != after
             assert tb.thumbnailExists(i64, i64)
