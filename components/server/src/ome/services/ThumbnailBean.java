@@ -986,9 +986,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                     // that we want to use, but retrieveThumbnail likes to
                     // re-generate. For the moment, we're saving and restoring
                     // that value to prevent creating a new one.
-                    Thumbnail copy = thumbnailMetadata;
-                    byte[] thumbnail = retrieveThumbnail();
-                    thumbnailMetadata = copy;
+                    byte[] thumbnail = retrieveThumbnail(false);
                     toReturn.put(pixelsId, thumbnail);
                     if (dirtyMetadata)
                     {
@@ -1039,7 +1037,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         try {
             ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
             thumbnailMetadata = ctx.getMetadata(pixelsId);
-            value = retrieveThumbnailAndUpdateMetadata();
+            value = retrieveThumbnailAndUpdateMetadata(false);
         } catch (Throwable t) {
             value = handleNoThumbnail(t, dimensions);
         }
@@ -1052,9 +1050,9 @@ public class ThumbnailBean extends AbstractLevel2Service
      * thumbnail metadata.
      * @return Thumbnail bytes.
      */
-    private byte[] retrieveThumbnailAndUpdateMetadata()
+    private byte[] retrieveThumbnailAndUpdateMetadata(boolean rewriteMetadata)
     {
-        byte[] thumbnail = retrieveThumbnail();
+        byte[] thumbnail = retrieveThumbnail(rewriteMetadata);
         if (inProgress && !PROGRESS_VERSION.equals(thumbnailMetadata)) {
             thumbnailMetadata.setVersion(PROGRESS_VERSION);
             dirtyMetadata = true;
@@ -1077,14 +1075,14 @@ public class ThumbnailBean extends AbstractLevel2Service
      * Creates the thumbnail or retrieves it from cache.
      * @return Thumbnail bytes.
      */
-    private byte[] retrieveThumbnail()
+    private byte[] retrieveThumbnail(boolean rewriteMetadata)
     {
         if (inProgress)
         {
             return retrieveThumbnailDirect(
                     thumbnailMetadata.getSizeX(),
                     thumbnailMetadata.getSizeY(),
-                    0, 0);
+                    0, 0, rewriteMetadata);
         }
 
         try
@@ -1136,7 +1134,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         try {
             ctx.loadAndPrepareMetadata(pixelsIds, size);
             thumbnailMetadata = ctx.getMetadata(pixelsId);
-            value = retrieveThumbnailAndUpdateMetadata();
+            value = retrieveThumbnailAndUpdateMetadata(false);
         } catch (Throwable t) {
             value = handleNoThumbnail(t, dimensions);
         }
@@ -1154,7 +1152,9 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
     {
-    	byte[] value = retrieveThumbnailDirect(sizeX, sizeY, null, null);
+        // Leaving rewriteMetadata here true since it's unclear of what the
+        // expected state of the bean should be.
+        byte[] value = retrieveThumbnailDirect(sizeX, sizeY, null, null, true);
     	// Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
     	iQuery.clear();
@@ -1171,18 +1171,21 @@ public class ThumbnailBean extends AbstractLevel2Service
      * @return
      */
     private byte[] retrieveThumbnailDirect(Integer sizeX, Integer sizeY,
-            Integer theZ, Integer theT)
+            Integer theZ, Integer theT, boolean rewriteMetadata)
     {
         errorIfNullPixelsAndRenderingDef();
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
-        thumbnailMetadata = ctx.createThumbnailMetadata(pixels, dimensions);
+        Thumbnail local = ctx.createThumbnailMetadata(pixels, dimensions);
+        if (rewriteMetadata) {
+            thumbnailMetadata = local;
+        }
 
         BufferedImage image = createScaledImage(theZ, theT);
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try {
             if (inProgress) {
-                compressInProgressImageToStream(thumbnailMetadata, byteStream);
+                compressInProgressImageToStream(local, byteStream);
             } else {
                 compressionService.compressToStream(image, byteStream);
             }
@@ -1208,7 +1211,8 @@ public class ThumbnailBean extends AbstractLevel2Service
     public byte[] getThumbnailForSectionDirect(int theZ, int theT,
             Integer sizeX, Integer sizeY)
     {
-        byte[] value = retrieveThumbnailDirect(sizeX, sizeY, theZ, theT);
+        // As getThumbnailDirect
+        byte[] value = retrieveThumbnailDirect(sizeX, sizeY, theZ, theT, true);
      // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
@@ -1217,14 +1221,14 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /** Actually does the work specified by {@link getThumbnailByLongestSideDirect()}.*/
     private byte[] _getThumbnailByLongestSideDirect(Integer size, Integer theZ,
-            Integer theT)
+            Integer theT, boolean rewriteMetadata)
     {
         // Sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(size, size);
 
         dimensions = ctx.calculateXYWidths(pixels, (int) dimensions.getWidth());
         byte[] value = retrieveThumbnailDirect((int) dimensions.getWidth(),
-                (int) dimensions.getHeight(), theZ, theT);
+                (int) dimensions.getHeight(), theZ, theT, rewriteMetadata);
         iQuery.clear();
         return value;
     }
@@ -1238,7 +1242,8 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
         errorIfNullPixelsAndRenderingDef();
-        byte[] value = _getThumbnailByLongestSideDirect(size, null, null);
+        // As getThumbnailDirect
+        byte[] value = _getThumbnailByLongestSideDirect(size, null, null, true);
         // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();//see #11072
@@ -1256,7 +1261,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
-        byte[] value = _getThumbnailByLongestSideDirect(size, theZ, theT);
+        // As getThumbnailDirect
+        byte[] value = _getThumbnailByLongestSideDirect(size, theZ, theT, true);
         // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
@@ -1356,8 +1362,9 @@ public class ThumbnailBean extends AbstractLevel2Service
         if (t instanceof NoThumbnail ||
                 t instanceof ReadOnlyGroupSecurityViolation) {
             log.debug("Calling retrieveThumbnailDirect on missing thumbnail");
+            // As getThumbnailDirect
             return retrieveThumbnailDirect((int) dimensions.getWidth(),
-                (int) dimensions.getHeight(), null, null);
+                (int) dimensions.getHeight(), null, null, true);
         } else if (t instanceof RuntimeException) {
             throw (RuntimeException) t;
         } else {
