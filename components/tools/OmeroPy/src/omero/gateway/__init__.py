@@ -8680,10 +8680,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
 
     @assert_re()
     def resetDefaults(self, save=True):
-        if not self.canAnnotate():
-            return False
         ns = self._conn.CONFIG.IMG_ROPTSNS
-        if ns:
+        if ns and self.canAnnotate():
             opts = self._collectRenderOptions()
             self.removeAnnotations(ns)
             ann = omero.gateway.CommentAnnotationWrapper()
@@ -8693,6 +8691,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
             self.linkAnnotation(ann)
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
+        if not self.canAnnotate():
+            save = False
         self._re.resetDefaultSettings(save, ctx)
         return True
 
