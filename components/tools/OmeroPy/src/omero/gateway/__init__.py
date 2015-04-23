@@ -3809,8 +3809,9 @@ class _BlitzGateway (object):
         :param obj:     Object to delete
         :type obj:      IObject"""
 
-        u = self.getUpdateService()
-        u.deleteObject(obj, self.SERVICE_OPTS)
+        type = obj.__class__.__name__.rstrip('I')
+        delete = Delete2(targetObjects={type: [obj.getId().val]})
+        self.c.submit(delete, self.SERVICE_OPTS)
 
     def getAvailableDeleteCommands(self):
         """
