@@ -7434,7 +7434,8 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         if not noRE:
             try:
-                self._prepareRenderingEngine()
+                if not self._prepareRenderingEngine():
+                    return None
             except omero.ConcurrencyException:
                 logger.debug('Ignoring exception thrown during '
                              '_prepareRenderingEngine '
