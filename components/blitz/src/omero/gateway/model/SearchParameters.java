@@ -24,11 +24,18 @@ package omero.gateway.model;
 
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import omero.util.CommonsLangUtils;
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 
 public class SearchParameters
@@ -41,33 +48,23 @@ public class SearchParameters
 
     /** Indicates that the date has to be interpreted as acquisition date*/
     public static final int DATE_ACQUISITION = 1;
-
-//	/** Identifying the <code>Annotation</code> context. */
-//	public static final int			TEXT_ANNOTATION = 0;
-//	
-//	/** Identifying the <code>Tag</code> context. */
-//	public static final int			TAGS = 1;
-//	
-//	/** Identifying the <code>Name</code> context. */
-//	public static final int			NAME = 2;
-//	
-//	/** Identifying the <code>File annotation</code> context. */
-//	public static final int			FILE_ANNOTATION = 3;
-//	
-//	/** Identifying the <code>URL annotation</code> context. */
-//	public static final int			URL_ANNOTATION = 4;
-//	
-//	/** Identifying the <code>Description</code> context. */
-//	public static final int			DESCRIPTION = 5;
-//	
-//	/** Identifying the <code>Time</code> context. */
-//	public static final int			TIME = 6;
-//	
-//	/** Identifying the <code>Name</code> context. */
-//	public static final int			CUSTOMIZED = 7;
-//	
-//	/** Identifying the <code>Annotation</code> context. */
-//        public static final int                 ANNOTATION = 8;
+    
+    public static final Set<SearchScope> ALL_SCOPE;
+    public static final List<Class<? extends DataObject>> ALL_TYPES;
+    
+    static {
+        ALL_SCOPE = new HashSet<SearchScope>();
+        ALL_SCOPE.add(SearchScope.NAME);
+        ALL_SCOPE.add(SearchScope.DESCRIPTION);
+        ALL_SCOPE.add(SearchScope.ANNOTATION);
+        
+        ALL_TYPES = new ArrayList<Class<? extends DataObject>>();
+        ALL_TYPES.add(ImageData.class);
+        ALL_TYPES.add(DatasetData.class);
+        ALL_TYPES.add(ProjectData.class);
+        ALL_TYPES.add(PlateData.class);
+        ALL_TYPES.add(ScreenData.class);
+    }
 	
 	/** The lower bound of the time interval. */
 	private Timestamp 				start;
