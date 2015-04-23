@@ -207,8 +207,7 @@ class SessionsControl(BaseControl):
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("--session-dir", help=SUPPRESS,
-                            default=os.environ.get('OMERO_SESSIONDIR', None))
+        parser.add_argument("--session-dir", help=SUPPRESS)
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})
