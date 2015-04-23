@@ -2836,8 +2836,8 @@ class _BlitzGateway (object):
 
         query = 'select ann.id, ann.ns, ann.textValue '\
                 'from Fileset as fileset '\
-                'left outer join fileset.annotationLinks as a_link '\
-                'left outer join a_link.child as ann '\
+                'join fileset.annotationLinks as a_link '\
+                'join a_link.child as ann '\
                 'where fileset.id in ('\
                 '   select distinct(i_fileset.id) from Fileset as i_fileset '\
                 '   join i_fileset.images as i_image '\
