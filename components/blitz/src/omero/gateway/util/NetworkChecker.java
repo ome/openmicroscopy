@@ -119,17 +119,11 @@ public class NetworkChecker {
         if (useCachedValue) {
             long elapsed = System.currentTimeMillis() - lastCheck.get();
             if (elapsed <= 5000) {
-                boolean last = lastValue.get();
-                log("Cached networkup: %s", last);
-                return last;
+                return lastValue.get();
             }
         }
-        long start = System.currentTimeMillis();
         boolean newValue = _isNetworkup();
         long stop = System.currentTimeMillis();
-        long elapsed = stop - start;
-        log("Network status: %s (in %s ms.) use cached value: %s", newValue,
-                elapsed, useCachedValue);
         lastValue.set(newValue);
         lastCheck.set(stop);
         return newValue;

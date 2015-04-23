@@ -22,6 +22,8 @@ package omero.gateway.facility;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,9 +34,13 @@ import omero.gateway.Gateway;
 import omero.gateway.SecurityContext;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.sys.Parameters;
+import omero.sys.ParametersI;
 import pojos.DataObject;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.util.PojoMapper;
 
 //Java imports
@@ -50,6 +56,16 @@ public class BrowseFacility extends Facility {
 
     BrowseFacility(Gateway gateway) {
         super(gateway);
+    }
+    
+    @SuppressWarnings("rawtypes")
+    public Set<DataObject> loadHierarchy(SecurityContext ctx, Class rootType,
+            long userId) throws DSOutOfServiceException {
+        ParametersI param = new ParametersI();
+        param.exp(omero.rtypes.rlong(userId));
+        param.orphan();
+        param.leaves();
+        return loadHierarchy(ctx, rootType, null, param);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -151,5 +167,49 @@ public class BrowseFacility extends Facility {
                     + "object ID: " + o.getId());
         }
         return null;
+    }
+    
+    /**
+     * Retrieves the groups visible by the current experimenter.
+     *
+     * @param ctx The security context.
+     * @param loggedInUser The user currently logged in.
+     * @return See above.
+     * @throws DSOutOfServiceException If the connection is broken, or logged in
+     * @throws DSAccessException If an error occurred while trying to
+     * retrieve data from OMERO service.
+     */
+    public Set<GroupData> getAvailableGroups(SecurityContext ctx,
+            ExperimenterData user)
+        throws DSOutOfServiceException, DSAccessException
+    {
+        Set<GroupData> pojos = new HashSet<GroupData>();
+        try {
+            IQueryPrx service = gateway.getQueryService(ctx);
+            //Need method server side.
+            ParametersI p = new ParametersI();
+            p.addId(user.getId());
+            List<IObject> groups = service.findAllByQuery(
+                    "select distinct g from ExperimenterGroup as g "
+                    + "join fetch g.groupExperimenterMap as map "
+                    + "join fetch map.parent e "
+                    + "left outer join fetch map.child u "
+                    + "left outer join fetch u.groupExperimenterMap m2 "
+                    + "left outer join fetch m2.parent p "
+                    + "where g.id in "
+                    + "  (select m.parent from GroupExperimenterMap m "
+                    + "  where m.child.id = :id )", p);
+            ExperimenterGroup group;
+            //GroupData pojoGroup;
+            Iterator<IObject> i = groups.iterator();
+            while (i.hasNext()) {
+                group = (ExperimenterGroup) i.next();
+                pojos.add((GroupData) PojoMapper.asDataObject(group));
+            }
+            return pojos;
+        } catch (Throwable t) {
+            handleException(this, t, "Cannot retrieve the available groups ");
+        }
+        return pojos;
     }
 }
