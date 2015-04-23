@@ -31,6 +31,7 @@ import Ice
 import IceImport
 import time
 import traceback
+import warnings
 import omero.java
 
 IceImport.load("Glacier2_Router_ice")
@@ -132,17 +133,22 @@ class SessionsControl(BaseControl):
                 # Read base directory from deprecated OMERO_SESSION_DIR envvar
                 base_dir = os.environ.get('OMERO_SESSION_DIR', None)
                 if base_dir:
-                    import warnings
                     warnings.warn(
                         "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSIONDIR"
                         " instead.", DeprecationWarning)
+                else:
+                    base_dir = getattr(args, "session_dir", None)
+                    warnings.warn(
+                        "--session-dir is deprecated. Use OMERO_SESSIONDIR"
+                        " instead.", DeprecationWarning)
+
+                if base_dir:
                     from path import path
                     sessions_dir = path(base_dir) / "omero" / "sessions"
 
-            dirpath = getattr(args, "session_dir", sessions_dir)
-            return self.FACTORY(dirpath)
+            return self.FACTORY(sessions_dir)
         except OSError, ose:
-            filename = getattr(ose, "filename", dirpath)
+            filename = getattr(ose, "filename", sessions_dir)
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
