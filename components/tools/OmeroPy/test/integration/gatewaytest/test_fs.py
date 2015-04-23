@@ -82,11 +82,8 @@ def images_with_original_files(request, gatewaywrapper):
     return [gw.getObject('Image', image_id) for image_id in image_ids]
 
 
-@pytest.fixture()
-def fileset_with_images(request, gatewaywrapper):
+def create_fileset():
     """Creates and returns a Fileset with associated Images."""
-    gatewaywrapper.loginAsAuthor()
-    update_service = gatewaywrapper.gateway.getUpdateService()
     fileset = FilesetI()
     fileset.templatePrefix = rstring('')
     for image_index in range(2):
@@ -103,6 +100,24 @@ def fileset_with_images(request, gatewaywrapper):
             fileset_entry.originalFile = original_file
             fileset.addFilesetEntry(fileset_entry)
         fileset.addImage(image)
+    return fileset
+
+
+@pytest.fixture()
+def fileset_with_images(request, gatewaywrapper):
+    """Creates and returns a Fileset with associated Images."""
+    gatewaywrapper.loginAsAuthor()
+    update_service = gatewaywrapper.gateway.getUpdateService()
+    fileset = create_fileset()
+    fileset = update_service.saveAndReturnObject(fileset)
+    return gatewaywrapper.gateway.getObject('Fileset', fileset.id.val)
+
+
+@pytest.fixture()
+def fileset_with_images_and_annotations(request, gatewaywrapper):
+    gatewaywrapper.loginAsAuthor()
+    update_service = gatewaywrapper.gateway.getUpdateService()
+    fileset = create_fileset()
     comment_annotation = CommentAnnotationI()
     comment_annotation.ns = rstring('comment_annotation')
     comment_annotation.textValue = rstring('textValue')
@@ -121,6 +136,8 @@ class TestFileset(object):
         assert files_info['fileset'] is True
         assert files_info['count'] == 4
         assert files_info['size'] == 200
+
+    def assertFilesetFilesInfoAnnotations(self, files_info):
         assert len(files_info['annotations']) == 2
         for annotation in files_info['annotations']:
             ns = annotation['ns']
@@ -131,34 +148,48 @@ class TestFileset(object):
             else:
                 pytest.fail('Unexpected namespace: %r' % ns)
 
-    def testCountArchivedFiles(self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
+    def testCountArchivedFiles(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
             assert image.countArchivedFiles() == 0
 
-    def testCountFilesetFiles(self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
+    def testCountFilesetFiles(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
             assert image.countFilesetFiles() == 4
 
-    def testCountImportedImageFiles(self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
+    def testCountImportedImageFiles(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
             assert image.countImportedImageFiles() == 4
 
     def testGetImportedFilesInfo(self, gatewaywrapper, fileset_with_images):
         for image in fileset_with_images.copyImages():
             files_info = image.getImportedFilesInfo()
             self.assertFilesetFilesInfo(files_info)
+            assert len(files_info['annotations']) == 0
 
-    def testGetArchivedFiles(self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
+    def testGetImportedFilesInfoWithAnnotations(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
+            files_info = image.getImportedFilesInfo()
+            self.assertFilesetFilesInfo(files_info)
+            self.assertFilesetFilesInfoAnnotations(files_info)
+
+    def testGetArchivedFiles(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
             len(list(image.getArchivedFiles())) == 4
 
-    def testGetImportedImageFiles(self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
+    def testGetImportedImageFiles(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
             len(list(image.getImportedImageFiles())) == 4
 
-    def testGetArchivedFilesInfo(self, gatewaywrapper, fileset_with_images):
+    def testGetArchivedFilesInfo(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
         gw = gatewaywrapper.gateway
-        for image in fileset_with_images.copyImages():
+        for image in fileset_with_images_and_annotations.copyImages():
             files_info = gw.getArchivedFilesInfo([image.id])
             assert files_info == {'fileset': False, 'count': 0, 'size': 0}
 
@@ -167,21 +198,44 @@ class TestFileset(object):
         for image in fileset_with_images.copyImages():
             files_info = gw.getFilesetFilesInfo([image.id])
             self.assertFilesetFilesInfo(files_info)
+            assert len(files_info['annotations']) == 0
+
+    def testGetFilesetFilesInfoWithAnnotations(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        gw = gatewaywrapper.gateway
+        for image in fileset_with_images_and_annotations.copyImages():
+            files_info = gw.getFilesetFilesInfo([image.id])
+            self.assertFilesetFilesInfo(files_info)
+            self.assertFilesetFilesInfoAnnotations(files_info)
 
     def testGetFilesetFilesInfoMultiple(
             self, gatewaywrapper, fileset_with_images):
         gw = gatewaywrapper.gateway
-        image_ids = [v.id for v in fileset_with_images.copyImages()]
+        image_ids = [
+            v.id for v in fileset_with_images.copyImages()
+        ]
         files_info = gw.getFilesetFilesInfo(image_ids)
         self.assertFilesetFilesInfo(files_info)
+        assert len(files_info['annotations']) == 0
 
-    def testGetFileset(self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
+    def testGetFilesetFilesInfoMultipleWithAnnotations(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        gw = gatewaywrapper.gateway
+        image_ids = [
+            v.id for v in fileset_with_images_and_annotations.copyImages()
+        ]
+        files_info = gw.getFilesetFilesInfo(image_ids)
+        self.assertFilesetFilesInfo(files_info)
+        self.assertFilesetFilesInfoAnnotations(files_info)
+
+    def testGetFileset(
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
             assert image.getFileset() is not None
 
     def testGetImportedImageFilePaths(
-            self, gatewaywrapper, fileset_with_images):
-        for image in fileset_with_images.copyImages():
+            self, gatewaywrapper, fileset_with_images_and_annotations):
+        for image in fileset_with_images_and_annotations.copyImages():
             paths = image.getImportedImageFilePaths()
             paths['server_paths'].sort()
             assert paths['server_paths'] == [
