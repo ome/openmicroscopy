@@ -38,63 +38,79 @@ def itest(request):
 
 
 @pytest.fixture(scope='function')
-def client(request, itest):
+def client(itest):
     """Returns a new user client."""
     return itest.new_client()
 
 
 @pytest.fixture(scope='function')
-def conn(request, client):
+def conn(client):
     """Returns a new OMERO gateway."""
     return BlitzGateway(client_obj=client)
 
 
 @pytest.fixture(scope='function')
-def update_service(request, client):
+def update_service(client):
     """Returns a new OMERO update service."""
     return client.getSession().getUpdateService()
 
 
 @pytest.fixture(scope='function')
-def plate_wells(request, itest, update_service):
+def well_sample_factory(itest):
+
+    def make_well_sample():
+        ws = WellSampleI()
+        image = itest.new_image(name=itest.uuid())
+        ws.image = image
+        return ws
+    return make_well_sample
+
+
+@pytest.fixture(scope='function')
+def well_factory(well_sample_factory):
+
+    def make_well(ws_count=0):
+        well = WellI()
+        for _ in range(ws_count):
+            well.addWellSample(well_sample_factory())
+        return well
+    return make_well
+
+
+@pytest.fixture(scope='function')
+def well_grid_factory(well_factory):
+
+    def make_well_grid(grid_layout={}):
+        wells = []
+        for row, column in grid_layout:
+            ws_count = grid_layout[(row, column)]
+            well = well_factory(ws_count)
+            well.row = rint(row)
+            well.column = rint(column)
+            wells.append(well)
+        return wells
+    return make_well_grid
+
+
+@pytest.fixture(scope='function')
+def plate_wells(itest, well_grid_factory, update_service):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
     Images populated by an L{test.integration.library.ITest} instance.
     """
     plate = PlateI()
     plate.name = rstring(itest.uuid())
-    # Well A10 (will have two WellSamples)
-    well_a = WellI()
-    well_a.row = rint(0)
-    well_a.column = rint(9)
-    # Well A11 (will not have a WellSample)
-    well_b = WellI()
-    well_b.row = rint(0)
-    well_b.column = rint(10)
-    # Well D3 (will have one WellSample)
-    well_c = WellI()
-    well_c.row = rint(3)
-    well_c.column = rint(2)
-    ws_a = WellSampleI()
-    image_a = itest.new_image(name=itest.uuid())
-    ws_a.image = image_a
-    ws_b = WellSampleI()
-    image_b = itest.new_image(name=itest.uuid())
-    ws_b.image = image_b
-    ws_c = WellSampleI()
-    image_c = itest.new_image(name=itest.uuid())
-    ws_c.image = image_c
-    well_a.addWellSample(ws_a)
-    well_a.addWellSample(ws_b)
-    well_c.addWellSample(ws_c)
-    plate.addWell(well_a)
-    plate.addWell(well_b)
-    plate.addWell(well_c)
+    # Well A10 has two WellSamples
+    # Well A11 has no WellSamples
+    # Well D3 has one WellSample
+    wells = well_grid_factory({(0, 9): 2, (0, 10): 0, (3, 2): 1})
+    for well in wells:
+        plate.addWell(well)
     return update_service.saveAndReturnObject(plate)
 
 
 @pytest.fixture(scope='function')
-def full_plate_wells(request, itest, update_service):
+def full_plate_wells(itest, update_service):
     """
     Returns a full OMERO Plate, linked Wells, linked WellSamples, and linked
     Images populated by an L{test.integration.library.ITest} instance.
