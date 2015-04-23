@@ -37,7 +37,10 @@ public class ResultsObject {
 
     /** Indicates to save the roi if any.*/
     private boolean roi;
- 
+
+    /** Indicates to save the table if any.*/
+    private boolean table;
+
     /**
      * Creates a new instance.
      *
@@ -63,9 +66,26 @@ public class ResultsObject {
     public void setROI(boolean roi) { this.roi = roi; }
 
     /**
-     * Returns <code>true</code> to save the roi.
+     * Returns <code>true</code> to save the roi, <code>false</code>
+     * otherwise.
      *
      * @return See above.
      */
     public boolean isROI() { return roi; }
+
+    /**
+     * Sets to <code>true</code> to import the table results, <code>false</code>
+     * otherwise.
+     *
+     * @param table The value to set.
+     */
+    public void setTable(boolean table) { this.table = table; }
+
+    /**
+     * Returns <code>true</code> to save the table results, <code>false</code>
+     * otherwise.
+     *
+     * @return See above.
+     */
+    public boolean isTable() { return table; }
 }

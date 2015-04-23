@@ -68,6 +68,9 @@ public class SaveResultsDialog
     /** Select to save or not the ROI.*/
     private JCheckBox roi;
 
+    /** Select to save or not the results table.*/
+    private JCheckBox table;
+    
     /** Flag indicating to select the image from the active window.*/
     private boolean activeWindow;
 
@@ -100,6 +103,8 @@ public class SaveResultsDialog
         roi = new JCheckBox("ROI");
         roi.setSelected(true);
         roi.setEnabled(false);
+        table = new JCheckBox("table");
+        table.setSelected(true);
     }
 
     /** Closes the dialog.*/
@@ -160,6 +165,7 @@ public class SaveResultsDialog
             if (box.centerMsgBox() == MessageBox.YES_OPTION) {
                  result = new ResultsObject(toImport);
                  result.setROI(roi.isSelected());
+                 result.setTable(table.isSelected());
                  TreeViewerAgent.getRegistry().getEventBus().post(
                          new SaveResultsEvent(result, true));
             }
@@ -167,6 +173,7 @@ public class SaveResultsDialog
         if (images.size() > 0) {
             result = new ResultsObject(images);
             result.setROI(roi.isSelected());
+            result.setTable(table.isSelected());
             ExperimenterData exp = TreeViewerAgent.getUserDetails();
             SecurityContext ctx = new SecurityContext(exp.getGroupId());
             ctx.setExperimenter(exp);
