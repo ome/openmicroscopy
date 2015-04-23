@@ -7728,16 +7728,19 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
-    @assert_re()
+    @assert_re(ignoreExceptions=(omero.ConcurrencyException))
     def getRenderingDefId(self):
         """
         Returns the ID of the current rendering def on the image.
-        Loads and initialises the rendering engine if needed
+        Loads and initialises the rendering engine if needed.
+        If rendering engine fails (E.g. MissingPyramidException)
+        then returns None.
 
         :return:    current rendering def ID
         :rtype:     Long
         """
-        return self._re.getRenderingDefId()
+        if self._re is not None:
+            return self._re.getRenderingDefId()
 
     def getAllRenderingDefs(self, eid=-1):
         """
