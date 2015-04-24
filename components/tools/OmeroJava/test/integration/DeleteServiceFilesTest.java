@@ -1075,7 +1075,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         String pathName = ((RString) results.get(0).get(0)).getValue();
 
         /* create a deeply nested directory hierarchy with files at every level */
-        final int count = 32;
+        final int count = 12;
         final RepositoryPrx mrepo = getManagedRepository();
         final String directoryName = "bar";
         final String fileName = "baz";
