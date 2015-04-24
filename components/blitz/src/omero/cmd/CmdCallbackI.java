@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2015 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,17 +119,40 @@ public class CmdCallbackI extends _CmdCallbackDisp {
         Ice.ObjectPrx prx = adapter.add(this, id);
         CmdCallbackPrx cb = CmdCallbackPrxHelper.uncheckedCast(prx);
         handle.addCallback(cb);
-        // Now check just in case the process exited VERY quickly
-        new Thread() {
-            public void run() {
-                poll();
-            }
-        }.start();
+        initialPoll();
     }
 
     //
     // Subclass initialization
     //
+
+    /**
+     * Called at the end of construction to check a race condition.
+     *
+     * If {@link HandlePrx} finishes its execution before the
+     * {@link CmdCallbackPrx} has been sent set via addCallback,
+     * then there's a chance that this implementation will never
+     * receive a call to finished, leading to perceived hangs.
+     *
+     * By default, this method starts a background thread and
+     * calls {@link #poll()}. An {@link Ice.ObjectNotExistException}
+     * implies that another caller has already closed the
+     * {@link HandlePrx}.
+     */
+    protected void initialPoll() {
+        // Now check just in case the process exited VERY quickly
+        new Thread() {
+            public void run() {
+                try {
+                    poll();
+                } catch (Exception e) {
+                    // don't throw any exceptions, e. g. if the handle
+                    // has already been closed
+                    onFinished(null, null, null);
+                }
+            }
+        }.start();
+    }
 
     /**
      * Subclasses which must perform their own initialization before
