@@ -2419,9 +2419,9 @@ class ImageWrapper (OmeroWebObjectWrapper,
             return 0
         return size.getValue()
 
-    def getChannels(self):
+    def getChannels(self, *args, **kwargs):
         try:
-            return super(ImageWrapper, self).getChannels()
+            return super(ImageWrapper, self).getChannels(*args, **kwargs)
         except Exception:
             logger.error('Failed to load channels:', exc_info=True)
             return None
