@@ -35,8 +35,11 @@ import ome.formats.importer.ImportEvent;
 import omero.ServerError;
 import omero.gateway.exception.DSAccessException;
 import omero.gateway.exception.DSOutOfServiceException;
+import omero.gateway.exception.ImportException;
 import omero.gateway.facility.BrowseFacility;
 import omero.gateway.facility.SearchFacility;
+import omero.gateway.facility.TransferFacility;
+import omero.gateway.model.ImportCallback;
 import omero.gateway.model.SearchParameters;
 import omero.gateway.model.SearchResult;
 import omero.gateway.model.SearchResultCollection;
@@ -81,7 +84,8 @@ public class GatewayExample {
 
             BrowseFacility browse = gateway.getFacility(BrowseFacility.class);
             SearchFacility search = gateway.getFacility(SearchFacility.class);
-
+            TransferFacility transfer = gateway.getFacility(TransferFacility.class);
+            
             SecurityContext ctx = new SecurityContext(exp.getDefaultGroup().getId());
             
             /** Example for browsing through the data hierarchhy */
@@ -168,23 +172,25 @@ public class GatewayExample {
 //            }
 //
 //            /** Example for uploading (i. e. importing) an image */
-//            System.out.println("\n\nUpload, file path: ");
-//            String ufile = readLine();
-//            if (!CommonsLangUtils.isEmpty(ufile)) {
-//                File f = new File(ufile);
-//                DummyObserver obs = new DummyObserver();
-//                transfer.uploadImage(context, f, obs);
-//                
-//                System.out.print("Uploading ...");
-//                while(!obs.finished) {
-//                try {
-//                    System.out.print(".");
-//                    Thread.sleep(100);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//                }
-//                System.out.println("done");
+            System.out.println("\n\nUpload, file path: ");
+            String ufile = readLine();
+            if (!CommonsLangUtils.isEmpty(ufile)) {
+                File f = new File(ufile);
+                final ImportCallback cb = new ImportCallback();
+                transfer.uploadImage(ctx, f, cb);
+                
+                System.out.print("Uploading ...");
+                
+                while(!cb.isFinished()) {
+                try {
+                    System.out.print(".");
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                }
+                System.out.println("done");
+            }
 //                
 //                System.out
 //                        .println("\n\nUpload same file as other user, user id: ");
@@ -214,6 +220,9 @@ public class GatewayExample {
         } catch (DSAccessException e) {
             e.printStackTrace();
         } catch (ExecutionException e1) {
+            e1.printStackTrace();
+        } catch (ImportException e1) {
+            // TODO Auto-generated catch block
             e1.printStackTrace();
         } finally {
             gateway.disconnect();
@@ -306,72 +315,6 @@ public class GatewayExample {
         result[3] = password;
 
         return result;
-    }
-
-    /**
-     * A dummy implementation of the IObserver to watch the import process,
-     * which simply prints the current import status to the console
-     */
-    class DummyObserver implements IObserver {
-
-        boolean finished = false;
-
-        boolean uploadDone = false;
-
-        boolean metadataImported = false;
-
-        boolean pixeldateProcessed = false;
-
-        boolean thumbnailsGenerated = false;
-
-        boolean metadataProcessed = false;
-
-        long uploadedBytes = 0;
-
-        DummyObserver() {
-            finished = false;
-            uploadDone = false;
-            metadataImported = false;
-            pixeldateProcessed = false;
-            thumbnailsGenerated = false;
-            metadataProcessed = false;
-            uploadedBytes = 0;
-        }
-
-        @Override
-        public void update(IObservable arg0, ImportEvent arg1) {
-            if (arg1 instanceof ImportEvent.IMPORT_DONE) {
-                finished = true;
-            }
-            if (arg1 instanceof ImportEvent.FILE_UPLOAD_BYTES) {
-                uploadedBytes = ((ImportEvent.FILE_UPLOAD_BYTES) arg1).uploadedBytes;
-            }
-            if (arg1 instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
-                uploadDone = true;
-            }
-            if (arg1 instanceof ImportEvent.PIXELDATA_PROCESSED) {
-                pixeldateProcessed = true;
-            }
-            if (arg1 instanceof ImportEvent.THUMBNAILS_GENERATED) {
-                thumbnailsGenerated = true;
-            }
-            if (arg1 instanceof ImportEvent.METADATA_IMPORTED) {
-                metadataImported = true;
-            }
-            if (arg1 instanceof ImportEvent.METADATA_PROCESSED) {
-                metadataProcessed = true;
-            }
-        }
-
-        public String asString() {
-            String s = "DummyObserver [finished=" + finished + ", uploadDone="
-                    + uploadDone + ", metadataImported=" + metadataImported
-                    + ", pixeldateProcessed=" + pixeldateProcessed
-                    + ", thumbnailsGenerated=" + thumbnailsGenerated
-                    + ", metadataProcessed=" + metadataProcessed
-                    + ", uploadedBytes=" + uploadedBytes + "]";
-            return s;
-        }
     }
     
     class LoggerImpl implements Logger {
