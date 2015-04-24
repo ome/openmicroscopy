@@ -138,9 +138,10 @@ class SessionsControl(BaseControl):
                         " instead.", DeprecationWarning)
                 else:
                     base_dir = getattr(args, "session_dir", None)
-                    warnings.warn(
-                        "--session-dir is deprecated. Use OMERO_SESSIONDIR"
-                        " instead.", DeprecationWarning)
+                    if base_dir:
+                        warnings.warn(
+                            "--session-dir is deprecated. Use OMERO_SESSIONDIR"
+                            " instead.", DeprecationWarning)
 
                 if base_dir:
                     from path import path
