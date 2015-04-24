@@ -621,14 +621,14 @@ public class GraphTraversal {
     private void noteDetails(CI object, ome.model.internal.Details objectDetails) throws GraphException {
         final IObject objectInstance = object.toIObject();
 
-        if (planning.detailsNoted.isEmpty()) {
-            /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
-            aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
-        }
         if (planning.detailsNoted.put(object, objectDetails) != null) {
             return;
         }
+
         if (!eventContext.isCurrentUserAdmin()) {
+            /* allowLoad ensures that BasicEventContext.groupPermissionsMap is populated */
+            aclVoter.allowLoad(session, objectInstance.getClass(), objectDetails, object.id);
+
             if (aclVoter.allowUpdate(objectInstance, objectDetails)) {
                 planning.mayUpdate.add(object);
             }
