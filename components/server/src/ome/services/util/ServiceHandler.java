@@ -54,6 +54,11 @@ import org.springframework.transaction.CannotCreateTransactionException;
  */
 public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
+    /**
+     * Maxiumum length of a string that will be returned.
+     */
+    private final static int MAX_STRING_LEN = 100;
+
     private static Logger log = LoggerFactory.getLogger(ServiceHandler.class);
 
     private final CurrentDetails cd;
@@ -417,7 +422,13 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             sb.append("]");
             return sb.toString();
         } else {
-            return o.toString();
+            String s = o.toString();
+            if (s == null) {
+                return null;
+            } else if (s.length() > MAX_STRING_LEN) {
+                s = s.substring(0, MAX_STRING_LEN);
+            }
+            return s;
         }
     }
 
