@@ -56,6 +56,8 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
@@ -881,6 +883,21 @@ public class AbstractServerTest extends AbstractTest {
         Experiment e = (Experiment) results.get(0);
         assertNotNull(e);
         return e;
+    }
+
+    /**
+     * @return a repository rooted at a directory named <q>ManagedRepository</q>
+     * @throws ServerError if the repository map could not be retrieved
+     */
+    protected RepositoryPrx getManagedRepository() throws ServerError {
+        final RepositoryMap repos = factory.sharedResources().repositories();
+        int index = repos.descriptions.size();
+        while (--index >= 0) {
+            if ("ManagedRepository".equals(repos.descriptions.get(index).getName().getValue())) {
+                return repos.proxies.get(index);
+            }
+        }
+        throw new RuntimeException("no managed repository");
     }
 
     /**
