@@ -481,13 +481,13 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 		Logger logger = manager.getRegistry().getLogger();
 		try {
 			String[] commandLineElements = ApplicationData.buildCommand(data,
-					new File(path));
+					path == null ? null : new File(path));
 
 			logger.info(this, "Executing command & args: " + 
 					Arrays.toString(commandLineElements));
 
-			Runtime runtime = Runtime.getRuntime();
-			runtime.exec(commandLineElements);
+			ProcessBuilder builder = new ProcessBuilder(commandLineElements);
+			builder.start();
 		} catch (Exception e) {
 			logger.error(this, e.getMessage());
 		}
