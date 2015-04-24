@@ -133,7 +133,9 @@
             {% for c in i.image %}
                 <tr id="image-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">
-                        <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_none }}" alt="image" title="{{ c.name }}"/>
+                        <img id="{{ c.id }}"
+                          src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_minus_one }}"
+                          alt="image" title="{{ c.name }}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
                     <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>

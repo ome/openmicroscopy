@@ -57,6 +57,14 @@ def random_if_none(value):
 
 
 @register.filter
+def random_if_minus_one(value):
+    """ Used for thumbnail versions """
+    if value == -1:
+        value = str(random.random())[2:]
+    return value
+
+
+@register.filter
 def ago(value):
     """
     Formats a datetime.datetime object as time Ago.

@@ -387,7 +387,9 @@
                         {% if share and not share.share.isOwned %}
                             <img id="{{ c.id }}" src="{% url 'render_thumbnail' c.id share.share.id %}" alt="image" title="{{ c.name|escape }}, owned by {{ c.getOwner.getNameWithInitial }}"/>
                         {% else %}
-                            <img id="{{ c.id }}" src="{% url 'render_thumbnail_resize' 96 c.id %}?version={{ c.getThumbVersion|random_if_none }}" alt="image" title="{{ c.name|escape }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
+                            <img id="{{ c.id }}" alt="image"
+                                src="{% url 'render_thumbnail_resize' 96 c.id %}?version={{ c.getThumbVersion|random_if_minus_one }}"
+                                title="{{ c.name|escape }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                         {% endif %}
                     </div>
                     <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->

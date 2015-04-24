@@ -36,7 +36,8 @@
             <li>
 				
 				<div class="basket_image">
-	                <img src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_none }}" alt="image" title="{{ c.name }}"/>
+	        <img src="{% url 'render_thumbnail_resize' 32 c.id  %}?version={{ c.getThumbVersion|random_if_minus_one }}"
+            alt="image" title="{{ c.name }}"/>
 				</div>
 					
 	            <input type="checkbox" name="image" id="{{ c.id }}" class="hide">
