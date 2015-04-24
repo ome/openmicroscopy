@@ -1,6 +1,33 @@
 OMERO version history
 =====================
 
+5.1.1 (April 2015)
+------------------
+
+A bug-fix release focusing on user-facing issues and cleaning resources
+for developers. Improvements include:
+
+For OMERO.web:
+
+-  significant review of the web share functionality
+-  correction of thumbnail refreshing
+-  fixes to the user administration panel
+-  fix for embedding of the Javascript image viewer
+
+For OMERO.insight:
+
+-  improved open actions
+-  tidying of the menu structure
+-  correction of the mouse zoom behavior
+-  fix for the Drag-n-Drop functionality
+
+Other updates include:
+
+-  overhaul of the CLI session log-in logic
+-  cleaning and testing of all code examples
+-  further removal of the use of deprecated methods, including the complete
+   migration to ``GraphModify2`` graph requests
+
 5.1.0 (April 2015)
 ------------------
 
