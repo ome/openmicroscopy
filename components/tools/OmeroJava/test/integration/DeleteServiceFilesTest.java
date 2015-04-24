@@ -305,16 +305,19 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
             throw new Exception("Unknown class: " + klass);
         }
 
+        final Formatter formatter = new Formatter();
+
         while (remaining > 999) {
             remaining /= 1000;
 
             if (remaining > 0) {
-                Formatter formatter = new Formatter();
                 dirno = remaining % 1000;
                 suffix = formatter.format("Dir-%03d", dirno).out().toString()
                         + File.separator + suffix;
             }
         }
+
+        formatter.close();
 
         String path = FilenameUtils.concat(prefix, suffix + id);
         return path;
