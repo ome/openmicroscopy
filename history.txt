@@ -23,10 +23,10 @@ For OMERO.insight:
 
 Other updates include:
 
--  overhaul of the CLI session login logic
+-  overhaul of the CLI session log-in logic
 -  cleaning and testing of all code examples
 -  further removal of the use of deprecated methods, including the complete
-   migration to Graph2
+   migration to ``GraphModify2`` graph requests
 
 5.1.0 (April 2015)
 ------------------
