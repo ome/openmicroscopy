@@ -1109,7 +1109,7 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
         request.targetObjects.put("OriginalFile", fileIds);
 
         /* perform the deletion and confirm that it successfully deletes all the files */
-        final Delete2Response deletions = (Delete2Response) doChange(root, root.getSession(), request, true);
+        final Delete2Response deletions = (Delete2Response) doChange(request);
         assertEquals(fileCount, deletions.deletedObjects.get(ome.model.core.OriginalFile.class.getName()).size());
     }
 }
