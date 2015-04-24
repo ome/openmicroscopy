@@ -180,7 +180,7 @@ class TestStore(object):
             props["omero.port"] = port
         s.add("srv", "usr", "uuid", props, sudo=sudo)
         assert 1 == len(s.available("srv", "usr"))
-        session_dir = tmpdir / "omero" / "sessions"
+        session_dir = tmpdir
         session_file = session_dir / "srv" / "usr" / "uuid"
         session_file_content = session_file.read()
         assert "omero.sess=uuid\n" in session_file_content
@@ -205,7 +205,7 @@ class TestStore(object):
         if port:
             props["omero.port"] = port
         s.set_current("srv", name=name, uuid=key, props=props)
-        session_dir = tmpdir / "omero" / "sessions"
+        session_dir = tmpdir
 
         # Using last_* methods
         assert (session_dir / "._LASTHOST_").exists()

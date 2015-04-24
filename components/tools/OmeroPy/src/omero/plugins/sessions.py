@@ -31,6 +31,7 @@ import Ice
 import IceImport
 import time
 import traceback
+import warnings
 import omero.java
 
 IceImport.load("Glacier2_Router_ice")
@@ -97,12 +98,26 @@ Options for logging in:
     $ bin/omero sessions login --sudo=root example@localhost
     Password for root:
 
-Other commands:
+Other sessions commands:
 
-    $ bin/omero sessions list
-    $ OMERO_SESSION_DIR=/tmp bin/omero sessions list
+    # Logging out of the currently active sessions
     $ bin/omero sessions logout
-    $ bin/omero sessions clear
+
+    # List all locally available sessions (purging the expired ones)
+    $ bin/omero sessions list
+
+    # List all local sessions
+    $ bin/omero sessions list --no-purge
+
+
+Custom sessions directory:
+
+    # Specify a custom session directory using OMERO_SESSIONDIR
+    $ export OMERO_SESSIONDIR=/tmp/my_sessions
+    # Create a new session stored under OMERO_SESSIONDIR
+    $ bin/omero sessions login
+    $ bin/omero sessions file
+    $ bin/omero sessions list
 """
 
 LISTHELP = """
@@ -118,11 +133,29 @@ class SessionsControl(BaseControl):
 
     def store(self, args):
         try:
-            dirpath = getattr(args, "session_dir",
-                              os.environ.get('OMERO_SESSION_DIR', None))
-            return self.FACTORY(dirpath)
+            # Read sessions directory from OMERO_SESSIONDIR envvar
+            sessions_dir = os.environ.get('OMERO_SESSIONDIR', None)
+            if not sessions_dir:
+                # Read base directory from deprecated OMERO_SESSION_DIR envvar
+                base_dir = os.environ.get('OMERO_SESSION_DIR', None)
+                if base_dir:
+                    warnings.warn(
+                        "OMERO_SESSION_DIR is deprecated. Use OMERO_SESSIONDIR"
+                        " instead.", DeprecationWarning)
+                else:
+                    base_dir = getattr(args, "session_dir", None)
+                    if base_dir:
+                        warnings.warn(
+                            "--session-dir is deprecated. Use OMERO_SESSIONDIR"
+                            " instead.", DeprecationWarning)
+
+                if base_dir:
+                    from path import path
+                    sessions_dir = path(base_dir) / "omero" / "sessions"
+
+            return self.FACTORY(sessions_dir)
         except OSError, ose:
-            filename = getattr(ose, "filename", dirpath)
+            filename = getattr(ose, "filename", sessions_dir)
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
@@ -178,8 +211,7 @@ class SessionsControl(BaseControl):
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("--session-dir", help=SUPPRESS,
-                            default=os.environ.get('OMERO_SESSION_DIR', None))
+        parser.add_argument("--session-dir", help=SUPPRESS)
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog": args.prog})
