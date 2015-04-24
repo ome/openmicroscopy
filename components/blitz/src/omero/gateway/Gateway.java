@@ -94,6 +94,8 @@ public class Gateway {
     private ScheduledThreadPoolExecutor keepAliveExecutor;
     private LoginCredentials login;
 
+    private ExperimenterData loggedInUser;
+    
     private ListMultimap<Long, Connector> groupConnectorMap = Multimaps
             .<Long, Connector> synchronizedListMultimap(LinkedListMultimap
                     .<Long, Connector> create());
@@ -107,9 +109,13 @@ public class Gateway {
     public ExperimenterData connect(LoginCredentials c)
             throws DSOutOfServiceException {
         client client = createSession(c);
-        ExperimenterData user = login(client, c);
+        loggedInUser = login(client, c);
         connected = true;
-        return user;
+        return loggedInUser;
+    }
+
+    public ExperimenterData getLoggedInUser() {
+        return loggedInUser;
     }
 
     public void disconnect() {
@@ -785,7 +791,7 @@ public class Gateway {
                     ctx.setCompression(cred.getCompression());
                     connector = new Connector(ctx, client, entryEncrypted,
                             cred.isEncryption(), log);
-                    exp = getUserDetails(ctx, userName, true);
+                    exp = getUserDetails(ctx, userName);
                     groupConnectorMap.put(ctx.getGroupID(), connector);
                 } catch (Exception e) {
                     LogMessage msg = new LogMessage();
@@ -860,8 +866,8 @@ public class Gateway {
         }
     }
 
-    private ExperimenterData getUserDetails(SecurityContext ctx, String name,
-            boolean connectionError) throws DSOutOfServiceException {
+    public ExperimenterData getUserDetails(SecurityContext ctx, String name)
+            throws DSOutOfServiceException {
         Connector c = getConnector(ctx, true, false);
         try {
             IAdminPrx service = c.getAdminService();
