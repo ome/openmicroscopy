@@ -227,6 +227,18 @@ public class FileObject
     }
 
     /**
+     * Returns the name of the parent file if it exists.
+     *
+     * @return See above.
+     */
+    public String getParentName()
+    {
+        File f = getTrueFile();
+        if (f == null || f.getParentFile() == null) return null;
+        return f.getParentFile().getName();
+    }
+
+    /**
      * Returns the size of the file
      * 
      * @return See above.
