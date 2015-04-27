@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.util.roi.io;
 
 //Java imports
 import ij.ImagePlus;
+import ij.Prefs;
 import ij.gui.EllipseRoi;
 import ij.gui.Line;
 import ij.gui.OvalRoi;
@@ -32,13 +33,20 @@ import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.ShapeRoi;
 import ij.gui.TextRoi;
+import ij.measure.Measurements;
+import ij.measure.ResultsTable;
+import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.RoiManager;
 
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.formats.model.UnitsFactory;
 import omero.model.ImageI;
@@ -62,6 +70,10 @@ import pojos.TextData;
  * @since 5.0
  */
 public class ROIReader {
+
+    private static final String PRECISION = "precision";
+
+    private static final String MEASUREMENTS = "measurements";
 
     /**
      * Converts the line.
@@ -321,6 +333,48 @@ public class ROIReader {
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
         return read(-1, manager.getRoisAsArray());
+    }
+
+    /**
+     * Reads the results and save them to the specified file.
+     *
+     * @param f The file to save the results to.
+     */
+    public void readROIMeasurement(File f)
+        throws IOException
+    {
+        if (f == null) return;
+        readROIMeasurement(f.getAbsolutePath());
+    }
+
+    /**
+     * Reads the results and save them to the specified file.
+     *
+     * @param f The file to save the results to.
+     */
+    public void readROIMeasurement(String f)
+        throws IOException
+    {
+        if (CommonsLangUtils.isBlank(f)) return;
+        int totint = Measurements.AREA+Measurements.AREA_FRACTION+
+                Measurements.CENTER_OF_MASS+Measurements.CENTROID+
+                Measurements.CIRCULARITY+Measurements.ELLIPSE+
+                Measurements.FERET+Measurements.KURTOSIS+Measurements.LIMIT+
+                Measurements.MAX_STANDARDS+Measurements.MEAN+
+                Measurements.MEDIAN+Measurements.MIN_MAX+Measurements.MODE+
+                Measurements.PERIMETER+Measurements.RECT+
+                Measurements.SHAPE_DESCRIPTORS+Measurements.SKEWNESS+
+                Measurements.SLICE+Measurements.STACK_POSITION+
+                Measurements.STD_DEV;
+        int precision = Prefs.getInt(PRECISION, 5);
+        RoiManager.getInstance().runCommand("Measure");
+
+        Analyzer.setMeasurement(Prefs.getInt(MEASUREMENTS,totint), true);
+        Analyzer.setPrecision(precision);
+        ResultsTable rt = Analyzer.getResultsTable();
+        rt.updateResults();
+        rt.show("Results");
+        rt.saveAs(f);
     }
 
 }
