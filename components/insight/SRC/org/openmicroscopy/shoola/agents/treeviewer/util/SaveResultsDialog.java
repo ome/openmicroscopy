@@ -227,6 +227,7 @@ public class SaveResultsDialog
         buttons.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
         buttons.add(UIUtilities.setTextFont("Save"));
         buttons.add(roi);
+        buttons.add(table);
         return UIUtilities.buildComponentPanel(buttons);
     }
 
