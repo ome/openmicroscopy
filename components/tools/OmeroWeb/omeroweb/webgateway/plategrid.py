@@ -46,7 +46,8 @@ class PlateGrid(object):
             query = "select well.row, well.column, img.id, img.name, "\
                     "author.firstName||' '||author.lastName, "\
                     "well.id, img.acquisitionDate, "\
-                    "img.details.creationEvent.time "\
+                    "img.details.creationEvent.time, "\
+                    "img.description "\
                     "from Well well "\
                     "join well.wellSamples ws "\
                     "join ws.image img "\
@@ -56,16 +57,18 @@ class PlateGrid(object):
 
             for res in q.projection(query, params, self._conn.SERVICE_OPTS):
                 row, col, img_id, img_name, author, well_id, acq_date, \
-                    create_date = res
+                    create_date, description = res
 
                 if acq_date.val is not None and acq_date.val > 0:
                     date = acq_date.val / 1000
                 else:
                     date = create_date.val / 1000
+                description = (description and description.val) or ''
 
                 wellmeta = {'type': 'Image',
                             'id': img_id.val,
                             'name': img_name.val,
+                            'description': description,
                             'author': author.val,
                             'date': date,
                             'wellId': well_id.val,

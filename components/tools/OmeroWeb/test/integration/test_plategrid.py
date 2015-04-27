@@ -171,6 +171,24 @@ def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
 
 
 @pytest.fixture(scope='function')
+def plate_wells_with_description(itest, well_grid_factory, update_service):
+    """
+    Creates a plate with a single well containing an image with a description.
+    Returns the plate and the description in a map.
+    """
+    description = "test description"
+    plate = PlateI()
+    plate.name = rstring(itest.uuid())
+    # Simple grid: one well with one image
+    [well] = well_grid_factory({(0, 0): 1})
+    well.copyWellSamples()[0].image.description = rstring(description)
+    plate.addWell(well)
+    plate = update_service.saveAndReturnObject(plate)
+    return {'plate': plate,
+            'description': description}
+
+
+@pytest.fixture(scope='function')
 def django_client(request, client):
     """Returns a logged in Django test client."""
     django_client = Client()
@@ -266,6 +284,7 @@ class TestPlateGrid(object):
             for column in range(12):
                 assert metadata['grid'][row][column]['name'] ==\
                     lett[row]+str(column)
+                assert metadata['grid'][row][column]['description'] == ''
 
     def test_acquisition_date(self, plate_wells_with_acq_date, conn):
         """
@@ -288,3 +307,13 @@ class TestPlateGrid(object):
         plate_grid = PlateGrid(conn, plate.id.val, 0)
         metadata = plate_grid.metadata
         assert metadata['grid'][0][0]['date'] == creation_date
+
+    def test_description(self, plate_wells_with_description, conn):
+        """
+        Check that an images description is included with the grid metadata
+        """
+        plate = plate_wells_with_description['plate']
+        description = plate_wells_with_description['description']
+        plate_grid = PlateGrid(conn, plate.id.val, 0)
+        metadata = plate_grid.metadata
+        assert metadata['grid'][0][0]['description'] == description
