@@ -296,21 +296,25 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
         String ldapDN = getPersonContextMapper().getDn(ldapExp);
         DistinguishedName dn = new DistinguishedName(ldapDN);
         List<Long> ldapGroups = loadLdapGroups(username, dn);
-        List<Object[]> omeGroups = iQuery
+        List<Object[]> currentGroups = iQuery
                 .projection(
-                        "select g.id from ExperimenterGroup g "
+                        "select g.id, g.ldap from ExperimenterGroup g "
                                 + "join g.groupExperimenterMap m join m.child e where e.id = :id",
                         new Parameters().addId(omeExp.getId()));
 
-        Set<Long> omeGroupIds = new HashSet<Long>();
-        for (Object[] objs : omeGroups) {
-            omeGroupIds.add((Long) objs[0]);
+        final Set<Long> currentLdapGroups = new HashSet<Long>();
+        for (Object[] objs : currentGroups) {
+            Long id = (Long) objs[0];
+            Boolean isLdap = (Boolean) objs[1];
+            if (isLdap) {
+                currentLdapGroups.add(id);
+            }
         }
 
-        // All the omeGroups not in ldapGroups should be removed.
-        modifyGroups(omeExp, omeGroupIds, ldapGroups, false);
-        // All the ldapGroups not in omeGroups shoud be added.
-        modifyGroups(omeExp, ldapGroups, omeGroupIds, true);
+        // All the currentLdapGroups not in ldapGroups should be removed.
+        modifyGroups(omeExp, currentLdapGroups, ldapGroups, false);
+        // All the ldapGroups not in currentLdapGroups should be added.
+        modifyGroups(omeExp, ldapGroups, currentLdapGroups, true);
 
         List<String> fields = Arrays.asList(Experimenter.FIRSTNAME,
                 Experimenter.MIDDLENAME, Experimenter.LASTNAME,
