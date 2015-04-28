@@ -103,7 +103,7 @@ public class SaveResultsDialog
         roi = new JCheckBox("ROI");
         roi.setSelected(true);
         roi.setEnabled(false);
-        table = new JCheckBox("table");
+        table = new JCheckBox("Measurements");
         table.setSelected(true);
     }
 
