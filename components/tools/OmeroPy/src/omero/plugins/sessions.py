@@ -38,6 +38,7 @@ IceImport.load("Glacier2_Router_ice")
 
 from Glacier2 import PermissionDeniedException
 
+from omero.rtypes import unwrap
 from omero.util import get_user
 from omero.util.sessions import SessionsStore
 from omero.cli import BaseControl, CLI
@@ -109,6 +110,8 @@ Other sessions commands:
     # List all local sessions
     $ bin/omero sessions list --no-purge
 
+    # List all active server sessions (admin-only)
+    $ bin/omero sessions who
 
 Custom sessions directory:
 
@@ -180,6 +183,9 @@ class SessionsControl(BaseControl):
         list.add_argument(
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
+
+        who = parser.add(sub, self.who, (
+            "List all active server sessions (admin-only)"))
 
         keepalive = parser.add(
             sub, self.keepalive, "Keeps the current session alive")
@@ -608,6 +614,56 @@ class SessionsControl(BaseControl):
         from omero.util.text import Table, Column
         columns = tuple([Column(x, results[x]) for x in headers])
         self.ctx.out(str(Table(*columns)))
+
+    def who(self, args):
+        client = self.ctx.conn(args)
+        req = omero.cmd.CurrentSessionsRequest()
+        try:
+            cb = client.submit(req)
+            rsp = cb.getResponse()
+            headers = ("name", "group", "logged in", "agent")
+            results = {
+                        "name": [],
+                        "group": [],
+                        "logged in": [],
+                        "agent": []
+                      }
+            for idx, s in enumerate(rsp.sessions):
+                ec = rsp.contexts[idx]
+                results["name"].append(ec.userName)
+                results["group"].append(ec.groupName)
+                if s is not None:
+                    t = s.started.val / 1000.0
+                    t = time.localtime(t)
+                    t = time.strftime("%Y-%m-%d %H:%M:%S", t)
+                    results["logged in"].append(t)
+                    results["agent"].append(unwrap(s.userAgent))
+                else:
+                    # Insufficient privileges. The EventContext
+                    # will be missing fields as well.
+                    msg = "---"
+                    results["logged in"].append(msg)
+                    results["agent"].append(msg)
+
+            from omero.util.text import Table, Column
+            columns = tuple([Column(x, results[x]) for x in headers])
+            self.ctx.out(str(Table(*columns)))
+        except omero.CmdError, ce:
+            self.ctx.dbg(str(ce.err))
+            self.ctx.die(560, "CmdError: %s" % ce.err.name)
+        except omero.ClientError, ce:
+            if ce.err == "Null handle":
+                v = client.getConfigService().getVersion()
+                self.ctx.die(561,
+                             "Operation unsupported. Server version: %s" % v)
+            else:
+                exc = traceback.format_exc()
+                self.ctx.dbg(exc)
+                self.ctx.die(562, "ClientError: %s" % e)
+        except omero.LockTimeout, lt:
+            exc = traceback.format_exc()
+            self.ctx.dbg(exc)
+            self.ctx.die(563, "LockTimeout: operation took too long")
 
     def clear(self, args):
         store = self.store(args)

@@ -55,6 +55,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
@@ -601,6 +602,28 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
                     + " more references: " + uuid);
             return refCount;
         }
+    }
+
+    public Map<String, EventContext> getAll() {
+        final Collection<String> ids = cache.getIds();
+        final Map<String, EventContext> rv = new HashMap<String, EventContext>();
+        for (String id : ids) {
+            if (asroot.getName().equals(id)) {
+                continue; // DON'T INCLUDE ROOT SESSION
+            }
+            try {
+                SessionContext ctx = cache.getSessionContext(id);
+                rv.put(id,  new SimpleEventContext(ctx));
+            } catch (RemovedSessionException rse) {
+                // Ok. Done for us
+            } catch (SessionTimeoutException ste) {
+                // Also ok
+            } catch (Exception e) {
+                log.warn(String.format("Exception thrown on getAll: %s:%s", e
+                        .getClass().getName(), e.getMessage()));
+            }
+        }
+        return rv;
     }
 
     public int closeAll() {

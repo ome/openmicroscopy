@@ -350,6 +350,8 @@
       <constructor-arg ref="securitySystem"/>
       <constructor-arg ref="passwordProvider"/>
       <constructor-arg ref="graphRequestFactory"/>
+      <constructor-arg ref="currentDetails"/>
+      <constructor-arg ref="sessionManager"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 

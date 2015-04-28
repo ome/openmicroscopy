@@ -21,6 +21,7 @@
 
 from test.integration.clitest.cli import CLITest
 from omero.cli import NonZeroReturnCode
+from omero.model import Experimenter
 from omero import SecurityViolation
 import pytest
 
@@ -34,11 +35,21 @@ class TestSessions(CLITest):
         self.args += ["sessions"]
 
     def set_login_args(self, user):
+        if isinstance(user, Experimenter):
+            user = user.omeName.val
+        else:
+            user = str(user)
+
         host = self.root.getProperty("omero.host")
         port = self.root.getProperty("omero.port")
         self.args = ["sessions", "login"]
-        self.conn_string = "%s@%s:%s" % (user.omeName.val, host, port)
+        self.conn_string = "%s@%s:%s" % (user, host, port)
         self.args += [self.conn_string]
+
+    def login_as(self, user):
+        self.set_login_args(user)
+
+
 
     def get_connection_string(self):
         ec = self.cli.get_event_context()
@@ -197,4 +208,26 @@ class TestSessions(CLITest):
     def testFile(self):
 
         self.args = ["sessions", "file"]
+        self.cli.invoke(self.args, strict=True)
+
+    # who subcommand
+    # ========================================================================
+
+    @pytest.mark.parametrize("who", ("user", "root"))
+    def testWho(self, who):
+        self.args = ["sessions", "login"]
+        if who == "user":
+            user = self.new_user()
+            passwd = user.omeName.val
+        else:
+            user = "root"
+            passwd = self.root.getProperty("omero.rootpass")
+
+        # Login
+        self.set_login_args(user)
+        self.args += ["-w", passwd]
+        self.cli.invoke(self.args, strict=True)
+
+        # Attempt who
+        self.args = ["sessions", "who"]
         self.cli.invoke(self.args, strict=True)

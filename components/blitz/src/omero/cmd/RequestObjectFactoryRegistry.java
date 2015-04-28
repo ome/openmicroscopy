@@ -9,11 +9,6 @@ package omero.cmd;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.security.ACLVoter;
@@ -21,13 +16,16 @@ import ome.security.ChmodStrategy;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
+import ome.security.basic.CurrentDetails;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
 import ome.services.delete.Deletion;
 import ome.services.mail.MailUtil;
+import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
+import omero.cmd.admin.CurrentSessionsRequestI;
 import omero.cmd.admin.ResetPasswordRequestI;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
@@ -35,22 +33,27 @@ import omero.cmd.basic.TimingI;
 import omero.cmd.fs.ManageImageBinariesI;
 import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.fs.UsedFilesRequestI;
-import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.Chgrp2I;
 import omero.cmd.graphs.ChgrpFacadeI;
+import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChildOptionI;
 import omero.cmd.graphs.ChmodI;
-import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.Chown2I;
 import omero.cmd.graphs.ChownFacadeI;
-import omero.cmd.graphs.DeleteI;
+import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.Delete2I;
 import omero.cmd.graphs.DeleteFacadeI;
+import omero.cmd.graphs.DeleteI;
 import omero.cmd.graphs.DiskUsageI;
 import omero.cmd.graphs.GraphRequestFactory;
 import omero.cmd.graphs.GraphSpecListI;
 import omero.cmd.graphs.SkipHeadI;
 import omero.cmd.mail.SendEmailRequestI;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * SPI type picked up from the Spring configuration and given a chance to
@@ -59,6 +62,7 @@ import omero.cmd.mail.SendEmailRequestI;
  *
  * @see ticket:6340
  */
+@SuppressWarnings("deprecation")
 public class RequestObjectFactoryRegistry extends
         omero.util.ObjectFactoryRegistry implements ApplicationContextAware {
 
@@ -82,6 +86,10 @@ public class RequestObjectFactoryRegistry extends
     
     private final GraphRequestFactory graphRequestFactory;
 
+    private final CurrentDetails current;
+
+    private final SessionManager sessionManager;
+
     private/* final */OmeroContext ctx;
 
     public RequestObjectFactoryRegistry(ExtendedMetadata em,
@@ -93,7 +101,9 @@ public class RequestObjectFactoryRegistry extends
             PasswordUtil passwordUtil,
             SecuritySystem sec,
             PasswordProvider passwordProvider,
-            GraphRequestFactory graphRequestFactory) {
+            GraphRequestFactory graphRequestFactory,
+            CurrentDetails current,
+            SessionManager sessionManager) {
 
         this.em = em;
         this.voter = voter;
@@ -105,6 +115,8 @@ public class RequestObjectFactoryRegistry extends
         this.sec = sec;
         this.passwordProvider = passwordProvider;
         this.graphRequestFactory = graphRequestFactory;
+        this.current = current;
+        this.sessionManager = sessionManager;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -271,7 +283,14 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ResetPasswordRequestI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                    	return new ResetPasswordRequestI(mailUtil, passwordUtil, sec, passwordProvider);
+                        return new ResetPasswordRequestI(mailUtil, passwordUtil, sec, passwordProvider);
+                    }
+                });
+        factories.put(CurrentSessionsRequestI.ice_staticId(),
+                new ObjectFactory(CurrentSessionsRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new CurrentSessionsRequestI(current, sessionManager);
                     }
                 });
         /* request parameters */

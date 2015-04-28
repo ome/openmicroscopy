@@ -41,6 +41,23 @@ module omero {
          class ResetPasswordResponse extends Response {
          };
 
+        /**
+         *
+         **/
+        class UpdateSessionTimeoutRequest extends Request {
+            string session;
+            omero::RLong timeToLive;
+            omero::RLong timeToIdle;
+        };
+
+        class CurrentSessionsRequest extends Request {
+        };
+
+        class CurrentSessionsResponse extends Response {
+            omero::api::SessionList sessions;
+            omero::api::EventContextList contexts;
+        };
+
     };
 };
 
