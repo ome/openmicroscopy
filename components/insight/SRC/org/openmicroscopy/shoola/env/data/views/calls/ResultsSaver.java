@@ -69,7 +69,7 @@ public class ResultsSaver
     private Object result;
 
     /** Create call to save the results.*/
-    private void saveTableResults()
+    private void saveROIandTableResults()
     {
         List<Object> objects = results.getRefObjects();
         Iterator<Object> i = objects.iterator();
@@ -80,6 +80,68 @@ public class ResultsSaver
         List<ROIData> rois;
         ExperimenterData exp = ctx.getExperimenterData();
         final long expID = exp.getId();
+        while (i.hasNext()) {
+            o = i.next();
+            if (o instanceof FileObject) {
+                file = (FileObject) o;
+                id = file.getOMEROID();
+                if (id >= 0) {
+                    ctx = new SecurityContext(file.getGroupID());
+                    ImagePlus img = (ImagePlus) file.getFile();
+                    rois = reader.readImageJROI(id, img);
+                    if (CollectionUtils.isEmpty(rois)) {
+                        rois = reader.readImageJROI(id);
+                    }
+                    //create a tmp file.
+                    File f = null;
+                    String name = FilenameUtils.getBaseName(
+                            FilenameUtils.removeExtension(img.getTitle()));
+                    try {
+                        f = File.createTempFile(name, ".csv");
+                        f.deleteOnExit();
+                        reader.readROIMeasurement(f);
+                    } catch (Exception e) {
+                        context.getLogger().error(this,
+                                "Cannot Save the ROIs results: "
+                                        +e.getMessage());
+                    }
+                    if (f != null) {
+                        final String description = "Save ROIs Results";
+                        final long imageID = id;
+                        final File fi = f;
+                        final List<ROIData> list = rois;
+                        add(new BatchCall(description) {
+                            public void doCall() { 
+                                try {
+                                    //first save the roi
+                                    svc.saveROI(ctx, imageID, expID, list);
+                                    FileAnnotationData fa =
+                                            new FileAnnotationData(fi);
+                                    //TODO: create ns.
+                                    result = msvc.annotate(ctx, ImageData.class,
+                                            imageID, fa);
+                                } catch (Exception e) {
+                                    context.getLogger().error(this,
+                                            "Cannot Save the ROIs results: "
+                                                    +e.getMessage());
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    /** Create call to save the results.*/
+    private void saveTableResults()
+    {
+        List<Object> objects = results.getRefObjects();
+        Iterator<Object> i = objects.iterator();
+        Object o;
+        FileObject file;
+        long id;
+        ROIReader reader = new ROIReader();
         while (i.hasNext()) {
             o = i.next();
             if (o instanceof FileObject) {
@@ -195,10 +257,15 @@ public class ResultsSaver
         List<Object> objects = results.getRefObjects();
         if (CollectionUtils.isNotEmpty(objects)) {
             if (results.isROI()) {
-                saveROI();
-            }
-            if (results.isTable()) {
-                saveTableResults();
+                if (results.isTable()) {
+                    saveROIandTableResults();
+                } else {
+                    saveROI();
+                }
+            } else {
+                if (results.isTable()) {
+                    saveTableResults();
+                }
             }
         }
 
