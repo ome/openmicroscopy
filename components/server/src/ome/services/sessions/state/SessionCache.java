@@ -490,7 +490,6 @@ public class SessionCache implements ApplicationContextAware {
      * significantly effected.
      */
     public Set<String> getIds() {
-        // waitForUpdate();
         return sessions.keySet();
     }
 

@@ -276,7 +276,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(SendEmailRequestI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                    	return new SendEmailRequestI(mailUtil);
+                        return new SendEmailRequestI(mailUtil);
                     }
                 });
         factories.put(ResetPasswordRequestI.ice_staticId(),
