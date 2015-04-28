@@ -173,8 +173,8 @@ module omero {
 
             /**
              * Delete several individual paths. Internally, this converts
-             * each of the paths into an [omero::cmd::Delete] command and
-             * submits all of them via [omero::cmd::DoAll].
+             * all of the paths into a single [omero::cmd::Delete2] command
+             * and submits it.
              *
              * If a "recursively" is true, then directories will be searched
              * and all of their contained files will be placed before them in
