@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 import ij.IJ;
 import ij.ImagePlus;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import javax.swing.filechooser.FileFilter;
 import omero.model.ImageI;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
@@ -46,6 +48,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImportResultLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.MeasurementsSaver;
 import org.openmicroscopy.shoola.agents.fsimporter.ROISaver;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
@@ -58,6 +61,7 @@ import org.openmicroscopy.shoola.util.roi.io.ROIReader;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -652,6 +656,23 @@ class ImporterModel
                     ROISaver saver = new ROISaver(component, ctx, rois, id,
                         c.getExperimenterID());
                     saver.load();
+                    //Save the measurements
+                    File f = null;
+                    String name = FilenameUtils.getBaseName(
+                            FilenameUtils.removeExtension(data.getName()));
+                    try {
+                        f = File.createTempFile(name, ".csv");
+                        f.deleteOnExit();
+                        reader.readROIMeasurement(f);
+                        MeasurementsSaver ms = new MeasurementsSaver(component,
+                                ctx, new FileAnnotationData(f), data,
+                                c.getExperimenterID());
+                        ms.load();
+                    } catch (Exception e) {
+                        ImporterAgent.getRegistry().getLogger().error(this,
+                                "Cannot Save the ROIs results: "
+                                        +e.getMessage());
+                    }
                 }
             }
         }
