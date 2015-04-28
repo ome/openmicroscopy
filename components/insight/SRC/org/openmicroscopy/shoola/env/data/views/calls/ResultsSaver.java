@@ -88,10 +88,7 @@ public class ResultsSaver
                 if (id >= 0) {
                     ctx = new SecurityContext(file.getGroupID());
                     ImagePlus img = (ImagePlus) file.getFile();
-                    rois = reader.readImageJROI(id, img);
-                    if (CollectionUtils.isEmpty(rois)) {
-                        rois = reader.readImageJROI(id);
-                    }
+                    rois = reader.readImageJROIFromSources(id, img);
                     //create a tmp file.
                     File f = null;
                     String name = FilenameUtils.getBaseName(
@@ -208,10 +205,7 @@ public class ResultsSaver
                 if (id >= 0) {
                     ctx = new SecurityContext(file.getGroupID());
                     ImagePlus img = (ImagePlus) file.getFile();
-                    rois = reader.readImageJROI(id, img);
-                    if (CollectionUtils.isEmpty(rois)) {
-                        rois = reader.readImageJROI(id);
-                    }
+                    rois = reader.readImageJROIFromSources(id, img);
                     if (CollectionUtils.isNotEmpty(rois)) {
                         final String description = "Save ROIs";
                         final long imageID = id;

@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.util.CommonsLangUtils;
 
 import ome.formats.model.UnitsFactory;
@@ -296,6 +297,7 @@ public class ROIReader {
         }
         return pojos;
     }
+
     /**
      * Reads the roi linked to the imageJ object.
      *
@@ -321,6 +323,23 @@ public class ROIReader {
         RoiManager manager = RoiManager.getInstance();
         if (manager == null) return null;
         return read(imageID, manager.getRoisAsArray());
+    }
+
+    /**
+     * Reads the roi linked to the imageJ object.
+     * First checks the overlays then the roi manager.
+     *
+     * @param imageID The identifier of the image to link the ROI to.
+     * @return See above.
+     */
+    public List<ROIData> readImageJROIFromSources(long imageID, ImagePlus image)
+    {
+        if (image == null) return null;
+        Overlay overlay = image.getOverlay();
+        if (overlay == null) return null;
+        List<ROIData> rois = read(imageID, overlay.toArray());
+        if (CollectionUtils.isNotEmpty(rois)) return rois;
+        return readImageJROI(imageID);
     }
 
     /**
