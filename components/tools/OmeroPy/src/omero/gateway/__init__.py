@@ -2171,12 +2171,6 @@ class _BlitzGateway (object):
             self._session = ss.getSession(self._sessionUuid)
         return self._session
 
-#    def setDefaultPermissionsForSession (self, permissions):
-#        self.getSession()
-#        self._session.setDefaultPermissions(rstring(permissions))
-#        self._session.setTimeToIdle(None)
-#        self.getSessionService().updateSession(self._session)
-
     def setGroupNameForSession(self, group):
         """
         Looks up the group by name, then delegates to
@@ -2207,36 +2201,12 @@ class _BlitzGateway (object):
             return False
         self._lastGroupId = self._ctx.groupId
         self._ctx = None
-        if hasattr(self.c.sf, 'setSecurityContext'):
-            # Beta4.2
-            for s in self.c.getStatefulServices():
-                s.close()
-            self.c.sf.setSecurityContext(
-                omero.model.ExperimenterGroupI(groupid, False))
-        else:
-            self.getSession()
-            self._session.getDetails().setGroup(
-                omero.model.ExperimenterGroupI(groupid, False))
-            self._session.setTimeToIdle(None)
-            self.getSessionService().updateSession(self._session)
+        for s in self.c.getStatefulServices():
+            s.close()
+        self.c.sf.setSecurityContext(
+            omero.model.ExperimenterGroupI(groupid, False))
         return True
 
-
-#    def setGroupForSession (self, group):
-#        self.getSession()
-#        if self._session.getDetails().getGroup().getId().val == group.getId():
-#            # Already correct
-#            return
-#        a = self.getAdminService()
-#        if (group.name not in
-#                [x.name.val for x in a.containedGroups(self._userid)]):
-#            # User not in this group
-#            return
-#        self._lastGroup = self._session.getDetails().getGroup()
-#        self._session.getDetails().setGroup(group._obj)
-#        self._session.setTimeToIdle(None)
-#        self.getSessionService().updateSession(self._session)
-#
     def revertGroupForSession(self):
         """ Switches the group to the previous group """
         if self._lastGroupId is not None:
