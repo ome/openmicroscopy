@@ -17,9 +17,6 @@ module omero {
 
     module api {
 
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IUpdate.html">IUpdate.html</a>
-         **/
         ["ami", "amd"] interface IUpdate extends ServiceInterface
             {
                 void saveObject(omero::model::IObject obj) throws ServerError;

@@ -19,9 +19,6 @@ module omero {
 
     module api {
 
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IQuery.html">IQuery.html</a>
-         **/
         ["ami", "amd"] interface IQuery extends ServiceInterface
             {
                 idempotent omero::model::IObject get(string klass, long id) throws ServerError;

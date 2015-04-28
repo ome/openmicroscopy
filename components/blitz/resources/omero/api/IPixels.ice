@@ -15,9 +15,7 @@
 module omero {
 
     module api {
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IPixels.html">IPixels.html</a>
-         **/
+
         ["ami", "amd"] interface IPixels extends ServiceInterface
             {
                 idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;

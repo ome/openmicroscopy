@@ -19,9 +19,6 @@ module omero {
 
     module api {
 
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRenderingSettings.html">IRenderingSettings.html</a>
-         **/
         ["ami", "amd"] interface IRenderingSettings extends ServiceInterface
             {
                 idempotent bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;

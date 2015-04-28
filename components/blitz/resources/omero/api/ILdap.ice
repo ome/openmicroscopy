@@ -15,9 +15,7 @@
 module omero {
 
     module api {
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ILdap.html">ILdap.html</a>
-         **/
+
         ["ami", "amd"] interface ILdap extends ServiceInterface
             {
                 idempotent ExperimenterList searchAll() throws ServerError;

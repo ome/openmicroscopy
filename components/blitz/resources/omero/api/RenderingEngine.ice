@@ -19,9 +19,6 @@ module omero {
 
     module api {
 
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/omeis/re/providers/RenderingEngine.html">RenderingEngine.html</a>
-         **/
         ["ami", "amd"] interface RenderingEngine extends PyramidService
             {
                 idempotent omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;

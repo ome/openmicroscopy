@@ -18,9 +18,6 @@ module omero {
 
     module api {
 
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IRepositoryInfo.html">IRepositoryInfo.html</a>
-         **/
         ["ami", "amd"] interface IRepositoryInfo extends ServiceInterface
             {
                 idempotent long getUsedSpaceInKilobytes() throws ServerError;

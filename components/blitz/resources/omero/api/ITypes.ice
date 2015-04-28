@@ -18,9 +18,6 @@ module omero {
 
     module api {
 
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ITypes.html">ITypes.html</a>
-         **/
         ["ami", "amd"] interface ITypes extends ServiceInterface
             {
                 omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;

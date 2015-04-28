@@ -21,8 +21,6 @@ module omero {
          * Raw file gateway which provides access to the OMERO file repository.
          *
          * Note: methods on this service are protected by a "DOWNLOAD" restriction.
-         *
-         * See also <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawFileStore.html">RawFileStore.html</a>
          **/
         ["ami", "amd"] interface RawFileStore extends StatefulServiceInterface
             {

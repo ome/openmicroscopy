@@ -17,9 +17,7 @@
 module omero {
 
     module api {
-        /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IMetadata.html">IMetadata.html</a>
-         **/
+
         ["ami", "amd"] interface IMetadata extends ServiceInterface
             {
                 idempotent LogicalChannelList loadChannelAcquisitionData(omero::sys::LongList ids) throws ServerError;
