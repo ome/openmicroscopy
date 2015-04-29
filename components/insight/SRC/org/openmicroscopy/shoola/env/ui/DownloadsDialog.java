@@ -222,9 +222,9 @@ class DownloadsDialog
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner	The owner of the dialog.
-	 * @param icons	Reference to the icons manager.
-	 * @param index	One of the constants defined by this class.
+	 * @param owner The owner of the dialog.
+	 * @param icons Reference to the icons manager.
+	 * @param index One of the constants defined by this class.
 	 */
 	DownloadsDialog(JFrame owner, IconManager icons, int index)
 	{
@@ -253,9 +253,9 @@ class DownloadsDialog
 	/**
 	 * Sets the loading status.
 	 * 
-	 * @param name		The name of the entry.
-	 * @param percent 	The value to set.
-	 * @param fileID	The id of the file corresponding to the status.
+	 * @param name The name of the entry.
+	 * @param percent The value to set.
+	 * @param fileID The id of the file corresponding to the status.
 	 */
 	void setLoadingStatus(int percent, String name, long fileID)
 	{
@@ -275,9 +275,9 @@ class DownloadsDialog
 	/**
 	 * Adds a new activity entry.
 	 * 
-	 * @param directory		The directory where to download the file.
-	 * @param fileName 		The name of the file.
-	 * @param fileID		The id of the file.
+	 * @param directory The directory where to download the file.
+	 * @param fileName The name of the file.
+	 * @param fileID The id of the file.
 	 */
 	void addActivityEntry(String directory, String fileName, long fileID)
 	{
