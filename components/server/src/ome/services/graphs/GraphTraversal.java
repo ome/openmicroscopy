@@ -1212,15 +1212,15 @@ public class GraphTraversal {
         if (!isSystemType(className)) {
             assertPermissions(objects, processor.getRequiredPermissions());
         }
-            if (!eventContext.isCurrentUserAdmin()) {
-                for (final CI object : Sets.difference(objects, planning.overrides)) {
-                    try {
-                        processor.assertMayProcess(object.className, object.id, planning.detailsNoted.get(object));
-                    } catch (GraphException e) {
-                        throw new GraphException("cannot process " + object + ": " + e.message);
-                    }
+        if (!eventContext.isCurrentUserAdmin()) {
+            for (final CI object : Sets.difference(objects, planning.overrides)) {
+                try {
+                    processor.assertMayProcess(object.className, object.id, planning.detailsNoted.get(object));
+                } catch (GraphException e) {
+                    throw new GraphException("cannot process " + object + ": " + e.message);
                 }
             }
+        }
     }
 
     /**
