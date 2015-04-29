@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2013-2014 University of Dundee & Open Microscopy Environment.
+# Copyright (C) 2013-2015 University of Dundee & Open Microscopy Environment.
 # All rights reserved. Use is subject to license terms supplied in LICENSE.txt
 #
 # This program is free software; you can redistribute it and/or modify
@@ -74,8 +74,8 @@ class AnnotationPermissions(lib.ITest):
 
     def chmodGroupAs(self, user, perms, succeed=True):
         client = self.clients[user]
-        chmod = omero.cmd.Chmod(
-            type="/ExperimenterGroup", id=self.group.id.val,
+        chmod = omero.cmd.Chmod2(
+            targetObjects={'ExperimenterGroup': [self.group.id.val]},
             permissions=perms)
         self.doSubmit(chmod, client, test_should_pass=succeed)
 
