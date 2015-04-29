@@ -19,7 +19,9 @@
 
 package ome.services.graphs;
 
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -206,6 +208,26 @@ public abstract class GraphPolicy {
      */
     public void noteDetails(Session session, IObject object, String realClass, long id) {
         /* This method is a no-op that subclasses may override. */
+    }
+
+    /**
+     * Utility method to return all the objects for review as a single set of objects.
+     * @param linkedFrom details of the objects linking to the root object
+     * @param rootObject details of the root objects
+     * @param linkedTo details of the objects linked by the root object
+     * @return details of all the objects passed as arguments
+     */
+    public static Set<Details> allObjects(Collection<Set<Details>> linkedFrom, Details rootObject,
+            Collection<Set<Details>> linkedTo) {
+        final Set<Details> allTerms = new HashSet<Details>();
+        allTerms.add(rootObject);
+        for (final Set<Details> terms : linkedFrom) {
+            allTerms.addAll(terms);
+        }
+        for (final Set<Details> terms : linkedTo) {
+            allTerms.addAll(terms);
+        }
+        return allTerms;
     }
 
     /**
