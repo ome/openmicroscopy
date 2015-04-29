@@ -56,7 +56,7 @@ import integration.AbstractServerTest;
 /**
  * Tests that only appropriate users may use {@link Chown2} and that others' data is left unchanged.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.1.1
+ * @since 5.1.2
  */
 public class PermissionsTest extends AbstractServerTest {
 

@@ -65,7 +65,7 @@ import omero.cmd.Response;
 /**
  * Request to change the permissions on model objects, reimplementing {@link ChmodI}.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.1.1
+ * @since 5.1.2
  */
 public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2> {
 
@@ -307,7 +307,7 @@ public class Chmod2I extends Chmod2 implements IRequest, WrappableRequest<Chmod2
     /**
      * A <q>chmod</q> processor that updates model objects' permissions.
      * @author m.t.b.carroll@dundee.ac.uk
-     * @since 5.1.1
+     * @since 5.1.2
      */
     private final class InternalProcessor extends BaseGraphTraversalProcessor {
 

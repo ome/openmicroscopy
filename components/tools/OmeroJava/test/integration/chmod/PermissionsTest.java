@@ -58,7 +58,7 @@ import integration.AbstractServerTest;
 /**
  * Tests that only appropriate users may use {@link Chmod2} and that others' data is then deleted only when appropriate.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.1.1
+ * @since 5.1.2
  */
 public class PermissionsTest extends AbstractServerTest {
 
