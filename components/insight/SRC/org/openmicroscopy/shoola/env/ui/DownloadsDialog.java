@@ -192,17 +192,6 @@ class DownloadsDialog
 				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
 			index++;
 		}
-		/*
-		while (i.hasNext()) {
-			layout.insertRow(index, TableLayout.PREFERRED);
-			c = (JComponent) i.next();
-			entries.add(c, "0, "+index+", FULL, CENTER");
-			if (index%2 == 0)
-				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-			else 
-				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-			index++;
-		}*/
 		entries.revalidate();
 		repaint();
 	}
