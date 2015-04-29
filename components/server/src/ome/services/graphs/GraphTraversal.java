@@ -1208,9 +1208,10 @@ public class GraphTraversal {
      * @throws GraphException if the user does not have the necessary permissions for all of the objects
      */
     private void assertMayBeProcessed(String className, Collection<Long> ids) throws GraphException {
+        final Set<CI> objects = idsToCIs(className, ids);
         if (!isSystemType(className)) {
-            final Set<CI> objects = idsToCIs(className, ids);
             assertPermissions(objects, processor.getRequiredPermissions());
+        }
             if (!eventContext.isCurrentUserAdmin()) {
                 for (final CI object : Sets.difference(objects, planning.overrides)) {
                     try {
@@ -1220,7 +1221,6 @@ public class GraphTraversal {
                     }
                 }
             }
-        }
     }
 
     /**
