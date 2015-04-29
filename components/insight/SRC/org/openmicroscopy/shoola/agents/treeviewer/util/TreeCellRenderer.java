@@ -2,10 +2,10 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
- * 	This program is free software; you can redistribute it and/or modify
+ *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
@@ -24,19 +24,18 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
-//Java imports
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+
 import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.util.browser.SmartFolder;
@@ -396,7 +395,13 @@ public class TreeCellRenderer
     
     /** The id of the user currently logged in.*/
     private long userId;
-    
+
+    /** The component of reference.*/
+    private JComponent ref;
+
+    /** The node to display.*/
+    private TreeImageDisplay node;
+
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -658,7 +663,7 @@ public class TreeCellRenderer
      * @param userId The id of the user currently logged in. 
      */
     public void reset(long userId) { this.userId = userId; }
-    
+
     /**
      * Overridden to set the icon and the text.
      * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object,
@@ -682,8 +687,7 @@ public class TreeCellRenderer
         }
         setIcon(FILE_TEXT_ICON);
         if (!(value instanceof TreeImageDisplay)) return this;
-        TreeImageDisplay  node = (TreeImageDisplay) value;
-        
+        node = (TreeImageDisplay) value;
         int w = 0;
         FontMetrics fm = getFontMetrics(getFont());
         Object ho = node.getUserObject();
@@ -702,7 +706,6 @@ public class TreeCellRenderer
             return this;
         } 
         setIcon(node);
-    	
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
@@ -716,7 +719,7 @@ public class TreeCellRenderer
         w += getIconTextGap();
         xText = w;
         if (ho instanceof ImageData)
-        	w += fm.stringWidth(node.getNodeName());
+        	w += fm.stringWidth(getText());
         else if (node instanceof TreeFileSet)
         	w +=  fm.stringWidth(getText())+40;
         else w += fm.stringWidth(getText());
@@ -732,6 +735,9 @@ public class TreeCellRenderer
      */
     public void paintComponent(Graphics g)
     {
+        if (ref == null) {
+            ref = (JComponent) UIUtilities.findParent(this, JScrollPane.class);
+        }
     	if (isTargetNode) {
 			if (!droppedAllowed) {
 				if (selected) g.setColor(backgroundSelectionColor);
@@ -740,10 +746,23 @@ public class TreeCellRenderer
 			} else g.setColor(draggedColor);
 			g.fillRect(xText, 0, getSize().width, getSize().height);
 		}
+    	if (ref != null) {
+    	    int w = ref.getSize().width;
+            FontMetrics fm = getFontMetrics(getFont());
+            String text = node.getNodeName();
+            int v = fm.stringWidth(text+UIUtilities.DOTS);
+            if (v > w) {
+                //truncate the text
+                v = fm.stringWidth(text);
+                double charWidth = v/text.length();
+                String value = UIUtilities.formatPartialName(text,
+                        (int) (w/charWidth));
+                setText(value);
+            }
+    	}
     	selected = false;
     	isTargetNode = false;
     	droppedAllowed = false;
     	super.paintComponent(g);
 	}
-  
 }
