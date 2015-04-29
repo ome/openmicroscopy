@@ -133,8 +133,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
 
         GraphPolicy graphPolicyWithOptions = graphPolicy;
 
-        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, graphPathBean, childOptions,
-                REQUIRED_ABILITIES);
+        graphPolicyWithOptions = ChildOptionsPolicy.getChildOptionsPolicy(graphPolicyWithOptions, childOptions, REQUIRED_ABILITIES);
 
         for (final Function<GraphPolicy, GraphPolicy> adjuster : graphPolicyAdjusters) {
             graphPolicyWithOptions = adjuster.apply(graphPolicyWithOptions);
