@@ -40,6 +40,8 @@ import omero.cmd.graphs.Chgrp2I;
 import omero.cmd.graphs.ChgrpFacadeI;
 import omero.cmd.graphs.ChildOptionI;
 import omero.cmd.graphs.ChmodI;
+import omero.cmd.graphs.Chmod2I;
+import omero.cmd.graphs.ChmodFacadeI;
 import omero.cmd.graphs.ChownI;
 import omero.cmd.graphs.Chown2I;
 import omero.cmd.graphs.ChownFacadeI;
@@ -174,8 +176,20 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChmodI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return new ChmodI(ic,
-                                ctx.getBean("chmodStrategy", ChmodStrategy.class));
+                        if (graphRequestFactory.isGraphsWrap()) {
+                            return new ChmodFacadeI(graphRequestFactory);
+                        } else {
+                            return new ChmodI(ic,
+                                    ctx.getBean("chmodStrategy", ChmodStrategy.class));
+                        }
+                    }
+
+                });
+        factories.put(Chmod2I.ice_staticId(),
+                new ObjectFactory(Chmod2I.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return graphRequestFactory.getRequest(Chmod2I.class);
                     }
 
                 });
