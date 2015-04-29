@@ -169,7 +169,7 @@ public class Chgrp2I extends Chgrp2 implements IRequest, WrappableRequest<Chgrp2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets();
+                graphTraversal.unlinkTargets(true);
                 return null;
             case 2:
                 graphTraversal.processTargets();

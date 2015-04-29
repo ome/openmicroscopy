@@ -1301,9 +1301,11 @@ public class GraphTraversal {
 
     /**
      * Remove links between the targeted model objects and the remainder of the model object graph.
+     * @param isUnlinkIncludeFromExclude if {@link Action#EXCLUDE} objects must be unlinked from {@link Action#INCLUDE} objects
+     * and vice versa
      * @throws GraphException if the user does not have permission to unlink the targets
      */
-    public void unlinkTargets() throws GraphException {
+    public void unlinkTargets(boolean isUnlinkIncludeFromExclude) throws GraphException {
         /* accumulate plan for unlinking included/deleted from others */
         final SetMultimap<CP, Long> toNullByCP = HashMultimap.create();
         final Map<CP, SetMultimap<Long, Entry<String, Long>>> linkerToIdToLinked =
@@ -1317,7 +1319,7 @@ public class GraphTraversal {
                     final CPI linkSource = linkProperty.toCPI(object.id);
                     for (final CI linked : planning.forwardLinksCached.get(linkSource)) {
                         final Action linkedAction = getAction(linked);
-                        if (!(linkedAction == Action.INCLUDE || linkedAction == Action.OUTSIDE)) {
+                        if (linkedAction == Action.DELETE || isUnlinkIncludeFromExclude && linkedAction == Action.EXCLUDE) {
                             /* INCLUDE is linked to EXCLUDE or DELETE, so unlink */
                             if (isCollection) {
                                 addRemoval(linkerToIdToLinked, linkProperty.toCPI(object.id), linked);
@@ -1327,6 +1329,7 @@ public class GraphTraversal {
                         }
                     }
                 }
+                if (isUnlinkIncludeFromExclude) {
                 for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
                     final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
                     final boolean isCollection =
@@ -1343,6 +1346,7 @@ public class GraphTraversal {
                             }
                         }
                     }
+                }
                 }
             }
         }

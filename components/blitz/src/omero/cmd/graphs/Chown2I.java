@@ -166,7 +166,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
                         graphTraversal.planOperation(helper.getSession(), targetMultimap, true);
                 return Maps.immutableEntry(plan.getKey(), GraphUtil.arrangeDeletionTargets(helper.getSession(), plan.getValue()));
             case 1:
-                graphTraversal.unlinkTargets();
+                graphTraversal.unlinkTargets(false);
                 return null;
             case 2:
                 graphTraversal.processTargets();
