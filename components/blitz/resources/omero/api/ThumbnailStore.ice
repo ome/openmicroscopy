@@ -17,6 +17,9 @@ module omero {
 
     module api {
 
+        /**
+         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ThumbnailStore.html">ThumbnailStore.html</a>
+         **/
         ["ami", "amd"] interface ThumbnailStore extends StatefulServiceInterface
             {
                 bool setPixelsId(long pixelsId) throws ServerError;

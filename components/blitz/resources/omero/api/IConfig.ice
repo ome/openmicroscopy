@@ -16,6 +16,9 @@ module omero {
 
     module api {
 
+        /**
+         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IConfig.html">IConfig.html</a>
+         **/
         ["ami", "amd"] interface IConfig extends ServiceInterface
             {
                 idempotent string getVersion() throws ServerError;

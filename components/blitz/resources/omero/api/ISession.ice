@@ -18,6 +18,9 @@ module omero {
 
     module api {
 
+        /**
+         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ISession.html">ISession.html</a>
+         **/
         ["ami", "amd"] interface ISession extends ServiceInterface
             {
 

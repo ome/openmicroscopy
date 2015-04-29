@@ -19,6 +19,9 @@ module omero {
 
     module api {
 
+        /**
+         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IProjection.html">IProjection.html</a>
+         **/
         ["ami", "amd"] interface IProjection extends ServiceInterface
             {
                 Ice::ByteSeq projectStack(long pixelsId,

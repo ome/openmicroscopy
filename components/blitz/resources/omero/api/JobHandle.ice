@@ -17,6 +17,9 @@ module omero {
 
     module api {
 
+        /**
+         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/JobHandle.html">JobHandle.html</a>
+         **/
         ["ami", "amd"] interface JobHandle extends StatefulServiceInterface
             {
                 long submit(omero::model::Job j) throws ServerError;

@@ -18,6 +18,9 @@ module omero {
 
     module api {
 
+        /**
+         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IContainer.html">IContainer.html</a>
+         **/
         ["ami", "amd"] interface IContainer extends ServiceInterface
             {
                 idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::Parameters options) throws ServerError;
