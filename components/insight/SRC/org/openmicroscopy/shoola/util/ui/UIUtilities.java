@@ -2774,5 +2774,29 @@ public class UIUtilities
         else
             c.gridx++;
     }
-    
+
+    /**
+     * Finds the parent of the component identified by the specified class.
+     * Returns the found component or <code>null</code> if 
+     * none found.
+     * 
+     * @param comp The component to visit. Mustn't be <code>null</code>.
+     * @param c The class identifying the component to find.
+     * @return See above.
+     */
+    public static Component findParent(Component comp, Class c)
+    {
+        if (c == null || comp == null)
+            throw new IllegalArgumentException("The parameters cannot be " +
+                    "null");
+        if (c.isAssignableFrom(comp.getClass())) return comp;
+        
+        if (comp instanceof Container) {
+            Component parent = ((Container) comp).getParent();
+            if (parent == null) return null;
+            if (parent.getClass().equals(c)) return parent;
+            return findParent(parent, c);
+        }
+        return null;
+    }
 }
