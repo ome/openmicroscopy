@@ -43,7 +43,7 @@
             O = outside: do not operate on, do not even unlink from target objects
         In matches, starting these action letters with a ! negates the given set.
         For changes, in the square brackets an additional action is available:
-            * = process: apply rule set to the object and its relationships
+            - = process: apply rule set to the object and its relationships
 
         In curly braces, the orphan status of the object:
             i = irrelevant: don't care about orphan status
