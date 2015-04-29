@@ -43,7 +43,7 @@ import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.cmd.Chmod;
+import omero.cmd.Chmod2;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete2;
 import omero.cmd.Delete2Response;
@@ -131,6 +131,7 @@ import omero.sys.ParametersI;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import spec.AbstractTest;
@@ -1139,8 +1140,11 @@ public class AbstractServerTest extends AbstractTest {
      * @param perms
      * @return
      */
-    Chmod createChmodCommand(String type, long id, String perms) {
-        return new Chmod(type, id, null, perms);
+    Chmod2 createChmodCommand(String type, long id, String perms) {
+        final Chmod2 chmod = new Chmod2();
+        chmod.targetObjects = ImmutableMap.of(type, Collections.singletonList(id));
+        chmod.permissions = perms;
+        return chmod;
     }
 
     /**
