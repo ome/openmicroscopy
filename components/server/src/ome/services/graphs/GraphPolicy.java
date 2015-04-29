@@ -190,7 +190,7 @@ public abstract class GraphPolicy {
      * {@link #review(Map, Details, Map, Set)}. Each object is passed only once.
      * Subclasses overriding this method probably ought also override {@link #getCleanInstance()}.
      * @param session the Hibernate session, for obtaining more information about the object
-     * @param object a model object about which policy may be asked
+     * @param object an unloaded model object about which policy may be asked
      * @param realClass the real class name of the object
      * @param id the ID of the object
      */
