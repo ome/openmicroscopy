@@ -542,6 +542,19 @@ public class UpdateServiceTest extends AbstractServerTest {
         ppl = (PlateAnnotationLink) o1;
         assertEquals(ppl.getChild().getId().getValue(), data.getId().getValue());
         assertEquals(ppl.getParent().getId().getValue(), pp.getId().getValue());
+
+        // Plate acquisition
+        PlateAcquisition pa = (PlateAcquisition)
+                iUpdate.saveAndReturnObject(mmFactory
+                .simplePlateAcquisitionData().asIObject());
+        PlateAcquisitionAnnotationLink pal = new PlateAcquisitionAnnotationLinkI();
+        pal.setParent((PlateAcquisition) pa.proxy());
+        pal.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(pal);
+        assertNotNull(o1);
+        pal = (PlateAcquisitionAnnotationLink) o1;
+        assertEquals(pal.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(pal.getParent().getId().getValue(), pa.getId().getValue());
     }
 
     /**
