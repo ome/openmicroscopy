@@ -351,6 +351,11 @@ class WebControl(BaseControl):
                 return 1
         deploy = getattr(settings, 'APPLICATION_SERVER')
 
+        # Set permissions var folder to be readable/executable
+        var = self.ctx.dir / "var"
+        if os.path.exists(var):
+            os.chmod(var, 0755)
+
         # 3216
         if deploy in (settings.FASTCGI_TYPES):
             if "Windows" == platform.system():
