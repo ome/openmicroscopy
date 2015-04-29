@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2014-2015 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -86,6 +86,12 @@ public abstract class GraphPolicy {
         DELETE,
 
         /**
+         * the user's ability to change permissions on the object, as judged by
+         * {@link ome.security.ACLVoter#allowChmod(IObject, ome.model.internal.Details)}
+         */
+        CHMOD,
+
+        /**
          * the user actually owns the object
          */
         OWN;
@@ -138,11 +144,12 @@ public abstract class GraphPolicy {
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
+         * @param mayChmod if the object may have its permissions changed
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         Details(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean isOwner, boolean isCheckPermissions) {
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
             this.subject = subject;
             this.ownerId = ownerId;
             this.groupId = groupId;
@@ -155,6 +162,9 @@ public abstract class GraphPolicy {
             }
             if (mayDelete) {
                 permissions.add(Ability.DELETE);
+            }
+            if (mayChmod) {
+                permissions.add(Ability.CHMOD);
             }
             if (isOwner) {
                 permissions.add(Ability.OWN);

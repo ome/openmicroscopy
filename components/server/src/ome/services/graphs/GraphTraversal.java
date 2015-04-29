@@ -95,12 +95,13 @@ public class GraphTraversal {
          * @param orphan the current <q>orphan</q> state of the object
          * @param mayUpdate if the object may be updated
          * @param mayDelete if the object may be deleted
+         * @param mayChmod if the object may have its permissions changed
          * @param isOwner if the user owns the object
          * @param isCheckPermissions if the user is expected to have the permissions required to process the object
          */
         DetailsWithCI(IObject subject, Long ownerId, Long groupId, Action action, Orphan orphan,
-                boolean mayUpdate, boolean mayDelete, boolean isOwner, boolean isCheckPermissions) {
-            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, isOwner, isCheckPermissions);
+                boolean mayUpdate, boolean mayDelete, boolean mayChmod, boolean isOwner, boolean isCheckPermissions) {
+            super(subject, ownerId, groupId, action, orphan, mayUpdate, mayDelete, mayChmod, isOwner, isCheckPermissions);
             this.subjectAsCI = new CI(subject);
         }
 
@@ -372,6 +373,7 @@ public class GraphTraversal {
         final Map<CI, ome.model.internal.Details> detailsNoted = new HashMap<CI, ome.model.internal.Details>();
         final Set<CI> mayUpdate = new HashSet<CI>();
         final Set<CI> mayDelete = new HashSet<CI>();
+        final Set<CI> mayChmod = new HashSet<CI>();
         final Set<CI> owns = new HashSet<CI>();
         final Set<CI> overrides = new HashSet<CI>();
     }
@@ -634,6 +636,12 @@ public class GraphTraversal {
             }
             if (aclVoter.allowDelete(objectInstance, objectDetails)) {
                 planning.mayDelete.add(object);
+            }
+            if (objectInstance instanceof ExperimenterGroup) {
+                final ExperimenterGroup loadedGroup = (ExperimenterGroup) session.load(ExperimenterGroup.class, object.id);
+                if (aclVoter.allowChmod(loadedGroup)) {
+                    planning.mayChmod.add(object);
+                }
             }
             final Experimenter objectOwner = objectDetails.getOwner();
             if (objectOwner != null && eventContext.getCurrentUserId().equals(objectOwner.getId())) {
@@ -962,10 +970,11 @@ public class GraphTraversal {
             final Orphan orphan = action == Action.EXCLUDE ? getOrphan(object) : Orphan.IRRELEVANT;
 
             if (eventContext.isCurrentUserAdmin()) {
-                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true);
+                details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan, true, true, true, true, true);
             } else {
                 details = new DetailsWithCI(object.toIObject(), ownerId, groupId, action, orphan,
-                        planning.mayUpdate.contains(object), planning.mayDelete.contains(object), planning.owns.contains(object),
+                        planning.mayUpdate.contains(object), planning.mayDelete.contains(object),
+                        planning.mayChmod.contains(object), planning.owns.contains(object),
                         !planning.overrides.contains(object));
             }
 
@@ -1257,6 +1266,12 @@ public class GraphTraversal {
             final Set<CI> violations = Sets.difference(objects, planning.mayUpdate);
             if (!violations.isEmpty()) {
                 throw new GraphException("not permitted to update " + Joiner.on(", ").join(violations));
+            }
+        }
+        if (abilities.contains(Ability.CHMOD)) {
+            final Set<CI> violations = Sets.difference(objects, planning.mayChmod);
+            if (!violations.isEmpty()) {
+                throw new GraphException("not permitted to change permissions on " + Joiner.on(", ").join(violations));
             }
         }
         if (abilities.contains(Ability.OWN)) {
