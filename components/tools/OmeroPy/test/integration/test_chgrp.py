@@ -244,6 +244,27 @@ class TestChgrp(lib.ITest):
             assert target_gid == img_gid,\
                 "Image should be in group: %s, NOT %s" % (target_gid,  img_gid)
 
+    def testChgrpAllImagesFilesetTwoCommandsErr(self):
+        """
+        Simple example of the MIF chgrp bad case with Chgrp2:
+        A single fileset containing 2 images cannot be moved
+        to the same group together using two commands
+        See testChgrpAllImagesFilesetOK for the good.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        target_grp = self.new_group([user], perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        images = self.importMIF(2, client=client)
+
+        # chgrp should succeed
+        chgrp1 = Chgrp2(
+            targetObjects={'Image': [images[0].id.val]}, groupId=target_gid)
+        chgrp2 = Chgrp2(
+            targetObjects={'Image': [images[1].id.val]}, groupId=target_gid)
+        self.doSubmit([chgrp1, chgrp2], client, test_should_pass=False)
+
     def testChgrpOneDatasetFilesetErr(self):
         """
         Simple example of the MIF chgrp bad case:
