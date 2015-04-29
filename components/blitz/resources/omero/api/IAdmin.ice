@@ -18,7 +18,7 @@ module omero {
     module api {
 
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/IAdmin.html">IAdmin.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/IAdmin.html">IAdmin.html</a>
          **/
         ["ami", "amd"] interface IAdmin extends ServiceInterface
             {
