@@ -1330,23 +1330,23 @@ public class GraphTraversal {
                     }
                 }
                 if (isUnlinkIncludeFromExclude) {
-                for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
-                    final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
-                    final boolean isCollection =
-                            model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
-                    final CPI linkTarget = linkProperty.toCPI(object.id);
-                    for (final CI linker : planning.backwardLinksCached.get(linkTarget)) {
-                        final Action linkerAction = getAction(linker);
-                        if (linkerAction == Action.EXCLUDE) {
-                            /* EXCLUDE is linked to INCLUDE, so unlink */
-                            if (isCollection) {
-                                addRemoval(linkerToIdToLinked, linkProperty.toCPI(linker.id), object);
-                            } else {
-                                toNullByCP.put(linkProperty, linker.id);
+                    for (final Entry<String, String> backwardLink : model.getLinkedBy(superclassName)) {
+                        final CP linkProperty = new CP(backwardLink.getKey(), backwardLink.getValue());
+                        final boolean isCollection =
+                                model.getPropertyKind(linkProperty.className, linkProperty.propertyName) == PropertyKind.COLLECTION;
+                        final CPI linkTarget = linkProperty.toCPI(object.id);
+                        for (final CI linker : planning.backwardLinksCached.get(linkTarget)) {
+                            final Action linkerAction = getAction(linker);
+                            if (linkerAction == Action.EXCLUDE) {
+                                /* EXCLUDE is linked to INCLUDE, so unlink */
+                                if (isCollection) {
+                                    addRemoval(linkerToIdToLinked, linkProperty.toCPI(linker.id), object);
+                                } else {
+                                    toNullByCP.put(linkProperty, linker.id);
+                                }
                             }
                         }
                     }
-                }
                 }
             }
         }
