@@ -242,8 +242,8 @@ class DownloadsDialog
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner	The owner of the dialog.
-	 * @param icons	Reference to the icons manager.
+	 * @param owner The owner of the dialog.
+	 * @param icons Reference to the icons manager.
 	 */
 	DownloadsDialog(JFrame owner, IconManager icons)
 	{
@@ -259,7 +259,7 @@ class DownloadsDialog
 	 */
 	void setLoadingStatus(int percent, String name, long fileID)
 	{
-		Iterator i = components.iterator();
+		Iterator<JComponent> i = components.iterator();
 		FileLoadingComponent c;
 		Object obj;
 		while (i.hasNext()) {
@@ -315,7 +315,7 @@ class DownloadsDialog
 			String path = (String) evt.getNewValue();
 			
 			FileLoadingComponent c;
-			Iterator i = components.iterator();
+			Iterator<JComponent> i = components.iterator();
 			FileLoadingComponent toRemove = null;
 			Object obj;
 			while (i.hasNext()) {
