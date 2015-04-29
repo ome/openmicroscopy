@@ -744,7 +744,11 @@ public class TreeCellRenderer
 				else g.setColor(backgroundNonSelectionColor);
 				
 			} else g.setColor(draggedColor);
-			g.fillRect(xText, 0, getSize().width, getSize().height);
+			if (ref != null ) {
+			    g.fillRect(xText, 0, ref.getSize().width, ref.getSize().height);
+			} else {
+			    g.fillRect(xText, 0, getSize().width, getSize().height);
+			}
 		}
     	if (ref != null) {
     	    int w = ref.getSize().width;
