@@ -3894,8 +3894,9 @@ class _BlitzGateway (object):
         callback.loop(20, 500)
         rsp = prx.getResponse()
         """
-        chmod = omero.cmd.Chmod(
-            type="/ExperimenterGroup", id=group_Id, permissions=permissions)
+        chmod = omero.cmd.Chmod2(
+            targetObjects={'ExperimenterGroup': [group_Id]},
+            permissions=permissions)
         prx = self.c.sf.submit(chmod)
         return prx
 
