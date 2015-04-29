@@ -151,7 +151,7 @@ public class ChmodI extends Chmod implements IGraphModifyRequest {
                 IObject obj = (IObject)
                     helper.getSession().get(ExperimenterGroup.class, id);
                 if (obj == null) {
-                    helper.cancel(new ERR(), null, "unkown target", params());
+                    helper.cancel(new ERR(), null, "unknown target", params());
                 }
                 return obj;
             }
