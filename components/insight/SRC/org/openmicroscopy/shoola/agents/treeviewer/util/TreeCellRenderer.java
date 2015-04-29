@@ -716,19 +716,26 @@ public class TreeCellRenderer
         else setTextColor(getBackgroundSelectionColor());
         if (getIcon() != null) w += getIcon().getIconWidth();
         else w += SIZE.width;
-        w += getIconTextGap();
-        xText = w;
-        if (ho instanceof ImageData)
-        	w += fm.stringWidth(getText());
-        else if (node instanceof TreeFileSet)
-        	w +=  fm.stringWidth(getText())+40;
-        else w += fm.stringWidth(getText());
-        
+        w = getPreferredWidth();
         setPreferredSize(new Dimension(w, fm.getHeight()+4));//4 b/c GTK L&F
         setEnabled(node.isSelectable());
         return this;
     }
-    
+
+    private int getPreferredWidth()
+    {
+        FontMetrics fm = getFontMetrics(getFont());
+        int w = 0;
+        if (getIcon() != null) w += getIcon().getIconWidth();
+        else w += SIZE.width;
+        w += getIconTextGap();
+        xText = w;
+        if (node instanceof TreeFileSet)
+            w +=  fm.stringWidth(getText())+40;
+        else w += fm.stringWidth(getText());
+        return w;
+    }
+
     /**
      * Overridden to highlight the destination of the target.
      * @see paintComponent(Graphics)
@@ -744,11 +751,7 @@ public class TreeCellRenderer
 				else g.setColor(backgroundNonSelectionColor);
 				
 			} else g.setColor(draggedColor);
-			if (ref != null ) {
-			    g.fillRect(xText, 0, ref.getSize().width, ref.getSize().height);
-			} else {
-			    g.fillRect(xText, 0, getSize().width, getSize().height);
-			}
+			g.fillRect(xText, 0, getSize().width, getSize().height);
 		}
     	if (ref != null) {
     	    int w = ref.getSize().width;
@@ -762,6 +765,8 @@ public class TreeCellRenderer
                 String value = UIUtilities.formatPartialName(text,
                         (int) (w/charWidth));
                 setText(value);
+                w = getPreferredWidth();
+                setPreferredSize(new Dimension(w, fm.getHeight()+4));
             }
     	}
     	selected = false;
