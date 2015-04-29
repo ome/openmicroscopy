@@ -3859,9 +3859,8 @@ class _BlitzGateway (object):
         if not isinstance(obj_ids, list) and len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
-        graph_spec = graph_spec.lstrip('/')
-        graph = graph_spec.split("/")
-
+        graph = graph_spec.lstrip('/').split('/')
+        obj_ids = map(long, obj_ids)
         delete = Delete2(targetObjects={graph[0]: obj_ids})
 
         exc = list()
@@ -3940,9 +3939,8 @@ class _BlitzGateway (object):
         :param group_id:        The group to move the data to.
         """
 
-        graph_spec = graph_spec.lstrip('/')
-        graph = graph_spec.split("/")
-
+        graph = graph_spec.lstrip('/').split('/')
+        obj_ids = map(long, obj_ids)
         chgrp = Chgrp2(targetObjects={graph[0]: obj_ids}, groupId=group_id)
 
         if len(graph) > 1:
