@@ -61,7 +61,7 @@ public abstract class BaseGraphTraversalProcessor implements GraphTraversal.Proc
     }
 
     @Override
-    public void assertMayProcess(Details details) throws GraphException {
+    public void assertMayProcess(String className, long id, Details details) throws GraphException {
         /* no check */
     }
 }

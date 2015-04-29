@@ -285,7 +285,7 @@ public class Chown2I extends Chown2 implements IRequest, WrappableRequest<Chown2
         }
 
         @Override
-        public void assertMayProcess(Details details) throws GraphException {
+        public void assertMayProcess(String className, long objectId, Details details) throws GraphException {
             final Long objectGroupId = details.getGroup().getId();
             if (!(acceptableGroups == null || acceptableGroups.contains(objectGroupId))) {
                 throw new GraphException("user " + userId + " is not a member of group " + objectGroupId);

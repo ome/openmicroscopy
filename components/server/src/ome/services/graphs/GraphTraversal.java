@@ -416,10 +416,12 @@ public class GraphTraversal {
 
         /**
          * Assert that an object with the given details may be processed. Called only if the user is not an administrator.
+         * @param className the name of the object's class
+         * @param id the ID of the object
          * @param details the object's details
          * @throws GraphException if the object may not be processed
          */
-        void assertMayProcess(ome.model.internal.Details details) throws GraphException;
+        void assertMayProcess(String className, long id, ome.model.internal.Details details) throws GraphException;
     }
 
     private final Session session;
@@ -1177,8 +1179,8 @@ public class GraphTraversal {
             }
 
             @Override
-            public void assertMayProcess(ome.model.internal.Details details) throws GraphException {
-                processor.assertMayProcess(details);
+            public void assertMayProcess(String className, long id, ome.model.internal.Details details) throws GraphException {
+                processor.assertMayProcess(className, id, details);
             }
         };
     }
@@ -1212,7 +1214,7 @@ public class GraphTraversal {
             if (!eventContext.isCurrentUserAdmin()) {
                 for (final CI object : Sets.difference(objects, planning.overrides)) {
                     try {
-                        processor.assertMayProcess(planning.detailsNoted.get(object));
+                        processor.assertMayProcess(object.className, object.id, planning.detailsNoted.get(object));
                     } catch (GraphException e) {
                         throw new GraphException("cannot process " + object + ": " + e.message);
                     }
