@@ -788,6 +788,7 @@ public class GraphTraversal {
      * @param linkProperty a class and property name
      * @return the linking class
      */
+    @SuppressWarnings("unused")
     private String getLinkerClass(CP linkProperty) {
         for (final Entry<String, String> backwardLink : model.getLinkedBy(linkProperty.className)) {
             if (linkProperty.propertyName.equals(backwardLink.getValue())) {
