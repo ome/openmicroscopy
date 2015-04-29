@@ -72,7 +72,7 @@ module omero {
                 ["deprecated:changeGroup() is deprecated. use omero::cmd::Chgrp2() instead."]
                 idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
 
-                ["deprecated:changePermissions() is deprecated. use omero::cmd::Chmod() instead."]
+                ["deprecated:changePermissions() is deprecated. use omero::cmd::Chmod2() instead."]
                 idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
                 idempotent void moveToCommonSpace(IObjectList objects) throws ServerError;
 
