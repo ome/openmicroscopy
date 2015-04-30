@@ -180,9 +180,9 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink[E]{a}.parent = [I]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:BooleanAnnotation[E]{o}" p:changes="C:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:CommentAnnotation[E]{o}" p:changes="C:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:DoubleAnnotation[E]{o}" p:changes="C:[D]/n"/>
-        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:LongAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:NumericAnnotation[E]{o}" p:changes="C:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:TimestampAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="ILink[D].child = C:XmlAnnotation[E]{o}" p:changes="C:[D]/n"/>
     </util:list>
 
     <util:list id="chownRules" value-type="ome.services.graphs.GraphPolicyRule">
@@ -293,6 +293,11 @@
                                        p:changes="OF:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!DO].parent = [D], L.child = C:!Job[E]/!d" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:[E]{o}/d" p:changes="C:[D]"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:BooleanAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:CommentAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:NumericAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:TimestampAnnotation[E]{o}" p:changes="C:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:XmlAnnotation[E]{o}" p:changes="C:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:Job[E]{o}" p:changes="C:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = C:[D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [D]" p:changes="L:[D]/n"/>
