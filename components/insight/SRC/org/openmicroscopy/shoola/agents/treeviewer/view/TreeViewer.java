@@ -1189,4 +1189,11 @@ public interface TreeViewer
      */
     boolean isSystemGroup(long groupID, String key);
 
+    /**
+     * Reload the thumbnails of the specified images
+     * 
+     * @param imageIds
+     *            The ids of the images which thumbnails should be reloaded
+     */
+    void reloadThumbs(List<Long> imageIds);
 }

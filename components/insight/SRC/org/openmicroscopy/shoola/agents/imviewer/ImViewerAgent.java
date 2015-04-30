@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
+import org.openmicroscopy.shoola.env.data.events.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -322,12 +323,14 @@ public class ImViewerAgent
         ImViewer view;
         long id = evt.getRefPixelsID();
         while (i.hasNext()) {
-            view = ImViewerFactory.getImageViewerFromImage(null, i.next());
+            long imageId = i.next();
+            view = ImViewerFactory.getImageViewerFromImage(null, imageId);
             if (view != null ) {
                 if (view.getPixelsID() != id) {
                     view.pasteRenderingSettings();
                 }
-                view.reloadRenderingThumbs();
+                ImViewerAgent.getRegistry().getEventBus()
+                        .post(new ReloadThumbsEvent(imageId));
             }     
         }
     }

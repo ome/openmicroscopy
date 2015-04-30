@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -133,9 +133,6 @@ public interface MetadataViewer
 	
 	/** Bound property indicating to render a plane. */
 	public static final String	RENDER_PLANE_PROPERTY = "renderPlane";
-	
-	/** Bound property indicating to generate a thumbnail. */
-	public static final String	RENDER_THUMBNAIL_PROPERTY = "renderThumbnail";
 	
 	/** Bound property name indicating that a new channel is selected. */
     public final static String  SELECTED_CHANNEL_PROPERTY = "selectedChannel";

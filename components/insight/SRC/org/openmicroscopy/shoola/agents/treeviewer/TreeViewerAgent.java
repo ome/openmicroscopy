@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -71,6 +71,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
+import org.openmicroscopy.shoola.env.data.events.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
@@ -524,6 +525,15 @@ public class TreeViewerAgent
         viewer.download(evt.getFolder(), evt.isOverride());
     }
 
+    private void handleReloadThumbsEvent(ReloadThumbsEvent e) {
+        ExperimenterData exp = (ExperimenterData) registry
+                .lookup(LookupNames.CURRENT_USER_DETAILS);
+        if (exp == null)
+            return;
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
+        viewer.reloadThumbs(e.getImageIds());
+    }
+    
     /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate(boolean)
@@ -592,6 +602,7 @@ public class TreeViewerAgent
         bus.register(this, SearchSelectionEvent.class);
         bus.register(this, SaveEvent.class);
         bus.register(this, DownloadEvent.class);
+        bus.register(this, ReloadThumbsEvent.class);
     }
 
     /**
@@ -658,6 +669,8 @@ public class TreeViewerAgent
             handleSaveEvent((SaveEvent) e);
 		else if (e instanceof DownloadEvent)
             handleDownloadEvent((DownloadEvent) e);
+		else if (e instanceof ReloadThumbsEvent)
+            handleReloadThumbsEvent((ReloadThumbsEvent) e);
 	}
 
 }

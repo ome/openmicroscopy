@@ -32,6 +32,7 @@ import java.util.List;
 
 import ome.model.units.BigResult;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
@@ -49,6 +50,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
+import org.openmicroscopy.shoola.env.data.events.ReloadThumbsEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -358,6 +360,25 @@ public class MetadataViewerAgent
     	MetadataViewerFactory.setDiplayMode(displayMode);
     }
     
+    /**
+     * Reload thumbnails
+     * 
+     * @param evt
+     *            The ReloadThumbsEvent containing information about the images
+     *            to reload the thumbnails for
+     */
+    private void handleReloadThumbsEvent(ReloadThumbsEvent evt) {
+        Iterator<Long> i = evt.getImageIds().iterator();
+        MetadataViewer viewer;
+        while (i.hasNext()) {
+            viewer = MetadataViewerFactory.getViewerFromId(
+                    ImageData.class.getName(), i.next());
+            if (viewer != null) {
+                viewer.loadViewedBy();
+            }
+        }
+    }
+
     /** Creates a new instance. */
     public MetadataViewerAgent() {}
     
@@ -393,6 +414,7 @@ public class MetadataViewerAgent
         bus.register(this, RndSettingsCopied.class);
         bus.register(this, CopyRndSettings.class);
         bus.register(this, RndSettingsPasted.class);
+        bus.register(this, ReloadThumbsEvent.class);
     }
 
     /**
@@ -441,6 +463,8 @@ public class MetadataViewerAgent
                    	 handleCopyRndSettings((CopyRndSettings) e);
 		else if (e instanceof RndSettingsPasted) 
                     	handleRndSettingsPasted((RndSettingsPasted) e);
+		else if (e instanceof ReloadThumbsEvent) 
+		    handleReloadThumbsEvent((ReloadThumbsEvent) e);
 	}
 
 }
