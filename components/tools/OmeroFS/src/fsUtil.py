@@ -41,7 +41,7 @@ def monitorPackage(platformCheck):
 
     # Versions of Windows that have been tested.
     winTested = ['XP', '2003Server', '2008Server', '2008ServerR2', 'Vista',
-                 '7']
+                 '7', '2012Server']
 
     # Initial state
     current = 'UNKNOWN'
