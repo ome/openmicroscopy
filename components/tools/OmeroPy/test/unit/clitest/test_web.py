@@ -175,7 +175,8 @@ class TestWeb(object):
         if prefix:
             missing = self.required_lines_in([
                 ('FastCGIExternalServer ',
-                 '/var/run/omero.fcgi" -host %s -idle-timeout 60' % expected_cgi),
+                 '/var/run/omero.fcgi" -host %s -idle-timeout 60'
+                 % expected_cgi),
                 ('Alias %s/error ' % prefix, 'etc/templates/error'),
                 ('Alias %s ' % static_prefix[:-1],
                  'lib/python/omeroweb/static'),
@@ -184,7 +185,8 @@ class TestWeb(object):
         else:
             missing = self.required_lines_in([
                 ('FastCGIExternalServer ',
-                 '/var/run/omero.fcgi" -host %s -idle-timeout 60' % expected_cgi),
+                 '/var/run/omero.fcgi" -host %s -idle-timeout 60'
+                 % expected_cgi),
                 ('Alias /error ', 'etc/templates/error'),
                 ('Alias /static ', 'lib/python/omeroweb/static'),
                 ('Alias / "', '/var/run/omero.fcgi/"'),
