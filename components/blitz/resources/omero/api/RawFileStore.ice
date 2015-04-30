@@ -22,7 +22,7 @@ module omero {
          *
          * Note: methods on this service are protected by a "DOWNLOAD" restriction.
          *
-         * See also <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/RawFileStore.html">RawFileStore.html</a>
+         * See also <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/RawFileStore.html">RawFileStore.html</a>
          **/
         ["ami", "amd"] interface RawFileStore extends StatefulServiceInterface
             {

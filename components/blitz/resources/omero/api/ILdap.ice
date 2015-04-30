@@ -16,7 +16,7 @@ module omero {
 
     module api {
         /**
-         * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/ome/api/ILdap.html">ILdap.html</a>
+         * See <a href="http://downloads.openmicroscopy.org/latest/omero5.1/api/ome/api/ILdap.html">ILdap.html</a>
          **/
         ["ami", "amd"] interface ILdap extends ServiceInterface
             {

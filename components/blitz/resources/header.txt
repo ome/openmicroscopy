@@ -3,7 +3,7 @@
     <head profile="http://www.w3.org/2005/10/profile">
     <link rel="icon" 
           type="image/vnd.microsoft.icon" 
-          href="http://hudson.openmicroscopy.org.uk/userContent/favicon.ico">
+          href="http://www.openmicroscopy.org/favicon.ico">
         <title>
             OMERO API Index - 
 TITLE
@@ -15,7 +15,7 @@ TITLE
     <body>
        <div id="wrapper">
           <div id="banner">
-             <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/"><img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME-XML"></a>
+             <img src="http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png" alt="OME-XML">
           </div>
           <div id="version-top"><p>Version: @VERSION@</p></div>
           <div id="doc-name-right" style="position: absolute;top: 117px;right: 25px;font-size: 24px;font-weight: bold;"><b>OmeroBlitz Api</b></div>
