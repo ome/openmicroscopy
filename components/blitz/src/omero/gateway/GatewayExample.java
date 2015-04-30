@@ -62,6 +62,10 @@ import pojos.ProjectData;
  */
 public class GatewayExample {
 
+    private static final String DEFAULT_HOST = "trout.openmicroscopy.org";
+    private static final String DEFAULT_PORT = "4064";
+    private static final String DEFAULT_USER = "user-3";
+    
     public static void main(String[] args) throws IOException {
         GatewayExample exp = new GatewayExample();
         exp.run();
@@ -157,21 +161,21 @@ public class GatewayExample {
                 }
             }
 
-//            /** Example for downloading an image (original file format) */
-//            System.out.println("\n\nDownload image (must be in your default group), file id: ");
-//            String id = readLine();
-//            if (!CommonsLangUtils.isEmpty(id)) {
-//                System.out.println("\n\nDownload, target path: ");
-//                String path = readLine();
-//                List<File> files = transfer.downloadImage(context, path,
-//                        Long.parseLong(id));
-//                for (File file : files) {
-//                    System.out.println("Downloaded to: "
-//                            + file.getAbsolutePath());
-//                }
-//            }
-//
-//            /** Example for uploading (i. e. importing) an image */
+            /** Example for downloading an image (original file format) */
+            System.out.println("\n\nDownload image (must be in your default group), file id: ");
+            String id = readLine();
+            if (!CommonsLangUtils.isEmpty(id)) {
+                System.out.println("\n\nDownload, target path: ");
+                String path = readLine();
+                List<File> files = transfer.downloadImage(ctx, path,
+                        Long.parseLong(id));
+                for (File file : files) {
+                    System.out.println("Downloaded to: "
+                            + file.getAbsolutePath());
+                }
+            }
+
+            /** Example for uploading (i. e. importing) an image */
             System.out.println("\n\nUpload, file path: ");
             String ufile = readLine();
             if (!CommonsLangUtils.isEmpty(ufile)) {
@@ -184,7 +188,7 @@ public class GatewayExample {
                 while(!cb.isFinished()) {
                 try {
                     System.out.print(".");
-                    Thread.sleep(100);
+                    Thread.sleep(250);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -292,22 +296,22 @@ public class GatewayExample {
     private static String[] requestCredentials() throws IOException {
         String[] result = new String[4];
 
-        System.out.print("Host [localhost]: ");
+        System.out.print("Host ["+DEFAULT_HOST+"]: ");
         String host = readLine();
         if (host.isEmpty())
-            host = "localhost";
+            host = DEFAULT_HOST;
         result[0] = host;
 
-        System.out.print("Port [4064]: ");
+        System.out.print("Port ["+DEFAULT_PORT+"]: ");
         String port = readLine();
         if (port.isEmpty())
-            port = "4064";
+            port = DEFAULT_PORT;
         result[1] = port;
 
-        System.out.print("Username [root]: ");
+        System.out.print("Username ["+DEFAULT_USER+"]: ");
         String username = readLine();
         if (username.isEmpty())
-            username = "root";
+            username = DEFAULT_USER;
         result[2] = username;
 
         System.out.print("Password: ");
@@ -321,12 +325,10 @@ public class GatewayExample {
 
         @Override
         public void debug(Object originator, String logMsg) {
-            //System.out.println(logMsg);
         }
 
         @Override
         public void debug(Object originator, LogMessage msg) {
-            //System.out.println(msg);
         }
 
         @Override

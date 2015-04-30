@@ -79,8 +79,8 @@ public class TransferFacility extends Facility {
     }
 
     public List<File> downloadImage(SecurityContext context, String targetPath,
-            long imageId) throws DSAccessException {
-        return null;
+            long imageId) throws DSAccessException, DSOutOfServiceException {
+        return helper.downloadImage(context, targetPath, imageId);
     }
 
 }
