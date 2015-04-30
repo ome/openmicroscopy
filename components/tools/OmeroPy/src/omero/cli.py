@@ -1102,12 +1102,13 @@ class CLI(cmd.Cmd, Context):
                 tracer = trace.Trace()
                 tracer.runfunc(args.func, args)
             elif "p" in debug_opts or "profile" in debug_opts:
-                import hotshot
-                from hotshot import stats
-                prof = hotshot.Profile("hotshot_edi_stats")
+                from hotshot import stats, Profile
+                from omero.util import get_user_dir
+                profile_file = path(get_user_dir()) / "omero" / "hotshot_edi_stats"
+                prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()
-                s = stats.load("hotshot_edi_stats")
+                s = stats.load(profile_file)
                 s.sort_stats("time").print_stats()
             else:
                 self.die(10, "Unknown debug action: %s" % debug_opts)
