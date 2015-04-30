@@ -71,7 +71,7 @@ class StatusBar
     private JLabel              leftStatus;
     
     /** Displays the status message displayed on the right side. */
-    private JLabel              rigthStatus;
+    private JLabel              rightStatus;
     
     /** Displays some of the plane information. */
     private JComponent			centerStatus;
@@ -105,7 +105,7 @@ class StatusBar
 		});
         UIUtilities.unifiedButtonLookAndFeel(statusButton);
         leftStatus = new JLabel();
-        rigthStatus = new JLabel();
+        rightStatus = new JLabel();
         centerStatus = new JPanel();
     }
     
@@ -119,7 +119,7 @@ class StatusBar
         add(leftStatus);
         add(Box.createHorizontalStrut(15));
         add(centerStatus);
-        add(UIUtilities.buildComponentPanelRight(rigthStatus));
+        add(UIUtilities.buildComponentPanelRight(rightStatus));
         add(Box.createRigidArea(new Dimension(20, 5)));
     }
     
@@ -161,7 +161,7 @@ class StatusBar
      * 
      * @return See above.
      */
-    String getRightStatus() { return rigthStatus.getText(); }
+    String getRightStatus() { return rightStatus.getText(); }
     
     /** 
      * Sets the status message.
@@ -175,7 +175,7 @@ class StatusBar
      * 
      * @param s The message to display.
      */
-    void setRigthStatus(String s) { rigthStatus.setText(s); }
+    void setRightStatus(String s) { rightStatus.setText(s); }
     
     /** 
      * Sets the component displaying the plane information.
