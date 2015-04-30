@@ -86,7 +86,7 @@ class AnnotationPermissions(lib.ITest):
         return project
 
     def getProjectAs(self, user, id):
-        """ Gets a Tag via its id. """
+        """ Gets a Project via its id. """
         return self.queryServices[user].find("Project", id)
 
     def makeTag(self):
