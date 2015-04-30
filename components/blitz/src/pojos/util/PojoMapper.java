@@ -410,66 +410,112 @@ public class PojoMapper
         throw new IllegalArgumentException("type not supported");
     }
     
+    public static Class<? extends DataObject> getPojoType(Class<? extends IObject> modelType) {
+        if (OriginalFile.class.equals(modelType))
+            return FileData.class;
+        else if (Project.class.equals(modelType))
+            return  ProjectData.class;
+        else if ( Dataset.class.equals(modelType))
+            return DatasetData.class;
+        else if ( Image.class.equals(modelType))
+            return ImageData.class;
+        else if ( BooleanAnnotation.class.equals(modelType))
+            return BooleanAnnotationData.class;
+        else if (LongAnnotation.class.equals(modelType))
+            return LongAnnotationData.class;
+        else if ( TagAnnotation.class.equals(modelType))
+            return TagAnnotationData.class;
+        else if ( CommentAnnotation.class.equals(modelType))
+            return TextualAnnotationData.class;
+        else if ( FileAnnotation.class.equals(modelType))
+            return FileAnnotationData.class;
+        else if ( TermAnnotation.class.equals(modelType))
+            return TermAnnotationData.class;
+        else if ( Screen.class.equals(modelType))
+            return ScreenData.class;
+        else if ( Plate.class.equals(modelType))
+            return PlateData.class;
+        else if ( Well.class.equals(modelType))
+            return WellData.class;
+        else if ( WellSample.class.equals(modelType))
+            return  WellSampleData.class;
+        else if ( PlateAcquisition.class.equals(modelType))
+            return  PlateAcquisitionData.class;
+        else if ( ExperimenterGroup.class.equals(modelType))
+            return GroupData.class;
+        else if ( Experimenter.class.equals(modelType))
+            return ExperimenterData.class;
+        else if ( DoubleAnnotation.class.equals(modelType))
+            return DoubleAnnotationData.class;
+        else if ( XmlAnnotation.class.equals(modelType))
+            return XMLAnnotationData.class;
+        else if ( Fileset.class.equals(modelType))
+            return FilesetData.class;
+        else if ( MapAnnotation.class.equals(modelType))
+            return MapAnnotationData.class;
+        
+        throw new IllegalArgumentException(modelType.getClass().getSimpleName()+" not supported");
+    }
+    
     /**
      * Converts the specified POJO into the corresponding model.
      *
-     * @param pojo
+     * @param pojoType
      *            The POJO class.
      * @return The corresponding class.
      */
-    @SuppressWarnings("rawtypes")
-    public static Class<? extends IObject> getModelType(Class pojo) {
-        if (!DataObject.class.isAssignableFrom(pojo))
-            throw new IllegalArgumentException(pojo.getSimpleName()+" is not a DataObject");
+    public static Class<? extends IObject> getModelType(Class<? extends DataObject> pojoType) {
+        if (!DataObject.class.isAssignableFrom(pojoType))
+            throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");
 
-        if (FileData.class.equals(pojo) || MultiImageData.class.equals(pojo))
+        if (FileData.class.equals(pojoType) || MultiImageData.class.equals(pojoType))
             return OriginalFile.class;
-        else if (ProjectData.class.equals(pojo))
+        else if (ProjectData.class.equals(pojoType))
             return Project.class;
-        else if (DatasetData.class.equals(pojo))
+        else if (DatasetData.class.equals(pojoType))
             return Dataset.class;
-        else if (ImageData.class.equals(pojo))
+        else if (ImageData.class.equals(pojoType))
             return Image.class;
-        else if (BooleanAnnotationData.class.equals(pojo))
+        else if (BooleanAnnotationData.class.equals(pojoType))
             return BooleanAnnotation.class;
-        else if (RatingAnnotationData.class.equals(pojo)
-                || LongAnnotationData.class.equals(pojo))
+        else if (RatingAnnotationData.class.equals(pojoType)
+                || LongAnnotationData.class.equals(pojoType))
             return LongAnnotation.class;
-        else if (TagAnnotationData.class.equals(pojo))
+        else if (TagAnnotationData.class.equals(pojoType))
             return TagAnnotation.class;
-        else if (TextualAnnotationData.class.equals(pojo))
+        else if (TextualAnnotationData.class.equals(pojoType))
             return CommentAnnotation.class;
-        else if (FileAnnotationData.class.equals(pojo))
+        else if (FileAnnotationData.class.equals(pojoType))
             return FileAnnotation.class;
-        else if (TermAnnotationData.class.equals(pojo))
+        else if (TermAnnotationData.class.equals(pojoType))
             return TermAnnotation.class;
-        else if (ScreenData.class.equals(pojo))
+        else if (ScreenData.class.equals(pojoType))
             return Screen.class;
-        else if (PlateData.class.equals(pojo))
+        else if (PlateData.class.equals(pojoType))
             return Plate.class;
-        else if (WellData.class.equals(pojo))
+        else if (WellData.class.equals(pojoType))
             return Well.class;
-        else if (WellSampleData.class.equals(pojo))
+        else if (WellSampleData.class.equals(pojoType))
             return WellSample.class;
-        else if (PlateAcquisitionData.class.equals(pojo))
+        else if (PlateAcquisitionData.class.equals(pojoType))
             return PlateAcquisition.class;
-        else if (FileData.class.equals(pojo)
-                || MultiImageData.class.equals(pojo))
+        else if (FileData.class.equals(pojoType)
+                || MultiImageData.class.equals(pojoType))
             return OriginalFile.class;
-        else if (GroupData.class.equals(pojo))
+        else if (GroupData.class.equals(pojoType))
             return ExperimenterGroup.class;
-        else if (ExperimenterData.class.equals(pojo))
+        else if (ExperimenterData.class.equals(pojoType))
             return Experimenter.class;
-        else if (DoubleAnnotationData.class.equals(pojo))
+        else if (DoubleAnnotationData.class.equals(pojoType))
             return DoubleAnnotation.class;
-        else if (XMLAnnotationData.class.equals(pojo))
+        else if (XMLAnnotationData.class.equals(pojoType))
             return XmlAnnotation.class;
-        else if (FilesetData.class.equals(pojo))
+        else if (FilesetData.class.equals(pojoType))
             return Fileset.class;
-        else if (MapAnnotationData.class.equals(pojo))
+        else if (MapAnnotationData.class.equals(pojoType))
             return MapAnnotation.class;
         
-        throw new IllegalArgumentException("NodeType not supported");
+        throw new IllegalArgumentException(pojoType.getClass().getSimpleName()+" not supported");
     }
     
     /**
