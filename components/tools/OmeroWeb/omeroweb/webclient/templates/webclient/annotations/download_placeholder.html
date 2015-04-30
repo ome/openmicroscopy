@@ -58,6 +58,20 @@ Download files
 <h1 class="downloading">Please <a href="#" onClick="window.close()">close this window</a> once the download is complete.</h1>
 </div>
 
+{% if fileLists %}
+<table>
+    {% for fs in fileLists %}
+    <tbody>
+        {% for f in fs %}
+        <tr>
+            <td><a href="{% url 'get_original_file' f.id %}">{{ f.name }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    {% endfor %}
+</table>
+{% endif %}
+
 <script>
 
 
