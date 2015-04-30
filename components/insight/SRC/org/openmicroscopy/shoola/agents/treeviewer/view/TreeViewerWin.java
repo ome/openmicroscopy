@@ -1114,8 +1114,6 @@ class TreeViewerWin
     	
 		container.addPropertyChangeListener(controller);
 		
-		validate();
-		repaint();
 		return result;
 	}
 	

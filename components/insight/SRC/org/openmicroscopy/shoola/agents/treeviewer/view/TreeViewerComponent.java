@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
@@ -40,15 +41,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
+
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
 
+
 //Application-internal dependencies
 import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -4009,6 +4014,7 @@ class TreeViewerComponent
 			bus.post(new BrowserSelectionEvent(t));
 			view.updateMenuItems();
 		}
+		
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Entry entry;
 		Browser browser;
@@ -4018,6 +4024,12 @@ class TreeViewerComponent
 			browser = (Browser) entry.getValue();
 			browser.reActivate();
 		}
+
+        // Workaround for disappearing left hand side panel, call to pack()
+        // (and afterwards restoring the window's size again)
+        Dimension size = view.getSize();
+        view.pack();
+        view.setSize(size);
 	}
 	
 	/** 
