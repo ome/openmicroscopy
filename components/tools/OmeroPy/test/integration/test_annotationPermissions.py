@@ -85,6 +85,10 @@ class AnnotationPermissions(lib.ITest):
                                     client=self.clients[user])
         return project
 
+    def getProjectAs(self, user, id):
+        """ Gets a Tag via its id. """
+        return self.queryServices[user].find("Project", id)
+
     def makeTag(self):
         tag = TagAnnotationI()
         tag.setTextValue(rstring(self.tag_text))
@@ -374,14 +378,25 @@ class TestMovePrivatePermissions(AnnotationPermissions):
     @pytest.mark.parametrize("admin_type", ("root", "admin"))
     def testAddTagMakePrivate(self, admin_type):
         """ see ticket:11479 """
+        # Start with a read-annotate group
+        self.chmodGroupAs(admin_type, "rwra--")
+
+        # Have member1 tag their project with member2's tag
         project = self.createProjectAs("member1")
         tag = self.createTagAs("member2")
         self.linkTagAs("member1", project, tag)
-        # This chmod should not succeed
-        self.chmodGroupAs(admin_type, "rw----", succeed=False)
 
-        for x in ("member1", "member2"):
-            # Check reading
-            self.getTagLinkAs(x, project)
-            self.getTagViaLinkAs(x, project)
-            self.getTagAs(x, tag.id.val)
+        # Make the group private
+        self.chmodGroupAs(admin_type, "rw----")
+
+        # Link should be gone
+        tagLink = self.getTagLinkAs("member1", project)
+        assert tagLink is None
+
+        # Check that the project remains
+        project = self.getProjectAs("member1", project.id.val)
+        assert project is not None
+
+        # Check that the tag remains
+        tag = self.getTagAs("member2", tag.id.val)
+        assert tag is not None
