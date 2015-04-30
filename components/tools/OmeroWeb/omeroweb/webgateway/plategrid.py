@@ -11,7 +11,6 @@
 """
 
 import logging
-import time
 
 import omero.sys
 from omero.rtypes import rint

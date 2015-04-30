@@ -16,9 +16,8 @@
 import pytest
 
 from omero.model import ImageI
-from omero.rtypes import rstring, rint, rtime
+from omero.rtypes import rstring, rtime
 from datetime import datetime
-from uuid import uuid4
 
 
 @pytest.fixture()
@@ -59,7 +58,6 @@ class TestImageWrapper(object):
         date = image_no_acquisition_date.getDate()
         creation_event_date = image_no_acquisition_date.creationEventDate()
         assert date == creation_event_date
-
 
     def testSimpleMarshal(self, gatewaywrapper, image):
         marshalled = image.simpleMarshal()
