@@ -162,6 +162,7 @@ def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
     # Simple grid: one well with one image
     [well] = well_grid_factory({(0, 0): 1})
     plate.addWell(well)
+    well.copyWellSamples()[0].image.acquisitionDate = None
     well = update_service.saveAndReturnObject(well)
     creation_date = well.copyWellSamples()[0].image.details.creationEvent.time
     plate = update_service.saveAndReturnObject(plate)
