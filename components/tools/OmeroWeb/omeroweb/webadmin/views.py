@@ -158,6 +158,8 @@ def setActualPermissions(permissions):
         p = PermissionsI("rwr---")
     elif permissions == 2:
         p = PermissionsI("rwra--")
+    elif permissions == 3:
+        p = PermissionsI("rwrw--")
     else:
         p = PermissionsI()
     return p
@@ -171,7 +173,9 @@ def getActualPermissions(group):
         p = group.details.getPermissions()
 
     flag = None
-    if p.isGroupAnnotate():
+    if p.isGroupWrite():
+        flag = 3
+    elif p.isGroupAnnotate():
         flag = 2
     elif p.isGroupRead():
         flag = 1
