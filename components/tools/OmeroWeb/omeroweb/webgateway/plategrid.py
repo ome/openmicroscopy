@@ -58,7 +58,7 @@ class PlateGrid(object):
                 row, col, img_id, img_name, author, well_id, acq_date, \
                     create_date, description = res
 
-                if acq_date.val is not None and acq_date.val > 0:
+                if acq_date is not None and acq_date.val > 0:
                     date = acq_date.val / 1000
                 else:
                     date = create_date.val / 1000
