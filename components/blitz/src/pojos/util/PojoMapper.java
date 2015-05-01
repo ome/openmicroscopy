@@ -43,6 +43,7 @@ import java.util.Map.Entry;
 
 
 
+
 //Application-internal dependencies
 import omero.RString;
 import omero.model.Annotation;
@@ -464,7 +465,8 @@ public class PojoMapper
      *            The POJO class.
      * @return The corresponding class.
      */
-    public static Class<? extends IObject> getModelType(Class<? extends DataObject> pojoType) {
+    @SuppressWarnings("rawtypes")
+    public static Class<? extends IObject> getModelType(Class pojoType) {
         if (!DataObject.class.isAssignableFrom(pojoType))
             throw new IllegalArgumentException(pojoType.getSimpleName()+" is not a DataObject");
 
