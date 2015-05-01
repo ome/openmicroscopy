@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.iviewer.view.ImViewerFactory
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2014 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2015 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -286,8 +286,6 @@ public class ImViewerFactory
 			comp = (ImViewerComponent) v.next();
 			if (comp.getModel().getPixelsID() == pixelsID) 
 				comp.onRndSettingsSaved(settings);
-			
-			comp.reloadRenderingThumbs();
 		}
 	}
 

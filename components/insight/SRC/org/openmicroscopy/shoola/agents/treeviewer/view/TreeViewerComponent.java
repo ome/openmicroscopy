@@ -4881,4 +4881,13 @@ class TreeViewerComponent
     {
         return model.isSystemGroup(groupID, key);
     }
+    
+    /**
+     * Implemented as specified by the {@link TreeViewer} interface.
+     * 
+     * @see TreeViewer#reloadThumbs(List)
+     */
+    public void reloadThumbs(List<Long> imageIds) {
+        view.reloadThumbnails(imageIds);
+    }
 }

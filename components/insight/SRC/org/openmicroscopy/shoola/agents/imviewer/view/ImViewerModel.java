@@ -574,13 +574,6 @@ class ImViewerModel
 	}
 	
 	/**
-   	 * Reloads the 'saved by' thumbnails of the the rendering panel
-    	 */
-	void reloadRenderingThumbs() {
-	    metadataViewer.loadViewedBy();
-	}
-	
-	/**
 	 * Creates a new instance.
 	 * 
 	 * @param ctx The security context.
