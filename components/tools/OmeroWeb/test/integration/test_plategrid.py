@@ -10,7 +10,7 @@
 """
 
 import pytest
-import test.integration.library as lib
+from weblibrary import IWebTest
 
 from omero.model import PlateI, WellI, WellSampleI
 from omero.rtypes import rint, rstring, rtime
@@ -26,16 +26,15 @@ import time
 @pytest.fixture(scope='function')
 def itest(request):
     """
-    Returns a new L{test.integration.library.ITest} instance. With attached
+    Returns a new L{weblibrary.IWebTest} instance. With attached
     finalizer so that pytest will clean it up.
     """
-    o = lib.ITest()
-    o.setup_method(None)
+    IWebTest.setup_class()
 
     def finalizer():
-        o.teardown_method(None)
+        IWebTest.teardown_class()
     request.addfinalizer(finalizer)
-    return o
+    return IWebTest()
 
 
 @pytest.fixture(scope='function')
@@ -97,7 +96,7 @@ def well_grid_factory(well_factory):
 def plate_wells(itest, well_grid_factory, update_service):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{test.integration.library.ITest} instance.
+    Images populated by an L{weblibrary.IWebTest} instance.
     """
     plate = PlateI()
     plate.name = rstring(itest.uuid())
@@ -114,7 +113,7 @@ def plate_wells(itest, well_grid_factory, update_service):
 def full_plate_wells(itest, update_service):
     """
     Returns a full OMERO Plate, linked Wells, linked WellSamples, and linked
-    Images populated by an L{test.integration.library.ITest} instance.
+    Images populated by an L{weblibrary.IWebTest} instance.
     """
     lett = map(chr, range(ord('A'), ord('Z')+1))
     plate = PlateI()
