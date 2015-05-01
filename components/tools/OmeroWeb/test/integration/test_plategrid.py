@@ -29,7 +29,13 @@ def itest(request):
     Returns a new L{weblibrary.IWebTest} instance. With attached
     finalizer so that pytest will clean it up.
     """
-    IWebTest.setup_class()
+    class PlateGridIWebTest(IWebTest):
+        """
+        This class emulates py.test scoping semantics when the xunit style
+        is in use.
+        """
+        pass
+    PlateGridIWebTest.setup_class()
 
     def finalizer():
         IWebTest.teardown_class()
