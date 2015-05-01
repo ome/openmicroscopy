@@ -30,6 +30,7 @@ import pojos.DatasetData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ROIData;
 import pojos.ScreenData;
 
 /**
@@ -160,7 +161,7 @@ public class ModelMockFactory {
     }
 
     /**
-     * Creates a default project and returns it.
+     * Creates a default plate and returns it.
      *
      * @return See above.
      */
@@ -174,7 +175,7 @@ public class ModelMockFactory {
     }
 
     /**
-     * Creates a default project and returns it.
+     * Creates a default plate acquisition and returns it.
      *
      * @return See above.
      */
