@@ -373,13 +373,15 @@ class TestReadAnnotateGroup(AnnotationPermissions):
 
 class TestMovePrivatePermissions(AnnotationPermissions):
 
-    DEFAULT_PERMS = 'rwra--'
+    def setup_method(self, method):
+        super(TestMovePrivatePermissions, self).setup_method(method)
 
-    @pytest.mark.parametrize("admin_type", ("root", "admin"))
+        # Make the group read-annotate for every test run
+        self.chmodGroupAs("root", "rwra--")
+
+    @pytest.mark.parametrize("admin_type", ("root", "admin", "owner"))
     def testAddTagMakePrivate(self, admin_type):
         """ see ticket:11479 """
-        # Start with a read-annotate group
-        self.chmodGroupAs(admin_type, "rwra--")
 
         # Have member1 tag their project with member2's tag
         project = self.createProjectAs("member1")
