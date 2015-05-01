@@ -106,9 +106,12 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  OME.tree_selection_changed();   // clear center and right panels etc
+                                  OME.clear_selected(true);   // clear center and right panels etc
                                   datatree.delete_node(selected);
-                                  first_parent.children("a").click();
+                                  if (type_str.indexOf('Plate Run') === -1) {
+                                    // If not 'Run', then select parent. See ticket #12860
+                                    first_parent.children("a").click();
+                                  }
                                   OME.refreshActivities();
                               }
                         },
