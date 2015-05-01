@@ -23,7 +23,7 @@ import json
 import time
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='module')
 def itest(request):
     """
     Returns a new L{weblibrary.IWebTest} instance. With attached
@@ -38,30 +38,30 @@ def itest(request):
     PlateGridIWebTest.setup_class()
 
     def finalizer():
-        IWebTest.teardown_class()
+        PlateGridIWebTest.teardown_class()
     request.addfinalizer(finalizer)
-    return IWebTest()
+    return PlateGridIWebTest()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def client(itest):
     """Returns a new user client."""
     return itest.new_client()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def conn(client):
     """Returns a new OMERO gateway."""
     return BlitzGateway(client_obj=client)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def update_service(client):
     """Returns a new OMERO update service."""
     return client.getSession().getUpdateService()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def well_sample_factory(itest):
 
     def make_well_sample():
@@ -72,7 +72,7 @@ def well_sample_factory(itest):
     return make_well_sample
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def well_factory(well_sample_factory):
 
     def make_well(ws_count=0):
@@ -83,7 +83,7 @@ def well_factory(well_sample_factory):
     return make_well
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def well_grid_factory(well_factory):
 
     def make_well_grid(grid_layout={}):
@@ -98,7 +98,7 @@ def well_grid_factory(well_factory):
     return make_well_grid
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def plate_wells(itest, well_grid_factory, update_service):
     """
     Returns a new OMERO Plate, linked Wells, linked WellSamples, and linked
@@ -115,7 +115,7 @@ def plate_wells(itest, well_grid_factory, update_service):
     return update_service.saveAndReturnObject(plate)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def full_plate_wells(itest, update_service):
     """
     Returns a full OMERO Plate, linked Wells, linked WellSamples, and linked
@@ -137,7 +137,7 @@ def full_plate_wells(itest, update_service):
     return update_service.saveAndReturnObject(plate)
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def plate_wells_with_acq_date(itest, well_grid_factory, update_service):
     """
     Creates a plate with a single well containing an image with both an
@@ -156,7 +156,7 @@ def plate_wells_with_acq_date(itest, well_grid_factory, update_service):
             'acq_date': int(acq_date / 1000)}
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
                                  conn):
     """
@@ -176,7 +176,7 @@ def plate_wells_with_no_acq_date(itest, well_grid_factory, update_service,
             'creation_date': creation_date.val / 1000}
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def plate_wells_with_description(itest, well_grid_factory, update_service):
     """
     Creates a plate with a single well containing an image with a description.
@@ -194,7 +194,7 @@ def plate_wells_with_description(itest, well_grid_factory, update_service):
             'description': description}
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture()
 def django_client(request, client):
     """Returns a logged in Django test client."""
     django_client = Client()
