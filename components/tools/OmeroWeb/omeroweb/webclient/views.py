@@ -2650,6 +2650,7 @@ def download_placeholder(request, conn=None, **kwargs):
     ids = targetIds.split("|")
 
     fileLists = []
+    fileCount = 0
     # If we're downloading originals, list original files so user can
     # download individual files.
     if format is None:
@@ -2658,8 +2659,8 @@ def download_placeholder(request, conn=None, **kwargs):
         for i in ids:
             if i.split("-")[0] == "image":
                 imgIds.append(i.split("-")[1])
-            elif i.split("-")[0] == "image":
-                imgIds.append(i.split("-")[1])
+            elif i.split("-")[0] == "well":
+                wellIds.append(i.split("-")[1])
 
         images = []
         # Get images...
@@ -2697,6 +2698,10 @@ def download_placeholder(request, conn=None, **kwargs):
                               'name': f.name})
             if len(fList) > 0:
                 fileLists.append(fList)
+        fileCount = sum([len(l) for l in fileLists])
+    else:
+        # E.g. JPEG/PNG - 1 file per image
+        fileCount = len(ids)
 
     query = "&".join([i.replace("-", "=") for i in ids])
     download_url = download_url + "?" + query
@@ -2711,7 +2716,8 @@ def download_placeholder(request, conn=None, **kwargs):
         'template': "webclient/annotations/download_placeholder.html",
         'url': download_url,
         'defaultName': defaultName,
-        'fileLists': fileLists
+        'fileLists': fileLists,
+        'fileCount': fileCount 
         }
     return context
 
