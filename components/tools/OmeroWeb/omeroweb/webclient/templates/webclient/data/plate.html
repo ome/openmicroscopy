@@ -36,8 +36,16 @@
             var $container = $("#content_details");
             var rel = $container.attr('rel').split("-");
             var $parent = $("#dataTree #"+ rel[0]+'-'+rel[1]);
-            $parent.data("well_index", field);     // let the parent node keep track of current index
-            $parent.children("a:eq(0)").click();    // this will cause center and right panels to update
+            // let the parent node keep track of current index
+            $parent.data("well_index", field);
+            // If a well is selected, add this data to the parent node too
+            // (handled in center_plugin.thumbs.js.html)
+            var $selWell = $('td.ui-selected:first');
+            if ($selWell.length > 0) {
+                $parent.data("well_id", $selWell.attr('id').replace('well-', ''));
+            }
+            // this will cause center and right panels to update
+            $parent.children("a:eq(0)").click();
             return false;
         }
         
