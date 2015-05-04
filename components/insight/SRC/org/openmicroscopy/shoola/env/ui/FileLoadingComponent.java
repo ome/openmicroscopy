@@ -153,9 +153,6 @@ class FileLoadingComponent
 			barPane.add(new JLabel(fileName), "0, 0, CENTER, CENTER");
 			JProgressBar bar = new JProgressBar();
 			bar.setIndeterminate(true);
-			//bar.setPreferredSize(new Dimension(20, 60));
-			//JPanel p = UIUtilities.buildComponentPanelCenter(bar);
-			//p.setOpaque(false);
 			cancelButton.setVisible(true);
 			bar.setBackground(barPane.getBackground());
 			barPane.add(bar, "0, 1");
