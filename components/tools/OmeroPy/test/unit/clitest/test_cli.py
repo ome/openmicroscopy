@@ -9,16 +9,10 @@
 
 """
 
-import os
 import pytest
 
-from path import path
-from omero.cli import CLI
-from omero.cli import NonZeroReturnCode
+from omero.cli import CLI, NonZeroReturnCode
 from omero.plugins.basics import LoadControl
-from omero.util.temp_files import create_path
-
-omeroDir = path(os.getcwd()) / "build"
 
 
 class TestCli(object):
@@ -56,14 +50,14 @@ class TestCli(object):
         assert len(threads) == len(set([t.con for t in threads]))
         assert len(threads) == len(set([t.cmp for t in threads]))
 
-    def testLoad(self):
-        tmp = create_path()
-        tmp.write_text("foo")
+    def testLoad(self, tmpdir):
+        tmpfile = tmpdir.join('test')
+        tmpfile.write("foo")
         self.cli = CLI()
         self.cli.register("load", LoadControl, "help")
 
         with pytest.raises(NonZeroReturnCode):
-            self.cli.invoke("load %s" % tmp, strict=True)
+            self.cli.invoke("load %s" % tmpfile, strict=True)
 
-        self.cli.invoke("load -k %s" % tmp, strict=True)
-        self.cli.invoke("load --keep-going %s" % tmp, strict=True)
+        self.cli.invoke("load -k %s" % tmpfile, strict=True)
+        self.cli.invoke("load --keep-going %s" % tmpfile, strict=True)

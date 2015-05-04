@@ -54,13 +54,7 @@
 ### Stanza for OMERO.web created %(NOW)s
 ###
 
-FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" -host %(FASTCGI_EXTERNAL)s -idle-timeout 60
-
-<Directory "%(ROOT)s/var">
-    Options -Indexes FollowSymLinks
-    Order allow,deny
-    Allow from all
-</Directory>
+FastCGIExternalServer "/var/run/omero.fcgi" -host %(FASTCGI_EXTERNAL)s -idle-timeout 60
 
 <Directory "%(OMEROWEBROOT)s/static">
     Options -Indexes FollowSymLinks
@@ -80,4 +74,4 @@ FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" -host %(FASTCGI_EXTERNAL)s -idle
 
 Alias %(WEB_PREFIX)s/error %(ROOT)s/etc/templates/error
 Alias %(STATIC_URL)s %(OMEROWEBROOT)s/static
-Alias %(FORCE_SCRIPT_NAME)s "%(ROOT)s/var/omero.fcgi/"
+Alias %(FORCE_SCRIPT_NAME)s "/var/run/omero.fcgi/"
