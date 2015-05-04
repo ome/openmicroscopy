@@ -2438,6 +2438,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None,
             for key, ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
+                    if key == "PlateAcquisition":
+                        key = "Plate Run"      # for nicer user message
                     dMap = {
                         'job_type': 'delete',
                         'start_time': datetime.datetime.now(),
