@@ -2718,7 +2718,7 @@ def download_placeholder(request, conn=None, **kwargs):
         'url': download_url,
         'defaultName': defaultName,
         'fileLists': fileLists,
-        'fileCount': fileCount 
+        'fileCount': fileCount
         }
     return context
 
