@@ -229,7 +229,8 @@ public class FileObject
                         String baseName = FilenameUtils.getBaseName(
                                 FilenameUtils.removeExtension(fname));
                         try {
-                            trueFile = File.createTempFile(baseName, extension);
+                            trueFile = File.createTempFile(baseName,
+                                    "."+extension);
                             trueFile.deleteOnExit();
                             FileUtils.copyURLToFile(new URL(info.url), trueFile);
                         } catch (Exception e) {
