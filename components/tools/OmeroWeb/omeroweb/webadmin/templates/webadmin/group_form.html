@@ -85,6 +85,11 @@
                     OME.confirm_dialog("Changing group to Private may fail if links have been created under Read-Annotate permissions",
                         null, "WARNING", ['OK'], null, 180);
                 });
+                $('#id_permissions_3').click(function(){
+                    OME.confirm_dialog("Read-Write groups allow members to delete other members' data. " +
+                        "Follow the 'OMERO permissions' link below for full details.",
+                        null, "WARNING", ['OK'], null, 180);
+                });
 
         })
     </script>
