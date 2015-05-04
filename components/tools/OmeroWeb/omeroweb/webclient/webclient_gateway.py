@@ -1423,10 +1423,10 @@ class OmeroWebGateway(omero.gateway.BlitzGateway):
 
         admin_serv = self.getAdminService()
         admin_serv.updateSelf(up_exp)
-        defultGroup = self.getObject(
+        defaultGroup = self.getObject(
             "ExperimenterGroup", long(defaultGroupId))._obj
-        admin_serv.setDefaultGroup(up_exp, defultGroup)
-        self.changeActiveGroup(defultGroup.id)
+        admin_serv.setDefaultGroup(up_exp, defaultGroup)
+        self.changeActiveGroup(defaultGroup.id)
 
     def setDefaultGroup(self, group_id, exp_id=None):
         """
