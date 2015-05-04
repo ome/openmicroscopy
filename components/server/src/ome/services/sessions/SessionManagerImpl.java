@@ -1359,13 +1359,15 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final List<Long> memberOfGroupsIds = admin.getMemberOfGroupIds(exp);
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
+            final Session reloaded = (Session)
+                    sf.getQueryService().get(Session.class, session.getId());
             list.add(exp);
             list.add(grp);
             list.add(memberOfGroupsIds);
             list.add(leaderOfGroupsIds);
             list.add(userRoles);
             list.add(principal);
-            list.add(session);
+            list.add(reloaded);
             return list;
         } catch (Exception e) {
             log.info("No info for " + principal.getName(), e);
