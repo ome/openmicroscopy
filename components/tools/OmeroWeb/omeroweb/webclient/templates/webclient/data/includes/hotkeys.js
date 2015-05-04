@@ -139,5 +139,9 @@
             this.select_node(new_select, true, e); // tree handles shift events for multi-select
         }
         return false;
+    },
+    // Disable delete key
+    "del" : function (e) {
+        return false;
     }
 }
