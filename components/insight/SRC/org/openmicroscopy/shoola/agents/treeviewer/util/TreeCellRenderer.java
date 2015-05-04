@@ -722,6 +722,11 @@ public class TreeCellRenderer
         return this;
     }
 
+    /**
+     * Determines the preferred width of the component.
+     *
+     * @return See above.
+     */
     private int getPreferredWidth()
     {
         FontMetrics fm = getFontMetrics(getFont());
