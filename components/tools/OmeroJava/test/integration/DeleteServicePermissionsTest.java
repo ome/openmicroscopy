@@ -1,9 +1,8 @@
 /*
- * $Id$
- *
- *   Copyright 2006-2013 University of Dundee. All rights reserved.
+ *   Copyright 2006-2015 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package integration;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -18,7 +17,10 @@ import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Delete2;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
+import omero.constants.metadata.NSINSIGHTRATING;
 import omero.model.Annotation;
+import omero.model.CommentAnnotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -26,6 +28,8 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
 import omero.model.Permissions;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -297,6 +301,106 @@ public class DeleteServicePermissionsTest extends AbstractServerTest {
                 Collections.singletonList(img.getId().getValue()));
         callback(true, client, dc);
         assertDoesNotExist(img);
+    }
+
+    /**
+     * Test to delete an image that has another user's comment and rating.
+     * @throws Exception unexpected
+     */
+    @Test(groups = { "ticket:2997" })
+    public void testDeleteImageAnnotatedByOtherOrphan() throws Exception {
+        // set up collaborative group with an "owner" user
+        final EventContext ec = newUserAndGroup("rwra--");
+
+        // owner creates the image
+        final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage()).proxy();
+
+        // other user adds comment and rating
+        newUserInGroup(ec);
+
+        CommentAnnotation comment = new CommentAnnotationI();
+        comment.setTextValue(omero.rtypes.rstring("What a lovely image!"));
+        comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment).proxy();
+
+        LongAnnotation rating = new LongAnnotationI();
+        rating.setLongValue(omero.rtypes.rlong(5));
+        rating.setNs(omero.rtypes.rstring(NSINSIGHTRATING.value));
+        rating = (LongAnnotation) iUpdate.saveAndReturnObject(rating).proxy();
+
+        for (final Annotation annotation : new Annotation[] {comment, rating}) {
+            final ImageAnnotationLink link = new ImageAnnotationLinkI();
+            link.setParent(image);
+            link.setChild(annotation);
+            iUpdate.saveAndReturnObject(link);
+        }
+
+        // owner deletes image
+        loginUser(ec);
+        long id = image.getId().getValue();
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        callback(true, client, dc);
+
+        // image and annotations are all gone
+        assertDoesNotExist(image);
+        assertDoesNotExist(comment);
+        assertDoesNotExist(rating);
+    }
+
+    /**
+     * Test to delete an image that has another user's comment and rating.
+     * The user has somehow also used the same annotations on their own image.
+     * @throws Exception unexpected
+     */
+    @Test(groups = { "ticket:2997" })
+    public void testDeleteImageAnnotatedByOtherMultilinked() throws Exception {
+        // set up collaborative group with an "owner" user
+        final EventContext ec = newUserAndGroup("rwra--");
+
+        // owner creates the image
+        final Image imageOwner = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage()).proxy();
+
+        // other user adds comment and rating to that image and their own
+        newUserInGroup(ec);
+
+        // other user creates an image
+        final Image imageOther = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage()).proxy();
+
+        // other user adds same comment and rating to both images
+        CommentAnnotation comment = new CommentAnnotationI();
+        comment.setTextValue(omero.rtypes.rstring("What a lovely image!"));
+        comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment).proxy();
+
+        LongAnnotation rating = new LongAnnotationI();
+        rating.setLongValue(omero.rtypes.rlong(5));
+        rating.setNs(omero.rtypes.rstring(NSINSIGHTRATING.value));
+        rating = (LongAnnotation) iUpdate.saveAndReturnObject(rating).proxy();
+
+        for (final Image image : new Image[] {imageOwner, imageOther}) {
+            for (final Annotation annotation : new Annotation[] {comment, rating}) {
+                final ImageAnnotationLink link = new ImageAnnotationLinkI();
+                link.setParent(image);
+                link.setChild(annotation);
+                iUpdate.saveAndReturnObject(link);
+            }
+        }
+
+        // owner deletes their image
+        loginUser(ec);
+        long id = imageOwner.getId().getValue();
+        final Delete2 dc = new Delete2();
+        dc.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Image.class.getSimpleName(),
+                Collections.singletonList(id));
+        callback(true, client, dc);
+
+        // image is gone but other image and annotations remain
+        assertDoesNotExist(imageOwner);
+        assertExists(imageOther);
+        assertExists(comment);
+        assertExists(rating);
     }
 
     /**
