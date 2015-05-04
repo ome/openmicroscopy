@@ -194,7 +194,6 @@ public class FileObject
             buffer.append(" compression="+CompressionType.UNCOMPRESSED.getCompression());
             buffer.append(" imageid="+img.getID()+" ");
             IJ.runPlugIn("loci.plugins.LociExporter", buffer.toString());
-            IJ.log("FileObject-2:"+f.getAbsolutePath());
             return f;
         }
         return null;
