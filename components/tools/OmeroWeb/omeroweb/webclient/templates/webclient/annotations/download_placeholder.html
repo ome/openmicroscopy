@@ -115,6 +115,7 @@ Download files
                 <a href="{% url 'get_original_file' f.id %}">
                     <div>
                         {{ f.name }}
+                        <span style="margin-left:20px; text-decoration:none"> {{ f.size|filesizeformat }}</span>
                         <span class="download">Download</span>
                     </div>
                 </a>

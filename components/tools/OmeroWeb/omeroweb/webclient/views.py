@@ -2695,7 +2695,8 @@ def download_placeholder(request, conn=None, **kwargs):
                     continue
                 fileIds.add(f.id)
                 fList.append({'id': f.id,
-                              'name': f.name})
+                              'name': f.name,
+                              'size': f.getSize()})
             if len(fList) > 0:
                 fileLists.append(fList)
         fileCount = sum([len(l) for l in fileLists])
