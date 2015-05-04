@@ -847,6 +847,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     return _this.getPos().z + 1;
   };
 
+  this.setPixelated = function (pixelated) {
+    _this.viewportimg.get(0).setPixelated(pixelated);
+  };
+
   this.setZoom = function (z) {
     var size = getSizeDict();
     _this.viewportimg.get(0).setZoom(z, size.width, size.height);

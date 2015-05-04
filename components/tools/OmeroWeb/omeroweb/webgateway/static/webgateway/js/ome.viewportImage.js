@@ -200,6 +200,14 @@ jQuery.fn.viewportImage = function(options) {
       return overlay.is(':visible') || overlay.is('.loading');
     };
 
+    this.setPixelated = function (pixelated) {
+      if (pixelated) {
+        image.addClass("pixelated");
+      } else {
+        image.removeClass("pixelated");
+      }
+    };
+
     /**
      * Pan the image within the viewport
      */
