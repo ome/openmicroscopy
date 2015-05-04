@@ -27,6 +27,7 @@ import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import omero.cmd.admin.CurrentSessionsRequestI;
 import omero.cmd.admin.ResetPasswordRequestI;
+import omero.cmd.admin.UpdateSessionTimeoutRequestI;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
@@ -284,6 +285,13 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         return new ResetPasswordRequestI(mailUtil, passwordUtil, sec, passwordProvider);
+                    }
+                });
+        factories.put(UpdateSessionTimeoutRequestI.ice_staticId(),
+                new ObjectFactory(UpdateSessionTimeoutRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new UpdateSessionTimeoutRequestI(current, sessionManager, sec);
                     }
                 });
         factories.put(CurrentSessionsRequestI.ice_staticId(),

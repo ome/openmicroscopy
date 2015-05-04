@@ -29,7 +29,13 @@ import library as lib
 import pytest
 import traceback
 import omero
-from omero.rtypes import rint, rstring
+
+from omero.rtypes import rint
+from omero.rtypes import rlong
+from omero.rtypes import rstring
+from omero.rtypes import unwrap
+
+from omero.cmd import UpdateSessionTimeoutRequest
 
 
 class TestISession(lib.ITest):
@@ -92,6 +98,58 @@ class TestISession(lib.ITest):
             assert s1uuid == suuid
         finally:
             c1.__del__()
+
+    @pytest.mark.parametrize("who", (
+        ("root", -1, None),
+        ("root", 1, None),
+        ("user", -1, None),
+        ("baduser", 1, None)),
+    def testUpdateSessions(self, who):
+        who, idlediff, livediff = who
+        if who.startswith("root"):
+            client = self.root
+        else:
+            client = self.client
+
+        uuid = client.getSessionId()
+        service = client.sf.getSessionService()
+        obj_before = service.getSession(uuid)
+        live = unwrap(obj_before.timeToLive)
+        idle = unwrap(obj_before.timeToIdle)
+
+        req = UpdateSessionTimeoutRequest()
+        req.session = uuid
+        if livediff is not None:
+            req.timeToLive = rlong(live+livediff)
+        if idlediff is not None:
+            req.timeToIdle = rlong(idle+idlediff)
+        try:
+            cb = client.submit(req)
+            cb.getResponse()
+            cb.close(True)
+            assert not who.startswith("bad")  # must throw
+        except omero.CmdError, ce:
+            if who.startswith("bad"):
+                assert ce.err.name == "non-admin-increase"
+                return
+            else:
+                print ce.err.parameters.get("stacktrace")
+                raise Exception(ce.err.category,
+                                ce.err.name)
+
+        obj_after = client.sf.getQueryService().findByQuery(
+            ("select s from Session s "
+             "where s.id = %s") % obj_before.id.val, None)
+        assert obj_before.id == obj_after.id
+        assert obj_before.uuid == obj_after.uuid
+        assert req.timeToLive is None \
+            or req.timeToLive == obj_after.timeToLive
+        assert req.timeToIdle is None \
+            or req.timeToIdle == obj_after.timeToIdle
+
+        # Now try again! (required SessionManager fix)
+        obj_after = service.getSession(uuid)
+        assert req.timeToIdle.val == obj_after.timeToIdle.val
 
     def testCreateSessionForGuest(self):
         p = omero.sys.Principal()
