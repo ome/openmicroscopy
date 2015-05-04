@@ -184,7 +184,7 @@ class SessionsControl(BaseControl):
             "--no-purge", dest="purge", action="store_false",
             help="Do not remove inactive sessions")
 
-        who = parser.add(sub, self.who, (
+        parser.add(sub, self.who, (
             "List all active server sessions (admin-only)"))
 
         keepalive = parser.add(
@@ -620,14 +620,14 @@ class SessionsControl(BaseControl):
         req = omero.cmd.CurrentSessionsRequest()
         try:
             cb = client.submit(req)
-            rsp = cb.getResponse()
+            try:
+                rsp = cb.getResponse()
+            finally:
+                cb.close(True)
+
             headers = ("name", "group", "logged in", "agent")
-            results = {
-                        "name": [],
-                        "group": [],
-                        "logged in": [],
-                        "agent": []
-                      }
+            results = {"name": [], "group": [],
+                       "logged in": [], "agent": []}
             for idx, s in enumerate(rsp.sessions):
                 ec = rsp.contexts[idx]
                 results["name"].append(ec.userName)
@@ -659,8 +659,8 @@ class SessionsControl(BaseControl):
             else:
                 exc = traceback.format_exc()
                 self.ctx.dbg(exc)
-                self.ctx.die(562, "ClientError: %s" % e)
-        except omero.LockTimeout, lt:
+                self.ctx.die(562, "ClientError: %s" % ce.err.name)
+        except omero.LockTimeout:
             exc = traceback.format_exc()
             self.ctx.dbg(exc)
             self.ctx.die(563, "LockTimeout: operation took too long")

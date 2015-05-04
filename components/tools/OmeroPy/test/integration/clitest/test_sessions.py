@@ -49,8 +49,6 @@ class TestSessions(CLITest):
     def login_as(self, user):
         self.set_login_args(user)
 
-
-
     def get_connection_string(self):
         ec = self.cli.get_event_context()
         return 'session %s (%s). Idle timeout: 10.0 min. ' \
@@ -108,7 +106,7 @@ class TestSessions(CLITest):
         group2 = self.new_group(perms=perms)
         user = self.new_user(group1, owner=False)  # Member of two groups
         self.root.sf.getAdminService().addGroups(user, [group2])
-        member = self.new_user(group1, owner=False)  # Member of first gourp
+        member = self.new_user(group1, owner=False)  # Member of first group
         owner = self.new_user(group1, owner=True)  # Owner of first group
         admin = self.new_user(system=True)  # System administrator
 
