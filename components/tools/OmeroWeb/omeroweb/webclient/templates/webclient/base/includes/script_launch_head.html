@@ -24,7 +24,7 @@
     $(document).ready(function(){
 
         $('body').click(function(event) {
-            if (event.target.id != 'scriptButton') {
+            if (!$(event.target).hasClass("scriptButton")) {
                 OME.hideScriptList();
             }
         });
