@@ -355,6 +355,9 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
         // execute lookup user
+        sf.mockQuery.expects(atLeastOnce()).method("get")
+            .with(eq(Session.class), ANYTHING)
+            .will(returnValue(session));
         sf.mockQuery.expects(once()).method("projection").will(
                 returnValue(Arrays.asList((Object)new Object[]{123L})));
 
