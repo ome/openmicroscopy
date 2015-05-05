@@ -190,8 +190,10 @@ class Parser(ArgumentParser):
     def add_login_arguments(self):
         group = self.add_argument_group(
             'Login arguments', """Environment variables:
-    OMERO_SESSIONDIR - Set the sessions directory (Default:
- $HOME/omero/sessions)
+  OMERO_USERDIR     Set the base directory containing the user's files.
+                    Default: $HOME/omero
+  OMERO_SESSIONDIR  Set the base directory containing local sessions.
+                    Default: $OMERO_USERDIR/sessions
 
 Optional session arguments:
 """)
