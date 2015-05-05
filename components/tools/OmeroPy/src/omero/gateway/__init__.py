@@ -3898,6 +3898,8 @@ class _BlitzGateway (object):
         logger.debug('Deleting %s [%s]. Options: %s' %
                      (graph_spec, str(obj_ids), exc))
 
+        logger.debug('Delete2: \n%s' % str(delete))
+
         handle = self.c.sf.submit(delete, self.SERVICE_OPTS)
         return handle
 
@@ -3986,6 +3988,8 @@ class _BlitzGateway (object):
 
         logger.debug('DoAll Chgrp2: type: %s, ids: %s, grp: %s' %
                      (graph_spec, obj_ids, group_id))
+
+        logger.debug('Chgrp2: \n%s' % str(da))
 
         ctx = self.SERVICE_OPTS.copy()
         # NB: For Save to work, we need to be in target group
