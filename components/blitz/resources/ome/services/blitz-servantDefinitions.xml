@@ -65,6 +65,7 @@
             <constructor-arg ref="throttlingStrategy"/>
             <constructor-arg ref="scriptRepoHelper"/>
             <constructor-arg ref="checksumProviderFactory"/>
+            <constructor-arg ref="paramsCache"/>
         </bean>
     </constructor-arg>
   </bean>

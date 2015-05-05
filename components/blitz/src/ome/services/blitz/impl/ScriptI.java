@@ -13,34 +13,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
-
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
-import ome.api.local.LocalAdmin;
 import ome.model.core.OriginalFile;
 import ome.model.enums.ChecksumAlgorithm;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
+import ome.services.blitz.util.ParamsCache;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.delete.Deletion;
-import ome.services.graphs.GraphException;
 import ome.services.scripts.RepoFile;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
-import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
-
 import omero.ApiUsageException;
 import omero.RInt;
 import omero.RType;
@@ -63,7 +51,6 @@ import omero.api.AMD_IScript_validateScript;
 import omero.api._IScriptOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
-import omero.grid.ParamsHelper;
 import omero.grid.ParamsHelper.Acquirer;
 import omero.grid.ProcessPrx;
 import omero.grid.ProcessorPrx;
@@ -77,6 +64,14 @@ import omero.model.OriginalFileI;
 import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
 import omero.util.IceMapper;
+
+import org.apache.commons.io.FilenameUtils;
+import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
 
 /**
  * implementation of the IScript service interface.
@@ -93,22 +88,22 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     protected ServiceFactoryI factory;
 
-    protected ParamsHelper helper;
+    protected ParamsCache cache;
 
     protected final ScriptRepoHelper scripts;
 
     protected final ChecksumProviderFactory cpf;
 
     public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts,
-            ChecksumProviderFactory cpf) {
+            ChecksumProviderFactory cpf, ParamsCache cache) {
         super(null, be);
         this.scripts = scripts;
         this.cpf = cpf;
+        this.cache = cache;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
         this.factory = sf;
-        helper = new ParamsHelper(acquirer(), sf.getExecutor(), sf.getPrincipal());
     }
 
     protected Acquirer acquirer() throws ServerError {
@@ -414,7 +409,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final Current __current) throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<Object>() {
             public Object call() throws Exception {
-                return helper.getOrCreateParams(id, __current);
+                return cache.getParams(id);
             }
         });
     }
@@ -713,7 +708,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         try {
 
-            JobParams params = helper.getOrCreateParams(file.getId(), __current);
+            JobParams params = cache.getParams(file.getId());
 
             if (params == null) {
                 throw new ApiUsageException(null, null, "Script error: no params found.");

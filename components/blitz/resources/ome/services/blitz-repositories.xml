@@ -117,4 +117,21 @@
     <property name="repeatInterval" value="60000" />
   </bean>
 
+  <!-- Params caching logic, see trac:10661 -->
+
+  <bean id="paramsCache" class="ome.services.blitz.util.ParamsCache" lazy-init="false">
+      <constructor-arg ref="Registry"/>
+      <constructor-arg ref="roles"/>
+      <constructor-arg ref="scriptRepoHelper"/>
+      <constructor-arg value="${omero.scripts.cache.spec}"/>
+  </bean>
+  <bean id="paramsCacheRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="paramsCache" />
+    <property name="targetMethod" value="lookupAll" />
+  </bean>
+  <bean id="paramsCacheTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="cronExpression" value="${omero.scripts.cache.cron}"/>
+    <property name="jobDetail" ref="paramsCacheRun"/>
+  </bean>
+
 </beans>
