@@ -198,7 +198,6 @@ public class SharedResourcesI extends AbstractCloseableAmdServant implements
                 throws ServerError;
     }
 
-    @SuppressWarnings("unchecked")
     private <U extends Ice.ObjectPrx> U lookup(long millis, List<Ice.ObjectPrx> objectPrxs,
             RepeatTask<U> task) throws ServerError {
 
