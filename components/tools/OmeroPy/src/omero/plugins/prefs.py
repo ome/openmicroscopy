@@ -21,7 +21,7 @@ from omero.cli import BaseControl
 from omero.cli import ExistingFile
 from omero.cli import NonZeroReturnCode
 from omero.config import ConfigXml
-from omero.util import edit_path, get_user_dir
+from omero.util import edit_path, get_omero_userdir
 from omero.util.decorators import wraps
 from omero_ext import portalocker
 
@@ -227,8 +227,7 @@ class PrefsControl(WriteableConfigControl):
             if grid_dir.exists():
                 cfg_xml = grid_dir / "config.xml"
             else:
-                userdir = path(get_user_dir())
-                usr_xml = userdir / "omero" / "config.xml"
+                usr_xml = get_omero_userdir() / "config.xml"
                 self.ctx.err("%s not found; using %s" % (grid_dir, usr_xml))
                 cfg_xml = usr_xml
         try:

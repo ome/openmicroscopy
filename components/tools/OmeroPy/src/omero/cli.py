@@ -1103,8 +1103,8 @@ class CLI(cmd.Cmd, Context):
                 tracer.runfunc(args.func, args)
             elif "p" in debug_opts or "profile" in debug_opts:
                 from hotshot import stats, Profile
-                from omero.util import get_user_dir
-                profile_file = path(get_user_dir()) / "omero" / "hotshot_edi_stats"
+                from omero.util import get_omero_userdir
+                profile_file = get_omero_userdir() / "hotshot_edi_stats"
                 prof = Profile(profile_file)
                 prof.runcall(lambda: args.func(args))
                 prof.close()

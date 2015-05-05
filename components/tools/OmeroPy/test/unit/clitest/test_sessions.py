@@ -50,8 +50,12 @@ class TestSessions(object):
         assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'
 
     @pytest.mark.parametrize('environment', (
-        [], ["OMERO_SESSIONS_DIR"], ["OMERO_SESSIONDIR"],
-        ["OMERO_SESSIONS_DIR", "OMERO_SESSIONDIR"]))
+        [],
+        ["OMERO_SESSIONS_DIR"], ["OMERO_SESSIONDIR"], ["OMERO_USERDIR"],
+        ["OMERO_SESSIONS_DIR", "OMERO_SESSIONDIR"],
+        ["OMERO_SESSIONS_DIR", "OMERO_USERDIR"],
+        ["OMERO_SESSIONDIR", "OMERO_USERDIR"],
+        ["OMERO_SESSIONS_DIR", "OMERO_SESSIONDIR", "OMERO_USERDIR"]))
     @pytest.mark.parametrize('session_args', [None, 'session_dir'])
     def testCustomSessionsDir(
             self, tmpdir, monkeypatch, environment,
@@ -78,5 +82,8 @@ class TestSessions(object):
         elif session_args:
             assert store.dir == (
                 path(getattr(args, session_args) / 'omero' / 'sessions'))
+        elif 'OMERO_USERDIR' in environment:
+            assert store.dir == (
+                path(tmpdir) / 'OMERO_USERDIR' / 'sessions')
         else:
             assert store.dir == path(get_user_dir()) / 'omero' / 'sessions'

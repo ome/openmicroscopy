@@ -24,7 +24,7 @@ Library for managing user sessions.
 """
 
 import omero.constants
-from omero.util import get_user_dir, make_logname
+from omero.util import get_omero_userdir, make_logname
 from path import path
 
 import logging
@@ -62,7 +62,7 @@ class SessionsStore(object):
         """
         self.logger = logging.getLogger(make_logname(self))
         if dir is None:
-            self.dir = path(get_user_dir()) / "omero" / "sessions"
+            self.dir = get_omero_userdir() / "sessions"
         else:
             self.dir = path(dir)
         if not self.dir.exists():
