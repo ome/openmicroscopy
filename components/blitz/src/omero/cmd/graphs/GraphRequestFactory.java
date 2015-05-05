@@ -99,8 +99,11 @@ public class GraphRequestFactory {
 
         this.defaultExcludeNs = ImmutableSet.copyOf(defaultExcludeNs);
 
+        final String logMessage = "substituting Chgrp, Chmod, Chown, Delete requests with Chgrp2, Chmod2, Chown2, Delete2 requests";
         if (isGraphsWrap) {
-            LOGGER.warn("substituting Chgrp, Delete requests with Chgrp2, Delete2 requests");
+            LOGGER.debug(logMessage);
+        } else {
+            LOGGER.warn("not " + logMessage);
         }
         this.isGraphsWrap = isGraphsWrap;
     }
