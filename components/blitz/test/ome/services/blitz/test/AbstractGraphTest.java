@@ -19,6 +19,7 @@ import ome.security.ACLVoter;
 import ome.security.SecuritySystem;
 import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
+import ome.security.basic.CurrentDetails;
 import ome.services.mail.MailUtil;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -63,7 +64,9 @@ public class AbstractGraphTest extends AbstractServantTest {
                 user.ctx.getBean(PasswordUtil.class),
                 user.ctx.getBean(SecuritySystem.class),
                 user.ctx.getBean(PasswordProvider.class),
-                user.ctx.getBean("graphRequestFactory", GraphRequestFactory.class)
+                user.ctx.getBean("graphRequestFactory", GraphRequestFactory.class),
+                user.ctx.getBean("currentDetails", CurrentDetails.class),
+                user.sm
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);
