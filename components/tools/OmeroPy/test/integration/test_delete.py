@@ -231,6 +231,55 @@ class TestDelete(lib.ITest):
         callback = self.waitOnCmd(self.client, handle)
         callback.close(True)
 
+    def testDeleteComment(self):
+        comment = omero.model.CommentAnnotationI()
+        comment = self.update.saveAndReturnObject(comment)
+        images = list()
+        # Single Comment linked to 3 Images and 3 Datasets
+        for i in range(0, 3):
+            img = self.new_image(name="testDeleteComment")
+            img.linkAnnotation(comment)
+            images.append(self.update.saveAndReturnObject(img))
+            ds = self.make_dataset("testDeleteComment")
+            ds.linkAnnotation(comment)
+            self.update.saveAndReturnObject(ds)
+
+        cid = comment.id.val
+        assert self.query.find("CommentAnnotation", cid)
+
+        # Remove comment from first image
+        linkIds = []
+        for l in images[0].copyAnnotationLinks():
+            linkIds.append(l.id.val)
+        command = Delete2(targetObjects={"ImageAnnotationLink": linkIds})
+        handle = self.client.sf.submit(command)
+        self.waitOnCmd(self.client, handle)
+
+        # Delete Dry Run...
+        command = Delete2(targetObjects={"CommentAnnotation": [cid]},
+                          dryRun=True)
+        handle = self.client.sf.submit(command)
+        self.waitOnCmd(self.client, handle)
+
+        # ...Should tell us that remaining links will be deleted
+        rsp = handle.getResponse()
+        assert ('ome.model.annotations.ImageAnnotationLink'
+                in rsp.deletedObjects)
+        links = rsp.deletedObjects['ome.model.annotations.ImageAnnotationLink']
+        assert len(links) == 2
+        dlnks = rsp.deletedObjects[
+            'ome.model.annotations.DatasetAnnotationLink']
+        assert len(dlnks) == 3
+
+        # Comment should not yet be deleted
+        assert self.query.find("CommentAnnotation", cid)
+
+        # Finally, delete Comment
+        command = Delete2(targetObjects={"CommentAnnotation": [cid]})
+        handle = self.client.sf.submit(command)
+        self.waitOnCmd(self.client, handle)
+        assert not self.query.find("CommentAnnotation", cid)
+
     def test3639(self):
         uuid = self.ctx.sessionUuid
 
