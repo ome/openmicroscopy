@@ -78,6 +78,8 @@
             });
             var type_strings = [];
             for (var key in dtypes) {
+                key = key.replace("-locked", "");
+                if (key === "acquisition") key = "Plate Run";
                 type_strings.push(key.capitalize() + (dtypes[key]>1 && "s" || ""));
             }
             var type_str = type_strings.join(" & ");    // For delete dialog: E.g. 'Project & Datasets'
@@ -104,9 +106,12 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  OME.tree_selection_changed();   // clear center and right panels etc
+                                  OME.clear_selected(true);   // clear center and right panels etc
                                   datatree.delete_node(selected);
-                                  first_parent.children("a").click();
+                                  if (type_str.indexOf('Plate Run') === -1) {
+                                    // If not 'Run', then select parent. See ticket #12860
+                                    first_parent.children("a").click();
+                                  }
                                   OME.refreshActivities();
                               }
                         },
