@@ -133,18 +133,26 @@ class TempFileManager(object):
 
         # List target base directories by order of precedence
         targets = []
-        custom_tmpdir = os.environ.get("OMERO_TEMPDIR", None)
+        custom_tmpdir = os.environ.get('OMERO_TEMPDIR', None)
         if custom_tmpdir:
-            targets.append(path(custom_tmpdir) / "omero")
-        targets.append(get_omero_userdir())
-        targets.append(path(tempfile.gettempdir()) / "omero")
+            import warnings
+            warnings.warn(
+                "OMERO_TEMPDIR is deprecated. Use OMERO_TMPDIR instead.",
+                DeprecationWarning)
+            targets.append(path(custom_tmpdir) / "omero" / "tmp")
+        else:
+            custom_tmpdir = os.environ.get('OMERO_TMPDIR', None)
+            if custom_tmpdir:
+                targets.append(path(custom_tmpdir))
+
+        targets.append(get_omero_userdir() / "tmp")
+        targets.append(path(tempfile.gettempdir()) / "omero" / "tmp")
 
         # Handles existing files named tmp
         # See https://trac.openmicroscopy.org.uk/ome/ticket/2805
         for target in targets:
-            tmp_dir = target / "tmp"
-            if tmp_dir.exists() and not tmp_dir.isdir():
-                self.logger.debug("%s exists and is not a directory" % tmp_dir)
+            if target.exists() and not target.isdir():
+                self.logger.debug("%s exists and is not a directory" % target)
                 targets.remove(target)
 
         name = None
@@ -197,7 +205,7 @@ class TempFileManager(object):
         if choice is None:
             raise Exception("Could not find lockable tmp dir")
 
-        return choice / "tmp"
+        return choice
 
     def username(self):
         """
