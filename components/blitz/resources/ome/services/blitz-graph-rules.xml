@@ -228,9 +228,9 @@
         <bean parent="graphPolicyRule" p:matches="X:!ILink[E]/!d == [D]" p:changes="X:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="FA:FileAnnotation[E].file = [D]" p:changes="FA:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:!Job[E]{r}/!d" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:FileAnnotation[E]{r}/!o" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:TagAnnotation[E]{r}/!o" p:changes="C:{a}"/>
-        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].child = C:TermAnnotation[E]{r}/!o" p:changes="C:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="A:FileAnnotation[E]{r}/!o" p:changes="A:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="A:TagAnnotation[E]{r}/!o" p:changes="A:{a}"/>
+        <bean parent="graphPolicyRule" p:matches="A:TermAnnotation[E]{r}/!o" p:changes="A:{a}"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [E], L.child = C:!Pixels[E]{r}" p:changes="C:{a}"/>
         <bean parent="graphPolicyRule" p:matches="!ILink[E]{ia} = X:!ILink[E]{r}" p:changes="X:{a}"/>
         <bean parent="graphPolicyRule" p:matches="X:[E]{r} == [E]{a}" p:changes="X:{a}"/>
