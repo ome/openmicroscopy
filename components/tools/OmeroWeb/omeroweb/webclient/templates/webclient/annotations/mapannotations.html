@@ -96,6 +96,11 @@
                 $mapAnnotationSpinner = $(".mapAnnotationSpinner", $table.parent()),
                 tableData = [];
 
+            {% if index %}
+            // for wells, we need to know index
+            data['index'] = "{{ index }}";
+            {% endif %}
+
             $table.find('tbody tr').each(function() {
                 var rowData = getRowData($(this)),
                     k = rowData[0],

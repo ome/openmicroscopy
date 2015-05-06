@@ -1861,8 +1861,10 @@ def annotate_map(request, conn=None, **kwargs):
         ann.setValue(data)
         ann.setNs(omero.constants.metadata.NSCLIENTMAPANNOTATION)
         ann.save()
-        for objs in oids.values():
+        for k, objs in oids.items():
             for obj in objs:
+                if k == "well":
+                    obj = obj.getWellSample(obj.index).image()
                 obj.linkAnnotation(ann)
         annId = ann.getId()
     # Or update existing annotation
