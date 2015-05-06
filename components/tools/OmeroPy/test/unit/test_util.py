@@ -25,9 +25,12 @@ Test of various things under omero.util
 """
 
 import pytest
+from path import path
 
 from omero.util.text import CSVStyle, PlainStyle, TableBuilder
 from omero.util.upgrade_check import UpgradeCheck
+from omero.util.temp_files import manager
+from omero.util import get_user_dir
 from omero_version import omero_version
 
 
@@ -143,3 +146,27 @@ class TestUpgradeCheck(object):
         uc.run()
         assert uc.isUpgradeNeeded() is False
         assert uc.isExceptionThrown() is True
+
+
+class TestTempFileManager(object):
+
+    @pytest.mark.parametrize('environment', (
+        {'OMERO_USERDIR': None, 'OMERO_TEMPDIR': None},
+        {'OMERO_USERDIR': None, 'OMERO_TEMPDIR': 'tmpdir'},
+        {'OMERO_USERDIR': 'userdir', 'OMERO_TEMPDIR': None},
+        {'OMERO_USERDIR': 'userdir', 'OMERO_TEMPDIR': 'tmpdir'}))
+    def testTmpdirEnvironment(self, monkeypatch, tmpdir, environment):
+        for var in environment.keys():
+            if environment[var]:
+                monkeypatch.setenv(var, tmpdir / environment.get(var))
+            else:
+                monkeypatch.delenv(var, raising=False)
+
+        if environment.get('OMERO_TEMPDIR'):
+            basedir = tmpdir / environment.get('OMERO_TEMPDIR') / "omero"
+        elif environment.get('OMERO_USERDIR'):
+            basedir = tmpdir / environment.get('OMERO_USERDIR')
+        else:
+            basedir = path(get_user_dir()) / "omero"
+
+        assert manager.tmpdir() == str(basedir / "tmp")
