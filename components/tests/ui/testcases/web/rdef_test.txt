@@ -50,16 +50,12 @@ Wait For Image Panel
     ${imageId}=                             Get Text                    xpath=//tr[contains(@class, 'data_heading_id')]/td/strong
     [Return]                                ${imageId}
 
-Click Dialog OK
-    # Confirm dialog (make sure we pick the currently visible dialog)
-    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), 'OK')]
-
 Right Click Rendering Settings
     [Arguments]            ${treeId}        ${optionText}
     Open Context Menu                       xpath=//li[@id='${treeId}']/a
     Mouse Over                              xpath=//div[@id='vakata-contextmenu']//a[@rel='renderingsettings']
     Click Element                           xpath=//div[@id='vakata-contextmenu']//a[contains(text(), "${optionText}")]
-    Click Dialog OK
+    Click Dialog Button                     OK
 
 *** Test Cases ***
 

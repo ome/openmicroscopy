@@ -10,45 +10,6 @@ Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
-Test Delete Project
-    [Documentation]     Create and Delete a Project
-
-    Select Experimenter
-    ${pid}=                                 Create project      robot test delete
-    Click Element                           refreshButton
-    Wait Until Page Contains Element        id=project-${pid}
-    Click Element                           id=deleteButton
-    Wait Until Page Contains Element        id=delete-dialog-form
-    Click Element                           xpath=//button/span[contains(text(),'Yes')]
-    # On POST success, Experimenter should be selected and project removed from tree
-    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
-    Page Should Not Contain Element         id=project-${pid}
-
-
-Test Delete Project Dataset
-    [Documentation]     Create and Delete a Project containing a Dataset
-
-    # Clear any activities from earlier tests etc.
-    Click Element                           id=launch_activities
-    Click Element                           id=clear_activities
-    Select Experimenter
-    ${pid}=                                 Create project      robot test delete
-    ${did}=                                 Create Dataset      robot test deleteChildren
-    Click Element                           refreshButton
-    Wait Until Page Contains Element        id=project-${pid}
-    Click Element                           css=#project-${pid}>a
-    Click Element                           id=deleteButton
-    Wait Until Page Contains Element        id=delete-dialog-form
-    Click Element                           xpath=//button/span[contains(text(),'Yes')]
-    # Wait for activities to show job done, then refresh tree...
-    Wait Until Page Contains Element        xpath=//span[@id='jobstatus'][contains(text(),'1')]     20
-    Click Element                           refreshButton
-    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
-    Page Should Not Contain Element         id=project-${pid}
-    # Dataset should be Deleted too
-    Page Should Not Contain Element         id=dataset-${did}
-
-
 Test Edit Project
     [Documentation]     Create a Project and edit its name and description
 

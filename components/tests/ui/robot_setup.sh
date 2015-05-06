@@ -47,6 +47,13 @@ do
   done
 done
 
+# Create Dataset with images for deleting
+delDs=$(bin/omero obj new Dataset name='Delete')
+for (( k=1; k<=5; k++ ))
+do
+  bin/omero import -d $delDs test.fake --debug ERROR
+done
+
 # Logout
 bin/omero logout
 
