@@ -70,7 +70,11 @@ Download files
 {% block body %}
 
 <div class="center">
-<h1 style="font-size: 24px;">Download Files</h1>
+<h1 style="font-size: 24px;">
+    {% if fileLists %} Download Original Files
+    {% else %} Download Files
+    {% endif %}
+</h1>
 
 <form id="downloadForm">
 
