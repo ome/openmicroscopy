@@ -5603,10 +5603,14 @@ class _PlateWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         :rtype:     dict of {'rows': rSize, 'columns':cSize}
         """
         if self._gridSize is None:
-            r, c = 0, 0
-            for child in self._listChildren():
-                r, c = max(child.row.val, r), max(child.column.val, c)
-            self._gridSize = {'rows': r+1, 'columns': c+1}
+            q = self._conn.getQueryService()
+            params = omero.sys.ParametersI()
+            params.addId(self.getId())
+            query = "select max(row), max(column) from Well "\
+                    "where plate.id = :id"
+            res = q.projection(query, params, self._conn.SERVICE_OPTS)
+            (row, col) = res[0]
+            self._gridSize = {'rows': row.val+1, 'columns': col.val+1}
         return self._gridSize
 
     def getWellGrid(self, index=0):
