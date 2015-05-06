@@ -170,3 +170,23 @@ class TestTempFileManager(object):
             basedir = path(get_user_dir()) / "omero"
 
         assert manager.tmpdir() == str(basedir / "tmp")
+
+    def testTmpdir2805_1(self, monkeypatch, tmpdir):
+
+        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+        tmpfile = tmpdir / 'omero'
+        tmpfile.write('')
+
+        assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"
+
+    def testTmpdir2805_2(self, monkeypatch, tmpdir):
+
+        monkeypatch.setenv('OMERO_TEMPDIR', tmpdir)
+        monkeypatch.delenv('OMERO_USERDIR', raising=False)
+        tempdir = tmpdir / 'omero'
+        tempdir.mkdir()
+        tmpfile = tempdir / 'tmp'
+        tmpfile.write('')
+
+        assert manager.tmpdir() == path(get_user_dir()) / "omero" / "tmp"

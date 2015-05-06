@@ -145,7 +145,7 @@ class TempFileManager(object):
             tmp_dir = target / "tmp"
             if tmp_dir.exists() and not tmp_dir.isdir():
                 self.logger.debug("%s exists and is not a directory" % tmp_dir)
-                targets.pop(target)
+                targets.remove(target)
 
         name = None
         choice = None
