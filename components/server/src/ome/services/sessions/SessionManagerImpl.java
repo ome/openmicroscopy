@@ -1360,7 +1360,11 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             final List<Long> leaderOfGroupsIds = admin.getLeaderOfGroupIds(exp);
             final List<String> userRoles = admin.getUserRoles(exp);
             final Session reloaded = (Session)
-                    sf.getQueryService().get(Session.class, session.getId());
+                    sf.getQueryService().findByQuery(
+                            "select s from Session s "
+                            + "left outer join fetch s.annotationLinks l "
+                            + "left outer join fetch l.child a where s.id = :id",
+                            new Parameters().addId(session.getId()));
             list.add(exp);
             list.add(grp);
             list.add(memberOfGroupsIds);
