@@ -111,8 +111,18 @@ Other sessions commands:
     # List all local sessions
     $ bin/omero sessions list --no-purge
 
-    # List all active server sessions (admin-only)
+    # List all active server sessions
     $ bin/omero sessions who
+
+    # List or change the group for the session
+    $ bin/omero sessions group
+    $ bin/omero sessions group mygroup
+    $ bin/omero sessions group 123
+
+    # List or change the timeToLive for the session
+    $ bin/omero sessions timeout
+    $ bin/omero sessions timeout 300.0 # Seconds
+    $ bin/omero sessions timeout 300.0 --session=$UUID
 
 Custom sessions directory:
 
@@ -128,6 +138,10 @@ LISTHELP = """
 By default, inactive sessions are purged from the local sessions store and
 removed from the listing. To list all sessions stored locally independently of
 their status, use the --no-purge argument.
+"""
+
+GROUPHELP = """
+If any current services are open, the command will fail.
 """
 
 
@@ -174,7 +188,7 @@ class SessionsControl(BaseControl):
 
         group = parser.add(
             sub, self.group,
-            "Set the group of the current session by id or name")
+            "Set the group of the given session by id or name" + GROUPHELP)
         group.add_argument(
             "target",
             nargs="?",
@@ -233,7 +247,7 @@ class SessionsControl(BaseControl):
         parser.add_argument("--session-dir", help=SUPPRESS)
 
     def help(self, args):
-        self.ctx.err(LONGHELP % {"prog": args.prog})
+        self.ctx.out(LONGHELP % {"prog": args.prog})
 
     def login(self, args):
         ("Login to a given server, and store session key locally.\n\n"
