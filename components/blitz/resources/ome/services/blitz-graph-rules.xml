@@ -210,6 +210,7 @@
         <bean parent="graphPolicyRule" p:matches="L:ILink.parent = [D], L.child = C:Job[E]{o}" p:changes="C:[D]"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[E].parent = [E], L.child = C:[D]" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [D]" p:changes="L:[D]/n"/>
+        <bean parent="graphPolicyRule" p:matches="L:ILink[!D].parent = [D], L.child = [E]{a}" p:changes="L:[D]/n"/>
         <bean parent="graphPolicyRule" p:matches="L:ILink[!O]" p:changes="L:[-]"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.rois = [D]" p:changes="I:{a}"/>
         <bean parent="graphPolicyRule" p:matches="I:Image[E]{!a}.stageLabel = [D]" p:changes="I:{a}"/>
