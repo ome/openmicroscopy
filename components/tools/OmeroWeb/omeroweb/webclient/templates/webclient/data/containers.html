@@ -106,12 +106,16 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  OME.clear_selected(true);   // clear center and right panels etc
-                                  datatree.delete_node(selected);
-                                  if (type_str.indexOf('Plate Run') === -1) {
-                                    // If not 'Run', then select parent. See ticket #12860
+                                  // If deleting 'Plate Run', clear selection
+                                  if (type_str.indexOf('Plate Run') > -1) {
+                                    OME.clear_selected(true);
+                                  } else {
+                                    // otherwise, select parent
+                                    OME.tree_selection_changed();   // clear center and right panels etc
                                     first_parent.children("a").click();
                                   }
+                                  // remove node from tree
+                                  datatree.delete_node(selected);
                                   OME.refreshActivities();
                               }
                         },

@@ -1,0 +1,82 @@
+*** Settings ***
+Documentation     Tests delete of Projects, Datasets, Images
+
+Resource          ../../resources/config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+Suite Setup         Run Keywords  User "${USERNAME}" logs in with password "${PASSWORD}"  Maximize Browser Window
+Suite Teardown      Close all browsers
+
+
+*** Variables ***
+
+${thumbnailsXpath}      //ul[@id='dataIcons']//div[contains(@class, 'image')]
+
+
+*** Test Cases ***
+
+Test Delete Project
+    [Documentation]     Create and Delete a Project
+
+    Select Experimenter
+    ${pid}=                                 Create project      robot test delete
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=project-${pid}
+    Click Element                           id=deleteButton
+    Wait Until Element Is Visible           id=delete-dialog-form
+    Click Dialog Button                     Yes
+    # On POST success, Experimenter should be selected and project removed from tree
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
+    Page Should Not Contain Element         id=project-${pid}
+
+
+Test Delete Project Dataset
+    [Documentation]     Create and Delete a Project containing a Dataset
+
+    # Clear any activities from earlier tests etc.
+    Click Element                           id=launch_activities
+    Click Element                           id=clear_activities
+    Select Experimenter
+    ${pid}=                                 Create project      robot test delete
+    ${did}=                                 Create Dataset      robot test deleteChildren
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        id=project-${pid}
+    Click Element                           css=#project-${pid}>a
+    Click Element                           id=deleteButton
+    Wait Until Element Is Visible          id=delete-dialog-form
+    Click Dialog Button                     Yes
+    # Wait for activities to show job done, then refresh tree...
+    Wait Until Page Contains Element        xpath=//span[@id='jobstatus'][contains(text(),'1')]     20
+    Click Element                           refreshButton
+    Wait Until Page Contains Element        xpath=//li[@rel='experimenter']/a[contains(@class, 'jstree-clicked')]
+    Page Should Not Contain Element         id=project-${pid}
+    # Dataset should be Deleted too
+    Page Should Not Contain Element         id=dataset-${did}
+
+
+Test Delete Images in Dataset
+    [Documentation]     Deletes images pre-imported into a dataset named "Delete"
+
+    Select Experimenter
+    # Click on Dataset, wait for thumbnails and count them
+    Click Element                           xpath=//div[@id='dataTree']//li[contains(@rel, 'dataset')]/a[contains(text(), 'Delete')]
+    Wait Until Page Contains Element        id=dataIcons
+    ${thumbCount}=                          Get Matching Xpath Count     ${thumbnailsXpath}
+    # Click first image in Tree
+    Click Element                           xpath=//div[@id='dataTree']//li[contains(@rel, 'image')]/a
+    Click Element                           id=deleteButton
+    Wait Until Element Is Visible           id=delete-dialog-form
+    Click Dialog Button                     Yes
+    # Should see almost instant removal of 1 thumbnail...
+    ${delThumbCount}=                       Evaluate   ${thumbCount} - 1
+    Wait Until Keyword Succeeds             1   0.1   Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
+    # ...Need to check that centre panel doesn't reload and show image during delete: #12866
+    Sleep                                   5
+    Xpath Should Match X Times   ${thumbnailsXpath}   ${delThumbCount}
+
+
+
+
+
+

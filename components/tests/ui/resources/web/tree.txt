@@ -1,5 +1,10 @@
 *** Keywords ***
 
+Click Dialog Button
+    [Arguments]     ${buttonText}
+    # Confirm dialog (make sure we pick the currently visible dialog)
+    Click Element                           xpath=//div[contains(@class,'ui-dialog')][contains(@style,'display: block')]//button/span[contains(text(), '${buttonText}')]
+
 Xpath Should Have Class
     [Arguments]         ${identifier}   ${className}
     Page Should Contain Element    ${identifier}
