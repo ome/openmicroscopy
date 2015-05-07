@@ -195,7 +195,8 @@ class SessionsControl(BaseControl):
             help="Id or name of the group to switch this session to")
 
         timeout = parser.add(
-            sub, self.timeout, "Query or set the timeToIdle for the given session")
+            sub, self.timeout,
+            "Query or set the timeToIdle for the given session")
         timeout.add_argument(
             "seconds",
             nargs="?",
@@ -603,8 +604,7 @@ class SessionsControl(BaseControl):
         req.session = uuid
         req.timeToIdle = rlong(args.seconds * 1000)
         try:
-            cb = client.submit(req)
-            rsp = cb.getResponse()
+            cb = client.submit(req)  # Response is "OK"
             cb.close(True)
         except omero.CmdError, ce:
             self.ctx.dbg(str(ce.err))
@@ -612,7 +612,6 @@ class SessionsControl(BaseControl):
         except:
             self.ctx.dbg(traceback.format_exc())
             self.ctx.die(559, "cannot update timeout for %s" % uuid)
-
 
     def list(self, args):
         store = self.store(args)
