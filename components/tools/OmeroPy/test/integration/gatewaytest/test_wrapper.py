@@ -70,6 +70,7 @@ class TestWrapper(object):
         gatewaywrapper.loginAsAuthor()
         p = gatewaywrapper.getTestProject()
         pid = p.getId()
+        gid = p.getDetails().getGroup().getId()
         m = p.simpleMarshal()
         assert m['name'] == p.getName()
         assert m['description'] == p.getDescription()
@@ -92,21 +93,24 @@ class TestWrapper(object):
         # Verify canOwnerWrite
         gatewaywrapper.loginAsAdmin()
         gatewaywrapper.gateway.SERVICE_OPTS.setOmeroGroup('-1')
+        chmod = omero.cmd.Chmod2(targetObjects={'ExperimenterGroup': [gid]})
         p = gatewaywrapper.gateway.getObject('project', pid)
-        g = p.getDetails().getGroup()
-        perms = str(g.getDetails().permissions)
-        chmod = omero.cmd.Chmod(
-            type="/ExperimenterGroup", id=g.id, permissions='rw' + perms[2:])
+        perms = str(p.getDetails().getGroup().getDetails().permissions)
+
+        # try making the group writable by owner
+        chmod.permissions = 'rw' + perms[2:]
         gatewaywrapper.gateway.c.submit(chmod)
         p = gatewaywrapper.gateway.getObject('project', pid)
         assert p.canOwnerWrite() is True
-        chmod = omero.cmd.Chmod(
-            type="/ExperimenterGroup", id=g.id, permissions='r-' + perms[2:])
+
+        # try making the group not writable by owner
+        chmod.permissions = 'r-' + perms[2:]
         gatewaywrapper.gateway.c.submit(chmod)
         p = gatewaywrapper.gateway.getObject('project', pid)
         assert p.canOwnerWrite() is False
-        chmod = omero.cmd.Chmod(
-            type="/ExperimenterGroup", id=g.id, permissions=perms)
+
+        # put the group back as it was
+        chmod.permissions = perms
         gatewaywrapper.gateway.c.submit(chmod)
 
     def testDatasetWrapper(self, gatewaywrapper, author_testimg):
