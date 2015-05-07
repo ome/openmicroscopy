@@ -3859,7 +3859,7 @@ class _BlitzGateway (object):
             raise AttributeError(
                 "Graph specs containing '+'' no longer supported: '%s'"
                 % graph_spec)
-        if not isinstance(obj_ids, list) and len(obj_ids) < 1:
+        if not isinstance(obj_ids, list) or len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
         graph = graph_spec.lstrip('/').split('/')
@@ -3948,6 +3948,8 @@ class _BlitzGateway (object):
             raise AttributeError(
                 "Graph specs containing '+'' no longer supported: '%s'"
                 % graph_spec)
+        if not isinstance(obj_ids, list) or len(obj_ids) < 1:
+            raise AttributeError('Must be a list of object IDs')
 
         graph = graph_spec.lstrip('/').split('/')
         obj_ids = map(long, obj_ids)
