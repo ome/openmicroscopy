@@ -36,12 +36,16 @@ import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.Instrument;
+import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
@@ -519,5 +523,54 @@ public class HierarchyDeleteTest extends AbstractServerTest {
         }
         Assert.assertTrue(CollectionUtils.isEqualCollection(actualIds, expectedIds),
                 "persisted entities not as expected: " + entityClass);
+    }
+
+    /**
+     * Test to delete a dataset containing an image whose projection is not in the dataset.
+     * The image should be deleted, but not its projection.
+     * @throws Exception unexpected
+     */
+    @Test(groups = {"ticket:12856", "broken"})
+    public void testDeletingDatasetWithProjectedImage() throws Exception {
+        newUserAndGroup("rw----");
+
+        /* create a dataset */
+        Dataset dataset = new DatasetI();
+        dataset.setName(omero.rtypes.rstring("ticket #12856"));
+        dataset = (Dataset) iUpdate.saveAndReturnObject(dataset).proxy();
+
+        /* create an instrument */
+        Instrument instrument = mmFactory.createInstrument();
+        instrument = (Instrument) iUpdate.saveAndReturnObject(instrument).proxy();
+
+        /* the original and its projection are related and share an instrument */
+        Image original = mmFactory.createImage();
+        original.setInstrument(instrument);
+        original = (Image) iUpdate.saveAndReturnObject(original);
+        Image projection = mmFactory.createImage();
+        projection.setInstrument(instrument);
+        projection.getPrimaryPixels().setRelatedTo((Pixels) original.getPrimaryPixels().proxy());
+        projection = (Image) iUpdate.saveAndReturnObject(projection);
+
+        original = (Image) original.proxy();
+        projection = (Image) projection.proxy();
+
+        /* only the original is in the dataset */
+        final DatasetImageLink link = new DatasetImageLinkI();
+        link.setParent(dataset);
+        link.setChild(original);
+        iUpdate.saveAndReturnObject(link);
+
+        /* delete the dataset */
+        final Delete2 delete = new Delete2();
+        delete.targetObjects = ImmutableMap.<String, List<Long>>of(
+                Dataset.class.getSimpleName(),
+                Collections.singletonList(dataset.getId().getValue()));
+        callback(true, client, delete);
+
+        /* check what is left afterward */
+        assertDoesNotExist(dataset);
+        assertDoesNotExist(original);  // FIXME: still exists!
+        assertExists(projection);
     }
 }
