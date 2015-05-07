@@ -120,7 +120,7 @@ class TempFileManager(object):
         """
         Returns a platform-specific user-writable temporary directory
 
-        First, the value of "OMERO_TEMPDIR" is attempted (if available),
+        First, the value of "OMERO_TMPDIR" is attempted (if available),
         then user's home directory, then the global temp director.
 
         Typical errors for any of the possible temp locations are:
