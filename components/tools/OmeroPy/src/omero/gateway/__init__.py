@@ -902,7 +902,7 @@ class BlitzObjectWrapper (object):
             a = al.child
             ids.append(a.id.val)
         if len(ids):
-            handle = self._conn.deleteObjects('/Annotation', ids)
+            handle = self._conn.deleteObjects('Annotation', ids)
             try:
                 self._conn._waitOnCmd(handle)
             finally:
@@ -8191,7 +8191,7 @@ class _ImageWrapper (BlitzObjectWrapper, OmeroRestrictionWrapper):
         for chunk in ofw.getFileInChunks():
             outfile.write(chunk)
         outfile.close()
-        handle = self._conn.deleteObjects('/OriginalFile', todel)
+        handle = self._conn.deleteObjects('OriginalFile', todel)
         try:
             self._conn._waitOnCmd(handle)
         finally:
