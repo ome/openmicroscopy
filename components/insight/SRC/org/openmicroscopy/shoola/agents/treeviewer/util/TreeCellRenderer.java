@@ -31,7 +31,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -397,7 +396,7 @@ public class TreeCellRenderer
     private long userId;
 
     /** The component of reference.*/
-    private JComponent ref;
+    private JScrollPane ref;
 
     /** The node to display.*/
     private TreeImageDisplay node;
@@ -748,7 +747,7 @@ public class TreeCellRenderer
     public void paintComponent(Graphics g)
     {
         if (ref == null) {
-            ref = (JComponent) UIUtilities.findParent(this, JScrollPane.class);
+            ref = (JScrollPane) UIUtilities.findParent(this, JScrollPane.class);
         }
     	if (isTargetNode) {
 			if (!droppedAllowed) {
@@ -759,7 +758,7 @@ public class TreeCellRenderer
 			g.fillRect(xText, 0, getSize().width, getSize().height);
 		}
     	if (ref != null) {
-    	    int w = ref.getSize().width;
+    	    int w = ref.getViewport().getSize().width;
             FontMetrics fm = getFontMetrics(getFont());
             String text = node.getNodeName();
             int v = fm.stringWidth(text+UIUtilities.DOTS);
@@ -771,7 +770,7 @@ public class TreeCellRenderer
                         (int) (w/charWidth));
                 setText(value);
                 w = getPreferredWidth();
-                setPreferredSize(new Dimension(w, fm.getHeight()+4));
+                setSize(new Dimension(w, fm.getHeight()+4));
             }
     	}
     	selected = false;
