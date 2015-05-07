@@ -3841,7 +3841,6 @@ class _BlitzGateway (object):
                                 * 'Well'
                                 * 'Annotation'
                                 * 'OriginalFile'
-                                * 'Image+Only'
                                 * 'Image/Pixels/Channel'
 
                                 As of OMERO 4.4.0 the correct case is now
@@ -3856,6 +3855,10 @@ class _BlitzGateway (object):
         :rtype:                 :class:`omero.api.delete.DeleteHandle`
         """
 
+        if '+' in graph_spec:
+            raise AttributeError(
+                "Graph specs containing '+'' no longer supported: '%s'"
+                % graph_spec)
         if not isinstance(obj_ids, list) and len(obj_ids) < 1:
             raise AttributeError('Must be a list of object IDs')
 
@@ -3940,6 +3943,11 @@ class _BlitzGateway (object):
         :param obj_ids:         IDs for the objects to move.
         :param group_id:        The group to move the data to.
         """
+
+        if '+' in graph_spec:
+            raise AttributeError(
+                "Graph specs containing '+'' no longer supported: '%s'"
+                % graph_spec)
 
         graph = graph_spec.lstrip('/').split('/')
         obj_ids = map(long, obj_ids)
